@@ -56,8 +56,8 @@ export class UiIniciarSesion implements InterUiIniciarSesion {
 
   login(email: string, password: string): void {
     // Lógica para iniciar sesión
-    window.alert("Click a plantilla iniciar sesión");
-    console.log(`Iniciando sesión con email: ${email} y contraseña: ${password}`);
+    window.alert("old Click a plantilla iniciar sesión");
+    console.log(`old Iniciando sesión con email: ${email} y contraseña: ${password}`);
   }
 
   irCrearCuenta(): void {

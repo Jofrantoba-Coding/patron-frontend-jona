@@ -9,8 +9,8 @@ export class UiIniciarSesionImpl extends UiIniciarSesion {
 
   // Sobrescribir el método de inicio de sesión
   login(email: string, password: string): void {
-    window.alert("Click a iniciar sesión");
-    console.log(`Iniciando sesión desde la clase de implementación con email: ${email} y contraseña: ${password}`);
+    window.alert("new Click a iniciar sesión");
+    console.log(`new Iniciando sesión desde la clase de implementación con email: ${email} y contraseña: ${password}`);
     // Aquí puedes agregar la lógica específica de inicio de sesión, como enviar una solicitud al servidor
   }
 
