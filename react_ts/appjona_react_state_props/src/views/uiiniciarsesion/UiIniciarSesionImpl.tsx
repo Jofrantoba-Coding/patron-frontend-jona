@@ -1,8 +1,18 @@
 //UiIniciarSesionImpl.tsx
 import { UiIniciarSesion } from './UiIniciarSesion';
+import { UiIniciarSesionProps } from './UiIniciarSesionProps';
 
 // Clase de implementación que hereda de la clase plantilla UiIniciarSesion
 export class UiIniciarSesionImpl extends UiIniciarSesion {
+
+  constructor(props: UiIniciarSesionProps) {
+    super(props);
+  }
+
+  componentDidMount() {
+    // Código que necesita ejecutarse después de que el componente se monte.
+    console.log('UiIniciarSesionImpl se ha montado');
+  }
 
   // Sobrescribir el método de inicio de sesión
   login(email: string, password: string): void {
@@ -30,4 +40,13 @@ export class UiIniciarSesionImpl extends UiIniciarSesion {
     return true
   }
   
+  render(): JSX.Element {
+    return (
+      <UiIniciarSesion
+        login={this.login}
+        irCrearCuenta={this.irCrearCuenta}
+        irRecuperarClave={this.irRecuperarClave}
+      />
+    );
+  }
 }

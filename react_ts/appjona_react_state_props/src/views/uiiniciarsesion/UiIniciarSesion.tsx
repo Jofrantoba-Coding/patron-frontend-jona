@@ -1,18 +1,28 @@
 //UiIniciarSesion.tsx
-import React, { Component,createRef    } from 'react';
-import { InterUiIniciarSesion } from './InterUiIniciarSesion';
+import React, { Component    } from 'react';
+import { UiIniciarSesionProps } from './UiIniciarSesionProps';
+import { UiIniciarSesionState } from './UiIniciarSesionState';
 
-export class UiIniciarSesion extends Component implements InterUiIniciarSesion {
-  private txtEmailRef = createRef  <HTMLInputElement>();
-  private txtPasswordRef = createRef  <HTMLInputElement>();
+export class UiIniciarSesion extends Component<UiIniciarSesionProps, UiIniciarSesionState> {
+  
+  componentDidMount() {
+    // Código que necesita ejecutarse después de que el componente se monte.
+    console.log('UiIniciarSesion se ha montado');
+  }
 
-  handlerLogin = () => {
-    //const { email, password } = this.state;
-    console.log(this.txtEmailRef.current?.value);
-    console.log(this.txtPasswordRef.current?.value);
-    var email=this.txtEmailRef.current?.value;
-    var password=this.txtPasswordRef.current?.value;
-    this.login(email, password);
+  state: UiIniciarSesionState = {
+    email: '',
+    password: '',
+  };
+
+  handlerLogin = (event: React.FormEvent) => {
+    event.preventDefault();
+    const { email, password } = this.state;
+    if (this.isValidData(email, password)) {
+      this.props.login(email, password);
+    } else {
+      window.alert('Por favor, complete ambos campos.');
+    }
   }
 
   login(email: string, password: string): void {
@@ -37,15 +47,15 @@ export class UiIniciarSesion extends Component implements InterUiIniciarSesion {
   }
 
   handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //this.setState({ email: e.target.value });
+    this.setState({ email: e.target.value });
   };
 
   handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //this.setState({ password: e.target.value });
+    this.setState({ password: e.target.value });
   };
 
   render() {
-    //const { email, password } = this.state;
+    const { email, password } = this.state;
 
     return (
       <div className="max-w-sm mx-auto p-4">
@@ -57,7 +67,8 @@ export class UiIniciarSesion extends Component implements InterUiIniciarSesion {
               required              
               id="txtEmail"
               type="email"
-              ref={this.txtEmailRef}
+              value={email}
+              onChange={this.handleEmailChange}
             />
           </div>
           <div className="grid w-full items-center">
@@ -67,7 +78,8 @@ export class UiIniciarSesion extends Component implements InterUiIniciarSesion {
               required              
               id="txtPassword"
               type="password"
-              ref={this.txtPasswordRef}
+              value={password}
+              onChange={this.handlePasswordChange}
             />
           </div>
           <div className="w-full">
