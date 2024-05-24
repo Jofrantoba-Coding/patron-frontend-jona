@@ -1,13 +1,8 @@
 //UiIniciarSesionImpl.tsx
 import { UiIniciarSesion } from './UiIniciarSesion';
-import { UiIniciarSesionProps } from './UiIniciarSesionProps';
 
 // Clase de implementación que hereda de la clase plantilla UiIniciarSesion
 export class UiIniciarSesionImpl extends UiIniciarSesion {
-
-  constructor(props: UiIniciarSesionProps) {
-    super(props);
-  }
 
   componentDidMount() {
     // Código que necesita ejecutarse después de que el componente se monte.

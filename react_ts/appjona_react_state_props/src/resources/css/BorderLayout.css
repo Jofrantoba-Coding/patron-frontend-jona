@@ -1,0 +1,30 @@
+body, html {
+  font-family: 'Roboto', sans-serif;  
+}
+.border-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.border-layout-north,
+.border-layout-south {
+  flex: 0 1 auto;
+  text-align: center;
+  font-size: 1.5em;
+}
+
+.border-layout-middle {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.border-layout-west,
+.border-layout-east {
+  flex: 0 1 auto;
+}
+
+.border-layout-center {
+  flex: 1 1 auto;
+  overflow: auto;
+}
