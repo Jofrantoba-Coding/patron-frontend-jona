@@ -34,7 +34,7 @@ export class UiIniciarSesionImpl extends UiIniciarSesion {
     console.log('password:', password)
     return true
   }
-  
+  /*
   render(): JSX.Element {
     return (
       <UiIniciarSesion
@@ -43,5 +43,5 @@ export class UiIniciarSesionImpl extends UiIniciarSesion {
         irRecuperarClave={this.irRecuperarClave}
       />
     );
-  }
+  }*/
 }

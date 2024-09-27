@@ -19,26 +19,26 @@ export class UiIniciarSesion extends Component<UiIniciarSesionProps, UiIniciarSe
     event.preventDefault();
     const { email, password } = this.state;
     if (this.isValidData(email, password)) {
-      this.props.login(email, password);
+      this.login(email, password);
     } else {
-      window.alert('Por favor, complete ambos campos.');
+      window.alert('Por favor, complete ambos campos. plantilla');
     }
   }
 
   login(email: string, password: string): void {
     // Lógica para iniciar sesión
-    window.alert("Click a plantilla iniciar sesión");
-    console.log(`Iniciando sesión con email: ${email} y contraseña: ${password}`);
+    window.alert("Click a plantilla iniciar sesión plantilla");
+    //console.log(`Iniciando sesión con email: ${email} y contraseña: ${password}`);
   }
 
   irCrearCuenta(): void {
     // Lógica para ir a la página de creación de cuenta
-    console.log('Navegando a la página de creación de cuenta');
+    console.log('Navegando a la página de creación de cuenta plantilla');
   }
 
   irRecuperarClave(): void {
     // Lógica para ir a la página de recuperación de contraseña
-    console.log('Navegando a la página de recuperación de contraseña');
+    console.log('Navegando a la página de recuperación de contraseña plantilla');
   }
 
   isValidData(email: string, password: string): boolean {
