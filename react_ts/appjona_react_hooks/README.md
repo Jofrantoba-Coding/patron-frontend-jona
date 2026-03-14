@@ -1,50 +1,34 @@
-# React + TypeScript + Vite
+# appjona_react_hooks
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Implementación del patrón JONA en React con functional components y hooks.
 
-Currently, two official plugins are available:
+## Descripción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Esta demo adapta el patrón JONA al paradigma funcional de React. En lugar de herencia de clases, la extensión se logra mediante composición de hooks: el hook de implementación consume el hook plantilla y sobreescribe los métodos que necesita.
 
-## Expanding the ESLint configuration
+## Patrón JONA aplicado
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+| Archivo | Rol |
+|---|---|
+| `InterUiIniciarSesion.tsx` | Interfaz — define el contrato de métodos |
+| `UiIniciarSesion.tsx` | Hook plantilla + componente visual — `useUiIniciarSesion` y `UiIniciarSesion` |
+| `UiIniciarSesionImpl.tsx` | Hook implementación — `useUiIniciarSesionImpl`, solo métodos, sin JSX |
 
-- Configure the top-level `parserOptions` property like this:
+## Cómo funciona
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+`useUiIniciarSesion` provee el estado (`email`, `password`) y los métodos base. `useUiIniciarSesionImpl` llama al hook plantilla internamente y sobreescribe los métodos de negocio mediante spread. El componente visual `UiIniciarSesion` es un functional component puro que recibe todo por props. `UiHome` orquesta: instancia el hook de implementación e inyecta sus métodos en el componente visual.
+
+```
+useUiIniciarSesionImpl
+  └── useUiIniciarSesion   (estado base)
+        └── UiIniciarSesion (UI)
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Levantar el proyecto
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm install
+npm run dev
 ```
+
+Abrir: `http://localhost:5173/login`

@@ -1,30 +1,28 @@
-# React + TypeScript + Vite
+# appjona_react_state_props
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Implementación del patrón JONA en React con class components usando `state` y `props`.
 
-Currently, two official plugins are available:
+## Descripción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Esta demo evoluciona el patrón hacia inputs controlados. El estado del formulario vive en el componente (`setState`) y los métodos de la interfaz se tipan como props, lo que permite inyectarlos desde afuera.
 
-## Expanding the ESLint configuration
+## Patrón JONA aplicado
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+| Archivo | Rol |
+|---|---|
+| `InterUiIniciarSesion.tsx` | Interfaz — define el contrato de métodos |
+| `UiIniciarSesionProps.tsx` | Tipo de props — extiende la interfaz |
+| `UiIniciarSesionState.tsx` | Tipo de estado — email y password |
+| `UiIniciarSesion.tsx` | Clase plantilla — class component con state/props y render |
+| `UiIniciarSesionImpl.tsx` | Clase implementación — sobreescribe los métodos de negocio |
 
-- Configure the top-level `parserOptions` property like this:
+## Cómo funciona
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+La clase plantilla extiende `Component<Props, State>` y maneja los cambios del formulario con `setState`. La clase de implementación extiende la plantilla y sobreescribe los métodos sin modificar el render ni el estado.
+
+## Levantar el proyecto
+
+```bash
+npm install
+npm run dev
 ```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
