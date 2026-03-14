@@ -4,7 +4,7 @@ Implementación del patrón JONA en React con class components usando `state` y 
 
 ## Descripción
 
-Esta demo evoluciona el patrón hacia inputs controlados. El estado del formulario vive en el componente (`setState`) y los métodos de la interfaz se tipan como props, lo que permite inyectarlos desde afuera.
+Evoluciona el patrón hacia inputs controlados. El estado del formulario vive en el componente (`setState`) y los métodos de la interfaz se tipan como props, lo que permite inyectarlos desde afuera.
 
 ## Patrón JONA aplicado
 
@@ -16,9 +16,105 @@ Esta demo evoluciona el patrón hacia inputs controlados. El estado del formular
 | `UiIniciarSesion.tsx` | Clase plantilla — class component con state/props y render |
 | `UiIniciarSesionImpl.tsx` | Clase implementación — sobreescribe los métodos de negocio |
 
-## Cómo funciona
+## Implementación
 
-La clase plantilla extiende `Component<Props, State>` y maneja los cambios del formulario con `setState`. La clase de implementación extiende la plantilla y sobreescribe los métodos sin modificar el render ni el estado.
+### 1. Interfaz
+
+```ts
+// InterUiIniciarSesion.tsx
+export interface InterUiIniciarSesion {
+  login: (email: string, password: string) => void;
+}
+```
+
+### 2. Props y State
+
+```ts
+// UiIniciarSesionProps.tsx
+export interface UiIniciarSesionProps extends InterUiIniciarSesion {
+  irCrearCuenta: () => void;
+  irRecuperarClave: () => void;
+}
+
+// UiIniciarSesionState.tsx
+export interface UiIniciarSesionState {
+  email: string;
+  password: string;
+}
+```
+
+### 3. Clase plantilla
+
+Extiende `Component<Props, State>`, maneja los cambios del formulario con `setState` y define el comportamiento base.
+
+```tsx
+// UiIniciarSesion.tsx
+export class UiIniciarSesion extends Component<UiIniciarSesionProps, UiIniciarSesionState> {
+  state: UiIniciarSesionState = { email: '', password: '' };
+
+  handlerLogin = (event: React.FormEvent) => {
+    event.preventDefault();
+    const { email, password } = this.state;
+    if (this.isValidData(email, password)) {
+      this.login(email, password);
+    }
+  }
+
+  login(email: string, password: string): void {
+    window.alert('Click a plantilla iniciar sesión');
+  }
+
+  irCrearCuenta(): void { /* lógica base */ }
+  irRecuperarClave(): void { /* lógica base */ }
+  isValidData(email: string, password: string): boolean {
+    return email !== '' && password !== '';
+  }
+
+  handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ email: e.target.value });
+  };
+
+  render() {
+    const { email, password } = this.state;
+    return (
+      <form>
+        <input type="email" value={email} onChange={this.handleEmailChange} />
+        <input type="password" value={password} onChange={...} />
+        <button onClick={this.handlerLogin}>Login</button>
+      </form>
+    );
+  }
+}
+```
+
+### 4. Clase implementación
+
+Extiende la plantilla y sobreescribe los métodos. No modifica el `render` ni el `state`.
+
+```ts
+// UiIniciarSesionImpl.tsx
+export class UiIniciarSesionImpl extends UiIniciarSesion {
+
+  login(email: string, password: string): void {
+    window.alert('New Click a iniciar sesión');
+    console.log(`Implementación — email: ${email}, password: ${password}`);
+  }
+
+  irCrearCuenta(): void {
+    window.alert('Click a ir a cuenta');
+  }
+
+  irRecuperarClave(): void {
+    window.alert('Click a ir a recuperar clave');
+  }
+
+  isValidData(email: string, password: string): boolean {
+    console.log('email:', email);
+    console.log('password:', password);
+    return true;
+  }
+}
+```
 
 ## Levantar el proyecto
 
