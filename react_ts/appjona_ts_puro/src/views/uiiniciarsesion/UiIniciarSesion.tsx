@@ -1,13 +1,13 @@
 // UiIniciarSesion.tsx
+// Template class — implements the login interface using vanilla DOM
 import { InterUiIniciarSesion } from './InterUiIniciarSesion';
 
-// Clase plantilla que implementa la interfaz de inicio de sesión
 export class UiIniciarSesion implements InterUiIniciarSesion {
-  private emailInput: HTMLInputElement;
-  private passwordInput: HTMLInputElement;
-  private loginButton: HTMLButtonElement;
-  private crearCuentaButton: HTMLButtonElement;
-  private recuperarClaveButton: HTMLButtonElement;
+  private emailInput!: HTMLInputElement;
+  private passwordInput!: HTMLInputElement;
+  private loginButton!: HTMLButtonElement;
+  private createAccountButton!: HTMLButtonElement;
+  private recoverPasswordButton!: HTMLButtonElement;
 
   constructor() {
     this.initializeUI();
@@ -15,63 +15,63 @@ export class UiIniciarSesion implements InterUiIniciarSesion {
   }
 
   private initializeUI(): void {
-    // Crear elementos HTML para la interfaz de inicio de sesión
+    // Create HTML elements for the login form
     const form = document.createElement('form');
     const emailLabel = document.createElement('label');
     const passwordLabel = document.createElement('label');
     this.emailInput = document.createElement('input');
     this.passwordInput = document.createElement('input');
     this.loginButton = document.createElement('button');
-    this.crearCuentaButton = document.createElement('button');
-    this.recuperarClaveButton = document.createElement('button');
+    this.createAccountButton = document.createElement('button');
+    this.recoverPasswordButton = document.createElement('button');
 
-    // Configurar atributos y texto para los elementos
+    // Set attributes and text for the elements
     emailLabel.textContent = 'Email:';
-    passwordLabel.textContent = 'Contraseña:';
+    passwordLabel.textContent = 'Password:';
     this.emailInput.type = 'email';
     this.passwordInput.type = 'password';
-    this.loginButton.textContent = 'Iniciar sesión';
-    this.crearCuentaButton.textContent = 'Crear cuenta';
-    this.recuperarClaveButton.textContent = 'Recuperar contraseña';
+    this.loginButton.textContent = 'Login';
+    this.createAccountButton.textContent = 'Create account';
+    this.recoverPasswordButton.textContent = 'Recover password';
 
-    // Agregar elementos al formulario
+    // Append elements to the form
     form.appendChild(emailLabel);
     form.appendChild(this.emailInput);
     form.appendChild(passwordLabel);
     form.appendChild(this.passwordInput);
     form.appendChild(this.loginButton);
-    form.appendChild(this.crearCuentaButton);
-    form.appendChild(this.recuperarClaveButton);
+    form.appendChild(this.createAccountButton);
+    form.appendChild(this.recoverPasswordButton);
 
-    // Agregar formulario al cuerpo del documento
+    // Append form to the document body
     document.body.appendChild(form);
   }
 
   private setupEventListeners(): void {
-    // Agregar escuchadores de eventos para los botones
+    // Attach event listeners to the buttons
     this.loginButton.addEventListener('click', () => this.login(this.emailInput.value, this.passwordInput.value));
-    this.crearCuentaButton.addEventListener('click', () => this.irCrearCuenta());
-    this.recuperarClaveButton.addEventListener('click', () => this.irRecuperarClave());
+    this.createAccountButton.addEventListener('click', () => this.goToCreateAccount());
+    this.recoverPasswordButton.addEventListener('click', () => this.goToRecoverPassword());
   }
 
   login(email: string, password: string): void {
-    // Lógica para iniciar sesión
-    window.alert("old Click a plantilla iniciar sesión");
-    console.log(`old Iniciando sesión con email: ${email} y contraseña: ${password}`);
+    // Template login logic
+    window.alert('Template — login clicked');
+    console.log(`Template — email: ${email}, password: ${password}`);
   }
 
-  irCrearCuenta(): void {
-    // Lógica para ir a la página de creación de cuenta
-    console.log('Navegando a la página de creación de cuenta');
+  goToCreateAccount(): void {
+    // Template navigation logic
+    console.log('Template — navigating to create account');
   }
 
-  irRecuperarClave(): void {
-    // Lógica para ir a la página de recuperación de contraseña
-    console.log('Navegando a la página de recuperación de contraseña');
+  goToRecoverPassword(): void {
+    // Template navigation logic
+    console.log('Template — navigating to recover password');
   }
 
   isValidData(email: string, password: string): boolean {
-    // Lógica para validar los datos de inicio de sesión
+    // Template validation logic
     return email !== '' && password !== '';
   }
 }

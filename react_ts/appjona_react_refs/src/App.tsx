@@ -3,8 +3,8 @@ import ProtectedRoute from './protectedRoute'
 import { UiIniciarSesionImpl } from './views/uiiniciarsesion/UiIniciarSesionImpl';
 import { UiHomePageImpl } from './views/UiHomePage/UiHomePage.implement';
 
-const uiIniciarSesionImpl = new UiIniciarSesionImpl();
-const uiHomePageImpl = new UiHomePageImpl();
+const uiIniciarSesionImpl = new UiIniciarSesionImpl({});
+const uiHomePageImpl = new UiHomePageImpl({});
 
 const App = () => {
   return (

@@ -1,8 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { UiHome } from './views/uihome/UiHome';
 
-const uiHome = new UiHome();
-
 const App = () => {
   return (
     <BrowserRouter>
