@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { UiHome } from './views/uihome/UiHome';
+import { UiHomeView } from './views/uihome/UiHomeView';
 import { UiHomeSessionView } from './views/uihomesesion/UiHomeSessionView';
 import ProtectedRoute from './protectedRoute';
 
@@ -7,7 +7,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/login' element={<UiHome />} />
+        <Route path='/login' element={<UiHomeView />} />
         <Route path='/' element={<ProtectedRoute />}>
           <Route path='/homesesion' element={<UiHomeSessionView />} />
         </Route>
