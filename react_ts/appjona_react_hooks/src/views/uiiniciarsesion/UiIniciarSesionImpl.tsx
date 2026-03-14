@@ -1,6 +1,6 @@
 // UiIniciarSesionImpl.tsx
-// Hook de implementación — trabajo del integrador
-// Solo métodos, sin código de interfaz gráfica
+// Implementation hook — integrator's responsibility
+// Methods only, no UI code
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUiIniciarSesion } from './UiIniciarSesion';
@@ -12,35 +12,37 @@ export function useUiIniciarSesionImpl() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('useUiIniciarSesionImpl montado (implementación)');
+    console.log('useUiIniciarSesionImpl mounted (implementation)');
   }, []);
 
-  // Sobreescribir login — llama al AuthService (mock)
+  // Override login — calls AuthService (mock)
   function login(email: string, password: string): void {
     AuthService.login(email, password)
       .then((response) => {
-        console.log('Login exitoso:', response);
-        // Guarda el token y datos del usuario en localStorage
+        console.log('Login successful:', response);
+        // Save token and user data to localStorage
         localStorage.setItem('jona_authenticated', 'true');
         localStorage.setItem('jona_token', response.token);
         localStorage.setItem('jona_user', JSON.stringify(response.user));
-        // Navega a la vista de sesión
+        // Navigate to session view
         navigate('/homesesion');
       })
       .catch((error) => {
-        console.error('Login fallido:', error);
+        console.error('Login failed:', error);
         window.alert(error.message);
       });
   }
 
-  function irCrearCuenta(): void {
-    window.alert('Click a ir a cuenta');
-    console.log('Implementación — navegando a crear cuenta');
+  // Override goToCreateAccount
+  function goToCreateAccount(): void {
+    window.alert('Go to create account');
+    console.log('Implementation — navigating to create account');
   }
 
-  function irRecuperarClave(): void {
-    window.alert('Click a ir a recuperar clave');
-    console.log('Implementación — navegando a recuperar clave');
+  // Override goToRecoverPassword
+  function goToRecoverPassword(): void {
+    window.alert('Go to recover password');
+    console.log('Implementation — navigating to recover password');
   }
 
   function isValidData(email: string, password: string): boolean {
@@ -52,26 +54,26 @@ export function useUiIniciarSesionImpl() {
     if (isValidData(base.email, base.password)) {
       login(base.email, base.password);
     } else {
-      window.alert('Por favor, complete ambos campos.');
+      window.alert('Please fill in both fields.');
     }
   }
 
-  function handlerCrearCuenta(): void {
-    irCrearCuenta();
+  function handlerGoToCreateAccount(): void {
+    goToCreateAccount();
   }
 
-  function handlerRecuperarClave(): void {
-    irRecuperarClave();
+  function handlerGoToRecoverPassword(): void {
+    goToRecoverPassword();
   }
 
   return {
     ...base,
     login,
-    irCrearCuenta,
-    irRecuperarClave,
+    goToCreateAccount,
+    goToRecoverPassword,
     isValidData,
     handlerLogin,
-    handlerCrearCuenta,
-    handlerRecuperarClave,
+    handlerGoToCreateAccount,
+    handlerGoToRecoverPassword,
   };
 }

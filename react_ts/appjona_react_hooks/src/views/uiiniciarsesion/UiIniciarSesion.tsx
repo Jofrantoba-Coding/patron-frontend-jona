@@ -1,38 +1,38 @@
 // UiIniciarSesion.tsx
-// Hook plantilla + componente visual de la vista de inicio de sesión
+// Template hook + visual component for the login view
 import { useState, useEffect } from 'react';
 import { InterUiIniciarSesion } from './InterUiIniciarSesion';
 import React from 'react';
 
-// Hook plantilla — provee estado y métodos base
+// Template hook — provides state and base methods
 export function useUiIniciarSesion(): InterUiIniciarSesion & {
   email: string;
   password: string;
   setEmail: (v: string) => void;
   setPassword: (v: string) => void;
   handlerLogin: (e: React.FormEvent) => void;
-  handlerCrearCuenta: () => void;
-  handlerRecuperarClave: () => void;
+  handlerGoToCreateAccount: () => void;
+  handlerGoToRecoverPassword: () => void;
 } {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    // Equivalente a componentDidMount — plantilla
-    console.log('useUiIniciarSesion montado (plantilla)');
+    // Equivalent to componentDidMount — template
+    console.log('useUiIniciarSesion mounted (template)');
   }, []);
 
   function login(email: string, password: string): void {
-    window.alert('Click a plantilla iniciar sesión');
-    console.log(`Plantilla — email: ${email}, password: ${password}`);
+    window.alert('Template — login clicked');
+    console.log(`Template — email: ${email}, password: ${password}`);
   }
 
-  function irCrearCuenta(): void {
-    console.log('Plantilla — navegando a crear cuenta');
+  function goToCreateAccount(): void {
+    console.log('Template — navigating to create account');
   }
 
-  function irRecuperarClave(): void {
-    console.log('Plantilla — navegando a recuperar clave');
+  function goToRecoverPassword(): void {
+    console.log('Template — navigating to recover password');
   }
 
   function isValidData(email: string, password: string): boolean {
@@ -44,16 +44,16 @@ export function useUiIniciarSesion(): InterUiIniciarSesion & {
     if (isValidData(email, password)) {
       login(email, password);
     } else {
-      window.alert('Por favor, complete ambos campos. plantilla');
+      window.alert('Please fill in both fields. (template)');
     }
   }
 
-  function handlerCrearCuenta(): void {
-    irCrearCuenta();
+  function handlerGoToCreateAccount(): void {
+    goToCreateAccount();
   }
 
-  function handlerRecuperarClave(): void {
-    irRecuperarClave();
+  function handlerGoToRecoverPassword(): void {
+    goToRecoverPassword();
   }
 
   return {
@@ -62,35 +62,35 @@ export function useUiIniciarSesion(): InterUiIniciarSesion & {
     setEmail,
     setPassword,
     login,
-    irCrearCuenta,
-    irRecuperarClave,
+    goToCreateAccount,
+    goToRecoverPassword,
     isValidData,
     handlerLogin,
-    handlerCrearCuenta,
-    handlerRecuperarClave,
+    handlerGoToCreateAccount,
+    handlerGoToRecoverPassword,
   };
 }
 
-// Props que el componente visual acepta — permite inyectar métodos desde afuera
+// Props the visual component accepts — allows injecting methods from outside
 interface UiIniciarSesionProps {
   email: string;
   password: string;
   setEmail: (v: string) => void;
   setPassword: (v: string) => void;
   handlerLogin: (e: React.FormEvent) => void;
-  handlerCrearCuenta: () => void;
-  handlerRecuperarClave: () => void;
+  handlerGoToCreateAccount: () => void;
+  handlerGoToRecoverPassword: () => void;
 }
 
-// Componente visual plantilla — solo renderiza, no contiene lógica de negocio
+// Visual template component — renders only, contains no business logic
 export const UiIniciarSesion: React.FC<UiIniciarSesionProps> = ({
   email,
   password,
   setEmail,
   setPassword,
   handlerLogin,
-  handlerCrearCuenta,
-  handlerRecuperarClave,
+  handlerGoToCreateAccount,
+  handlerGoToRecoverPassword,
 }) => {
   return (
     <div className="max-w-sm mx-auto p-4">
@@ -134,16 +134,16 @@ export const UiIniciarSesion: React.FC<UiIniciarSesionProps> = ({
           <button
             type="button"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            onClick={handlerCrearCuenta}
+            onClick={handlerGoToCreateAccount}
           >
-            Crear cuenta
+            Create account
           </button>
           <button
             type="button"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            onClick={handlerRecuperarClave}
+            onClick={handlerGoToRecoverPassword}
           >
-            Recuperar contraseña
+            Recover password
           </button>
         </div>
       </form>

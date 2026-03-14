@@ -1,9 +1,8 @@
 // InterUiIniciarSesion.tsx
-
-// Interfaz que define los métodos de la vista de inicio de sesión
+// Interface that defines the contract for the login view
 export interface InterUiIniciarSesion {
   login: (email: string, password: string) => void;
-  irCrearCuenta: () => void;
-  irRecuperarClave: () => void;
+  goToCreateAccount: () => void;
+  goToRecoverPassword: () => void;
   isValidData: (email: string, password: string) => boolean;
 }

@@ -1,5 +1,5 @@
 // InterUiHome.tsx
-// Contrato de la vista home (login)
+// Contract for the home (login) view
 export interface InterUiHome {
   onMount: () => void;
 }

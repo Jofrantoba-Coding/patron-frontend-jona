@@ -1,55 +1,61 @@
 # appjona_react_hooks
 
-Implementación del patrón JONA en React con functional components y hooks.
+Implementation of the JONA pattern in React using functional components and hooks.
 
-## Descripción
+## Description
 
-Adapta el patrón JONA al paradigma funcional de React. En lugar de herencia de clases, la extensión se logra mediante composición de hooks: el hook de implementación consume el hook plantilla y sobreescribe los métodos que necesita.
+Adapts the JONA pattern to React's functional paradigm. Instead of class inheritance, extension is achieved through hook composition: the implementation hook consumes the template hook and overrides the methods it needs.
 
-## Patrón JONA aplicado
+## JONA Pattern Applied
 
-| Archivo | Rol |
+| File | Role |
 |---|---|
-| `InterUiIniciarSesion.tsx` | Interfaz — define el contrato de métodos |
-| `UiIniciarSesion.tsx` | Hook plantilla + componente visual — `useUiIniciarSesion` y `UiIniciarSesion` |
-| `UiIniciarSesionImpl.tsx` | Hook implementación — `useUiIniciarSesionImpl`, solo métodos, sin JSX |
+| `InterUiIniciarSesion.tsx` | Interface — defines the method contract |
+| `UiIniciarSesion.tsx` | Template hook + visual component — `useUiIniciarSesion` and `UiIniciarSesion` |
+| `UiIniciarSesionImpl.tsx` | Implementation hook — `useUiIniciarSesionImpl`, methods only, no JSX |
 
-## Implementación
+## Responsibilities
 
-### 1. Interfaz
+| Role | Works on |
+|---|---|
+| UI Designer | `UiIniciarSesion.tsx`, `UiHomeSession.tsx` — JSX, layout, styles |
+| Frontend | `InterUiIniciarSesion.tsx`, template hooks — contract and state flow |
+| Integrator | `UiIniciarSesionImpl.tsx`, `AuthService.ts` — business logic, API calls |
+
+## Implementation
+
+### 1. Interface
 
 ```ts
 // InterUiIniciarSesion.tsx
 export interface InterUiIniciarSesion {
   login: (email: string, password: string) => void;
-  irCrearCuenta: () => void;
-  irRecuperarClave: () => void;
+  goToCreateAccount: () => void;
+  goToRecoverPassword: () => void;
   isValidData: (email: string, password: string) => boolean;
 }
 ```
 
-### 2. Hook plantilla + componente visual
+### 2. Template hook + visual component
 
-El hook provee el estado y los métodos base. El componente visual es un functional component puro que recibe todo por props — no contiene lógica de negocio.
+The hook provides state and base methods. The visual component is a pure functional component that receives everything via props — contains no business logic.
 
 ```tsx
 // UiIniciarSesion.tsx
 
-// Hook plantilla
+// Template hook
 export function useUiIniciarSesion() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    console.log('useUiIniciarSesion montado (plantilla)');
+    console.log('useUiIniciarSesion mounted (template)');
   }, []);
 
   function login(email: string, password: string): void {
-    window.alert('Click a plantilla iniciar sesión');
+    window.alert('Template — login clicked');
   }
 
-  function irCrearCuenta(): void { /* lógica base */ }
-  function irRecuperarClave(): void { /* lógica base */ }
   function isValidData(email: string, password: string): boolean {
     return email !== '' && password !== '';
   }
@@ -59,99 +65,100 @@ export function useUiIniciarSesion() {
     if (isValidData(email, password)) login(email, password);
   }
 
-  return { email, password, setEmail, setPassword,
-           login, irCrearCuenta, irRecuperarClave,
+  return { email, password, setEmail, setPassword, login,
+           goToCreateAccount, goToRecoverPassword,
            isValidData, handlerLogin, ... };
 }
 
-// Componente visual — solo renderiza, recibe todo por props
+// Visual component — renders only, receives everything via props
 export const UiIniciarSesion: React.FC<UiIniciarSesionProps> = ({
   email, password, setEmail, setPassword,
-  handlerLogin, handlerCrearCuenta, handlerRecuperarClave,
+  handlerLogin, handlerGoToCreateAccount, handlerGoToRecoverPassword,
 }) => (
   <form>
     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
     <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
     <button onClick={handlerLogin}>Login</button>
-    <button type="button" onClick={handlerCrearCuenta}>Crear cuenta</button>
-    <button type="button" onClick={handlerRecuperarClave}>Recuperar contraseña</button>
+    <button type="button" onClick={handlerGoToCreateAccount}>Create account</button>
+    <button type="button" onClick={handlerGoToRecoverPassword}>Recover password</button>
   </form>
 );
 ```
 
-### 3. Hook implementación
+### 3. Implementation hook
 
-Consume el hook plantilla y sobreescribe los métodos. No contiene ninguna línea de JSX.
+Consumes the template hook and overrides the methods. Contains no JSX.
 
 ```ts
 // UiIniciarSesionImpl.tsx
 export function useUiIniciarSesionImpl() {
   const base = useUiIniciarSesion();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log('useUiIniciarSesionImpl montado (implementación)');
-  }, []);
-
+  // Override login — calls AuthService (mock)
   function login(email: string, password: string): void {
-    window.alert('New Click a iniciar sesión');
-    console.log(`Implementación — email: ${email}, password: ${password}`);
+    AuthService.login(email, password)
+      .then((response) => {
+        localStorage.setItem('jona_authenticated', 'true');
+        localStorage.setItem('jona_token', response.token);
+        localStorage.setItem('jona_user', JSON.stringify(response.user));
+        navigate('/homesesion');
+      })
+      .catch((error) => window.alert(error.message));
   }
 
-  function irCrearCuenta(): void {
-    window.alert('Click a ir a cuenta');
-  }
-
-  function irRecuperarClave(): void {
-    window.alert('Click a ir a recuperar clave');
-  }
-
-  function handlerLogin(e: React.FormEvent): void {
-    e.preventDefault();
-    login(base.email, base.password);
-  }
-
-  // Retorna el estado de la plantilla + métodos sobreescritos
-  return { ...base, login, irCrearCuenta, irRecuperarClave, handlerLogin, ... };
+  // Returns template state + overridden methods
+  return { ...base, login, goToCreateAccount, goToRecoverPassword, handlerLogin, ... };
 }
 ```
 
-### 4. Orquestación en UiHome
+### 4. Service layer
 
-`UiHome` instancia el hook de implementación e inyecta sus métodos en el componente visual.
-
-```tsx
-// UiHome.tsx
-export const UiHome: React.FC = () => {
-  const impl = useUiIniciarSesionImpl();
-
-  return (
-    <BorderLayout
-      north={<Header />}
-      south={<Footer />}
-      center={<UiIniciarSesion {...impl} />}
-    />
-  );
+```ts
+// AuthService.ts
+export const AuthService = {
+  login: (email: string, password: string): Promise<AuthResponse> => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const user = MOCK_USERS.find(u => u.email === email && u.password === password);
+        if (user) resolve({ success: true, token: `mock-token-${Date.now()}`, user, message: 'Login successful' });
+        else reject({ success: false, message: 'Invalid credentials' });
+      }, 800);
+    });
+  },
 };
 ```
 
-## Flujo del patrón
+### 5. Orchestration in UiHomeView
+
+`UiHomeView` instantiates the implementation hook and injects its methods into the visual component.
+
+```tsx
+// UiHomeView.tsx
+export const UiHomeView: React.FC = () => {
+  const impl = useUiHomeImpl();
+  return <UiHome {...impl} />;
+};
+```
+
+## Pattern Flow
 
 ```
-useUiIniciarSesionImpl
-  └── useUiIniciarSesion   (estado: email, password)
-        └── UiIniciarSesion (UI — recibe props, no sabe de negocio)
+useUiIniciarSesionImpl  →  AuthService (mock)
+  └── useUiIniciarSesion   (state: email, password)
+        └── UiIniciarSesion (UI — receives props, knows nothing about business logic)
 ```
 
-## Levantar el proyecto
+## Run the project
 
 ```bash
 npm install
 npm run dev
 ```
 
-Abrir: `http://localhost:5173/login`
+Open: `http://localhost:5173/login`
 
-## Usuarios mock
+## Mock users
 
 | Email | Password |
 |---|---|

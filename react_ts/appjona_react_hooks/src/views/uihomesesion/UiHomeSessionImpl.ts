@@ -1,13 +1,13 @@
 // UiHomeSessionImpl.ts
-// Hook de implementación para la vista de sesión — trabajo del integrador
+// Implementation hook for the session view — integrator's responsibility
 import { useNavigate } from 'react-router-dom';
 
 export function useUiHomeSessionImpl() {
   const navigate = useNavigate();
 
-  // Lee los datos del usuario guardados tras el login
+  // Read user data saved after login
   const userRaw = localStorage.getItem('jona_user');
-  const user = userRaw ? JSON.parse(userRaw) : { nombre: '', email: '' };
+  const user = userRaw ? JSON.parse(userRaw) : { name: '', email: '' };
 
   function logout(): void {
     localStorage.removeItem('jona_authenticated');
@@ -17,7 +17,7 @@ export function useUiHomeSessionImpl() {
   }
 
   return {
-    nombre: user.nombre as string,
+    name: (user.nombre ?? user.name) as string,
     email: user.email as string,
     onLogout: logout,
   };

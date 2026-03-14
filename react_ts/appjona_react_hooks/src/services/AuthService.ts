@@ -1,27 +1,27 @@
 // AuthService.ts
-// Capa de servicio — el integrador trabaja aquí
-// Simula una llamada al backend con datos mock
+// Service layer — integrator's responsibility
+// Simulates a backend call with mock data
 
 export interface AuthResponse {
   success: boolean;
   token: string;
   user: {
     email: string;
-    nombre: string;
+    name: string;
   };
   message: string;
 }
 
-// Usuarios mock — simula la base de datos del backend
+// Mock users — simulates the backend database
 const MOCK_USERS = [
-  { email: 'admin@jona.com', password: '123456', nombre: 'Administrador' },
-  { email: 'user@jona.com',  password: 'abcdef', nombre: 'Usuario Demo'  },
+  { email: 'admin@jona.com', password: '123456', name: 'Administrator' },
+  { email: 'user@jona.com',  password: 'abcdef', name: 'Demo User'     },
 ];
 
 export const AuthService = {
   login: (email: string, password: string): Promise<AuthResponse> => {
     return new Promise((resolve, reject) => {
-      // Simula latencia de red
+      // Simulate network latency
       setTimeout(() => {
         const user = MOCK_USERS.find(
           (u) => u.email === email && u.password === password
@@ -31,11 +31,11 @@ export const AuthService = {
           resolve({
             success: true,
             token: `mock-token-${Date.now()}`,
-            user: { email: user.email, nombre: user.nombre },
-            message: 'Login exitoso',
+            user: { email: user.email, name: user.name },
+            message: 'Login successful',
           });
         } else {
-          reject({ success: false, message: 'Credenciales incorrectas' });
+          reject({ success: false, message: 'Invalid credentials' });
         }
       }, 800);
     });

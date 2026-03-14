@@ -1,6 +1,6 @@
 // UiHomeImpl.ts
-// Hook de implementación — trabajo del integrador
-// Solo métodos, sin código de interfaz gráfica
+// Implementation hook — integrator's responsibility
+// Methods only, no UI code
 import { useEffect } from 'react';
 import { useUiIniciarSesionImpl } from '../uiiniciarsesion/UiIniciarSesionImpl';
 import { InterUiHome } from './InterUiHome';
@@ -13,7 +13,7 @@ export function useUiHomeImpl(): InterUiHome & ReturnType<typeof useUiIniciarSes
   }, []);
 
   function onMount(): void {
-    console.log('UiHomeImpl montado (implementación)');
+    console.log('UiHomeImpl mounted (implementation)');
   }
 
   return {

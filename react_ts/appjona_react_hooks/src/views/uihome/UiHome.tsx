@@ -1,6 +1,6 @@
 // UiHome.tsx
-// Componente visual plantilla — trabajo del maquetador
-// Solo renderiza el layout con el formulario de login inyectado por props
+// Visual template component — UI designer's responsibility
+// Renders the layout with the login form injected via props
 import React from 'react';
 import { UiIniciarSesion } from '../uiiniciarsesion/UiIniciarSesion';
 import BorderLayout from '../../uilayouts/BorderLayout';
@@ -13,8 +13,8 @@ interface UiHomeProps {
   setEmail: (v: string) => void;
   setPassword: (v: string) => void;
   handlerLogin: (e: React.FormEvent) => void;
-  handlerCrearCuenta: () => void;
-  handlerRecuperarClave: () => void;
+  handlerGoToCreateAccount: () => void;
+  handlerGoToRecoverPassword: () => void;
 }
 
 export const UiHome: React.FC<UiHomeProps> = (props) => {

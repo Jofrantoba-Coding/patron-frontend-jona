@@ -1,5 +1,5 @@
 // UiHomeView.tsx
-// Orquesta: instancia el hook impl e inyecta en el componente visual
+// Orchestrator: instantiates the impl hook and injects it into the visual component
 import React from 'react';
 import { UiHome } from './UiHome';
 import { useUiHomeImpl } from './UiHomeImpl';
