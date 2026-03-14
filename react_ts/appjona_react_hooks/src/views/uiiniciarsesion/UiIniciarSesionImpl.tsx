@@ -1,40 +1,50 @@
 // UiIniciarSesionImpl.tsx
-// Hook de implementación que sobreescribe los métodos del hook plantilla
-// No contiene código de interfaz gráfica
+// Hook de implementación — trabajo del integrador
+// Solo métodos, sin código de interfaz gráfica
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUiIniciarSesion } from './UiIniciarSesion';
+import { AuthService } from '../../services/AuthService';
+import React from 'react';
 
 export function useUiIniciarSesionImpl() {
   const base = useUiIniciarSesion();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Equivalente a componentDidMount — implementación
     console.log('useUiIniciarSesionImpl montado (implementación)');
   }, []);
 
-  // Sobreescribir login
+  // Sobreescribir login — llama al AuthService (mock)
   function login(email: string, password: string): void {
-    window.alert('New Click a iniciar sesión');
-    console.log(`New Implementación — email: ${email}, password: ${password}`);
-    // Aquí iría la llamada al servidor
+    AuthService.login(email, password)
+      .then((response) => {
+        console.log('Login exitoso:', response);
+        // Guarda el token y datos del usuario en localStorage
+        localStorage.setItem('jona_authenticated', 'true');
+        localStorage.setItem('jona_token', response.token);
+        localStorage.setItem('jona_user', JSON.stringify(response.user));
+        // Navega a la vista de sesión
+        navigate('/homesesion');
+      })
+      .catch((error) => {
+        console.error('Login fallido:', error);
+        window.alert(error.message);
+      });
   }
 
-  // Sobreescribir irCrearCuenta
   function irCrearCuenta(): void {
     window.alert('Click a ir a cuenta');
     console.log('Implementación — navegando a crear cuenta');
   }
 
-  // Sobreescribir irRecuperarClave
   function irRecuperarClave(): void {
     window.alert('Click a ir a recuperar clave');
     console.log('Implementación — navegando a recuperar clave');
   }
 
   function isValidData(email: string, password: string): boolean {
-    console.log('email:', email);
-    console.log('password:', password);
-    return true;
+    return email !== '' && password !== '';
   }
 
   function handlerLogin(e: React.FormEvent): void {
@@ -42,7 +52,7 @@ export function useUiIniciarSesionImpl() {
     if (isValidData(base.email, base.password)) {
       login(base.email, base.password);
     } else {
-      window.alert('Por favor, complete ambos campos. implementación');
+      window.alert('Por favor, complete ambos campos.');
     }
   }
 
@@ -54,7 +64,6 @@ export function useUiIniciarSesionImpl() {
     irRecuperarClave();
   }
 
-  // Retorna el estado de la plantilla + métodos sobreescritos
   return {
     ...base,
     login,
