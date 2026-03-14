@@ -1,25 +1,20 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import ProtectedRoute from './protectedRoute'
-import { UiIniciarSesionImpl } from './views/uiiniciarsesion/UiIniciarSesionImpl';
-import { UiHomePageImpl } from './views/UiHomePage/UiHomePage.implement';
-
-const uiIniciarSesionImpl = new UiIniciarSesionImpl({});
-const uiHomePageImpl = new UiHomePageImpl({});
+import ProtectedRoute from './protectedRoute';
+import { UiIniciarSesionView } from './views/uiiniciarsesion/UiIniciarSesionView';
+import { UiHomeSessionView } from './views/uihomesesion/UiHomeSessionView';
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/login' element={uiIniciarSesionImpl.render()} />
-        <Route path='/register' element={uiIniciarSesionImpl.render()} />
+        <Route path='/login' element={<UiIniciarSesionView />} />
         <Route path='/' element={<ProtectedRoute />}>
-          <Route path='/' element={uiHomePageImpl.render()} />
+          <Route path='/homesesion' element={<UiHomeSessionView />} />
         </Route>
-        <Route path='*' element={<Navigate to='/' replace />} />
+        <Route path='*' element={<Navigate to='/login' replace />} />
       </Routes>
     </BrowserRouter>
-   
   );
-}
+};
 
 export default App;

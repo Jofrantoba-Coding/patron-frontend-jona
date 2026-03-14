@@ -1,14 +1,29 @@
 // UiIniciarSesionImpl.tsx
 // Implementation class — extends the template and overrides business logic methods
 import { UiIniciarSesion } from './UiIniciarSesion';
+import { AuthService } from '../../services/AuthService';
+import { NavigateFunction } from 'react-router-dom';
 
-export class UiIniciarSesionImpl extends UiIniciarSesion {
+interface UiIniciarSesionImplProps {
+  navigate: NavigateFunction;
+}
 
-  // Override login
+export class UiIniciarSesionImpl extends UiIniciarSesion<UiIniciarSesionImplProps> {
+
+  // Override login — calls AuthService (mock)
   login(email: string, password: string): void {
-    window.alert('Implementation — login clicked');
-    console.log(`Implementation — email: ${email}, password: ${password}`);
-    // Add specific login logic here, e.g. send a request to the server
+    AuthService.login(email, password)
+      .then((response) => {
+        console.log('Login successful:', response);
+        localStorage.setItem('jona_authenticated', 'true');
+        localStorage.setItem('jona_token', response.token);
+        localStorage.setItem('jona_user', JSON.stringify(response.user));
+        this.props.navigate('/homesesion');
+      })
+      .catch((error) => {
+        console.error('Login failed:', error);
+        window.alert(error.message);
+      });
   }
 
   // Override goToCreateAccount

@@ -3,7 +3,7 @@
 import { Component, createRef } from 'react';
 import { InterUiIniciarSesion } from './InterUiIniciarSesion';
 
-export class UiIniciarSesion extends Component implements InterUiIniciarSesion {
+export class UiIniciarSesion<P = object> extends Component<P> implements InterUiIniciarSesion {
   private txtEmailRef = createRef<HTMLInputElement>();
   private txtPasswordRef = createRef<HTMLInputElement>();
 
