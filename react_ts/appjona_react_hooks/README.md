@@ -150,3 +150,10 @@ npm run dev
 ```
 
 Abrir: `http://localhost:5173/login`
+
+## Usuarios mock
+
+| Email | Password |
+|---|---|
+| `admin@jona.com` | `123456` |
+| `user@jona.com` | `abcdef` |
