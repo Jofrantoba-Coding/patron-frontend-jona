@@ -22,6 +22,12 @@ import { DialogMolecule } from '../../molecules/DialogMolecule';
 import { TabsMolecule, TabsList, TabsTrigger, TabsContent } from '../../molecules/TabsMolecule';
 import { DropdownMolecule } from '../../molecules/DropdownMolecule';
 import { PaginationMolecule } from '../../molecules/PaginationMolecule';
+import { TooltipMolecule } from '../../molecules/TooltipMolecule';
+import { SwitchFieldMolecule } from '../../molecules/SwitchFieldMolecule';
+import { BreadcrumbMolecule, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from '../../molecules/BreadcrumbMolecule';
+import { SkeletonUserRow, SkeletonCard, SkeletonTableRows, SkeletonForm } from '../../molecules/SkeletonPresets';
+import { ProgressAtom } from '../../atoms/ProgressAtom';
+import { SwitchAtom } from '../../atoms/SwitchAtom';
 import {
   TableMolecule, TableHeader, TableBody, TableFooter,
   TableRow, TableHead, TableCell, TableCaption,
@@ -268,6 +274,41 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({
 
       <SeparatorAtom />
 
+      {/* Tooltip */}
+      <Section title="TooltipMolecule — sides">
+        <TooltipShowcase />
+      </Section>
+
+      <SeparatorAtom />
+
+      {/* Switch */}
+      <Section title="SwitchAtom + SwitchFieldMolecule — sizes + card style">
+        <SwitchShowcase />
+      </Section>
+
+      <SeparatorAtom />
+
+      {/* Progress */}
+      <Section title="ProgressAtom — variants + label">
+        <ProgressShowcase />
+      </Section>
+
+      <SeparatorAtom />
+
+      {/* Skeleton */}
+      <Section title="Skeleton presets — user row / card / table / form">
+        <SkeletonShowcase />
+      </Section>
+
+      <SeparatorAtom />
+
+      {/* Breadcrumb */}
+      <Section title="BreadcrumbMolecule — separator + ellipsis">
+        <BreadcrumbShowcase />
+      </Section>
+
+      <SeparatorAtom />
+
       {/* Tabs */}
       <Section title="TabsMolecule — pill + line variants">
         <div className="space-y-6">
@@ -440,3 +481,140 @@ const PaginationShowcase: React.FC = () => {
     </div>
   );
 };
+
+// ── Tooltip showcase ──────────────────────────────────────────────────────────
+const TooltipShowcase: React.FC = () => (
+  <div className="flex flex-wrap gap-4">
+    {(['top', 'bottom', 'left', 'right'] as const).map((side) => (
+      <TooltipMolecule key={side} content={`Tooltip on ${side}`} side={side}>
+        <ButtonAtom variant="outline" size="sm">{side}</ButtonAtom>
+      </TooltipMolecule>
+    ))}
+    <TooltipMolecule content={<span>Shortcut: <kbd className="bg-neutral-700 px-1 rounded text-xs">⌘K</kbd></span>} side="top">
+      <ButtonAtom variant="ghost" size="sm">With shortcut</ButtonAtom>
+    </TooltipMolecule>
+  </div>
+);
+
+// ── Switch showcase ───────────────────────────────────────────────────────────
+const SwitchShowcase: React.FC = () => {
+  const [vals, setVals] = useState({ sm: false, md: true, lg: false, notif: true, sync: false });
+  const toggle = (k: keyof typeof vals) => setVals((v) => ({ ...v, [k]: !v[k] }));
+  return (
+    <div className="space-y-4 max-w-sm">
+      {/* Sizes */}
+      <div className="flex items-center gap-6">
+        {(['sm', 'md', 'lg'] as const).map((s) => (
+          <div key={s} className="flex items-center gap-2">
+            <SwitchAtom size={s} checked={vals[s]} onCheckedChange={() => toggle(s)} aria-label={s} />
+            <TextAtom size="xs" color="muted">{s}</TextAtom>
+          </div>
+        ))}
+      </div>
+      {/* Field */}
+      <SwitchFieldMolecule
+        id="sw-notif"
+        label="Enable notifications"
+        description="Receive alerts when focus mode changes."
+        checked={vals.notif}
+        onCheckedChange={() => toggle('notif')}
+      />
+      {/* Card style */}
+      <SwitchFieldMolecule
+        id="sw-sync"
+        label="Sync across devices"
+        description="Focus is shared across all your devices."
+        checked={vals.sync}
+        onCheckedChange={() => toggle('sync')}
+        card
+      />
+      {/* Disabled */}
+      <SwitchFieldMolecule
+        id="sw-disabled"
+        label="Disabled switch"
+        checked={false}
+        disabled
+      />
+    </div>
+  );
+};
+
+// ── Progress showcase ─────────────────────────────────────────────────────────
+const ProgressShowcase: React.FC = () => {
+  const [val, setVal] = useState(65);
+  return (
+    <div className="space-y-4 max-w-md">
+      <ProgressAtom value={val} label="Upload progress" showLabel />
+      <ProgressAtom value={val} variant="success" label="Storage used" showLabel />
+      <ProgressAtom value={val} variant="danger"  label="CPU usage"   showLabel />
+      <ProgressAtom value={val} variant="warning" label="Memory"      showLabel />
+      <div className="flex items-center gap-3">
+        <ButtonAtom size="sm" variant="outline" onClick={() => setVal((v) => Math.max(0, v - 10))}>−10</ButtonAtom>
+        <TextAtom size="xs" color="muted">{val}%</TextAtom>
+        <ButtonAtom size="sm" variant="outline" onClick={() => setVal((v) => Math.min(100, v + 10))}>+10</ButtonAtom>
+      </div>
+    </div>
+  );
+};
+
+// ── Skeleton showcase ─────────────────────────────────────────────────────────
+const SkeletonShowcase: React.FC = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-2">
+      <TextAtom size="xs" color="muted">User row</TextAtom>
+      <SkeletonUserRow />
+    </div>
+    <div className="space-y-2">
+      <TextAtom size="xs" color="muted">Card</TextAtom>
+      <SkeletonCard />
+    </div>
+    <div className="space-y-2">
+      <TextAtom size="xs" color="muted">Table rows</TextAtom>
+      <SkeletonTableRows rows={3} cols={4} />
+    </div>
+    <div className="space-y-2">
+      <TextAtom size="xs" color="muted">Form</TextAtom>
+      <SkeletonForm fields={2} />
+    </div>
+  </div>
+);
+
+// ── Breadcrumb showcase ───────────────────────────────────────────────────────
+const BreadcrumbShowcase: React.FC = () => (
+  <div className="space-y-4">
+    {/* Basic */}
+    <BreadcrumbMolecule>
+      <BreadcrumbList>
+        <BreadcrumbItem><BreadcrumbLink>Home</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem><BreadcrumbLink>Components</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem><BreadcrumbPage>Breadcrumb</BreadcrumbPage></BreadcrumbItem>
+      </BreadcrumbList>
+    </BreadcrumbMolecule>
+
+    {/* Custom separator */}
+    <BreadcrumbMolecule>
+      <BreadcrumbList>
+        <BreadcrumbItem><BreadcrumbLink>Home</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbSeparator>/</BreadcrumbSeparator>
+        <BreadcrumbItem><BreadcrumbLink>Design System</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbSeparator>/</BreadcrumbSeparator>
+        <BreadcrumbItem><BreadcrumbPage>Showcase</BreadcrumbPage></BreadcrumbItem>
+      </BreadcrumbList>
+    </BreadcrumbMolecule>
+
+    {/* With ellipsis */}
+    <BreadcrumbMolecule>
+      <BreadcrumbList>
+        <BreadcrumbItem><BreadcrumbLink>Home</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem><BreadcrumbEllipsis /></BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem><BreadcrumbLink>Components</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem><BreadcrumbPage>Breadcrumb</BreadcrumbPage></BreadcrumbItem>
+      </BreadcrumbList>
+    </BreadcrumbMolecule>
+  </div>
+);
