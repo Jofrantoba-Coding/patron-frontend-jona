@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const n=require("react/jsx-runtime"),o=require("react"),c=require("./InterRecoverPasswordOrganism.cjs"),m=require("./RecoverPasswordOrganismView.cjs"),l=e=>{const r={...c.RECOVER_PASSWORD_ORGANISM_DEFAULTS,...e},[s,t]=o.useState(""),i=e.email!==void 0?e.email:s,a=e.setEmail??t;return n.jsx(m.RecoverPasswordOrganismView,{...r,email:i,setEmail:a})};exports.RecoverPasswordOrganismImpl=l;
+//# sourceMappingURL=RecoverPasswordOrganismImpl.cjs.map

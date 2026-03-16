@@ -700,6 +700,46 @@ export default function Demo() {
   right={<SocialIcons />}
 />`,
   },
+  {
+    id: 'RecoverPasswordOrganism',
+    name: 'RecoverPasswordOrganism',
+    category: 'Organisms',
+    description: 'Password recovery form organism with email input, validation and success/error feedback.',
+    defaultCode: `import { RecoverPasswordOrganism } from 'jona-ui';
+import { useState } from 'react';
+
+export default function Demo() {
+  const [email, setEmail] = useState('');
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    alert(\`Reset link sent to: \${email}\`);
+  }
+
+  return (
+    <div className="min-h-96 flex items-center justify-center bg-gray-50 p-4">
+      <RecoverPasswordOrganism
+        email={email}
+        setEmail={setEmail}
+        onSubmit={handleSubmit}
+        onGoToLogin={() => alert('Back to login')}
+      />
+    </div>
+  );
+}`,
+    usage: `import { RecoverPasswordOrganism } from 'jona-ui';
+
+<RecoverPasswordOrganism
+  email={email}
+  setEmail={setEmail}
+  onSubmit={handleSubmit}
+  emailError={emailError}
+  alertMessage={alertMessage}
+  successMessage={successMessage}
+  isLoading={isLoading}
+  onGoToLogin={() => navigate('/login')}
+/>`,
+  },
   // ── PAGES ──────────────────────────────────────────────────────────────────
   {
     id: 'UiHomeLogin',
@@ -738,6 +778,41 @@ export default function Demo() {
   }}
   onGoToCreateAccount={() => navigate('/register')}
   onGoToRecoverPassword={() => navigate('/recover')}
+/>`,
+  },
+  {
+    id: 'UiHomeRecoverPassword',
+    name: 'UiHomeRecoverPassword',
+    category: 'Pages',
+    description: 'Full password recovery page combining BorderLayout + RecoverPasswordOrganism with built-in state management.',
+    defaultCode: `import { UiHomeRecoverPassword } from 'jona-ui';
+
+export default function Demo() {
+  return (
+    <div className="h-screen">
+      <UiHomeRecoverPassword
+        appTitle="My App"
+        footerText="© 2026 My Company"
+        onRecover={async (email) => {
+          await new Promise(r => setTimeout(r, 1000));
+          // send reset email...
+        }}
+        onGoToLogin={() => alert('Back to login')}
+      />
+    </div>
+  );
+}`,
+    usage: `import { UiHomeRecoverPassword } from 'jona-ui';
+
+// UiHomeRecoverPassword manages its own state internally.
+// Provide the async onRecover handler — on success it shows a confirmation message.
+<UiHomeRecoverPassword
+  appTitle="My App"
+  footerText="© 2026 My Company"
+  onRecover={async (email) => {
+    await authService.sendResetEmail(email);
+  }}
+  onGoToLogin={() => navigate('/login')}
 />`,
   },
 ];

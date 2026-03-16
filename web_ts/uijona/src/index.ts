@@ -39,11 +39,13 @@ export * from './layouts/BorderLayout';
 
 // Organisms
 export * from './organisms/LoginOrganism';
+export * from './organisms/RecoverPasswordOrganism';
 export * from './organisms/HeaderPageOrganism';
 export * from './organisms/FooterPageOrganism';
 
 // Pages
 export * from './pages/UiHomeLogin';
+export * from './pages/UiHomeRecoverPassword';
 
 // Hooks
 export * from './hooks/useToast';

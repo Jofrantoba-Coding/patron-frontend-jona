@@ -1,6 +1,6 @@
 {
   "name": "jona-ui",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "JONA Design System — Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
@@ -157,10 +157,20 @@
       "require": "./dist/organisms/FooterPageOrganism.cjs",
       "types": "./dist/organisms/FooterPageOrganism.d.ts"
     },
+    "./organisms/RecoverPasswordOrganism": {
+      "import": "./dist/organisms/RecoverPasswordOrganism.js",
+      "require": "./dist/organisms/RecoverPasswordOrganism.cjs",
+      "types": "./dist/organisms/RecoverPasswordOrganism.d.ts"
+    },
     "./pages/UiHomeLogin": {
       "import": "./dist/pages/UiHomeLogin.js",
       "require": "./dist/pages/UiHomeLogin.cjs",
       "types": "./dist/pages/UiHomeLogin.d.ts"
+    },
+    "./pages/UiHomeRecoverPassword": {
+      "import": "./dist/pages/UiHomeRecoverPassword.js",
+      "require": "./dist/pages/UiHomeRecoverPassword.cjs",
+      "types": "./dist/pages/UiHomeRecoverPassword.d.ts"
     }
   },
   "files": [

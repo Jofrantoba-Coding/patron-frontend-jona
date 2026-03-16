@@ -7,6 +7,7 @@ import {
   TabsMolecule, TabsList, TabsTrigger, TabsContent,
   PaginationMolecule, BorderLayout, LoginOrganism, UiHomeLogin,
   HeaderPageOrganism, FooterPageOrganism,
+  RecoverPasswordOrganism, UiHomeRecoverPassword,
 } from 'jona-ui';
 
 // ── Atoms ──────────────────────────────────────────────────────────────────
@@ -304,6 +305,20 @@ export const FooterPageOrganismPreview = () => (
   </div>
 );
 
+export const RecoverPasswordOrganismPreview = () => {
+  const [email, setEmail] = useState('');
+  return (
+    <div className="w-full">
+      <RecoverPasswordOrganism
+        email={email}
+        setEmail={setEmail}
+        onSubmit={(e) => { e.preventDefault(); alert(`Reset link sent to: ${email}`); }}
+        onGoToLogin={() => alert('Back to login')}
+      />
+    </div>
+  );
+};
+
 // ── Pages ──────────────────────────────────────────────────────────────────
 
 export const UiHomeLoginPreview = () => (
@@ -317,6 +332,20 @@ export const UiHomeLoginPreview = () => (
       }}
       onGoToCreateAccount={() => alert('Register')}
       onGoToRecoverPassword={() => alert('Recover')}
+    />
+  </div>
+);
+
+export const UiHomeRecoverPasswordPreview = () => (
+  <div className="w-full h-full min-h-screen">
+    <UiHomeRecoverPassword
+      appTitle="My App"
+      footerText="© 2026 My Company"
+      onRecover={async (email) => {
+        await new Promise(r => setTimeout(r, 800));
+        alert(`Reset link sent to: ${email}`);
+      }}
+      onGoToLogin={() => alert('Back to login')}
     />
   </div>
 );
@@ -345,5 +374,7 @@ export const PREVIEW_MAP: Record<string, React.FC> = {
   LoginOrganism: LoginOrganismPreview,
   HeaderPageOrganism: HeaderPageOrganismPreview,
   FooterPageOrganism: FooterPageOrganismPreview,
+  RecoverPasswordOrganism: RecoverPasswordOrganismPreview,
   UiHomeLogin: UiHomeLoginPreview,
+  UiHomeRecoverPassword: UiHomeRecoverPasswordPreview,
 };
