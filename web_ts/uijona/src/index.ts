@@ -34,6 +34,9 @@ export * from './molecules/TableMolecule';
 export * from './molecules/BreadcrumbMolecule';
 export * from './molecules/SkeletonPresets';
 
+// Layouts
+export * from './layouts/BorderLayout';
+
 // Hooks
 export * from './hooks/useToast';
 

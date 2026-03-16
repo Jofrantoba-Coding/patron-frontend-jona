@@ -37,6 +37,7 @@ export default defineConfig({
         index: resolve(__dirname, 'src/index.ts'),
         ...collectFolderEntries('src/atoms', 'atoms'),
         ...collectFolderEntries('src/molecules', 'molecules'),
+        ...collectFolderEntries('src/layouts', 'layouts'),
         ...collectFolderEntries('src/hooks', 'hooks'),
       },
       formats: ['es', 'cjs'],

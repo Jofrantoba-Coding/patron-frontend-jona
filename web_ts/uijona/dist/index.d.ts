@@ -28,5 +28,6 @@ export * from './molecules/TooltipMolecule';
 export * from './molecules/TableMolecule';
 export * from './molecules/BreadcrumbMolecule';
 export * from './molecules/SkeletonPresets';
+export * from './layouts/BorderLayout';
 export * from './hooks/useToast';
 export * from './lib/cn';
