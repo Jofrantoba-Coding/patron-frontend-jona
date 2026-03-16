@@ -105,7 +105,7 @@ export const UiIniciarSesion: React.FC<UiIniciarSesionProps> = ({
               label="Email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(value) => setEmail(value)}
               placeholder="you@example.com"
               errorMessage={emailError}
               required
@@ -115,7 +115,7 @@ export const UiIniciarSesion: React.FC<UiIniciarSesionProps> = ({
               label="Password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(value) => setPassword(value)}
               placeholder="••••••••"
               errorMessage={passwordError}
               required

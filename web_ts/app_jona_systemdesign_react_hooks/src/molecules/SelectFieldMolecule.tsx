@@ -5,8 +5,11 @@ import { cn } from '../lib/cn';
 import { LabelAtom } from '../atoms/LabelAtom';
 import { SelectAtom, SelectOption, SelectGroup } from '../atoms/SelectAtom';
 import { ErrorMessageAtom } from '../atoms/ErrorMessageAtom';
+import { InterEventsSelectAtom } from '../atoms/events/InterEventsSelectAtom';
 
-interface SelectFieldMoleculeProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectFieldMoleculeProps
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'onBlur'>,
+    InterEventsSelectAtom {
   id: string;
   label: string;
   options?: SelectOption[];

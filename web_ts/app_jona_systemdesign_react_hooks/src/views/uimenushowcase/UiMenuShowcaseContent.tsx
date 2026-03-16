@@ -175,7 +175,7 @@ export const UiMenuShowcaseContent: React.FC<UiMenuShowcaseContentProps> = (_pro
               placeholder="you@example.com" errorMessage="Please enter a valid email." required />
             <SelectFieldMolecule id="msc-role" label="Role" options={ROLE_OPTIONS}
               placeholder="Select a role..." value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
+              onChange={(value) => setSelectedRole(value)}
               description="Choose the user's access level." />
             <CheckboxFieldMolecule id="msc-terms" label="Accept terms and conditions"
               checked={termsAccepted} onCheckedChange={setTermsAccepted}

@@ -198,7 +198,7 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({
               options={ROLE_OPTIONS}
               placeholder="Select a role..."
               value={selectedRole}
-              onChange={(e) => onRoleChange(e.target.value)}
+              onChange={(value) => onRoleChange(value)}
               description="Choose the user's access level."
             />
             <CheckboxFieldMolecule
