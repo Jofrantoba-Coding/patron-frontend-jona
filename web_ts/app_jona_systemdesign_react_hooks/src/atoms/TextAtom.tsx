@@ -1,13 +1,16 @@
 // TextAtom.tsx — Level 1: Atom
-// Indivisible text/paragraph element. No business logic.
+// Polymorphic text element with size and color variants.
 import React from 'react';
+import { cn } from '../lib/cn';
 
-type TextSize = 'xs' | 'sm' | 'base' | 'lg' | 'xl';
+type TextAs = 'p' | 'span' | 'h1' | 'h2' | 'h3' | 'h4';
+type TextSize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl';
+type TextColor = 'default' | 'muted' | 'danger' | 'success' | 'primary';
 
-interface TextAtomProps {
-  content: string;
+interface TextAtomProps extends React.HTMLAttributes<HTMLElement> {
+  as?: TextAs;
   size?: TextSize;
-  muted?: boolean;
+  color?: TextColor;
 }
 
 const sizeClasses: Record<TextSize, string> = {
@@ -16,16 +19,31 @@ const sizeClasses: Record<TextSize, string> = {
   base: 'text-base',
   lg:   'text-lg',
   xl:   'text-xl',
+  '2xl': 'text-2xl font-semibold',
+};
+
+const colorClasses: Record<TextColor, string> = {
+  default: 'text-neutral-900',
+  muted:   'text-neutral-500',
+  danger:  'text-danger-500',
+  success: 'text-success-500',
+  primary: 'text-primary-600',
 };
 
 export const TextAtom: React.FC<TextAtomProps> = ({
-  content,
+  as: Tag = 'p',
   size = 'base',
-  muted = false,
+  color = 'default',
+  className,
+  children,
+  ...props
 }) => {
   return (
-    <p className={`${sizeClasses[size]} ${muted ? 'text-neutral-500' : 'text-neutral-900'}`}>
-      {content}
-    </p>
+    <Tag
+      className={cn(sizeClasses[size], colorClasses[color], className)}
+      {...props}
+    >
+      {children}
+    </Tag>
   );
 };

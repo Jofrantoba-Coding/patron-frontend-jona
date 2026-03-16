@@ -1,15 +1,30 @@
 // ErrorMessageAtom.tsx — Level 1: Atom
-// Displays a validation error message. No business logic.
+// Accessible error/description message for form fields.
 import React from 'react';
+import { cn } from '../lib/cn';
 
-interface ErrorMessageAtomProps {
+interface ErrorMessageAtomProps extends React.HTMLAttributes<HTMLParagraphElement> {
   message?: string;
+  type?: 'error' | 'description';
 }
 
-export const ErrorMessageAtom: React.FC<ErrorMessageAtomProps> = ({ message }) => {
+export const ErrorMessageAtom: React.FC<ErrorMessageAtomProps> = ({
+  message,
+  type = 'error',
+  className,
+  ...props
+}) => {
   if (!message) return null;
   return (
-    <p className="mt-1 text-xs text-danger-500" role="alert">
+    <p
+      role={type === 'error' ? 'alert' : undefined}
+      className={cn(
+        'text-xs mt-1',
+        type === 'error' ? 'text-danger-500' : 'text-neutral-500',
+        className
+      )}
+      {...props}
+    >
       {message}
     </p>
   );

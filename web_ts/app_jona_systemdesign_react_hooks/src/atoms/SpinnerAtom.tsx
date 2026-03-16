@@ -1,13 +1,31 @@
 // SpinnerAtom.tsx — Level 1: Atom
-// Loading spinner feedback element. No business logic.
+// Loading spinner. Used inside ButtonAtom and standalone.
 import React from 'react';
+import { cn } from '../lib/cn';
 
-export const SpinnerAtom: React.FC = () => {
+type SpinnerSize = 'sm' | 'md' | 'lg';
+
+interface SpinnerAtomProps {
+  size?: SpinnerSize;
+  className?: string;
+}
+
+const sizeClasses: Record<SpinnerSize, string> = {
+  sm: 'w-3.5 h-3.5 border-2',
+  md: 'w-5 h-5 border-2',
+  lg: 'w-7 h-7 border-[3px]',
+};
+
+export const SpinnerAtom: React.FC<SpinnerAtomProps> = ({ size = 'md', className }) => {
   return (
-    <div
+    <span
       role="status"
-      className="inline-block w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"
       aria-label="Loading"
+      className={cn(
+        'inline-block rounded-full border-current border-t-transparent animate-spin',
+        sizeClasses[size],
+        className
+      )}
     />
   );
 };

@@ -1,6 +1,5 @@
 // UiIniciarSesionImpl.ts — Level 3: Organism / JONA Layer: Implementation
 // Integrator's responsibility. Methods only — no UI code.
-// Overrides Template methods with real service calls.
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUiIniciarSesion } from './UiIniciarSesion';
@@ -11,6 +10,7 @@ export function useUiIniciarSesionImpl() {
   const navigate = useNavigate();
 
   function login(email: string, password: string): void {
+    base.setIsLoading(true);
     AuthService.login(email, password)
       .then((res) => {
         localStorage.setItem('jona_authenticated', 'true');
@@ -19,7 +19,10 @@ export function useUiIniciarSesionImpl() {
         navigate('/homesesion');
       })
       .catch((err: { message: string }) => {
-        window.alert(err.message ?? 'Login failed');
+        base.setAlertMessage(err.message ?? 'Login failed');
+      })
+      .finally(() => {
+        base.setIsLoading(false);
       });
   }
 
