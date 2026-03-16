@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const i=require("react/jsx-runtime"),c=require("./InterSwitchFieldMolecule.cjs"),t=require("./SwitchFieldMoleculeView.cjs"),e=l=>i.jsx(t.SwitchFieldMoleculeView,{...c.SWITCH_FIELD_MOLECULE_DEFAULTS,...l});e.displayName="SwitchFieldMolecule";exports.SwitchFieldMoleculeImpl=e;
+//# sourceMappingURL=SwitchFieldMoleculeImpl.cjs.map

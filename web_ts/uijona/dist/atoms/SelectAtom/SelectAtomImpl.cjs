@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const m=require("react/jsx-runtime"),S=require("react"),d=require("./InterSelectAtom.cjs"),u=require("./SelectAtomView.cjs"),c=S.forwardRef(({onChange:t,onBlur:r,...l},o)=>{const s={...d.SELECT_ATOM_DEFAULTS,...l},a=e=>t==null?void 0:t(e.target.value,e),i=e=>r==null?void 0:r(e.target.value,e);return m.jsx(u.SelectAtomView,{...s,forwardedRef:o,onChange:a,onBlur:i})});c.displayName="SelectAtom";exports.SelectAtomImpl=c;
+//# sourceMappingURL=SelectAtomImpl.cjs.map

@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const n=require("react/jsx-runtime"),s=require("../../lib/cn.cjs"),t={sm:"w-3.5 h-3.5 border-2",md:"w-5 h-5 border-2",lg:"w-7 h-7 border-[3px]"},o=({size:e="md",className:r})=>n.jsx("span",{role:"status","aria-label":"Loading",className:s.cn("inline-block rounded-full border-current border-t-transparent animate-spin",t[e],r)});exports.SpinnerAtomView=o;
+//# sourceMappingURL=SpinnerAtomView.cjs.map

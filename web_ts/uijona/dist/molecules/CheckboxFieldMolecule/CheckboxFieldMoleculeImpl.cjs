@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const o=require("react/jsx-runtime"),c=require("./InterCheckboxFieldMolecule.cjs"),i=require("./CheckboxFieldMoleculeView.cjs"),e=l=>o.jsx(i.CheckboxFieldMoleculeView,{...c.CHECKBOX_FIELD_MOLECULE_DEFAULTS,...l});e.displayName="CheckboxFieldMolecule";exports.CheckboxFieldMoleculeImpl=e;
+//# sourceMappingURL=CheckboxFieldMoleculeImpl.cjs.map

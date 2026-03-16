@@ -1,0 +1,29 @@
+// UserAvatarMoleculeView.tsx — JONA View (render puro)
+import React from 'react';
+import { cn } from '../../lib/cn';
+import { TextAtom } from '../../atoms/TextAtom';
+import { InterUserAvatarMolecule, UserAvatarSize } from './InterUserAvatarMolecule';
+
+const sizeClasses: Record<UserAvatarSize, { avatar: string; text: string }> = {
+  sm: { avatar: 'w-7 h-7 text-xs',     text: 'text-xs' },
+  md: { avatar: 'w-10 h-10 text-sm',   text: 'text-sm' },
+  lg: { avatar: 'w-14 h-14 text-base', text: 'text-base' },
+};
+
+export const UserAvatarMoleculeView: React.FC<InterUserAvatarMolecule> = ({ name, email, size = 'md', className }) => {
+  const initials = name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+  return (
+    <div className={cn('flex items-center gap-3', className)}>
+      <div
+        className={cn('rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold flex-shrink-0', sizeClasses[size].avatar)}
+        aria-label={`Avatar of ${name}`}
+      >
+        {initials || '?'}
+      </div>
+      <div className="min-w-0">
+        <TextAtom as="span" size="sm" color="default" className="block font-medium truncate">{name}</TextAtom>
+        {email && <TextAtom as="span" size="xs" color="muted" className="block truncate">{email}</TextAtom>}
+      </div>
+    </div>
+  );
+};

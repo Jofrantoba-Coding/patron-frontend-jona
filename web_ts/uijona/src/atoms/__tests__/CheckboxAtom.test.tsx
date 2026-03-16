@@ -4,12 +4,12 @@ import { CheckboxAtom } from '../CheckboxAtom';
 describe('CheckboxAtom', () => {
   it('renders with unchecked state', () => {
     render(<CheckboxAtom aria-label="Accept terms" />);
-    expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByRole('checkbox')).not.toBeChecked();
   });
 
   it('renders with checked state', () => {
     render(<CheckboxAtom checked aria-label="Accept terms" />);
-    expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('checkbox')).toBeChecked();
   });
 
   it('calls onCheckedChange with toggled value', () => {

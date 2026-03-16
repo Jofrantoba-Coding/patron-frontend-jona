@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const n=require("react/jsx-runtime"),o=require("./InterPaginationMolecule.cjs"),l=require("./PaginationMoleculeView.cjs"),e=i=>n.jsx(l.PaginationMoleculeView,{...o.PAGINATION_MOLECULE_DEFAULTS,...i});e.displayName="PaginationMolecule";exports.PaginationMoleculeImpl=e;
+//# sourceMappingURL=PaginationMoleculeImpl.cjs.map

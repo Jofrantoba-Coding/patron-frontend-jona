@@ -1,7 +1,5 @@
-import { jsx as t } from "react/jsx-runtime";
-import { cn as a } from "../lib/cn.js";
-const l = ({ circle: e = !1, className: o, ...r }) => /* @__PURE__ */ t("div", { "aria-hidden": "true", className: a("animate-pulse bg-neutral-200", e ? "rounded-full" : "rounded", o), ...r });
+import { SkeletonAtomImpl as t } from "./SkeletonAtom/SkeletonAtomImpl.js";
 export {
-  l as SkeletonAtom
+  t as SkeletonAtom
 };
 //# sourceMappingURL=SkeletonAtom.js.map

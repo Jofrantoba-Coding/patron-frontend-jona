@@ -2,16 +2,20 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
-import { readdirSync } from 'fs';
+import { readdirSync, statSync } from 'fs';
 
-// Build one entry per atom and molecule for tree-shaking
-function collectEntries(dir: string, prefix: string): Record<string, string> {
+// Collect entries from JONA-pattern subfolders (each folder has an index.ts)
+function collectFolderEntries(dir: string, prefix: string): Record<string, string> {
   const entries: Record<string, string> = {};
   try {
-    readdirSync(resolve(__dirname, dir)).forEach((file) => {
-      if (file.endsWith('.tsx') || file.endsWith('.ts')) {
-        const name = file.replace(/\.(tsx|ts)$/, '');
-        entries[`${prefix}/${name}`] = resolve(__dirname, dir, file);
+    readdirSync(resolve(__dirname, dir)).forEach((name) => {
+      const fullPath = resolve(__dirname, dir, name);
+      if (statSync(fullPath).isDirectory()) {
+        const indexTs = resolve(fullPath, 'index.ts');
+        try {
+          statSync(indexTs);
+          entries[`${prefix}/${name}`] = indexTs;
+        } catch {}
       }
     });
   } catch {}
@@ -31,16 +35,15 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
-        ...collectEntries('src/atoms', 'atoms'),
-        ...collectEntries('src/molecules', 'molecules'),
-        ...collectEntries('src/hooks', 'hooks'),
+        ...collectFolderEntries('src/atoms', 'atoms'),
+        ...collectFolderEntries('src/molecules', 'molecules'),
+        ...collectFolderEntries('src/hooks', 'hooks'),
       },
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
-        // One file per module — enables true tree-shaking
         preserveModules: true,
         preserveModulesRoot: 'src',
         globals: {

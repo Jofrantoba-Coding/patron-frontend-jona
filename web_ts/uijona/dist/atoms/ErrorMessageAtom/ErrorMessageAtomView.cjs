@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const n=require("react/jsx-runtime"),s=require("../../lib/cn.cjs"),i=({message:r,type:e="error",id:t,className:o})=>r?n.jsx("p",{id:t,role:e==="error"?"alert":void 0,className:s.cn("text-xs",e==="error"?"text-danger-500":"text-neutral-500",o),children:r}):null;exports.ErrorMessageAtomView=i;
+//# sourceMappingURL=ErrorMessageAtomView.cjs.map

@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const a=require("react/jsx-runtime"),l=require("react"),T=require("./ToastAtomView.cjs"),c=({id:t,duration:r=4e3,onDismiss:e,...u})=>(l.useEffect(()=>{if(!r)return;const o=setTimeout(()=>e==null?void 0:e(t),r);return()=>clearTimeout(o)},[t,r,e]),a.jsx(T.ToastAtomView,{id:t,...u,onDismissClick:()=>e==null?void 0:e(t)}));c.displayName="ToastAtom";exports.ToastAtomImpl=c;
+//# sourceMappingURL=ToastAtomImpl.cjs.map

@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const t=require("react/jsx-runtime"),o=require("../../lib/cn.cjs"),a=({orientation:e="horizontal",className:r})=>t.jsx("div",{role:"separator","aria-orientation":e,className:o.cn("bg-neutral-200 shrink-0",e==="horizontal"?"h-px w-full":"w-px h-full",r)});exports.SeparatorAtomView=a;
+//# sourceMappingURL=SeparatorAtomView.cjs.map

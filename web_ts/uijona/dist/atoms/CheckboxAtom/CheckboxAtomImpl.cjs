@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const m=require("react/jsx-runtime"),u=require("react"),b=require("./InterCheckboxAtom.cjs"),l=require("./CheckboxAtomView.cjs"),t=u.forwardRef(({onCheckedChange:e,...o},r)=>{const c={...b.CHECKBOX_ATOM_DEFAULTS,...o},s=i=>e==null?void 0:e(i.target.checked);return m.jsx(l.CheckboxAtomView,{...c,forwardedRef:r,onChange:s})});t.displayName="CheckboxAtom";exports.CheckboxAtomImpl=t;
+//# sourceMappingURL=CheckboxAtomImpl.cjs.map

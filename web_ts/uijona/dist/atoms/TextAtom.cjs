@@ -1,2 +1,2 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("react/jsx-runtime"),c=require("../lib/cn.cjs"),n={xs:"text-xs",sm:"text-sm",base:"text-base",lg:"text-lg",xl:"text-xl","2xl":"text-2xl font-semibold"},o={default:"text-neutral-900",muted:"text-neutral-500",danger:"text-danger-500",success:"text-success-500",primary:"text-primary-600"},u=({as:t="p",size:e="base",color:s="default",className:x,children:a,...l})=>r.jsx(t,{className:c.cn(n[e],o[s],x),...l,children:a});exports.TextAtom=u;
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const t=require("./TextAtom/TextAtomImpl.cjs");exports.TextAtom=t.TextAtomImpl;
 //# sourceMappingURL=TextAtom.cjs.map

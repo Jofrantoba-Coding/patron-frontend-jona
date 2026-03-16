@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const l=require("react/jsx-runtime"),t=require("./InterUserAvatarMolecule.cjs"),a=require("./UserAvatarMoleculeView.cjs"),e=r=>l.jsx(a.UserAvatarMoleculeView,{...t.USER_AVATAR_MOLECULE_DEFAULTS,...r});e.displayName="UserAvatarMolecule";exports.UserAvatarMoleculeImpl=e;
+//# sourceMappingURL=UserAvatarMoleculeImpl.cjs.map

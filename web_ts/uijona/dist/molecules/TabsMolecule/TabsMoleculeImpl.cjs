@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const s=require("react/jsx-runtime"),T=require("./InterTabsMolecule.cjs"),l=require("./TabsMoleculeView.cjs"),t=e=>s.jsx(l.TabsMoleculeView,{...T.TABS_MOLECULE_DEFAULTS,...e});t.displayName="TabsMolecule";const o=e=>s.jsx(l.TabsListView,{...e}),a=e=>s.jsx(l.TabsTriggerView,{...e}),i=e=>s.jsx(l.TabsContentView,{...e});exports.TabsContentImpl=i;exports.TabsListImpl=o;exports.TabsMoleculeImpl=t;exports.TabsTriggerImpl=a;
+//# sourceMappingURL=TabsMoleculeImpl.cjs.map
