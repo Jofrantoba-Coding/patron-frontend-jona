@@ -6,6 +6,7 @@ import { UserAvatarMolecule } from '../../molecules/UserAvatarMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
 import { BadgeAtom } from '../../atoms/BadgeAtom';
+import { useNavigate } from 'react-router-dom';
 
 interface UiHomeSessionProps {
   name: string;
@@ -14,6 +15,7 @@ interface UiHomeSessionProps {
 }
 
 export const UiHomeSession: React.FC<UiHomeSessionProps> = ({ name, email, onLogout }) => {
+  const navigate = useNavigate();
   return (
     <BorderLayout
       north={<span className="font-semibold text-lg">JONA System Design</span>}
@@ -31,7 +33,10 @@ export const UiHomeSession: React.FC<UiHomeSessionProps> = ({ name, email, onLog
             <CardContent>
               <UserAvatarMolecule name={name} email={email} size="lg" />
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex-col gap-2">
+              <ButtonAtom variant="outline" fullWidth onClick={() => navigate('/showcase')}>
+                View component showcase
+              </ButtonAtom>
               <ButtonAtom variant="destructive" fullWidth onClick={onLogout}>
                 Sign out
               </ButtonAtom>

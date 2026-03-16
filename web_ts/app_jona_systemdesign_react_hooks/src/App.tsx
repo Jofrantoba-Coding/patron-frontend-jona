@@ -3,6 +3,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { UiHomeView } from './views/uihome/UiHomeView';
 import { UiHomeSessionView } from './views/uihomesesion/UiHomeSessionView';
+import { UiShowcaseView } from './views/uishowcase/UiShowcaseView';
 import ProtectedRoute from './protectedRoute';
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
         {/* Protected pages — require authentication */}
         <Route path='/' element={<ProtectedRoute />}>
           <Route path='/homesesion' element={<UiHomeSessionView />} />
+          <Route path='/showcase' element={<UiShowcaseView />} />
         </Route>
 
         <Route path='*' element={<Navigate to='/login' replace />} />
