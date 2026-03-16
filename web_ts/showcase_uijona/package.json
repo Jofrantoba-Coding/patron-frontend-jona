@@ -9,11 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "jona-ui": "^1.0.0",
+    "@monaco-editor/react": "^4.6.0",
+    "jona-ui": "^1.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.1",
-    "@monaco-editor/react": "^4.6.0"
+    "react-router-dom": "^6.23.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

@@ -6,6 +6,7 @@ import {
   AlertMolecule, FormFieldMolecule, DialogMolecule, UserAvatarMolecule,
   TabsMolecule, TabsList, TabsTrigger, TabsContent,
   PaginationMolecule, BorderLayout, LoginOrganism, UiHomeLogin,
+  HeaderPageOrganism, FooterPageOrganism,
 } from 'jona-ui';
 
 // ── Atoms ──────────────────────────────────────────────────────────────────
@@ -269,6 +270,40 @@ export const LoginOrganismPreview = () => {
   );
 };
 
+export const HeaderPageOrganismPreview = () => (
+  <div className="w-full border rounded overflow-hidden">
+    <HeaderPageOrganism
+      title="JONA UI"
+      nav={
+        <>
+          <a href="#" className="hover:text-blue-600">Home</a>
+          <a href="#" className="hover:text-blue-600">Docs</a>
+          <a href="#" className="hover:text-blue-600">Components</a>
+        </>
+      }
+      actions={
+        <ButtonAtom size="sm" variant="outline">Sign in</ButtonAtom>
+      }
+    />
+  </div>
+);
+
+export const FooterPageOrganismPreview = () => (
+  <div className="w-full border rounded overflow-hidden">
+    <FooterPageOrganism
+      text="© 2026 JONA UI"
+      center={
+        <>
+          <a href="#" className="hover:text-blue-600">Privacy</a>
+          <a href="#" className="hover:text-blue-600">Terms</a>
+          <a href="#" className="hover:text-blue-600">Contact</a>
+        </>
+      }
+      right={<BadgeAtom variant="secondary">v1.1.1</BadgeAtom>}
+    />
+  </div>
+);
+
 // ── Pages ──────────────────────────────────────────────────────────────────
 
 export const UiHomeLoginPreview = () => (
@@ -308,5 +343,7 @@ export const PREVIEW_MAP: Record<string, React.FC> = {
   PaginationMolecule: PaginationMoleculePreview,
   BorderLayout: BorderLayoutPreview,
   LoginOrganism: LoginOrganismPreview,
+  HeaderPageOrganism: HeaderPageOrganismPreview,
+  FooterPageOrganism: FooterPageOrganismPreview,
   UiHomeLogin: UiHomeLoginPreview,
 };

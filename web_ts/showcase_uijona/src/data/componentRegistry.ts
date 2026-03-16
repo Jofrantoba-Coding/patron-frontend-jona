@@ -624,6 +624,73 @@ export default function Demo() {
   onGoToRecoverPassword={() => navigate('/recover')}
 />`,
   },
+  {
+    id: 'HeaderPageOrganism',
+    name: 'HeaderPageOrganism',
+    category: 'Organisms',
+    description: 'Page header organism with title, navigation and actions slots.',
+    defaultCode: `import { HeaderPageOrganism, ButtonAtom } from 'jona-ui';
+
+export default function Demo() {
+  return (
+    <div className="w-full border rounded overflow-hidden">
+      <HeaderPageOrganism
+        title="My App"
+        nav={
+          <>
+            <a href="#" className="hover:text-blue-600 text-sm">Home</a>
+            <a href="#" className="hover:text-blue-600 text-sm">Docs</a>
+            <a href="#" className="hover:text-blue-600 text-sm">Components</a>
+          </>
+        }
+        actions={
+          <ButtonAtom size="sm" variant="outline">Sign in</ButtonAtom>
+        }
+      />
+    </div>
+  );
+}`,
+    usage: `import { HeaderPageOrganism } from 'jona-ui';
+
+<HeaderPageOrganism
+  title="My App"
+  nav={<nav>...</nav>}
+  actions={<UserAvatarMolecule name="John Doe" />}
+/>`,
+  },
+  {
+    id: 'FooterPageOrganism',
+    name: 'FooterPageOrganism',
+    category: 'Organisms',
+    description: 'Page footer organism with left, center and right slots.',
+    defaultCode: `import { FooterPageOrganism, BadgeAtom } from 'jona-ui';
+
+export default function Demo() {
+  return (
+    <div className="w-full border rounded overflow-hidden">
+      <FooterPageOrganism
+        text="© 2026 My Company"
+        center={
+          <>
+            <a href="#" className="hover:text-blue-600 text-sm">Privacy</a>
+            <a href="#" className="hover:text-blue-600 text-sm">Terms</a>
+            <a href="#" className="hover:text-blue-600 text-sm">Contact</a>
+          </>
+        }
+        right={<BadgeAtom variant="secondary">v1.0.0</BadgeAtom>}
+      />
+    </div>
+  );
+}`,
+    usage: `import { FooterPageOrganism } from 'jona-ui';
+
+<FooterPageOrganism
+  text="© 2026 My Company"
+  left={<Logo />}
+  center={<FooterLinks />}
+  right={<SocialIcons />}
+/>`,
+  },
   // ── PAGES ──────────────────────────────────────────────────────────────────
   {
     id: 'UiHomeLogin',
