@@ -1,44 +1,46 @@
 import { jsx as o } from "react/jsx-runtime";
-import { LoginOrganismView as g } from "../../organisms/LoginOrganism/LoginOrganismView.js";
-import { BorderLayoutView as h } from "../../layouts/BorderLayout/BorderLayoutView.js";
-const V = ({
+import { LoginOrganismView as x } from "../../organisms/LoginOrganism/LoginOrganismView.js";
+import { HeaderPageOrganismView as L } from "../../organisms/HeaderPageOrganism/HeaderPageOrganismView.js";
+import { FooterPageOrganismView as O } from "../../organisms/FooterPageOrganism/FooterPageOrganismView.js";
+import { BorderLayoutView as c } from "../../layouts/BorderLayout/BorderLayoutView.js";
+const j = ({
   email: r,
   password: e,
   emailError: i,
   passwordError: t,
-  alertMessage: n,
-  isLoading: m,
-  setEmail: s,
-  setPassword: a,
+  alertMessage: m,
+  isLoading: n,
+  setEmail: a,
+  setPassword: g,
   onSubmit: p,
-  onGoToCreateAccount: c,
-  onGoToRecoverPassword: l,
-  appTitle: d,
-  footerText: f
+  onGoToCreateAccount: s,
+  onGoToRecoverPassword: f,
+  appTitle: w,
+  footerText: V
 }) => /* @__PURE__ */ o(
-  h,
+  c,
   {
-    north: /* @__PURE__ */ o("span", { className: "font-semibold text-lg", children: d }),
-    south: /* @__PURE__ */ o("span", { children: f }),
+    north: /* @__PURE__ */ o(L, { title: w }),
+    south: /* @__PURE__ */ o(O, { text: V }),
     center: /* @__PURE__ */ o(
-      g,
+      x,
       {
         email: r,
         password: e,
         emailError: i,
         passwordError: t,
-        alertMessage: n,
-        isLoading: m,
-        setEmail: s,
-        setPassword: a,
+        alertMessage: m,
+        isLoading: n,
+        setEmail: a,
+        setPassword: g,
         onSubmit: p,
-        onGoToCreateAccount: c,
-        onGoToRecoverPassword: l
+        onGoToCreateAccount: s,
+        onGoToRecoverPassword: f
       }
     )
   }
 );
 export {
-  V as UiHomeLoginView
+  j as UiHomeLoginView
 };
 //# sourceMappingURL=UiHomeLoginView.js.map

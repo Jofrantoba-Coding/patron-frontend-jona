@@ -1,6 +1,6 @@
 {
   "name": "jona-ui",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "JONA Design System — Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
@@ -145,6 +145,16 @@
       "import": "./dist/organisms/LoginOrganism.js",
       "require": "./dist/organisms/LoginOrganism.cjs",
       "types": "./dist/organisms/LoginOrganism.d.ts"
+    },
+    "./organisms/HeaderPageOrganism": {
+      "import": "./dist/organisms/HeaderPageOrganism.js",
+      "require": "./dist/organisms/HeaderPageOrganism.cjs",
+      "types": "./dist/organisms/HeaderPageOrganism.d.ts"
+    },
+    "./organisms/FooterPageOrganism": {
+      "import": "./dist/organisms/FooterPageOrganism.js",
+      "require": "./dist/organisms/FooterPageOrganism.cjs",
+      "types": "./dist/organisms/FooterPageOrganism.d.ts"
     },
     "./pages/UiHomeLogin": {
       "import": "./dist/pages/UiHomeLogin.js",

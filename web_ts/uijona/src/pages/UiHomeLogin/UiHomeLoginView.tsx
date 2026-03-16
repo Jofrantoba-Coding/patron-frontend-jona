@@ -3,6 +3,8 @@ import React from 'react';
 import { InterUiHomeLogin } from './InterUiHomeLogin';
 import { BorderLayoutView } from '../../layouts/BorderLayout';
 import { LoginOrganismView } from '../../organisms/LoginOrganism';
+import { HeaderPageOrganismView } from '../../organisms/HeaderPageOrganism';
+import { FooterPageOrganismView } from '../../organisms/FooterPageOrganism';
 
 export const UiHomeLoginView: React.FC<InterUiHomeLogin> = ({
   email,
@@ -20,8 +22,8 @@ export const UiHomeLoginView: React.FC<InterUiHomeLogin> = ({
   footerText,
 }) => (
   <BorderLayoutView
-    north={<span className="font-semibold text-lg">{appTitle}</span>}
-    south={<span>{footerText}</span>}
+    north={<HeaderPageOrganismView title={appTitle} />}
+    south={<FooterPageOrganismView text={footerText} />}
     center={
       <LoginOrganismView
         email={email}
