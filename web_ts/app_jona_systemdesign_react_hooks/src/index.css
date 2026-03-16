@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design Tokens — CSS custom properties */
+:root {
+  --font-family-base: 'Inter', system-ui, sans-serif;
+  --color-primary: #2563eb;
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+  --color-neutral-bg: #f9fafb;
+  --spacing-md: 16px;
+  --radius-md: 8px;
+}
+
+body {
+  font-family: var(--font-family-base);
+  margin: 0;
+  background-color: var(--color-neutral-bg);
+}
