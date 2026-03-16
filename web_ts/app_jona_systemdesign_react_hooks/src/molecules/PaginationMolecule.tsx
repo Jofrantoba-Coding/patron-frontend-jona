@@ -1,21 +1,18 @@
 // PaginationMolecule.tsx — Level 2: Molecule
-// Inspired by shadcn/ui Pagination — page numbers, prev/next, ellipsis.
+// Observer pattern: props extends InterEventsPaginationMolecule (event contract).
 import React from 'react';
 import { cn } from '../lib/cn';
+import { InterEventsPaginationMolecule } from './events/InterEventsPaginationMolecule';
 
-interface PaginationMoleculeProps {
+interface PaginationMoleculeProps extends InterEventsPaginationMolecule {
   currentPage: number;
   totalPages: number;
-  onPageChange: (page: number) => void;
-  siblingCount?: number; // pages shown around current, default 1
+  siblingCount?: number;
   className?: string;
 }
 
-// Build page range with ellipsis
 function buildRange(current: number, total: number, siblings: number): (number | '...')[] {
-  const delta = siblings + 2;
   const range: number[] = [];
-
   for (
     let i = Math.max(2, current - siblings);
     i <= Math.min(total - 1, current + siblings);
@@ -23,15 +20,11 @@ function buildRange(current: number, total: number, siblings: number): (number |
   ) {
     range.push(i);
   }
-
   const result: (number | '...')[] = [1];
-
   if (range[0] > 2) result.push('...');
   result.push(...range);
   if (range[range.length - 1] < total - 1) result.push('...');
   if (total > 1) result.push(total);
-
-  // Deduplicate
   return result.filter((v, i, arr) => arr.indexOf(v) === i);
 }
 
@@ -51,12 +44,30 @@ export const PaginationMolecule: React.FC<PaginationMoleculeProps> = ({
   currentPage,
   totalPages,
   onPageChange,
+  onPrevious,
+  onNext,
+  onFirstPageReached,
+  onLastPageReached,
   siblingCount = 1,
   className,
 }) => {
   if (totalPages <= 1) return null;
 
   const pages = buildRange(currentPage, totalPages, siblingCount);
+
+  const handlePrev = () => {
+    if (currentPage <= 1) { onFirstPageReached?.(); return; }
+    const next = currentPage - 1;
+    onPrevious?.(currentPage);
+    onPageChange?.(next);
+  };
+
+  const handleNext = () => {
+    if (currentPage >= totalPages) { onLastPageReached?.(); return; }
+    const next = currentPage + 1;
+    onNext?.(currentPage);
+    onPageChange?.(next);
+  };
 
   const btnBase = cn(
     'inline-flex items-center justify-center h-8 min-w-[2rem] px-2 rounded-token-sm text-sm',
@@ -67,31 +78,27 @@ export const PaginationMolecule: React.FC<PaginationMoleculeProps> = ({
 
   return (
     <nav aria-label="Pagination" className={cn('flex items-center gap-1', className)}>
-      {/* Previous */}
       <button
         type="button"
         aria-label="Go to previous page"
         disabled={currentPage <= 1}
-        onClick={() => onPageChange(currentPage - 1)}
+        onClick={handlePrev}
         className={cn(btnBase, 'gap-1 pr-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}
       >
         <ChevronLeft />
         <span className="hidden sm:inline">Previous</span>
       </button>
 
-      {/* Pages */}
       {pages.map((page, i) =>
         page === '...' ? (
-          <span key={`ellipsis-${i}`} className="px-2 text-neutral-400 select-none">
-            …
-          </span>
+          <span key={`ellipsis-${i}`} className="px-2 text-neutral-400 select-none">…</span>
         ) : (
           <button
             key={page}
             type="button"
             aria-label={`Page ${page}`}
             aria-current={page === currentPage ? 'page' : undefined}
-            onClick={() => onPageChange(page as number)}
+            onClick={() => onPageChange?.(page as number)}
             className={cn(
               btnBase,
               page === currentPage
@@ -104,12 +111,11 @@ export const PaginationMolecule: React.FC<PaginationMoleculeProps> = ({
         )
       )}
 
-      {/* Next */}
       <button
         type="button"
         aria-label="Go to next page"
         disabled={currentPage >= totalPages}
-        onClick={() => onPageChange(currentPage + 1)}
+        onClick={handleNext}
         className={cn(btnBase, 'gap-1 pl-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}
       >
         <span className="hidden sm:inline">Next</span>

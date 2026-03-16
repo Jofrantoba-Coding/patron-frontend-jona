@@ -1,13 +1,16 @@
 // FormFieldMolecule.tsx — Level 2: Molecule
-// Inspired by shadcn/ui Field — Label + Input + Description/Error.
-// Supports vertical (default) and horizontal orientation.
+// Observer pattern: props extends InterEventsFormFieldMolecule (event contract).
+// Composes InterEventsInputAtom via the molecule contract.
 import React from 'react';
 import { cn } from '../lib/cn';
 import { LabelAtom } from '../atoms/LabelAtom';
 import { InputAtom } from '../atoms/InputAtom';
 import { ErrorMessageAtom } from '../atoms/ErrorMessageAtom';
+import { InterEventsFormFieldMolecule } from './events/InterEventsFormFieldMolecule';
 
-interface FormFieldMoleculeProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface FormFieldMoleculeProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur' | 'onKeyDown' | 'onInvalid'>,
+    InterEventsFormFieldMolecule {
   id: string;
   label: string;
   errorMessage?: string;
@@ -25,11 +28,30 @@ export const FormFieldMolecule = React.forwardRef<HTMLInputElement, FormFieldMol
       orientation = 'vertical',
       required,
       className,
+      // InterEventsFormFieldMolecule (includes InterEventsInputAtom)
+      onChange,
+      onBlur,
+      onFocus,
+      onKeyDown,
+      onEnterPress,
+      onClear,
+      onValid,
+      onInvalid,
       ...inputProps
     },
     ref
   ) => {
     const hasError = !!errorMessage;
+
+    const handleBlur = (value: string, e: React.FocusEvent<HTMLInputElement>) => {
+      onBlur?.(value, e);
+      // Run validation on blur
+      if (hasError) {
+        onInvalid?.(value, errorMessage ?? '');
+      } else {
+        onValid?.(value);
+      }
+    };
 
     return (
       <div
@@ -50,6 +72,12 @@ export const FormFieldMolecule = React.forwardRef<HTMLInputElement, FormFieldMol
             hasError={hasError}
             required={required}
             aria-describedby={description ? `${id}-desc` : undefined}
+            onChange={onChange}
+            onBlur={handleBlur}
+            onFocus={onFocus}
+            onKeyDown={onKeyDown}
+            onEnterPress={onEnterPress}
+            onClear={onClear}
             {...inputProps}
           />
           {description && !hasError && (

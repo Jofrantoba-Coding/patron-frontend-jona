@@ -1,12 +1,12 @@
 // CheckboxAtom.tsx — Level 1: Atom
-// Inspired by shadcn/ui Checkbox — controlled, supports invalid + disabled.
+// Observer pattern: props extends InterEventsCheckboxAtom (event contract).
 import React from 'react';
 import { cn } from '../lib/cn';
+import { InterEventsCheckboxAtom } from './events/InterEventsCheckboxAtom';
 
-interface CheckboxAtomProps {
+interface CheckboxAtomProps extends InterEventsCheckboxAtom {
   id?: string;
   checked?: boolean;
-  onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   hasError?: boolean;
   className?: string;
@@ -17,6 +17,8 @@ export const CheckboxAtom: React.FC<CheckboxAtomProps> = ({
   id,
   checked = false,
   onCheckedChange,
+  onFocus,
+  onBlur,
   disabled = false,
   hasError = false,
   className,
@@ -32,6 +34,8 @@ export const CheckboxAtom: React.FC<CheckboxAtomProps> = ({
       aria-label={ariaLabel}
       disabled={disabled}
       onClick={() => !disabled && onCheckedChange?.(!checked)}
+      onFocus={onFocus}
+      onBlur={onBlur}
       className={cn(
         'h-4 w-4 shrink-0 rounded-sm border transition-colors duration-200',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',

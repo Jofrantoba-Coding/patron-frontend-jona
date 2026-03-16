@@ -1,13 +1,13 @@
 // DialogMolecule.tsx — Level 2: Molecule
-// Inspired by shadcn/ui Dialog — accessible modal with portal, focus trap, ESC close.
+// Observer pattern: props extends InterEventsDialogMolecule (event contract).
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../lib/cn';
 import { ButtonAtom } from '../atoms/ButtonAtom';
+import { InterEventsDialogMolecule } from './events/InterEventsDialogMolecule';
 
-interface DialogMoleculeProps {
+interface DialogMoleculeProps extends InterEventsDialogMolecule {
   open: boolean;
-  onClose: () => void;
   title?: string;
   description?: string;
   showCloseButton?: boolean;
@@ -19,6 +19,10 @@ interface DialogMoleculeProps {
 export const DialogMolecule: React.FC<DialogMoleculeProps> = ({
   open,
   onClose,
+  onOpened,
+  onClosed,
+  onConfirm,
+  onCancel,
   title,
   description,
   showCloseButton = true,
@@ -33,21 +37,27 @@ export const DialogMolecule: React.FC<DialogMoleculeProps> = ({
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onClose?.();
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [open, onClose]);
 
-  // Lock body scroll
+  // Lock body scroll + fire lifecycle events
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
+      onOpened?.();
     } else {
       document.body.style.overflow = '';
+      if (onClosed) {
+        // fire after paint so consumers can animate
+        const id = requestAnimationFrame(() => onClosed?.());
+        return () => cancelAnimationFrame(id);
+      }
     }
     return () => { document.body.style.overflow = ''; };
-  }, [open]);
+  }, [open, onOpened, onClosed]);
 
   // Focus dialog on open
   useEffect(() => {
@@ -61,12 +71,10 @@ export const DialogMolecule: React.FC<DialogMoleculeProps> = ({
       ref={overlayRef}
       role="presentation"
       className="fixed inset-0 z-50 flex items-center justify-center"
-      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      onClick={(e) => { if (e.target === overlayRef.current) onClose?.(); }}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 animate-in fade-in-0" aria-hidden="true" />
 
-      {/* Dialog panel */}
       <div
         ref={dialogRef}
         role="dialog"
@@ -81,7 +89,6 @@ export const DialogMolecule: React.FC<DialogMoleculeProps> = ({
           className
         )}
       >
-        {/* Header */}
         {(title || showCloseButton) && (
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-1">
@@ -100,7 +107,7 @@ export const DialogMolecule: React.FC<DialogMoleculeProps> = ({
               <ButtonAtom
                 variant="ghost"
                 size="icon"
-                onClick={onClose}
+                onClick={() => { onCancel?.(); onClose?.(); }}
                 aria-label="Close dialog"
                 className="shrink-0 -mt-1 -mr-1"
               >
@@ -113,10 +120,8 @@ export const DialogMolecule: React.FC<DialogMoleculeProps> = ({
           </div>
         )}
 
-        {/* Content */}
         {children && <div className="text-sm text-neutral-700">{children}</div>}
 
-        {/* Footer */}
         {footer && (
           <div className="flex justify-end gap-2 pt-2">
             {footer}

@@ -1,18 +1,60 @@
 // InputAtom.tsx — Level 1: Atom
-// Inspired by shadcn/ui Input — supports invalid, disabled, required states.
+// Observer pattern: props extends InterEventsInputAtom (event contract).
+// onChange/onBlur carry the string value + native event.
 import React from 'react';
 import { cn } from '../lib/cn';
+import { InterEventsInputAtom } from './events/InterEventsInputAtom';
 
-interface InputAtomProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputAtomProps
+  extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    'onChange' | 'onBlur' | 'onKeyDown'
+  >,
+    InterEventsInputAtom {
   hasError?: boolean;
 }
 
 export const InputAtom = React.forwardRef<HTMLInputElement, InputAtomProps>(
-  ({ hasError = false, className, ...props }, ref) => {
+  (
+    {
+      hasError = false,
+      className,
+      onChange,
+      onBlur,
+      onFocus,
+      onKeyDown,
+      onEnterPress,
+      onClear,
+      ...props
+    },
+    ref
+  ) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange?.(e.target.value, e);
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      onBlur?.(e.target.value, e);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        onEnterPress?.((e.target as HTMLInputElement).value, e);
+      }
+      if (e.key === 'Backspace' && (e.target as HTMLInputElement).value === '') {
+        onClear?.();
+      }
+      onKeyDown?.(e);
+    };
+
     return (
       <input
         ref={ref}
         aria-invalid={hasError || undefined}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        onFocus={onFocus}
+        onKeyDown={handleKeyDown}
         className={cn(
           'flex h-9 w-full rounded-token-md border bg-neutral-50 px-3 py-1 text-sm text-neutral-900',
           'placeholder:text-neutral-400',

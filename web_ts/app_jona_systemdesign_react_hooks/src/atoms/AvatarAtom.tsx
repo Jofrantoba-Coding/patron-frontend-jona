@@ -1,11 +1,12 @@
 // AvatarAtom.tsx — Level 1: Atom
-// Displays an image avatar with fallback initials.
+// Observer pattern: props extends InterEventsAvatarAtom (event contract).
 import React from 'react';
 import { cn } from '../lib/cn';
+import { InterEventsAvatarAtom } from './events/InterEventsAvatarAtom';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
-interface AvatarAtomProps {
+interface AvatarAtomProps extends InterEventsAvatarAtom {
   src?: string;
   alt?: string;
   fallback?: string;
@@ -27,6 +28,8 @@ export const AvatarAtom: React.FC<AvatarAtomProps> = ({
   fallback,
   size = 'md',
   className,
+  onImageError,
+  onClick,
 }) => {
   const [imgError, setImgError] = React.useState(false);
   const showFallback = !src || imgError;
@@ -35,22 +38,29 @@ export const AvatarAtom: React.FC<AvatarAtomProps> = ({
     ? fallback.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : '?';
 
+  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    setImgError(true);
+    onImageError?.(e);
+  };
+
   return (
     <span
       className={cn(
         'inline-flex items-center justify-center rounded-full overflow-hidden',
         'bg-primary-600 text-white font-semibold flex-shrink-0',
+        onClick && 'cursor-pointer',
         sizeClasses[size],
         className
       )}
       aria-label={alt || fallback}
+      onClick={onClick}
     >
       {!showFallback ? (
         <img
           src={src}
           alt={alt}
           className="w-full h-full object-cover"
-          onError={() => setImgError(true)}
+          onError={handleImgError}
         />
       ) : (
         <span aria-hidden="true">{initials}</span>

@@ -1,15 +1,14 @@
 // SwitchAtom.tsx — Level 1: Atom
-// Toggle switch control. Inspired by shadcn/ui Switch.
-// Supports sm/md/lg sizes, disabled, invalid states.
+// Observer pattern: props extends InterEventsSwitchAtom (event contract).
 import React from 'react';
 import { cn } from '../lib/cn';
+import { InterEventsSwitchAtom } from './events/InterEventsSwitchAtom';
 
 type SwitchSize = 'sm' | 'md' | 'lg';
 
-interface SwitchAtomProps {
+interface SwitchAtomProps extends InterEventsSwitchAtom {
   id?: string;
   checked?: boolean;
-  onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   hasError?: boolean;
   size?: SwitchSize;
@@ -28,6 +27,8 @@ export const SwitchAtom: React.FC<SwitchAtomProps> = ({
   id,
   checked = false,
   onCheckedChange,
+  onFocus,
+  onBlur,
   disabled = false,
   hasError = false,
   size = 'md',
@@ -48,6 +49,8 @@ export const SwitchAtom: React.FC<SwitchAtomProps> = ({
       aria-labelledby={ariaLabelledBy}
       disabled={disabled}
       onClick={() => !disabled && onCheckedChange?.(!checked)}
+      onFocus={onFocus}
+      onBlur={onBlur}
       className={cn(
         'relative inline-flex shrink-0 cursor-pointer items-center rounded-full',
         'border-2 border-transparent transition-colors duration-200',

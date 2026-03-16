@@ -1,11 +1,10 @@
 // DropdownMolecule.tsx — Level 2: Molecule
-// Inspired by shadcn/ui DropdownMenu — trigger + portal menu with groups, labels, separators.
+// Observer pattern: props extends InterEventsDropdownMolecule (event contract).
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../lib/cn';
 import { SeparatorAtom } from '../atoms/SeparatorAtom';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
+import { InterEventsDropdownMolecule } from './events/InterEventsDropdownMolecule';
 
 export interface DropdownItem {
   label: string;
@@ -21,27 +20,28 @@ export interface DropdownGroup {
   items: DropdownItem[];
 }
 
-interface DropdownMoleculeProps {
+interface DropdownMoleculeProps extends InterEventsDropdownMolecule {
   trigger: React.ReactNode;
   groups: DropdownGroup[];
   align?: 'start' | 'end';
   className?: string;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
-
 export const DropdownMolecule: React.FC<DropdownMoleculeProps> = ({
   trigger,
   groups,
   align = 'start',
   className,
+  onOpen,
+  onClose,
+  onItemSelect,
+  onDisabledItemClick,
 }) => {
   const [open, setOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
   const triggerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Position menu below trigger
   const updatePosition = () => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
@@ -56,16 +56,18 @@ export const DropdownMolecule: React.FC<DropdownMoleculeProps> = ({
     });
   };
 
-  // Close on outside click or ESC
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setOpen(false); onClose?.(); }
+    };
     const onClick = (e: MouseEvent) => {
       if (
         !triggerRef.current?.contains(e.target as Node) &&
         !menuRef.current?.contains(e.target as Node)
       ) {
         setOpen(false);
+        onClose?.();
       }
     };
     document.addEventListener('keydown', onKey);
@@ -74,21 +76,23 @@ export const DropdownMolecule: React.FC<DropdownMoleculeProps> = ({
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('mousedown', onClick);
     };
-  }, [open]);
+  }, [open, onClose]);
 
   const handleTriggerClick = () => {
     updatePosition();
-    setOpen((v) => !v);
+    setOpen((v) => {
+      const next = !v;
+      if (next) onOpen?.(); else onClose?.();
+      return next;
+    });
   };
 
   return (
     <>
-      {/* Trigger wrapper */}
       <div ref={triggerRef} className="inline-block" onClick={handleTriggerClick}>
         {trigger}
       </div>
 
-      {/* Menu portal */}
       {open &&
         createPortal(
           <div
@@ -116,10 +120,14 @@ export const DropdownMolecule: React.FC<DropdownMoleculeProps> = ({
                     type="button"
                     disabled={item.disabled}
                     onClick={() => {
-                      if (!item.disabled) {
-                        item.onClick?.();
-                        setOpen(false);
+                      if (item.disabled) {
+                        onDisabledItemClick?.(item.label);
+                        return;
                       }
+                      item.onClick?.();
+                      onItemSelect?.(item.label);
+                      setOpen(false);
+                      onClose?.();
                     }}
                     className={cn(
                       'w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left',

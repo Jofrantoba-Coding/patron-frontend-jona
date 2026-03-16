@@ -1,13 +1,16 @@
 // TabsMolecule.tsx — Level 2: Molecule
-// Inspired by shadcn/ui Tabs — controlled tabs with pill and line variants.
+// Observer pattern: TabsMoleculeProps extends InterEventsTabsMolecule (event contract).
 import React, { createContext, useContext } from 'react';
 import { cn } from '../lib/cn';
+import { InterEventsTabsMolecule } from './events/InterEventsTabsMolecule';
 
 // ── Context ───────────────────────────────────────────────────────────────────
 
 interface TabsContextValue {
   value: string;
   onChange: (v: string) => void;
+  onTabFocus?: (v: string) => void;
+  onDisabledTabClick?: (v: string) => void;
   variant: 'pill' | 'line';
   orientation: 'horizontal' | 'vertical';
 }
@@ -21,9 +24,8 @@ const TabsContext = createContext<TabsContextValue>({
 
 // ── Root ──────────────────────────────────────────────────────────────────────
 
-interface TabsMoleculeProps {
+interface TabsMoleculeProps extends InterEventsTabsMolecule {
   value: string;
-  onChange: (v: string) => void;
   variant?: 'pill' | 'line';
   orientation?: 'horizontal' | 'vertical';
   className?: string;
@@ -33,12 +35,14 @@ interface TabsMoleculeProps {
 export const TabsMolecule: React.FC<TabsMoleculeProps> = ({
   value,
   onChange,
+  onTabFocus,
+  onDisabledTabClick,
   variant = 'pill',
   orientation = 'horizontal',
   className,
   children,
 }) => (
-  <TabsContext.Provider value={{ value, onChange, variant, orientation }}>
+  <TabsContext.Provider value={{ value, onChange: onChange ?? (() => {}), onTabFocus, onDisabledTabClick, variant, orientation }}>
     <div
       className={cn(
         orientation === 'vertical' ? 'flex gap-4' : 'flex flex-col gap-2',
@@ -50,7 +54,7 @@ export const TabsMolecule: React.FC<TabsMoleculeProps> = ({
   </TabsContext.Provider>
 );
 
-// ── List (trigger container) ──────────────────────────────────────────────────
+// ── List ──────────────────────────────────────────────────────────────────────
 
 export const TabsList: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
@@ -90,7 +94,7 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
   disabled,
   ...props
 }) => {
-  const { value: activeValue, onChange, variant } = useContext(TabsContext);
+  const { value: activeValue, onChange, onTabFocus, onDisabledTabClick, variant } = useContext(TabsContext);
   const isActive = activeValue === value;
 
   return (
@@ -99,7 +103,14 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
       type="button"
       aria-selected={isActive}
       disabled={disabled}
-      onClick={() => !disabled && onChange(value)}
+      onClick={() => {
+        if (disabled) {
+          onDisabledTabClick?.(value);
+        } else {
+          onChange(value);
+        }
+      }}
+      onFocus={() => onTabFocus?.(value)}
       className={cn(
         'inline-flex items-center justify-center gap-1.5 text-sm font-medium',
         'transition-all duration-200 cursor-pointer',

@@ -1,13 +1,13 @@
 // TooltipMolecule.tsx — Level 2: Molecule
-// Hover/focus tooltip with portal positioning.
-// Inspired by shadcn/ui Tooltip. Supports top/bottom/left/right sides.
+// Observer pattern: props extends InterEventsTooltipMolecule (event contract).
 import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../lib/cn';
+import { InterEventsTooltipMolecule } from './events/InterEventsTooltipMolecule';
 
 type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 
-interface TooltipMoleculeProps {
+interface TooltipMoleculeProps extends InterEventsTooltipMolecule {
   content: React.ReactNode;
   side?: TooltipSide;
   delayMs?: number;
@@ -21,6 +21,8 @@ export const TooltipMolecule: React.FC<TooltipMoleculeProps> = ({
   delayMs = 300,
   className,
   children,
+  onShow,
+  onHide,
 }) => {
   const [visible, setVisible] = useState(false);
   const [style, setStyle] = useState<React.CSSProperties>({});
@@ -33,7 +35,6 @@ export const TooltipMolecule: React.FC<TooltipMoleculeProps> = ({
     if (!triggerRef.current) return {};
     const r = triggerRef.current.getBoundingClientRect();
     const base: React.CSSProperties = { position: 'fixed', zIndex: 9999 };
-
     switch (side) {
       case 'top':
         return { ...base, bottom: window.innerHeight - r.top + GAP, left: r.left + r.width / 2, transform: 'translateX(-50%)' };
@@ -50,12 +51,14 @@ export const TooltipMolecule: React.FC<TooltipMoleculeProps> = ({
     timerRef.current = setTimeout(() => {
       setStyle(computeStyle());
       setVisible(true);
+      onShow?.();
     }, delayMs);
   };
 
   const hide = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setVisible(false);
+    onHide?.();
   };
 
   return (

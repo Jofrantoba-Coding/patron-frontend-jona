@@ -1,9 +1,9 @@
 // ButtonAtom.tsx — Level 1: Atom
-// Inspired by shadcn/ui Button — variants + sizes + loading state.
-// No business logic. Pure presentational.
+// Observer pattern: props extends InterEventsButtonAtom (event contract).
 import React from 'react';
 import { cn } from '../lib/cn';
 import { SpinnerAtom } from './SpinnerAtom';
+import { InterEventsButtonAtom } from './events/InterEventsButtonAtom';
 
 export type ButtonVariant =
   | 'default'
@@ -15,12 +15,13 @@ export type ButtonVariant =
 
 export type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
 
-interface ButtonAtomProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonAtomProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof InterEventsButtonAtom>,
+    InterEventsButtonAtom {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
   fullWidth?: boolean;
-  asChild?: boolean;
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -49,6 +50,10 @@ export const ButtonAtom = React.forwardRef<HTMLButtonElement, ButtonAtomProps>(
       disabled,
       className,
       children,
+      onClick,
+      onFocus,
+      onBlur,
+      onKeyDown,
       ...props
     },
     ref
@@ -57,13 +62,15 @@ export const ButtonAtom = React.forwardRef<HTMLButtonElement, ButtonAtomProps>(
       <button
         ref={ref}
         disabled={disabled || loading}
+        onClick={onClick}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
         className={cn(
-          // Base
           'inline-flex items-center justify-center gap-2 rounded-token-md font-medium',
           'transition-colors duration-200 cursor-pointer',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           'disabled:pointer-events-none disabled:opacity-50',
-          // Variant + size
           variantClasses[variant],
           sizeClasses[size],
           fullWidth && 'w-full',
