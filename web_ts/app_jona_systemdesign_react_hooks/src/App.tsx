@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { UiHomeView } from './views/uihome/UiHomeView';
 import { UiHomeSessionView } from './views/uihomesesion/UiHomeSessionView';
 import { UiShowcaseView } from './views/uishowcase/UiShowcaseView';
+import { UiMenuShowcaseView } from './views/uimenushowcase/UiMenuShowcaseView';
 import ProtectedRoute from './protectedRoute';
 
 const App = () => {
@@ -17,6 +18,7 @@ const App = () => {
         <Route path='/' element={<ProtectedRoute />}>
           <Route path='/homesesion' element={<UiHomeSessionView />} />
           <Route path='/showcase' element={<UiShowcaseView />} />
+          <Route path='/menu-showcase' element={<UiMenuShowcaseView />} />
         </Route>
 
         <Route path='*' element={<Navigate to='/login' replace />} />

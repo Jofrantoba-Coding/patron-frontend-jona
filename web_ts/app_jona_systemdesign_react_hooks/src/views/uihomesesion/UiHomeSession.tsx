@@ -37,6 +37,9 @@ export const UiHomeSession: React.FC<UiHomeSessionProps> = ({ name, email, onLog
               <ButtonAtom variant="outline" fullWidth onClick={() => navigate('/showcase')}>
                 View component showcase
               </ButtonAtom>
+              <ButtonAtom variant="secondary" fullWidth onClick={() => navigate('/menu-showcase')}>
+                View menu showcase
+              </ButtonAtom>
               <ButtonAtom variant="destructive" fullWidth onClick={onLogout}>
                 Sign out
               </ButtonAtom>
