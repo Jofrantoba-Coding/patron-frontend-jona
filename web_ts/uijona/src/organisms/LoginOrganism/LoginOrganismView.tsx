@@ -19,8 +19,7 @@ export const LoginOrganismView: React.FC<InterLoginOrganism> = ({
   onGoToCreateAccount,
   onGoToRecoverPassword,
 }) => (
-  <div className="flex items-center justify-center min-h-full py-8 px-4">
-    <CardMolecule className="w-full max-w-sm">
+  <CardMolecule className="w-full max-w-sm mx-auto">
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
         <CardDescription>Enter your credentials to access your account</CardDescription>
@@ -71,6 +70,5 @@ export const LoginOrganismView: React.FC<InterLoginOrganism> = ({
           </ButtonAtom>
         )}
       </CardFooter>
-    </CardMolecule>
-  </div>
+  </CardMolecule>
 );
