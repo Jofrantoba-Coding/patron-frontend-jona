@@ -13,11 +13,14 @@ export const UiShowcaseImpl: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'preview' | 'code' | 'docs'>('preview');
   const [code, setCode] = useState(entry?.defaultCode ?? '');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const e = COMPONENT_REGISTRY.find((c) => c.id === activeId);
     if (e) setCode(e.defaultCode);
     setActiveTab('preview');
+    // Auto-fullscreen for Pages
+    setIsFullscreen(e?.category === 'Pages');
   }, [activeId]);
 
   function handleSelectComponent(id: string) {
@@ -29,9 +32,11 @@ export const UiShowcaseImpl: React.FC = () => {
       activeId={activeId}
       activeTab={activeTab}
       code={code}
+      isFullscreen={isFullscreen}
       onSelectComponent={handleSelectComponent}
       onTabChange={setActiveTab}
       onCodeChange={setCode}
+      onToggleFullscreen={() => setIsFullscreen((v) => !v)}
     />
   );
 };

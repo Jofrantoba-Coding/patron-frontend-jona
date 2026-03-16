@@ -19,12 +19,36 @@ export const UiShowcaseView: React.FC<InterUiShowcase> = ({
   activeId,
   activeTab,
   code,
+  isFullscreen,
   onSelectComponent,
   onTabChange,
   onCodeChange,
+  onToggleFullscreen,
 }) => {
   const entry = COMPONENT_REGISTRY.find((c) => c.id === activeId);
   const PreviewComponent = PREVIEW_MAP[activeId];
+
+  // Fullscreen overlay — renders the component covering the entire viewport
+  if (isFullscreen && PreviewComponent) {
+    return (
+      <div className="fixed inset-0 z-50 bg-white flex flex-col">
+        {/* Minimal top bar */}
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-900 text-white text-sm shrink-0">
+          <span className="font-medium">{entry?.name ?? activeId}</span>
+          <button
+            onClick={onToggleFullscreen}
+            className="flex items-center gap-1.5 text-gray-300 hover:text-white transition-colors px-2 py-1 rounded hover:bg-gray-700"
+          >
+            ✕ Exit fullscreen
+          </button>
+        </div>
+        {/* Full-height preview */}
+        <div className="flex-1 overflow-auto">
+          <PreviewComponent />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -69,7 +93,7 @@ export const UiShowcaseView: React.FC<InterUiShowcase> = ({
 
             {/* Tab content */}
             {activeTab === 'preview' && (
-              <ComponentPreview>
+              <ComponentPreview onFullscreen={onToggleFullscreen}>
                 {PreviewComponent ? <PreviewComponent /> : (
                   <p className="text-sm text-gray-400">No preview available</p>
                 )}
