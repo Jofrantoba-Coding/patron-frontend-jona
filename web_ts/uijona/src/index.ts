@@ -40,12 +40,16 @@ export * from './layouts/BorderLayout';
 // Organisms
 export * from './organisms/LoginOrganism';
 export * from './organisms/RecoverPasswordOrganism';
+export * from './organisms/CreateAccountOrganism';
+export * from './organisms/ErrorPageOrganism';
 export * from './organisms/HeaderPageOrganism';
 export * from './organisms/FooterPageOrganism';
 
 // Pages
 export * from './pages/UiHomeLogin';
 export * from './pages/UiHomeRecoverPassword';
+export * from './pages/UiHomeCreateAccount';
+export * from './pages/UiHomeError';
 
 // Hooks
 export * from './hooks/useToast';

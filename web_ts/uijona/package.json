@@ -1,6 +1,6 @@
 {
   "name": "jona-ui",
-  "version": "1.2.3",
+  "version": "1.2.5",
   "description": "JONA Design System — Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
@@ -162,6 +162,16 @@
       "require": "./dist/organisms/RecoverPasswordOrganism.cjs",
       "types": "./dist/organisms/RecoverPasswordOrganism.d.ts"
     },
+    "./organisms/CreateAccountOrganism": {
+      "import": "./dist/organisms/CreateAccountOrganism.js",
+      "require": "./dist/organisms/CreateAccountOrganism.cjs",
+      "types": "./dist/organisms/CreateAccountOrganism.d.ts"
+    },
+    "./organisms/ErrorPageOrganism": {
+      "import": "./dist/organisms/ErrorPageOrganism.js",
+      "require": "./dist/organisms/ErrorPageOrganism.cjs",
+      "types": "./dist/organisms/ErrorPageOrganism.d.ts"
+    },
     "./pages/UiHomeLogin": {
       "import": "./dist/pages/UiHomeLogin.js",
       "require": "./dist/pages/UiHomeLogin.cjs",
@@ -171,6 +181,16 @@
       "import": "./dist/pages/UiHomeRecoverPassword.js",
       "require": "./dist/pages/UiHomeRecoverPassword.cjs",
       "types": "./dist/pages/UiHomeRecoverPassword.d.ts"
+    },
+    "./pages/UiHomeCreateAccount": {
+      "import": "./dist/pages/UiHomeCreateAccount.js",
+      "require": "./dist/pages/UiHomeCreateAccount.cjs",
+      "types": "./dist/pages/UiHomeCreateAccount.d.ts"
+    },
+    "./pages/UiHomeError": {
+      "import": "./dist/pages/UiHomeError.js",
+      "require": "./dist/pages/UiHomeError.cjs",
+      "types": "./dist/pages/UiHomeError.d.ts"
     }
   },
   "files": [

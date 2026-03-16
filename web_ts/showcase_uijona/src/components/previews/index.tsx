@@ -8,6 +8,7 @@ import {
   PaginationMolecule, BorderLayout, LoginOrganism, UiHomeLogin,
   HeaderPageOrganism, FooterPageOrganism,
   RecoverPasswordOrganism, UiHomeRecoverPassword,
+  CreateAccountOrganism, UiHomeCreateAccount,
 } from 'jona-ui';
 
 // ── Atoms ──────────────────────────────────────────────────────────────────
@@ -319,6 +320,29 @@ export const RecoverPasswordOrganismPreview = () => {
   );
 };
 
+export const CreateAccountOrganismPreview = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  return (
+    <div className="w-full">
+      <CreateAccountOrganism
+        name={name}
+        email={email}
+        password={password}
+        confirmPassword={confirmPassword}
+        setName={setName}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        setConfirmPassword={setConfirmPassword}
+        onSubmit={(e) => { e.preventDefault(); alert(`Account created: ${email}`); }}
+        onGoToLogin={() => alert('Back to login')}
+      />
+    </div>
+  );
+};
+
 // ── Pages ──────────────────────────────────────────────────────────────────
 
 export const UiHomeLoginPreview = () => (
@@ -350,6 +374,20 @@ export const UiHomeRecoverPasswordPreview = () => (
   </div>
 );
 
+export const UiHomeCreateAccountPreview = () => (
+  <div className="w-full h-full min-h-screen">
+    <UiHomeCreateAccount
+      appTitle="My App"
+      footerText="© 2026 My Company"
+      onCreateAccount={async (name, email) => {
+        await new Promise(r => setTimeout(r, 800));
+        alert(`Account created for: ${name} (${email})`);
+      }}
+      onGoToLogin={() => alert('Back to login')}
+    />
+  </div>
+);
+
 // ── Registry map ───────────────────────────────────────────────────────────
 
 export const PREVIEW_MAP: Record<string, React.FC> = {
@@ -375,6 +413,8 @@ export const PREVIEW_MAP: Record<string, React.FC> = {
   HeaderPageOrganism: HeaderPageOrganismPreview,
   FooterPageOrganism: FooterPageOrganismPreview,
   RecoverPasswordOrganism: RecoverPasswordOrganismPreview,
+  CreateAccountOrganism: CreateAccountOrganismPreview,
   UiHomeLogin: UiHomeLoginPreview,
   UiHomeRecoverPassword: UiHomeRecoverPasswordPreview,
+  UiHomeCreateAccount: UiHomeCreateAccountPreview,
 };

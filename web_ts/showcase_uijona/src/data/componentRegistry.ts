@@ -740,6 +740,63 @@ export default function Demo() {
   onGoToLogin={() => navigate('/login')}
 />`,
   },
+  {
+    id: 'CreateAccountOrganism',
+    name: 'CreateAccountOrganism',
+    category: 'Organisms',
+    description: 'Registration form organism with name, email, password, confirm password, validation and error feedback.',
+    defaultCode: `import { CreateAccountOrganism } from 'jona-ui';
+import { useState } from 'react';
+
+export default function Demo() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    alert(\`Account created: \${email}\`);
+  }
+
+  return (
+    <div className="min-h-96 flex items-center justify-center bg-gray-50 p-4">
+      <CreateAccountOrganism
+        name={name}
+        email={email}
+        password={password}
+        confirmPassword={confirmPassword}
+        setName={setName}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        setConfirmPassword={setConfirmPassword}
+        onSubmit={handleSubmit}
+        onGoToLogin={() => alert('Back to login')}
+      />
+    </div>
+  );
+}`,
+    usage: `import { CreateAccountOrganism } from 'jona-ui';
+
+<CreateAccountOrganism
+  name={name}
+  email={email}
+  password={password}
+  confirmPassword={confirmPassword}
+  setName={setName}
+  setEmail={setEmail}
+  setPassword={setPassword}
+  setConfirmPassword={setConfirmPassword}
+  onSubmit={handleSubmit}
+  nameError={nameError}
+  emailError={emailError}
+  passwordError={passwordError}
+  confirmPasswordError={confirmPasswordError}
+  alertMessage={alertMessage}
+  isLoading={isLoading}
+  onGoToLogin={() => navigate('/login')}
+/>`,
+  },
   // ── PAGES ──────────────────────────────────────────────────────────────────
   {
     id: 'UiHomeLogin',
@@ -804,13 +861,47 @@ export default function Demo() {
 }`,
     usage: `import { UiHomeRecoverPassword } from 'jona-ui';
 
-// UiHomeRecoverPassword manages its own state internally.
-// Provide the async onRecover handler — on success it shows a confirmation message.
 <UiHomeRecoverPassword
   appTitle="My App"
   footerText="© 2026 My Company"
   onRecover={async (email) => {
     await authService.sendResetEmail(email);
+  }}
+  onGoToLogin={() => navigate('/login')}
+/>`,
+  },
+  {
+    id: 'UiHomeCreateAccount',
+    name: 'UiHomeCreateAccount',
+    category: 'Pages',
+    description: 'Full registration page combining BorderLayout + CreateAccountOrganism with built-in state and validation.',
+    defaultCode: `import { UiHomeCreateAccount } from 'jona-ui';
+
+export default function Demo() {
+  return (
+    <div className="h-screen">
+      <UiHomeCreateAccount
+        appTitle="My App"
+        footerText="© 2026 My Company"
+        onCreateAccount={async (name, email, password) => {
+          await new Promise(r => setTimeout(r, 1000));
+          alert(\`Account created for \${name}\`);
+        }}
+        onGoToLogin={() => alert('Back to login')}
+      />
+    </div>
+  );
+}`,
+    usage: `import { UiHomeCreateAccount } from 'jona-ui';
+
+// UiHomeCreateAccount manages its own state and validation internally.
+// Passwords match check and min-length (6) are built in.
+<UiHomeCreateAccount
+  appTitle="My App"
+  footerText="© 2026 My Company"
+  onCreateAccount={async (name, email, password) => {
+    await authService.register(name, email, password);
+    navigate('/dashboard');
   }}
   onGoToLogin={() => navigate('/login')}
 />`,
