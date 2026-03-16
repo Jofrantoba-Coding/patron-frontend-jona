@@ -1,0 +1,162 @@
+{
+  "name": "@jona/ui",
+  "version": "0.1.0",
+  "description": "JONA Design System — Atomic Design + Observer pattern. Tree-shakeable React component library.",
+  "author": "jofrantoba",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./atoms/ButtonAtom": {
+      "import": "./dist/atoms/ButtonAtom.js",
+      "require": "./dist/atoms/ButtonAtom.cjs",
+      "types": "./dist/atoms/ButtonAtom.d.ts"
+    },
+    "./atoms/InputAtom": {
+      "import": "./dist/atoms/InputAtom.js",
+      "require": "./dist/atoms/InputAtom.cjs",
+      "types": "./dist/atoms/InputAtom.d.ts"
+    },
+    "./atoms/BadgeAtom": {
+      "import": "./dist/atoms/BadgeAtom.js",
+      "require": "./dist/atoms/BadgeAtom.cjs",
+      "types": "./dist/atoms/BadgeAtom.d.ts"
+    },
+    "./atoms/CheckboxAtom": {
+      "import": "./dist/atoms/CheckboxAtom.js",
+      "require": "./dist/atoms/CheckboxAtom.cjs",
+      "types": "./dist/atoms/CheckboxAtom.d.ts"
+    },
+    "./atoms/AvatarAtom": {
+      "import": "./dist/atoms/AvatarAtom.js",
+      "require": "./dist/atoms/AvatarAtom.cjs",
+      "types": "./dist/atoms/AvatarAtom.d.ts"
+    },
+    "./atoms/SelectAtom": {
+      "import": "./dist/atoms/SelectAtom.js",
+      "require": "./dist/atoms/SelectAtom.cjs",
+      "types": "./dist/atoms/SelectAtom.d.ts"
+    },
+    "./atoms/SwitchAtom": {
+      "import": "./dist/atoms/SwitchAtom.js",
+      "require": "./dist/atoms/SwitchAtom.cjs",
+      "types": "./dist/atoms/SwitchAtom.d.ts"
+    },
+    "./atoms/TextAtom": {
+      "import": "./dist/atoms/TextAtom.js",
+      "require": "./dist/atoms/TextAtom.cjs",
+      "types": "./dist/atoms/TextAtom.d.ts"
+    },
+    "./atoms/LabelAtom": {
+      "import": "./dist/atoms/LabelAtom.js",
+      "require": "./dist/atoms/LabelAtom.cjs",
+      "types": "./dist/atoms/LabelAtom.d.ts"
+    },
+    "./atoms/SpinnerAtom": {
+      "import": "./dist/atoms/SpinnerAtom.js",
+      "require": "./dist/atoms/SpinnerAtom.cjs",
+      "types": "./dist/atoms/SpinnerAtom.d.ts"
+    },
+    "./atoms/ProgressAtom": {
+      "import": "./dist/atoms/ProgressAtom.js",
+      "require": "./dist/atoms/ProgressAtom.cjs",
+      "types": "./dist/atoms/ProgressAtom.d.ts"
+    },
+    "./atoms/SkeletonAtom": {
+      "import": "./dist/atoms/SkeletonAtom.js",
+      "require": "./dist/atoms/SkeletonAtom.cjs",
+      "types": "./dist/atoms/SkeletonAtom.d.ts"
+    },
+    "./atoms/ToastAtom": {
+      "import": "./dist/atoms/ToastAtom.js",
+      "require": "./dist/atoms/ToastAtom.cjs",
+      "types": "./dist/atoms/ToastAtom.d.ts"
+    },
+    "./molecules/CardMolecule": {
+      "import": "./dist/molecules/CardMolecule.js",
+      "require": "./dist/molecules/CardMolecule.cjs",
+      "types": "./dist/molecules/CardMolecule.d.ts"
+    },
+    "./molecules/AlertMolecule": {
+      "import": "./dist/molecules/AlertMolecule.js",
+      "require": "./dist/molecules/AlertMolecule.cjs",
+      "types": "./dist/molecules/AlertMolecule.d.ts"
+    },
+    "./molecules/FormFieldMolecule": {
+      "import": "./dist/molecules/FormFieldMolecule.js",
+      "require": "./dist/molecules/FormFieldMolecule.cjs",
+      "types": "./dist/molecules/FormFieldMolecule.d.ts"
+    },
+    "./molecules/DialogMolecule": {
+      "import": "./dist/molecules/DialogMolecule.js",
+      "require": "./dist/molecules/DialogMolecule.cjs",
+      "types": "./dist/molecules/DialogMolecule.d.ts"
+    },
+    "./molecules/TabsMolecule": {
+      "import": "./dist/molecules/TabsMolecule.js",
+      "require": "./dist/molecules/TabsMolecule.cjs",
+      "types": "./dist/molecules/TabsMolecule.d.ts"
+    },
+    "./molecules/DropdownMolecule": {
+      "import": "./dist/molecules/DropdownMolecule.js",
+      "require": "./dist/molecules/DropdownMolecule.cjs",
+      "types": "./dist/molecules/DropdownMolecule.d.ts"
+    },
+    "./molecules/PaginationMolecule": {
+      "import": "./dist/molecules/PaginationMolecule.js",
+      "require": "./dist/molecules/PaginationMolecule.cjs",
+      "types": "./dist/molecules/PaginationMolecule.d.ts"
+    },
+    "./molecules/TooltipMolecule": {
+      "import": "./dist/molecules/TooltipMolecule.js",
+      "require": "./dist/molecules/TooltipMolecule.cjs",
+      "types": "./dist/molecules/TooltipMolecule.d.ts"
+    },
+    "./molecules/TableMolecule": {
+      "import": "./dist/molecules/TableMolecule.js",
+      "require": "./dist/molecules/TableMolecule.cjs",
+      "types": "./dist/molecules/TableMolecule.d.ts"
+    },
+    "./hooks/useToast": {
+      "import": "./dist/hooks/useToast.js",
+      "require": "./dist/hooks/useToast.cjs",
+      "types": "./dist/hooks/useToast.d.ts"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly --declaration --declarationDir dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^15.0.6",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "jsdom": "^24.1.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.3.1",
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0"
+  }
+}

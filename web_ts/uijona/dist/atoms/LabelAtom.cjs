@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime"),o=require("react"),i=require("../lib/cn.cjs"),t=o.forwardRef(({required:a,className:r,children:l,...n},s)=>e.jsxs("label",{ref:s,className:i.cn("text-sm font-medium text-neutral-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",r),...n,children:[l,a&&e.jsx("span",{className:"ml-0.5 text-danger-500","aria-hidden":"true",children:"*"})]}));t.displayName="LabelAtom";exports.LabelAtom=t;
+//# sourceMappingURL=LabelAtom.cjs.map
