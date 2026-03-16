@@ -5,6 +5,7 @@ import { ShowcaseSidebar } from '../../components/ShowcaseSidebar';
 import { ComponentPreview } from '../../components/ComponentPreview';
 import { LiveEditor } from '../../components/LiveEditor';
 import { DocBlock } from '../../components/DocBlock';
+import { ThemingGuide } from '../../components/ThemingGuide';
 import { COMPONENT_REGISTRY } from '../../data/componentRegistry';
 import { PREVIEW_MAP } from '../../components/previews';
 
@@ -30,7 +31,13 @@ export const UiShowcaseView: React.FC<InterUiShowcase> = ({
       <ShowcaseSidebar activeId={activeId} onSelect={onSelectComponent} />
 
       <main className="flex-1 overflow-y-auto">
-        {entry ? (
+        {!entry ? (
+          <div className="flex items-center justify-center h-full text-gray-400">
+            Select a component from the sidebar
+          </div>
+        ) : entry.id === 'theming' ? (
+          <ThemingGuide />
+        ) : (
           <div className="max-w-4xl mx-auto px-6 py-8">
             {/* Header */}
             <div className="mb-6">
@@ -84,10 +91,6 @@ export const UiShowcaseView: React.FC<InterUiShowcase> = ({
                 installCmd="npm install jona-ui"
               />
             )}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            Select a component from the sidebar
           </div>
         )}
       </main>

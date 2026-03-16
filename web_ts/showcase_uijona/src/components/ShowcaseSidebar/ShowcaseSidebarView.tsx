@@ -40,7 +40,7 @@ export const ShowcaseSidebarView: React.FC<InterShowcaseSidebar> = ({ activeId, 
 
     {/* Footer */}
     <div className="px-4 py-3 border-t text-xs text-gray-400">
-      v1.1.1 · jona-ui
+      v1.2.0 · jona-ui
     </div>
   </aside>
 );

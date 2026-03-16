@@ -1,0 +1,15 @@
+/* jona-ui — compiled stylesheet
+ * This file is the entry point for Tailwind CSS compilation.
+ * It includes the design tokens (CSS variables) and all utility classes
+ * used by jona-ui components.
+ *
+ * Consumers: import 'jona-ui/index.css' once in your app entry point.
+ * No Tailwind configuration required on the consumer side.
+ */
+
+/* 1. Design tokens (CSS variables) */
+@import '../theme/tokens.css';
+
+/* 2. Tailwind base reset + utilities */
+@tailwind base;
+@tailwind utilities;

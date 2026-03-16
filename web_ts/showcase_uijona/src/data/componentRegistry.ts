@@ -1,13 +1,22 @@
 export interface ComponentEntry {
   id: string;
   name: string;
-  category: 'Atoms' | 'Molecules' | 'Layouts' | 'Organisms' | 'Pages';
+  category: 'Atoms' | 'Molecules' | 'Layouts' | 'Organisms' | 'Pages' | 'Guide';
   description: string;
   defaultCode: string;
   usage: string;
 }
 
 export const COMPONENT_REGISTRY: ComponentEntry[] = [
+  // ── GUIDE ──────────────────────────────────────────────────────────────────
+  {
+    id: 'theming',
+    name: 'Theming & Setup',
+    category: 'Guide',
+    description: 'How to install jona-ui, customize the theme, and override styles at every level.',
+    defaultCode: '',
+    usage: '',
+  },
   // ── ATOMS ──────────────────────────────────────────────────────────────────
   {
     id: 'ButtonAtom',
@@ -733,4 +742,4 @@ export default function Demo() {
   },
 ];
 
-export const CATEGORIES = ['Atoms', 'Molecules', 'Layouts', 'Organisms', 'Pages'] as const;
+export const CATEGORIES = ['Guide', 'Atoms', 'Molecules', 'Layouts', 'Organisms', 'Pages'] as const;
