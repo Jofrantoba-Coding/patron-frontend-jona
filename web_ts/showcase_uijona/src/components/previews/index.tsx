@@ -307,7 +307,7 @@ export const FooterPageOrganismPreview = () => (
 // ── Pages ──────────────────────────────────────────────────────────────────
 
 export const UiHomeLoginPreview = () => (
-  <div className="w-full h-96 border rounded overflow-hidden">
+  <div className="w-full h-full min-h-screen">
     <UiHomeLogin
       appTitle="My App"
       footerText="© 2026 My Company"

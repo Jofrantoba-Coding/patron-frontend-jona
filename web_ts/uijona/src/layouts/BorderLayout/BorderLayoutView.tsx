@@ -20,7 +20,7 @@ export const BorderLayoutView: React.FC<InterBorderLayout> = ({
           {west}
         </aside>
       )}
-      <main className={centerClassName}>
+  <main className={cn('flex-1 overflow-auto flex items-center justify-center', centerClassName)}>
         {center ?? <div className="text-neutral-300 text-sm">No content</div>}
       </main>
       {east && (
