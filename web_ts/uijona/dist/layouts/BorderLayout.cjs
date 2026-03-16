@@ -1,2 +1,2 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./BorderLayout/InterBorderLayout.cjs"),e=require("./BorderLayout/BorderLayoutImpl.cjs");exports.BORDER_LAYOUT_DEFAULTS=r.BORDER_LAYOUT_DEFAULTS;exports.BorderLayout=e.BorderLayoutImpl;
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./BorderLayout/InterBorderLayout.cjs"),e=require("./BorderLayout/BorderLayoutImpl.cjs"),o=require("./BorderLayout/BorderLayoutView.cjs");exports.BORDER_LAYOUT_DEFAULTS=r.BORDER_LAYOUT_DEFAULTS;exports.BorderLayout=e.BorderLayoutImpl;exports.BorderLayoutView=o.BorderLayoutView;
 //# sourceMappingURL=BorderLayout.cjs.map

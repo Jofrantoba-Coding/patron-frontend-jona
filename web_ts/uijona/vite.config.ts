@@ -38,6 +38,8 @@ export default defineConfig({
         ...collectFolderEntries('src/atoms', 'atoms'),
         ...collectFolderEntries('src/molecules', 'molecules'),
         ...collectFolderEntries('src/layouts', 'layouts'),
+        ...collectFolderEntries('src/organisms', 'organisms'),
+        ...collectFolderEntries('src/pages', 'pages'),
         ...collectFolderEntries('src/hooks', 'hooks'),
       },
       formats: ['es', 'cjs'],

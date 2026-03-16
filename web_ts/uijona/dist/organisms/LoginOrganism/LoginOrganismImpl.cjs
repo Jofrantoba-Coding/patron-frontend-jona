@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const g=require("react/jsx-runtime"),s=require("react"),d=require("./InterLoginOrganism.cjs"),u=require("./LoginOrganismView.cjs"),w=e=>{const t={...d.LOGIN_ORGANISM_DEFAULTS,...e},[n,i]=s.useState(""),[a,r]=s.useState(""),o=e.email!==void 0?e.email:n,m=e.password!==void 0?e.password:a,l=e.setEmail??i,c=e.setPassword??r;return g.jsx(u.LoginOrganismView,{...t,email:o,password:m,setEmail:l,setPassword:c})};exports.LoginOrganismImpl=w;
+//# sourceMappingURL=LoginOrganismImpl.cjs.map
