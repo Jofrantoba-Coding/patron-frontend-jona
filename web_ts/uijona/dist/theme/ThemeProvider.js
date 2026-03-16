@@ -1,0 +1,59 @@
+import { jsx as j, Fragment as m } from "react/jsx-runtime";
+import { useEffect as c } from "react";
+const i = {
+  primary50: "--jona-primary-50",
+  primary100: "--jona-primary-100",
+  primary200: "--jona-primary-200",
+  primary300: "--jona-primary-300",
+  primary400: "--jona-primary-400",
+  primary500: "--jona-primary-500",
+  primary600: "--jona-primary-600",
+  primary700: "--jona-primary-700",
+  primary800: "--jona-primary-800",
+  primary900: "--jona-primary-900",
+  danger400: "--jona-danger-400",
+  danger500: "--jona-danger-500",
+  danger600: "--jona-danger-600",
+  success400: "--jona-success-400",
+  success500: "--jona-success-500",
+  success600: "--jona-success-600",
+  warning400: "--jona-warning-400",
+  warning500: "--jona-warning-500",
+  warning600: "--jona-warning-600",
+  neutral50: "--jona-neutral-50",
+  neutral100: "--jona-neutral-100",
+  neutral200: "--jona-neutral-200",
+  neutral300: "--jona-neutral-300",
+  neutral400: "--jona-neutral-400",
+  neutral500: "--jona-neutral-500",
+  neutral600: "--jona-neutral-600",
+  neutral700: "--jona-neutral-700",
+  neutral800: "--jona-neutral-800",
+  neutral900: "--jona-neutral-900",
+  radiusSm: "--jona-radius-sm",
+  radius: "--jona-radius",
+  radiusMd: "--jona-radius-md",
+  radiusLg: "--jona-radius-lg",
+  fontSans: "--jona-font-sans",
+  fontMono: "--jona-font-mono"
+}, d = ({
+  theme: a,
+  scope: n = ":root",
+  children: u
+}) => (c(() => {
+  if (!a) return;
+  const e = n === ":root" ? document.documentElement : document.querySelector(n) ?? document.documentElement, t = Object.entries(a);
+  return t.forEach(([o, r]) => {
+    const s = i[o];
+    s && r !== void 0 && e.style.setProperty(s, r);
+  }), () => {
+    t.forEach(([o]) => {
+      const r = i[o];
+      r && e.style.removeProperty(r);
+    });
+  };
+}, [a, n]), /* @__PURE__ */ j(m, { children: u }));
+export {
+  d as JonaThemeProvider
+};
+//# sourceMappingURL=ThemeProvider.js.map

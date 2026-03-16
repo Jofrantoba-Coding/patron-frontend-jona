@@ -1,6 +1,6 @@
 {
-  "name": "@jona/ui",
-  "version": "1.0.0",
+  "name": "jona-ui",
+  "version": "1.1.0",
   "description": "JONA Design System — Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
@@ -15,6 +15,12 @@
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     },
+    "./theme": {
+      "import": "./dist/theme/index.js",
+      "require": "./dist/theme/index.cjs",
+      "types": "./dist/theme/index.d.ts"
+    },
+    "./theme/tokens.css": "./dist/theme/tokens.css",
     "./atoms/ButtonAtom": {
       "import": "./dist/atoms/ButtonAtom.js",
       "require": "./dist/atoms/ButtonAtom.cjs",

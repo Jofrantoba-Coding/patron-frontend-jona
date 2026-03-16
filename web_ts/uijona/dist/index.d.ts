@@ -32,4 +32,5 @@ export * from './layouts/BorderLayout';
 export * from './organisms/LoginOrganism';
 export * from './pages/UiHomeLogin';
 export * from './hooks/useToast';
+export * from './theme';
 export * from './lib/cn';

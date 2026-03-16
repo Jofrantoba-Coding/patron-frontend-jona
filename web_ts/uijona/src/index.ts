@@ -46,5 +46,8 @@ export * from './pages/UiHomeLogin';
 // Hooks
 export * from './hooks/useToast';
 
+// Theme
+export * from './theme';
+
 // Utilities
 export * from './lib/cn';
