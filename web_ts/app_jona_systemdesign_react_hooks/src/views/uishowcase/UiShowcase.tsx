@@ -19,10 +19,14 @@ import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
 import { CheckboxFieldMolecule } from '../../molecules/CheckboxFieldMolecule';
 import { SelectFieldMolecule } from '../../molecules/SelectFieldMolecule';
 import { DialogMolecule } from '../../molecules/DialogMolecule';
+import { TabsMolecule, TabsList, TabsTrigger, TabsContent } from '../../molecules/TabsMolecule';
+import { DropdownMolecule } from '../../molecules/DropdownMolecule';
+import { PaginationMolecule } from '../../molecules/PaginationMolecule';
 import {
   TableMolecule, TableHeader, TableBody, TableFooter,
   TableRow, TableHead, TableCell, TableCaption,
 } from '../../molecules/TableMolecule';
+import { useToastHelpers } from '../../lib/useToast';
 
 // Template hook
 export function useUiShowcase(): InterUiShowcase & {
@@ -262,6 +266,36 @@ export const UiShowcase: React.FC<UiShowcaseProps> = ({
         </TableMolecule>
       </Section>
 
+      <SeparatorAtom />
+
+      {/* Tabs */}
+      <Section title="TabsMolecule — pill + line variants">
+        <div className="space-y-6">
+          <TabsShowcase />
+        </div>
+      </Section>
+
+      <SeparatorAtom />
+
+      {/* Dropdown */}
+      <Section title="DropdownMolecule — groups + shortcuts + destructive">
+        <DropdownShowcase />
+      </Section>
+
+      <SeparatorAtom />
+
+      {/* Toast */}
+      <Section title="Toast — success / error / warning / info">
+        <ToastShowcase />
+      </Section>
+
+      <SeparatorAtom />
+
+      {/* Pagination */}
+      <Section title="PaginationMolecule">
+        <PaginationShowcase />
+      </Section>
+
     </div>
   );
 };
@@ -273,3 +307,136 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
     {children}
   </section>
 );
+
+// ── Tabs showcase ─────────────────────────────────────────────────────────────
+const TabsShowcase: React.FC = () => {
+  const [pillTab, setPillTab] = useState('overview');
+  const [lineTab, setLineTab] = useState('account');
+
+  return (
+    <div className="space-y-6">
+      {/* Pill variant */}
+      <TabsMolecule value={pillTab} onChange={setPillTab} variant="pill">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="disabled" disabled>Disabled</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview">
+          <CardMolecule><CardContent className="pt-6">
+            <TextAtom size="sm">Overview content — key metrics and recent activity.</TextAtom>
+          </CardContent></CardMolecule>
+        </TabsContent>
+        <TabsContent value="analytics">
+          <CardMolecule><CardContent className="pt-6">
+            <TextAtom size="sm">Analytics content — charts and reports.</TextAtom>
+          </CardContent></CardMolecule>
+        </TabsContent>
+        <TabsContent value="settings">
+          <CardMolecule><CardContent className="pt-6">
+            <TextAtom size="sm">Settings content — preferences and configuration.</TextAtom>
+          </CardContent></CardMolecule>
+        </TabsContent>
+      </TabsMolecule>
+
+      {/* Line variant */}
+      <TabsMolecule value={lineTab} onChange={setLineTab} variant="line">
+        <TabsList>
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="password">Password</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        </TabsList>
+        <TabsContent value="account" className="pt-4">
+          <TextAtom size="sm">Make changes to your account here.</TextAtom>
+        </TabsContent>
+        <TabsContent value="password" className="pt-4">
+          <TextAtom size="sm">Change your password here.</TextAtom>
+        </TabsContent>
+        <TabsContent value="notifications" className="pt-4">
+          <TextAtom size="sm">Manage your notification preferences.</TextAtom>
+        </TabsContent>
+      </TabsMolecule>
+    </div>
+  );
+};
+
+// ── Dropdown showcase ─────────────────────────────────────────────────────────
+const DropdownShowcase: React.FC = () => (
+  <div className="flex gap-3 flex-wrap">
+    <DropdownMolecule
+      trigger={<ButtonAtom variant="outline">My Account ▾</ButtonAtom>}
+      groups={[
+        {
+          label: 'My Account',
+          items: [
+            { label: 'Profile',  shortcut: '⇧⌘P' },
+            { label: 'Billing',  shortcut: '⌘B'  },
+            { label: 'Settings', shortcut: '⌘S'  },
+          ],
+        },
+        {
+          items: [
+            { label: 'Team' },
+            { label: 'Subscription' },
+          ],
+        },
+        {
+          items: [
+            { label: 'Log out', shortcut: '⇧⌘Q', variant: 'destructive' },
+          ],
+        },
+      ]}
+    />
+    <DropdownMolecule
+      align="end"
+      trigger={<ButtonAtom variant="ghost">Actions ▾</ButtonAtom>}
+      groups={[
+        {
+          items: [
+            { label: 'Edit'      },
+            { label: 'Duplicate' },
+            { label: 'Archive'   },
+          ],
+        },
+        {
+          items: [
+            { label: 'Delete', variant: 'destructive' },
+          ],
+        },
+      ]}
+    />
+  </div>
+);
+
+// ── Toast showcase ────────────────────────────────────────────────────────────
+const ToastShowcase: React.FC = () => {
+  const { success, error, warning, info } = useToastHelpers();
+  return (
+    <div className="flex flex-wrap gap-2">
+      <ButtonAtom variant="outline" onClick={() => success('Saved!', 'Your changes have been saved.')}>
+        Success toast
+      </ButtonAtom>
+      <ButtonAtom variant="outline" onClick={() => error('Error', 'Something went wrong. Please try again.')}>
+        Error toast
+      </ButtonAtom>
+      <ButtonAtom variant="outline" onClick={() => warning('Warning', 'This action may have side effects.')}>
+        Warning toast
+      </ButtonAtom>
+      <ButtonAtom variant="outline" onClick={() => info('Info', 'Your session will expire in 5 minutes.')}>
+        Info toast
+      </ButtonAtom>
+    </div>
+  );
+};
+
+// ── Pagination showcase ───────────────────────────────────────────────────────
+const PaginationShowcase: React.FC = () => {
+  const [page, setPage] = useState(3);
+  return (
+    <div className="space-y-4">
+      <PaginationMolecule currentPage={page} totalPages={10} onPageChange={setPage} />
+      <TextAtom size="xs" color="muted">Current page: {page} of 10</TextAtom>
+    </div>
+  );
+};
