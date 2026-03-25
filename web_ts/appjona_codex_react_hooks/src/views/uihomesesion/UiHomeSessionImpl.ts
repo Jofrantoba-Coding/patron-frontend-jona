@@ -9,7 +9,7 @@ import {
 import {
   useUiHomeSession,
   type UiHomeSessionTemplateModel,
-} from './UiHomeSession';
+} from './UiHomeSessionTemplateModel';
 
 export function useUiHomeSessionImpl(): UiHomeSessionTemplateModel {
   const base = useUiHomeSession();

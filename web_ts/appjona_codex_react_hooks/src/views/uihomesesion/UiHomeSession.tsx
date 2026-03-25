@@ -1,58 +1,13 @@
-// Capa: Template
-// Responsabilidad: mostrar la sesión autenticada y delegar acciones del contrato.
+// Capa: Template (componente visual)
+// Responsabilidad: mostrar la sesion autenticada y delegar acciones del contrato.
 // Restricciones: sin router, sin storage y sin backend.
-import { useState } from 'react';
 import { ButtonAtom } from '../../atoms/ButtonAtom';
 import { TextAtom } from '../../atoms/TextAtom';
 import { UserAvatarMolecule } from '../../molecules/UserAvatarMolecule';
 import { BorderLayout } from '../../uilayouts/BorderLayout';
 import { AppFooter } from '../../uiutils/AppFooter';
 import { AppHeader } from '../../uiutils/AppHeader';
-import type { InterUiHomeSession } from './InterUiHomeSession';
-
-export interface UiHomeSessionProps {
-  name: string;
-  email: string;
-  handlerLogout: () => void;
-  handlerGoToPublicHome: () => void;
-}
-
-export interface UiHomeSessionTemplateModel extends InterUiHomeSession, UiHomeSessionProps {
-  setName: (value: string) => void;
-  setEmail: (value: string) => void;
-}
-
-export function useUiHomeSession(): UiHomeSessionTemplateModel {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-
-  function logout(): void {
-    window.alert('El Template no limpia storage ni cambia rutas; eso vive en el Impl.');
-  }
-
-  function goToPublicHome(): void {
-    window.alert('La navegación pública vive en UiHomeSessionImpl.');
-  }
-
-  function handlerLogout(): void {
-    logout();
-  }
-
-  function handlerGoToPublicHome(): void {
-    goToPublicHome();
-  }
-
-  return {
-    name,
-    email,
-    setName,
-    setEmail,
-    logout,
-    goToPublicHome,
-    handlerLogout,
-    handlerGoToPublicHome,
-  };
-}
+import type { UiHomeSessionProps } from './UiHomeSessionProps';
 
 export function UiHomeSession({
   name,
@@ -60,7 +15,7 @@ export function UiHomeSession({
   handlerLogout,
   handlerGoToPublicHome,
 }: UiHomeSessionProps) {
-  const resolvedName = name || 'Sesión pendiente de hidratar';
+  const resolvedName = name || 'Sesion pendiente de hidratar';
   const resolvedEmail = email || 'No hay usuario persistido';
 
   return (
@@ -77,7 +32,7 @@ export function UiHomeSession({
               </TextAtom>
               <TextAtom tone="muted">
                 El Template solo presenta el estado que recibe o mantiene localmente. La
-                lectura del usuario persistido y la limpieza de sesión pertenecen al Impl.
+                lectura del usuario persistido y la limpieza de sesion pertenecen al Impl.
               </TextAtom>
             </div>
 
@@ -94,7 +49,7 @@ export function UiHomeSession({
               </li>
               <li>
                 <TextAtom tone="muted">Responsabilidad actual</TextAtom>
-                <TextAtom tone="strong">Presentar una sesión ya integrada</TextAtom>
+                <TextAtom tone="strong">Presentar una sesion ya integrada</TextAtom>
               </li>
             </ul>
 
@@ -103,7 +58,7 @@ export function UiHomeSession({
                 Volver a /login
               </ButtonAtom>
               <ButtonAtom variant="danger" onClick={handlerLogout}>
-                Cerrar sesión
+                Cerrar sesion
               </ButtonAtom>
             </div>
           </section>

@@ -6,7 +6,7 @@ import {
   writeHomeGuideDismissed,
 } from '../../appStorage';
 import { useUiIniciarSesionImpl } from '../uiiniciarsesion/UiIniciarSesionImpl';
-import { useUiHome, type UiHomeViewModel } from './UiHome';
+import { useUiHome, type UiHomeViewModel } from './UiHomeTemplateModel';
 
 export function useUiHomeImpl(): UiHomeViewModel {
   const base = useUiHome();
