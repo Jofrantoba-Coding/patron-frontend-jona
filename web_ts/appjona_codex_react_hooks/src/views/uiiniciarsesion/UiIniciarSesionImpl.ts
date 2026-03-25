@@ -5,8 +5,10 @@ import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { persistAuthenticatedSession } from '../../appStorage';
 import { AuthService } from '../../services/AuthService';
-import { useUiIniciarSesion } from './UiIniciarSesion';
-import type { UiIniciarSesionTemplateModel } from './UiIniciarSesionTemplateModel';
+import {
+  useUiIniciarSesion,
+  type UiIniciarSesionTemplateModel,
+} from './UiIniciarSesionTemplateModel';
 
 export function useUiIniciarSesionImpl(): UiIniciarSesionTemplateModel {
   const base = useUiIniciarSesion();
