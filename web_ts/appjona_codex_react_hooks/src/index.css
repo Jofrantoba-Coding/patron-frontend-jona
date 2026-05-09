@@ -250,7 +250,7 @@ a {
 
 .border-layout__center {
   grid-area: center;
-  padding: 0 clamp(var(--space-lg), 4vw, var(--space-2xl)) var(--space-2xl);
+  padding: var(--space-xl) clamp(var(--space-lg), 4vw, var(--space-2xl)) var(--space-2xl);
 }
 
 .border-layout__south {

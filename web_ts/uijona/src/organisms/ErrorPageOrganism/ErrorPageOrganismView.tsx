@@ -13,33 +13,35 @@ export const ErrorPageOrganismView: React.FC<InterErrorPageOrganism> = ({
   primaryLabel,
   secondaryLabel,
 }) => (
-  <div className="flex flex-col items-center justify-center text-center px-4 max-w-md mx-auto">
-    {errorCode && (
-      <TextAtom
-        as="p"
-        size="2xl"
-        className="font-extrabold text-blue-600 text-8xl leading-none mb-4 select-none"
-      >
-        {errorCode}
+  <div className="flex w-full flex-col items-center justify-center px-4 py-8 text-center sm:py-12">
+    <div className="flex w-full max-w-sm flex-col items-center sm:max-w-md">
+      {errorCode && (
+        <TextAtom
+          as="p"
+          size="2xl"
+          className="font-extrabold text-blue-600 text-8xl leading-none mb-4 select-none"
+        >
+          {errorCode}
+        </TextAtom>
+      )}
+      <TextAtom as="h1" size="2xl" className="font-bold text-gray-900 mb-2">
+        {title}
       </TextAtom>
-    )}
-    <TextAtom as="h1" size="2xl" className="font-bold text-gray-900 mb-2">
-      {title}
-    </TextAtom>
-    <TextAtom as="p" size="base" color="muted" className="mb-8">
-      {message}
-    </TextAtom>
-    <div className="flex flex-wrap gap-3 justify-center">
-      {onGoHome && (
-        <ButtonAtom variant="default" onClick={onGoHome}>
-          {primaryLabel}
-        </ButtonAtom>
-      )}
-      {onGoBack && (
-        <ButtonAtom variant="outline" onClick={onGoBack}>
-          {secondaryLabel}
-        </ButtonAtom>
-      )}
+      <TextAtom as="p" size="base" color="muted" className="mb-8 break-words">
+        {message}
+      </TextAtom>
+      <div className="flex flex-wrap gap-3 justify-center">
+        {onGoHome && (
+          <ButtonAtom variant="default" onClick={onGoHome}>
+            {primaryLabel}
+          </ButtonAtom>
+        )}
+        {onGoBack && (
+          <ButtonAtom variant="outline" onClick={onGoBack}>
+            {secondaryLabel}
+          </ButtonAtom>
+        )}
+      </div>
     </div>
   </div>
 );
