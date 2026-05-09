@@ -12,8 +12,8 @@ permalink: /
 Una arquitectura frontend que separa **contratos**, **estado**, **lógica** y **UI** en capas independientes, implementada en múltiples tecnologías.
 {: .fs-6 .fw-300 }
 
-[Ver el patrón]({% link patron/index.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
-[GitHub](https://github.com/jofrantoba/patron-frontend-jona){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Ver el patrón]({{ site.baseurl }}/patron){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[GitHub](https://github.com/Jofrantoba-Coding/patron-frontend-jona){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 
@@ -42,49 +42,49 @@ Este repositorio demuestra el patrón JONA en **8 tecnologías diferentes**:
   <div class="card">
     <h3>⚛️ React Hooks</h3>
     <p>Implementación principal con hooks funcionales y composición.</p>
-    <a href="{% link implementaciones/react-hooks.md %}">Ver documentación →</a>
+    <a href="{{ site.baseurl }}/implementaciones/react-hooks.html">Ver documentación →</a>
   </div>
 
   <div class="card">
     <h3>📖 React Hooks Codex</h3>
     <p>Variante extendida con 6 capas, storage y guía interactiva del patrón.</p>
-    <a href="{% link implementaciones/react-hooks-codex.md %}">Ver documentación →</a>
+    <a href="{{ site.baseurl }}/implementaciones/react-hooks-codex.html">Ver documentación →</a>
   </div>
 
   <div class="card">
     <h3>🏗️ React System Design</h3>
     <p>Integración con design system y componentes de Lucide.</p>
-    <a href="{% link implementaciones/react-systemdesign.md %}">Ver documentación →</a>
+    <a href="{{ site.baseurl }}/implementaciones/react-systemdesign.html">Ver documentación →</a>
   </div>
 
   <div class="card">
     <h3>🅰️ Angular</h3>
     <p>Standalone components con RxJS. El patrón se mapea a componentes Angular.</p>
-    <a href="{% link implementaciones/angular.md %}">Ver documentación →</a>
+    <a href="{{ site.baseurl }}/implementaciones/angular.html">Ver documentación →</a>
   </div>
 
   <div class="card">
     <h3>💚 Vue.js</h3>
     <p>Composition API con composables. Los hooks se convierten en <code>use*()</code>.</p>
-    <a href="{% link implementaciones/vuejs.md %}">Ver documentación →</a>
+    <a href="{{ site.baseurl }}/implementaciones/vuejs.html">Ver documentación →</a>
   </div>
 
   <div class="card">
     <h3>⚛️ React Class + Refs</h3>
     <p>Componentes de clase con <code>createRef</code> para inputs no controlados.</p>
-    <a href="{% link implementaciones/react-refs.md %}">Ver documentación →</a>
+    <a href="{{ site.baseurl }}/implementaciones/react-refs.html">Ver documentación →</a>
   </div>
 
   <div class="card">
     <h3>⚛️ React Class + State/Props</h3>
     <p>Componentes de clase con estado controlado y props tipadas.</p>
-    <a href="{% link implementaciones/react-state-props.md %}">Ver documentación →</a>
+    <a href="{{ site.baseurl }}/implementaciones/react-state-props.html">Ver documentación →</a>
   </div>
 
   <div class="card">
     <h3>🟦 TypeScript Puro</h3>
     <p>Sin framework. Manipulación directa del DOM con clases TypeScript.</p>
-    <a href="{% link implementaciones/typescript-puro.md %}">Ver documentación →</a>
+    <a href="{{ site.baseurl }}/implementaciones/typescript-puro.html">Ver documentación →</a>
   </div>
 
 </div>
@@ -95,7 +95,7 @@ Este repositorio demuestra el patrón JONA en **8 tecnologías diferentes**:
 
 La librería de componentes **`jona-ui`** aplica el mismo patrón JONA a nivel de componentes atómicos, moléculas y organismos.
 
-[Ver jona-ui →]({% link uijona/index.md %}){: .btn .btn-outline }
+[Ver jona-ui →]({{ site.baseurl }}/uijona){: .btn .btn-outline }
 
 ---
 
