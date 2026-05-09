@@ -47,7 +47,9 @@ jobs:
 
       - name: Copy Storybook into docs site
         run: |
-          cp -r web_ts/storybook-dist _site/storybook
+          sudo chown -R "$USER:$USER" _site
+          mkdir -p _site/storybook
+          cp -R web_ts/storybook-dist/. _site/storybook/
           touch _site/.nojekyll
 
       - name: Upload Pages artifact
