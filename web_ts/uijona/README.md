@@ -1,13 +1,11 @@
 # jona-ui
 
-JONA Design System para React. Combina Atomic Design, patron JONA y eventos estilo Observer para construir interfaces reutilizables, testeables y listas para aplicaciones.
+JONA Design System para React. Es una libreria de componentes basada en Atomic Design y el patron JONA: contratos publicos, implementaciones con estado y vistas puras. Esta pensada para construir aplicaciones reutilizables, testeables y faciles de mantener.
 
-## Estado
-
-- Componentes visuales exportados: atoms, molecules, layouts, organisms y pages.
-- Storybook: configurado con Vite, autodocs y addon a11y.
-- Build: genera ESM, CJS, tipos TypeScript y CSS compilado.
-- Imports directos: soportados por subpath exports para mejorar tree-shaking.
+- Package: https://www.npmjs.com/package/jona-ui
+- Docs: https://jofrantoba-coding.github.io/patron-frontend-jona/uijona
+- Storybook: https://jofrantoba-coding.github.io/patron-frontend-jona/storybook/
+- Version publicada: `1.2.6`
 
 ## Instalacion
 
@@ -15,34 +13,41 @@ JONA Design System para React. Combina Atomic Design, patron JONA y eventos esti
 npm install jona-ui
 ```
 
-Peer dependencies:
+`jona-ui` declara React como peer dependency. La aplicacion consumidora debe tener React instalado:
 
 ```bash
 npm install react react-dom
 ```
 
-Importa los estilos globales una sola vez en tu aplicacion:
+Importa los estilos globales una sola vez, normalmente en `main.tsx`, `App.tsx` o el entrypoint equivalente:
 
 ```tsx
 import 'jona-ui/index.css';
 ```
 
-## Uso
+Si necesitas tokens CSS de tema, tambien puedes importar:
 
-Import directo recomendado:
+```tsx
+import 'jona-ui/theme/tokens.css';
+```
+
+## Uso Rapido
+
+Import directo recomendado para favorecer tree-shaking:
 
 ```tsx
 import { ButtonAtom } from 'jona-ui/atoms/ButtonAtom';
+import { InputAtom } from 'jona-ui/atoms/InputAtom';
 import { FormFieldMolecule } from 'jona-ui/molecules/FormFieldMolecule';
 ```
 
-Import desde el barrel:
+Tambien puedes importar desde el barrel principal:
 
 ```tsx
-import { ButtonAtom, FormFieldMolecule, useToast } from 'jona-ui';
+import { ButtonAtom, InputAtom, FormFieldMolecule, useToast } from 'jona-ui';
 ```
 
-Ejemplo basico:
+Ejemplo minimo:
 
 ```tsx
 import 'jona-ui/index.css';
@@ -53,23 +58,181 @@ export function LoginForm() {
   return (
     <form>
       <InputAtom
-        placeholder="Email"
+        placeholder="usuario@dominio.com"
         onChange={(value) => console.log(value)}
       />
-      <ButtonAtom type="submit">Ingresar</ButtonAtom>
+
+      <ButtonAtom type="submit">
+        Ingresar
+      </ButtonAtom>
     </form>
   );
 }
 ```
 
+Ejemplo con toast:
+
+```tsx
+import { ToastProvider, useToastHelpers } from 'jona-ui/hooks/useToast';
+import { ButtonAtom } from 'jona-ui/atoms/ButtonAtom';
+
+function SaveButton() {
+  const toast = useToastHelpers();
+
+  return (
+    <ButtonAtom onClick={() => toast.success('Cambios guardados')}>
+      Guardar
+    </ButtonAtom>
+  );
+}
+
+export function App() {
+  return (
+    <ToastProvider>
+      <SaveButton />
+    </ToastProvider>
+  );
+}
+```
+
+## Que Incluye
+
+El paquete publica ESM, CJS, tipos TypeScript y CSS compilado.
+
+```txt
+dist/
+  index.js
+  index.cjs
+  index.d.ts
+  index.css
+  atoms/
+  molecules/
+  layouts/
+  organisms/
+  pages/
+  hooks/
+  theme/
+```
+
+`package.json` expone subpaths para importar piezas puntuales:
+
+```tsx
+import { TextareaAtom } from 'jona-ui/atoms/TextareaAtom';
+import { RadioGroupMolecule } from 'jona-ui/molecules/RadioGroupMolecule';
+import { BorderLayout } from 'jona-ui/layouts/BorderLayout';
+import { LoginOrganism } from 'jona-ui/organisms/LoginOrganism';
+import { UiHomeLogin } from 'jona-ui/pages/UiHomeLogin';
+```
+
+## Catalogo De Componentes
+
+### Atoms
+
+| Componente | Uso |
+| --- | --- |
+| `AvatarAtom` | Avatar con imagen, fallback e iniciales |
+| `BadgeAtom` | Indicadores de estado |
+| `ButtonAtom` | Botones con variantes, tamanos y loading |
+| `CheckboxAtom` | Checkbox accesible |
+| `ChipAtom` | Chip seleccionable o removible |
+| `ErrorMessageAtom` | Mensaje de error o ayuda |
+| `IconButtonAtom` | Boton solo icono con label accesible |
+| `InputAtom` | Input de texto con eventos normalizados |
+| `LabelAtom` | Label de formulario |
+| `LinkAtom` | Enlace con variantes visuales |
+| `ProgressAtom` | Barra de progreso |
+| `RadioAtom` | Radio input base |
+| `SelectAtom` | Select nativo |
+| `SeparatorAtom` | Separador horizontal o vertical |
+| `SkeletonAtom` | Placeholder de carga |
+| `SpinnerAtom` | Indicador de carga |
+| `SwitchAtom` | Toggle booleano |
+| `TextareaAtom` | Campo multilinea |
+| `TextAtom` | Texto polimorfico |
+| `ToastAtom` | Unidad visual de notificacion |
+
+### Molecules
+
+| Componente | Uso |
+| --- | --- |
+| `AccordionMolecule` | Secciones expandibles |
+| `AlertMolecule` | Mensajes contextuales |
+| `BreadcrumbMolecule` | Navegacion jerarquica |
+| `CardMolecule` | Contenedor con header, content y footer |
+| `CheckboxFieldMolecule` | Checkbox con label y descripcion |
+| `DialogMolecule` | Modal con portal |
+| `DropdownMolecule` | Menu desplegable |
+| `EmptyStateMolecule` | Estado vacio con acciones |
+| `FormFieldMolecule` | Campo con label, ayuda y error |
+| `PaginationMolecule` | Navegacion paginada |
+| `RadioGroupMolecule` | Grupo de opciones radio |
+| `SelectFieldMolecule` | Select con label, ayuda y error |
+| `SkeletonPresets` | Presets de skeleton |
+| `SwitchFieldMolecule` | Switch con label y descripcion |
+| `TableMolecule` | Tabla componible |
+| `TabsMolecule` | Navegacion por tabs |
+| `TooltipMolecule` | Tooltip con portal |
+| `UserAvatarMolecule` | Avatar con metadata de usuario |
+
+### Layouts, Organisms Y Pages
+
+| Tipo | Exports |
+| --- | --- |
+| Layouts | `BorderLayout` |
+| Organisms | `LoginOrganism`, `RecoverPasswordOrganism`, `CreateAccountOrganism`, `ErrorPageOrganism`, `HeaderPageOrganism`, `FooterPageOrganism` |
+| Pages | `UiHomeLogin`, `UiHomeRecoverPassword`, `UiHomeCreateAccount`, `UiHomeError` |
+
+### Hooks Y Tema
+
+| Export | Uso |
+| --- | --- |
+| `ToastProvider` | Provider de notificaciones |
+| `useToast` | API base para crear y cerrar toasts |
+| `useToastHelpers` | Helpers `success`, `error`, `warning`, `info` |
+| `theme` | Tokens y helpers de tema |
+| `tokens.css` | Variables CSS base |
+
+## Patron JONA
+
+Cada componente se organiza por responsabilidades:
+
+```txt
+InterFeature.ts       -> contrato publico, props y eventos
+FeatureImpl.tsx       -> estado, defaults y adaptacion de eventos
+FeatureView.tsx       -> render puro
+Feature.tsx           -> entrada publica
+index.ts              -> export local
+Feature.stories.tsx   -> documentacion visual
+Feature.test.tsx      -> pruebas de comportamiento
+```
+
+La idea es separar el contrato de uso, la logica de adaptacion y la vista. Esto permite evolucionar la implementacion sin romper el API publico.
+
+Los eventos siguen una variante Observer: el componente entrega el valor ya normalizado y, cuando aplica, el evento original.
+
+```tsx
+<InputAtom
+  value={email}
+  onChange={(value, event) => setEmail(value)}
+  onEnterPress={(value) => submit(value)}
+/>
+```
+
 ## Storybook
+
+En desarrollo local:
 
 ```bash
 npm run storybook
+```
+
+Build estatico:
+
+```bash
 npm run build-storybook
 ```
 
-Storybook cubre los componentes visuales exportados:
+El Storybook cubre los componentes visuales exportados por categoria:
 
 - `Atoms/*`
 - `Molecules/*`
@@ -77,8 +240,6 @@ Storybook cubre los componentes visuales exportados:
 - `Organisms/*`
 - `Pages/*`
 - `Hooks/useToast`
-
-La configuracion esta en `.storybook/` y carga `src/styles/index.css` desde `preview.ts`.
 
 ## Scripts
 
@@ -90,102 +251,33 @@ npm run storybook
 npm run build-storybook
 ```
 
-## Arquitectura
+## Desarrollo De Componentes
 
-JONA organiza cada componente por responsabilidad:
+Antes de publicar una nueva tanda de componentes:
 
-```txt
-InterFeature.ts       -> contrato publico y eventos
-FeatureImpl.tsx       -> estado, defaults y adaptacion de eventos
-FeatureView.tsx       -> render puro
-Feature.tsx           -> entrada publica
-index.ts              -> export local
-Feature.stories.tsx   -> documentacion visual
+1. Crea el componente con estructura JONA.
+2. Define el contrato en `InterFeature`.
+3. Mantiene el render puro en `FeatureView`.
+4. Exporta desde `src/index.ts`.
+5. Agrega el subpath export en `package.json`.
+6. Crea tests enfocados en comportamiento.
+7. Crea stories con estados principales.
+8. Ejecuta `npm run lint`, `npm test`, `npm run build` y `npm run build-storybook`.
+
+## Publicacion
+
+Checklist usado para publicar:
+
+```bash
+npm run lint
+npm test
+npm run build
+npm pack --dry-run
+npm publish --access public
 ```
 
-En atoms y molecules, los eventos siguen una variante Observer: el componente entrega el valor ya normalizado y, cuando aplica, el evento original.
+Si la cuenta npm tiene 2FA, `npm publish` requiere OTP o un granular access token con permisos de publicacion.
 
-```tsx
-<InputAtom
-  onChange={(value, event) => setEmail(value)}
-  onEnterPress={(value) => submit(value)}
-/>
-```
+## Licencia
 
-## Componentes
-
-### Atoms
-
-| Componente | Uso |
-| --- | --- |
-| `AvatarAtom` | Avatar con imagen e iniciales |
-| `BadgeAtom` | Etiquetas de estado |
-| `ButtonAtom` | Botones con variantes y loading |
-| `CheckboxAtom` | Checkbox accesible |
-| `ChipAtom` | Chips seleccionables o removibles |
-| `ErrorMessageAtom` | Mensajes de error o ayuda |
-| `IconButtonAtom` | Boton icon-only con label accesible |
-| `InputAtom` | Input con eventos Observer |
-| `LabelAtom` | Label de formulario |
-| `LinkAtom` | Enlaces con variantes visuales |
-| `ProgressAtom` | Barra de progreso |
-| `RadioAtom` | Radio input base |
-| `SelectAtom` | Select nativo |
-| `SeparatorAtom` | Separador horizontal o vertical |
-| `SkeletonAtom` | Placeholder de carga |
-| `SpinnerAtom` | Indicador de carga |
-| `SwitchAtom` | Toggle booleano |
-| `TextareaAtom` | Campo de texto multilinea |
-| `TextAtom` | Texto polimorfico |
-| `ToastAtom` | Unidad visual de toast |
-
-### Molecules
-
-| Componente | Uso |
-| --- | --- |
-| `AccordionMolecule` | Secciones expandibles |
-| `AlertMolecule` | Mensajes contextuales |
-| `BreadcrumbMolecule` | Navegacion jerarquica |
-| `CardMolecule` | Contenedor con header/content/footer |
-| `CheckboxFieldMolecule` | Checkbox con label y ayuda |
-| `DialogMolecule` | Modal con portal |
-| `DropdownMolecule` | Menu desplegable |
-| `EmptyStateMolecule` | Estado vacio con acciones |
-| `FormFieldMolecule` | Input con label/error |
-| `PaginationMolecule` | Paginacion |
-| `RadioGroupMolecule` | Grupo de opciones radio |
-| `SelectFieldMolecule` | Select con label/error |
-| `SkeletonPresets` | Presets de skeleton |
-| `SwitchFieldMolecule` | Switch con label/descripcion |
-| `TableMolecule` | Tabla componible |
-| `TabsMolecule` | Tabs |
-| `TooltipMolecule` | Tooltip con portal |
-| `UserAvatarMolecule` | Avatar con datos de usuario |
-
-### Layouts, organisms y pages
-
-| Tipo | Export |
-| --- | --- |
-| Layout | `BorderLayout` |
-| Organisms | `LoginOrganism`, `RecoverPasswordOrganism`, `CreateAccountOrganism`, `ErrorPageOrganism`, `HeaderPageOrganism`, `FooterPageOrganism` |
-| Pages | `UiHomeLogin`, `UiHomeRecoverPassword`, `UiHomeCreateAccount`, `UiHomeError` |
-
-### Hooks y tema
-
-| Export | Uso |
-| --- | --- |
-| `ToastProvider` | Provider para notificaciones |
-| `useToast` | API base de toasts |
-| `useToastHelpers` | Helpers `success`, `error`, `warning`, `info` |
-| `theme`, `tokens.css` | Base de tematizacion |
-
-## Desarrollo
-
-Antes de publicar o consumir una nueva tanda de componentes:
-
-1. Agrega el componente con estructura JONA.
-2. Exportalo desde `src/index.ts`.
-3. Agrega subpath export en `package.json`.
-4. Crea tests enfocados en comportamiento.
-5. Crea story con estados principales.
-6. Ejecuta `npm run lint`, `npm test`, `npm run build` y `npm run build-storybook`.
+MIT
