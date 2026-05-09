@@ -41,6 +41,11 @@ export * from './molecules/TooltipMolecule';
 export * from './molecules/TableMolecule';
 export * from './molecules/BreadcrumbMolecule';
 export * from './molecules/SkeletonPresets';
+export * from './molecules/SearchInputMolecule';
+export * from './molecules/NumberInputMolecule';
+export * from './molecules/FileUploadMolecule';
+export * from './molecules/StatCardMolecule';
+export * from './molecules/StepperMolecule';
 
 // Layouts
 export * from './layouts/BorderLayout';

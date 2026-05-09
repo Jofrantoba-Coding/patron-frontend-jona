@@ -1,0 +1,1 @@
+{"version":3,"file":"SearchInputMolecule.cjs","sources":["../../../src/molecules/SearchInputMolecule/SearchInputMolecule.tsx"],"sourcesContent":["import { SearchInputMoleculeImpl } from './SearchInputMoleculeImpl';\n\nexport const SearchInputMolecule = SearchInputMoleculeImpl;\n"],"names":["SearchInputMolecule","SearchInputMoleculeImpl"],"mappings":"iIAEaA,EAAsBC,EAAAA"}

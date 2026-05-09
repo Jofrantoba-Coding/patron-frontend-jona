@@ -212,6 +212,31 @@
       "require": "./dist/molecules/SkeletonPresets.cjs",
       "types": "./dist/molecules/SkeletonPresets.d.ts"
     },
+    "./molecules/SearchInputMolecule": {
+      "import": "./dist/molecules/SearchInputMolecule.js",
+      "require": "./dist/molecules/SearchInputMolecule.cjs",
+      "types": "./dist/molecules/SearchInputMolecule.d.ts"
+    },
+    "./molecules/NumberInputMolecule": {
+      "import": "./dist/molecules/NumberInputMolecule.js",
+      "require": "./dist/molecules/NumberInputMolecule.cjs",
+      "types": "./dist/molecules/NumberInputMolecule.d.ts"
+    },
+    "./molecules/FileUploadMolecule": {
+      "import": "./dist/molecules/FileUploadMolecule.js",
+      "require": "./dist/molecules/FileUploadMolecule.cjs",
+      "types": "./dist/molecules/FileUploadMolecule.d.ts"
+    },
+    "./molecules/StatCardMolecule": {
+      "import": "./dist/molecules/StatCardMolecule.js",
+      "require": "./dist/molecules/StatCardMolecule.cjs",
+      "types": "./dist/molecules/StatCardMolecule.d.ts"
+    },
+    "./molecules/StepperMolecule": {
+      "import": "./dist/molecules/StepperMolecule.js",
+      "require": "./dist/molecules/StepperMolecule.cjs",
+      "types": "./dist/molecules/StepperMolecule.d.ts"
+    },
     "./hooks/useToast": {
       "import": "./dist/hooks/useToast.js",
       "require": "./dist/hooks/useToast.cjs",
@@ -284,12 +309,13 @@
   ],
   "scripts": {
     "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/index.css --minify",
-    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly --declaration --declarationDir dist && npm run build:css",
+    "build:types:fix": "node scripts/normalize-dts-react-imports.mjs",
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly --declaration --declarationDir dist && npm run build:types:fix && npm run build:css",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build && npm run build:types:fix"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

@@ -168,6 +168,11 @@ import { UiHomeLogin } from 'jona-ui/pages/UiHomeLogin';
 | `RadioGroupMolecule` | Grupo de opciones radio |
 | `SelectFieldMolecule` | Select con label, ayuda y error |
 | `SkeletonPresets` | Presets de skeleton |
+| `SearchInputMolecule` | Busqueda con clear, loading y submit por Enter |
+| `NumberInputMolecule` | Entrada numerica con stepper, min y max |
+| `FileUploadMolecule` | Dropzone/input de archivos con lista seleccionada |
+| `StatCardMolecule` | Metrica compacta para dashboards |
+| `StepperMolecule` | Indicador de progreso por pasos |
 | `SwitchFieldMolecule` | Switch con label y descripcion |
 | `TableMolecule` | Tabla componible |
 | `TabsMolecule` | Navegacion por tabs |

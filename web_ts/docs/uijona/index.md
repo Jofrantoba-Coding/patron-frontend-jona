@@ -149,6 +149,11 @@ En `organisms` y `pages`, JONA se usa con más separación porque hay estado, va
 | `TableMolecule` | Tabla composable |
 | `BreadcrumbMolecule` | Navegación por ruta |
 | `SkeletonPresets` | Skeletons para filas, cards, forms y tablas |
+| `SearchInputMolecule` | Búsqueda con clear, loading y submit por Enter |
+| `NumberInputMolecule` | Entrada numérica con stepper, min y max |
+| `FileUploadMolecule` | Dropzone/input de archivos con lista seleccionada |
+| `StatCardMolecule` | Métrica compacta para dashboards |
+| `StepperMolecule` | Indicador de progreso por pasos |
 
 ### Organisms, pages y layouts
 
