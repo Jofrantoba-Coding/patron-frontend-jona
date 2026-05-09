@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterButtonAtom } from './InterButtonAtom';
-
 interface ButtonAtomViewProps extends InterButtonAtom {
     forwardedRef?: React.Ref<HTMLButtonElement>;
     [key: string]: unknown;

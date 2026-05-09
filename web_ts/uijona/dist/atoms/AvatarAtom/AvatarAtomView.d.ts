@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterAvatarAtom } from './InterAvatarAtom';
-
 interface AvatarAtomViewProps extends InterAvatarAtom {
     onImageError?: (event: React.SyntheticEvent<HTMLImageElement>) => void;
 }

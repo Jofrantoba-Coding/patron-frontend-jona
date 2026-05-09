@@ -1,5 +1,4 @@
-import { ReactNode } from '../../../node_modules/react';
-
+import { ReactNode } from 'react';
 export interface InterHeaderPageOrganism {
     /** App title or logo node */
     title?: ReactNode;
