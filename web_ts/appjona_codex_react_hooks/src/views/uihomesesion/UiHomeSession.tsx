@@ -17,6 +17,7 @@ export function UiHomeSession({
 }: UiHomeSessionProps) {
   const resolvedName = name || 'Sesion pendiente de hidratar';
   const resolvedEmail = email || 'No hay usuario persistido';
+  const headlineName = resolvedName.split(' ')[0] || resolvedName;
 
   return (
     <BorderLayout
@@ -24,44 +25,88 @@ export function UiHomeSession({
       south={<AppFooter />}
       center={
         <div className="page-grid page-grid--single">
-          <section className="card stack-lg">
-            <div className="stack-sm">
-              <span className="badge">Authenticated Organism</span>
-              <TextAtom as="h1" tone="strong" className="card__title">
-                UiHomeSession
-              </TextAtom>
-              <TextAtom tone="muted">
-                El Template solo presenta el estado que recibe o mantiene localmente. La
-                lectura del usuario persistido y la limpieza de sesion pertenecen al Impl.
-              </TextAtom>
-            </div>
+          <div className="session-shell">
+            <section className="card session-hero stack-lg">
+              <div className="session-head stack-sm">
+                <span className="badge">Authenticated Organism</span>
+                <TextAtom as="h1" tone="strong" className="card__title">
+                  Bienvenido, {headlineName}
+                </TextAtom>
+                <TextAtom tone="muted">
+                  Esta vista prioriza lectura rapida de la sesion activa. El Template
+                  presenta estado y acciones; la hidratacion y navegacion real viven en el
+                  Impl.
+                </TextAtom>
+              </div>
 
-            <UserAvatarMolecule name={resolvedName} email={resolvedEmail} />
+              <UserAvatarMolecule name={resolvedName} email={resolvedEmail} />
 
-            <ul className="key-value-list">
-              <li>
-                <TextAtom tone="muted">Usuario</TextAtom>
-                <TextAtom tone="strong">{resolvedName}</TextAtom>
-              </li>
-              <li>
-                <TextAtom tone="muted">Correo</TextAtom>
-                <TextAtom tone="strong">{resolvedEmail}</TextAtom>
-              </li>
-              <li>
-                <TextAtom tone="muted">Responsabilidad actual</TextAtom>
-                <TextAtom tone="strong">Presentar una sesion ya integrada</TextAtom>
-              </li>
-            </ul>
+              <div className="session-kpi-grid">
+                <article className="session-kpi-card stack-2xs">
+                  <TextAtom as="span" tone="muted" className="eyebrow">
+                    Estado
+                  </TextAtom>
+                  <TextAtom as="strong" tone="strong">
+                    Sesion activa
+                  </TextAtom>
+                </article>
 
-            <div className="card__actions">
-              <ButtonAtom variant="secondary" onClick={handlerGoToPublicHome}>
-                Volver a /login
-              </ButtonAtom>
-              <ButtonAtom variant="danger" onClick={handlerLogout}>
-                Cerrar sesion
-              </ButtonAtom>
-            </div>
-          </section>
+                <article className="session-kpi-card stack-2xs">
+                  <TextAtom as="span" tone="muted" className="eyebrow">
+                    Capa visible
+                  </TextAtom>
+                  <TextAtom as="strong" tone="strong">
+                    Template
+                  </TextAtom>
+                </article>
+
+                <article className="session-kpi-card stack-2xs">
+                  <TextAtom as="span" tone="muted" className="eyebrow">
+                    Integracion real
+                  </TextAtom>
+                  <TextAtom as="strong" tone="strong">
+                    UiHomeSessionImpl
+                  </TextAtom>
+                </article>
+              </div>
+            </section>
+
+            <section className="card session-panel stack-lg">
+              <div className="stack-sm">
+                <TextAtom as="h2" tone="strong" className="session-panel__title">
+                  Resumen de la sesion
+                </TextAtom>
+                <TextAtom tone="muted">
+                  El contrato mantiene responsabilidades claras para no mezclar experiencia
+                  visual con integraciones de infraestructura.
+                </TextAtom>
+              </div>
+
+              <ul className="key-value-list key-value-list--compact">
+                <li>
+                  <TextAtom tone="muted">Usuario</TextAtom>
+                  <TextAtom tone="strong">{resolvedName}</TextAtom>
+                </li>
+                <li>
+                  <TextAtom tone="muted">Correo</TextAtom>
+                  <TextAtom tone="strong">{resolvedEmail}</TextAtom>
+                </li>
+                <li>
+                  <TextAtom tone="muted">Destino de salida</TextAtom>
+                  <TextAtom tone="strong">/login</TextAtom>
+                </li>
+              </ul>
+
+              <div className="session-actions">
+                <ButtonAtom variant="secondary" onClick={handlerGoToPublicHome}>
+                  Volver a /login
+                </ButtonAtom>
+                <ButtonAtom variant="danger" onClick={handlerLogout}>
+                  Cerrar sesion
+                </ButtonAtom>
+              </div>
+            </section>
+          </div>
         </div>
       }
     />

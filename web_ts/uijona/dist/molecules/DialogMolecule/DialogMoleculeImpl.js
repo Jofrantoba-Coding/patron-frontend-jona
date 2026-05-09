@@ -1,52 +1,51 @@
-import { jsx as w } from "react/jsx-runtime";
-import { useRef as a, useEffect as f } from "react";
-import { DIALOG_MOLECULE_DEFAULTS as L } from "./InterDialogMolecule.js";
-import { DialogMoleculeView as k } from "./DialogMoleculeView.js";
-const l = ({
+import { jsx as E } from "react/jsx-runtime";
+import { useRef as m, useEffect as a } from "react";
+import { DIALOG_MOLECULE_DEFAULTS as s } from "./InterDialogMolecule.js";
+import { DialogMoleculeView as L } from "./DialogMoleculeView.js";
+const k = ({
   open: t,
   onClose: r,
-  onOpened: u,
-  onClosed: m,
-  onCancel: c,
+  onOpened: i,
+  onClosed: c,
+  onCancel: f,
   ...y
 }) => {
-  const v = { ...L, ...y }, d = a(null), e = a(null);
-  return f(() => {
+  const v = { ...s, ...y }, l = m(null), d = m(null), u = m(!1);
+  return a(() => {
     if (!t) return;
-    const i = (E) => {
-      E.key === "Escape" && (r == null || r());
+    const e = (w) => {
+      w.key === "Escape" && (r == null || r());
     };
-    return document.addEventListener("keydown", i), () => document.removeEventListener("keydown", i);
-  }, [t, r]), f(() => {
+    return document.addEventListener("keydown", e), () => document.removeEventListener("keydown", e);
+  }, [t, r]), a(() => {
     if (t)
-      document.body.style.overflow = "hidden", u == null || u();
-    else if (document.body.style.overflow = "", m) {
-      const i = requestAnimationFrame(() => m == null ? void 0 : m());
-      return () => cancelAnimationFrame(i);
+      return document.body.style.overflow = "hidden", u.current || i == null || i(), u.current = !0, () => {
+        document.body.style.overflow = "";
+      };
+    if (document.body.style.overflow = "", !!u.current && (u.current = !1, c)) {
+      const e = requestAnimationFrame(() => c());
+      return () => cancelAnimationFrame(e);
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [t, u, m]), f(() => {
-    var i;
-    t && ((i = e.current) == null || i.focus());
-  }, [t]), /* @__PURE__ */ w(
-    k,
+  }, [t, i, c]), a(() => {
+    var e;
+    t && ((e = d.current) == null || e.focus());
+  }, [t]), /* @__PURE__ */ E(
+    L,
     {
       ...v,
       open: t,
       onClose: r,
-      overlayRef: d,
-      dialogRef: e,
+      overlayRef: l,
+      dialogRef: d,
       onOverlayClick: () => r == null ? void 0 : r(),
       onCloseClick: () => {
-        c == null || c(), r == null || r();
+        f == null || f(), r == null || r();
       }
     }
   );
 };
-l.displayName = "DialogMolecule";
+k.displayName = "DialogMolecule";
 export {
-  l as DialogMoleculeImpl
+  k as DialogMoleculeImpl
 };
 //# sourceMappingURL=DialogMoleculeImpl.js.map

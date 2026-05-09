@@ -26,9 +26,10 @@ export const DropdownMoleculeView: React.FC<DropdownMoleculeViewProps> = ({
             {gi > 0 && <SeparatorAtom className="my-1" />}
             {group.label && <p className="px-3 py-1 text-xs font-semibold text-neutral-500 uppercase tracking-wide">{group.label}</p>}
             {group.items.map((item, ii) => (
-              <button key={ii} role="menuitem" type="button" disabled={item.disabled}
+              <button key={ii} role="menuitem" type="button" aria-disabled={item.disabled || undefined}
                 onClick={() => { if (item.disabled) { onDisabledItemClick?.(item.label); return; } onItemClick(item); }}
-                className={cn('w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:bg-neutral-100 disabled:pointer-events-none disabled:opacity-50',
+                className={cn('w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:bg-neutral-100',
+                  item.disabled && 'cursor-not-allowed opacity-50',
                   item.variant === 'destructive' ? 'text-danger-500 hover:bg-red-50' : 'text-neutral-700 hover:bg-neutral-100')}
               >
                 {item.icon && <span className="w-4 h-4 shrink-0" aria-hidden="true">{item.icon}</span>}

@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const d=require("react/jsx-runtime"),m=require("react"),u=require("./InterRadioAtom.cjs"),R=require("./RadioAtomView.cjs"),e=m.forwardRef(({onCheckedChange:t,...i},a)=>{const o={...u.RADIO_ATOM_DEFAULTS,...i},s=r=>{o.disabled||t==null||t(r.target.checked,r.target.value,r)};return d.jsx(R.RadioAtomView,{...o,forwardedRef:a,onChange:s})});e.displayName="RadioAtom";exports.RadioAtomImpl=e;
+//# sourceMappingURL=RadioAtomImpl.cjs.map

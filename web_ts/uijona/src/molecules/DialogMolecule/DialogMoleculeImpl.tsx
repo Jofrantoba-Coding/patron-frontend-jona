@@ -9,6 +9,7 @@ export const DialogMoleculeImpl: React.FC<InterDialogMolecule> = ({
   const resolved = { ...DIALOG_MOLECULE_DEFAULTS, ...props };
   const overlayRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const dialogRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
     if (!open) return;
@@ -18,12 +19,22 @@ export const DialogMoleculeImpl: React.FC<InterDialogMolecule> = ({
   }, [open, onClose]);
 
   useEffect(() => {
-    if (open) { document.body.style.overflow = 'hidden'; onOpened?.(); }
-    else {
-      document.body.style.overflow = '';
-      if (onClosed) { const id = requestAnimationFrame(() => onClosed?.()); return () => cancelAnimationFrame(id); }
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      if (!wasOpenRef.current) onOpened?.();
+      wasOpenRef.current = true;
+      return () => { document.body.style.overflow = ''; };
     }
-    return () => { document.body.style.overflow = ''; };
+
+    document.body.style.overflow = '';
+    if (!wasOpenRef.current) return undefined;
+
+    wasOpenRef.current = false;
+    if (onClosed) {
+      const id = requestAnimationFrame(() => onClosed());
+      return () => cancelAnimationFrame(id);
+    }
+    return undefined;
   }, [open, onOpened, onClosed]);
 
   useEffect(() => { if (open) dialogRef.current?.focus(); }, [open]);

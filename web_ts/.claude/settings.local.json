@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -d \"d:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\"\\\\* | head -20)",
+      "Read(//d/Kiro Projects/patron-frontend-jona/**)",
+      "Bash(Get-ChildItem -Path \"d:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\appjona_react_hooks\\\\src\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)",
+      "Bash(Get-ChildItem -Path 'd:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts' -Directory)",
+      "Bash(Select-Object Name)"
+    ]
+  }
+}

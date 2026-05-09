@@ -17,8 +17,8 @@ export const DialogMoleculeView: React.FC<DialogMoleculeViewProps> = ({
 }) => {
   if (!open) return null;
   return createPortal(
-    <div ref={overlayRef} role="presentation" className="fixed inset-0 z-50 flex items-center justify-center" onClick={onOverlayClick}>
-      <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
+    <div ref={overlayRef} role="presentation" className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50" aria-hidden="true" onClick={onOverlayClick} />
       <div
         ref={dialogRef}
         role="dialog"
@@ -26,6 +26,7 @@ export const DialogMoleculeView: React.FC<DialogMoleculeViewProps> = ({
         aria-labelledby={title ? 'dialog-title' : undefined}
         aria-describedby={description ? 'dialog-desc' : undefined}
         tabIndex={-1}
+        onClick={(event) => event.stopPropagation()}
         className={cn('relative z-10 w-full max-w-md bg-white rounded-lg shadow-xl p-6 flex flex-col gap-4 focus:outline-none', className)}
       >
         {(title || showCloseButton) && (

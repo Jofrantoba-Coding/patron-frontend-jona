@@ -292,7 +292,9 @@ a {
 }
 
 .page-grid--single {
-  max-width: 40rem;
+  width: min(100%, 72rem);
+  margin-inline: auto;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .card {
@@ -317,6 +319,56 @@ a {
 .guide-panel {
   border-left: 6px solid var(--color-brand);
   background: linear-gradient(180deg, rgba(20, 93, 160, 0.08), rgba(255, 255, 255, 0.95));
+}
+
+.session-shell {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.session-hero {
+  background:
+    radial-gradient(circle at top right, rgba(20, 93, 160, 0.1), transparent 18rem),
+    rgba(255, 255, 255, 0.96);
+}
+
+.session-head {
+  max-width: 44rem;
+}
+
+.session-kpi-grid {
+  display: grid;
+  gap: var(--space-sm);
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.session-kpi-card {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(144, 163, 183, 0.45);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.session-panel {
+  align-self: start;
+}
+
+.session-panel__title {
+  font-size: clamp(1.15rem, 1.2vw, 1.4rem);
+}
+
+.key-value-list--compact li {
+  padding-bottom: var(--space-sm);
+}
+
+.session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.session-actions .button {
+  flex: 1 1 11.5rem;
 }
 
 .hero-copy {
@@ -369,6 +421,11 @@ a {
   .page-grid {
     grid-template-columns: minmax(0, 1.1fr) minmax(20rem, 28rem);
   }
+
+  .session-shell {
+    grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 1fr);
+    align-items: start;
+  }
 }
 
 @media (max-width: 720px) {
@@ -384,5 +441,9 @@ a {
 
   .card__actions {
     flex-direction: column;
+  }
+
+  .session-actions .button {
+    flex: 1 1 100%;
   }
 }
