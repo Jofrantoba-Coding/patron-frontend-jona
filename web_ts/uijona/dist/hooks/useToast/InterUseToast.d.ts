@@ -1,4 +1,5 @@
 import { ToastVariant } from '../../atoms/ToastAtom';
+
 export interface ToastData {
     id: string;
     message: string;

@@ -1,151 +1,191 @@
-# @jona/ui
+# jona-ui
 
-JONA Design System — Atomic Design + Observer pattern. Tree-shakeable React component library.
+JONA Design System para React. Combina Atomic Design, patron JONA y eventos estilo Observer para construir interfaces reutilizables, testeables y listas para aplicaciones.
 
-## Architecture
+## Estado
 
-```
-Atomic Design + JONA (Organisms) + Observer (Atoms/Molecules)
-```
+- Componentes visuales exportados: atoms, molecules, layouts, organisms y pages.
+- Storybook: configurado con Vite, autodocs y addon a11y.
+- Build: genera ESM, CJS, tipos TypeScript y CSS compilado.
+- Imports directos: soportados por subpath exports para mejorar tree-shaking.
 
-Every atom and molecule exposes an `InterEvents[Name].ts` interface that declares all events the component can emit. Consumers implement only the events they need.
-
-```
-Atom/Molecule
-  └── InterEvents[Name].ts   ← Observer contract (event signatures)
-  └── [Name].tsx             ← Component (props extends InterEvents)
-```
-
-## Installation
+## Instalacion
 
 ```bash
-npm install @jona/ui
+npm install jona-ui
 ```
 
-### Peer dependencies
+Peer dependencies:
 
 ```bash
 npm install react react-dom
 ```
 
-### Tailwind CSS setup
-
-The library uses Tailwind utility classes. Add the library path to your `tailwind.config.js` content array:
-
-```js
-// tailwind.config.js
-module.exports = {
-  content: [
-    './src/**/*.{ts,tsx}',
-    './node_modules/@jona/ui/dist/**/*.js',  // ← add this
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary:  { 600: '#2563eb', 700: '#1d4ed8', 500: '#3b82f6' },
-        neutral:  { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 400: '#9ca3af', 500: '#6b7280', 700: '#374151', 900: '#111827' },
-        danger:   { 500: '#ef4444', 600: '#dc2626' },
-        success:  { 500: '#22c55e', 600: '#16a34a' },
-      },
-    },
-  },
-};
-```
-
-## Usage
-
-### Import individual components (tree-shakeable)
+Importa los estilos globales una sola vez en tu aplicacion:
 
 ```tsx
-import { ButtonAtom } from '@jona/ui/atoms/ButtonAtom';
-import { FormFieldMolecule } from '@jona/ui/molecules/FormFieldMolecule';
+import 'jona-ui/index.css';
 ```
 
-### Import from barrel (all components)
+## Uso
+
+Import directo recomendado:
 
 ```tsx
-import { ButtonAtom, FormFieldMolecule, useToast } from '@jona/ui';
+import { ButtonAtom } from 'jona-ui/atoms/ButtonAtom';
+import { FormFieldMolecule } from 'jona-ui/molecules/FormFieldMolecule';
 ```
 
-## Components
+Import desde el barrel:
 
-### Atoms
+```tsx
+import { ButtonAtom, FormFieldMolecule, useToast } from 'jona-ui';
+```
 
-| Component | Description |
-|-----------|-------------|
-| `ButtonAtom` | Button with variants: default, outline, ghost, destructive, secondary, link |
-| `InputAtom` | Text input — `onChange(value, event)` Observer pattern |
-| `BadgeAtom` | Status badge with variants |
-| `CheckboxAtom` | Accessible checkbox |
-| `AvatarAtom` | Avatar with image + initials fallback |
-| `SelectAtom` | Native select — `onChange(value, event)` Observer pattern |
-| `SwitchAtom` | Toggle switch |
-| `TextAtom` | Polymorphic text element |
-| `LabelAtom` | Form label with required indicator |
-| `ErrorMessageAtom` | Error/description message |
-| `SpinnerAtom` | Loading spinner |
-| `SeparatorAtom` | Horizontal/vertical divider |
-| `ProgressAtom` | Progress bar |
-| `SkeletonAtom` | Loading skeleton |
-| `ToastAtom` | Toast notification unit |
+Ejemplo basico:
 
-### Molecules
+```tsx
+import 'jona-ui/index.css';
+import { ButtonAtom } from 'jona-ui/atoms/ButtonAtom';
+import { InputAtom } from 'jona-ui/atoms/InputAtom';
 
-| Component | Description |
-|-----------|-------------|
-| `CardMolecule` | Card with Header, Content, Footer slots |
-| `AlertMolecule` | Alert banner |
-| `FormFieldMolecule` | Input + label + error |
-| `CheckboxFieldMolecule` | Checkbox + label + error |
-| `SelectFieldMolecule` | Select + label + error |
-| `SwitchFieldMolecule` | Switch + label + description |
-| `UserAvatarMolecule` | Avatar + name + email |
-| `DialogMolecule` | Modal dialog with portal |
-| `TabsMolecule` | Tabs with pill/line variants |
-| `DropdownMolecule` | Dropdown menu with portal |
-| `PaginationMolecule` | Pagination controls |
-| `TooltipMolecule` | Tooltip with portal |
-| `TableMolecule` | Composable table |
-| `BreadcrumbMolecule` | Breadcrumb navigation |
-| `SkeletonPresets` | SkeletonUserRow, SkeletonCard, SkeletonForm, SkeletonTableRows |
-
-### Hooks
-
-| Hook | Description |
-|------|-------------|
-| `useToast` | Toast notifications — wrap app with `<ToastProvider>` |
-| `useToastHelpers` | Convenience: `.success()`, `.error()`, `.warning()`, `.info()` |
-
-## Observer Pattern
-
-Each interactive component has an `InterEvents` interface:
-
-```ts
-// InterEventsInputAtom.ts
-export interface InterEventsInputAtom {
-  onChange?: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur?:   (value: string, event: React.FocusEvent<HTMLInputElement>) => void;
-  onEnterPress?: (value: string, event: React.KeyboardEvent<HTMLInputElement>) => void;
-  onClear?: () => void;
+export function LoginForm() {
+  return (
+    <form>
+      <InputAtom
+        placeholder="Email"
+        onChange={(value) => console.log(value)}
+      />
+      <ButtonAtom type="submit">Ingresar</ButtonAtom>
+    </form>
+  );
 }
 ```
 
-Consumers implement only what they need:
+## Storybook
+
+```bash
+npm run storybook
+npm run build-storybook
+```
+
+Storybook cubre los componentes visuales exportados:
+
+- `Atoms/*`
+- `Molecules/*`
+- `Layouts/*`
+- `Organisms/*`
+- `Pages/*`
+- `Hooks/useToast`
+
+La configuracion esta en `.storybook/` y carga `src/styles/index.css` desde `preview.ts`.
+
+## Scripts
+
+```bash
+npm run lint
+npm test
+npm run build
+npm run storybook
+npm run build-storybook
+```
+
+## Arquitectura
+
+JONA organiza cada componente por responsabilidad:
+
+```txt
+InterFeature.ts       -> contrato publico y eventos
+FeatureImpl.tsx       -> estado, defaults y adaptacion de eventos
+FeatureView.tsx       -> render puro
+Feature.tsx           -> entrada publica
+index.ts              -> export local
+Feature.stories.tsx   -> documentacion visual
+```
+
+En atoms y molecules, los eventos siguen una variante Observer: el componente entrega el valor ya normalizado y, cuando aplica, el evento original.
 
 ```tsx
 <InputAtom
-  onChange={(value) => setEmail(value)}
-  onEnterPress={(value) => handleSubmit(value)}
+  onChange={(value, event) => setEmail(value)}
+  onEnterPress={(value) => submit(value)}
 />
 ```
 
-## JONA Pattern (Organisms)
+## Componentes
 
-For organisms, use the full JONA pattern:
+### Atoms
 
-```
-InterUiFeature.ts     ← Interface (contract)
-UiFeatureImpl.tsx     ← Implementation (logic)
-UiFeatureView.tsx     ← View (pure render)
-UiFeature.tsx         ← Template (wires impl + view)
-```
+| Componente | Uso |
+| --- | --- |
+| `AvatarAtom` | Avatar con imagen e iniciales |
+| `BadgeAtom` | Etiquetas de estado |
+| `ButtonAtom` | Botones con variantes y loading |
+| `CheckboxAtom` | Checkbox accesible |
+| `ChipAtom` | Chips seleccionables o removibles |
+| `ErrorMessageAtom` | Mensajes de error o ayuda |
+| `IconButtonAtom` | Boton icon-only con label accesible |
+| `InputAtom` | Input con eventos Observer |
+| `LabelAtom` | Label de formulario |
+| `LinkAtom` | Enlaces con variantes visuales |
+| `ProgressAtom` | Barra de progreso |
+| `RadioAtom` | Radio input base |
+| `SelectAtom` | Select nativo |
+| `SeparatorAtom` | Separador horizontal o vertical |
+| `SkeletonAtom` | Placeholder de carga |
+| `SpinnerAtom` | Indicador de carga |
+| `SwitchAtom` | Toggle booleano |
+| `TextareaAtom` | Campo de texto multilinea |
+| `TextAtom` | Texto polimorfico |
+| `ToastAtom` | Unidad visual de toast |
+
+### Molecules
+
+| Componente | Uso |
+| --- | --- |
+| `AccordionMolecule` | Secciones expandibles |
+| `AlertMolecule` | Mensajes contextuales |
+| `BreadcrumbMolecule` | Navegacion jerarquica |
+| `CardMolecule` | Contenedor con header/content/footer |
+| `CheckboxFieldMolecule` | Checkbox con label y ayuda |
+| `DialogMolecule` | Modal con portal |
+| `DropdownMolecule` | Menu desplegable |
+| `EmptyStateMolecule` | Estado vacio con acciones |
+| `FormFieldMolecule` | Input con label/error |
+| `PaginationMolecule` | Paginacion |
+| `RadioGroupMolecule` | Grupo de opciones radio |
+| `SelectFieldMolecule` | Select con label/error |
+| `SkeletonPresets` | Presets de skeleton |
+| `SwitchFieldMolecule` | Switch con label/descripcion |
+| `TableMolecule` | Tabla componible |
+| `TabsMolecule` | Tabs |
+| `TooltipMolecule` | Tooltip con portal |
+| `UserAvatarMolecule` | Avatar con datos de usuario |
+
+### Layouts, organisms y pages
+
+| Tipo | Export |
+| --- | --- |
+| Layout | `BorderLayout` |
+| Organisms | `LoginOrganism`, `RecoverPasswordOrganism`, `CreateAccountOrganism`, `ErrorPageOrganism`, `HeaderPageOrganism`, `FooterPageOrganism` |
+| Pages | `UiHomeLogin`, `UiHomeRecoverPassword`, `UiHomeCreateAccount`, `UiHomeError` |
+
+### Hooks y tema
+
+| Export | Uso |
+| --- | --- |
+| `ToastProvider` | Provider para notificaciones |
+| `useToast` | API base de toasts |
+| `useToastHelpers` | Helpers `success`, `error`, `warning`, `info` |
+| `theme`, `tokens.css` | Base de tematizacion |
+
+## Desarrollo
+
+Antes de publicar o consumir una nueva tanda de componentes:
+
+1. Agrega el componente con estructura JONA.
+2. Exportalo desde `src/index.ts`.
+3. Agrega subpath export en `package.json`.
+4. Crea tests enfocados en comportamiento.
+5. Crea story con estados principales.
+6. Ejecuta `npm run lint`, `npm test`, `npm run build` y `npm run build-storybook`.

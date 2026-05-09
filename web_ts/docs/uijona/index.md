@@ -12,7 +12,7 @@ permalink: /uijona
 Librería React de componentes reutilizables que combina **Atomic Design** con una variante pragmática del patrón JONA.
 {: .fs-5 .fw-300 }
 
-[Ver Storybook →](/patron-frontend-jona/storybook/){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Ver Storybook →](https://jofrantoba-coding.github.io/patron-frontend-jona/storybook/){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
 
 ## Tabla de contenidos
 {: .no_toc .text-delta }

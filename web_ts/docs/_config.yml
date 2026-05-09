@@ -2,7 +2,7 @@ title: Patrón JONA
 description: Arquitectura frontend multi-tecnología — separación de contratos, estado, lógica y UI
 remote_theme: just-the-docs/just-the-docs
 
-url: https://jofrantoba.github.io
+url: https://jofrantoba-coding.github.io
 baseurl: /patron-frontend-jona
 
 color_scheme: light
@@ -19,9 +19,9 @@ footer_content: "Patrón JONA · Documentación generada con Just the Docs"
 # Aux links en la barra superior
 aux_links:
   "Storybook":
-    - "/patron-frontend-jona/storybook/"
+    - "https://jofrantoba-coding.github.io/patron-frontend-jona/storybook/"
   "Ver en GitHub":
-    - "https://github.com/jofrantoba/patron-frontend-jona"
+    - "https://github.com/jofrantoba-coding/patron-frontend-jona"
 
 aux_links_new_tab: true
 

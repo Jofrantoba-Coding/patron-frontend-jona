@@ -1,0 +1,34 @@
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Storybook builds (generados en CI, no commitear)
+storybook-static/
+**/storybook-static/
+storybook-dist/
+**/storybook-dist/
+
+# Archivos de declaración de stories en dist (no son parte de la librería)
+**/dist/**/*.stories.d.ts
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.swp
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Storybook debug
+debug-storybook.log

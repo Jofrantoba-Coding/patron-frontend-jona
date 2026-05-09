@@ -26,15 +26,15 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: web_ts/uijona/package-lock.json
+          cache-dependency-path: uijona/package-lock.json
 
       - name: Install uijona dependencies
         run: npm ci --legacy-peer-deps
-        working-directory: web_ts/uijona
+        working-directory: uijona
 
       - name: Build Storybook
-        run: npx storybook build --output-dir ../../storybook-dist
-        working-directory: web_ts/uijona
+        run: npx storybook build --output-dir ../storybook-dist
+        working-directory: uijona
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -42,11 +42,11 @@ jobs:
       - name: Build Jekyll docs
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./web_ts/docs
+          source: ./docs
           destination: ./_site
 
       - name: Copy Storybook into docs site
-        run: cp -r web_ts/storybook-dist _site/storybook
+        run: cp -r storybook-dist _site/storybook
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

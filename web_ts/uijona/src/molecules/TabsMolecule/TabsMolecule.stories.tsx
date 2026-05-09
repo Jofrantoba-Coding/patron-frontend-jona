@@ -9,7 +9,7 @@ const meta: Meta<typeof TabsMolecule> = {
   tags: ['autodocs'],
   args: { onChange: fn() },
   argTypes: {
-    variant:     { control: 'radio', options: ['pill', 'line'] },
+    variant: { control: 'radio', options: ['pill', 'line'] },
     orientation: { control: 'radio', options: ['horizontal', 'vertical'] },
   },
 };
@@ -20,16 +20,18 @@ export const Default: Story = {
   render: () => {
     const [tab, setTab] = useState('cuenta');
     return (
-      <TabsMolecule value={tab} onChange={setTab} style={{ width: '400px' }}>
-        <TabsList>
-          <TabsTrigger value="cuenta">Cuenta</TabsTrigger>
-          <TabsTrigger value="seguridad">Seguridad</TabsTrigger>
-          <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
-        </TabsList>
-        <TabsContent value="cuenta">Configuración de cuenta</TabsContent>
-        <TabsContent value="seguridad">Configuración de seguridad</TabsContent>
-        <TabsContent value="notificaciones">Preferencias de notificación</TabsContent>
-      </TabsMolecule>
+      <div style={{ width: '400px' }}>
+        <TabsMolecule value={tab} onChange={setTab}>
+          <TabsList>
+            <TabsTrigger value="cuenta">Cuenta</TabsTrigger>
+            <TabsTrigger value="seguridad">Seguridad</TabsTrigger>
+            <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
+          </TabsList>
+          <TabsContent value="cuenta">Configuracion de cuenta</TabsContent>
+          <TabsContent value="seguridad">Configuracion de seguridad</TabsContent>
+          <TabsContent value="notificaciones">Preferencias de notificacion</TabsContent>
+        </TabsMolecule>
+      </div>
     );
   },
 };
@@ -38,16 +40,18 @@ export const LineVariant: Story = {
   render: () => {
     const [tab, setTab] = useState('overview');
     return (
-      <TabsMolecule value={tab} onChange={setTab} variant="line" style={{ width: '400px' }}>
-        <TabsList>
-          <TabsTrigger value="overview">Resumen</TabsTrigger>
-          <TabsTrigger value="analytics">Analítica</TabsTrigger>
-          <TabsTrigger value="reports">Reportes</TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview">Vista de resumen</TabsContent>
-        <TabsContent value="analytics">Datos analíticos</TabsContent>
-        <TabsContent value="reports">Reportes generados</TabsContent>
-      </TabsMolecule>
+      <div style={{ width: '400px' }}>
+        <TabsMolecule value={tab} onChange={setTab} variant="line">
+          <TabsList>
+            <TabsTrigger value="overview">Resumen</TabsTrigger>
+            <TabsTrigger value="analytics">Analitica</TabsTrigger>
+            <TabsTrigger value="reports">Reportes</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">Vista de resumen</TabsContent>
+          <TabsContent value="analytics">Datos analiticos</TabsContent>
+          <TabsContent value="reports">Reportes generados</TabsContent>
+        </TabsMolecule>
+      </div>
     );
   },
 };

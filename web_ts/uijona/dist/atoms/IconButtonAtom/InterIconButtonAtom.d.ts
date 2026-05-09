@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { ButtonVariant } from '../ButtonAtom';
+
 export interface InterIconButtonAtom extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
     icon: React.ReactNode;
     label: string;

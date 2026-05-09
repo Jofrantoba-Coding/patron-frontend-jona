@@ -1,3 +1,4 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterErrorMessageAtom } from './InterErrorMessageAtom';
+
 export declare const ErrorMessageAtomView: React.FC<InterErrorMessageAtom>;

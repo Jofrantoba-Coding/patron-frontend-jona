@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterUseToast } from './InterUseToast';
+
 export declare const ToastProvider: React.FC<{
     children: React.ReactNode;
 }>;

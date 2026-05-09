@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export declare const TableMoleculeView: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableElement> & React.RefAttributes<HTMLTableElement>>;
 export declare const TableCaptionView: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableCaptionElement> & React.RefAttributes<HTMLTableCaptionElement>>;
 export declare const TableHeaderView: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>>;

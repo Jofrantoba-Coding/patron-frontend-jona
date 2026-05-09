@@ -1,7 +1,7 @@
 {
   "name": "jona-ui",
   "version": "1.2.5",
-  "description": "JONA Design System — Atomic Design + Observer pattern. Tree-shakeable React component library.",
+  "description": "JONA Design System - Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
   "type": "module",
@@ -284,7 +284,7 @@
   ],
   "scripts": {
     "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/index.css --minify",
-    "build": "vite build && tsc --emitDeclarationOnly --declaration --declarationDir dist && npm run build:css",
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly --declaration --declarationDir dist && npm run build:css",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
