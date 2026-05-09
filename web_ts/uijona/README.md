@@ -5,7 +5,7 @@ JONA Design System para React. Es una libreria de componentes basada en Atomic D
 - Package: https://www.npmjs.com/package/jona-ui
 - Docs: https://jofrantoba-coding.github.io/patron-frontend-jona/uijona
 - Storybook: https://jofrantoba-coding.github.io/patron-frontend-jona/storybook/
-- Version publicada: `1.2.6`
+- Version publicada: `1.2.7`
 
 ## Instalacion
 

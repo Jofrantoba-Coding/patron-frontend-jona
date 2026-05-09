@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterFormFieldMolecule } from './InterFormFieldMolecule';
-
 type FormFieldMoleculeViewProps = Omit<InterFormFieldMolecule, 'onInvalid'> & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur' | 'onKeyDown' | 'onInvalid'> & {
     forwardedRef?: React.Ref<HTMLInputElement>;
     onInvalid?: (value: string, msg: string) => void;

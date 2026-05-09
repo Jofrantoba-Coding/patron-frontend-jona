@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterDropdownMolecule, DropdownGroup } from './InterDropdownMolecule';
-
 interface DropdownMoleculeViewProps extends InterDropdownMolecule {
     open: boolean;
     menuStyle: React.CSSProperties;

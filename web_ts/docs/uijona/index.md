@@ -27,7 +27,7 @@ Librería React de componentes reutilizables que combina **Atomic Design** con u
 | Campo | Valor |
 |-------|-------|
 | Nombre NPM | `jona-ui` |
-| Versión | `1.2.5` |
+| Versión | `1.2.7` |
 | Carpeta fuente | `uijona/` |
 | Showcase consumidor | `showcase_uijona/` |
 | Formatos | ESM + CJS |

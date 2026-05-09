@@ -1,5 +1,4 @@
 import { SwitchSize } from '../../atoms/SwitchAtom';
-
 export interface InterSwitchFieldMolecule {
     id: string;
     label: string;

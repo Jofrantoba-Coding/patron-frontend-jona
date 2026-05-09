@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 interface InputAtomViewProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur' | 'onKeyDown'> {
     hasError?: boolean;
     forwardedRef?: React.Ref<HTMLInputElement>;

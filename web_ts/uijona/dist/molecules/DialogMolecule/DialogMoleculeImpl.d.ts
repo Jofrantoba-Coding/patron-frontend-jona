@@ -1,4 +1,3 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterDialogMolecule } from './InterDialogMolecule';
-
 export declare const DialogMoleculeImpl: React.FC<InterDialogMolecule>;

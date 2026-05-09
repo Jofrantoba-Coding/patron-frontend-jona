@@ -1,4 +1,3 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export interface InterCardMolecule extends React.HTMLAttributes<HTMLDivElement> {
 }

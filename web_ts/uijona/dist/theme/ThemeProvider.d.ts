@@ -1,5 +1,4 @@
-import { default as React } from '../../node_modules/react';
-
+import React from 'react';
 export type JonaThemeTokens = {
     primary50?: string;
     primary100?: string;

@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export declare const CardMoleculeView: React.FC<React.HTMLAttributes<HTMLDivElement>>;
 export declare const CardHeaderView: React.FC<React.HTMLAttributes<HTMLDivElement>>;
 export declare const CardTitleView: React.FC<React.HTMLAttributes<HTMLHeadingElement>>;
