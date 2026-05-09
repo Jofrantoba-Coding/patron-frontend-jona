@@ -20,7 +20,7 @@ export const DropdownMoleculeView: React.FC<DropdownMoleculeViewProps> = ({
   <>
     <div ref={triggerRef} className="inline-block" onClick={onTriggerClick}>{trigger}</div>
     {open && createPortal(
-      <div ref={menuRef} role="menu" style={menuStyle} className={cn('bg-white border border-neutral-200 rounded-md shadow-lg py-1 min-w-[160px] max-w-xs', className)}>
+      <div ref={menuRef} role="menu" style={menuStyle} className={cn('max-w-[calc(100vw-1rem)] overflow-hidden rounded-md border border-neutral-200 bg-white py-1 shadow-lg', className)}>
         {groups.map((group, gi) => (
           <React.Fragment key={gi}>
             {gi > 0 && <SeparatorAtom className="my-1" />}
@@ -33,8 +33,8 @@ export const DropdownMoleculeView: React.FC<DropdownMoleculeViewProps> = ({
                   item.variant === 'destructive' ? 'text-danger-500 hover:bg-red-50' : 'text-neutral-700 hover:bg-neutral-100')}
               >
                 {item.icon && <span className="w-4 h-4 shrink-0" aria-hidden="true">{item.icon}</span>}
-                <span className="flex-1">{item.label}</span>
-                {item.shortcut && <span className="text-xs text-neutral-400 ml-auto">{item.shortcut}</span>}
+                <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                {item.shortcut && <span className="ml-auto shrink-0 text-xs text-neutral-400">{item.shortcut}</span>}
               </button>
             ))}
           </React.Fragment>

@@ -1,23 +1,23 @@
-import { jsxs as n, jsx as e } from "react/jsx-runtime";
+import { jsxs as a, jsx as e } from "react/jsx-runtime";
 import { cn as l } from "../../lib/cn.js";
 const d = ({
-  text: s,
-  left: i,
-  center: t,
-  right: r,
-  className: a
-}) => /* @__PURE__ */ n(
+  text: i,
+  left: n,
+  center: r,
+  right: s,
+  className: t
+}) => /* @__PURE__ */ a(
   "footer",
   {
     className: l(
-      "flex items-center justify-between px-6 py-3",
+      "flex min-w-0 flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6",
       "bg-white border-t border-neutral-200 text-sm text-neutral-500",
-      a
+      t
     ),
     children: [
-      /* @__PURE__ */ e("div", { className: "flex items-center gap-2", children: i ?? /* @__PURE__ */ e("span", { children: s }) }),
-      t && /* @__PURE__ */ e("div", { className: "hidden md:flex items-center gap-4", children: t }),
-      r && /* @__PURE__ */ e("div", { className: "flex items-center gap-2", children: r })
+      /* @__PURE__ */ e("div", { className: "min-w-0 flex-1 break-words md:flex-none", children: n ?? /* @__PURE__ */ e("span", { children: i }) }),
+      r && /* @__PURE__ */ e("div", { className: "hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex", children: r }),
+      s && /* @__PURE__ */ e("div", { className: "flex shrink-0 items-center gap-2", children: s })
     ]
   }
 );

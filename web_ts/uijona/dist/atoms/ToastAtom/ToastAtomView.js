@@ -17,14 +17,14 @@ const l = {
     role: "status",
     "aria-live": "polite",
     className: r(
-      "flex items-start gap-3 rounded-md px-4 py-3 shadow-lg min-w-[240px] max-w-sm",
+      "flex w-full min-w-0 max-w-sm items-start gap-3 rounded-md px-4 py-3 shadow-lg sm:min-w-[240px]",
       l[n],
       a
     ),
     children: [
       /* @__PURE__ */ i("div", { className: "flex-1 min-w-0", children: [
-        s && /* @__PURE__ */ e("p", { className: "text-sm font-semibold leading-none mb-1", children: s }),
-        /* @__PURE__ */ e("p", { className: "text-sm leading-snug", children: t })
+        s && /* @__PURE__ */ e("p", { className: "text-sm font-semibold leading-none mb-1 break-words", children: s }),
+        /* @__PURE__ */ e("p", { className: "text-sm leading-snug break-words", children: t })
       ] }),
       /* @__PURE__ */ e(
         "button",

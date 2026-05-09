@@ -11,26 +11,26 @@ export const HeaderPageOrganismView: React.FC<InterHeaderPageOrganism> = ({
 }) => (
   <header
     className={cn(
-      'flex items-center justify-between px-6 py-3',
+      'flex min-w-0 flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6',
       'bg-white border-b border-neutral-200 shadow-sm',
       className
     )}
   >
     {/* Title / Logo */}
-    <div className="flex items-center gap-3 font-semibold text-lg text-primary-600">
+    <div className="min-w-0 flex-1 truncate text-lg font-semibold text-primary-600 md:flex-none">
       {title}
     </div>
 
     {/* Navigation */}
     {nav && (
-      <nav className="hidden md:flex items-center gap-4 text-sm text-neutral-600">
+      <nav className="hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto text-sm text-neutral-600 md:flex">
         {nav}
       </nav>
     )}
 
     {/* Actions */}
     {actions && (
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {actions}
       </div>
     )}

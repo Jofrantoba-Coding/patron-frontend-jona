@@ -14,10 +14,17 @@ export const DropdownMoleculeImpl: React.FC<InterDropdownMolecule> = ({
   const updatePosition = () => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
+    const viewportPadding = 8;
+    const viewportWidth = window.innerWidth;
+    const width = Math.min(Math.max(rect.width, 160), viewportWidth - viewportPadding * 2);
+    const desiredLeft = align === 'end' ? rect.right - width : rect.left;
+    const left = Math.min(Math.max(desiredLeft, viewportPadding), viewportWidth - width - viewportPadding);
     setMenuStyle({
       position: 'fixed', top: rect.bottom + 4,
-      ...(align === 'end' ? { right: window.innerWidth - rect.right } : { left: rect.left }),
-      minWidth: rect.width, zIndex: 50,
+      left,
+      width,
+      maxWidth: `calc(100vw - ${viewportPadding * 2}px)`,
+      zIndex: 50,
     });
   };
 
@@ -31,7 +38,14 @@ export const DropdownMoleculeImpl: React.FC<InterDropdownMolecule> = ({
     };
     document.addEventListener('keydown', onKey);
     document.addEventListener('mousedown', onClick);
-    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onClick); };
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClick);
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
   }, [open, onClose]);
 
   return (

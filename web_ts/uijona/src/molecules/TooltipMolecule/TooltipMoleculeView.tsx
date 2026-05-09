@@ -23,7 +23,7 @@ export const TooltipMoleculeView: React.FC<TooltipMoleculeViewProps> = ({
       {children}
     </span>
     {visible && createPortal(
-      <div role="tooltip" style={style} className={cn('max-w-xs rounded bg-neutral-900 px-2.5 py-1.5 text-xs text-white shadow-md pointer-events-none select-none', className)}>
+      <div role="tooltip" style={style} className={cn('max-w-xs break-words rounded bg-neutral-900 px-2.5 py-1.5 text-xs text-white shadow-md pointer-events-none select-none', className)}>
         {content}
       </div>,
       document.body

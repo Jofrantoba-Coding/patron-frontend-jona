@@ -2,7 +2,7 @@ import { jsx as r } from "react/jsx-runtime";
 import o from "react";
 import { cn as l } from "../../lib/cn.js";
 const d = o.forwardRef(
-  ({ className: e, ...a }, t) => /* @__PURE__ */ r("div", { className: "relative w-full overflow-auto rounded-md border border-neutral-200", children: /* @__PURE__ */ r("table", { ref: t, className: l("w-full caption-bottom text-sm", e), ...a }) })
+  ({ className: e, ...a }, t) => /* @__PURE__ */ r("div", { className: "relative max-w-full overflow-auto rounded-md border border-neutral-200", children: /* @__PURE__ */ r("table", { ref: t, className: l("w-full min-w-max caption-bottom text-sm", e), ...a }) })
 );
 d.displayName = "TableMolecule";
 const n = o.forwardRef(

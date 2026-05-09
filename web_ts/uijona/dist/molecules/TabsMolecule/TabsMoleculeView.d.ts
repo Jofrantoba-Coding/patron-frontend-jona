@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterTabsMolecule } from './InterTabsMolecule';
+
 interface TabsContextValue {
     value: string;
     onChange: (v: string) => void;

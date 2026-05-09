@@ -13,11 +13,11 @@ export const AlertMoleculeView: React.FC<InterAlertMolecule> = ({
 }) => (
   <div
     role="alert"
-    className={cn('relative w-full rounded-md border p-4', icon && 'pl-11', variantClasses[variant], className)}
+    className={cn('relative w-full min-w-0 rounded-md border p-4', icon && 'pl-11', variantClasses[variant], className)}
     {...props}
   >
     {icon && <span className="absolute left-4 top-4 text-current">{icon}</span>}
-    {title && <h5 className="mb-1 font-medium leading-none tracking-tight">{title}</h5>}
-    {children && <div className="text-sm [&_p]:leading-relaxed">{children}</div>}
+    {title && <h5 className="mb-1 break-words font-medium leading-tight tracking-tight">{title}</h5>}
+    {children && <div className="break-words text-sm [&_p]:leading-relaxed">{children}</div>}
   </div>
 );

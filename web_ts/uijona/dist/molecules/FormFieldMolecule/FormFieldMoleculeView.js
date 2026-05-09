@@ -1,55 +1,55 @@
-import { jsxs as s, jsx as l } from "react/jsx-runtime";
-import { cn as c } from "../../lib/cn.js";
-import { LabelAtomImpl as y } from "../../atoms/LabelAtom/LabelAtomImpl.js";
-import { InputAtomImpl as A } from "../../atoms/InputAtom/InputAtomImpl.js";
+import { jsxs as c, jsx as e } from "react/jsx-runtime";
+import { cn as s } from "../../lib/cn.js";
+import { LabelAtomImpl as w } from "../../atoms/LabelAtom/LabelAtomImpl.js";
+import { InputAtomImpl as y } from "../../atoms/InputAtom/InputAtomImpl.js";
 import { ErrorMessageAtomImpl as i } from "../../atoms/ErrorMessageAtom/ErrorMessageAtomImpl.js";
-const w = ({
-  id: e,
+const $ = ({
+  id: l,
   label: n,
-  errorMessage: m,
-  description: o,
-  orientation: a = "vertical",
+  errorMessage: a,
+  description: m,
+  orientation: o = "vertical",
   required: t,
   className: p,
   onChange: f,
-  onBlur: d,
-  onFocus: x,
+  onBlur: x,
+  onFocus: d,
   onKeyDown: h,
   onEnterPress: I,
-  onClear: v,
-  onValid: F,
-  onInvalid: j,
-  onInvalidInternal: u,
-  forwardedRef: g,
+  onClear: g,
+  onValid: z,
+  onInvalid: A,
+  onInvalidInternal: F,
+  forwardedRef: v,
   ...b
 }) => {
-  const r = !!m;
-  return /* @__PURE__ */ s("div", { className: c(a === "horizontal" ? "flex items-center gap-4" : "flex flex-col gap-1.5", p), children: [
-    /* @__PURE__ */ l(y, { htmlFor: e, required: t, children: n }),
-    /* @__PURE__ */ s("div", { className: c("flex flex-col gap-1", a === "horizontal" && "flex-1"), children: [
-      /* @__PURE__ */ l(
-        A,
+  const r = !!a;
+  return /* @__PURE__ */ c("div", { className: s(o === "horizontal" ? "flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4" : "flex flex-col gap-1.5", p), children: [
+    /* @__PURE__ */ e(w, { htmlFor: l, required: t, className: s(o === "horizontal" && "sm:shrink-0"), children: n }),
+    /* @__PURE__ */ c("div", { className: s("flex min-w-0 flex-col gap-1", o === "horizontal" && "sm:flex-1"), children: [
+      /* @__PURE__ */ e(
+        y,
         {
-          ref: g,
-          id: e,
+          ref: v,
+          id: l,
           hasError: r,
           required: t,
-          "aria-describedby": o ? `${e}-desc` : void 0,
+          "aria-describedby": m ? `${l}-desc` : void 0,
           onChange: f,
-          onBlur: d,
-          onFocus: x,
+          onBlur: x,
+          onFocus: d,
           onKeyDown: h,
           onEnterPress: I,
-          onClear: v,
+          onClear: g,
           ...b
         }
       ),
-      o && !r && /* @__PURE__ */ l(i, { id: `${e}-desc`, message: o, type: "description" }),
-      r && /* @__PURE__ */ l(i, { message: m, type: "error" })
+      m && !r && /* @__PURE__ */ e(i, { id: `${l}-desc`, message: m, type: "description" }),
+      r && /* @__PURE__ */ e(i, { message: a, type: "error" })
     ] })
   ] });
 };
 export {
-  w as FormFieldMoleculeView
+  $ as FormFieldMoleculeView
 };
 //# sourceMappingURL=FormFieldMoleculeView.js.map

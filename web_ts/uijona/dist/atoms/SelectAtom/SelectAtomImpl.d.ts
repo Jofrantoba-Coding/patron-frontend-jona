@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterSelectAtom } from './InterSelectAtom';
+
 export declare const SelectAtomImpl: React.ForwardRefExoticComponent<Omit<InterSelectAtom, "onBlur" | "onChange"> & Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "onBlur" | "value" | "onChange"> & {
     value?: string;
     onChange?: (value: string, event: React.ChangeEvent<HTMLSelectElement>) => void;

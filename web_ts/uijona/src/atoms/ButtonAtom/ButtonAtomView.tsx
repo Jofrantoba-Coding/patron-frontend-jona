@@ -14,9 +14,9 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  default: 'h-9 px-4 py-2 text-sm',
-  sm:      'h-7 px-3 text-xs',
-  lg:      'h-11 px-6 text-base',
+  default: 'min-h-9 px-4 py-2 text-sm',
+  sm:      'min-h-7 px-3 py-1 text-xs',
+  lg:      'min-h-11 px-6 py-2 text-base',
   icon:    'h-9 w-9 p-0',
 };
 
@@ -37,10 +37,11 @@ export const ButtonAtomView: React.FC<ButtonAtomViewProps> = ({
     onBlur={onBlur}
     onKeyDown={onKeyDown}
     className={cn(
-      'inline-flex items-center justify-center gap-2 rounded-md font-medium',
+      'inline-flex max-w-full min-w-0 items-center justify-center gap-2 rounded-md text-center font-medium',
       'transition-colors duration-200 cursor-pointer',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:pointer-events-none disabled:opacity-50',
+      size !== 'icon' && 'whitespace-normal',
       variantClasses[variant],
       sizeClasses[size],
       fullWidth && 'w-full',

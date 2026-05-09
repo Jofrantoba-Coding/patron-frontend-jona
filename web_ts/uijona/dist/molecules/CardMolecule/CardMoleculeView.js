@@ -1,12 +1,12 @@
-import { jsx as s } from "react/jsx-runtime";
-import { cn as o } from "../../lib/cn.js";
-const i = ({ className: e, children: t, ...a }) => /* @__PURE__ */ s("div", { className: o("rounded-lg border border-neutral-200 bg-white shadow-sm", e), ...a, children: t }), n = ({ className: e, children: t, ...a }) => /* @__PURE__ */ s("div", { className: o("flex flex-col gap-1.5 p-6", e), ...a, children: t }), d = ({ className: e, children: t, ...a }) => /* @__PURE__ */ s("h3", { className: o("text-lg font-semibold text-neutral-900 leading-none", e), ...a, children: t }), c = ({ className: e, children: t, ...a }) => /* @__PURE__ */ s("p", { className: o("text-sm text-neutral-500", e), ...a, children: t }), m = ({ className: e, children: t, ...a }) => /* @__PURE__ */ s("div", { className: o("p-6 pt-0", e), ...a, children: t }), p = ({ className: e, children: t, ...a }) => /* @__PURE__ */ s("div", { className: o("flex items-center p-6 pt-0 gap-2", e), ...a, children: t });
+import { jsx as a } from "react/jsx-runtime";
+import { cn as r } from "../../lib/cn.js";
+const m = ({ className: e, children: t, ...s }) => /* @__PURE__ */ a("div", { className: r("min-w-0 rounded-lg border border-neutral-200 bg-white shadow-sm", e), ...s, children: t }), l = ({ className: e, children: t, ...s }) => /* @__PURE__ */ a("div", { className: r("flex min-w-0 flex-col gap-1.5 p-4 sm:p-6", e), ...s, children: t }), n = ({ className: e, children: t, ...s }) => /* @__PURE__ */ a("h3", { className: r("break-words text-lg font-semibold leading-tight text-neutral-900", e), ...s, children: t }), d = ({ className: e, children: t, ...s }) => /* @__PURE__ */ a("p", { className: r("break-words text-sm text-neutral-500", e), ...s, children: t }), p = ({ className: e, children: t, ...s }) => /* @__PURE__ */ a("div", { className: r("min-w-0 p-4 pt-0 sm:p-6 sm:pt-0", e), ...s, children: t }), c = ({ className: e, children: t, ...s }) => /* @__PURE__ */ a("div", { className: r("flex min-w-0 flex-wrap items-center gap-2 p-4 pt-0 sm:p-6 sm:pt-0", e), ...s, children: t });
 export {
-  m as CardContentView,
-  c as CardDescriptionView,
-  p as CardFooterView,
-  n as CardHeaderView,
-  i as CardMoleculeView,
-  d as CardTitleView
+  p as CardContentView,
+  d as CardDescriptionView,
+  c as CardFooterView,
+  l as CardHeaderView,
+  m as CardMoleculeView,
+  n as CardTitleView
 };
 //# sourceMappingURL=CardMoleculeView.js.map

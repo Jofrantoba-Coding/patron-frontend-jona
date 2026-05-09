@@ -22,14 +22,14 @@ export const ToastAtomView: React.FC<ToastAtomViewProps> = ({
     role="status"
     aria-live="polite"
     className={cn(
-      'flex items-start gap-3 rounded-md px-4 py-3 shadow-lg min-w-[240px] max-w-sm',
+      'flex w-full min-w-0 max-w-sm items-start gap-3 rounded-md px-4 py-3 shadow-lg sm:min-w-[240px]',
       variantClasses[variant],
       className
     )}
   >
     <div className="flex-1 min-w-0">
-      {title && <p className="text-sm font-semibold leading-none mb-1">{title}</p>}
-      <p className="text-sm leading-snug">{message}</p>
+      {title && <p className="text-sm font-semibold leading-none mb-1 break-words">{title}</p>}
+      <p className="text-sm leading-snug break-words">{message}</p>
     </div>
     <button
       type="button"

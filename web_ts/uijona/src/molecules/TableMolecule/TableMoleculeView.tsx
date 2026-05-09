@@ -4,8 +4,8 @@ import { cn } from '../../lib/cn';
 
 export const TableMoleculeView = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto rounded-md border border-neutral-200">
-      <table ref={ref} className={cn('w-full caption-bottom text-sm', className)} {...props} />
+    <div className="relative max-w-full overflow-auto rounded-md border border-neutral-200">
+      <table ref={ref} className={cn('w-full min-w-max caption-bottom text-sm', className)} {...props} />
     </div>
   )
 );

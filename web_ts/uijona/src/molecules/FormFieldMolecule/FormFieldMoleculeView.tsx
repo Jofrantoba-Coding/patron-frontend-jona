@@ -20,9 +20,9 @@ export const FormFieldMoleculeView: React.FC<FormFieldMoleculeViewProps> = ({
 }) => {
   const hasError = !!errorMessage;
   return (
-    <div className={cn(orientation === 'horizontal' ? 'flex items-center gap-4' : 'flex flex-col gap-1.5', className)}>
-      <LabelAtom htmlFor={id} required={required}>{label}</LabelAtom>
-      <div className={cn('flex flex-col gap-1', orientation === 'horizontal' && 'flex-1')}>
+    <div className={cn(orientation === 'horizontal' ? 'flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4' : 'flex flex-col gap-1.5', className)}>
+      <LabelAtom htmlFor={id} required={required} className={cn(orientation === 'horizontal' && 'sm:shrink-0')}>{label}</LabelAtom>
+      <div className={cn('flex min-w-0 flex-col gap-1', orientation === 'horizontal' && 'sm:flex-1')}>
         <InputAtom
           ref={forwardedRef}
           id={id}

@@ -25,14 +25,14 @@ export const PaginationMoleculeView: React.FC<InterPaginationMolecule> = ({
   const btnBase = cn('inline-flex items-center justify-center h-8 min-w-[2rem] px-2 rounded text-sm transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50');
 
   return (
-    <nav aria-label="Pagination" className={cn('flex items-center gap-1', className)}>
+    <nav aria-label="Pagination" className={cn('flex max-w-full items-center gap-1 overflow-x-auto', className)}>
       <button type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
         onClick={() => { if (currentPage <= 1) { onFirstPageReached?.(); return; } onPrevious?.(currentPage); onPageChange?.(currentPage - 1); }}
         className={cn(btnBase, 'gap-1 pr-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}>
         <ChevronLeft /><span className="hidden sm:inline">Previous</span>
       </button>
       {pages.map((page, i) => page === '...' ? (
-        <span key={`e-${i}`} className="px-2 text-neutral-400 select-none">…</span>
+        <span key={`e-${i}`} className="shrink-0 px-2 text-neutral-400 select-none">…</span>
       ) : (
         <button key={page} type="button" aria-label={`Page ${page}`} aria-current={page === currentPage ? 'page' : undefined}
           onClick={() => onPageChange?.(page as number)}

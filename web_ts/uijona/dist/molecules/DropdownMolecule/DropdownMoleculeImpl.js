@@ -1,62 +1,63 @@
-import { jsx as h } from "react/jsx-runtime";
-import { useState as p, useRef as g, useEffect as x } from "react";
-import { DropdownMoleculeView as L } from "./DropdownMoleculeView.js";
-const M = ({
-  align: a = "start",
-  onOpen: i,
+import { jsx as L } from "react/jsx-runtime";
+import { useState as v, useRef as p, useEffect as M } from "react";
+import { DropdownMoleculeView as k } from "./DropdownMoleculeView.js";
+const y = ({
+  align: o = "start",
+  onOpen: c,
   onClose: t,
-  onItemSelect: n,
-  ...k
+  onItemSelect: u,
+  ...h
 }) => {
-  const [f, u] = p(!1), [y, v] = p({}), c = g(null), s = g(null), E = () => {
-    if (!c.current) return;
-    const r = c.current.getBoundingClientRect();
-    v({
+  const [f, a] = v(!1), [E, g] = v({}), s = p(null), m = p(null), d = () => {
+    if (!s.current) return;
+    const e = s.current.getBoundingClientRect(), r = 8, n = window.innerWidth, i = Math.min(Math.max(e.width, 160), n - r * 2), w = o === "end" ? e.right - i : e.left, x = Math.min(Math.max(w, r), n - i - r);
+    g({
       position: "fixed",
-      top: r.bottom + 4,
-      ...a === "end" ? { right: window.innerWidth - r.right } : { left: r.left },
-      minWidth: r.width,
+      top: e.bottom + 4,
+      left: x,
+      width: i,
+      maxWidth: `calc(100vw - ${r * 2}px)`,
       zIndex: 50
     });
   };
-  return x(() => {
+  return M(() => {
     if (!f) return;
-    const r = (d) => {
-      d.key === "Escape" && (u(!1), t == null || t());
-    }, e = (d) => {
-      var m, w;
-      !((m = c.current) != null && m.contains(d.target)) && !((w = s.current) != null && w.contains(d.target)) && (u(!1), t == null || t());
+    const e = (n) => {
+      n.key === "Escape" && (a(!1), t == null || t());
+    }, r = (n) => {
+      var i, w;
+      !((i = s.current) != null && i.contains(n.target)) && !((w = m.current) != null && w.contains(n.target)) && (a(!1), t == null || t());
     };
-    return document.addEventListener("keydown", r), document.addEventListener("mousedown", e), () => {
-      document.removeEventListener("keydown", r), document.removeEventListener("mousedown", e);
+    return document.addEventListener("keydown", e), document.addEventListener("mousedown", r), window.addEventListener("resize", d), window.addEventListener("scroll", d, !0), () => {
+      document.removeEventListener("keydown", e), document.removeEventListener("mousedown", r), window.removeEventListener("resize", d), window.removeEventListener("scroll", d, !0);
     };
-  }, [f, t]), /* @__PURE__ */ h(
-    L,
+  }, [f, t]), /* @__PURE__ */ L(
+    k,
     {
-      ...k,
-      align: a,
-      onOpen: i,
+      ...h,
+      align: o,
+      onOpen: c,
       onClose: t,
-      onItemSelect: n,
+      onItemSelect: u,
       open: f,
-      menuStyle: y,
-      triggerRef: c,
-      menuRef: s,
+      menuStyle: E,
+      triggerRef: s,
+      menuRef: m,
       onTriggerClick: () => {
-        E(), u((r) => {
-          const e = !r;
-          return e ? i == null || i() : t == null || t(), e;
+        d(), a((e) => {
+          const r = !e;
+          return r ? c == null || c() : t == null || t(), r;
         });
       },
-      onItemClick: (r) => {
-        var e;
-        (e = r.onClick) == null || e.call(r), n == null || n(r.label), u(!1), t == null || t();
+      onItemClick: (e) => {
+        var r;
+        (r = e.onClick) == null || r.call(e), u == null || u(e.label), a(!1), t == null || t();
       }
     }
   );
 };
-M.displayName = "DropdownMolecule";
+y.displayName = "DropdownMolecule";
 export {
-  M as DropdownMoleculeImpl
+  y as DropdownMoleculeImpl
 };
 //# sourceMappingURL=DropdownMoleculeImpl.js.map

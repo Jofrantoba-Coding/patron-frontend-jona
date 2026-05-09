@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export type LinkVariant = 'default' | 'muted' | 'button' | 'danger';
 export interface InterLinkAtom extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
     variant?: LinkVariant;

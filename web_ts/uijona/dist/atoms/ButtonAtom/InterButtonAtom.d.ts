@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export type ButtonVariant = 'default' | 'outline' | 'ghost' | 'destructive' | 'secondary' | 'link';
 export type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
 export interface InterButtonAtom {

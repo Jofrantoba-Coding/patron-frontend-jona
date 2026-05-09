@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterTooltipMolecule } from './InterTooltipMolecule';
+
 interface TooltipMoleculeViewProps extends InterTooltipMolecule {
     visible: boolean;
     style: React.CSSProperties;

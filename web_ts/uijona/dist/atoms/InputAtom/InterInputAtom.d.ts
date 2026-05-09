@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export interface InterInputAtom {
     hasError?: boolean;
     className?: string;

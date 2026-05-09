@@ -1,3 +1,4 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterHeaderPageOrganism } from './InterHeaderPageOrganism';
+
 export declare const HeaderPageOrganismView: React.FC<InterHeaderPageOrganism>;
