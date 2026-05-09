@@ -13,6 +13,17 @@ build/
 # Ignore local TypeScript build output
 *.tsbuildinfo
 
+# Ignore generated Storybook output
+storybook-static/
+**/storybook-static/
+storybook-dist/
+**/storybook-dist/
+**/dist/**/*.stories.d.ts
+
+# Ignore logs
+*.log
+npm-debug.log*
+
 # Ignore IDE/Editor specific files
 .idea/
 .vscode/
