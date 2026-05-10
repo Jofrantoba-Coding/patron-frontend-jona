@@ -47,9 +47,17 @@ export * from './molecules/NumberInputMolecule';
 export * from './molecules/FileUploadMolecule';
 export * from './molecules/StatCardMolecule';
 export * from './molecules/StepperMolecule';
+export * from './molecules/DrawerMolecule';
+export * from './molecules/PopoverMolecule';
+export * from './molecules/ConfirmDialogMolecule';
+export * from './molecules/ComboboxMolecule';
+export * from './molecules/MultiSelectMolecule';
+export * from './molecules/DatePickerMolecule';
+export * from './molecules/DataTableMolecule';
 
 // Layouts
 export * from './layouts/BorderLayout';
+export * from './layouts/SidebarLayout';
 
 // Organisms
 export * from './organisms/LoginOrganism';
