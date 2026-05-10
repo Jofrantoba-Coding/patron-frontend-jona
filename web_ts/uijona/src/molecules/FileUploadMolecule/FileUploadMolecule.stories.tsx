@@ -5,6 +5,7 @@ import { FileUploadMolecule } from './FileUploadMolecule';
 const meta: Meta<typeof FileUploadMolecule> = {
   title: 'Molecules/FileUploadMolecule',
   component: FileUploadMolecule,
+  tags: ['autodocs'],
   args: {
     label: 'Upload documents',
     description: 'PDF, PNG or JPG up to your application limit.',

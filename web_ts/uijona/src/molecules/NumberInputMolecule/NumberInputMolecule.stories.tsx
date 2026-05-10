@@ -5,6 +5,7 @@ import { NumberInputMolecule } from './NumberInputMolecule';
 const meta: Meta<typeof NumberInputMolecule> = {
   title: 'Molecules/NumberInputMolecule',
   component: NumberInputMolecule,
+  tags: ['autodocs'],
   args: {
     defaultValue: 3,
     min: 0,
