@@ -1,5 +1,6 @@
 import React from 'react';
-export declare const TableMoleculeImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableElement> & React.RefAttributes<HTMLTableElement>>;
+import { InterTableMolecule } from './InterTableMolecule';
+export declare const TableMoleculeImpl: React.ForwardRefExoticComponent<InterTableMolecule & React.RefAttributes<HTMLTableElement>>;
 export declare const TableHeaderImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>>;
 export declare const TableBodyImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>>;
 export declare const TableCaptionImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableCaptionElement> & React.RefAttributes<HTMLTableCaptionElement>>;

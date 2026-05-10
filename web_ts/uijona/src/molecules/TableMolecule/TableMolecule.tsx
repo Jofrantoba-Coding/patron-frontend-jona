@@ -1,4 +1,3 @@
-// TableMolecule.tsx — JONA Template (punto de entrada público)
 export {
   TableMoleculeImpl as TableMolecule,
   TableCaptionImpl as TableCaption,
@@ -9,4 +8,4 @@ export {
   TableHeadImpl as TableHead,
   TableCellImpl as TableCell,
 } from './TableMoleculeImpl';
-export type { InterTableMolecule } from './InterTableMolecule';
+export type { InterTableMolecule, TableResponsiveMode } from './InterTableMolecule';
