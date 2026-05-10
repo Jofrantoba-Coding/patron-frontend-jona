@@ -49,6 +49,7 @@ export * from './molecules/ComboboxMolecule';
 export * from './molecules/MultiSelectMolecule';
 export * from './molecules/DatePickerMolecule';
 export * from './molecules/DataTableMolecule';
+export * from './molecules/TimerMolecule';
 export * from './layouts/BorderLayout';
 export * from './layouts/SidebarLayout';
 export * from './organisms/LoginOrganism';

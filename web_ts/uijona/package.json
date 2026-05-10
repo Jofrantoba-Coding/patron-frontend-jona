@@ -207,6 +207,11 @@
       "require": "./dist/molecules/BreadcrumbMolecule.cjs",
       "types": "./dist/molecules/BreadcrumbMolecule.d.ts"
     },
+    "./molecules/DatePickerMolecule": {
+      "import": "./dist/molecules/DatePickerMolecule.js",
+      "require": "./dist/molecules/DatePickerMolecule.cjs",
+      "types": "./dist/molecules/DatePickerMolecule.d.ts"
+    },
     "./molecules/SkeletonPresets": {
       "import": "./dist/molecules/SkeletonPresets.js",
       "require": "./dist/molecules/SkeletonPresets.cjs",
@@ -236,6 +241,11 @@
       "import": "./dist/molecules/StepperMolecule.js",
       "require": "./dist/molecules/StepperMolecule.cjs",
       "types": "./dist/molecules/StepperMolecule.d.ts"
+    },
+    "./molecules/TimerMolecule": {
+      "import": "./dist/molecules/TimerMolecule.js",
+      "require": "./dist/molecules/TimerMolecule.cjs",
+      "types": "./dist/molecules/TimerMolecule.d.ts"
     },
     "./hooks/useToast": {
       "import": "./dist/hooks/useToast.js",

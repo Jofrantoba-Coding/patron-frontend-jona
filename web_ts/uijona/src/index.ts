@@ -54,6 +54,7 @@ export * from './molecules/ComboboxMolecule';
 export * from './molecules/MultiSelectMolecule';
 export * from './molecules/DatePickerMolecule';
 export * from './molecules/DataTableMolecule';
+export * from './molecules/TimerMolecule';
 
 // Layouts
 export * from './layouts/BorderLayout';

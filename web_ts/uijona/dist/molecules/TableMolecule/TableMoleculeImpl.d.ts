@@ -1,8 +1,9 @@
-export declare const TableMoleculeImpl: import("react").ForwardRefExoticComponent<import("react").HTMLAttributes<HTMLTableElement> & import("react").RefAttributes<HTMLTableElement>>;
-export declare const TableCaptionImpl: import("react").ForwardRefExoticComponent<import("react").HTMLAttributes<HTMLTableCaptionElement> & import("react").RefAttributes<HTMLTableCaptionElement>>;
-export declare const TableHeaderImpl: import("react").ForwardRefExoticComponent<import("react").HTMLAttributes<HTMLTableSectionElement> & import("react").RefAttributes<HTMLTableSectionElement>>;
-export declare const TableBodyImpl: import("react").ForwardRefExoticComponent<import("react").HTMLAttributes<HTMLTableSectionElement> & import("react").RefAttributes<HTMLTableSectionElement>>;
-export declare const TableFooterImpl: import("react").ForwardRefExoticComponent<import("react").HTMLAttributes<HTMLTableSectionElement> & import("react").RefAttributes<HTMLTableSectionElement>>;
-export declare const TableRowImpl: import("react").ForwardRefExoticComponent<import("react").HTMLAttributes<HTMLTableRowElement> & import("react").RefAttributes<HTMLTableRowElement>>;
-export declare const TableHeadImpl: import("react").ForwardRefExoticComponent<import("react").ThHTMLAttributes<HTMLTableCellElement> & import("react").RefAttributes<HTMLTableCellElement>>;
-export declare const TableCellImpl: import("react").ForwardRefExoticComponent<import("react").TdHTMLAttributes<HTMLTableCellElement> & import("react").RefAttributes<HTMLTableCellElement>>;
+import React from 'react';
+export declare const TableMoleculeImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableElement> & React.RefAttributes<HTMLTableElement>>;
+export declare const TableHeaderImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>>;
+export declare const TableBodyImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>>;
+export declare const TableCaptionImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableCaptionElement> & React.RefAttributes<HTMLTableCaptionElement>>;
+export declare const TableFooterImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>>;
+export declare const TableRowImpl: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableRowElement> & React.RefAttributes<HTMLTableRowElement>>;
+export declare const TableHeadImpl: React.ForwardRefExoticComponent<React.ThHTMLAttributes<HTMLTableCellElement> & React.RefAttributes<HTMLTableCellElement>>;
+export declare const TableCellImpl: React.ForwardRefExoticComponent<React.TdHTMLAttributes<HTMLTableCellElement> & React.RefAttributes<HTMLTableCellElement>>;

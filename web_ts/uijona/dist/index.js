@@ -99,10 +99,11 @@ import { TableBodyImpl as mm, TableCaptionImpl as lm, TableCellImpl as tm, Table
 import { TabsContentImpl as xm, TabsListImpl as um, TabsMoleculeImpl as fm, TabsTriggerImpl as nm } from "./molecules/TabsMolecule/TabsMoleculeImpl.js";
 import { TextAtomImpl as Mm } from "./atoms/TextAtom/TextAtomImpl.js";
 import { TextareaAtomImpl as Tm } from "./atoms/TextareaAtom/TextareaAtomImpl.js";
-import { ToastAtomImpl as Em } from "./atoms/ToastAtom/ToastAtomImpl.js";
-import { ToastProvider as Cm, useToast as bm, useToastHelpers as Um } from "./hooks/useToast/UseToastImpl.js";
-import { TooltipMoleculeImpl as Om } from "./molecules/TooltipMolecule/TooltipMoleculeImpl.js";
-import { UserAvatarMoleculeImpl as _m } from "./molecules/UserAvatarMolecule/UserAvatarMoleculeImpl.js";
+import { TimerMoleculeImpl as Em } from "./molecules/TimerMolecule/TimerMoleculeImpl.js";
+import { ToastAtomImpl as Cm } from "./atoms/ToastAtom/ToastAtomImpl.js";
+import { ToastProvider as Um, useToast as Lm, useToastHelpers as Om } from "./hooks/useToast/UseToastImpl.js";
+import { TooltipMoleculeImpl as _m } from "./molecules/TooltipMolecule/TooltipMoleculeImpl.js";
+import { UserAvatarMoleculeImpl as Pm } from "./molecules/UserAvatarMolecule/UserAvatarMoleculeImpl.js";
 export {
   co as AccordionMolecule,
   xo as AlertMolecule,
@@ -220,9 +221,10 @@ export {
   nm as TabsTrigger,
   Mm as TextAtom,
   Tm as TextareaAtom,
-  Em as ToastAtom,
-  Cm as ToastProvider,
-  Om as TooltipMolecule,
+  Em as TimerMolecule,
+  Cm as ToastAtom,
+  Um as ToastProvider,
+  _m as TooltipMolecule,
   je as UI_HOME_CREATE_ACCOUNT_DEFAULTS,
   $e as UI_HOME_ERROR_DEFAULTS,
   we as UI_HOME_LOGIN_DEFAULTS,
@@ -239,9 +241,9 @@ export {
   We as UiHomeRecoverPassword,
   Je as UiHomeRecoverPasswordImpl,
   Ge as UiHomeRecoverPasswordView,
-  _m as UserAvatarMolecule,
+  Pm as UserAvatarMolecule,
   so as cn,
-  bm as useToast,
-  Um as useToastHelpers
+  Lm as useToast,
+  Om as useToastHelpers
 };
 //# sourceMappingURL=index.js.map

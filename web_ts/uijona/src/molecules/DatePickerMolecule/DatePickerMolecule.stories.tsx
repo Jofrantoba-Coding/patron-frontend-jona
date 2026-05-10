@@ -10,8 +10,22 @@ const meta: Meta<typeof DatePickerMolecule> = {
   args: {
     onChange: fn(),
     placeholder: 'Seleccionar fecha',
+    mask: 'yyyy-MM-dd',
   },
-  decorators: [(Story) => <div className="w-64 pb-72"><Story /></div>],
+  argTypes: {
+    mask: {
+      control: 'text',
+      description: 'Tokens soportados: yyyy, MM, dd, HH, mm, ss, z, XXX.',
+    },
+    valueFormat: {
+      control: 'inline-radio',
+      options: ['mask', 'iso'],
+    },
+    showTime: { control: 'boolean' },
+    showSeconds: { control: 'boolean' },
+    timezone: { control: 'text' },
+  },
+  decorators: [(Story) => <div className="w-80 pb-96"><Story /></div>],
 };
 export default meta;
 type Story = StoryObj<typeof DatePickerMolecule>;
@@ -30,18 +44,53 @@ export const WithMinMax: Story = {
   args: { min: '2026-05-01', max: '2026-05-31' },
 };
 
+export const MaskedDate: Story = {
+  args: {
+    value: '09/05/2026',
+    mask: 'dd/MM/yyyy',
+    placeholder: 'dd/mm/aaaa',
+  },
+};
+
+export const DateTimeWithSeconds: Story = {
+  args: {
+    value: '2026-05-09 14:30:45',
+    mask: 'yyyy-MM-dd HH:mm:ss',
+    showTime: true,
+    showSeconds: true,
+    placeholder: 'yyyy-MM-dd hh:mm:ss',
+  },
+};
+
+export const DateTimeWithTimezone: Story = {
+  args: {
+    value: '2026-05-09 14:30:45 America/Lima',
+    mask: 'yyyy-MM-dd HH:mm:ss z',
+    showTime: true,
+    showSeconds: true,
+    timezone: 'America/Lima',
+    timezoneOptions: ['America/Lima', 'UTC', 'America/Bogota', 'Europe/Madrid'],
+    placeholder: 'yyyy-MM-dd hh:mm:ss timezone',
+  },
+};
+
 export const Interactive: Story = {
   render: () => {
     const [date, setDate] = useState('');
     return (
-      <div className="flex w-64 flex-col gap-3 pb-72">
+      <div className="flex w-80 flex-col gap-3 pb-96">
         <DatePickerMolecule
           value={date}
-          placeholder="Seleccionar fecha"
+          mask="dd/MM/yyyy HH:mm:ss z"
+          showTime
+          showSeconds
+          timezone="America/Lima"
+          timezoneOptions={['America/Lima', 'UTC', 'America/Bogota']}
+          placeholder="dd/mm/aaaa hh:mm:ss timezone"
           onChange={setDate}
         />
         <p className="text-sm text-neutral-500">
-          {date ? `Fecha: ${date}` : 'Sin fecha seleccionada'}
+          {date ? `Valor: ${date}` : 'Sin fecha seleccionada'}
         </p>
       </div>
     );

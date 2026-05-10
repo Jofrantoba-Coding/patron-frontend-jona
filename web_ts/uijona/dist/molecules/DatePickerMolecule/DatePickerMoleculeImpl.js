@@ -1,77 +1,212 @@
-import { jsx as R } from "react/jsx-runtime";
-import { useState as m, useRef as M, useEffect as Y } from "react";
-import { DATE_PICKER_MOLECULE_DEFAULTS as F } from "./InterDatePickerMolecule.js";
-import { DatePickerMoleculeView as O } from "./DatePickerMoleculeView.js";
-function h(t) {
-  if (!t) return null;
-  const [i, n, s] = t.split("-").map(Number);
-  return new Date(i, n - 1, s);
+import { jsx as ne } from "react/jsx-runtime";
+import { useState as v, useEffect as Y, useMemo as te, useRef as L } from "react";
+import { DATE_PICKER_MOLECULE_DEFAULTS as oe } from "./InterDatePickerMolecule.js";
+import { DatePickerMoleculeView as ie } from "./DatePickerMoleculeView.js";
+const Z = {
+  yyyy: { pattern: "(\\d{4})", length: 4 },
+  MM: { pattern: "(\\d{2})", length: 2 },
+  dd: { pattern: "(\\d{2})", length: 2 },
+  HH: { pattern: "(\\d{2})", length: 2 },
+  mm: { pattern: "(\\d{2})", length: 2 },
+  ss: { pattern: "(\\d{2})", length: 2 },
+  XXX: { pattern: "([+-]\\d{2}:?\\d{2}|Z)" },
+  z: { pattern: "(.+)" }
+}, re = ["yyyy", "XXX", "MM", "dd", "HH", "mm", "ss", "z"];
+function b(e) {
+  const t = [];
+  let n = 0;
+  for (; n < e.length; ) {
+    const o = re.find((m) => e.startsWith(m, n));
+    if (o) {
+      t.push({ type: "token", value: o }), n += o.length;
+      continue;
+    }
+    t.push({ type: "literal", value: e[n] }), n += 1;
+  }
+  return t;
 }
-function z(t) {
-  const i = t.getFullYear(), n = String(t.getMonth() + 1).padStart(2, "0"), s = String(t.getDate()).padStart(2, "0");
-  return `${i}-${n}-${s}`;
+function ue(e) {
+  return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function T(t) {
-  return t.toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" });
+function H(e, t, n) {
+  if (!e) return null;
+  const o = [], m = b(t).map((r) => r.type === "literal" ? ue(r.value) : (o.push(r.value), Z[r.value].pattern)).join(""), y = new RegExp(`^${m}$`).exec(e.trim());
+  if (!y) return ce(e, n);
+  const c = {
+    year: 0,
+    month: 1,
+    day: 1,
+    hour: 0,
+    minute: 0,
+    second: 0,
+    timezone: n
+  };
+  return o.forEach((r, h) => {
+    const d = y[h + 1];
+    r === "yyyy" && (c.year = Number(d)), r === "MM" && (c.month = Number(d)), r === "dd" && (c.day = Number(d)), r === "HH" && (c.hour = Number(d)), r === "mm" && (c.minute = Number(d)), r === "ss" && (c.second = Number(d)), (r === "z" || r === "XXX") && (c.timezone = d);
+  }), K(c) ? c : null;
 }
-const W = (t) => {
-  const i = { ...F, ...t }, n = /* @__PURE__ */ new Date();
+function ce(e, t) {
+  const n = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?(?:\s*(Z|[+-]\d{2}:?\d{2}|[A-Za-z][\w/+-]+))?$/.exec(e.trim());
+  if (!n) return null;
+  const o = {
+    year: Number(n[1]),
+    month: Number(n[2]),
+    day: Number(n[3]),
+    hour: Number(n[4] ?? 0),
+    minute: Number(n[5] ?? 0),
+    second: Number(n[6] ?? 0),
+    timezone: n[7] ?? t
+  };
+  return K(o) ? o : null;
+}
+function K(e) {
+  if (e.month < 1 || e.month > 12 || e.day < 1 || e.day > 31 || e.hour < 0 || e.hour > 23 || e.minute < 0 || e.minute > 59 || e.second < 0 || e.second > 59) return !1;
+  const t = new Date(e.year, e.month - 1, e.day);
+  return t.getFullYear() === e.year && t.getMonth() === e.month - 1 && t.getDate() === e.day;
+}
+function R(e) {
+  return e ? new Date(e.year, e.month - 1, e.day) : null;
+}
+function C(e, t, n) {
+  return {
+    year: e.getFullYear(),
+    month: e.getMonth() + 1,
+    day: e.getDate(),
+    hour: (t == null ? void 0 : t.hour) ?? 0,
+    minute: (t == null ? void 0 : t.minute) ?? 0,
+    second: (t == null ? void 0 : t.second) ?? 0,
+    timezone: (t == null ? void 0 : t.timezone) ?? n
+  };
+}
+function f(e, t = 2) {
+  return String(e).padStart(t, "0");
+}
+function le(e, t) {
+  return b(t).map((n) => n.type === "literal" ? n.value : n.value === "yyyy" ? f(e.year, 4) : n.value === "MM" ? f(e.month) : n.value === "dd" ? f(e.day) : n.value === "HH" ? f(e.hour) : n.value === "mm" ? f(e.minute) : n.value === "ss" ? f(e.second) : e.timezone ?? "").join("").trim();
+}
+function ae(e, t, n) {
+  const o = `${f(e.year, 4)}-${f(e.month)}-${f(e.day)}`;
+  if (!t) return o;
+  const m = `${f(e.hour)}:${f(e.minute)}${n ? `:${f(e.second)}` : ""}`, y = e.timezone && /^(Z|[+-]\d{2}:?\d{2})$/.test(e.timezone) ? e.timezone : "";
+  return `${o}T${m}${y}`;
+}
+function se(e, t, n, o, m) {
+  return n === "iso" ? ae(e, o, m) : le(e, t);
+}
+function me(e, t) {
+  var d, D;
+  const n = b(t), o = n.findIndex((l) => l.type === "token" && (l.value === "z" || l.value === "XXX")), m = o >= 0 ? n.slice(0, o) : n, y = m.reduce((l, a) => a.type !== "token" ? l : l + (Z[a.value].length ?? 0), 0), c = e.replace(/\D/g, "").slice(0, y);
+  let r = 0, h = "";
+  for (const l of m) {
+    if (l.type === "literal") {
+      r > 0 && r < c.length && (h += l.value);
+      continue;
+    }
+    const a = Z[l.value].length;
+    if (!a) continue;
+    const g = c.slice(r, r + a);
+    if (!g || (h += g, r += g.length, g.length < a)) break;
+  }
+  if (o >= 0 && c.length >= y && e.length > h.length) {
+    const l = (d = /[A-Za-z].*$/.exec(e)) == null ? void 0 : d[0], a = (D = /(?:^|[\sT])([+-]\d{0,2}:?\d{0,2}|Z)$/.exec(e)) == null ? void 0 : D[1], g = (l ?? a ?? e.slice(h.length).replace(/^[^A-Za-zZ+-]+/, "")).trim();
+    if (g) return `${h} ${g}`;
+  }
+  return h;
+}
+function de(e, t, n) {
+  const o = Number(e);
+  return Number.isNaN(o) ? t : Math.min(n, Math.max(t, o));
+}
+const fe = (e) => {
+  var W;
+  const t = { ...oe, ...e }, n = /* @__PURE__ */ new Date();
   n.setHours(0, 0, 0, 0);
-  const [s, L] = m(void 0), p = t.value ?? s, c = h(p), y = c ?? n, [f, E] = m(!1), [x, w] = m(y.getFullYear()), [g, l] = m(y.getMonth()), [k, C] = m({}), d = M(null), D = M(null), P = h(t.min), V = h(t.max), I = c ? T(c) : "", u = () => {
-    if (!d.current) return;
-    const e = d.current.getBoundingClientRect(), r = window.innerWidth, a = Math.min(e.left, r - 288 - 8);
-    C({ position: "fixed", top: e.bottom + 4, left: Math.max(8, a), zIndex: 50 });
-  }, b = () => {
-    u();
-    const e = c ?? n;
-    w(e.getFullYear()), l(e.getMonth()), E(!0);
-  }, v = () => E(!1), N = (e) => {
-    var o;
-    const r = z(e);
-    L(r), (o = t.onChange) == null || o.call(t, r), v();
+  const o = t.mask, m = /HH|mm|ss/.test(o), y = o.includes("ss"), c = /XXX|z/.test(o), r = t.showTime || m, h = t.showSeconds || y, d = c || !!((W = e.timezoneOptions) != null && W.length), [D, l] = v(""), a = e.value ?? D, [g, I] = v(a);
+  Y(() => {
+    I(a);
+  }, [a]);
+  const w = te(
+    () => H(a, o, e.timezone),
+    [a, o, e.timezone]
+  ), M = R(w), F = M ?? n, [E, O] = v(!1), [_, S] = v(F.getFullYear()), [X, x] = v(F.getMonth()), [j, U] = v({}), T = L(null), A = L(null), P = L(null), q = R(H(e.min, o, e.timezone)), B = R(H(e.max, o, e.timezone)), V = (i) => {
+    var s;
+    const u = se(i, o, t.valueFormat, r, h);
+    l(u), I(u), (s = e.onChange) == null || s.call(e, u);
+  }, N = () => {
+    if (!T.current) return;
+    const i = T.current.getBoundingClientRect(), u = window.innerWidth, z = Math.min(i.left, u - 320 - 8);
+    U({ position: "fixed", top: i.bottom + 4, left: Math.max(8, z), zIndex: 50 });
+  }, G = () => {
+    N();
+    const i = M ?? n;
+    S(i.getFullYear()), x(i.getMonth()), O(!0);
+  }, $ = () => O(!1), J = (i) => {
+    var s;
+    const u = t.autoApplyMask ? me(i, o) : i;
+    l(u), I(u), (s = e.onChange) == null || s.call(e, u);
+  }, Q = (i) => {
+    var u;
+    V(C(i, w, e.timezone)), $(), (u = P.current) == null || u.focus();
+  }, p = (i, u) => {
+    const z = w ?? C(M ?? n, null, e.timezone), k = i === "hour" ? 23 : 59;
+    V({ ...z, [i]: de(u, 0, k) });
+  }, ee = (i) => {
+    const s = w ?? C(M ?? n, null, e.timezone);
+    V({ ...s, timezone: i });
   };
   return Y(() => {
-    if (!f) return;
-    const e = (o) => {
-      var a;
-      o.key === "Escape" && (v(), (a = d.current) == null || a.focus());
-    }, r = (o) => {
-      var a, S;
-      !((a = d.current) != null && a.contains(o.target)) && !((S = D.current) != null && S.contains(o.target)) && v();
+    if (!E) return;
+    const i = (s) => {
+      var z;
+      s.key === "Escape" && ($(), (z = P.current) == null || z.focus());
+    }, u = (s) => {
+      var z, k;
+      !((z = T.current) != null && z.contains(s.target)) && !((k = A.current) != null && k.contains(s.target)) && $();
     };
-    return document.addEventListener("keydown", e), document.addEventListener("mousedown", r), window.addEventListener("resize", u), window.addEventListener("scroll", u, !0), () => {
-      document.removeEventListener("keydown", e), document.removeEventListener("mousedown", r), window.removeEventListener("resize", u), window.removeEventListener("scroll", u, !0);
+    return document.addEventListener("keydown", i), document.addEventListener("mousedown", u), window.addEventListener("resize", N), window.addEventListener("scroll", N, !0), () => {
+      document.removeEventListener("keydown", i), document.removeEventListener("mousedown", u), window.removeEventListener("resize", N), window.removeEventListener("scroll", N, !0);
     };
-  }, [f]), /* @__PURE__ */ R(
-    O,
+  }, [E]), /* @__PURE__ */ ne(
+    ie,
     {
-      displayValue: I,
-      open: f,
-      viewYear: x,
-      viewMonth: g,
-      selectedDate: c,
+      inputValue: g,
+      open: E,
+      viewYear: _,
+      viewMonth: X,
+      selectedDate: M,
       today: n,
-      min: P ?? void 0,
-      max: V ?? void 0,
-      disabled: i.disabled,
-      placeholder: i.placeholder,
-      className: t.className,
-      panelStyle: k,
-      triggerRef: d,
-      panelRef: D,
-      onTriggerClick: () => f ? v() : b(),
+      min: q ?? void 0,
+      max: B ?? void 0,
+      disabled: t.disabled,
+      placeholder: t.placeholder,
+      mask: o,
+      showTime: r,
+      showSeconds: h,
+      showTimezone: d,
+      timezoneOptions: e.timezoneOptions,
+      timeParts: w ?? C(M ?? n, null, e.timezone),
+      className: e.className,
+      panelStyle: j,
+      triggerRef: T,
+      panelRef: A,
+      inputRef: P,
+      onInputChange: J,
+      onTriggerClick: () => E ? $() : G(),
       onPrevMonth: () => {
-        g === 0 ? (l(11), w((e) => e - 1)) : l((e) => e - 1);
+        X === 0 ? (x(11), S((i) => i - 1)) : x((i) => i - 1);
       },
       onNextMonth: () => {
-        g === 11 ? (l(0), w((e) => e + 1)) : l((e) => e + 1);
+        X === 11 ? (x(0), S((i) => i + 1)) : x((i) => i + 1);
       },
-      onSelectDay: N
+      onSelectDay: Q,
+      onTimeChange: p,
+      onTimezoneChange: ee
     }
   );
 };
-W.displayName = "DatePickerMolecule";
+fe.displayName = "DatePickerMolecule";
 export {
-  W as DatePickerMoleculeImpl
+  fe as DatePickerMoleculeImpl
 };
 //# sourceMappingURL=DatePickerMoleculeImpl.js.map
