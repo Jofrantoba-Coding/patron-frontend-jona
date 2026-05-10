@@ -7,7 +7,7 @@ import { ErrorMessageAtom } from '../../atoms/ErrorMessageAtom';
 import { InterSwitchFieldMolecule } from './InterSwitchFieldMolecule';
 
 export const SwitchFieldMoleculeView: React.FC<InterSwitchFieldMolecule> = ({
-  id, label, checked = false, onCheckedChange, description, errorMessage, disabled = false, size = 'md', card = false, className,
+  id, label, checked, onCheckedChange, description, errorMessage, disabled = false, size = 'md', card = false, className,
 }) => {
   const hasError = !!errorMessage;
   const inner = (

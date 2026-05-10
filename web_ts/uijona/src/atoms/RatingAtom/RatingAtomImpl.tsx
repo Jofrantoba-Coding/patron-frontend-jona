@@ -5,10 +5,14 @@ import { RatingAtomView } from './RatingAtomView';
 
 export const RatingAtomImpl: React.FC<InterRatingAtom> = (props) => {
   const merged = { ...RATING_ATOM_DEFAULTS, ...props };
+  const [internalValue, setInternalValue] = useState(RATING_ATOM_DEFAULTS.value);
   const [hovered, setHovered] = useState<number | null>(null);
+
+  const effectiveValue = props.value ?? internalValue;
 
   const handleClick = (star: number) => {
     if (merged.readOnly) return;
+    setInternalValue(star);
     props.onChange?.(star);
   };
 
@@ -26,7 +30,7 @@ export const RatingAtomImpl: React.FC<InterRatingAtom> = (props) => {
 
   return (
     <RatingAtomView
-      value={merged.value}
+      value={effectiveValue}
       max={merged.max}
       readOnly={merged.readOnly}
       size={merged.size}

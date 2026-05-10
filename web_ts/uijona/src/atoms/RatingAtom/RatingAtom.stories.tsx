@@ -21,9 +21,8 @@ const meta: Meta<typeof RatingAtom> = {
 export default meta;
 type Story = StoryObj<typeof RatingAtom>;
 
-export const Default: Story = {
-  args: { value: 3 },
-};
+// Sin value en args → uncontrolled, se puede clicar para cambiar la calificación
+export const Default: Story = {};
 
 export const ReadOnly: Story = {
   args: { value: 4, readOnly: true },
@@ -34,15 +33,15 @@ export const Empty: Story = {
 };
 
 export const Small: Story = {
-  args: { value: 3, size: 'sm' },
+  args: { size: 'sm' },
 };
 
 export const Large: Story = {
-  args: { value: 5, size: 'lg' },
+  args: { size: 'lg' },
 };
 
 export const MaxTen: Story = {
-  args: { value: 7, max: 10 },
+  args: { max: 10 },
 };
 
 export const Interactive: Story = {
