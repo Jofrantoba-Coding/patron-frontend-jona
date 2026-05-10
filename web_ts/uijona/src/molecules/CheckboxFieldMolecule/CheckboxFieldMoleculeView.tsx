@@ -7,7 +7,7 @@ import { ErrorMessageAtom } from '../../atoms/ErrorMessageAtom';
 import { InterCheckboxFieldMolecule } from './InterCheckboxFieldMolecule';
 
 export const CheckboxFieldMoleculeView: React.FC<InterCheckboxFieldMolecule> = ({
-  id, label, checked = false, onCheckedChange, description, errorMessage, disabled = false, className,
+  id, label, checked, onCheckedChange, description, errorMessage, disabled = false, className,
 }) => {
   const hasError = !!errorMessage;
   return (
