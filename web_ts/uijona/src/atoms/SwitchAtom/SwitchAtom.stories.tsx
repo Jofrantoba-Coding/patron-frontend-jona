@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { SwitchAtom } from './SwitchAtom';
 
 const meta: Meta<typeof SwitchAtom> = {
@@ -17,8 +18,9 @@ const meta: Meta<typeof SwitchAtom> = {
 export default meta;
 type Story = StoryObj<typeof SwitchAtom>;
 
+// Sin checked en args → uncontrolled, se puede toglear directamente en el canvas
 export const Default: Story = {
-  args: { checked: false, size: 'md' },
+  args: { size: 'md' },
 };
 
 export const Checked: Story = {
@@ -26,7 +28,7 @@ export const Checked: Story = {
 };
 
 export const Small: Story = {
-  args: { size: 'sm', checked: false },
+  args: { size: 'sm' },
 };
 
 export const Large: Story = {
@@ -34,7 +36,7 @@ export const Large: Story = {
 };
 
 export const Disabled: Story = {
-  args: { disabled: true, checked: false },
+  args: { disabled: true },
 };
 
 export const AllSizes: Story = {
@@ -45,4 +47,18 @@ export const AllSizes: Story = {
       <SwitchAtom size="lg" checked />
     </div>
   ),
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [checked, setChecked] = useState(false);
+    return (
+      <div className="flex items-center gap-3">
+        <SwitchAtom checked={checked} onCheckedChange={setChecked} />
+        <span className="text-sm text-neutral-600">
+          {checked ? 'Activado' : 'Desactivado'}
+        </span>
+      </div>
+    );
+  },
 };
