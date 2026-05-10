@@ -122,15 +122,15 @@ export const GroupedHeaders: Story = {
           <TableHead colSpan={2} groupHeader>
             Contacto
           </TableHead>
-          <TableHead colSpan={2} groupHeader sortable sortDirection="asc">
+          <TableHead colSpan={2} groupHeader>
             Actividad
           </TableHead>
         </TableRow>
         <TableRow>
           <TableHead>Email</TableHead>
           <TableHead>Telefono</TableHead>
-          <TableHead>Ultimo acceso</TableHead>
-          <TableHead>Estado</TableHead>
+          <TableHead sortable sortDirection="asc">Ultimo acceso</TableHead>
+          <TableHead sortable>Estado</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

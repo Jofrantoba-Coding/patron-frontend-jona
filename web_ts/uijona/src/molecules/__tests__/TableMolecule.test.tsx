@@ -113,7 +113,7 @@ describe('TableMolecule', () => {
     expect(onSortChange).toHaveBeenCalledWith('asc');
   });
 
-  it('allows grouped headers to behave as one sortable header cell', () => {
+  it('does not render sorting controls on grouped headers', () => {
     const onSortChange = vi.fn();
 
     render(
@@ -130,10 +130,34 @@ describe('TableMolecule', () => {
 
     const groupHeader = screen.getByRole('columnheader', { name: 'Contact' });
     expect(groupHeader).toHaveAttribute('scope', 'colgroup');
+    expect(screen.queryByRole('button', { name: 'Contact' })).not.toBeInTheDocument();
+    expect(onSortChange).not.toHaveBeenCalled();
+  });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Contact' }));
+  it('keeps sorting controls on leaf headers below grouped headers', () => {
+    const onSortChange = vi.fn();
 
-    expect(onSortChange).toHaveBeenCalledWith(null);
+    render(
+      <TableMolecule>
+        <TableHeader>
+          <TableRow>
+            <TableHead colSpan={2} groupHeader>
+              Contact
+            </TableHead>
+          </TableRow>
+          <TableRow>
+            <TableHead sortable sortDirection={null} onSortChange={onSortChange}>
+              Email
+            </TableHead>
+            <TableHead>Phone</TableHead>
+          </TableRow>
+        </TableHeader>
+      </TableMolecule>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Email' }));
+
+    expect(onSortChange).toHaveBeenCalledWith('asc');
   });
 
   it('renders column filters and emits filter changes', () => {

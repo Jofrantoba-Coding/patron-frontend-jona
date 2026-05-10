@@ -198,6 +198,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
     const effectiveWidth = internalWidth ?? getNumericWidth(width);
     const widthStyle = getWidthValue(effectiveWidth ?? width);
     const isGroupedHeader = groupHeader || scope === 'colgroup' || Number(colSpan ?? 1) > 1;
+    const canSort = sortable && !isGroupedHeader;
 
     React.useEffect(() => {
       const nextWidth = getNumericWidth(width);
@@ -245,12 +246,12 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
           minWidth: getWidthValue(minWidth) ?? style?.minWidth,
           maxWidth: getWidthValue(maxWidth) ?? style?.maxWidth,
         }}
-        aria-sort={sortable ? getAriaSort(sortDirection) : props['aria-sort']}
+        aria-sort={canSort ? getAriaSort(sortDirection) : props['aria-sort']}
         className={cn(
           'relative h-10 px-4 text-left align-middle font-medium text-neutral-500',
           'whitespace-nowrap',
           isGroupedHeader && 'border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700',
-          (sortable || filterable) && 'select-none',
+          (canSort || filterable) && 'select-none',
           resizable && 'pr-6',
           className
         )}
@@ -266,7 +267,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
             isGroupedHeader && !filterable && 'justify-center'
           )}
         >
-          {sortable ? (
+          {canSort ? (
             <button
               type="button"
               className="inline-flex min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none hover:text-neutral-800 focus-visible:ring-2 focus-visible:ring-primary-500"
