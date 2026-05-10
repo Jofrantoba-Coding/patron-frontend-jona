@@ -1,17 +1,25 @@
 import { jsx as f } from "react/jsx-runtime";
-import a from "react";
-import { CHECKBOX_ATOM_DEFAULTS as i } from "./InterCheckboxAtom.js";
-import { CheckboxAtomView as p } from "./CheckboxAtomView.js";
-const s = a.forwardRef(
-  ({ onCheckedChange: r, ...t }, m) => {
-    const o = { ...i, ...t };
-    return /* @__PURE__ */ f(p, { ...o, forwardedRef: m, onChange: (e) => {
-      o.disabled || r == null || r(e.target.checked);
-    } });
+import i, { useState as s } from "react";
+import { CHECKBOX_ATOM_DEFAULTS as n } from "./InterCheckboxAtom.js";
+import { CheckboxAtomView as h } from "./CheckboxAtomView.js";
+const l = i.forwardRef(
+  ({ onCheckedChange: e, ...r }, o) => {
+    const t = { ...n, ...r }, [d, m] = s(t.checked), a = r.checked ?? d;
+    return /* @__PURE__ */ f(
+      h,
+      {
+        ...t,
+        checked: a,
+        forwardedRef: o,
+        onChange: (c) => {
+          t.disabled || (m(c.target.checked), e == null || e(c.target.checked));
+        }
+      }
+    );
   }
 );
-s.displayName = "CheckboxAtom";
+l.displayName = "CheckboxAtom";
 export {
-  s as CheckboxAtomImpl
+  l as CheckboxAtomImpl
 };
 //# sourceMappingURL=CheckboxAtomImpl.js.map

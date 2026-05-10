@@ -11,6 +11,10 @@ const meta: Meta<typeof TextareaAtom> = {
   argTypes: {
     hasError: { control: 'boolean' },
     autoResize: { control: 'boolean' },
+    resize: {
+      control: 'inline-radio',
+      options: ['none', 'vertical', 'horizontal', 'both'],
+    },
     disabled: { control: 'boolean' },
     placeholder: { control: 'text' },
   },
@@ -40,8 +44,21 @@ export const Error: Story = {
 export const AutoResize: Story = {
   args: {
     autoResize: true,
+    resize: 'horizontal',
     defaultValue: 'Este textarea ajusta su altura al contenido.\nAgrega mas lineas para probar el comportamiento.',
   },
+};
+
+export const ResizableBoth: Story = {
+  args: {
+    resize: 'both',
+    defaultValue: 'Puedes redimensionar este textarea en horizontal y vertical.',
+  },
+  render: (args) => (
+    <div className="w-80 max-w-full">
+      <TextareaAtom {...args} />
+    </div>
+  ),
 };
 
 export const Interactive: Story = {
@@ -55,6 +72,7 @@ export const Interactive: Story = {
           placeholder="Escribe tu mensaje..."
           value={value}
           autoResize
+          resize="horizontal"
           hasError={over}
           onChange={(v) => setValue(v)}
         />

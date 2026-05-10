@@ -1,9 +1,23 @@
-import { jsx as o } from "react/jsx-runtime";
-import { CHIP_ATOM_DEFAULTS as p } from "./InterChipAtom.js";
-import { ChipAtomView as i } from "./ChipAtomView.js";
-const t = (m) => /* @__PURE__ */ o(i, { ...p, ...m });
-t.displayName = "ChipAtom";
+import { jsx as s } from "react/jsx-runtime";
+import { useState as c } from "react";
+import { CHIP_ATOM_DEFAULTS as o } from "./InterChipAtom.js";
+import { ChipAtomView as n } from "./ChipAtomView.js";
+const a = ({ selected: t, onClick: e, ...r }) => {
+  const [i, p] = c(t ?? o.selected), m = t ?? i;
+  return /* @__PURE__ */ s(
+    n,
+    {
+      ...o,
+      ...r,
+      selected: m,
+      onClick: (l) => {
+        p(!m), e == null || e(l);
+      }
+    }
+  );
+};
+a.displayName = "ChipAtom";
 export {
-  t as ChipAtomImpl
+  a as ChipAtomImpl
 };
 //# sourceMappingURL=ChipAtomImpl.js.map
