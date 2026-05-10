@@ -23,8 +23,11 @@ function formatDisplay(d: Date): string {
 export const DatePickerMoleculeImpl: React.FC<InterDatePickerMolecule> = (props) => {
   const merged = { ...DATE_PICKER_MOLECULE_DEFAULTS, ...props };
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  const selected = parseISO(props.value);
-  const initial = selected ?? today;
+
+  const [internalValue, setInternalValue] = useState<string | undefined>(undefined);
+  const effectiveValue = props.value ?? internalValue;
+  const effectiveSelected = parseISO(effectiveValue);
+  const initial = effectiveSelected ?? today;
 
   const [open, setOpen] = useState(false);
   const [viewYear, setViewYear] = useState(initial.getFullYear());
@@ -35,7 +38,7 @@ export const DatePickerMoleculeImpl: React.FC<InterDatePickerMolecule> = (props)
 
   const minDate = parseISO(props.min);
   const maxDate = parseISO(props.max);
-  const displayValue = selected ? formatDisplay(selected) : '';
+  const displayValue = effectiveSelected ? formatDisplay(effectiveSelected) : '';
 
   const updatePosition = () => {
     if (!triggerRef.current) return;
@@ -48,7 +51,7 @@ export const DatePickerMoleculeImpl: React.FC<InterDatePickerMolecule> = (props)
 
   const openCalendar = () => {
     updatePosition();
-    const base = selected ?? today;
+    const base = effectiveSelected ?? today;
     setViewYear(base.getFullYear());
     setViewMonth(base.getMonth());
     setOpen(true);
@@ -57,7 +60,9 @@ export const DatePickerMoleculeImpl: React.FC<InterDatePickerMolecule> = (props)
   const closeCalendar = () => setOpen(false);
 
   const handleSelect = (date: Date) => {
-    props.onChange?.(toISO(date));
+    const iso = toISO(date);
+    setInternalValue(iso);
+    props.onChange?.(iso);
     closeCalendar();
   };
 
@@ -85,7 +90,7 @@ export const DatePickerMoleculeImpl: React.FC<InterDatePickerMolecule> = (props)
       open={open}
       viewYear={viewYear}
       viewMonth={viewMonth}
-      selectedDate={selected}
+      selectedDate={effectiveSelected}
       today={today}
       min={minDate ?? undefined}
       max={maxDate ?? undefined}

@@ -5,6 +5,9 @@ import { ComboboxMoleculeView } from './ComboboxMoleculeView';
 
 export const ComboboxMoleculeImpl: React.FC<InterComboboxMolecule> = (props) => {
   const merged = { ...COMBOBOX_MOLECULE_DEFAULTS, ...props };
+  const [internalValue, setInternalValue] = useState<string | undefined>(undefined);
+  const effectiveValue = props.value ?? internalValue;
+
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -13,7 +16,7 @@ export const ComboboxMoleculeImpl: React.FC<InterComboboxMolecule> = (props) => 
   const inputRef = useRef<HTMLInputElement>(null) as React.RefObject<HTMLInputElement>;
   const listRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
 
-  const selected = props.options.find((o) => o.value === props.value) ?? null;
+  const selected = props.options.find((o) => o.value === effectiveValue) ?? null;
 
   const filtered = props.options.filter((o) =>
     o.label.toLowerCase().includes(query.toLowerCase())
@@ -37,6 +40,7 @@ export const ComboboxMoleculeImpl: React.FC<InterComboboxMolecule> = (props) => 
 
   const handleSelect = (opt: ComboboxOption) => {
     if (opt.disabled) return;
+    setInternalValue(opt.value);
     props.onChange?.(opt.value, opt);
     closeList();
   };

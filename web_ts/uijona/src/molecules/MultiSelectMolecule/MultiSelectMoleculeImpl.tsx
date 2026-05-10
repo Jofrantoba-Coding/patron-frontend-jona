@@ -5,14 +5,15 @@ import { MultiSelectMoleculeView } from './MultiSelectMoleculeView';
 
 export const MultiSelectMoleculeImpl: React.FC<InterMultiSelectMolecule> = (props) => {
   const merged = { ...MULTI_SELECT_MOLECULE_DEFAULTS, ...props };
+  const [internalValues, setInternalValues] = useState<string[]>(merged.value);
+  const currentValues = props.value ?? internalValues;
+
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [listStyle, setListStyle] = useState<React.CSSProperties>({});
   const triggerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const inputRef = useRef<HTMLInputElement>(null) as React.RefObject<HTMLInputElement>;
   const listRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
-
-  const currentValues = props.value ?? merged.value;
   const selected = props.options.filter((o) => currentValues.includes(o.value));
   const filtered = props.options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()));
 
@@ -31,12 +32,14 @@ export const MultiSelectMoleculeImpl: React.FC<InterMultiSelectMolecule> = (prop
       ? currentValues.filter((v) => v !== opt.value)
       : [...currentValues, opt.value];
     const nextOpts = props.options.filter((o) => next.includes(o.value));
+    setInternalValues(next);
     props.onChange?.(next, nextOpts);
   };
 
   const handleRemove = (value: string) => {
     const next = currentValues.filter((v) => v !== value);
     const nextOpts = props.options.filter((o) => next.includes(o.value));
+    setInternalValues(next);
     props.onChange?.(next, nextOpts);
   };
 
