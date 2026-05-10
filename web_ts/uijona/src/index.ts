@@ -21,6 +21,7 @@ export * from './atoms/SeparatorAtom';
 export * from './atoms/ProgressAtom';
 export * from './atoms/SkeletonAtom';
 export * from './atoms/ToastAtom';
+export * from './atoms/RatingAtom';
 
 // Molecules
 export * from './molecules/CardMolecule';
