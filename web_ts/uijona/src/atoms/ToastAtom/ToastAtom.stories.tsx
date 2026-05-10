@@ -1,14 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { ToastAtom } from './ToastAtom';
 
 const meta: Meta<typeof ToastAtom> = {
   title: 'Atoms/ToastAtom',
   component: ToastAtom,
   tags: ['autodocs'],
-  args: { onDismiss: fn() },
+  args: {
+    onDismiss: fn(),
+    // duration=0 en stories estáticas: evita que el timer dispare onDismiss en background
+    duration: 0,
+  },
   argTypes: {
-    variant: { control: 'select', options: ['default', 'success', 'warning', 'danger'] },
+    variant:  { control: 'select', options: ['default', 'success', 'warning', 'danger'] },
+    duration: { control: 'number' },
   },
 };
 export default meta;
@@ -32,11 +38,50 @@ export const Danger: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '360px' }}>
-      <ToastAtom id="1" message="Notificación por defecto" variant="default" />
-      <ToastAtom id="2" title="Éxito" message="Guardado correctamente" variant="success" />
-      <ToastAtom id="3" title="Advertencia" message="Revisa tu conexión" variant="warning" />
-      <ToastAtom id="4" title="Error" message="No se pudo completar" variant="danger" />
+    <div className="flex flex-col gap-2 w-80">
+      <ToastAtom id="1" message="Notificación por defecto" variant="default" duration={0} />
+      <ToastAtom id="2" title="Éxito" message="Guardado correctamente" variant="success" duration={0} />
+      <ToastAtom id="3" title="Advertencia" message="Revisa tu conexión" variant="warning" duration={0} />
+      <ToastAtom id="4" title="Error" message="No se pudo completar" variant="danger" duration={0} />
     </div>
   ),
+};
+
+// Historia interactiva: simula la gestión de visibilidad que haría useToast
+export const Interactive: Story = {
+  render: () => {
+    const [toasts, setToasts] = useState<{ id: string; variant: 'default' | 'success' | 'warning' | 'danger'; message: string }[]>([]);
+    let counter = 0;
+
+    const add = (variant: 'default' | 'success' | 'warning' | 'danger', message: string) => {
+      const id = String(++counter);
+      setToasts((prev) => [...prev, { id, variant, message }]);
+    };
+
+    const dismiss = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id));
+
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => add('default', 'Notificación por defecto')}
+            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50">Default</button>
+          <button onClick={() => add('success', 'Acción completada con éxito')}
+            className="rounded-md bg-success-600 px-3 py-1.5 text-sm text-white">Success</button>
+          <button onClick={() => add('warning', 'Revisa esta advertencia')}
+            className="rounded-md bg-warning-500 px-3 py-1.5 text-sm text-white">Warning</button>
+          <button onClick={() => add('danger', 'Ocurrió un error')}
+            className="rounded-md bg-danger-500 px-3 py-1.5 text-sm text-white">Danger</button>
+        </div>
+        <div className="flex flex-col gap-2 w-80">
+          {toasts.map((t) => (
+            <ToastAtom key={t.id} id={t.id} message={t.message} variant={t.variant}
+              duration={3000} onDismiss={dismiss} />
+          ))}
+          {toasts.length === 0 && (
+            <p className="text-sm text-neutral-400">Sin notificaciones. Haz clic en un botón.</p>
+          )}
+        </div>
+      </div>
+    );
+  },
 };
