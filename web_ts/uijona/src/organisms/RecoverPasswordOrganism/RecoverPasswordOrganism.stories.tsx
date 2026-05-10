@@ -62,3 +62,37 @@ export const Loading: Story = {
     />
   ),
 };
+
+export const Interactive: Story = {
+  render: () => {
+    const [email, setEmail] = useState('');
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+    const [emailError, setEmailError] = useState('');
+    const handleSubmit = async (e: { preventDefault(): void }) => {
+      e.preventDefault();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setEmailError('Ingresa un email válido');
+        return;
+      }
+      setEmailError('');
+      setStatus('loading');
+      await new Promise((r) => setTimeout(r, 1500));
+      setStatus('success');
+    };
+    return (
+      <RecoverPasswordOrganism
+        email={email}
+        setEmail={(v) => { setEmail(v); setEmailError(''); }}
+        isLoading={status === 'loading'}
+        emailError={emailError}
+        successMessage={
+          status === 'success'
+            ? `Enlace enviado a ${email}. Revisa tu bandeja de entrada.`
+            : undefined
+        }
+        onSubmit={handleSubmit}
+        onGoToLogin={() => alert('Volver al login')}
+      />
+    );
+  },
+};

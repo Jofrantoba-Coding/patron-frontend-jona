@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import { LinkAtom } from './LinkAtom';
 
 const meta: Meta<typeof LinkAtom> = {
@@ -63,4 +64,30 @@ export const AllVariants: Story = {
       <LinkAtom href="#" disabled>Disabled</LinkAtom>
     </div>
   ),
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const pages = ['Inicio', 'Productos', 'Detalle', 'Soporte'];
+    const [current, setCurrent] = useState('Inicio');
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-3">
+          {pages.map((page) => (
+            <LinkAtom
+              key={page}
+              href="#"
+              variant={current === page ? 'button' : 'default'}
+              onClick={(e) => { e.preventDefault(); setCurrent(page); }}
+            >
+              {page}
+            </LinkAtom>
+          ))}
+        </div>
+        <p className="text-sm text-neutral-500">
+          Página actual: <strong>{current}</strong>
+        </p>
+      </div>
+    );
+  },
 };

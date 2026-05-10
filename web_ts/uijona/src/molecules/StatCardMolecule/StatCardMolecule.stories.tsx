@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import { StatCardMolecule } from './StatCardMolecule';
+import type { StatCardTone, StatCardTrend } from './InterStatCardMolecule';
 
 const meta: Meta<typeof StatCardMolecule> = {
   title: 'Molecules/StatCardMolecule',
@@ -32,4 +34,43 @@ export const DashboardGrid: Story = {
       <StatCardMolecule label="Failed jobs" value="7" trend="up" trendLabel="+2" description="needs review" tone="danger" />
     </div>
   ),
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState<{ value: string; trend: StatCardTrend; trendLabel: string; tone: StatCardTone }>({
+      value: '$42,800',
+      trend: 'up',
+      trendLabel: '+12.4%',
+      tone: 'success',
+    });
+    const refresh = async () => {
+      setLoading(true);
+      await new Promise((r) => setTimeout(r, 1000));
+      const newVal = Math.floor(Math.random() * 80000) + 10000;
+      const base = 42800;
+      const diff = (((newVal - base) / base) * 100).toFixed(1);
+      const up = newVal > base;
+      setData({
+        value: `$${newVal.toLocaleString()}`,
+        trend: up ? 'up' : 'down',
+        trendLabel: `${up ? '+' : ''}${diff}%`,
+        tone: up ? 'success' : 'danger',
+      });
+      setLoading(false);
+    };
+    return (
+      <div className="flex flex-col gap-3 w-64">
+        <StatCardMolecule label="Ingresos mensuales" {...data} description="vs mes anterior" />
+        <button
+          onClick={refresh}
+          disabled={loading}
+          className="rounded-md border px-3 py-1.5 text-sm disabled:opacity-50"
+        >
+          {loading ? 'Actualizando...' : 'Actualizar métrica'}
+        </button>
+      </div>
+    );
+  },
 };

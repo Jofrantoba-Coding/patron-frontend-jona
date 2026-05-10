@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { TooltipMolecule } from './TooltipMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
@@ -46,5 +47,34 @@ export const Right: Story = {
     content: 'Tooltip derecha',
     side: 'right',
     children: <ButtonAtom variant="outline">Hover aquí</ButtonAtom>,
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [lastClicked, setLastClicked] = useState<string | null>(null);
+    const actions = [
+      { id: 'edit', label: 'Editar', tooltip: 'Modificar este registro', variant: 'outline' as const },
+      { id: 'copy', label: 'Copiar', tooltip: 'Duplicar elemento seleccionado', variant: 'secondary' as const },
+      { id: 'delete', label: 'Eliminar', tooltip: 'Borrar permanentemente', variant: 'destructive' as const },
+    ];
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '32px' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {actions.map((a) => (
+            <TooltipMolecule key={a.id} content={a.tooltip} side="top">
+              <ButtonAtom variant={a.variant} size="sm" onClick={() => setLastClicked(a.label)}>
+                {a.label}
+              </ButtonAtom>
+            </TooltipMolecule>
+          ))}
+        </div>
+        {lastClicked && (
+          <p className="text-sm text-neutral-500">
+            Última acción: <strong>{lastClicked}</strong>
+          </p>
+        )}
+      </div>
+    );
   },
 };

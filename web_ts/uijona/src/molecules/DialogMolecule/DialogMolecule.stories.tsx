@@ -62,3 +62,38 @@ export const Trigger: Story = {
     );
   },
 };
+
+export const Interactive: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('Jonathan Franck');
+    const [draft, setDraft] = useState('Jonathan Franck');
+    return (
+      <div className="flex flex-col gap-3 items-start">
+        <p className="text-sm">Nombre actual: <strong>{name}</strong></p>
+        <ButtonAtom variant="outline" onClick={() => { setDraft(name); setOpen(true); }}>
+          Editar nombre
+        </ButtonAtom>
+        <DialogMolecule
+          open={open}
+          title="Editar perfil"
+          description="Modifica tu nombre de usuario y guarda los cambios."
+          showCloseButton
+          onClose={() => setOpen(false)}
+          footer={
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <ButtonAtom variant="outline" onClick={() => setOpen(false)}>Cancelar</ButtonAtom>
+              <ButtonAtom onClick={() => { setName(draft); setOpen(false); }}>Guardar</ButtonAtom>
+            </div>
+          }
+        >
+          <input
+            style={{ width: '100%', borderRadius: '6px', border: '1px solid #d4d4d4', padding: '8px 12px', fontSize: '14px', boxSizing: 'border-box' }}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+          />
+        </DialogMolecule>
+      </div>
+    );
+  },
+};

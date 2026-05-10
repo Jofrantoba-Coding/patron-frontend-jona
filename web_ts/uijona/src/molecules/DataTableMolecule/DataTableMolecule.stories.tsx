@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import React from 'react';
+import React, { useState } from 'react';
 import { DataTableMolecule } from './DataTableMolecule';
 import type { DataTableColumn, InterDataTableMolecule } from './InterDataTableMolecule';
 
@@ -81,4 +81,32 @@ export const StickyHeader: Story = {
 
 export const ClickableRows: Story = {
   args: { onRowClick: fn() },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [filter, setFilter] = useState('');
+    const [selected, setSelected] = useState<string | null>(null);
+    const filtered = USERS.filter((u) =>
+      Object.values(u).some((v) => String(v).toLowerCase().includes(filter.toLowerCase()))
+    );
+    return (
+      <div className="flex flex-col gap-3">
+        <DataTableMolecule
+          columns={COLUMNS}
+          data={filtered}
+          rowKey={(row) => String(row.id)}
+          showFilter
+          filterPlaceholder="Buscar por nombre, email o rol..."
+          onFilterChange={setFilter}
+          onRowClick={(row) => setSelected(String(row.name))}
+        />
+        {selected && (
+          <p className="text-sm text-neutral-500">
+            Fila seleccionada: <strong>{selected}</strong>
+          </p>
+        )}
+      </div>
+    );
+  },
 };

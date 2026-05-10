@@ -55,3 +55,41 @@ export const LineVariant: Story = {
     );
   },
 };
+
+export const Interactive: Story = {
+  render: () => {
+    const [tab, setTab] = useState('perfil');
+    const tabData = {
+      perfil: { title: 'Mi perfil', content: 'Nombre: Jonathan Franck\nEmail: jofrantoba@gmail.com\nRol: Administrador' },
+      seguridad: { title: 'Seguridad', content: 'Contraseña: •••••••• (última cambio: hace 30 días)\nAutenticación 2FA: Activada' },
+      notificaciones: { title: 'Notificaciones', content: 'Correos: Activados\nPush: Desactivados\nSMS: Solo alertas críticas' },
+    };
+    const current = tabData[tab as keyof typeof tabData];
+    return (
+      <div style={{ width: '420px' }}>
+        <TabsMolecule value={tab} onChange={setTab}>
+          <TabsList>
+            <TabsTrigger value="perfil">Perfil</TabsTrigger>
+            <TabsTrigger value="seguridad">Seguridad</TabsTrigger>
+            <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
+          </TabsList>
+          <TabsContent value="perfil">
+            <div className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
+              {current.content.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+            </div>
+          </TabsContent>
+          <TabsContent value="seguridad">
+            <div className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
+              {current.content.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+            </div>
+          </TabsContent>
+          <TabsContent value="notificaciones">
+            <div className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
+              {current.content.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+            </div>
+          </TabsContent>
+        </TabsMolecule>
+      </div>
+    );
+  },
+};

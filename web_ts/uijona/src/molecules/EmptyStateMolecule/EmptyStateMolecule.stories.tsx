@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { EmptyStateMolecule } from './EmptyStateMolecule';
 
 const EmptyIcon = () => (
@@ -44,5 +45,45 @@ export const WithActions: Story = {
       { label: 'Crear proyecto', onClick: fn(), variant: 'primary' },
       { label: 'Limpiar filtros', onClick: fn(), variant: 'secondary' },
     ],
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [projects, setProjects] = useState<string[]>([]);
+    return (
+      <div className="flex flex-col gap-4 items-center w-full">
+        {projects.length === 0 ? (
+          <EmptyStateMolecule
+            icon={<EmptyIcon />}
+            title="Sin proyectos"
+            description="Crea tu primer proyecto para comenzar a trabajar."
+            actions={[
+              { label: 'Crear proyecto', onClick: () => setProjects(['Proyecto Alpha']), variant: 'primary' },
+            ]}
+          />
+        ) : (
+          <div className="flex flex-col gap-2 w-80">
+            {projects.map((p) => (
+              <div key={p} className="flex justify-between items-center rounded-lg border p-3">
+                <p className="text-sm font-medium">{p}</p>
+                <button
+                  onClick={() => setProjects((prev) => prev.filter((x) => x !== p))}
+                  className="text-xs text-red-500 hover:text-red-700"
+                >
+                  Eliminar
+                </button>
+              </div>
+            ))}
+            <button
+              onClick={() => setProjects((prev) => [...prev, `Proyecto ${String.fromCharCode(65 + prev.length)}`])}
+              className="rounded-md border px-3 py-1.5 text-sm"
+            >
+              Agregar proyecto
+            </button>
+          </div>
+        )}
+      </div>
+    );
   },
 };

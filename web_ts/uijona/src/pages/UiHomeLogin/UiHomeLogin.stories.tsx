@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { UiHomeLogin } from './UiHomeLogin';
 
 const meta: Meta<typeof UiHomeLogin> = {
@@ -25,5 +26,31 @@ export const LoginError: Story = {
     onLogin: async () => {
       throw new Error('Credenciales invalidas.');
     },
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [attempts, setAttempts] = useState(0);
+    return (
+      <UiHomeLogin
+        appTitle="JONA UI"
+        footerText="© 2026 JONA Pattern"
+        onLogin={async () => {
+          await new Promise((r) => setTimeout(r, 1200));
+          const next = attempts + 1;
+          setAttempts(next);
+          if (next <= 2) {
+            throw new Error(
+              next === 1
+                ? 'Credenciales incorrectas. Intenta de nuevo.'
+                : 'Demasiados intentos. Espera un momento.'
+            );
+          }
+        }}
+        onGoToCreateAccount={() => alert('Ir a crear cuenta')}
+        onGoToRecoverPassword={() => alert('Recuperar contraseña')}
+      />
+    );
   },
 };

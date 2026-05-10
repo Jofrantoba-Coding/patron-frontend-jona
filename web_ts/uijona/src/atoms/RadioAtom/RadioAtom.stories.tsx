@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { RadioAtom } from './RadioAtom';
 
 const meta: Meta<typeof RadioAtom> = {
@@ -44,5 +45,37 @@ export const Disabled: Story = {
     name: 'radio-disabled',
     value: 'disabled',
     disabled: true,
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [selected, setSelected] = useState('');
+    const methods = [
+      { value: 'card', label: 'Tarjeta de crédito' },
+      { value: 'transfer', label: 'Transferencia bancaria' },
+      { value: 'paypal', label: 'PayPal' },
+    ];
+    return (
+      <div className="flex flex-col gap-3">
+        <p className="text-sm font-medium text-neutral-700">Método de pago</p>
+        {methods.map((m) => (
+          <label key={m.value} className="flex items-center gap-2 cursor-pointer">
+            <RadioAtom
+              name="payment"
+              value={m.value}
+              checked={selected === m.value}
+              onCheckedChange={() => setSelected(m.value)}
+            />
+            <span className="text-sm">{m.label}</span>
+          </label>
+        ))}
+        {selected && (
+          <p className="text-xs text-neutral-500 mt-1">
+            Método elegido: <strong>{methods.find((m) => m.value === selected)?.label}</strong>
+          </p>
+        )}
+      </div>
+    );
   },
 };

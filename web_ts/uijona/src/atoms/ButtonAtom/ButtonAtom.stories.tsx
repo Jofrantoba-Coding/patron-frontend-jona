@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { ButtonAtom } from './ButtonAtom';
 
 const meta: Meta<typeof ButtonAtom> = {
@@ -70,4 +71,29 @@ export const AllVariants: Story = {
       <ButtonAtom variant="link">Link</ButtonAtom>
     </div>
   ),
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [loading, setLoading] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const handleClick = async () => {
+      setLoading(true);
+      await new Promise((r) => setTimeout(r, 1500));
+      setLoading(false);
+      setSubmitted(true);
+    };
+    return (
+      <div className="flex flex-col gap-3 w-48">
+        <ButtonAtom loading={loading} onClick={handleClick} fullWidth>
+          {submitted ? 'Enviado correctamente' : 'Enviar formulario'}
+        </ButtonAtom>
+        {submitted && (
+          <ButtonAtom variant="outline" size="sm" onClick={() => setSubmitted(false)} fullWidth>
+            Restablecer
+          </ButtonAtom>
+        )}
+      </div>
+    );
+  },
 };

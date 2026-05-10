@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { IconButtonAtom } from './IconButtonAtom';
 
 const SearchIcon = () => (
@@ -39,4 +40,24 @@ export const Loading: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true, label: 'No disponible' },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [saved, setSaved] = useState(false);
+    const HeartIcon = () => (
+      <span aria-hidden="true" style={{ fontSize: 16, lineHeight: 1 }}>{saved ? '♥' : '♡'}</span>
+    );
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <IconButtonAtom
+          icon={<HeartIcon />}
+          label={saved ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+          variant={saved ? 'destructive' : 'outline'}
+          onClick={() => setSaved((s) => !s)}
+        />
+        <p className="text-xs text-neutral-500">{saved ? 'Guardado en favoritos' : 'Sin guardar'}</p>
+      </div>
+    );
+  },
 };

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SeparatorAtom } from './SeparatorAtom';
 
+
 const meta: Meta<typeof SeparatorAtom> = {
   title: 'Atoms/SeparatorAtom',
   component: SeparatorAtom,
@@ -26,4 +27,22 @@ export const Vertical: Story = {
       <span>Derecha</span>
     </div>
   )],
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const sections = ['Información general', 'Facturación', 'Notificaciones', 'Seguridad'];
+    return (
+      <div style={{ width: '320px', display: 'flex', flexDirection: 'column' }}>
+        {sections.map((section, i) => (
+          <div key={section}>
+            <div style={{ padding: '12px 0', fontSize: '14px', fontWeight: 500, color: '#404040' }}>
+              {section}
+            </div>
+            {i < sections.length - 1 && <SeparatorAtom />}
+          </div>
+        ))}
+      </div>
+    );
+  },
 };

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import { AvatarAtom } from './AvatarAtom';
 
 const meta: Meta<typeof AvatarAtom> = {
@@ -39,4 +40,34 @@ export const AllSizes: Story = {
       <AvatarAtom initials="XL" size="xl" />
     </div>
   ),
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const users = [
+      { initials: 'JF', name: 'Jonathan Franck' },
+      { initials: 'AG', name: 'Ana García' },
+      { initials: 'CP', name: 'Carlos Pérez' },
+    ];
+    const [active, setActive] = useState(0);
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-3">
+          {users.map((u, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              className={`rounded-full p-0.5 border-2 ${active === i ? 'border-primary-500' : 'border-transparent'}`}
+              style={{ cursor: 'pointer', background: 'none' }}
+            >
+              <AvatarAtom initials={u.initials} size="md" />
+            </button>
+          ))}
+        </div>
+        <p className="text-sm text-neutral-600">
+          Usuario activo: <strong>{users[active].name}</strong>
+        </p>
+      </div>
+    );
+  },
 };

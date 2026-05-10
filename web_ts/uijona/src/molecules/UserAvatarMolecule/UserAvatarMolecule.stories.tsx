@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import { UserAvatarMolecule } from './UserAvatarMolecule';
 
 const meta: Meta<typeof UserAvatarMolecule> = {
@@ -26,4 +27,31 @@ export const Large: Story = {
 
 export const NoEmail: Story = {
   args: { name: 'Usuario Sin Email' },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const users = [
+      { name: 'Jonathan Franck', email: 'jofrantoba@gmail.com' },
+      { name: 'Ana García', email: 'ana@empresa.com' },
+      { name: 'Carlos Pérez', email: 'carlos@empresa.com' },
+    ];
+    const [current, setCurrent] = useState(0);
+    return (
+      <div className="flex flex-col gap-4 items-start">
+        <UserAvatarMolecule name={users[current].name} email={users[current].email} size="md" />
+        <div className="flex gap-2">
+          {users.map((u, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`rounded-md border px-3 py-1.5 text-xs ${current === i ? 'bg-neutral-100 font-semibold' : ''}`}
+            >
+              {u.name.split(' ')[0]}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  },
 };

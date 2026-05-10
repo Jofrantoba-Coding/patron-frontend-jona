@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import { ErrorMessageAtom } from './ErrorMessageAtom';
 
 const meta: Meta<typeof ErrorMessageAtom> = {
@@ -22,4 +23,26 @@ export const Description: Story = {
 
 export const Empty: Story = {
   args: { message: '' },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [email, setEmail] = useState('');
+    const error =
+      email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ? 'El formato de email no es válido'
+        : '';
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '280px' }}>
+        <input
+          type="email"
+          value={email}
+          placeholder="correo@ejemplo.com"
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ borderRadius: '6px', border: `1px solid ${error ? '#ef4444' : '#d4d4d4'}`, padding: '8px 12px', fontSize: '14px', outline: 'none' }}
+        />
+        <ErrorMessageAtom message={error} type={error ? 'error' : 'description'} />
+      </div>
+    );
+  },
 };

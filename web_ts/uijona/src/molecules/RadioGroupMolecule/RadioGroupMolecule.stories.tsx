@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { RadioGroupMolecule } from './RadioGroupMolecule';
 
 const options = [
@@ -58,5 +59,32 @@ export const DisabledOption: Story = {
       ...options,
       { value: 'custom', label: 'Custom', description: 'Disponible bajo contrato.', disabled: true },
     ],
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [plan, setPlan] = useState<string>('');
+    const prices: Record<string, string> = { basic: 'Gratis', pro: '$29/mes', enterprise: 'Contactar ventas' };
+    return (
+      <div className="flex flex-col gap-4">
+        <RadioGroupMolecule
+          name="plan-selector"
+          label="Selecciona tu plan"
+          description="Puedes cambiar de plan en cualquier momento"
+          options={options}
+          onValueChange={setPlan}
+        />
+        {plan && (
+          <div className="rounded-md bg-neutral-50 border p-4 text-sm flex justify-between">
+            <div>
+              <p className="font-semibold">{options.find((o) => o.value === plan)?.label}</p>
+              <p className="text-neutral-500">{options.find((o) => o.value === plan)?.description}</p>
+            </div>
+            <p className="font-bold text-primary-700">{prices[plan]}</p>
+          </div>
+        )}
+      </div>
+    );
   },
 };

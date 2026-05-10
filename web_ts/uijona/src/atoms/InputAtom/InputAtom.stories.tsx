@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { InputAtom } from './InputAtom';
 
 const meta: Meta<typeof InputAtom> = {
@@ -34,4 +35,25 @@ export const Disabled: Story = {
 
 export const WithValue: Story = {
   args: { defaultValue: 'usuario@ejemplo.com', type: 'email' },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [value, setValue] = useState('');
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    const hasError = value.length > 0 && !isValid;
+    return (
+      <div className="flex flex-col gap-1 w-72">
+        <InputAtom
+          type="email"
+          placeholder="correo@ejemplo.com"
+          value={value}
+          hasError={hasError}
+          onChange={(v) => setValue(v)}
+        />
+        {hasError && <p className="text-xs text-red-500">El formato de email no es válido</p>}
+        {isValid && <p className="text-xs text-green-600">Email válido</p>}
+      </div>
+    );
+  },
 };

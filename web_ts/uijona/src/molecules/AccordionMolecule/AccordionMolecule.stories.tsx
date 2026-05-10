@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { AccordionMolecule } from './AccordionMolecule';
 
 const items = [
@@ -56,5 +57,27 @@ export const WithDisabledItem: Story = {
         disabled: true,
       },
     ],
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [current, setCurrent] = useState<string>('pregunta-1');
+    const faqItems = [
+      { value: 'pregunta-1', title: '¿Cómo creo una cuenta?', content: 'Haz clic en "Registrarse" y completa el formulario con tu nombre, correo y contraseña.' },
+      { value: 'pregunta-2', title: '¿Cómo funciona la facturación?', content: 'La facturación se realiza mensualmente. Puedes cancelar en cualquier momento desde ajustes.' },
+      { value: 'pregunta-3', title: '¿Están seguros mis datos?', content: 'Todos los datos se cifran con AES-256 y cumplimos con el estándar SOC 2 Tipo II.' },
+      { value: 'pregunta-4', title: '¿Puedo cambiar de plan?', content: 'Sí, puedes subir o bajar de plan en cualquier momento. Los cambios aplican al siguiente ciclo.' },
+    ];
+    return (
+      <div className="w-96 flex flex-col gap-2">
+        <AccordionMolecule
+          items={faqItems}
+          defaultValue={current}
+          onValueChange={(v) => setCurrent(String(v))}
+        />
+        <p className="text-xs text-neutral-400">Última sección abierta: <strong>{current}</strong></p>
+      </div>
+    );
   },
 };

@@ -70,3 +70,45 @@ export const WithAlert: Story = {
     />
   ),
 };
+
+export const Interactive: Story = {
+  render: () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
+    const [alertMessage, setAlertMessage] = useState('');
+    const handleSubmit = async (e: { preventDefault(): void }) => {
+      e.preventDefault();
+      setStatus('loading');
+      await new Promise((r) => setTimeout(r, 1500));
+      if (email === 'admin@jona.com' && password === '123456') {
+        setStatus('success');
+        setAlertMessage('');
+      } else {
+        setStatus('error');
+        setAlertMessage('Credenciales incorrectas. Prueba: admin@jona.com / 123456');
+      }
+    };
+    if (status === 'success') {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
+          <p style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>¡Bienvenido, {email}!</p>
+          <button onClick={() => { setStatus('idle'); setEmail(''); setPassword(''); setAlertMessage(''); }} style={{ fontSize: '14px', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}>Cerrar sesión</button>
+        </div>
+      );
+    }
+    return (
+      <LoginOrganism
+        email={email}
+        password={password}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        isLoading={status === 'loading'}
+        alertMessage={alertMessage}
+        onSubmit={handleSubmit}
+        onGoToCreateAccount={() => alert('Ir a crear cuenta')}
+        onGoToRecoverPassword={() => alert('Recuperar contraseña')}
+      />
+    );
+  },
+};

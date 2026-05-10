@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { SelectFieldMolecule } from './SelectFieldMolecule';
 
 const options = [
@@ -40,4 +41,36 @@ export const WithError: Story = {
     placeholder: 'Selecciona un país',
   },
   decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [country, setCountry] = useState('');
+    const [submitted, setSubmitted] = useState(false);
+    const error = submitted && !country ? 'Este campo es requerido' : undefined;
+    return (
+      <div className="flex flex-col gap-3" style={{ width: '320px' }}>
+        <SelectFieldMolecule
+          id="country-interactive"
+          label="País de residencia"
+          options={options}
+          placeholder="Selecciona un país"
+          required
+          errorMessage={error}
+          onChange={setCountry}
+        />
+        <button
+          onClick={() => setSubmitted(true)}
+          style={{ borderRadius: '6px', background: '#2563eb', color: '#fff', border: 'none', padding: '8px 16px', fontSize: '14px', cursor: 'pointer' }}
+        >
+          Confirmar
+        </button>
+        {submitted && country && (
+          <p className="text-sm text-green-600">
+            País guardado: <strong>{options.find((o) => o.value === country)?.label}</strong>
+          </p>
+        )}
+      </div>
+    );
+  },
 };

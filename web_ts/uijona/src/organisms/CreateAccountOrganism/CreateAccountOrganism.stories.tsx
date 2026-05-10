@@ -60,3 +60,55 @@ export const Loading: Story = {
     />
   ),
 };
+
+export const Interactive: Story = {
+  render: () => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const validate = () => {
+      const e: Record<string, string> = {};
+      if (!name.trim()) e.name = 'El nombre es requerido';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Email no válido';
+      if (password.length < 8) e.password = 'Mínimo 8 caracteres';
+      if (password !== confirmPassword) e.confirmPassword = 'Las contraseñas no coinciden';
+      return e;
+    };
+    const handleSubmit = async (e: { preventDefault(): void }) => {
+      e.preventDefault();
+      const errs = validate();
+      if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+      setErrors({});
+      setStatus('loading');
+      await new Promise((r) => setTimeout(r, 1500));
+      setStatus('success');
+    };
+    if (status === 'success') {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
+          <p style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>¡Cuenta creada!</p>
+          <p style={{ fontSize: '14px', color: '#737373' }}>Bienvenido, {name}</p>
+          <button onClick={() => { setStatus('idle'); setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setErrors({}); }} style={{ fontSize: '14px', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}>Volver</button>
+        </div>
+      );
+    }
+    return (
+      <CreateAccountOrganism
+        name={name} setName={setName}
+        email={email} setEmail={setEmail}
+        password={password} setPassword={setPassword}
+        confirmPassword={confirmPassword} setConfirmPassword={setConfirmPassword}
+        isLoading={status === 'loading'}
+        nameError={errors.name}
+        emailError={errors.email}
+        passwordError={errors.password}
+        confirmPasswordError={errors.confirmPassword}
+        onSubmit={handleSubmit}
+        onGoToLogin={() => alert('Ir a login')}
+      />
+    );
+  },
+};

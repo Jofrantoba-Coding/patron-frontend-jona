@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { NumberInputMolecule } from './NumberInputMolecule';
 
 const meta: Meta<typeof NumberInputMolecule> = {
@@ -24,5 +25,29 @@ export const Error: Story = {
   args: {
     hasError: true,
     value: 12,
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [qty, setQty] = useState(1);
+    const pricePerUnit = 49.99;
+    const total = qty * pricePerUnit;
+    return (
+      <div className="flex flex-col gap-3 w-56">
+        <p className="text-sm font-medium">Cantidad en carrito</p>
+        <NumberInputMolecule
+          min={1}
+          max={10}
+          step={1}
+          value={qty}
+          onValueChange={(v) => setQty(v ?? 1)}
+        />
+        <div className="rounded-md bg-neutral-50 border p-3 text-sm">
+          <p className="text-neutral-500">Precio unitario: <strong>${pricePerUnit.toFixed(2)}</strong></p>
+          <p className="text-neutral-800 font-semibold mt-1">Total: ${total.toFixed(2)}</p>
+        </div>
+      </div>
+    );
   },
 };

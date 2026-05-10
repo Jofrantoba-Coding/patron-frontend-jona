@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { PopoverMolecule } from './PopoverMolecule';
 
 const meta: Meta<typeof PopoverMolecule> = {
@@ -56,5 +57,43 @@ export const WithActions: Story = {
         <button className="rounded px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50">Eliminar</button>
       </div>
     ),
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [selectedRole, setSelectedRole] = useState<string | null>(null);
+    const roles = ['Admin', 'Editor', 'Viewer'];
+    return (
+      <div className="flex h-48 items-start justify-center gap-6 pt-8">
+        <PopoverMolecule
+          trigger={
+            <button className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm">
+              {selectedRole ? `Rol: ${selectedRole}` : 'Filtrar por rol'}
+            </button>
+          }
+          side="bottom"
+          align="start"
+        >
+          <div className="flex flex-col gap-1 min-w-[120px]">
+            <p className="text-xs font-semibold text-neutral-400 uppercase px-2 pb-1">Roles</p>
+            {roles.map((r) => (
+              <button
+                key={r}
+                onClick={() => setSelectedRole(r === selectedRole ? null : r)}
+                className={`rounded px-3 py-1.5 text-left text-sm ${selectedRole === r ? 'bg-primary-50 text-primary-700 font-medium' : 'hover:bg-neutral-100'}`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+        </PopoverMolecule>
+        {selectedRole && (
+          <p className="text-sm text-neutral-500 self-center">
+            Filtrando por: <strong>{selectedRole}</strong>
+          </p>
+        )}
+      </div>
+    );
   },
 };

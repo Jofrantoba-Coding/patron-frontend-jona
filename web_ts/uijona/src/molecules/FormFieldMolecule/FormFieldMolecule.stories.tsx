@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { FormFieldMolecule } from './FormFieldMolecule';
 
 const meta: Meta<typeof FormFieldMolecule> = {
@@ -49,4 +50,29 @@ export const Horizontal: Story = {
     orientation: 'horizontal',
   },
   decorators: [(Story) => <div style={{ width: '400px' }}><Story /></div>],
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [email, setEmail] = useState('');
+    const [touched, setTouched] = useState(false);
+    const error =
+      touched && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        ? 'El formato de email no es válido'
+        : undefined;
+    return (
+      <div style={{ width: '320px' }}>
+        <FormFieldMolecule
+          id="interactive-email"
+          label="Correo electrónico"
+          required
+          description="Usaremos este correo para enviarte notificaciones"
+          errorMessage={error}
+          value={email}
+          onChange={(v) => setEmail(v)}
+          onBlur={() => setTouched(true)}
+        />
+      </div>
+    );
+  },
 };

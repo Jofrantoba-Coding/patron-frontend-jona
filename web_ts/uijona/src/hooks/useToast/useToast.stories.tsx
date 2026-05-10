@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import { ToastProvider, useToast } from './useToast';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
@@ -54,4 +55,38 @@ export const AllToasts: StoryObj = {
       </div>
     );
   },
+};
+
+const InteractiveForm = () => {
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e: { preventDefault(): void }) => {
+    e.preventDefault();
+    if (!email.includes('@')) {
+      toast({ variant: 'danger', title: 'Error de validación', message: 'Ingresa un email válido.' });
+      return;
+    }
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 1200));
+    setLoading(false);
+    toast({ variant: 'success', title: '¡Registrado!', message: `Cuenta creada para ${email}.` });
+    setEmail('');
+  };
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '280px' }}>
+      <input
+        type="email"
+        placeholder="correo@ejemplo.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '8px 12px', fontSize: '14px' }}
+      />
+      <ButtonAtom type="submit" loading={loading} fullWidth>Registrarse</ButtonAtom>
+    </form>
+  );
+};
+
+export const Interactive: StoryObj = {
+  render: () => <InteractiveForm />,
 };

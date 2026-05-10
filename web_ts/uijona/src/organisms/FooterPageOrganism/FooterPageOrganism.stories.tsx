@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import { FooterPageOrganism } from './FooterPageOrganism';
 
 const meta: Meta<typeof FooterPageOrganism> = {
@@ -25,5 +26,41 @@ export const WithSlots: Story = {
       </nav>
     ),
     right: <span>v1.2.5</span>,
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [lang, setLang] = useState<'es' | 'en'>('es');
+    const texts = {
+      es: { terms: 'Términos', privacy: 'Privacidad', contact: 'Contacto' },
+      en: { terms: 'Terms', privacy: 'Privacy', contact: 'Contact' },
+    };
+    const t = texts[lang];
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <div style={{ padding: '32px', textAlign: 'center', fontSize: '14px', color: '#a3a3a3' }}>
+          Contenido de la aplicación
+        </div>
+        <FooterPageOrganism
+          left={<span style={{ fontWeight: 700 }}>JONA UI</span>}
+          center={
+            <nav style={{ display: 'flex', gap: '16px', fontSize: '14px' }}>
+              <a href="#">{t.terms}</a>
+              <a href="#">{t.privacy}</a>
+              <a href="#">{t.contact}</a>
+            </nav>
+          }
+          right={
+            <button
+              onClick={() => setLang((l) => l === 'es' ? 'en' : 'es')}
+              style={{ fontSize: '12px', border: '1px solid #d4d4d4', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', background: 'none' }}
+            >
+              {lang === 'es' ? 'EN' : 'ES'}
+            </button>
+          }
+        />
+      </div>
+    );
   },
 };

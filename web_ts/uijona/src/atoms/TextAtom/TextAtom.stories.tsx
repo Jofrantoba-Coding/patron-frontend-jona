@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { useState } from 'react';
 import { TextAtom } from './TextAtom';
 
 const meta: Meta<typeof TextAtom> = {
@@ -59,4 +60,26 @@ export const AllSizes: Story = {
       <TextAtom size="2xl">2XL</TextAtom>
     </div>
   ),
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const colorMap = { idle: 'default', success: 'success', error: 'danger' } as const;
+    const msgMap = {
+      idle: 'Esperando acción del usuario...',
+      success: 'Operación completada con éxito.',
+      error: 'Ha ocurrido un error inesperado.',
+    };
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <TextAtom color={colorMap[status]}>{msgMap[status]}</TextAtom>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button onClick={() => setStatus('success')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Éxito</button>
+          <button onClick={() => setStatus('error')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Error</button>
+          <button onClick={() => setStatus('idle')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Reiniciar</button>
+        </div>
+      </div>
+    );
+  },
 };

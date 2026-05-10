@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import { useState } from 'react';
 import { SelectAtom } from './SelectAtom';
 
 const options = [
@@ -36,4 +37,24 @@ export const WithGroups: Story = {
 
 export const WithError: Story = {
   args: { options, hasError: true, placeholder: 'Campo requerido' },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [country, setCountry] = useState('');
+    return (
+      <div className="flex flex-col gap-2 w-64">
+        <SelectAtom
+          options={options}
+          placeholder="Selecciona un país"
+          onChange={setCountry}
+        />
+        {country && (
+          <p className="text-sm text-neutral-600">
+            País seleccionado: <strong>{options.find((o) => o.value === country)?.label}</strong>
+          </p>
+        )}
+      </div>
+    );
+  },
 };
