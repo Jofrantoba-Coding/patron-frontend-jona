@@ -14,6 +14,12 @@ const meta: Meta<typeof DrawerMolecule> = {
     description: 'Contenido del drawer.',
     children: <p className="text-sm text-neutral-600">Contenido del panel deslizante.</p>,
   },
+  argTypes: {
+    side:            { control: 'select', options: ['left', 'right', 'top', 'bottom'] },
+    size:            { control: 'select', options: ['sm', 'md', 'lg', 'full'] },
+    open:            { control: 'boolean' },
+    showCloseButton: { control: 'boolean' },
+  },
 };
 export default meta;
 type Story = StoryObj<typeof DrawerMolecule>;

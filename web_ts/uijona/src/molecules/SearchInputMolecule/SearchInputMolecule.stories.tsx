@@ -5,6 +5,7 @@ import { SearchInputMolecule } from './SearchInputMolecule';
 const meta: Meta<typeof SearchInputMolecule> = {
   title: 'Molecules/SearchInputMolecule',
   component: SearchInputMolecule,
+  tags: ['autodocs'],
   args: {
     placeholder: 'Search customers',
     onSearch: fn(),

@@ -23,6 +23,9 @@ const meta: Meta<typeof DropdownMolecule> = {
   component: DropdownMolecule,
   tags: ['autodocs'],
   args: { onOpen: fn(), onClose: fn(), onItemSelect: fn() },
+  argTypes: {
+    align: { control: 'select', options: ['start', 'end'] },
+  },
 };
 export default meta;
 type Story = StoryObj<typeof DropdownMolecule>;

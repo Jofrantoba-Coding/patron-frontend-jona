@@ -4,6 +4,7 @@ import { StatCardMolecule } from './StatCardMolecule';
 const meta: Meta<typeof StatCardMolecule> = {
   title: 'Molecules/StatCardMolecule',
   component: StatCardMolecule,
+  tags: ['autodocs'],
   args: {
     label: 'Monthly revenue',
     value: '$42,800',
@@ -11,6 +12,10 @@ const meta: Meta<typeof StatCardMolecule> = {
     trendLabel: '+12.4%',
     description: 'vs last month',
     tone: 'success',
+  },
+  argTypes: {
+    tone:  { control: 'select', options: ['neutral', 'success', 'warning', 'danger', 'info'] },
+    trend: { control: 'select', options: ['up', 'down', 'flat'] },
   },
 };
 

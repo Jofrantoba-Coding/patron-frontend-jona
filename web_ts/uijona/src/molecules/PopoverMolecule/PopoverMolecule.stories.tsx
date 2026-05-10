@@ -17,6 +17,10 @@ const meta: Meta<typeof PopoverMolecule> = {
       </div>
     ),
   },
+  argTypes: {
+    side:  { control: 'select', options: ['top', 'bottom', 'left', 'right'] },
+    align: { control: 'select', options: ['start', 'center', 'end'] },
+  },
   decorators: [(Story) => <div className="flex h-48 items-center justify-center"><Story /></div>],
 };
 export default meta;

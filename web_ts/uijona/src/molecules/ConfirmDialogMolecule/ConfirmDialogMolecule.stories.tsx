@@ -14,6 +14,11 @@ const meta: Meta<typeof ConfirmDialogMolecule> = {
     onConfirm: fn(),
     onCancel: fn(),
   },
+  argTypes: {
+    variant:   { control: 'select', options: ['danger', 'warning', 'info'] },
+    open:      { control: 'boolean' },
+    isLoading: { control: 'boolean' },
+  },
 };
 export default meta;
 type Story = StoryObj<typeof ConfirmDialogMolecule>;

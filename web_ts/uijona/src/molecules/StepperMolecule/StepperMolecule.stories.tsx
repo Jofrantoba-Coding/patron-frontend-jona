@@ -11,11 +11,17 @@ const steps = [
 const meta: Meta<typeof StepperMolecule> = {
   title: 'Molecules/StepperMolecule',
   component: StepperMolecule,
+  tags: ['autodocs'],
   args: {
     steps,
     currentStep: 1,
     allowStepClick: true,
     onStepChange: fn(),
+  },
+  argTypes: {
+    orientation: { control: 'select', options: ['horizontal', 'vertical'] },
+    allowStepClick: { control: 'boolean' },
+    currentStep: { control: 'number' },
   },
 };
 

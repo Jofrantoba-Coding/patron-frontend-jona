@@ -11,6 +11,12 @@ const meta: Meta<typeof RatingAtom> = {
     onChange: fn(),
     onHover: fn(),
   },
+  argTypes: {
+    size:     { control: 'select', options: ['sm', 'md', 'lg'] },
+    max:      { control: 'number', min: 1, max: 10 },
+    value:    { control: 'number', min: 0, max: 10 },
+    readOnly: { control: 'boolean' },
+  },
 };
 export default meta;
 type Story = StoryObj<typeof RatingAtom>;
