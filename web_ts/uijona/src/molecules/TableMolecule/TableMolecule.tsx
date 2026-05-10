@@ -8,4 +8,9 @@ export {
   TableHeadImpl as TableHead,
   TableCellImpl as TableCell,
 } from './TableMoleculeImpl';
-export type { InterTableMolecule, TableResponsiveMode } from './InterTableMolecule';
+export type {
+  InterTableHeadProps,
+  InterTableMolecule,
+  TableResponsiveMode,
+  TableSortDirection,
+} from './InterTableMolecule';

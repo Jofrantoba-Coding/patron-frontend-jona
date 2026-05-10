@@ -8,6 +8,7 @@ import {
   TableHead,
   TableCell,
   TableCaption,
+  type TableSortDirection,
 } from './TableMolecule';
 import { BadgeAtom } from '../../atoms/BadgeAtom/BadgeAtom';
 
@@ -149,6 +150,100 @@ export const Interactive: Story = {
           </TableBody>
         </TableMolecule>
       </div>
+    );
+  },
+};
+
+export const SortFilterResize: Story = {
+  render: () => {
+    const [sort, setSort] = useState<{ key: keyof typeof users[number]; direction: TableSortDirection }>({
+      key: 'name',
+      direction: null,
+    });
+    const [filters, setFilters] = useState({ name: '', role: '' });
+    const [widths, setWidths] = useState({ name: 180, email: 260, role: 180 });
+
+    const filtered = users.filter((user) => (
+      user.name.toLowerCase().includes(filters.name.toLowerCase())
+      && user.role.toLowerCase().includes(filters.role.toLowerCase())
+    ));
+
+    const sorted = sort.direction
+      ? [...filtered].sort((a, b) => {
+        const valueA = String(a[sort.key] ?? '');
+        const valueB = String(b[sort.key] ?? '');
+        const result = valueA.localeCompare(valueB);
+        return sort.direction === 'asc' ? result : -result;
+      })
+      : filtered;
+
+    const handleSort = (key: keyof typeof users[number]) => (direction: TableSortDirection) => {
+      setSort({ key, direction });
+    };
+
+    return (
+      <TableMolecule responsiveMode="scroll">
+        <TableCaption>Columnas con ordenamiento, filtros y resizing</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead
+              sortable
+              filterable
+              resizable
+              width={widths.name}
+              minWidth={140}
+              sortDirection={sort.key === 'name' ? sort.direction : null}
+              filterValue={filters.name}
+              filterPlaceholder="Filtrar nombre"
+              onSortChange={handleSort('name')}
+              onFilterChange={(value) => setFilters((current) => ({ ...current, name: value }))}
+              onColumnResize={(width) => setWidths((current) => ({ ...current, name: width }))}
+            >
+              Nombre
+            </TableHead>
+            <TableHead
+              resizable
+              width={widths.email}
+              minWidth={180}
+              onColumnResize={(width) => setWidths((current) => ({ ...current, email: width }))}
+            >
+              Email
+            </TableHead>
+            <TableHead
+              sortable
+              filterable
+              resizable
+              width={widths.role}
+              minWidth={140}
+              sortDirection={sort.key === 'role' ? sort.direction : null}
+              filterValue={filters.role}
+              filterPlaceholder="Filtrar rol"
+              onSortChange={handleSort('role')}
+              onFilterChange={(value) => setFilters((current) => ({ ...current, role: value }))}
+              onColumnResize={(width) => setWidths((current) => ({ ...current, role: width }))}
+            >
+              Rol
+            </TableHead>
+            <TableHead>Estado</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sorted.length > 0 ? sorted.map((user) => (
+            <TableRow key={user.email}>
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.role}</TableCell>
+              <TableCell><BadgeAtom variant={user.variant}>{user.status}</BadgeAtom></TableCell>
+            </TableRow>
+          )) : (
+            <TableRow>
+              <TableCell colSpan={4}>
+                <span className="block py-6 text-center text-neutral-400">Sin resultados</span>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </TableMolecule>
     );
   },
 };
