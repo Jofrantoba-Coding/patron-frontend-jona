@@ -11,7 +11,7 @@ import { useTableContext } from './TableMoleculeContext';
 const wrapperClasses: Record<TableResponsiveMode, string> = {
   scroll: 'relative w-full max-w-full overflow-x-auto rounded-md border border-neutral-200',
   cards: 'relative w-full max-w-full',
-  none: 'relative w-full max-w-full',
+  none: 'relative w-full max-w-full overflow-x-auto',
 };
 
 export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMolecule>(
@@ -24,7 +24,7 @@ export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMo
           'caption-bottom text-sm text-neutral-900',
           responsiveMode === 'scroll' && 'w-full min-w-max',
           responsiveMode === 'cards' && 'block w-full min-w-0 md:table',
-          responsiveMode === 'none' && 'w-full',
+          responsiveMode === 'none' && 'w-full min-w-max',
           className
         )}
         {...props}
@@ -169,6 +169,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
       children,
       className,
       style,
+      columnIndex,
       colSpan,
       scope,
       groupHeader = false,
@@ -178,7 +179,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
       sortCycle = ['asc', 'desc', null],
       onSortChange,
       filterable = false,
-      filterValue = '',
+      filterValue,
       filterPlaceholder = 'Filtrar...',
       filterInputProps,
       onFilterChange,
@@ -193,12 +194,17 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
     },
     ref
   ) => {
+    const { columnFilters, setColumnFilter } = useTableContext();
     const innerRef = React.useRef<HTMLTableCellElement | null>(null);
+    const [internalFilterValue, setInternalFilterValue] = React.useState('');
     const [internalWidth, setInternalWidth] = React.useState<number | undefined>(() => getNumericWidth(width));
     const effectiveWidth = internalWidth ?? getNumericWidth(width);
     const widthStyle = getWidthValue(effectiveWidth ?? width);
     const isGroupedHeader = groupHeader || scope === 'colgroup' || Number(colSpan ?? 1) > 1;
     const canSort = sortable && !isGroupedHeader;
+    const effectiveFilterValue = filterValue ?? (
+      columnIndex !== undefined ? columnFilters[columnIndex] ?? '' : internalFilterValue
+    );
 
     React.useEffect(() => {
       const nextWidth = getNumericWidth(width);
@@ -206,6 +212,12 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
         setInternalWidth(nextWidth);
       }
     }, [width]);
+
+    React.useEffect(() => {
+      if (filterValue !== undefined && columnIndex !== undefined) {
+        setColumnFilter(columnIndex, filterValue);
+      }
+    }, [columnIndex, filterValue, setColumnFilter]);
 
     const handleSortClick = (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
@@ -285,12 +297,20 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
             <input
               {...filterInputProps}
               type={filterInputProps?.type ?? 'text'}
-              value={filterValue}
+              value={effectiveFilterValue}
               placeholder={filterPlaceholder}
               aria-label={filterInputProps?.['aria-label'] ?? filterPlaceholder}
               onClick={(event) => event.stopPropagation()}
               onChange={(event) => {
-                onFilterChange?.(event.target.value);
+                const value = event.target.value;
+                if (filterValue === undefined) {
+                  if (columnIndex !== undefined) {
+                    setColumnFilter(columnIndex, value);
+                  } else {
+                    setInternalFilterValue(value);
+                  }
+                }
+                onFilterChange?.(value);
               }}
               className={cn(
                 'h-8 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-900 placeholder:text-neutral-400',

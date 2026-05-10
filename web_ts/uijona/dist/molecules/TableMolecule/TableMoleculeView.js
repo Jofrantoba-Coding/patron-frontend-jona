@@ -1,41 +1,41 @@
-import { jsx as n, jsxs as f } from "react/jsx-runtime";
-import s from "react";
-import { cn as l } from "../../lib/cn.js";
-import { useTableContext as m } from "./TableMoleculeContext.js";
-const Z = {
+import { jsx as n, jsxs as w } from "react/jsx-runtime";
+import l from "react";
+import { cn as s } from "../../lib/cn.js";
+import { useTableContext as c } from "./TableMoleculeContext.js";
+const te = {
   scroll: "relative w-full max-w-full overflow-x-auto rounded-md border border-neutral-200",
   cards: "relative w-full max-w-full",
-  none: "relative w-full max-w-full"
-}, C = s.forwardRef(
-  ({ className: e, wrapperClassName: r, responsiveMode: t = "scroll", style: a, ...c }, p) => /* @__PURE__ */ n("div", { className: l(Z[t], r), children: /* @__PURE__ */ n(
+  none: "relative w-full max-w-full overflow-x-auto"
+}, re = l.forwardRef(
+  ({ className: e, wrapperClassName: r, responsiveMode: t = "scroll", style: a, ...d }, f) => /* @__PURE__ */ n("div", { className: s(te[t], r), children: /* @__PURE__ */ n(
     "table",
     {
-      ref: p,
+      ref: f,
       style: t === "cards" ? void 0 : a,
-      className: l(
+      className: s(
         "caption-bottom text-sm text-neutral-900",
         t === "scroll" && "w-full min-w-max",
         t === "cards" && "block w-full min-w-0 md:table",
-        t === "none" && "w-full",
+        t === "none" && "w-full min-w-max",
         e
       ),
-      ...c
+      ...d
     }
   ) })
 );
-C.displayName = "TableMolecule";
-const z = s.forwardRef(
-  ({ className: e, ...r }, t) => /* @__PURE__ */ n("caption", { ref: t, className: l("mt-4 text-sm text-neutral-500", e), ...r })
+re.displayName = "TableMolecule";
+const ae = l.forwardRef(
+  ({ className: e, ...r }, t) => /* @__PURE__ */ n("caption", { ref: t, className: s("mt-4 text-sm text-neutral-500", e), ...r })
 );
-z.displayName = "TableCaption";
-const I = s.forwardRef(
+ae.displayName = "TableCaption";
+const oe = l.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = m();
+    const { responsiveMode: a } = c();
     return /* @__PURE__ */ n(
       "thead",
       {
         ref: t,
-        className: l(
+        className: s(
           a === "cards" ? "hidden md:table-header-group" : "table-header-group",
           "bg-neutral-50 [&_tr]:border-b",
           e
@@ -45,15 +45,15 @@ const I = s.forwardRef(
     );
   }
 );
-I.displayName = "TableHeader";
-const P = s.forwardRef(
+oe.displayName = "TableHeader";
+const ne = l.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = m();
+    const { responsiveMode: a } = c();
     return /* @__PURE__ */ n(
       "tbody",
       {
         ref: t,
-        className: l(
+        className: s(
           a === "cards" ? "block md:table-row-group" : "table-row-group",
           "[&_tr:last-child]:border-b-0",
           e
@@ -63,15 +63,15 @@ const P = s.forwardRef(
     );
   }
 );
-P.displayName = "TableBody";
-const ee = s.forwardRef(
+ne.displayName = "TableBody";
+const le = l.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = m();
+    const { responsiveMode: a } = c();
     return /* @__PURE__ */ n(
       "tfoot",
       {
         ref: t,
-        className: l(
+        className: s(
           a === "cards" ? "block md:table-footer-group" : "table-footer-group",
           "bg-neutral-50 font-medium [&>tr]:last:border-b-0",
           e
@@ -81,47 +81,47 @@ const ee = s.forwardRef(
     );
   }
 );
-ee.displayName = "TableFooter";
-function te(e, r) {
+le.displayName = "TableFooter";
+function se(e, r) {
   const t = r.indexOf(e);
   return r[t === -1 || t === r.length - 1 ? 0 : t + 1];
 }
-function re(e) {
+function ie(e) {
   if (e === "asc") return "ascending";
   if (e === "desc") return "descending";
 }
-function y(e) {
+function k(e) {
   return typeof e == "number" ? `${e}px` : e;
 }
-function T(e) {
+function R(e) {
   if (typeof e == "number") return e;
   if (typeof e == "string" && e.endsWith("px")) return Number.parseFloat(e);
 }
-function ae(e, r, t) {
-  const a = r ?? 48, c = t ?? Number.POSITIVE_INFINITY;
-  return Math.min(Math.max(e, a), c);
+function de(e, r, t) {
+  const a = r ?? 48, d = t ?? Number.POSITIVE_INFINITY;
+  return Math.min(Math.max(e, a), d);
 }
-function oe({ direction: e }) {
-  return /* @__PURE__ */ f("svg", { className: "h-3.5 w-3.5 shrink-0", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2.5, "aria-hidden": "true", children: [
+function ce({ direction: e }) {
+  return /* @__PURE__ */ w("svg", { className: "h-3.5 w-3.5 shrink-0", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2.5, "aria-hidden": "true", children: [
     /* @__PURE__ */ n("polyline", { points: "6 9 12 3 18 9", className: e === "asc" ? "text-primary-600" : "text-neutral-300" }),
     /* @__PURE__ */ n("polyline", { points: "6 15 12 21 18 15", className: e === "desc" ? "text-primary-600" : "text-neutral-300" })
   ] });
 }
-function ne(e, r) {
+function me(e, r) {
   if (typeof e == "function") {
     e(r);
     return;
   }
   e && (e.current = r);
 }
-const le = s.forwardRef(
+const ue = l.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = m();
+    const { responsiveMode: a } = c();
     return /* @__PURE__ */ n(
       "tr",
       {
         ref: t,
-        className: l(
+        className: s(
           "transition-colors hover:bg-neutral-50 data-[state=selected]:bg-primary-50",
           a === "cards" ? "mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b md:border-neutral-200 md:bg-transparent md:p-0 md:shadow-none" : "border-b border-neutral-200",
           e
@@ -131,129 +131,133 @@ const le = s.forwardRef(
     );
   }
 );
-le.displayName = "TableRow";
-const se = s.forwardRef(
+ue.displayName = "TableRow";
+const be = l.forwardRef(
   ({
     children: e,
     className: r,
     style: t,
-    colSpan: a,
-    scope: c,
-    groupHeader: p = !1,
-    sortable: X = !1,
-    sortDirection: x = null,
-    sortLabel: _,
-    sortCycle: O = ["asc", "desc", null],
-    onSortChange: w,
-    filterable: u = !1,
-    filterValue: A = "",
-    filterPlaceholder: W = "Filtrar...",
-    filterInputProps: d,
-    onFilterChange: g,
-    resizable: k = !1,
-    width: i,
-    minWidth: h,
-    maxWidth: R,
-    resizeHandleLabel: D = "Redimensionar columna",
-    onColumnResize: N,
-    onClick: F,
-    ...V
-  }, G) => {
-    const E = s.useRef(null), [Y, M] = s.useState(() => T(i)), S = Y ?? T(i), $ = y(S ?? i), b = p || c === "colgroup" || Number(a ?? 1) > 1, v = X && !b;
-    s.useEffect(() => {
-      const o = T(i);
-      o !== void 0 && M(o);
-    }, [i]);
-    const q = (o) => {
-      o.stopPropagation(), w == null || w(te(x, O));
-    }, J = (o) => {
-      var j;
+    columnIndex: a,
+    colSpan: d,
+    scope: f,
+    groupHeader: O = !1,
+    sortable: A = !1,
+    sortDirection: g = null,
+    sortLabel: D,
+    sortCycle: G = ["asc", "desc", null],
+    onSortChange: v,
+    filterable: p = !1,
+    filterValue: m,
+    filterPlaceholder: V = "Filtrar...",
+    filterInputProps: i,
+    onFilterChange: h,
+    resizable: E = !1,
+    width: u,
+    minWidth: N,
+    maxWidth: M,
+    resizeHandleLabel: Y = "Redimensionar columna",
+    onColumnResize: y,
+    onClick: $,
+    ...S
+  }, q) => {
+    const { columnFilters: C, setColumnFilter: T } = c(), F = l.useRef(null), [J, K] = l.useState(""), [Q, H] = l.useState(() => R(u)), L = Q ?? R(u), U = k(L ?? u), x = O || f === "colgroup" || Number(d ?? 1) > 1, W = A && !x, Z = m ?? (a !== void 0 ? C[a] ?? "" : J);
+    l.useEffect(() => {
+      const o = R(u);
+      o !== void 0 && H(o);
+    }, [u]), l.useEffect(() => {
+      m !== void 0 && a !== void 0 && T(a, m);
+    }, [a, m, T]);
+    const z = (o) => {
+      o.stopPropagation(), v == null || v(se(g, G));
+    }, I = (o) => {
+      var X;
       o.preventDefault(), o.stopPropagation();
-      const K = o.clientX, Q = ((j = E.current) == null ? void 0 : j.offsetWidth) || S || h || 120, H = (U) => {
-        const B = ae(Q + U.clientX - K, h, R);
-        M(B), N == null || N(B);
-      }, L = () => {
-        document.removeEventListener("mousemove", H), document.removeEventListener("mouseup", L);
+      const b = o.clientX, P = ((X = F.current) == null ? void 0 : X.offsetWidth) || L || N || 120, j = (ee) => {
+        const _ = de(P + ee.clientX - b, N, M);
+        H(_), y == null || y(_);
+      }, B = () => {
+        document.removeEventListener("mousemove", j), document.removeEventListener("mouseup", B);
       };
-      document.addEventListener("mousemove", H), document.addEventListener("mouseup", L);
+      document.addEventListener("mousemove", j), document.addEventListener("mouseup", B);
     };
-    return /* @__PURE__ */ f(
+    return /* @__PURE__ */ w(
       "th",
       {
         ref: (o) => {
-          E.current = o, ne(G, o);
+          F.current = o, me(q, o);
         },
         style: {
           ...t,
-          width: $ ?? (t == null ? void 0 : t.width),
-          minWidth: y(h) ?? (t == null ? void 0 : t.minWidth),
-          maxWidth: y(R) ?? (t == null ? void 0 : t.maxWidth)
+          width: U ?? (t == null ? void 0 : t.width),
+          minWidth: k(N) ?? (t == null ? void 0 : t.minWidth),
+          maxWidth: k(M) ?? (t == null ? void 0 : t.maxWidth)
         },
-        "aria-sort": v ? re(x) : V["aria-sort"],
-        className: l(
+        "aria-sort": W ? ie(g) : S["aria-sort"],
+        className: s(
           "relative h-10 px-4 text-left align-middle font-medium text-neutral-500",
           "whitespace-nowrap",
-          b && "border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700",
-          (v || u) && "select-none",
-          k && "pr-6",
+          x && "border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700",
+          (W || p) && "select-none",
+          E && "pr-6",
           r
         ),
-        onClick: F,
-        colSpan: a,
-        scope: c ?? (b ? "colgroup" : void 0),
-        ...V,
+        onClick: $,
+        colSpan: d,
+        scope: f ?? (x ? "colgroup" : void 0),
+        ...S,
         children: [
-          /* @__PURE__ */ f(
+          /* @__PURE__ */ w(
             "div",
             {
-              className: l(
+              className: s(
                 "flex min-w-0 items-center gap-2",
-                u && "flex-col items-stretch gap-1 py-2",
-                b && !u && "justify-center"
+                p && "flex-col items-stretch gap-1 py-2",
+                x && !p && "justify-center"
               ),
               children: [
-                v ? /* @__PURE__ */ f(
+                W ? /* @__PURE__ */ w(
                   "button",
                   {
                     type: "button",
                     className: "inline-flex min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none hover:text-neutral-800 focus-visible:ring-2 focus-visible:ring-primary-500",
-                    onClick: q,
-                    "aria-label": _,
+                    onClick: z,
+                    "aria-label": D,
                     children: [
                       /* @__PURE__ */ n("span", { className: "truncate", children: e }),
-                      /* @__PURE__ */ n(oe, { direction: x })
+                      /* @__PURE__ */ n(ce, { direction: g })
                     ]
                   }
                 ) : /* @__PURE__ */ n("span", { className: "truncate", children: e }),
-                u && /* @__PURE__ */ n(
+                p && /* @__PURE__ */ n(
                   "input",
                   {
-                    ...d,
-                    type: (d == null ? void 0 : d.type) ?? "text",
-                    value: A,
-                    placeholder: W,
-                    "aria-label": (d == null ? void 0 : d["aria-label"]) ?? W,
+                    ...i,
+                    type: (i == null ? void 0 : i.type) ?? "text",
+                    value: Z,
+                    placeholder: V,
+                    "aria-label": (i == null ? void 0 : i["aria-label"]) ?? V,
                     onClick: (o) => o.stopPropagation(),
                     onChange: (o) => {
-                      g == null || g(o.target.value);
+                      const b = o.target.value;
+                      m === void 0 && (a !== void 0 ? T(a, b) : K(b)), h == null || h(b);
                     },
-                    className: l(
+                    className: s(
                       "h-8 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-900 placeholder:text-neutral-400",
                       "focus:outline-none focus:ring-2 focus:ring-primary-500",
-                      d == null ? void 0 : d.className
+                      i == null ? void 0 : i.className
                     )
                   }
                 )
               ]
             }
           ),
-          k && /* @__PURE__ */ n(
+          E && /* @__PURE__ */ n(
             "button",
             {
               type: "button",
-              "aria-label": D,
+              "aria-label": Y,
               className: "absolute right-0 top-0 h-full w-3 cursor-col-resize touch-none border-r border-transparent outline-none hover:border-primary-400 focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500",
-              onMouseDown: J
+              onMouseDown: I
             }
           )
         ]
@@ -261,21 +265,21 @@ const se = s.forwardRef(
     );
   }
 );
-se.displayName = "TableHead";
-const de = s.forwardRef(
+be.displayName = "TableHead";
+const fe = l.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = m(), c = r.colSpan;
+    const { responsiveMode: a } = c(), d = r.colSpan;
     return /* @__PURE__ */ n(
       "td",
       {
         ref: t,
-        className: l(
+        className: s(
           "text-neutral-900",
-          a === "cards" ? l(
+          a === "cards" ? s(
             "flex min-w-0 flex-col gap-1 text-sm md:table-cell md:px-4 md:py-3 md:align-middle",
             "before:break-words before:text-[10px] before:font-semibold before:uppercase before:tracking-wide before:text-neutral-400",
             "before:content-[attr(data-label)] md:before:content-none",
-            c && c > 1 && "md:text-center"
+            d && d > 1 && "md:text-center"
           ) : "px-4 py-3 align-middle",
           "break-words",
           e
@@ -285,15 +289,15 @@ const de = s.forwardRef(
     );
   }
 );
-de.displayName = "TableCell";
+fe.displayName = "TableCell";
 export {
-  P as TableBodyView,
-  z as TableCaptionView,
-  de as TableCellView,
-  ee as TableFooterView,
-  se as TableHeadView,
-  I as TableHeaderView,
-  C as TableMoleculeView,
-  le as TableRowView
+  ne as TableBodyView,
+  ae as TableCaptionView,
+  fe as TableCellView,
+  le as TableFooterView,
+  be as TableHeadView,
+  oe as TableHeaderView,
+  re as TableMoleculeView,
+  ue as TableRowView
 };
 //# sourceMappingURL=TableMoleculeView.js.map

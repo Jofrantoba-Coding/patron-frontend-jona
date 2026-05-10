@@ -37,6 +37,14 @@ describe('TableMolecule', () => {
     expect(screen.getByText('Jonathan')).not.toHaveAttribute('data-label');
   });
 
+  it('keeps none mode responsive with horizontal overflow protection', () => {
+    render(<BasicTable responsiveMode="none" />);
+
+    const table = screen.getByRole('table');
+    expect(table.parentElement).toHaveClass('overflow-x-auto');
+    expect(table).toHaveClass('min-w-max');
+  });
+
   it('injects mobile data labels only in card mode', () => {
     render(<BasicTable responsiveMode="cards" />);
 
@@ -178,6 +186,61 @@ describe('TableMolecule', () => {
     fireEvent.change(screen.getByLabelText('Filtrar nombre'), { target: { value: 'ana' } });
 
     expect(onFilterChange).toHaveBeenCalledWith('ana');
+  });
+
+  it('filters table rows automatically when column filters are uncontrolled', () => {
+    render(
+      <TableMolecule>
+        <TableHeader>
+          <TableRow>
+            <TableHead filterable filterPlaceholder="Filtrar nombre">
+              Name
+            </TableHead>
+            <TableHead>Email</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Jonathan</TableCell>
+            <TableCell>jofrantoba@example.com</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Ana</TableCell>
+            <TableCell>ana@example.com</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableMolecule>
+    );
+
+    fireEvent.change(screen.getByLabelText('Filtrar nombre'), { target: { value: 'ana' } });
+
+    expect(screen.queryByText('Jonathan')).not.toBeInTheDocument();
+    expect(screen.getByText('Ana')).toBeInTheDocument();
+  });
+
+  it('filters table rows automatically when column filters are controlled', () => {
+    render(
+      <TableMolecule>
+        <TableHeader>
+          <TableRow>
+            <TableHead filterable filterValue="ana" filterPlaceholder="Filtrar nombre">
+              Name
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Jonathan</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Ana</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableMolecule>
+    );
+
+    expect(screen.queryByText('Jonathan')).not.toBeInTheDocument();
+    expect(screen.getByText('Ana')).toBeInTheDocument();
   });
 
   it('supports column resizing from the header handle', () => {

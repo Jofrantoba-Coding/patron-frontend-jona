@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo, useRef } from 'react';
+import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
 import { InterTableMolecule, TABLE_MOLECULE_DEFAULTS } from './InterTableMolecule';
 import { TableContext, useTableContext } from './TableMoleculeContext';
 import {
@@ -15,9 +15,23 @@ import {
 export const TableMoleculeImpl = forwardRef<HTMLTableElement, InterTableMolecule>(
   ({ children, responsiveMode = TABLE_MOLECULE_DEFAULTS.responsiveMode, wrapperClassName, ...props }, ref) => {
     const labelsRef = useRef<string[]>([]);
+    const [columnFilters, setColumnFilters] = useState<Record<number, string>>({});
+    const setColumnFilter = useCallback((columnIndex: number, value: string) => {
+      setColumnFilters((current) => {
+        if ((current[columnIndex] ?? '') === value) return current;
+
+        if (!value) {
+          const next = { ...current };
+          delete next[columnIndex];
+          return next;
+        }
+
+        return { ...current, [columnIndex]: value };
+      });
+    }, []);
     const contextValue = useMemo(
-      () => ({ responsiveMode, labelsRef }),
-      [responsiveMode]
+      () => ({ responsiveMode, labelsRef, columnFilters, setColumnFilter }),
+      [responsiveMode, columnFilters, setColumnFilter]
     );
 
     return (
@@ -48,9 +62,10 @@ function getSpanValue(value: unknown) {
   return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1;
 }
 
-function getHeaderLabels(children: React.ReactNode) {
+function getHeaderLayout(children: React.ReactNode) {
   const rows = React.Children.toArray(children).filter(React.isValidElement);
-  const grid: Array<Array<{ label: string; rowIndex: number } | undefined>> = [];
+  const grid: Array<Array<{ label: string } | undefined>> = [];
+  const columnIndexes = new WeakMap<object, number>();
 
   rows.forEach((row, rowIndex) => {
     const rowEl = row as React.ReactElement<{ children?: React.ReactNode }>;
@@ -70,13 +85,14 @@ function getHeaderLabels(children: React.ReactNode) {
       const colSpan = getSpanValue(headProps.colSpan);
       const rowSpan = getSpanValue(headProps.rowSpan);
       const label = getTextContent(headProps.children);
+      columnIndexes.set(head, colIndex);
 
       for (let rowOffset = 0; rowOffset < rowSpan; rowOffset += 1) {
         const targetRow = rowIndex + rowOffset;
         grid[targetRow] = grid[targetRow] ?? [];
 
         for (let colOffset = 0; colOffset < colSpan; colOffset += 1) {
-          grid[targetRow][colIndex + colOffset] = { label, rowIndex };
+          grid[targetRow][colIndex + colOffset] = { label };
         }
       }
 
@@ -86,7 +102,7 @@ function getHeaderLabels(children: React.ReactNode) {
 
   const maxColumns = Math.max(0, ...grid.map((row) => row.length));
 
-  return Array.from({ length: maxColumns }, (_, columnIndex) => {
+  const labels = Array.from({ length: maxColumns }, (_, columnIndex) => {
     for (let rowIndex = grid.length - 1; rowIndex >= 0; rowIndex -= 1) {
       const cell = grid[rowIndex]?.[columnIndex];
       if (cell?.label) return cell.label;
@@ -94,42 +110,79 @@ function getHeaderLabels(children: React.ReactNode) {
 
     return '';
   });
+
+  return { labels, columnIndexes };
+}
+
+function withHeaderColumnIndexes(children: React.ReactNode) {
+  const { labels, columnIndexes } = getHeaderLayout(children);
+  const rows = React.Children.map(children, (row) => {
+    if (!React.isValidElement(row)) return row;
+
+    const rowEl = row as React.ReactElement<{ children?: React.ReactNode }>;
+    const heads = React.Children.map(rowEl.props.children, (head) => {
+      if (!React.isValidElement(head)) return head;
+      const columnIndex = columnIndexes.get(head);
+      if (columnIndex === undefined) return head;
+      return React.cloneElement(head as React.ReactElement, { columnIndex });
+    });
+
+    return React.cloneElement(rowEl, {}, heads);
+  });
+
+  return { labels, rows };
 }
 
 export const TableHeaderImpl = forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ children, ...props }, ref) => {
     const { labelsRef } = useTableContext();
+    const { labels, rows } = withHeaderColumnIndexes(children);
 
-    labelsRef.current = getHeaderLabels(children);
+    labelsRef.current = labels;
 
     return (
       <TableHeaderView ref={ref} {...props}>
-        {children}
+        {rows}
       </TableHeaderView>
     );
   }
 );
 TableHeaderImpl.displayName = 'TableHeader';
 
+function rowMatchesFilters(row: React.ReactElement<{ children?: React.ReactNode }>, filters: Record<number, string>) {
+  const activeFilters = Object.entries(filters).filter(([, value]) => value.trim());
+  if (activeFilters.length === 0) return true;
+
+  const cells = React.Children.toArray(row.props.children).filter(React.isValidElement);
+
+  return activeFilters.every(([columnIndex, filter]) => {
+    const cell = cells[Number(columnIndex)] as React.ReactElement<{ children?: React.ReactNode }> | undefined;
+    if (!cell) return false;
+    return getTextContent(cell.props.children).toLowerCase().includes(filter.toLowerCase());
+  });
+}
+
 export const TableBodyImpl = forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ children, ...props }, ref) => {
-    const { labelsRef, responsiveMode } = useTableContext();
+    const { labelsRef, responsiveMode, columnFilters } = useTableContext();
     const labels = labelsRef.current;
 
-    const rowsWithLabels = responsiveMode === 'cards'
-      ? React.Children.map(children, (row) => {
-        if (!React.isValidElement(row)) return row;
-        const rowEl = row as React.ReactElement<{ children?: React.ReactNode }>;
-        const cells = React.Children.map(rowEl.props.children, (cell, colIdx) => {
-          if (!React.isValidElement(cell)) return cell;
-          if ((cell.props as Record<string, unknown>)['data-label'] !== undefined) return cell;
-          const label = labels[colIdx];
-          if (!label) return cell;
-          return React.cloneElement(cell as React.ReactElement, { 'data-label': label });
-        });
-        return React.cloneElement(rowEl, {}, cells);
-      })
-      : children;
+    const rowsWithLabels = React.Children.map(children, (row) => {
+      if (!React.isValidElement(row)) return row;
+      const rowEl = row as React.ReactElement<{ children?: React.ReactNode }>;
+
+      if (!rowMatchesFilters(rowEl, columnFilters)) return null;
+      if (responsiveMode !== 'cards') return rowEl;
+
+      const cells = React.Children.map(rowEl.props.children, (cell, colIdx) => {
+        if (!React.isValidElement(cell)) return cell;
+        if ((cell.props as Record<string, unknown>)['data-label'] !== undefined) return cell;
+        const label = labels[colIdx];
+        if (!label) return cell;
+        return React.cloneElement(cell as React.ReactElement, { 'data-label': label });
+      });
+      return React.cloneElement(rowEl, {}, cells);
+    });
 
     return (
       <TableBodyView ref={ref} {...props}>

@@ -4,12 +4,15 @@ export type TableSortDirection = 'asc' | 'desc' | null;
 export interface TableContextValue {
     responsiveMode: TableResponsiveMode;
     labelsRef: React.MutableRefObject<string[]>;
+    columnFilters: Record<number, string>;
+    setColumnFilter: (columnIndex: number, value: string) => void;
 }
 export interface InterTableMolecule extends React.TableHTMLAttributes<HTMLTableElement> {
     responsiveMode?: TableResponsiveMode;
     wrapperClassName?: string;
 }
 export interface InterTableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
+    columnIndex?: number;
     groupHeader?: boolean;
     sortable?: boolean;
     sortDirection?: TableSortDirection;

@@ -179,6 +179,38 @@ export const GroupedHeadersMobileCards: Story = {
   ),
 };
 
+export const AutoFiltering: Story = {
+  render: () => (
+    <TableMolecule responsiveMode="scroll">
+      <TableCaption>Filtros automaticos por columna</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead filterable filterPlaceholder="Filtrar nombre">
+            Nombre
+          </TableHead>
+          <TableHead filterable filterPlaceholder="Filtrar email">
+            Email
+          </TableHead>
+          <TableHead filterable filterPlaceholder="Filtrar rol">
+            Rol
+          </TableHead>
+          <TableHead>Estado</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.email}>
+            <TableCell>{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell>{user.role}</TableCell>
+            <TableCell><BadgeAtom variant={user.variant}>{user.status}</BadgeAtom></TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </TableMolecule>
+  ),
+};
+
 export const Interactive: Story = {
   render: () => {
     const [filter, setFilter] = useState('');
