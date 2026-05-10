@@ -63,6 +63,36 @@ describe('TableMolecule', () => {
     expect(screen.getByText('Jonathan')).toHaveAttribute('data-label', 'Custom');
   });
 
+  it('uses leaf headers as mobile labels when headers are grouped', () => {
+    render(
+      <TableMolecule responsiveMode="cards">
+        <TableHeader>
+          <TableRow>
+            <TableHead rowSpan={2}>Name</TableHead>
+            <TableHead colSpan={2} groupHeader>
+              Contact
+            </TableHead>
+          </TableRow>
+          <TableRow>
+            <TableHead>Email</TableHead>
+            <TableHead>Phone</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Jonathan</TableCell>
+            <TableCell>jofrantoba@example.com</TableCell>
+            <TableCell>+51 999 999 999</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableMolecule>
+    );
+
+    expect(screen.getByText('Jonathan')).toHaveAttribute('data-label', 'Name');
+    expect(screen.getByText('jofrantoba@example.com')).toHaveAttribute('data-label', 'Email');
+    expect(screen.getByText('+51 999 999 999')).toHaveAttribute('data-label', 'Phone');
+  });
+
   it('emits the next sort direction from sortable headers', () => {
     const onSortChange = vi.fn();
 
@@ -81,6 +111,29 @@ describe('TableMolecule', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Name' }));
 
     expect(onSortChange).toHaveBeenCalledWith('asc');
+  });
+
+  it('allows grouped headers to behave as one sortable header cell', () => {
+    const onSortChange = vi.fn();
+
+    render(
+      <TableMolecule>
+        <TableHeader>
+          <TableRow>
+            <TableHead colSpan={2} groupHeader sortable sortDirection="desc" onSortChange={onSortChange}>
+              Contact
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+      </TableMolecule>
+    );
+
+    const groupHeader = screen.getByRole('columnheader', { name: 'Contact' });
+    expect(groupHeader).toHaveAttribute('scope', 'colgroup');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Contact' }));
+
+    expect(onSortChange).toHaveBeenCalledWith(null);
   });
 
   it('renders column filters and emits filter changes', () => {

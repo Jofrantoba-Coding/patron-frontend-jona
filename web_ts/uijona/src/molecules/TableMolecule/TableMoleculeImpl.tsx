@@ -1,5 +1,5 @@
 import React, { forwardRef, useMemo, useRef } from 'react';
-import { InterTableMolecule, TABLE_MOLECULE_DEFAULTS, TableContextValue } from './InterTableMolecule';
+import { InterTableMolecule, TABLE_MOLECULE_DEFAULTS } from './InterTableMolecule';
 import { TableContext, useTableContext } from './TableMoleculeContext';
 import {
   TableMoleculeView,
@@ -43,22 +43,64 @@ function getTextContent(node: React.ReactNode): string {
   return getTextContent((node as React.ReactElement<{ children?: React.ReactNode }>).props.children);
 }
 
+function getSpanValue(value: unknown) {
+  const parsed = Number(value ?? 1);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1;
+}
+
+function getHeaderLabels(children: React.ReactNode) {
+  const rows = React.Children.toArray(children).filter(React.isValidElement);
+  const grid: Array<Array<{ label: string; rowIndex: number } | undefined>> = [];
+
+  rows.forEach((row, rowIndex) => {
+    const rowEl = row as React.ReactElement<{ children?: React.ReactNode }>;
+    grid[rowIndex] = grid[rowIndex] ?? [];
+    let colIndex = 0;
+
+    React.Children.forEach(rowEl.props.children, (head) => {
+      if (!React.isValidElement(head)) return;
+
+      while (grid[rowIndex][colIndex]) colIndex += 1;
+
+      const headProps = head.props as {
+        children?: React.ReactNode;
+        colSpan?: number | string;
+        rowSpan?: number | string;
+      };
+      const colSpan = getSpanValue(headProps.colSpan);
+      const rowSpan = getSpanValue(headProps.rowSpan);
+      const label = getTextContent(headProps.children);
+
+      for (let rowOffset = 0; rowOffset < rowSpan; rowOffset += 1) {
+        const targetRow = rowIndex + rowOffset;
+        grid[targetRow] = grid[targetRow] ?? [];
+
+        for (let colOffset = 0; colOffset < colSpan; colOffset += 1) {
+          grid[targetRow][colIndex + colOffset] = { label, rowIndex };
+        }
+      }
+
+      colIndex += colSpan;
+    });
+  });
+
+  const maxColumns = Math.max(0, ...grid.map((row) => row.length));
+
+  return Array.from({ length: maxColumns }, (_, columnIndex) => {
+    for (let rowIndex = grid.length - 1; rowIndex >= 0; rowIndex -= 1) {
+      const cell = grid[rowIndex]?.[columnIndex];
+      if (cell?.label) return cell.label;
+    }
+
+    return '';
+  });
+}
+
 export const TableHeaderImpl = forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(
   ({ children, ...props }, ref) => {
     const { labelsRef } = useTableContext();
 
-    const labels: string[] = [];
-    React.Children.forEach(children, (row) => {
-      if (!React.isValidElement(row)) return;
-      React.Children.forEach(
-        (row as React.ReactElement<{ children?: React.ReactNode }>).props.children,
-        (head) => {
-          if (!React.isValidElement(head)) return;
-          labels.push(getTextContent((head as React.ReactElement<{ children?: React.ReactNode }>).props.children));
-        }
-      );
-    });
-    labelsRef.current = labels;
+    labelsRef.current = getHeaderLabels(children);
 
     return (
       <TableHeaderView ref={ref} {...props}>

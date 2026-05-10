@@ -109,6 +109,76 @@ export const WideContent: Story = {
   ),
 };
 
+export const GroupedHeaders: Story = {
+  args: {
+    responsiveMode: 'scroll',
+  },
+  render: (args) => (
+    <TableMolecule responsiveMode={args.responsiveMode}>
+      <TableCaption>Headers agrupados con columnas hijas independientes</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead rowSpan={2}>Usuario</TableHead>
+          <TableHead colSpan={2} groupHeader>
+            Contacto
+          </TableHead>
+          <TableHead colSpan={2} groupHeader sortable sortDirection="asc">
+            Actividad
+          </TableHead>
+        </TableRow>
+        <TableRow>
+          <TableHead>Email</TableHead>
+          <TableHead>Telefono</TableHead>
+          <TableHead>Ultimo acceso</TableHead>
+          <TableHead>Estado</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user, index) => (
+          <TableRow key={user.email}>
+            <TableCell>{user.name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell>+51 999 000 00{index}</TableCell>
+            <TableCell>{index === 0 ? 'Hoy 09:30' : 'Ayer 17:45'}</TableCell>
+            <TableCell><BadgeAtom variant={user.variant}>{user.status}</BadgeAtom></TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </TableMolecule>
+  ),
+};
+
+export const GroupedHeadersMobileCards: Story = {
+  render: () => (
+    <div className="max-w-[360px]">
+      <TableMolecule responsiveMode="cards">
+        <TableCaption>Headers agrupados en modo cards</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead rowSpan={2}>Usuario</TableHead>
+            <TableHead colSpan={2} groupHeader>
+              Contacto
+            </TableHead>
+          </TableRow>
+          <TableRow>
+            <TableHead>Email</TableHead>
+            <TableHead>Telefono</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users.slice(0, 2).map((user, index) => (
+            <TableRow key={user.email}>
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>+51 999 000 00{index}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </TableMolecule>
+    </div>
+  ),
+};
+
 export const Interactive: Story = {
   render: () => {
     const [filter, setFilter] = useState('');

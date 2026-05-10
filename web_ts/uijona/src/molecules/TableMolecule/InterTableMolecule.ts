@@ -14,6 +14,7 @@ export interface InterTableMolecule extends React.TableHTMLAttributes<HTMLTableE
 }
 
 export interface InterTableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
+  groupHeader?: boolean;
   sortable?: boolean;
   sortDirection?: TableSortDirection;
   sortLabel?: string;

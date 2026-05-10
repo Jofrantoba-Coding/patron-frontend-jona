@@ -1,17 +1,17 @@
-import { jsx as o, jsxs as u } from "react/jsx-runtime";
-import s from "react";
+import { jsx as n, jsxs as b } from "react/jsx-runtime";
+import d from "react";
 import { cn as l } from "../../lib/cn.js";
 import { useTableContext as m } from "./TableMoleculeContext.js";
-const G = {
+const U = {
   scroll: "relative w-full max-w-full overflow-x-auto rounded-md border border-neutral-200",
   cards: "relative w-full max-w-full",
   none: "relative w-full max-w-full"
-}, J = s.forwardRef(
-  ({ className: e, wrapperClassName: a, responsiveMode: t = "scroll", style: r, ...d }, b) => /* @__PURE__ */ o("div", { className: l(G[t], a), children: /* @__PURE__ */ o(
+}, Z = d.forwardRef(
+  ({ className: e, wrapperClassName: r, responsiveMode: t = "scroll", style: a, ...c }, f) => /* @__PURE__ */ n("div", { className: l(U[t], r), children: /* @__PURE__ */ n(
     "table",
     {
-      ref: b,
-      style: t === "cards" ? void 0 : r,
+      ref: f,
+      style: t === "cards" ? void 0 : a,
       className: l(
         "caption-bottom text-sm text-neutral-900",
         t === "scroll" && "w-full min-w-max",
@@ -19,225 +19,241 @@ const G = {
         t === "none" && "w-full",
         e
       ),
-      ...d
+      ...c
     }
   ) })
 );
-J.displayName = "TableMolecule";
-const K = s.forwardRef(
-  ({ className: e, ...a }, t) => /* @__PURE__ */ o("caption", { ref: t, className: l("mt-4 text-sm text-neutral-500", e), ...a })
+Z.displayName = "TableMolecule";
+const C = d.forwardRef(
+  ({ className: e, ...r }, t) => /* @__PURE__ */ n("caption", { ref: t, className: l("mt-4 text-sm text-neutral-500", e), ...r })
 );
-K.displayName = "TableCaption";
-const Q = s.forwardRef(
-  ({ className: e, ...a }, t) => {
-    const { responsiveMode: r } = m();
-    return /* @__PURE__ */ o(
+C.displayName = "TableCaption";
+const z = d.forwardRef(
+  ({ className: e, ...r }, t) => {
+    const { responsiveMode: a } = m();
+    return /* @__PURE__ */ n(
       "thead",
       {
         ref: t,
         className: l(
-          r === "cards" ? "hidden md:table-header-group" : "table-header-group",
+          a === "cards" ? "hidden md:table-header-group" : "table-header-group",
           "bg-neutral-50 [&_tr]:border-b",
           e
         ),
-        ...a
+        ...r
       }
     );
   }
 );
-Q.displayName = "TableHeader";
-const U = s.forwardRef(
-  ({ className: e, ...a }, t) => {
-    const { responsiveMode: r } = m();
-    return /* @__PURE__ */ o(
+z.displayName = "TableHeader";
+const I = d.forwardRef(
+  ({ className: e, ...r }, t) => {
+    const { responsiveMode: a } = m();
+    return /* @__PURE__ */ n(
       "tbody",
       {
         ref: t,
         className: l(
-          r === "cards" ? "block md:table-row-group" : "table-row-group",
+          a === "cards" ? "block md:table-row-group" : "table-row-group",
           "[&_tr:last-child]:border-b-0",
           e
         ),
-        ...a
+        ...r
       }
     );
   }
 );
-U.displayName = "TableBody";
-const Z = s.forwardRef(
-  ({ className: e, ...a }, t) => {
-    const { responsiveMode: r } = m();
-    return /* @__PURE__ */ o(
+I.displayName = "TableBody";
+const P = d.forwardRef(
+  ({ className: e, ...r }, t) => {
+    const { responsiveMode: a } = m();
+    return /* @__PURE__ */ n(
       "tfoot",
       {
         ref: t,
         className: l(
-          r === "cards" ? "block md:table-footer-group" : "table-footer-group",
+          a === "cards" ? "block md:table-footer-group" : "table-footer-group",
           "bg-neutral-50 font-medium [&>tr]:last:border-b-0",
           e
         ),
-        ...a
+        ...r
       }
     );
   }
 );
-Z.displayName = "TableFooter";
-function C(e, a) {
-  const t = a.indexOf(e);
-  return a[t === -1 || t === a.length - 1 ? 0 : t + 1];
+P.displayName = "TableFooter";
+function ee(e, r) {
+  const t = r.indexOf(e);
+  return r[t === -1 || t === r.length - 1 ? 0 : t + 1];
 }
-function z(e) {
+function te(e) {
   if (e === "asc") return "ascending";
   if (e === "desc") return "descending";
 }
-function h(e) {
+function y(e) {
   return typeof e == "number" ? `${e}px` : e;
 }
-function N(e) {
+function T(e) {
   if (typeof e == "number") return e;
   if (typeof e == "string" && e.endsWith("px")) return Number.parseFloat(e);
 }
-function I(e, a, t) {
-  const r = a ?? 48, d = t ?? Number.POSITIVE_INFINITY;
-  return Math.min(Math.max(e, r), d);
+function re(e, r, t) {
+  const a = r ?? 48, c = t ?? Number.POSITIVE_INFINITY;
+  return Math.min(Math.max(e, a), c);
 }
-function P({ direction: e }) {
-  return /* @__PURE__ */ u("svg", { className: "h-3.5 w-3.5 shrink-0", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2.5, "aria-hidden": "true", children: [
-    /* @__PURE__ */ o("polyline", { points: "6 9 12 3 18 9", className: e === "asc" ? "text-primary-600" : "text-neutral-300" }),
-    /* @__PURE__ */ o("polyline", { points: "6 15 12 21 18 15", className: e === "desc" ? "text-primary-600" : "text-neutral-300" })
+function ae({ direction: e }) {
+  return /* @__PURE__ */ b("svg", { className: "h-3.5 w-3.5 shrink-0", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2.5, "aria-hidden": "true", children: [
+    /* @__PURE__ */ n("polyline", { points: "6 9 12 3 18 9", className: e === "asc" ? "text-primary-600" : "text-neutral-300" }),
+    /* @__PURE__ */ n("polyline", { points: "6 15 12 21 18 15", className: e === "desc" ? "text-primary-600" : "text-neutral-300" })
   ] });
 }
-function ee(e, a) {
+function oe(e, r) {
   if (typeof e == "function") {
-    e(a);
+    e(r);
     return;
   }
-  e && (e.current = a);
+  e && (e.current = r);
 }
-const te = s.forwardRef(
-  ({ className: e, ...a }, t) => {
-    const { responsiveMode: r } = m();
-    return /* @__PURE__ */ o(
+const ne = d.forwardRef(
+  ({ className: e, ...r }, t) => {
+    const { responsiveMode: a } = m();
+    return /* @__PURE__ */ n(
       "tr",
       {
         ref: t,
         className: l(
           "transition-colors hover:bg-neutral-50 data-[state=selected]:bg-primary-50",
-          r === "cards" ? "mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b md:border-neutral-200 md:bg-transparent md:p-0 md:shadow-none" : "border-b border-neutral-200",
+          a === "cards" ? "mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b md:border-neutral-200 md:bg-transparent md:p-0 md:shadow-none" : "border-b border-neutral-200",
           e
         ),
-        ...a
+        ...r
       }
     );
   }
 );
-te.displayName = "TableRow";
-const ae = s.forwardRef(
+ne.displayName = "TableRow";
+const le = d.forwardRef(
   ({
     children: e,
-    className: a,
+    className: r,
     style: t,
-    sortable: r = !1,
-    sortDirection: d = null,
-    sortLabel: b,
-    sortCycle: L = ["asc", "desc", null],
-    onSortChange: f,
-    filterable: p = !1,
-    filterValue: B = "",
-    filterPlaceholder: v = "Filtrar...",
-    filterInputProps: i,
-    onFilterChange: x,
-    resizable: T = !1,
-    width: c,
-    minWidth: w,
-    maxWidth: y,
-    resizeHandleLabel: X = "Redimensionar columna",
-    onColumnResize: g,
-    onClick: _,
-    ...W
-  }, j) => {
-    const k = s.useRef(null), [O, R] = s.useState(() => N(c)), V = O ?? N(c), A = h(V ?? c);
-    s.useEffect(() => {
-      const n = N(c);
-      n !== void 0 && R(n);
-    }, [c]);
-    const D = (n) => {
-      n.stopPropagation(), f == null || f(C(d, L));
-    }, F = (n) => {
-      var S;
-      n.preventDefault(), n.stopPropagation();
-      const Y = n.clientX, $ = ((S = k.current) == null ? void 0 : S.offsetWidth) || V || w || 120, E = (q) => {
-        const H = I($ + q.clientX - Y, w, y);
-        R(H), g == null || g(H);
-      }, M = () => {
-        document.removeEventListener("mousemove", E), document.removeEventListener("mouseup", M);
+    colSpan: a,
+    scope: c,
+    groupHeader: f = !1,
+    sortable: p = !1,
+    sortDirection: x = null,
+    sortLabel: X,
+    sortCycle: _ = ["asc", "desc", null],
+    onSortChange: w,
+    filterable: u = !1,
+    filterValue: O = "",
+    filterPlaceholder: W = "Filtrar...",
+    filterInputProps: s,
+    onFilterChange: g,
+    resizable: k = !1,
+    width: i,
+    minWidth: h,
+    maxWidth: R,
+    resizeHandleLabel: A = "Redimensionar columna",
+    onColumnResize: N,
+    onClick: D,
+    ...V
+  }, F) => {
+    const E = d.useRef(null), [G, M] = d.useState(() => T(i)), H = G ?? T(i), Y = y(H ?? i), v = f || c === "colgroup" || Number(a ?? 1) > 1;
+    d.useEffect(() => {
+      const o = T(i);
+      o !== void 0 && M(o);
+    }, [i]);
+    const $ = (o) => {
+      o.stopPropagation(), w == null || w(ee(x, _));
+    }, q = (o) => {
+      var j;
+      o.preventDefault(), o.stopPropagation();
+      const J = o.clientX, K = ((j = E.current) == null ? void 0 : j.offsetWidth) || H || h || 120, S = (Q) => {
+        const B = re(K + Q.clientX - J, h, R);
+        M(B), N == null || N(B);
+      }, L = () => {
+        document.removeEventListener("mousemove", S), document.removeEventListener("mouseup", L);
       };
-      document.addEventListener("mousemove", E), document.addEventListener("mouseup", M);
+      document.addEventListener("mousemove", S), document.addEventListener("mouseup", L);
     };
-    return /* @__PURE__ */ u(
+    return /* @__PURE__ */ b(
       "th",
       {
-        ref: (n) => {
-          k.current = n, ee(j, n);
+        ref: (o) => {
+          E.current = o, oe(F, o);
         },
         style: {
           ...t,
-          width: A ?? (t == null ? void 0 : t.width),
-          minWidth: h(w) ?? (t == null ? void 0 : t.minWidth),
-          maxWidth: h(y) ?? (t == null ? void 0 : t.maxWidth)
+          width: Y ?? (t == null ? void 0 : t.width),
+          minWidth: y(h) ?? (t == null ? void 0 : t.minWidth),
+          maxWidth: y(R) ?? (t == null ? void 0 : t.maxWidth)
         },
-        "aria-sort": r ? z(d) : W["aria-sort"],
+        "aria-sort": p ? te(x) : V["aria-sort"],
         className: l(
           "relative h-10 px-4 text-left align-middle font-medium text-neutral-500",
           "whitespace-nowrap",
-          (r || p) && "select-none",
-          T && "pr-6",
-          a
+          v && "border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700",
+          (p || u) && "select-none",
+          k && "pr-6",
+          r
         ),
-        onClick: _,
-        ...W,
+        onClick: D,
+        colSpan: a,
+        scope: c ?? (v ? "colgroup" : void 0),
+        ...V,
         children: [
-          /* @__PURE__ */ u("div", { className: l("flex min-w-0 items-center gap-2", p && "flex-col items-stretch gap-1 py-2"), children: [
-            r ? /* @__PURE__ */ u(
-              "button",
-              {
-                type: "button",
-                className: "inline-flex min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none hover:text-neutral-800 focus-visible:ring-2 focus-visible:ring-primary-500",
-                onClick: D,
-                "aria-label": b,
-                children: [
-                  /* @__PURE__ */ o("span", { className: "truncate", children: e }),
-                  /* @__PURE__ */ o(P, { direction: d })
-                ]
-              }
-            ) : /* @__PURE__ */ o("span", { className: "truncate", children: e }),
-            p && /* @__PURE__ */ o(
-              "input",
-              {
-                ...i,
-                type: (i == null ? void 0 : i.type) ?? "text",
-                value: B,
-                placeholder: v,
-                "aria-label": (i == null ? void 0 : i["aria-label"]) ?? v,
-                onClick: (n) => n.stopPropagation(),
-                onChange: (n) => {
-                  x == null || x(n.target.value);
-                },
-                className: l(
-                  "h-8 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-900 placeholder:text-neutral-400",
-                  "focus:outline-none focus:ring-2 focus:ring-primary-500",
-                  i == null ? void 0 : i.className
+          /* @__PURE__ */ b(
+            "div",
+            {
+              className: l(
+                "flex min-w-0 items-center gap-2",
+                u && "flex-col items-stretch gap-1 py-2",
+                v && !u && "justify-center"
+              ),
+              children: [
+                p ? /* @__PURE__ */ b(
+                  "button",
+                  {
+                    type: "button",
+                    className: "inline-flex min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none hover:text-neutral-800 focus-visible:ring-2 focus-visible:ring-primary-500",
+                    onClick: $,
+                    "aria-label": X,
+                    children: [
+                      /* @__PURE__ */ n("span", { className: "truncate", children: e }),
+                      /* @__PURE__ */ n(ae, { direction: x })
+                    ]
+                  }
+                ) : /* @__PURE__ */ n("span", { className: "truncate", children: e }),
+                u && /* @__PURE__ */ n(
+                  "input",
+                  {
+                    ...s,
+                    type: (s == null ? void 0 : s.type) ?? "text",
+                    value: O,
+                    placeholder: W,
+                    "aria-label": (s == null ? void 0 : s["aria-label"]) ?? W,
+                    onClick: (o) => o.stopPropagation(),
+                    onChange: (o) => {
+                      g == null || g(o.target.value);
+                    },
+                    className: l(
+                      "h-8 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-900 placeholder:text-neutral-400",
+                      "focus:outline-none focus:ring-2 focus:ring-primary-500",
+                      s == null ? void 0 : s.className
+                    )
+                  }
                 )
-              }
-            )
-          ] }),
-          T && /* @__PURE__ */ o(
+              ]
+            }
+          ),
+          k && /* @__PURE__ */ n(
             "button",
             {
               type: "button",
-              "aria-label": X,
+              "aria-label": A,
               className: "absolute right-0 top-0 h-full w-3 cursor-col-resize touch-none border-r border-transparent outline-none hover:border-primary-400 focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500",
-              onMouseDown: F
+              onMouseDown: q
             }
           )
         ]
@@ -245,39 +261,39 @@ const ae = s.forwardRef(
     );
   }
 );
-ae.displayName = "TableHead";
-const re = s.forwardRef(
-  ({ className: e, ...a }, t) => {
-    const { responsiveMode: r } = m(), d = a.colSpan;
-    return /* @__PURE__ */ o(
+le.displayName = "TableHead";
+const de = d.forwardRef(
+  ({ className: e, ...r }, t) => {
+    const { responsiveMode: a } = m(), c = r.colSpan;
+    return /* @__PURE__ */ n(
       "td",
       {
         ref: t,
         className: l(
           "text-neutral-900",
-          r === "cards" ? l(
+          a === "cards" ? l(
             "flex min-w-0 flex-col gap-1 text-sm md:table-cell md:px-4 md:py-3 md:align-middle",
             "before:break-words before:text-[10px] before:font-semibold before:uppercase before:tracking-wide before:text-neutral-400",
             "before:content-[attr(data-label)] md:before:content-none",
-            d && d > 1 && "md:text-center"
+            c && c > 1 && "md:text-center"
           ) : "px-4 py-3 align-middle",
           "break-words",
           e
         ),
-        ...a
+        ...r
       }
     );
   }
 );
-re.displayName = "TableCell";
+de.displayName = "TableCell";
 export {
-  U as TableBodyView,
-  K as TableCaptionView,
-  re as TableCellView,
-  Z as TableFooterView,
-  ae as TableHeadView,
-  Q as TableHeaderView,
-  J as TableMoleculeView,
-  te as TableRowView
+  I as TableBodyView,
+  C as TableCaptionView,
+  de as TableCellView,
+  P as TableFooterView,
+  le as TableHeadView,
+  z as TableHeaderView,
+  Z as TableMoleculeView,
+  ne as TableRowView
 };
 //# sourceMappingURL=TableMoleculeView.js.map

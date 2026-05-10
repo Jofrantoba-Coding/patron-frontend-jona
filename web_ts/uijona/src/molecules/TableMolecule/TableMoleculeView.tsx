@@ -169,6 +169,9 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
       children,
       className,
       style,
+      colSpan,
+      scope,
+      groupHeader = false,
       sortable = false,
       sortDirection = null,
       sortLabel,
@@ -194,6 +197,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
     const [internalWidth, setInternalWidth] = React.useState<number | undefined>(() => getNumericWidth(width));
     const effectiveWidth = internalWidth ?? getNumericWidth(width);
     const widthStyle = getWidthValue(effectiveWidth ?? width);
+    const isGroupedHeader = groupHeader || scope === 'colgroup' || Number(colSpan ?? 1) > 1;
 
     React.useEffect(() => {
       const nextWidth = getNumericWidth(width);
@@ -245,14 +249,23 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
         className={cn(
           'relative h-10 px-4 text-left align-middle font-medium text-neutral-500',
           'whitespace-nowrap',
+          isGroupedHeader && 'border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700',
           (sortable || filterable) && 'select-none',
           resizable && 'pr-6',
           className
         )}
         onClick={onClick}
+        colSpan={colSpan}
+        scope={scope ?? (isGroupedHeader ? 'colgroup' : undefined)}
         {...props}
       >
-        <div className={cn('flex min-w-0 items-center gap-2', filterable && 'flex-col items-stretch gap-1 py-2')}>
+        <div
+          className={cn(
+            'flex min-w-0 items-center gap-2',
+            filterable && 'flex-col items-stretch gap-1 py-2',
+            isGroupedHeader && !filterable && 'justify-center'
+          )}
+        >
           {sortable ? (
             <button
               type="button"

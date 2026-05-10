@@ -1,68 +1,94 @@
-import { jsx as p } from "react/jsx-runtime";
-import r, { forwardRef as c, useRef as V, useMemo as C } from "react";
-import { TABLE_MOLECULE_DEFAULTS as h } from "./InterTableMolecule.js";
-import { useTableContext as T, TableContext as w } from "./TableMoleculeContext.js";
-import { TableCaptionView as y, TableCellView as I, TableFooterView as R, TableHeadView as x, TableRowView as H, TableBodyView as L, TableHeaderView as M, TableMoleculeView as A } from "./TableMoleculeView.js";
-const B = c(
-  ({ children: e, responsiveMode: l = h.responsiveMode, wrapperClassName: i, ...s }, t) => {
-    const a = V([]), n = C(
-      () => ({ responsiveMode: l, labelsRef: a }),
-      [l]
+import { jsx as b } from "react/jsx-runtime";
+import n, { forwardRef as E, useRef as y, useMemo as g } from "react";
+import { TABLE_MOLECULE_DEFAULTS as R } from "./InterTableMolecule.js";
+import { useTableContext as C, TableContext as M } from "./TableMoleculeContext.js";
+import { TableCaptionView as S, TableCellView as x, TableFooterView as A, TableHeadView as H, TableRowView as I, TableBodyView as L, TableHeaderView as N, TableMoleculeView as B } from "./TableMoleculeView.js";
+const F = E(
+  ({ children: e, responsiveMode: r = R.responsiveMode, wrapperClassName: t, ...p }, i) => {
+    const o = y([]), c = g(
+      () => ({ responsiveMode: r, labelsRef: o }),
+      [r]
     );
-    return /* @__PURE__ */ p(w.Provider, { value: n, children: /* @__PURE__ */ p(
-      A,
+    return /* @__PURE__ */ b(M.Provider, { value: c, children: /* @__PURE__ */ b(
+      B,
       {
-        ref: t,
-        responsiveMode: l,
-        wrapperClassName: i,
-        ...s,
+        ref: i,
+        responsiveMode: r,
+        wrapperClassName: t,
+        ...p,
         children: e
       }
     ) });
   }
 );
-B.displayName = "TableMolecule";
-function b(e) {
-  return typeof e == "string" || typeof e == "number" ? String(e) : Array.isArray(e) ? e.map(b).join(" ").trim() : r.isValidElement(e) ? b(e.props.children) : "";
+F.displayName = "TableMolecule";
+function w(e) {
+  return typeof e == "string" || typeof e == "number" ? String(e) : Array.isArray(e) ? e.map(w).join(" ").trim() : n.isValidElement(e) ? w(e.props.children) : "";
 }
-const g = c(
-  ({ children: e, ...l }, i) => {
-    const { labelsRef: s } = T(), t = [];
-    return r.Children.forEach(e, (a) => {
-      r.isValidElement(a) && r.Children.forEach(
-        a.props.children,
-        (n) => {
-          r.isValidElement(n) && t.push(b(n.props.children));
-        }
-      );
-    }), s.current = t, /* @__PURE__ */ p(M, { ref: i, ...l, children: e });
+function V(e) {
+  const r = Number(e ?? 1);
+  return Number.isFinite(r) && r > 0 ? Math.floor(r) : 1;
+}
+function v(e) {
+  const r = n.Children.toArray(e).filter(n.isValidElement), t = [];
+  r.forEach((i, o) => {
+    const c = i;
+    t[o] = t[o] ?? [];
+    let l = 0;
+    n.Children.forEach(c.props.children, (a) => {
+      if (!n.isValidElement(a)) return;
+      for (; t[o][l]; ) l += 1;
+      const m = a.props, s = V(m.colSpan), u = V(m.rowSpan), f = w(m.children);
+      for (let d = 0; d < u; d += 1) {
+        const T = o + d;
+        t[T] = t[T] ?? [];
+        for (let h = 0; h < s; h += 1)
+          t[T][l + h] = { label: f, rowIndex: o };
+      }
+      l += s;
+    });
+  });
+  const p = Math.max(0, ...t.map((i) => i.length));
+  return Array.from({ length: p }, (i, o) => {
+    var c;
+    for (let l = t.length - 1; l >= 0; l -= 1) {
+      const a = (c = t[l]) == null ? void 0 : c[o];
+      if (a != null && a.label) return a.label;
+    }
+    return "";
+  });
+}
+const O = E(
+  ({ children: e, ...r }, t) => {
+    const { labelsRef: p } = C();
+    return p.current = v(e), /* @__PURE__ */ b(N, { ref: t, ...r, children: e });
   }
 );
-g.displayName = "TableHeader";
-const v = c(
-  ({ children: e, ...l }, i) => {
-    const { labelsRef: s, responsiveMode: t } = T(), a = s.current, n = t === "cards" ? r.Children.map(e, (m) => {
-      if (!r.isValidElement(m)) return m;
-      const u = m, d = r.Children.map(u.props.children, (o, E) => {
-        if (!r.isValidElement(o) || o.props["data-label"] !== void 0) return o;
-        const f = a[E];
-        return f ? r.cloneElement(o, { "data-label": f }) : o;
+O.displayName = "TableHeader";
+const _ = E(
+  ({ children: e, ...r }, t) => {
+    const { labelsRef: p, responsiveMode: i } = C(), o = p.current, c = i === "cards" ? n.Children.map(e, (l) => {
+      if (!n.isValidElement(l)) return l;
+      const a = l, m = n.Children.map(a.props.children, (s, u) => {
+        if (!n.isValidElement(s) || s.props["data-label"] !== void 0) return s;
+        const f = o[u];
+        return f ? n.cloneElement(s, { "data-label": f }) : s;
       });
-      return r.cloneElement(u, {}, d);
+      return n.cloneElement(a, {}, m);
     }) : e;
-    return /* @__PURE__ */ p(L, { ref: i, ...l, children: n });
+    return /* @__PURE__ */ b(L, { ref: t, ...r, children: c });
   }
 );
-v.displayName = "TableBody";
-const _ = y, D = R, O = H, P = x, W = I;
+_.displayName = "TableBody";
+const k = S, q = A, z = I, G = H, J = x;
 export {
-  v as TableBodyImpl,
-  _ as TableCaptionImpl,
-  W as TableCellImpl,
-  D as TableFooterImpl,
-  P as TableHeadImpl,
-  g as TableHeaderImpl,
-  B as TableMoleculeImpl,
-  O as TableRowImpl
+  _ as TableBodyImpl,
+  k as TableCaptionImpl,
+  J as TableCellImpl,
+  q as TableFooterImpl,
+  G as TableHeadImpl,
+  O as TableHeaderImpl,
+  F as TableMoleculeImpl,
+  z as TableRowImpl
 };
 //# sourceMappingURL=TableMoleculeImpl.js.map
