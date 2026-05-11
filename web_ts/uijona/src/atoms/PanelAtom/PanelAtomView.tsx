@@ -122,7 +122,7 @@ const getLayoutClasses = (
     return cn(
       'flex min-w-0',
       directionClasses[direction],
-      wrapClasses[resolveWrap(wrap, 'nowrap')],
+      wrapClasses[resolveWrap(wrap, direction === 'column' ? 'nowrap' : 'wrap')],
       gapClasses[gap],
       alignClasses[alignItems],
       justifyClasses[justifyContent]

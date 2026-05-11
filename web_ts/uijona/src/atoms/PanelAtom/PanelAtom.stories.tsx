@@ -65,7 +65,7 @@ const meta: Meta<typeof PanelAtom> = {
       control: 'select',
       options: ['nowrap', 'wrap', 'reverse'],
       description: 'Comportamiento de salto de linea para flow y box.',
-      table: { defaultValue: { summary: 'flow: wrap; box: nowrap' } },
+      table: { defaultValue: { summary: 'flow: wrap; box row: wrap; box column: nowrap' } },
     },
     columns: {
       control: 'text',
@@ -245,10 +245,12 @@ export const FlowLayoutManager: Story = {
 
 export const BoxLayoutManager: Story = {
   render: () => (
-    <PanelAtom layout="box" direction="column" gap="sm" variant="outlined" padding="lg" className="w-80">
-      <DemoItem>Header</DemoItem>
-      <DemoItem>Contenido principal</DemoItem>
-      <DemoItem>Footer</DemoItem>
+    <PanelAtom layout="box" direction="row" gap="sm" alignItems="center" variant="outlined" padding="lg" className="w-full max-w-sm">
+      <DemoItem>Inicio</DemoItem>
+      <DemoItem>Centro</DemoItem>
+      <DemoItem>Fin</DemoItem>
+      <DemoItem>Acciones</DemoItem>
+      <DemoItem>Estado</DemoItem>
     </PanelAtom>
   ),
 };

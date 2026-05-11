@@ -33,6 +33,26 @@ describe('PanelAtom', () => {
     expect(screen.getByTestId('panel')).toHaveClass('flex', 'flex-row', 'flex-wrap', 'gap-2');
   });
 
+  it('wraps box layout rows by default', () => {
+    render(
+      <PanelAtom layout="box" data-testid="panel">
+        Content
+      </PanelAtom>
+    );
+
+    expect(screen.getByTestId('panel')).toHaveClass('flex', 'flex-row', 'flex-wrap');
+  });
+
+  it('keeps box layout columns without wrapping by default', () => {
+    render(
+      <PanelAtom layout="box" direction="column" data-testid="panel">
+        Content
+      </PanelAtom>
+    );
+
+    expect(screen.getByTestId('panel')).toHaveClass('flex', 'flex-col', 'flex-nowrap');
+  });
+
   it('builds grid templates from numeric and string props', () => {
     render(
       <PanelAtom layout="grid" columns={3} rows="auto 1fr" data-testid="panel">
