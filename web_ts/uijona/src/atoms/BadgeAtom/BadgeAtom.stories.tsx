@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { BadgeAtom } from './BadgeAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof BadgeAtom> = {
   title: 'Atoms/BadgeAtom',
@@ -31,13 +32,13 @@ export const Outline: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
       <BadgeAtom variant="default">Default</BadgeAtom>
       <BadgeAtom variant="secondary">Secondary</BadgeAtom>
       <BadgeAtom variant="destructive">Destructive</BadgeAtom>
       <BadgeAtom variant="outline">Outline</BadgeAtom>
       <BadgeAtom variant="ghost">Ghost</BadgeAtom>
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -45,14 +46,14 @@ export const Interactive: Story = {
   render: () => {
     const [count, setCount] = useState(0);
     return (
-      <div className="flex flex-col gap-4 items-start">
-        <div className="flex items-center gap-2">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 items-start">
+        <PanelAtom variant="ghost" padding="none" className="flex items-center gap-2">
           <span className="text-sm">Notificaciones</span>
           <BadgeAtom variant={count > 5 ? 'destructive' : count > 0 ? 'default' : 'secondary'}>
             {count}
           </BadgeAtom>
-        </div>
-        <div className="flex gap-2">
+        </PanelAtom>
+        <PanelAtom variant="ghost" padding="none" className="flex gap-2">
           <button
             onClick={() => setCount((c) => c + 1)}
             style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '6px 12px', fontSize: '14px', cursor: 'pointer' }}
@@ -66,8 +67,8 @@ export const Interactive: Story = {
           >
             Marcar leídas
           </button>
-        </div>
-      </div>
+        </PanelAtom>
+      </PanelAtom>
     );
   },
 };

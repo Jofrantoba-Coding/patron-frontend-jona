@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { TooltipMolecule } from './TooltipMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof TooltipMolecule> = {
   title: 'Molecules/TooltipMolecule',
@@ -13,7 +14,7 @@ const meta: Meta<typeof TooltipMolecule> = {
     side:    { control: 'select', options: ['top', 'bottom', 'left', 'right'] },
     delayMs: { control: { type: 'number', min: 0, max: 2000, step: 100 } },
   },
-  decorators: [(Story) => <div style={{ padding: '60px', display: 'flex', justifyContent: 'center' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ padding: '60px', display: 'flex', justifyContent: 'center' }}><Story /></PanelAtom>],
 };
 export default meta;
 type Story = StoryObj<typeof TooltipMolecule>;
@@ -59,8 +60,8 @@ export const Interactive: Story = {
       { id: 'delete', label: 'Eliminar', tooltip: 'Borrar permanentemente', variant: 'destructive' as const },
     ];
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '32px' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '32px' }}>
+        <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px' }}>
           {actions.map((a) => (
             <TooltipMolecule key={a.id} content={a.tooltip} side="top">
               <ButtonAtom variant={a.variant} size="sm" onClick={() => setLastClicked(a.label)}>
@@ -68,13 +69,13 @@ export const Interactive: Story = {
               </ButtonAtom>
             </TooltipMolecule>
           ))}
-        </div>
+        </PanelAtom>
         {lastClicked && (
           <p className="text-sm text-neutral-500">
             Última acción: <strong>{lastClicked}</strong>
           </p>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

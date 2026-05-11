@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DialogMolecule } from './DialogMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof DialogMolecule> = {
   title: 'Molecules/DialogMolecule',
@@ -36,10 +37,10 @@ export const WithFooter: Story = {
         description="Esta acción eliminará tu cuenta permanentemente."
         onClose={() => setOpen(false)}
         footer={
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
             <ButtonAtom variant="outline" onClick={() => setOpen(false)}>Cancelar</ButtonAtom>
             <ButtonAtom variant="destructive" onClick={() => setOpen(false)}>Eliminar</ButtonAtom>
-          </div>
+          </PanelAtom>
         }
       />
     );
@@ -72,7 +73,7 @@ export const Interactive: Story = {
     const [name, setName] = useState('Jonathan Franck');
     const [draft, setDraft] = useState('Jonathan Franck');
     return (
-      <div className="flex flex-col gap-3 items-start">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 items-start">
         <p className="text-sm">Nombre actual: <strong>{name}</strong></p>
         <ButtonAtom variant="outline" onClick={() => { setDraft(name); setOpen(true); }}>
           Editar nombre
@@ -84,10 +85,10 @@ export const Interactive: Story = {
           showCloseButton
           onClose={() => { args.onClose?.(); setOpen(false); }}
           footer={
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
               <ButtonAtom variant="outline" onClick={() => { args.onClose?.(); setOpen(false); }}>Cancelar</ButtonAtom>
               <ButtonAtom onClick={() => { setName(draft); setOpen(false); }}>Guardar</ButtonAtom>
-            </div>
+            </PanelAtom>
           }
         >
           <input
@@ -96,7 +97,7 @@ export const Interactive: Story = {
             onChange={(e) => setDraft(e.target.value)}
           />
         </DialogMolecule>
-      </div>
+      </PanelAtom>
     );
   },
 };

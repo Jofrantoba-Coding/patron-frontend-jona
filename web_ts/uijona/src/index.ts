@@ -22,6 +22,7 @@ export * from './atoms/ProgressAtom';
 export * from './atoms/SkeletonAtom';
 export * from './atoms/ToastAtom';
 export * from './atoms/RatingAtom';
+export * from './atoms/PanelAtom';
 
 // Molecules
 export * from './molecules/CardMolecule';

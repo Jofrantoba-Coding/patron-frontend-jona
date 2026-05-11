@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { AccordionMolecule } from './AccordionMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const items = [
   {
@@ -73,14 +74,14 @@ export const Interactive: Story = {
       { value: 'pregunta-4', title: '¿Puedo cambiar de plan?', content: 'Sí, puedes subir o bajar de plan en cualquier momento. Los cambios aplican al siguiente ciclo.' },
     ];
     return (
-      <div className="w-96 flex flex-col gap-2">
+      <PanelAtom variant="ghost" padding="none" className="w-96 flex flex-col gap-2">
         <AccordionMolecule
           items={faqItems}
           defaultValue={current}
           onValueChange={(v) => { args.onValueChange?.(v); setCurrent(String(v)); }}
         />
         <p className="text-xs text-neutral-400">Última sección abierta: <strong>{current}</strong></p>
-      </div>
+      </PanelAtom>
     );
   },
 };

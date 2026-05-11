@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { HeaderPageOrganism } from './HeaderPageOrganism';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { UserAvatarMolecule } from '../../molecules/UserAvatarMolecule/UserAvatarMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof HeaderPageOrganism> = {
   title: 'Organisms/HeaderPageOrganism',
@@ -40,10 +41,10 @@ export const WithActions: Story = {
       </nav>
     ),
     actions: (
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <ButtonAtom variant="ghost" size="sm">Ayuda</ButtonAtom>
         <UserAvatarMolecule name="Jonathan Franck" size="sm" />
-      </div>
+      </PanelAtom>
     ),
   },
 };
@@ -53,7 +54,7 @@ export const Interactive: Story = {
     const [currentPage, setCurrentPage] = useState('Dashboard');
     const pages = ['Dashboard', 'Proyectos', 'Reportes', 'Configuración'];
     return (
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column' }}>
         <HeaderPageOrganism
           title="JONA UI"
           nav={
@@ -70,16 +71,16 @@ export const Interactive: Story = {
             </nav>
           }
           actions={
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <ButtonAtom variant="ghost" size="sm">Ayuda</ButtonAtom>
               <UserAvatarMolecule name="Jonathan Franck" size="sm" />
-            </div>
+            </PanelAtom>
           }
         />
-        <div style={{ padding: '24px', fontSize: '14px', color: '#525252' }}>
+        <PanelAtom variant="ghost" padding="none" style={{ padding: '24px', fontSize: '14px', color: '#525252' }}>
           Página actual: <strong>{currentPage}</strong>
-        </div>
-      </div>
+        </PanelAtom>
+      </PanelAtom>
     );
   },
 };

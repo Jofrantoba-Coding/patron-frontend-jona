@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SwitchFieldMolecule } from './SwitchFieldMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof SwitchFieldMolecule> = {
   title: 'Molecules/SwitchFieldMolecule',
@@ -59,14 +60,14 @@ export const Interactive: Story = {
       setValues((s) => ({ ...s, [key]: v }));
     };
     return (
-      <div className="flex flex-col gap-4 w-72">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 w-72">
         <SwitchFieldMolecule id="emails" label="Correos electrónicos"
           description="Notificaciones por email" checked={values.emails} onCheckedChange={set('emails')} />
         <SwitchFieldMolecule id="push" label="Notificaciones push"
           description="Alertas en tu dispositivo" checked={values.push} onCheckedChange={set('push')} />
         <SwitchFieldMolecule id="sms" label="Mensajes SMS"
           description="Solo alertas críticas" checked={values.sms} onCheckedChange={set('sms')} />
-      </div>
+      </PanelAtom>
     );
   },
 };

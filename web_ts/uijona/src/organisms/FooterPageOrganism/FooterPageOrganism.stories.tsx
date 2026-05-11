@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { FooterPageOrganism } from './FooterPageOrganism';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof FooterPageOrganism> = {
   title: 'Organisms/FooterPageOrganism',
@@ -38,10 +39,10 @@ export const Interactive: Story = {
     };
     const t = texts[lang];
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-        <div style={{ padding: '32px', textAlign: 'center', fontSize: '14px', color: '#a3a3a3' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <PanelAtom variant="ghost" padding="none" style={{ padding: '32px', textAlign: 'center', fontSize: '14px', color: '#a3a3a3' }}>
           Contenido de la aplicación
-        </div>
+        </PanelAtom>
         <FooterPageOrganism
           left={<span style={{ fontWeight: 700 }}>JONA UI</span>}
           center={
@@ -60,7 +61,7 @@ export const Interactive: Story = {
             </button>
           }
         />
-      </div>
+      </PanelAtom>
     );
   },
 };

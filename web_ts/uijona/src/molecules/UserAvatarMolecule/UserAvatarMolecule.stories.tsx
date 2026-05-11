@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { UserAvatarMolecule } from './UserAvatarMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof UserAvatarMolecule> = {
   title: 'Molecules/UserAvatarMolecule',
@@ -38,9 +39,9 @@ export const Interactive: Story = {
     ];
     const [current, setCurrent] = useState(0);
     return (
-      <div className="flex flex-col gap-4 items-start">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 items-start">
         <UserAvatarMolecule name={users[current].name} email={users[current].email} size="md" />
-        <div className="flex gap-2">
+        <PanelAtom variant="ghost" padding="none" className="flex gap-2">
           {users.map((u, i) => (
             <button
               key={i}
@@ -50,8 +51,8 @@ export const Interactive: Story = {
               {u.name.split(' ')[0]}
             </button>
           ))}
-        </div>
-      </div>
+        </PanelAtom>
+      </PanelAtom>
     );
   },
 };

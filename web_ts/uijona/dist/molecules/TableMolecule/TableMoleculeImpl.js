@@ -1,129 +1,227 @@
-import { jsx as h } from "react/jsx-runtime";
-import r, { forwardRef as V, useRef as x, useState as F, useCallback as I, useMemo as M } from "react";
-import { TABLE_MOLECULE_DEFAULTS as R } from "./InterTableMolecule.js";
-import { useTableContext as g, TableContext as L } from "./TableMoleculeContext.js";
-import { TableCaptionView as S, TableCellView as A, TableFooterView as H, TableHeadView as N, TableRowView as v, TableBodyView as B, TableHeaderView as O, TableMoleculeView as j } from "./TableMoleculeView.js";
-const _ = V(
-  ({ children: e, responsiveMode: l = R.responsiveMode, wrapperClassName: t, pagination: u, ...s }, f) => {
-    const a = x([]), [n, c] = F({}), o = I((i, b) => {
-      c((p) => {
-        if ((p[i] ?? "") === b) return p;
-        if (!b) {
-          const d = { ...p };
-          return delete d[i], d;
+import { jsx as f, jsxs as D, Fragment as I } from "react/jsx-runtime";
+import u, { forwardRef as v, useRef as W, useState as M, useCallback as j, useMemo as w } from "react";
+import { TABLE_MOLECULE_DEFAULTS as B } from "./InterTableMolecule.js";
+import { useTableContext as k, TableContext as O } from "./TableMoleculeContext.js";
+import { TableCaptionView as N, TableCellView as V, TableFooterView as P, TableHeadView as x, TableRowView as T, TableBodyView as A, TableHeaderView as H, TableMoleculeView as _ } from "./TableMoleculeView.js";
+function R(t) {
+  return "columns" in t && Array.isArray(t.columns);
+}
+function z(t) {
+  return t.length === 0 ? [] : R(t[0]) ? t.flatMap((r) => r.columns) : t;
+}
+function G(t, r, l) {
+  return l ? [...t].sort((m, o) => {
+    const i = String(m[r] ?? "").localeCompare(String(o[r] ?? ""));
+    return l === "asc" ? i : -i;
+  }) : t;
+}
+const U = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right"
+}, K = v(
+  ({
+    children: t,
+    responsiveMode: r = B.responsiveMode,
+    wrapperClassName: l,
+    pagination: m,
+    columns: o,
+    data: i,
+    caption: h,
+    emptyMessage: d = "Sin resultados",
+    ...a
+  }, s) => {
+    const p = W([]), [b, g] = M({}), e = j((C, y) => {
+      g((S) => {
+        if ((S[C] ?? "") === y) return S;
+        if (!y) {
+          const F = { ...S };
+          return delete F[C], F;
         }
-        return { ...p, [i]: b };
+        return { ...S, [C]: y };
       });
-    }, []), m = M(
-      () => ({ responsiveMode: l, labelsRef: a, columnFilters: n, setColumnFilter: o }),
-      [l, n, o]
-    );
-    return /* @__PURE__ */ h(L.Provider, { value: m, children: /* @__PURE__ */ h(
-      j,
+    }, []), c = w(
+      () => ({ responsiveMode: r, labelsRef: p, columnFilters: b, setColumnFilter: e }),
+      [r, b, e]
+    ), n = o !== void 0 && i !== void 0;
+    return /* @__PURE__ */ f(O.Provider, { value: c, children: /* @__PURE__ */ f(
+      _,
       {
-        ref: f,
-        responsiveMode: l,
-        wrapperClassName: t,
-        pagination: u,
-        ...s,
-        children: e
+        ref: s,
+        responsiveMode: r,
+        wrapperClassName: l,
+        pagination: m,
+        ...a,
+        children: n ? /* @__PURE__ */ f(
+          Z,
+          {
+            columns: o,
+            data: i,
+            caption: h,
+            emptyMessage: d
+          }
+        ) : t
       }
     ) });
   }
 );
-_.displayName = "TableMolecule";
-function T(e) {
-  return typeof e == "string" || typeof e == "number" ? String(e) : Array.isArray(e) ? e.map(T).join(" ").trim() : r.isValidElement(e) ? T(e.props.children) : "";
+K.displayName = "TableMolecule";
+function E(t) {
+  return typeof t == "string" || typeof t == "number" ? String(t) : Array.isArray(t) ? t.map(E).join(" ").trim() : u.isValidElement(t) ? E(t.props.children) : "";
 }
-function y(e) {
-  const l = Number(e ?? 1);
-  return Number.isFinite(l) && l > 0 ? Math.floor(l) : 1;
+function L(t) {
+  const r = Number(t ?? 1);
+  return Number.isFinite(r) && r > 0 ? Math.floor(r) : 1;
 }
-function k(e) {
-  const l = r.Children.toArray(e).filter(r.isValidElement), t = [], u = /* @__PURE__ */ new WeakMap();
-  l.forEach((a, n) => {
-    const c = a;
-    t[n] = t[n] ?? [];
-    let o = 0;
-    r.Children.forEach(c.props.children, (m) => {
-      if (!r.isValidElement(m)) return;
-      for (; t[n][o]; ) o += 1;
-      const i = m.props, b = y(i.colSpan), p = y(i.rowSpan), d = T(i.children);
-      u.set(m, o);
-      for (let w = 0; w < p; w += 1) {
-        const C = n + w;
-        t[C] = t[C] ?? [];
-        for (let E = 0; E < b; E += 1)
-          t[C][o + E] = { label: d };
+function q(t) {
+  const r = u.Children.toArray(t).filter(u.isValidElement), l = [], m = /* @__PURE__ */ new WeakMap();
+  r.forEach((h, d) => {
+    const a = h;
+    l[d] = l[d] ?? [];
+    let s = 0;
+    u.Children.forEach(a.props.children, (p) => {
+      if (!u.isValidElement(p)) return;
+      for (; l[d][s]; ) s += 1;
+      const b = p.props, g = L(b.colSpan), e = L(b.rowSpan), c = E(b.children);
+      m.set(p, s);
+      for (let n = 0; n < e; n += 1) {
+        const C = d + n;
+        l[C] = l[C] ?? [];
+        for (let y = 0; y < g; y += 1)
+          l[C][s + y] = { label: c };
       }
-      o += b;
+      s += g;
     });
   });
-  const s = Math.max(0, ...t.map((a) => a.length));
-  return { labels: Array.from({ length: s }, (a, n) => {
-    var c;
-    for (let o = t.length - 1; o >= 0; o -= 1) {
-      const m = (c = t[o]) == null ? void 0 : c[n];
-      if (m != null && m.label) return m.label;
+  const o = Math.max(0, ...l.map((h) => h.length));
+  return { labels: Array.from({ length: o }, (h, d) => {
+    var a;
+    for (let s = l.length - 1; s >= 0; s -= 1) {
+      const p = (a = l[s]) == null ? void 0 : a[d];
+      if (p != null && p.label) return p.label;
     }
     return "";
-  }), columnIndexes: u };
+  }), columnIndexes: m };
 }
-function P(e) {
-  const { labels: l, columnIndexes: t } = k(e), u = r.Children.map(e, (s) => {
-    if (!r.isValidElement(s)) return s;
-    const f = s, a = r.Children.map(f.props.children, (n) => {
-      if (!r.isValidElement(n)) return n;
-      const c = t.get(n);
-      return c === void 0 ? n : r.cloneElement(n, { columnIndex: c });
+function J(t) {
+  const { labels: r, columnIndexes: l } = q(t), m = u.Children.map(t, (o) => {
+    if (!u.isValidElement(o)) return o;
+    const i = o, h = u.Children.map(i.props.children, (d) => {
+      if (!u.isValidElement(d)) return d;
+      const a = l.get(d);
+      return a === void 0 ? d : u.cloneElement(d, { columnIndex: a });
     });
-    return r.cloneElement(f, {}, a);
+    return u.cloneElement(i, {}, h);
   });
-  return { labels: l, rows: u };
+  return { labels: r, rows: m };
 }
-const U = V(
-  ({ children: e, ...l }, t) => {
-    const { labelsRef: u } = g(), { labels: s, rows: f } = P(e);
-    return u.current = s, /* @__PURE__ */ h(O, { ref: t, ...l, children: f });
+const Q = v(
+  ({ children: t, ...r }, l) => {
+    const { labelsRef: m } = k(), { labels: o, rows: i } = J(t);
+    return m.current = o, /* @__PURE__ */ f(H, { ref: l, ...r, children: i });
   }
 );
-U.displayName = "TableHeader";
-function W(e, l) {
-  const t = Object.entries(l).filter(([, s]) => s.trim());
-  if (t.length === 0) return !0;
-  const u = r.Children.toArray(e.props.children).filter(r.isValidElement);
-  return t.every(([s, f]) => {
-    const a = u[Number(s)];
-    return a ? T(a.props.children).toLowerCase().includes(f.toLowerCase()) : !1;
+Q.displayName = "TableHeader";
+function X(t, r) {
+  const l = Object.entries(r).filter(([, o]) => o.trim());
+  if (l.length === 0) return !0;
+  const m = u.Children.toArray(t.props.children).filter(u.isValidElement);
+  return l.every(([o, i]) => {
+    const h = m[Number(o)];
+    return h ? E(h.props.children).toLowerCase().includes(i.toLowerCase()) : !1;
   });
 }
-const D = V(
-  ({ children: e, ...l }, t) => {
-    const { labelsRef: u, responsiveMode: s, columnFilters: f } = g(), a = u.current, n = r.Children.map(e, (c) => {
-      if (!r.isValidElement(c)) return c;
-      const o = c;
-      if (!W(o, f)) return null;
-      if (s !== "cards") return o;
-      const m = r.Children.map(o.props.children, (i, b) => {
-        if (!r.isValidElement(i) || i.props["data-label"] !== void 0) return i;
-        const p = a[b];
-        return p ? r.cloneElement(i, { "data-label": p }) : i;
+const Y = v(
+  ({ children: t, ...r }, l) => {
+    const { labelsRef: m, responsiveMode: o, columnFilters: i } = k(), h = m.current, d = u.Children.map(t, (a) => {
+      if (!u.isValidElement(a)) return a;
+      const s = a;
+      if (!X(s, i)) return null;
+      if (o !== "cards") return s;
+      const p = u.Children.map(s.props.children, (b, g) => {
+        if (!u.isValidElement(b) || b.props["data-label"] !== void 0) return b;
+        const e = h[g];
+        return e ? u.cloneElement(b, { "data-label": e }) : b;
       });
-      return r.cloneElement(o, {}, m);
+      return u.cloneElement(s, {}, p);
     });
-    return /* @__PURE__ */ h(B, { ref: t, ...l, children: n });
+    return /* @__PURE__ */ f(A, { ref: l, ...r, children: d });
   }
 );
-D.displayName = "TableBody";
-const Q = S, X = H, Y = v, Z = N, $ = A;
+Y.displayName = "TableBody";
+function Z({
+  columns: t,
+  data: r,
+  caption: l,
+  emptyMessage: m = "Sin resultados"
+}) {
+  const { columnFilters: o } = k(), [i, h] = M({
+    key: "",
+    direction: null
+  }), d = t.length > 0 && R(t[0]), a = w(() => z(t), [t]), s = w(() => {
+    if (!i.key || !i.direction) return r;
+    const e = a.find((c) => c.key === i.key);
+    return (e == null ? void 0 : e.onSortChange) !== void 0 ? r : G(r, i.key, i.direction);
+  }, [r, i, a]), p = w(() => {
+    const e = new Set(
+      a.map((n, C) => n.filterValue === void 0 && n.onFilterChange === void 0 ? C : -1).filter((n) => n >= 0)
+    ), c = Object.entries(o).filter(([n]) => e.has(Number(n))).filter(([, n]) => n.trim());
+    return c.length === 0 ? s : s.filter(
+      (n) => c.every(([C, y]) => {
+        const S = a[Number(C)];
+        return S ? String(n[S.key] ?? "").toLowerCase().includes(y.toLowerCase()) : !1;
+      })
+    );
+  }, [s, o, a]), b = (e) => (c) => {
+    e.onSortChange ? e.onSortChange(c) : h({ key: e.key, direction: c });
+  }, g = (e, c) => {
+    const n = e.onSortChange !== void 0, C = e.sortable ? n ? e.sortDirection ?? null : i.key === e.key ? i.direction : null : null;
+    return /* @__PURE__ */ f(
+      x,
+      {
+        columnIndex: c,
+        sortable: e.sortable,
+        sortDirection: C,
+        onSortChange: e.sortable ? b(e) : void 0,
+        filterable: e.filterable,
+        filterPlaceholder: e.filterPlaceholder,
+        filterValue: e.filterValue,
+        onFilterChange: e.onFilterChange,
+        resizable: e.resizable,
+        width: e.width,
+        minWidth: e.minWidth,
+        maxWidth: e.maxWidth,
+        children: e.header
+      },
+      e.key
+    );
+  };
+  return /* @__PURE__ */ D(I, { children: [
+    l && /* @__PURE__ */ f(N, { children: l }),
+    /* @__PURE__ */ f(H, { children: d ? /* @__PURE__ */ D(I, { children: [
+      /* @__PURE__ */ f(T, { children: t.map((e) => /* @__PURE__ */ f(x, { colSpan: e.columns.length, groupHeader: !0, children: e.label }, e.label)) }),
+      /* @__PURE__ */ f(T, { children: a.map((e, c) => g(e, c)) })
+    ] }) : /* @__PURE__ */ f(T, { children: t.map((e, c) => g(e, c)) }) }),
+    /* @__PURE__ */ f(A, { children: p.length > 0 ? p.map((e, c) => /* @__PURE__ */ f(T, { children: a.map((n) => /* @__PURE__ */ f(
+      V,
+      {
+        "data-label": n.header,
+        className: n.align ? U[n.align] : void 0,
+        children: n.render ? n.render(e[n.key], e, c) : String(e[n.key] ?? "")
+      },
+      n.key
+    )) }, c)) : /* @__PURE__ */ f(T, { children: /* @__PURE__ */ f(V, { colSpan: a.length, children: /* @__PURE__ */ f("span", { className: "block py-6 text-center text-neutral-400", children: m }) }) }) })
+  ] });
+}
+const le = N, ie = P, ae = T, oe = x, se = V;
 export {
-  D as TableBodyImpl,
-  Q as TableCaptionImpl,
-  $ as TableCellImpl,
-  X as TableFooterImpl,
-  Z as TableHeadImpl,
-  U as TableHeaderImpl,
-  _ as TableMoleculeImpl,
-  Y as TableRowImpl
+  Y as TableBodyImpl,
+  le as TableCaptionImpl,
+  se as TableCellImpl,
+  ie as TableFooterImpl,
+  oe as TableHeadImpl,
+  Q as TableHeaderImpl,
+  K as TableMoleculeImpl,
+  ae as TableRowImpl
 };
 //# sourceMappingURL=TableMoleculeImpl.js.map

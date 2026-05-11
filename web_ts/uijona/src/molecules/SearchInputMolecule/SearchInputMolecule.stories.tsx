@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SearchInputMolecule } from './SearchInputMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof SearchInputMolecule> = {
   title: 'Molecules/SearchInputMolecule',
@@ -40,7 +41,7 @@ export const Interactive: Story = {
       ? allItems.filter((i) => i.toLowerCase().includes(query.toLowerCase()))
       : allItems;
     return (
-      <div className="flex flex-col gap-3 w-72">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 w-72">
         <SearchInputMolecule
           placeholder="Buscar tecnología..."
           onSearch={(v, e) => { args.onSearch?.(v, e); setQuery(v); }}
@@ -54,7 +55,7 @@ export const Interactive: Story = {
               ))
             : <li className="text-neutral-400 px-2">Sin resultados para &quot;{query}&quot;</li>}
         </ul>
-      </div>
+      </PanelAtom>
     );
   },
 };

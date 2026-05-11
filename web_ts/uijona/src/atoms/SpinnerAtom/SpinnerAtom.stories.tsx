@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { SpinnerAtom } from './SpinnerAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof SpinnerAtom> = {
   title: 'Atoms/SpinnerAtom',
@@ -27,11 +28,11 @@ export const Large: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
       <SpinnerAtom size="sm" />
       <SpinnerAtom size="md" />
       <SpinnerAtom size="lg" />
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -44,7 +45,7 @@ export const Interactive: Story = {
       setLoading(false);
     };
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
         {loading
           ? <SpinnerAtom size="lg" />
           : <p style={{ fontSize: '14px', color: '#737373' }}>Datos listos</p>}
@@ -55,7 +56,7 @@ export const Interactive: Story = {
         >
           {loading ? 'Cargando...' : 'Recargar datos'}
         </button>
-      </div>
+      </PanelAtom>
     );
   },
 };

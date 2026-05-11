@@ -122,6 +122,11 @@
       "require": "./dist/atoms/ToastAtom.cjs",
       "types": "./dist/atoms/ToastAtom.d.ts"
     },
+    "./atoms/PanelAtom": {
+      "import": "./dist/atoms/PanelAtom.js",
+      "require": "./dist/atoms/PanelAtom.cjs",
+      "types": "./dist/atoms/PanelAtom.d.ts"
+    },
     "./molecules/CardMolecule": {
       "import": "./dist/molecules/CardMolecule.js",
       "require": "./dist/molecules/CardMolecule.cjs",

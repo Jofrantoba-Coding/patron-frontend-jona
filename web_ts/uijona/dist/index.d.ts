@@ -19,6 +19,7 @@ export * from './atoms/ProgressAtom';
 export * from './atoms/SkeletonAtom';
 export * from './atoms/ToastAtom';
 export * from './atoms/RatingAtom';
+export * from './atoms/PanelAtom';
 export * from './molecules/CardMolecule';
 export * from './molecules/AlertMolecule';
 export * from './molecules/FormFieldMolecule';

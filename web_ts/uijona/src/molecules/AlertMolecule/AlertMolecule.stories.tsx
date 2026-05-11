@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { AlertMolecule } from './AlertMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof AlertMolecule> = {
   title: 'Molecules/AlertMolecule',
@@ -47,9 +48,9 @@ export const Interactive: Story = {
     const [alerts, setAlerts] = useState(initialAlerts);
     const dismiss = (id: number) => setAlerts((a) => a.filter((x) => x.id !== id));
     return (
-      <div className="flex flex-col gap-3 w-96">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 w-96">
         {alerts.map((a) => (
-          <div key={a.id} className="relative">
+          <PanelAtom variant="ghost" padding="none" key={a.id} className="relative">
             <AlertMolecule variant={a.variant} title={a.title}>{a.message}</AlertMolecule>
             <button
               onClick={() => dismiss(a.id)}
@@ -58,7 +59,7 @@ export const Interactive: Story = {
             >
               ✕
             </button>
-          </div>
+          </PanelAtom>
         ))}
         {alerts.length === 0 && (
           <p className="text-sm text-neutral-400">Sin alertas activas.</p>
@@ -69,7 +70,7 @@ export const Interactive: Story = {
         >
           Restaurar alertas
         </button>
-      </div>
+      </PanelAtom>
     );
   },
 };

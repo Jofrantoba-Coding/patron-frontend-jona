@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from './BreadcrumbMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof BreadcrumbMolecule> = {
   title: 'Molecules/BreadcrumbMolecule',
@@ -64,7 +65,7 @@ export const Interactive: Story = {
     };
     const nextPage = allPages[trail.length] ?? null;
     return (
-      <div className="flex flex-col gap-4">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
         <BreadcrumbMolecule>
           <BreadcrumbList>
             {trail.map((page, i) => (
@@ -89,7 +90,7 @@ export const Interactive: Story = {
             Navegar a: {nextPage}
           </button>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

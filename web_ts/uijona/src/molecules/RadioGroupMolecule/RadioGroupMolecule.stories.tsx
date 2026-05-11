@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RadioGroupMolecule } from './RadioGroupMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const options = [
   { value: 'basic', label: 'Basic', description: 'Para formularios simples y prototipos.' },
@@ -70,7 +71,7 @@ export const Interactive: Story = {
     const [plan, setPlan] = useState<string>('');
     const prices: Record<string, string> = { basic: 'Gratis', pro: '$29/mes', enterprise: 'Contactar ventas' };
     return (
-      <div className="flex flex-col gap-4">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
         <RadioGroupMolecule
           name="plan-selector"
           label="Selecciona tu plan"
@@ -79,15 +80,15 @@ export const Interactive: Story = {
           onValueChange={(v, option) => { args.onValueChange?.(v, option); setPlan(v); }}
         />
         {plan && (
-          <div className="rounded-md bg-neutral-50 border p-4 text-sm flex justify-between">
-            <div>
+          <PanelAtom variant="ghost" padding="none" className="rounded-md bg-neutral-50 border p-4 text-sm flex justify-between">
+            <PanelAtom variant="ghost" padding="none">
               <p className="font-semibold">{options.find((o) => o.value === plan)?.label}</p>
               <p className="text-neutral-500">{options.find((o) => o.value === plan)?.description}</p>
-            </div>
+            </PanelAtom>
             <p className="font-bold text-primary-700">{prices[plan]}</p>
-          </div>
+          </PanelAtom>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

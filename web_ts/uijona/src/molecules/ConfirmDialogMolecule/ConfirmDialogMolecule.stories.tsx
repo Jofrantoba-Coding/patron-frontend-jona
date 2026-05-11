@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ConfirmDialogMolecule } from './ConfirmDialogMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof ConfirmDialogMolecule> = {
   title: 'Molecules/ConfirmDialogMolecule',
@@ -48,7 +49,7 @@ export const Interactive: Story = {
     const [open, setOpen] = useState(false);
     const [result, setResult] = useState<string | null>(null);
     return (
-      <div className="flex flex-col items-start gap-4">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col items-start gap-4">
         <button
           onClick={() => setOpen(true)}
           className="rounded-md bg-red-600 px-4 py-2 text-sm text-white"
@@ -64,7 +65,7 @@ export const Interactive: Story = {
           onConfirm={() => { args.onConfirm?.(); setResult('Confirmado'); setOpen(false); }}
           onCancel={() => { args.onCancel?.(); setResult('Cancelado'); setOpen(false); }}
         />
-      </div>
+      </PanelAtom>
     );
   },
 };

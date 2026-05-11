@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { FormFieldMolecule } from './FormFieldMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof FormFieldMolecule> = {
   title: 'Molecules/FormFieldMolecule',
@@ -22,7 +23,7 @@ export const Default: Story = {
     label: 'Correo electrónico',
     description: 'Recibirás un enlace de verificación',
   },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const Required: Story = {
@@ -31,7 +32,7 @@ export const Required: Story = {
     label: 'Nombre completo',
     required: true,
   },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const WithError: Story = {
@@ -40,7 +41,7 @@ export const WithError: Story = {
     label: 'Correo electrónico',
     errorMessage: 'El formato de email no es válido',
   },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const Horizontal: Story = {
@@ -49,7 +50,7 @@ export const Horizontal: Story = {
     label: 'Usuario',
     orientation: 'horizontal',
   },
-  decorators: [(Story) => <div style={{ width: '400px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '400px' }}><Story /></PanelAtom>],
 };
 
 export const Interactive: Story = {
@@ -65,7 +66,7 @@ export const Interactive: Story = {
         ? 'El formato de email no es válido'
         : undefined;
     return (
-      <div style={{ width: '320px' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}>
         <FormFieldMolecule
           id="interactive-email"
           label="Correo electrónico"
@@ -76,7 +77,7 @@ export const Interactive: Story = {
           onChange={(v, e) => { args.onChange?.(v, e); setEmail(v); }}
           onBlur={(v, e) => { args.onBlur?.(v, e); setTouched(true); }}
         />
-      </div>
+      </PanelAtom>
     );
   },
 };

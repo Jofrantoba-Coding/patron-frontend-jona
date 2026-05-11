@@ -13,6 +13,7 @@ import {
   type TableColumnDef,
 } from './TableMolecule';
 import { BadgeAtom } from '../../atoms/BadgeAtom/BadgeAtom';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof TableMolecule> = {
   title: 'Molecules/TableMolecule',
@@ -32,7 +33,7 @@ const meta: Meta<typeof TableMolecule> = {
       table: { defaultValue: { summary: 'undefined' } },
     },
   },
-  decorators: [(Story) => <div className="w-full max-w-full p-2"><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="w-full max-w-full p-2"><Story /></PanelAtom>],
 };
 
 export default meta;
@@ -154,28 +155,28 @@ export const Default: Story = {
 export const MobileCards: Story = {
   args: { responsiveMode: 'cards' },
   render: (args) => (
-    <div className="max-w-[360px]">
+    <PanelAtom variant="ghost" padding="none" className="max-w-[360px]">
       <TableMolecule
         responsiveMode={args.responsiveMode}
         columns={userColumns}
         data={users}
         caption="Vista mobile en modo cards"
       />
-    </div>
+    </PanelAtom>
   ),
 };
 
 export const WideContent: Story = {
   args: { responsiveMode: 'scroll' },
   render: (args) => (
-    <div className="max-w-[360px]">
+    <PanelAtom variant="ghost" padding="none" className="max-w-[360px]">
       <TableMolecule
         responsiveMode={args.responsiveMode}
         columns={orderColumns}
         data={orders}
         caption="Ordenes — tabla con contenido ancho"
       />
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -193,7 +194,7 @@ export const GroupedHeaders: Story = {
 
 export const GroupedHeadersMobileCards: Story = {
   render: () => (
-    <div className="max-w-[360px]">
+    <PanelAtom variant="ghost" padding="none" className="max-w-[360px]">
       <TableMolecule
         responsiveMode="cards"
         columns={[
@@ -214,7 +215,7 @@ export const GroupedHeadersMobileCards: Story = {
         data={users.slice(0, 2)}
         caption="Headers agrupados en modo cards"
       />
-    </div>
+    </PanelAtom>
   ),
 };
 

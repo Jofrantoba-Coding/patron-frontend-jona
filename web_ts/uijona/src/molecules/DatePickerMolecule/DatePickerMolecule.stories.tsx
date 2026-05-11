@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DatePickerMolecule } from './DatePickerMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof DatePickerMolecule> = {
   title: 'Molecules/DatePickerMolecule',
@@ -25,7 +26,7 @@ const meta: Meta<typeof DatePickerMolecule> = {
     showSeconds: { control: 'boolean' },
     timezone: { control: 'text' },
   },
-  decorators: [(Story) => <div className="w-80 pb-96"><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="w-80 pb-96"><Story /></PanelAtom>],
 };
 export default meta;
 type Story = StoryObj<typeof DatePickerMolecule>;
@@ -81,7 +82,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [date, setDate] = useState('');
     return (
-      <div className="flex w-80 flex-col gap-3 pb-96">
+      <PanelAtom variant="ghost" padding="none" className="flex w-80 flex-col gap-3 pb-96">
         <DatePickerMolecule
           value={date}
           mask="dd/MM/yyyy HH:mm:ss z"
@@ -95,7 +96,7 @@ export const Interactive: Story = {
         <p className="text-sm text-neutral-500">
           {date ? `Valor: ${date}` : 'Sin fecha seleccionada'}
         </p>
-      </div>
+      </PanelAtom>
     );
   },
 };

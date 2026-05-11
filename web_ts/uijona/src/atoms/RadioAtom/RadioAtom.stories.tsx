@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RadioAtom } from './RadioAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof RadioAtom> = {
   title: 'Atoms/RadioAtom',
@@ -60,7 +61,7 @@ export const Interactive: Story = {
       { value: 'paypal', label: 'PayPal' },
     ];
     return (
-      <div className="flex flex-col gap-3">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
         <p className="text-sm font-medium text-neutral-700">Método de pago</p>
         {methods.map((m) => (
           <label key={m.value} className="flex items-center gap-2 cursor-pointer">
@@ -78,7 +79,7 @@ export const Interactive: Story = {
             Método elegido: <strong>{methods.find((m) => m.value === selected)?.label}</strong>
           </p>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

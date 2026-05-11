@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import React, { type FormEvent, useState } from 'react';
 import { LoginOrganism } from './LoginOrganism';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof LoginOrganism> = {
   title: 'Organisms/LoginOrganism',
@@ -97,10 +98,10 @@ export const Interactive: Story = {
     };
     if (status === 'success') {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
+        <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
           <p style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>¡Bienvenido, {email}!</p>
           <button onClick={() => { setStatus('idle'); setEmail(''); setPassword(''); setAlertMessage(''); }} style={{ fontSize: '14px', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}>Cerrar sesión</button>
-        </div>
+        </PanelAtom>
       );
     }
     return (

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { PopoverMolecule } from './PopoverMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof PopoverMolecule> = {
   title: 'Molecules/PopoverMolecule',
@@ -12,17 +13,17 @@ const meta: Meta<typeof PopoverMolecule> = {
     onClose: fn(),
     trigger: <button className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm">Abrir popover</button>,
     children: (
-      <div className="flex flex-col gap-1 text-sm">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm">
         <p className="font-medium text-neutral-800">Información</p>
         <p className="text-neutral-500">Contenido del popover con detalles adicionales.</p>
-      </div>
+      </PanelAtom>
     ),
   },
   argTypes: {
     side:  { control: 'select', options: ['top', 'bottom', 'left', 'right'] },
     align: { control: 'select', options: ['start', 'center', 'end'] },
   },
-  decorators: [(Story) => <div className="flex h-48 items-center justify-center"><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="flex h-48 items-center justify-center"><Story /></PanelAtom>],
 };
 export default meta;
 type Story = StoryObj<typeof PopoverMolecule>;
@@ -51,11 +52,11 @@ export const WithActions: Story = {
       </button>
     ),
     children: (
-      <div className="flex flex-col gap-1">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1">
         <button className="rounded px-3 py-1.5 text-left text-sm hover:bg-neutral-100">Editar</button>
         <button className="rounded px-3 py-1.5 text-left text-sm hover:bg-neutral-100">Duplicar</button>
         <button className="rounded px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50">Eliminar</button>
-      </div>
+      </PanelAtom>
     ),
   },
 };
@@ -65,7 +66,7 @@ export const Interactive: Story = {
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const roles = ['Admin', 'Editor', 'Viewer'];
     return (
-      <div className="flex h-48 items-start justify-center gap-6 pt-8">
+      <PanelAtom variant="ghost" padding="none" className="flex h-48 items-start justify-center gap-6 pt-8">
         <PopoverMolecule
           trigger={
             <button className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm">
@@ -75,7 +76,7 @@ export const Interactive: Story = {
           side="bottom"
           align="start"
         >
-          <div className="flex flex-col gap-1 min-w-[120px]">
+          <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 min-w-[120px]">
             <p className="text-xs font-semibold text-neutral-400 uppercase px-2 pb-1">Roles</p>
             {roles.map((r) => (
               <button
@@ -86,14 +87,14 @@ export const Interactive: Story = {
                 {r}
               </button>
             ))}
-          </div>
+          </PanelAtom>
         </PopoverMolecule>
         {selectedRole && (
           <p className="text-sm text-neutral-500 self-center">
             Filtrando por: <strong>{selectedRole}</strong>
           </p>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

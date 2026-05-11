@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SelectAtom } from './SelectAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const options = [
   { value: 'mx', label: 'México' },
@@ -46,7 +47,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [country, setCountry] = useState('');
     return (
-      <div className="flex flex-col gap-2 w-64">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-64">
         <SelectAtom
           options={options}
           placeholder="Selecciona un país"
@@ -57,7 +58,7 @@ export const Interactive: Story = {
             País seleccionado: <strong>{options.find((o) => o.value === country)?.label}</strong>
           </p>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

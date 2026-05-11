@@ -1,7 +1,7 @@
 import { jsx as n, jsxs as b } from "react/jsx-runtime";
 import c from "react";
 import { cn as d } from "../../lib/cn.js";
-import { useTableContext as g } from "./TableMoleculeContext.js";
+import { useTableContext as w } from "./TableMoleculeContext.js";
 const re = {
   scroll: "relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200",
   cards: "relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200",
@@ -11,11 +11,22 @@ const re = {
   cards: "",
   none: "overflow-x-auto"
 }, ne = c.forwardRef(
-  ({ className: e, wrapperClassName: r, responsiveMode: t = "scroll", pagination: a, style: o, ...m }, f) => /* @__PURE__ */ b("div", { className: d(re[t], r), children: [
+  ({
+    className: e,
+    wrapperClassName: r,
+    responsiveMode: t = "scroll",
+    pagination: a,
+    style: o,
+    columns: u,
+    data: h,
+    caption: k,
+    emptyMessage: p,
+    ...f
+  }, i) => /* @__PURE__ */ b("div", { className: d(re[t], r), children: [
     /* @__PURE__ */ n("div", { className: ae[t], children: /* @__PURE__ */ n(
       "table",
       {
-        ref: f,
+        ref: i,
         style: t !== "none" ? void 0 : o,
         className: d(
           "caption-bottom text-sm text-neutral-900",
@@ -24,7 +35,7 @@ const re = {
           t === "none" && "w-full min-w-max",
           e
         ),
-        ...m
+        ...f
       }
     ) }),
     a && /* @__PURE__ */ n(le, { ...a })
@@ -32,10 +43,10 @@ const re = {
 );
 ne.displayName = "TableMolecule";
 function oe(e, r) {
-  if (r <= 9) return Array.from({ length: r }, (m, f) => f + 1);
+  if (r <= 9) return Array.from({ length: r }, (u, h) => h + 1);
   const t = Math.max(2, e - 2), a = Math.min(r - 1, e + 2), o = [1];
   t > 2 && o.push("ellipsis");
-  for (let m = t; m <= a; m += 1) o.push(m);
+  for (let u = t; u <= a; u += 1) o.push(u);
   return a < r - 1 && o.push("ellipsis"), o.push(r), o;
 }
 function T({
@@ -68,18 +79,18 @@ function le({
   totalRows: t,
   pageSizeOptions: a = [10, 25, 50, 100],
   onPageChange: o,
-  onPageSizeChange: m,
-  showPageSizeSelector: f = !0,
-  showRowsInfo: M = !0
+  onPageSizeChange: u,
+  showPageSizeSelector: h = !0,
+  showRowsInfo: k = !0
 }) {
-  const p = Math.max(1, r), x = Math.max(1, Math.ceil(t / p)), s = Math.min(Math.max(e, 1), x), v = t === 0 ? 0 : Math.min((s - 1) * p + 1, t), w = Math.min(s * p, t), h = oe(s, x);
+  const p = Math.max(1, r), f = Math.max(1, Math.ceil(t / p)), i = Math.min(Math.max(e, 1), f), v = t === 0 ? 0 : Math.min((i - 1) * p + 1, t), g = Math.min(i * p, t), x = oe(i, f);
   return /* @__PURE__ */ b("div", { className: "flex flex-col gap-3 border-t border-neutral-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between", children: [
-    M && /* @__PURE__ */ b("p", { className: "shrink-0 text-sm text-neutral-500", children: [
+    k && /* @__PURE__ */ b("p", { className: "shrink-0 text-sm text-neutral-500", children: [
       "Mostrando",
       " ",
       /* @__PURE__ */ n("span", { className: "font-medium text-neutral-700", children: v }),
       " - ",
-      /* @__PURE__ */ n("span", { className: "font-medium text-neutral-700", children: w }),
+      /* @__PURE__ */ n("span", { className: "font-medium text-neutral-700", children: g }),
       " ",
       "de",
       " ",
@@ -88,14 +99,14 @@ function le({
       "resultados"
     ] }),
     /* @__PURE__ */ b("div", { className: "flex flex-wrap items-center gap-4", children: [
-      f && m && /* @__PURE__ */ b("div", { className: "flex items-center gap-2 text-sm text-neutral-600", children: [
+      h && u && /* @__PURE__ */ b("div", { className: "flex items-center gap-2 text-sm text-neutral-600", children: [
         /* @__PURE__ */ n("span", { className: "shrink-0", children: "Filas por pagina" }),
         /* @__PURE__ */ n(
           "select",
           {
             value: r,
             onChange: (l) => {
-              m(Number(l.target.value)), o(1);
+              u(Number(l.target.value)), o(1);
             },
             className: "h-8 rounded-md border border-neutral-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500",
             children: a.map((l) => /* @__PURE__ */ n("option", { value: l, children: l }, l))
@@ -107,7 +118,7 @@ function le({
           T,
           {
             "aria-label": "Primera pagina",
-            disabled: s === 1,
+            disabled: i === 1,
             onClick: () => o(1),
             children: "<<"
           }
@@ -116,18 +127,18 @@ function le({
           T,
           {
             "aria-label": "Pagina anterior",
-            disabled: s === 1,
-            onClick: () => o(s - 1),
+            disabled: i === 1,
+            onClick: () => o(i - 1),
             children: "<"
           }
         ),
-        h.map(
-          (l, u) => l === "ellipsis" ? /* @__PURE__ */ n("span", { className: "select-none px-1 text-neutral-400", children: "..." }, `ellipsis-${u}`) : /* @__PURE__ */ n(
+        x.map(
+          (l, m) => l === "ellipsis" ? /* @__PURE__ */ n("span", { className: "select-none px-1 text-neutral-400", children: "..." }, `ellipsis-${m}`) : /* @__PURE__ */ n(
             T,
             {
-              active: l === s,
+              active: l === i,
               "aria-label": `Pagina ${l}`,
-              "aria-current": l === s ? "page" : void 0,
+              "aria-current": l === i ? "page" : void 0,
               onClick: () => o(l),
               children: l
             },
@@ -138,8 +149,8 @@ function le({
           T,
           {
             "aria-label": "Pagina siguiente",
-            disabled: s === x,
-            onClick: () => o(s + 1),
+            disabled: i === f,
+            onClick: () => o(i + 1),
             children: ">"
           }
         ),
@@ -147,8 +158,8 @@ function le({
           T,
           {
             "aria-label": "Ultima pagina",
-            disabled: s === x,
-            onClick: () => o(x),
+            disabled: i === f,
+            onClick: () => o(f),
             children: ">>"
           }
         )
@@ -162,7 +173,7 @@ const ie = c.forwardRef(
 ie.displayName = "TableCaption";
 const se = c.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = g();
+    const { responsiveMode: a } = w();
     return /* @__PURE__ */ n(
       "thead",
       {
@@ -180,7 +191,7 @@ const se = c.forwardRef(
 se.displayName = "TableHeader";
 const ce = c.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = g();
+    const { responsiveMode: a } = w();
     return /* @__PURE__ */ n(
       "tbody",
       {
@@ -198,7 +209,7 @@ const ce = c.forwardRef(
 ce.displayName = "TableBody";
 const de = c.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = g();
+    const { responsiveMode: a } = w();
     return /* @__PURE__ */ n(
       "tfoot",
       {
@@ -216,7 +227,7 @@ const de = c.forwardRef(
 de.displayName = "TableFooter";
 const me = c.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = g();
+    const { responsiveMode: a } = w();
     return /* @__PURE__ */ n(
       "tr",
       {
@@ -240,10 +251,10 @@ function be(e) {
   if (e === "asc") return "ascending";
   if (e === "desc") return "descending";
 }
-function F(e) {
+function _(e) {
   return typeof e == "number" ? `${e}px` : e;
 }
-function j(e) {
+function F(e) {
   if (typeof e == "number") return e;
   if (typeof e == "string" && e.endsWith("px")) return Number.parseFloat(e);
 }
@@ -271,41 +282,41 @@ const he = c.forwardRef(
     style: t,
     columnIndex: a,
     colSpan: o,
-    scope: m,
-    groupHeader: f = !1,
-    sortable: M = !1,
+    scope: u,
+    groupHeader: h = !1,
+    sortable: k = !1,
     sortDirection: p = null,
-    sortLabel: x,
-    sortCycle: s = ["asc", "desc", null],
+    sortLabel: f,
+    sortCycle: i = ["asc", "desc", null],
     onSortChange: v,
-    filterable: w = !1,
-    filterValue: h,
+    filterable: g = !1,
+    filterValue: x,
     filterPlaceholder: l = "Filtrar...",
-    filterInputProps: u,
+    filterInputProps: m,
     onFilterChange: W,
-    resizable: H = !1,
+    resizable: j = !1,
     width: N,
     minWidth: R,
-    maxWidth: B,
+    maxWidth: H,
     resizeHandleLabel: G = "Redimensionar columna",
     onColumnResize: V,
     onClick: U,
-    ...L
+    ...B
   }, Y) => {
-    const { columnFilters: q, setColumnFilter: E } = g(), _ = c.useRef(null), [J, K] = c.useState(""), [Q, X] = c.useState(() => j(N)), $ = Q ?? j(N), Z = F($ ?? N), k = f || m === "colgroup" || Number(o ?? 1) > 1, S = M && !k, z = h ?? (a !== void 0 ? q[a] ?? "" : J);
+    const { columnFilters: q, setColumnFilter: E } = w(), L = c.useRef(null), [J, K] = c.useState(""), [Q, X] = c.useState(() => F(N)), $ = Q ?? F(N), Z = _($ ?? N), M = h || u === "colgroup" || Number(o ?? 1) > 1, S = k && !M, z = x ?? (a !== void 0 ? q[a] ?? "" : J);
     c.useEffect(() => {
-      const i = j(N);
-      i !== void 0 && X(i);
+      const s = F(N);
+      s !== void 0 && X(s);
     }, [N]), c.useEffect(() => {
-      h !== void 0 && a !== void 0 && E(a, h);
-    }, [a, h, E]);
-    const P = (i) => {
-      i.stopPropagation(), v == null || v(ue(p, s));
-    }, I = (i) => {
+      x !== void 0 && a !== void 0 && E(a, x);
+    }, [a, x, E]);
+    const P = (s) => {
+      s.stopPropagation(), v == null || v(ue(p, i));
+    }, I = (s) => {
       var O;
-      i.preventDefault(), i.stopPropagation();
-      const y = i.clientX, ee = ((O = _.current) == null ? void 0 : O.offsetWidth) || $ || R || 120, A = (te) => {
-        const D = fe(ee + te.clientX - y, R, B);
+      s.preventDefault(), s.stopPropagation();
+      const y = s.clientX, ee = ((O = L.current) == null ? void 0 : O.offsetWidth) || $ || R || 120, A = (te) => {
+        const D = fe(ee + te.clientX - y, R, H);
         X(D), V == null || V(D);
       }, C = () => {
         document.removeEventListener("mousemove", A), document.removeEventListener("mouseup", C);
@@ -315,35 +326,35 @@ const he = c.forwardRef(
     return /* @__PURE__ */ b(
       "th",
       {
-        ref: (i) => {
-          _.current = i, xe(Y, i);
+        ref: (s) => {
+          L.current = s, xe(Y, s);
         },
         style: {
           ...t,
           width: Z ?? (t == null ? void 0 : t.width),
-          minWidth: F(R) ?? (t == null ? void 0 : t.minWidth),
-          maxWidth: F(B) ?? (t == null ? void 0 : t.maxWidth)
+          minWidth: _(R) ?? (t == null ? void 0 : t.minWidth),
+          maxWidth: _(H) ?? (t == null ? void 0 : t.maxWidth)
         },
-        "aria-sort": S ? be(p) : L["aria-sort"],
+        "aria-sort": S ? be(p) : B["aria-sort"],
         className: d(
           "relative h-10 px-4 text-left align-middle font-medium text-neutral-500 whitespace-nowrap",
-          k && "border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700",
-          (S || w) && "select-none",
-          H && "pr-6",
+          M && "border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700",
+          (S || g) && "select-none",
+          j && "pr-6",
           r
         ),
         colSpan: o,
-        scope: m ?? (k ? "colgroup" : void 0),
+        scope: u ?? (M ? "colgroup" : void 0),
         onClick: U,
-        ...L,
+        ...B,
         children: [
           /* @__PURE__ */ b(
             "div",
             {
               className: d(
                 "flex min-w-0 items-center gap-2",
-                w && "flex-col items-stretch gap-1 py-2",
-                k && !w && "justify-center"
+                g && "flex-col items-stretch gap-1 py-2",
+                M && !g && "justify-center"
               ),
               children: [
                 S ? /* @__PURE__ */ b(
@@ -352,37 +363,37 @@ const he = c.forwardRef(
                     type: "button",
                     className: "inline-flex min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none hover:text-neutral-800 focus-visible:ring-2 focus-visible:ring-primary-500",
                     onClick: P,
-                    "aria-label": x,
+                    "aria-label": f,
                     children: [
                       /* @__PURE__ */ n("span", { className: "truncate", children: e }),
                       /* @__PURE__ */ n(pe, { direction: p })
                     ]
                   }
                 ) : /* @__PURE__ */ n("span", { className: "truncate", children: e }),
-                w && /* @__PURE__ */ n(
+                g && /* @__PURE__ */ n(
                   "input",
                   {
-                    ...u,
-                    type: (u == null ? void 0 : u.type) ?? "text",
+                    ...m,
+                    type: (m == null ? void 0 : m.type) ?? "text",
                     value: z,
                     placeholder: l,
-                    "aria-label": (u == null ? void 0 : u["aria-label"]) ?? l,
-                    onClick: (i) => i.stopPropagation(),
-                    onChange: (i) => {
-                      const y = i.target.value;
-                      h === void 0 && (a !== void 0 ? E(a, y) : K(y)), W == null || W(y);
+                    "aria-label": (m == null ? void 0 : m["aria-label"]) ?? l,
+                    onClick: (s) => s.stopPropagation(),
+                    onChange: (s) => {
+                      const y = s.target.value;
+                      x === void 0 && (a !== void 0 ? E(a, y) : K(y)), W == null || W(y);
                     },
                     className: d(
                       "h-8 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-900 placeholder:text-neutral-400",
                       "focus:outline-none focus:ring-2 focus:ring-primary-500",
-                      u == null ? void 0 : u.className
+                      m == null ? void 0 : m.className
                     )
                   }
                 )
               ]
             }
           ),
-          H && /* @__PURE__ */ n(
+          j && /* @__PURE__ */ n(
             "button",
             {
               type: "button",
@@ -397,9 +408,9 @@ const he = c.forwardRef(
   }
 );
 he.displayName = "TableHead";
-const we = c.forwardRef(
+const ge = c.forwardRef(
   ({ className: e, ...r }, t) => {
-    const { responsiveMode: a } = g(), o = r.colSpan;
+    const { responsiveMode: a } = w(), o = r.colSpan;
     return /* @__PURE__ */ n(
       "td",
       {
@@ -419,11 +430,11 @@ const we = c.forwardRef(
     );
   }
 );
-we.displayName = "TableCell";
+ge.displayName = "TableCell";
 export {
   ce as TableBodyView,
   ie as TableCaptionView,
-  we as TableCellView,
+  ge as TableCellView,
   de as TableFooterView,
   he as TableHeadView,
   se as TableHeaderView,

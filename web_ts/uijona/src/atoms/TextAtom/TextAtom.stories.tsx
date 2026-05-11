@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { TextAtom } from './TextAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof TextAtom> = {
   title: 'Atoms/TextAtom',
@@ -38,27 +39,27 @@ export const Success: Story = {
 
 export const AllColors: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
       <TextAtom color="default">Default</TextAtom>
       <TextAtom color="muted">Muted</TextAtom>
       <TextAtom color="primary">Primary</TextAtom>
       <TextAtom color="danger">Danger</TextAtom>
       <TextAtom color="success">Success</TextAtom>
       <TextAtom color="warning">Warning</TextAtom>
-    </div>
+    </PanelAtom>
   ),
 };
 
 export const AllSizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
       <TextAtom size="xs">Extra small (xs)</TextAtom>
       <TextAtom size="sm">Small (sm)</TextAtom>
       <TextAtom size="base">Base</TextAtom>
       <TextAtom size="lg">Large (lg)</TextAtom>
       <TextAtom size="xl">Extra large (xl)</TextAtom>
       <TextAtom size="2xl">2XL</TextAtom>
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -72,14 +73,14 @@ export const Interactive: Story = {
       error: 'Ha ocurrido un error inesperado.',
     };
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <TextAtom color={colorMap[status]}>{msgMap[status]}</TextAtom>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px' }}>
           <button onClick={() => setStatus('success')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Éxito</button>
           <button onClick={() => setStatus('error')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Error</button>
           <button onClick={() => setStatus('idle')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Reiniciar</button>
-        </div>
-      </div>
+        </PanelAtom>
+      </PanelAtom>
     );
   },
 };

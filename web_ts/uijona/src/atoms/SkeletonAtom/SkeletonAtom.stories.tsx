@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { SkeletonAtom } from './SkeletonAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof SkeletonAtom> = {
   title: 'Atoms/SkeletonAtom',
@@ -23,18 +24,18 @@ export const Circle: Story = {
 
 export const CardSkeleton: Story = {
   render: () => (
-    <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px' }}>
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
         <SkeletonAtom circle className="h-10 w-10" />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+        <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
           <SkeletonAtom className="h-4 w-32" />
           <SkeletonAtom className="h-3 w-24" />
-        </div>
-      </div>
+        </PanelAtom>
+      </PanelAtom>
       <SkeletonAtom className="h-4 w-full" />
       <SkeletonAtom className="h-4 w-4/5" />
       <SkeletonAtom className="h-4 w-3/5" />
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -42,23 +43,23 @@ export const Interactive: Story = {
   render: () => {
     const [loaded, setLoaded] = useState(false);
     return (
-      <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {loaded ? (
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', border: '1px solid #e5e5e5', borderRadius: '8px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#4f46e5', fontSize: '14px' }}>JF</div>
-            <div>
+          <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', border: '1px solid #e5e5e5', borderRadius: '8px' }}>
+            <PanelAtom variant="ghost" padding="none" style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#4f46e5', fontSize: '14px' }}>JF</PanelAtom>
+            <PanelAtom variant="ghost" padding="none">
               <p style={{ fontWeight: 600, fontSize: '14px', margin: 0 }}>Jonathan Franck</p>
               <p style={{ fontSize: '12px', color: '#a3a3a3', margin: 0 }}>jofrantoba@gmail.com</p>
-            </div>
-          </div>
+            </PanelAtom>
+          </PanelAtom>
         ) : (
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', border: '1px solid #e5e5e5', borderRadius: '8px' }}>
+          <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', border: '1px solid #e5e5e5', borderRadius: '8px' }}>
             <SkeletonAtom circle className="h-10 w-10" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+            <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
               <SkeletonAtom className="h-4 w-32" />
               <SkeletonAtom className="h-3 w-48" />
-            </div>
-          </div>
+            </PanelAtom>
+          </PanelAtom>
         )}
         <button
           onClick={() => setLoaded((l) => !l)}
@@ -66,7 +67,7 @@ export const Interactive: Story = {
         >
           {loaded ? 'Mostrar skeleton' : 'Simular carga completa'}
         </button>
-      </div>
+      </PanelAtom>
     );
   },
 };

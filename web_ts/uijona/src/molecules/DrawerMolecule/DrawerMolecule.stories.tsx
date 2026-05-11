@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DrawerMolecule } from './DrawerMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof DrawerMolecule> = {
   title: 'Molecules/DrawerMolecule',
@@ -52,10 +53,10 @@ export const WithFooter: Story = {
   args: {
     open: true,
     footer: (
-      <div className="flex justify-end gap-2">
+      <PanelAtom variant="ghost" padding="none" className="flex justify-end gap-2">
         <button className="rounded-md border border-neutral-300 px-4 py-2 text-sm">Cancelar</button>
         <button className="rounded-md bg-primary-600 px-4 py-2 text-sm text-white">Guardar</button>
-      </div>
+      </PanelAtom>
     ),
   },
 };
@@ -67,7 +68,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [open, setOpen] = useState(false);
     return (
-      <div>
+      <PanelAtom variant="ghost" padding="none">
         <button
           onClick={() => setOpen(true)}
           className="rounded-md bg-primary-600 px-4 py-2 text-sm text-white"
@@ -82,7 +83,7 @@ export const Interactive: Story = {
         >
           <p className="text-sm text-neutral-600">Aquí irían los campos del formulario.</p>
         </DrawerMolecule>
-      </div>
+      </PanelAtom>
     );
   },
 };

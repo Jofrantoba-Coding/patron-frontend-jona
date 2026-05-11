@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { InputAtom } from './InputAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof InputAtom> = {
   title: 'Atoms/InputAtom',
@@ -47,7 +48,7 @@ export const Interactive: Story = {
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     const hasError = value.length > 0 && !isValid;
     return (
-      <div className="flex flex-col gap-1 w-72">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 w-72">
         <InputAtom
           type="email"
           placeholder="correo@ejemplo.com"
@@ -58,7 +59,7 @@ export const Interactive: Story = {
         />
         {hasError && <p className="text-xs text-red-500">El formato de email no es válido</p>}
         {isValid && <p className="text-xs text-green-600">Email válido</p>}
-      </div>
+      </PanelAtom>
     );
   },
 };

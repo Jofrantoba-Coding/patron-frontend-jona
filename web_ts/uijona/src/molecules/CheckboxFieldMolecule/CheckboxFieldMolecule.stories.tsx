@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { CheckboxFieldMolecule } from './CheckboxFieldMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof CheckboxFieldMolecule> = {
   title: 'Molecules/CheckboxFieldMolecule',
@@ -56,7 +57,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [values, setValues] = useState({ terms: false, newsletter: false, offers: false });
     return (
-      <div className="flex flex-col gap-3">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
         <CheckboxFieldMolecule
           id="terms"
           label="Acepto los términos y condiciones"
@@ -79,7 +80,7 @@ export const Interactive: Story = {
         <p className="text-xs text-neutral-500 mt-1">
           Seleccionados: {Object.entries(values).filter(([, v]) => v).map(([k]) => k).join(', ') || 'ninguno'}
         </p>
-      </div>
+      </PanelAtom>
     );
   },
 };

@@ -28,6 +28,7 @@ describe('package exports', () => {
       './atoms/ProgressAtom',
       './atoms/SkeletonAtom',
       './atoms/ToastAtom',
+      './atoms/PanelAtom',
       './molecules/CardMolecule',
       './molecules/AlertMolecule',
       './molecules/FormFieldMolecule',

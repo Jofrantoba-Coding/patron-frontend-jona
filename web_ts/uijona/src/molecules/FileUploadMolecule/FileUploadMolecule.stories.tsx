@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { FileUploadMolecule } from './FileUploadMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof FileUploadMolecule> = {
   title: 'Molecules/FileUploadMolecule',
@@ -36,7 +37,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [files, setFiles] = useState<File[]>([]);
     return (
-      <div className="flex flex-col gap-3 w-96">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 w-96">
         <FileUploadMolecule
           label="Adjuntar documentos"
           description="PDF, PNG o JPG hasta 5 MB"
@@ -57,7 +58,7 @@ export const Interactive: Story = {
             ))}
           </ul>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

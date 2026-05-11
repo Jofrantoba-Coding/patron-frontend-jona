@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ProgressAtom } from './ProgressAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof ProgressAtom> = {
   title: 'Atoms/ProgressAtom',
@@ -17,37 +18,37 @@ type Story = StoryObj<typeof ProgressAtom>;
 
 export const Default: Story = {
   args: { value: 60 },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const WithLabel: Story = {
   args: { value: 75, showLabel: true },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const Success: Story = {
   args: { value: 100, variant: 'success', showLabel: true },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const Warning: Story = {
   args: { value: 45, variant: 'warning', showLabel: true },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const Danger: Story = {
   args: { value: 20, variant: 'danger', showLabel: true },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <ProgressAtom value={80} variant="default"  showLabel />
       <ProgressAtom value={90} variant="success"  showLabel />
       <ProgressAtom value={55} variant="warning"  showLabel />
       <ProgressAtom value={25} variant="danger"   showLabel />
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -68,7 +69,7 @@ export const Interactive: Story = {
     };
     const variant = progress < 40 ? 'default' : progress < 80 ? 'warning' : 'success';
     return (
-      <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <ProgressAtom value={progress} variant={variant} showLabel />
         <button
           onClick={start}
@@ -77,7 +78,7 @@ export const Interactive: Story = {
         >
           {running ? 'Subiendo...' : progress === 100 ? 'Subir de nuevo' : 'Iniciar subida'}
         </button>
-      </div>
+      </PanelAtom>
     );
   },
 };

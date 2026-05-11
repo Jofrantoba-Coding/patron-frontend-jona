@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { LinkAtom } from './LinkAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof LinkAtom> = {
   title: 'Atoms/LinkAtom',
@@ -57,13 +58,13 @@ export const Disabled: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
       <LinkAtom href="#">Default</LinkAtom>
       <LinkAtom href="#" variant="muted">Muted</LinkAtom>
       <LinkAtom href="#" variant="button">Button</LinkAtom>
       <LinkAtom href="#" variant="danger">Danger</LinkAtom>
       <LinkAtom href="#" disabled>Disabled</LinkAtom>
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -75,8 +76,8 @@ export const Interactive: Story = {
     const pages = ['Inicio', 'Productos', 'Detalle', 'Soporte'];
     const [current, setCurrent] = useState('Inicio');
     return (
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap gap-3">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
+        <PanelAtom variant="ghost" padding="none" className="flex flex-wrap gap-3">
           {pages.map((page) => (
             <LinkAtom
               key={page}
@@ -87,11 +88,11 @@ export const Interactive: Story = {
               {page}
             </LinkAtom>
           ))}
-        </div>
+        </PanelAtom>
         <p className="text-sm text-neutral-500">
           Página actual: <strong>{current}</strong>
         </p>
-      </div>
+      </PanelAtom>
     );
   },
 };

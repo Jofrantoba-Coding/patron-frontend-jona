@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RatingAtom } from './RatingAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof RatingAtom> = {
   title: 'Atoms/RatingAtom',
@@ -51,12 +52,12 @@ export const Interactive: Story = {
   render: (args) => {
     const [rating, setRating] = useState(0);
     return (
-      <div className="flex flex-col gap-3">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
         <RatingAtom value={rating} onChange={(v) => { args.onChange?.(v); setRating(v); }} />
         <p className="text-sm text-neutral-500">
           {rating === 0 ? 'Sin calificación' : `Calificación: ${rating} / 5`}
         </p>
-      </div>
+      </PanelAtom>
     );
   },
 };

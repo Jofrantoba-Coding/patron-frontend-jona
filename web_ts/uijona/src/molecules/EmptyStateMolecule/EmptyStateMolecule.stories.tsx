@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { EmptyStateMolecule } from './EmptyStateMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const EmptyIcon = () => (
   <span aria-hidden="true" style={{ fontSize: 24, fontWeight: 700, lineHeight: 1 }}>
@@ -52,7 +53,7 @@ export const Interactive: Story = {
   render: () => {
     const [projects, setProjects] = useState<string[]>([]);
     return (
-      <div className="flex flex-col gap-4 items-center w-full">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 items-center w-full">
         {projects.length === 0 ? (
           <EmptyStateMolecule
             icon={<EmptyIcon />}
@@ -63,9 +64,9 @@ export const Interactive: Story = {
             ]}
           />
         ) : (
-          <div className="flex flex-col gap-2 w-80">
+          <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
             {projects.map((p) => (
-              <div key={p} className="flex justify-between items-center rounded-lg border p-3">
+              <PanelAtom variant="ghost" padding="none" key={p} className="flex justify-between items-center rounded-lg border p-3">
                 <p className="text-sm font-medium">{p}</p>
                 <button
                   onClick={() => setProjects((prev) => prev.filter((x) => x !== p))}
@@ -73,7 +74,7 @@ export const Interactive: Story = {
                 >
                   Eliminar
                 </button>
-              </div>
+              </PanelAtom>
             ))}
             <button
               onClick={() => setProjects((prev) => [...prev, `Proyecto ${String.fromCharCode(65 + prev.length)}`])}
@@ -81,9 +82,9 @@ export const Interactive: Story = {
             >
               Agregar proyecto
             </button>
-          </div>
+          </PanelAtom>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

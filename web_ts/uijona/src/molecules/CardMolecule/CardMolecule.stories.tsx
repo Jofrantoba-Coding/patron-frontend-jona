@@ -9,6 +9,7 @@ import {
   CardFooter,
 } from './CardMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof CardMolecule> = {
   title: 'Molecules/CardMolecule',
@@ -51,7 +52,7 @@ export const Interactive: Story = {
     return (
       <CardMolecule style={{ width: '360px' }}>
         <CardHeader>
-          <div className="flex justify-between items-start">
+          <PanelAtom variant="ghost" padding="none" className="flex justify-between items-start">
             <CardTitle>Producto Premium</CardTitle>
             <button
               onClick={() => setLiked((l) => !l)}
@@ -60,7 +61,7 @@ export const Interactive: Story = {
             >
               {liked ? '♥' : '♡'}
             </button>
-          </div>
+          </PanelAtom>
           <CardDescription>Plan anual con soporte prioritario incluido</CardDescription>
         </CardHeader>
         <CardContent>

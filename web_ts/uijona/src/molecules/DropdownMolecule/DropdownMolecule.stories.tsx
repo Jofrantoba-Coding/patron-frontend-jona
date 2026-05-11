@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DropdownMolecule } from './DropdownMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const groups = [
   {
@@ -64,7 +65,7 @@ export const Interactive: Story = {
       },
     ];
     return (
-      <div className="flex flex-col gap-4 items-start p-8">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 items-start p-8">
         <DropdownMolecule
           trigger={<ButtonAtom variant="outline">Mi cuenta ▾</ButtonAtom>}
           groups={menuGroups}
@@ -74,7 +75,7 @@ export const Interactive: Story = {
             Última acción: <strong>{lastAction}</strong>
           </p>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

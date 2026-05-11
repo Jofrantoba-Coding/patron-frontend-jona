@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { LabelAtom } from './LabelAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof LabelAtom> = {
   title: 'Atoms/LabelAtom',
@@ -31,9 +32,9 @@ export const Interactive: Story = {
     const [required, setRequired] = useState(false);
     const [disabled, setDisabled] = useState(false);
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <LabelAtom required={required} disabled={disabled}>Correo electrónico</LabelAtom>
-        <div style={{ display: 'flex', gap: '16px', fontSize: '14px' }}>
+        <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '16px', fontSize: '14px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
             <input type="checkbox" checked={required} onChange={(e) => setRequired(e.target.checked)} />
             Requerido
@@ -42,8 +43,8 @@ export const Interactive: Story = {
             <input type="checkbox" checked={disabled} onChange={(e) => setDisabled(e.target.checked)} />
             Deshabilitado
           </label>
-        </div>
-      </div>
+        </PanelAtom>
+      </PanelAtom>
     );
   },
 };

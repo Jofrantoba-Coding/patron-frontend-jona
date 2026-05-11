@@ -12,7 +12,7 @@ import { FileUploadMoleculeImpl as g } from "./molecules/FileUploadMolecule/File
 import { FileUploadMolecule as b } from "./molecules/FileUploadMolecule/FileUploadMolecule.js";
 import { STAT_CARD_MOLECULE_DEFAULTS as L } from "./molecules/StatCardMolecule/InterStatCardMolecule.js";
 import { StatCardMoleculeView as R } from "./molecules/StatCardMolecule/StatCardMoleculeView.js";
-import { StatCardMoleculeImpl as F } from "./molecules/StatCardMolecule/StatCardMoleculeImpl.js";
+import { StatCardMoleculeImpl as P } from "./molecules/StatCardMolecule/StatCardMoleculeImpl.js";
 import { StatCardMolecule as w } from "./molecules/StatCardMolecule/StatCardMolecule.js";
 import { STEPPER_MOLECULE_DEFAULTS as H } from "./molecules/StepperMolecule/InterStepperMolecule.js";
 import { StepperMoleculeView as k } from "./molecules/StepperMolecule/StepperMoleculeView.js";
@@ -37,7 +37,7 @@ import { HEADER_PAGE_ORGANISM_DEFAULTS as ge } from "./organisms/HeaderPageOrgan
 import { FooterPageOrganism as be } from "./organisms/FooterPageOrganism/FooterPageOrganism.js";
 import { FooterPageOrganismImpl as Le } from "./organisms/FooterPageOrganism/FooterPageOrganismImpl.js";
 import { FooterPageOrganismView as Re } from "./organisms/FooterPageOrganism/FooterPageOrganismView.js";
-import { FOOTER_PAGE_ORGANISM_DEFAULTS as Fe } from "./organisms/FooterPageOrganism/InterFooterPageOrganism.js";
+import { FOOTER_PAGE_ORGANISM_DEFAULTS as Pe } from "./organisms/FooterPageOrganism/InterFooterPageOrganism.js";
 import { UI_HOME_LOGIN_DEFAULTS as we } from "./pages/UiHomeLogin/InterUiHomeLogin.js";
 import { UiHomeLoginView as He } from "./pages/UiHomeLogin/UiHomeLoginView.js";
 import { UiHomeLoginImpl as ke, UiHomeLoginImpl as Ve } from "./pages/UiHomeLogin/UiHomeLoginImpl.js";
@@ -59,7 +59,7 @@ import { BORDER_LAYOUT_DEFAULTS as Ao } from "./layouts/BorderLayout/InterBorder
 import { BadgeAtomImpl as To } from "./atoms/BadgeAtom/BadgeAtomImpl.js";
 import { BorderLayoutImpl as Eo } from "./layouts/BorderLayout/BorderLayoutImpl.js";
 import { BorderLayoutView as Co } from "./layouts/BorderLayout/BorderLayoutView.js";
-import { BreadcrumbEllipsisImpl as Uo, BreadcrumbItemImpl as Lo, BreadcrumbLinkImpl as Oo, BreadcrumbListImpl as Ro, BreadcrumbMoleculeImpl as _o, BreadcrumbPageImpl as Fo, BreadcrumbSeparatorImpl as Po } from "./molecules/BreadcrumbMolecule/BreadcrumbMoleculeImpl.js";
+import { BreadcrumbEllipsisImpl as Uo, BreadcrumbItemImpl as Lo, BreadcrumbLinkImpl as Oo, BreadcrumbListImpl as Ro, BreadcrumbMoleculeImpl as _o, BreadcrumbPageImpl as Po, BreadcrumbSeparatorImpl as Fo } from "./molecules/BreadcrumbMolecule/BreadcrumbMoleculeImpl.js";
 import { ButtonAtomImpl as Do } from "./atoms/ButtonAtom/ButtonAtomImpl.js";
 import { CardContentImpl as Bo, CardDescriptionImpl as ko, CardFooterImpl as Vo, CardHeaderImpl as vo, CardMoleculeImpl as No, CardTitleImpl as ho } from "./molecules/CardMolecule/CardMoleculeImpl.js";
 import { CheckboxAtomImpl as yo } from "./atoms/CheckboxAtom/CheckboxAtomImpl.js";
@@ -81,29 +81,30 @@ import { LabelAtomImpl as dr } from "./atoms/LabelAtom/LabelAtomImpl.js";
 import { LinkAtomImpl as Sr } from "./atoms/LinkAtom/LinkAtomImpl.js";
 import { MultiSelectMoleculeImpl as gr } from "./molecules/MultiSelectMolecule/MultiSelectMoleculeImpl.js";
 import { PaginationMoleculeImpl as br } from "./molecules/PaginationMolecule/PaginationMoleculeImpl.js";
-import { PopoverMoleculeImpl as Lr } from "./molecules/PopoverMolecule/PopoverMoleculeImpl.js";
-import { ProgressAtomImpl as Rr } from "./atoms/ProgressAtom/ProgressAtomImpl.js";
-import { RadioAtomImpl as Fr } from "./atoms/RadioAtom/RadioAtomImpl.js";
-import { RadioGroupMoleculeImpl as wr } from "./molecules/RadioGroupMolecule/RadioGroupMoleculeImpl.js";
-import { RatingAtomImpl as Hr } from "./atoms/RatingAtom/RatingAtomImpl.js";
-import { SelectAtomImpl as kr } from "./atoms/SelectAtom/SelectAtomImpl.js";
-import { SelectFieldMoleculeImpl as vr } from "./molecules/SelectFieldMolecule/SelectFieldMoleculeImpl.js";
-import { SeparatorAtomImpl as hr } from "./atoms/SeparatorAtom/SeparatorAtomImpl.js";
-import { SidebarLayoutImpl as yr } from "./layouts/SidebarLayout/SidebarLayoutImpl.js";
-import { SkeletonAtomImpl as Jr } from "./atoms/SkeletonAtom/SkeletonAtomImpl.js";
-import { SkeletonCardImpl as jr, SkeletonFormImpl as qr, SkeletonTableRowsImpl as zr, SkeletonUserRowImpl as Kr } from "./molecules/SkeletonPresets/SkeletonPresetsImpl.js";
-import { SpinnerAtomImpl as Xr } from "./atoms/SpinnerAtom/SpinnerAtomImpl.js";
-import { SwitchAtomImpl as $r } from "./atoms/SwitchAtom/SwitchAtomImpl.js";
-import { SwitchFieldMoleculeImpl as om } from "./molecules/SwitchFieldMolecule/SwitchFieldMoleculeImpl.js";
-import { TableBodyImpl as mm, TableCaptionImpl as lm, TableCellImpl as tm, TableFooterImpl as am, TableHeadImpl as pm, TableHeaderImpl as sm, TableMoleculeImpl as im, TableRowImpl as cm } from "./molecules/TableMolecule/TableMoleculeImpl.js";
-import { TabsContentImpl as xm, TabsListImpl as um, TabsMoleculeImpl as fm, TabsTriggerImpl as nm } from "./molecules/TabsMolecule/TabsMoleculeImpl.js";
-import { TextAtomImpl as Mm } from "./atoms/TextAtom/TextAtomImpl.js";
-import { TextareaAtomImpl as Tm } from "./atoms/TextareaAtom/TextareaAtomImpl.js";
-import { TimerMoleculeImpl as Em } from "./molecules/TimerMolecule/TimerMoleculeImpl.js";
-import { ToastAtomImpl as Cm } from "./atoms/ToastAtom/ToastAtomImpl.js";
-import { ToastProvider as Um, useToast as Lm, useToastHelpers as Om } from "./hooks/useToast/UseToastImpl.js";
-import { TooltipMoleculeImpl as _m } from "./molecules/TooltipMolecule/TooltipMoleculeImpl.js";
-import { UserAvatarMoleculeImpl as Pm } from "./molecules/UserAvatarMolecule/UserAvatarMoleculeImpl.js";
+import { PanelAtomImpl as Lr } from "./atoms/PanelAtom/PanelAtomImpl.js";
+import { PopoverMoleculeImpl as Rr } from "./molecules/PopoverMolecule/PopoverMoleculeImpl.js";
+import { ProgressAtomImpl as Pr } from "./atoms/ProgressAtom/ProgressAtomImpl.js";
+import { RadioAtomImpl as wr } from "./atoms/RadioAtom/RadioAtomImpl.js";
+import { RadioGroupMoleculeImpl as Hr } from "./molecules/RadioGroupMolecule/RadioGroupMoleculeImpl.js";
+import { RatingAtomImpl as kr } from "./atoms/RatingAtom/RatingAtomImpl.js";
+import { SelectAtomImpl as vr } from "./atoms/SelectAtom/SelectAtomImpl.js";
+import { SelectFieldMoleculeImpl as hr } from "./molecules/SelectFieldMolecule/SelectFieldMoleculeImpl.js";
+import { SeparatorAtomImpl as yr } from "./atoms/SeparatorAtom/SeparatorAtomImpl.js";
+import { SidebarLayoutImpl as Jr } from "./layouts/SidebarLayout/SidebarLayoutImpl.js";
+import { SkeletonAtomImpl as jr } from "./atoms/SkeletonAtom/SkeletonAtomImpl.js";
+import { SkeletonCardImpl as zr, SkeletonFormImpl as Kr, SkeletonTableRowsImpl as Qr, SkeletonUserRowImpl as Xr } from "./molecules/SkeletonPresets/SkeletonPresetsImpl.js";
+import { SpinnerAtomImpl as $r } from "./atoms/SpinnerAtom/SpinnerAtomImpl.js";
+import { SwitchAtomImpl as om } from "./atoms/SwitchAtom/SwitchAtomImpl.js";
+import { SwitchFieldMoleculeImpl as mm } from "./molecules/SwitchFieldMolecule/SwitchFieldMoleculeImpl.js";
+import { TableBodyImpl as tm, TableCaptionImpl as am, TableCellImpl as pm, TableFooterImpl as sm, TableHeadImpl as im, TableHeaderImpl as cm, TableMoleculeImpl as Im, TableRowImpl as xm } from "./molecules/TableMolecule/TableMoleculeImpl.js";
+import { TabsContentImpl as fm, TabsListImpl as nm, TabsMoleculeImpl as Am, TabsTriggerImpl as Mm } from "./molecules/TabsMolecule/TabsMoleculeImpl.js";
+import { TextAtomImpl as Tm } from "./atoms/TextAtom/TextAtomImpl.js";
+import { TextareaAtomImpl as Em } from "./atoms/TextareaAtom/TextareaAtomImpl.js";
+import { TimerMoleculeImpl as Cm } from "./molecules/TimerMolecule/TimerMoleculeImpl.js";
+import { ToastAtomImpl as Um } from "./atoms/ToastAtom/ToastAtomImpl.js";
+import { ToastProvider as Om, useToast as Rm, useToastHelpers as _m } from "./hooks/useToast/UseToastImpl.js";
+import { TooltipMoleculeImpl as Fm } from "./molecules/TooltipMolecule/TooltipMoleculeImpl.js";
+import { UserAvatarMoleculeImpl as Dm } from "./molecules/UserAvatarMolecule/UserAvatarMoleculeImpl.js";
 export {
   co as AccordionMolecule,
   xo as AlertMolecule,
@@ -117,8 +118,8 @@ export {
   Oo as BreadcrumbLink,
   Ro as BreadcrumbList,
   _o as BreadcrumbMolecule,
-  Fo as BreadcrumbPage,
-  Po as BreadcrumbSeparator,
+  Po as BreadcrumbPage,
+  Fo as BreadcrumbSeparator,
   Do as ButtonAtom,
   re as CREATE_ACCOUNT_ORGANISM_DEFAULTS,
   Bo as CardContent,
@@ -147,7 +148,7 @@ export {
   fe as ErrorPageOrganismImpl,
   Ie as ErrorPageOrganismView,
   d as FILE_UPLOAD_MOLECULE_DEFAULTS,
-  Fe as FOOTER_PAGE_ORGANISM_DEFAULTS,
+  Pe as FOOTER_PAGE_ORGANISM_DEFAULTS,
   b as FileUploadMolecule,
   g as FileUploadMoleculeImpl,
   S as FileUploadMoleculeView,
@@ -174,12 +175,13 @@ export {
   f as NumberInputMoleculeImpl,
   x as NumberInputMoleculeView,
   br as PaginationMolecule,
-  Lr as PopoverMolecule,
-  Rr as ProgressAtom,
+  Lr as PanelAtom,
+  Rr as PopoverMolecule,
+  Pr as ProgressAtom,
   K as RECOVER_PASSWORD_ORGANISM_DEFAULTS,
-  Fr as RadioAtom,
-  wr as RadioGroupMolecule,
-  Hr as RatingAtom,
+  wr as RadioAtom,
+  Hr as RadioGroupMolecule,
+  kr as RatingAtom,
   $ as RecoverPasswordOrganism,
   ee as RecoverPasswordOrganismImpl,
   X as RecoverPasswordOrganismView,
@@ -189,42 +191,42 @@ export {
   s as SearchInputMolecule,
   a as SearchInputMoleculeImpl,
   l as SearchInputMoleculeView,
-  kr as SelectAtom,
-  vr as SelectFieldMolecule,
-  hr as SeparatorAtom,
-  yr as SidebarLayout,
-  Jr as SkeletonAtom,
-  jr as SkeletonCard,
-  qr as SkeletonForm,
-  zr as SkeletonTableRows,
-  Kr as SkeletonUserRow,
-  Xr as SpinnerAtom,
+  vr as SelectAtom,
+  hr as SelectFieldMolecule,
+  yr as SeparatorAtom,
+  Jr as SidebarLayout,
+  jr as SkeletonAtom,
+  zr as SkeletonCard,
+  Kr as SkeletonForm,
+  Qr as SkeletonTableRows,
+  Xr as SkeletonUserRow,
+  $r as SpinnerAtom,
   w as StatCardMolecule,
-  F as StatCardMoleculeImpl,
+  P as StatCardMoleculeImpl,
   R as StatCardMoleculeView,
   h as StepperMolecule,
   v as StepperMoleculeImpl,
   k as StepperMoleculeView,
-  $r as SwitchAtom,
-  om as SwitchFieldMolecule,
-  mm as TableBody,
-  lm as TableCaption,
-  tm as TableCell,
-  am as TableFooter,
-  pm as TableHead,
-  sm as TableHeader,
-  im as TableMolecule,
-  cm as TableRow,
-  xm as TabsContent,
-  um as TabsList,
-  fm as TabsMolecule,
-  nm as TabsTrigger,
-  Mm as TextAtom,
-  Tm as TextareaAtom,
-  Em as TimerMolecule,
-  Cm as ToastAtom,
-  Um as ToastProvider,
-  _m as TooltipMolecule,
+  om as SwitchAtom,
+  mm as SwitchFieldMolecule,
+  tm as TableBody,
+  am as TableCaption,
+  pm as TableCell,
+  sm as TableFooter,
+  im as TableHead,
+  cm as TableHeader,
+  Im as TableMolecule,
+  xm as TableRow,
+  fm as TabsContent,
+  nm as TabsList,
+  Am as TabsMolecule,
+  Mm as TabsTrigger,
+  Tm as TextAtom,
+  Em as TextareaAtom,
+  Cm as TimerMolecule,
+  Um as ToastAtom,
+  Om as ToastProvider,
+  Fm as TooltipMolecule,
   je as UI_HOME_CREATE_ACCOUNT_DEFAULTS,
   $e as UI_HOME_ERROR_DEFAULTS,
   we as UI_HOME_LOGIN_DEFAULTS,
@@ -241,9 +243,9 @@ export {
   We as UiHomeRecoverPassword,
   Je as UiHomeRecoverPasswordImpl,
   Ge as UiHomeRecoverPasswordView,
-  Pm as UserAvatarMolecule,
+  Dm as UserAvatarMolecule,
   so as cn,
-  Lm as useToast,
-  Om as useToastHelpers
+  Rm as useToast,
+  _m as useToastHelpers
 };
 //# sourceMappingURL=index.js.map

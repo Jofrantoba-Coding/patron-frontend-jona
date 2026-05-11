@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ToastAtom } from './ToastAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof ToastAtom> = {
   title: 'Atoms/ToastAtom',
@@ -38,12 +39,12 @@ export const Danger: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-80">
+    <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
       <ToastAtom id="1" message="Notificación por defecto" variant="default" duration={0} />
       <ToastAtom id="2" title="Éxito" message="Guardado correctamente" variant="success" duration={0} />
       <ToastAtom id="3" title="Advertencia" message="Revisa tu conexión" variant="warning" duration={0} />
       <ToastAtom id="4" title="Error" message="No se pudo completar" variant="danger" duration={0} />
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -67,8 +68,8 @@ export const Interactive: Story = {
     };
 
     return (
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap gap-2">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
+        <PanelAtom variant="ghost" padding="none" className="flex flex-wrap gap-2">
           <button onClick={() => add('default', 'Notificación por defecto')}
             className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50">Default</button>
           <button onClick={() => add('success', 'Acción completada con éxito')}
@@ -77,8 +78,8 @@ export const Interactive: Story = {
             className="rounded-md bg-warning-500 px-3 py-1.5 text-sm text-white">Warning</button>
           <button onClick={() => add('danger', 'Ocurrió un error')}
             className="rounded-md bg-danger-500 px-3 py-1.5 text-sm text-white">Danger</button>
-        </div>
-        <div className="flex flex-col gap-2 w-80">
+        </PanelAtom>
+        <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
           {toasts.map((t) => (
             <ToastAtom key={t.id} id={t.id} message={t.message} variant={t.variant}
               duration={3000} onDismiss={dismiss} />
@@ -86,8 +87,8 @@ export const Interactive: Story = {
           {toasts.length === 0 && (
             <p className="text-sm text-neutral-400">Sin notificaciones. Haz clic en un botón.</p>
           )}
-        </div>
-      </div>
+        </PanelAtom>
+      </PanelAtom>
     );
   },
 };

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { MultiSelectMolecule } from './MultiSelectMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const SKILLS = [
   { value: 'react', label: 'React' },
@@ -23,7 +24,7 @@ const meta: Meta<typeof MultiSelectMolecule> = {
     onChange: fn(),
     placeholder: 'Seleccionar habilidades...',
   },
-  decorators: [(Story) => <div className="w-72"><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="w-72"><Story /></PanelAtom>],
 };
 export default meta;
 type Story = StoryObj<typeof MultiSelectMolecule>;
@@ -49,7 +50,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [values, setValues] = useState<string[]>([]);
     return (
-      <div className="flex w-72 flex-col gap-3">
+      <PanelAtom variant="ghost" padding="none" className="flex w-72 flex-col gap-3">
         <MultiSelectMolecule
           options={SKILLS}
           value={values}
@@ -60,7 +61,7 @@ export const Interactive: Story = {
         <p className="text-sm text-neutral-500">
           {values.length === 0 ? 'Ninguna seleccionada' : `Seleccionadas (${values.length}): ${values.join(', ')}`}
         </p>
-      </div>
+      </PanelAtom>
     );
   },
 };

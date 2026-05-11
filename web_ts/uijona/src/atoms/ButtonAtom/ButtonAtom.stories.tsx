@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import React, { useState } from 'react';
 import { ButtonAtom } from './ButtonAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof ButtonAtom> = {
   title: 'Atoms/ButtonAtom',
@@ -57,19 +58,19 @@ export const Disabled: Story = {
 
 export const FullWidth: Story = {
   args: { fullWidth: true, children: 'Ancho completo' },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
       <ButtonAtom variant="default">Default</ButtonAtom>
       <ButtonAtom variant="secondary">Secondary</ButtonAtom>
       <ButtonAtom variant="outline">Outline</ButtonAtom>
       <ButtonAtom variant="ghost">Ghost</ButtonAtom>
       <ButtonAtom variant="destructive">Destructive</ButtonAtom>
       <ButtonAtom variant="link">Link</ButtonAtom>
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -88,7 +89,7 @@ export const Interactive: Story = {
       setSubmitted(true);
     };
     return (
-      <div className="flex flex-col gap-3 w-48">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 w-48">
         <ButtonAtom loading={loading} onClick={handleClick} fullWidth>
           {submitted ? 'Enviado correctamente' : 'Enviar formulario'}
         </ButtonAtom>
@@ -97,7 +98,7 @@ export const Interactive: Story = {
             Restablecer
           </ButtonAtom>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };

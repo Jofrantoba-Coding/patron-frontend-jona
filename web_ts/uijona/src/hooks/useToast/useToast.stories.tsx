@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ToastProvider, useToast } from './useToast';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta = {
   title: 'Hooks/useToast',
@@ -47,12 +48,12 @@ export const AllToasts: StoryObj = {
   render: () => {
     const { toast } = useToast();
     return (
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <ButtonAtom onClick={() => toast({ message: 'Notificación' })}>Default</ButtonAtom>
         <ButtonAtom variant="outline" onClick={() => toast({ variant: 'success', title: 'Éxito', message: 'Guardado' })}>Success</ButtonAtom>
         <ButtonAtom variant="outline" onClick={() => toast({ variant: 'warning', title: 'Aviso', message: 'Revisa tu sesión' })}>Warning</ButtonAtom>
         <ButtonAtom variant="destructive" onClick={() => toast({ variant: 'danger', title: 'Error', message: 'Operación fallida' })}>Danger</ButtonAtom>
-      </div>
+      </PanelAtom>
     );
   },
 };

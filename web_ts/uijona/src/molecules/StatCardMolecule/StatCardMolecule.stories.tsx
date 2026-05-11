@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { StatCardMolecule } from './StatCardMolecule';
 import type { StatCardTone, StatCardTrend } from './InterStatCardMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof StatCardMolecule> = {
   title: 'Molecules/StatCardMolecule',
@@ -28,11 +29,11 @@ export const Default: Story = {};
 
 export const DashboardGrid: Story = {
   render: () => (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <PanelAtom variant="ghost" padding="none" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <StatCardMolecule label="Active users" value="18,240" trend="up" trendLabel="+8%" description="this week" tone="success" />
       <StatCardMolecule label="Open tickets" value="128" trend="down" trendLabel="-3%" description="today" tone="info" />
       <StatCardMolecule label="Failed jobs" value="7" trend="up" trendLabel="+2" description="needs review" tone="danger" />
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -61,7 +62,7 @@ export const Interactive: Story = {
       setLoading(false);
     };
     return (
-      <div className="flex flex-col gap-3 w-64">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 w-64">
         <StatCardMolecule label="Ingresos mensuales" {...data} description="vs mes anterior" />
         <button
           onClick={refresh}
@@ -70,7 +71,7 @@ export const Interactive: Story = {
         >
           {loading ? 'Actualizando...' : 'Actualizar métrica'}
         </button>
-      </div>
+      </PanelAtom>
     );
   },
 };

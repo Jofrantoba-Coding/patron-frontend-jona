@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { AvatarAtom } from './AvatarAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof AvatarAtom> = {
   title: 'Atoms/AvatarAtom',
@@ -32,13 +33,13 @@ export const Square: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
       <AvatarAtom initials="XS" size="xs" />
       <AvatarAtom initials="SM" size="sm" />
       <AvatarAtom initials="MD" size="md" />
       <AvatarAtom initials="LG" size="lg" />
       <AvatarAtom initials="XL" size="xl" />
-    </div>
+    </PanelAtom>
   ),
 };
 
@@ -51,8 +52,8 @@ export const Interactive: Story = {
     ];
     const [active, setActive] = useState(0);
     return (
-      <div className="flex flex-col gap-3">
-        <div className="flex gap-3">
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
+        <PanelAtom variant="ghost" padding="none" className="flex gap-3">
           {users.map((u, i) => (
             <button
               key={i}
@@ -63,11 +64,11 @@ export const Interactive: Story = {
               <AvatarAtom initials={u.initials} size="md" />
             </button>
           ))}
-        </div>
+        </PanelAtom>
         <p className="text-sm text-neutral-600">
           Usuario activo: <strong>{users[active].name}</strong>
         </p>
-      </div>
+      </PanelAtom>
     );
   },
 };

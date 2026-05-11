@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SelectFieldMolecule } from './SelectFieldMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const options = [
   { value: 'mx', label: 'México' },
@@ -24,12 +25,12 @@ type Story = StoryObj<typeof SelectFieldMolecule>;
 
 export const Default: Story = {
   args: { id: 'country', label: 'País', options, placeholder: 'Selecciona un país' },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const Required: Story = {
   args: { id: 'country-req', label: 'País', options, required: true, placeholder: 'Selecciona un país' },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const WithError: Story = {
@@ -40,7 +41,7 @@ export const WithError: Story = {
     errorMessage: 'Selecciona un país válido',
     placeholder: 'Selecciona un país',
   },
-  decorators: [(Story) => <div style={{ width: '320px' }}><Story /></div>],
+  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
 };
 
 export const Interactive: Story = {
@@ -52,7 +53,7 @@ export const Interactive: Story = {
     const [submitted, setSubmitted] = useState(false);
     const error = submitted && !country ? 'Este campo es requerido' : undefined;
     return (
-      <div className="flex flex-col gap-3" style={{ width: '320px' }}>
+      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3" style={{ width: '320px' }}>
         <SelectFieldMolecule
           id="country-interactive"
           label="País de residencia"
@@ -73,7 +74,7 @@ export const Interactive: Story = {
             País guardado: <strong>{options.find((o) => o.value === country)?.label}</strong>
           </p>
         )}
-      </div>
+      </PanelAtom>
     );
   },
 };
