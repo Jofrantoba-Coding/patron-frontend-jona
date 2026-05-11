@@ -7,10 +7,6 @@ export interface TableContextValue {
     columnFilters: Record<number, string>;
     setColumnFilter: (columnIndex: number, value: string) => void;
 }
-export interface InterTableMolecule extends React.TableHTMLAttributes<HTMLTableElement> {
-    responsiveMode?: TableResponsiveMode;
-    wrapperClassName?: string;
-}
 export interface InterTableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
     columnIndex?: number;
     groupHeader?: boolean;
@@ -30,5 +26,20 @@ export interface InterTableHeadProps extends React.ThHTMLAttributes<HTMLTableCel
     maxWidth?: number;
     resizeHandleLabel?: string;
     onColumnResize?: (width: number) => void;
+}
+export interface TablePaginationConfig {
+    currentPage: number;
+    pageSize: number;
+    totalRows: number;
+    pageSizeOptions?: number[];
+    onPageChange: (page: number) => void;
+    onPageSizeChange?: (pageSize: number) => void;
+    showPageSizeSelector?: boolean;
+    showRowsInfo?: boolean;
+}
+export interface InterTableMolecule extends React.TableHTMLAttributes<HTMLTableElement> {
+    responsiveMode?: TableResponsiveMode;
+    wrapperClassName?: string;
+    pagination?: TablePaginationConfig;
 }
 export declare const TABLE_MOLECULE_DEFAULTS: Required<Pick<InterTableMolecule, 'responsiveMode'>>;

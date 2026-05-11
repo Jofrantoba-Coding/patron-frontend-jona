@@ -264,4 +264,48 @@ describe('TableMolecule', () => {
 
     expect(onColumnResize).toHaveBeenCalledWith(170);
   });
+
+  it('renders pagination controls and emits pagination changes', () => {
+    const onPageChange = vi.fn();
+    const onPageSizeChange = vi.fn();
+
+    render(
+      <TableMolecule
+        pagination={{
+          currentPage: 2,
+          pageSize: 10,
+          totalRows: 32,
+          pageSizeOptions: [10, 25],
+          onPageChange,
+          onPageSizeChange,
+        }}
+      >
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Ana</TableCell>
+          </TableRow>
+        </TableBody>
+      </TableMolecule>
+    );
+
+    expect(screen.getByText((_, element) =>
+      element?.tagName.toLowerCase() === 'p'
+      && element.textContent?.replace(/\s+/g, ' ').trim() === 'Mostrando 11 - 20 de 32 resultados'
+    )).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pagina siguiente' }));
+    expect(onPageChange).toHaveBeenCalledWith(3);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Primera pagina' }));
+    expect(onPageChange).toHaveBeenCalledWith(1);
+
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: '25' } });
+    expect(onPageSizeChange).toHaveBeenCalledWith(25);
+    expect(onPageChange).toHaveBeenCalledWith(1);
+  });
 });

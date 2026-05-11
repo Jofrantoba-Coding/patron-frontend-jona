@@ -3,36 +3,190 @@ import { cn } from '../../lib/cn';
 import {
   InterTableHeadProps,
   InterTableMolecule,
+  TablePaginationConfig,
   TableResponsiveMode,
   TableSortDirection,
 } from './InterTableMolecule';
 import { useTableContext } from './TableMoleculeContext';
 
-const wrapperClasses: Record<TableResponsiveMode, string> = {
-  scroll: 'relative w-full max-w-full md:overflow-x-auto md:rounded-md md:border md:border-neutral-200',
-  cards: 'relative w-full max-w-full md:rounded-md md:border md:border-neutral-200',
-  none: 'relative w-full max-w-full overflow-x-auto rounded-md border border-neutral-200',
+const outerClasses: Record<TableResponsiveMode, string> = {
+  scroll: 'relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200',
+  cards: 'relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200',
+  none: 'relative flex w-full max-w-full flex-col rounded-md border border-neutral-200',
+};
+
+const innerScrollClasses: Record<TableResponsiveMode, string> = {
+  scroll: 'overflow-x-auto',
+  cards: '',
+  none: 'overflow-x-auto',
 };
 
 export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMolecule>(
-  ({ className, wrapperClassName, responsiveMode = 'scroll', style, ...props }, ref) => (
-    <div className={cn(wrapperClasses[responsiveMode], wrapperClassName)}>
-      <table
-        ref={ref}
-        style={responsiveMode !== 'none' ? undefined : style}
-        className={cn(
-          'caption-bottom text-sm text-neutral-900',
-          responsiveMode === 'scroll' && 'block w-full min-w-0 md:table md:min-w-max',
-          responsiveMode === 'cards' && 'block w-full min-w-0 md:table',
-          responsiveMode === 'none' && 'w-full min-w-max',
-          className
-        )}
-        {...props}
-      />
+  ({ className, wrapperClassName, responsiveMode = 'scroll', pagination, style, ...props }, ref) => (
+    <div className={cn(outerClasses[responsiveMode], wrapperClassName)}>
+      <div className={innerScrollClasses[responsiveMode]}>
+        <table
+          ref={ref}
+          style={responsiveMode !== 'none' ? undefined : style}
+          className={cn(
+            'caption-bottom text-sm text-neutral-900',
+            responsiveMode === 'scroll' && 'w-full min-w-max',
+            responsiveMode === 'cards' && 'block w-full min-w-0 md:table',
+            responsiveMode === 'none' && 'w-full min-w-max',
+            className
+          )}
+          {...props}
+        />
+      </div>
+      {pagination && <TablePaginationView {...pagination} />}
     </div>
   )
 );
 TableMoleculeView.displayName = 'TableMolecule';
+
+function getPageNumbers(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 9) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const windowStart = Math.max(2, current - 2);
+  const windowEnd = Math.min(total - 1, current + 2);
+  const pages: (number | 'ellipsis')[] = [1];
+
+  if (windowStart > 2) pages.push('ellipsis');
+  for (let i = windowStart; i <= windowEnd; i += 1) pages.push(i);
+  if (windowEnd < total - 1) pages.push('ellipsis');
+
+  pages.push(total);
+  return pages;
+}
+
+function PaginationButton({
+  children,
+  active,
+  disabled,
+  onClick,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { active?: boolean }) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        'flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm font-medium transition-colors',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
+        active ? 'bg-primary-600 text-white' : 'text-neutral-600 hover:bg-neutral-100',
+        disabled && 'pointer-events-none opacity-40'
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+function TablePaginationView({
+  currentPage,
+  pageSize,
+  totalRows,
+  pageSizeOptions = [10, 25, 50, 100],
+  onPageChange,
+  onPageSizeChange,
+  showPageSizeSelector = true,
+  showRowsInfo = true,
+}: TablePaginationConfig) {
+  const safePageSize = Math.max(1, pageSize);
+  const totalPages = Math.max(1, Math.ceil(totalRows / safePageSize));
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+  const firstRow = totalRows === 0 ? 0 : Math.min((safeCurrentPage - 1) * safePageSize + 1, totalRows);
+  const lastRow = Math.min(safeCurrentPage * safePageSize, totalRows);
+  const pages = getPageNumbers(safeCurrentPage, totalPages);
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-neutral-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      {showRowsInfo && (
+        <p className="shrink-0 text-sm text-neutral-500">
+          Mostrando{' '}
+          <span className="font-medium text-neutral-700">{firstRow}</span>
+          {' - '}
+          <span className="font-medium text-neutral-700">{lastRow}</span>
+          {' '}de{' '}
+          <span className="font-medium text-neutral-700">{totalRows}</span>
+          {' '}resultados
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-4">
+        {showPageSizeSelector && onPageSizeChange && (
+          <div className="flex items-center gap-2 text-sm text-neutral-600">
+            <span className="shrink-0">Filas por pagina</span>
+            <select
+              value={pageSize}
+              onChange={(event) => {
+                onPageSizeChange(Number(event.target.value));
+                onPageChange(1);
+              }}
+              className="h-8 rounded-md border border-neutral-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              {pageSizeOptions.map((size) => (
+                <option key={size} value={size}>{size}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <nav aria-label="Paginacion de tabla" className="flex items-center gap-1">
+          <PaginationButton
+            aria-label="Primera pagina"
+            disabled={safeCurrentPage === 1}
+            onClick={() => onPageChange(1)}
+          >
+            {'<<'}
+          </PaginationButton>
+
+          <PaginationButton
+            aria-label="Pagina anterior"
+            disabled={safeCurrentPage === 1}
+            onClick={() => onPageChange(safeCurrentPage - 1)}
+          >
+            {'<'}
+          </PaginationButton>
+
+          {pages.map((page, index) =>
+            page === 'ellipsis' ? (
+              <span key={`ellipsis-${index}`} className="select-none px-1 text-neutral-400">...</span>
+            ) : (
+              <PaginationButton
+                key={page}
+                active={page === safeCurrentPage}
+                aria-label={`Pagina ${page}`}
+                aria-current={page === safeCurrentPage ? 'page' : undefined}
+                onClick={() => onPageChange(page)}
+              >
+                {page}
+              </PaginationButton>
+            )
+          )}
+
+          <PaginationButton
+            aria-label="Pagina siguiente"
+            disabled={safeCurrentPage === totalPages}
+            onClick={() => onPageChange(safeCurrentPage + 1)}
+          >
+            {'>'}
+          </PaginationButton>
+
+          <PaginationButton
+            aria-label="Ultima pagina"
+            disabled={safeCurrentPage === totalPages}
+            onClick={() => onPageChange(totalPages)}
+          >
+            {'>>'}
+          </PaginationButton>
+        </nav>
+      </div>
+    </div>
+  );
+}
 
 export const TableCaptionView = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttributes<HTMLTableCaptionElement>>(
   ({ className, ...props }, ref) => (
@@ -48,7 +202,7 @@ export const TableHeaderView = React.forwardRef<HTMLTableSectionElement, React.H
       <thead
         ref={ref}
         className={cn(
-          responsiveMode !== 'none' ? 'hidden md:table-header-group' : 'table-header-group',
+          responsiveMode === 'cards' ? 'hidden md:table-header-group' : 'table-header-group',
           'bg-neutral-50 [&_tr]:border-b',
           className
         )}
@@ -66,7 +220,7 @@ export const TableBodyView = React.forwardRef<HTMLTableSectionElement, React.HTM
       <tbody
         ref={ref}
         className={cn(
-          responsiveMode !== 'none' ? 'block md:table-row-group' : 'table-row-group',
+          responsiveMode === 'cards' ? 'block md:table-row-group' : 'table-row-group',
           '[&_tr:last-child]:border-b-0',
           className
         )}
@@ -84,7 +238,7 @@ export const TableFooterView = React.forwardRef<HTMLTableSectionElement, React.H
       <tfoot
         ref={ref}
         className={cn(
-          responsiveMode !== 'none' ? 'block md:table-footer-group' : 'table-footer-group',
+          responsiveMode === 'cards' ? 'block md:table-footer-group' : 'table-footer-group',
           'bg-neutral-50 font-medium [&>tr]:last:border-b-0',
           className
         )}
@@ -94,6 +248,26 @@ export const TableFooterView = React.forwardRef<HTMLTableSectionElement, React.H
   }
 );
 TableFooterView.displayName = 'TableFooter';
+
+export const TableRowView = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
+  ({ className, ...props }, ref) => {
+    const { responsiveMode } = useTableContext();
+    return (
+      <tr
+        ref={ref}
+        className={cn(
+          'transition-colors hover:bg-neutral-50 data-[state=selected]:bg-primary-50',
+          responsiveMode === 'cards'
+            ? 'mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b md:border-neutral-200 md:bg-transparent md:p-0 md:shadow-none'
+            : 'border-b border-neutral-200',
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+TableRowView.displayName = 'TableRow';
 
 function getNextSortDirection(current: TableSortDirection, cycle: TableSortDirection[]) {
   const currentIndex = cycle.indexOf(current);
@@ -143,26 +317,6 @@ function assignRef<T>(ref: React.ForwardedRef<T>, value: T | null) {
   }
 }
 
-export const TableRowView = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
-  ({ className, ...props }, ref) => {
-    const { responsiveMode } = useTableContext();
-    return (
-      <tr
-        ref={ref}
-        className={cn(
-          'transition-colors hover:bg-neutral-50 data-[state=selected]:bg-primary-50',
-          responsiveMode !== 'none'
-            ? 'mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b md:border-neutral-200 md:bg-transparent md:p-0 md:shadow-none'
-            : 'border-b border-neutral-200',
-          className
-        )}
-        {...props}
-      />
-    );
-  }
-);
-TableRowView.displayName = 'TableRow';
-
 export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHeadProps>(
   (
     {
@@ -198,6 +352,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
     const innerRef = React.useRef<HTMLTableCellElement | null>(null);
     const [internalFilterValue, setInternalFilterValue] = React.useState('');
     const [internalWidth, setInternalWidth] = React.useState<number | undefined>(() => getNumericWidth(width));
+
     const effectiveWidth = internalWidth ?? getNumericWidth(width);
     const widthStyle = getWidthValue(effectiveWidth ?? width);
     const isGroupedHeader = groupHeader || scope === 'colgroup' || Number(colSpan ?? 1) > 1;
@@ -260,16 +415,15 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
         }}
         aria-sort={canSort ? getAriaSort(sortDirection) : props['aria-sort']}
         className={cn(
-          'relative h-10 px-4 text-left align-middle font-medium text-neutral-500',
-          'whitespace-nowrap',
+          'relative h-10 px-4 text-left align-middle font-medium text-neutral-500 whitespace-nowrap',
           isGroupedHeader && 'border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700',
           (canSort || filterable) && 'select-none',
           resizable && 'pr-6',
           className
         )}
-        onClick={onClick}
         colSpan={colSpan}
         scope={scope ?? (isGroupedHeader ? 'colgroup' : undefined)}
+        onClick={onClick}
         {...props}
       >
         <div
@@ -344,8 +498,8 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, React.TdHTML
       <td
         ref={ref}
         className={cn(
-          'text-neutral-900',
-          responsiveMode !== 'none'
+          'break-words text-neutral-900',
+          responsiveMode === 'cards'
             ? cn(
               'flex min-w-0 flex-col gap-1 text-sm md:table-cell md:px-4 md:py-3 md:align-middle',
               'before:break-words before:text-[10px] before:font-semibold before:uppercase before:tracking-wide before:text-neutral-400',
@@ -353,7 +507,6 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, React.TdHTML
               colSpan && colSpan > 1 && 'md:text-center'
             )
             : 'px-4 py-3 align-middle',
-          'break-words',
           className
         )}
         {...props}

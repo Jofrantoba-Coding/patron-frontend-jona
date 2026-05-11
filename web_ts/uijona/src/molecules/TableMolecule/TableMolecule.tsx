@@ -11,6 +11,7 @@ export {
 export type {
   InterTableHeadProps,
   InterTableMolecule,
+  TablePaginationConfig,
   TableResponsiveMode,
   TableSortDirection,
 } from './InterTableMolecule';

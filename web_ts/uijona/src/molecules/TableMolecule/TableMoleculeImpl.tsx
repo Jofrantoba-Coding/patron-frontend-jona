@@ -13,7 +13,7 @@ import {
 } from './TableMoleculeView';
 
 export const TableMoleculeImpl = forwardRef<HTMLTableElement, InterTableMolecule>(
-  ({ children, responsiveMode = TABLE_MOLECULE_DEFAULTS.responsiveMode, wrapperClassName, ...props }, ref) => {
+  ({ children, responsiveMode = TABLE_MOLECULE_DEFAULTS.responsiveMode, wrapperClassName, pagination, ...props }, ref) => {
     const labelsRef = useRef<string[]>([]);
     const [columnFilters, setColumnFilters] = useState<Record<number, string>>({});
     const setColumnFilter = useCallback((columnIndex: number, value: string) => {
@@ -40,6 +40,7 @@ export const TableMoleculeImpl = forwardRef<HTMLTableElement, InterTableMolecule
           ref={ref}
           responsiveMode={responsiveMode}
           wrapperClassName={wrapperClassName}
+          pagination={pagination}
           {...props}
         >
           {children}
@@ -172,7 +173,7 @@ export const TableBodyImpl = forwardRef<HTMLTableSectionElement, React.HTMLAttri
       const rowEl = row as React.ReactElement<{ children?: React.ReactNode }>;
 
       if (!rowMatchesFilters(rowEl, columnFilters)) return null;
-      if (responsiveMode === 'none') return rowEl;
+      if (responsiveMode !== 'cards') return rowEl;
 
       const cells = React.Children.map(rowEl.props.children, (cell, colIdx) => {
         if (!React.isValidElement(cell)) return cell;
