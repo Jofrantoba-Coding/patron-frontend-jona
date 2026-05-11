@@ -23,7 +23,18 @@ describe('layout manager components', () => {
       </BoxLayout>
     );
 
-    expect(screen.getByTestId('box')).toHaveClass('flex', 'flex-col', 'gap-1');
+    expect(screen.getByTestId('box')).toHaveClass('flex', 'flex-col', 'flex-nowrap', 'gap-1');
+  });
+
+  it('wraps BoxLayout rows by default for narrow containers', () => {
+    render(
+      <BoxLayout data-testid="box-row">
+        <span>One</span>
+        <span>Two</span>
+      </BoxLayout>
+    );
+
+    expect(screen.getByTestId('box-row')).toHaveClass('flex', 'flex-row', 'flex-wrap');
   });
 
   it('renders GridLayout with column templates', () => {

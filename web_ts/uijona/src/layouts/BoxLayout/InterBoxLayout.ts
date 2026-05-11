@@ -16,5 +16,5 @@ export const BOX_LAYOUT_DEFAULTS: Required<Pick<
   gap: 'md',
   alignItems: 'stretch',
   justifyContent: 'start',
-  wrap: 'nowrap',
+  wrap: 'wrap',
 };

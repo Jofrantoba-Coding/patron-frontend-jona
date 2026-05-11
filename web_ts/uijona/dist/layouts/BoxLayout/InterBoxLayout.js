@@ -6,7 +6,7 @@ const t = {
   gap: "md",
   alignItems: "stretch",
   justifyContent: "start",
-  wrap: "nowrap"
+  wrap: "wrap"
 };
 export {
   t as BOX_LAYOUT_DEFAULTS
