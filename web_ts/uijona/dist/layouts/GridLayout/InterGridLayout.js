@@ -5,7 +5,7 @@ const t = {
   gap: "md",
   alignItems: "stretch",
   justifyContent: "start",
-  columns: 1
+  autoFitMin: "12rem"
 };
 export {
   t as GRID_LAYOUT_DEFAULTS

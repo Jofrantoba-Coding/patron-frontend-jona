@@ -39,6 +39,18 @@ describe('layout manager components', () => {
     });
   });
 
+  it('uses responsive auto-fit columns by default in GridLayout', () => {
+    render(
+      <GridLayout data-testid="responsive-grid">
+        <span>One</span>
+      </GridLayout>
+    );
+
+    expect(screen.getByTestId('responsive-grid')).toHaveStyle({
+      gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))',
+    });
+  });
+
   it('renders CardLayout showing only the active card', () => {
     render(
       <CardLayout activeCard="second">

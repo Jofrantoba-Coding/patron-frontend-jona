@@ -48,13 +48,15 @@ describe('PanelAtom', () => {
 
   it('maps border layout children into named grid areas', () => {
     render(
-      <PanelAtom layout="border">
+      <PanelAtom layout="border" data-testid="border-panel">
         <PanelAtom data-testid="top" data-panel-area="top">
           Top
         </PanelAtom>
       </PanelAtom>
     );
 
+    expect(screen.getByTestId('border-panel').className).toContain("[grid-template-areas:'top'_'left'_'center'_'right'_'bottom']");
+    expect(screen.getByTestId('border-panel').className).toContain("md:[grid-template-areas:'top_top_top'_'left_center_right'_'bottom_bottom_bottom']");
     expect(screen.getByTestId('top')).toHaveStyle({ gridArea: 'top' });
   });
 

@@ -109,22 +109,46 @@ const getLayoutClasses = (
   if (layout === 'none') return undefined;
 
   if (layout === 'flow') {
-    return cn('flex flex-row', wrapClasses[resolveWrap(wrap, 'wrap')], gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
+    return cn(
+      'flex min-w-0 flex-row',
+      wrapClasses[resolveWrap(wrap, 'wrap')],
+      gapClasses[gap],
+      alignClasses[alignItems],
+      justifyClasses[justifyContent]
+    );
   }
 
   if (layout === 'box') {
-    return cn('flex', directionClasses[direction], wrapClasses[resolveWrap(wrap, 'nowrap')], gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
+    return cn(
+      'flex min-w-0',
+      directionClasses[direction],
+      wrapClasses[resolveWrap(wrap, 'nowrap')],
+      gapClasses[gap],
+      alignClasses[alignItems],
+      justifyClasses[justifyContent]
+    );
   }
 
   if (layout === 'grid') {
-    return cn('grid', gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
+    return cn('grid min-w-0', gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
   }
 
   if (layout === 'border') {
-    return cn('grid min-h-0', gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
+    return cn(
+      'grid min-h-0 min-w-0',
+      "[grid-template-areas:'top'_'left'_'center'_'right'_'bottom']",
+      '[grid-template-columns:minmax(0,1fr)]',
+      '[grid-template-rows:auto_auto_minmax(0,1fr)_auto_auto]',
+      "md:[grid-template-areas:'top_top_top'_'left_center_right'_'bottom_bottom_bottom']",
+      'md:[grid-template-columns:auto_minmax(0,1fr)_auto]',
+      'md:[grid-template-rows:auto_minmax(0,1fr)_auto]',
+      gapClasses[gap],
+      alignClasses[alignItems],
+      justifyClasses[justifyContent]
+    );
   }
 
-  return cn('relative', gapClasses[gap]);
+  return cn('relative min-w-0', gapClasses[gap]);
 };
 
 const getLayoutStyle = (
@@ -144,9 +168,8 @@ const getLayoutStyle = (
   }
 
   if (layout === 'border') {
-    layoutStyle.gridTemplateAreas = "'top top top' 'left center right' 'bottom bottom bottom'";
-    layoutStyle.gridTemplateColumns = resolveTemplate(columns) ?? 'auto minmax(0, 1fr) auto';
-    layoutStyle.gridTemplateRows = resolveTemplate(rows) ?? 'auto minmax(0, 1fr) auto';
+    layoutStyle.gridTemplateColumns = resolveTemplate(columns);
+    layoutStyle.gridTemplateRows = resolveTemplate(rows);
   }
 
   return Object.keys(layoutStyle).length > 0 ? { ...layoutStyle, ...style } : style;
