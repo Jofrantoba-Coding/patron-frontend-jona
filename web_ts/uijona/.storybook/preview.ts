@@ -48,18 +48,8 @@ const getComponentName = (storyContext: { title?: string; component?: { displayN
 };
 
 const shouldGenerateJsxSource = (source: string | undefined): boolean => {
-  if (!source) return true;
-  const normalized = source.trim();
-  return (
-    !normalized ||
-    normalized === '{}' ||
-    /^\{\s*args\s*:/.test(normalized) ||
-    // render function captured as string — not useful as JSX
-    /^(\(args\)|args|\(\))\s*=>/.test(normalized) ||
-    normalized.startsWith('function ') ||
-    // dynamic capture returned an HTML element (lowercase) — not a React component
-    /^<[a-z]/.test(normalized)
-  );
+  const normalized = source?.trim() ?? '';
+  return !normalized || normalized === '{}' || /^\{\s*args\s*:/.test(normalized);
 };
 
 const formatArgValue = (value: unknown): string | undefined => {
@@ -104,14 +94,17 @@ const buildJsxSourceFromArgs = (
 };
 
 const formatJsxSource = (
-  source: string,
+  source: string | undefined,
   storyContext: { title?: string; component?: { displayName?: string; name?: string }; args?: Record<string, unknown> } = {}
 ): string => {
   if (shouldGenerateJsxSource(source)) {
     return buildJsxSourceFromArgs(storyContext);
   }
 
-  const sourceWithoutExtraSpaces = source.includes('\n') ? source.trim() : source.replace(/\s+/g, ' ').trim();
+  const resolvedSource = source ?? '';
+  const sourceWithoutExtraSpaces = resolvedSource.includes('\n')
+    ? resolvedSource.trim()
+    : resolvedSource.replace(/\s+/g, ' ').trim();
   const jsxTagPattern = /<([A-Z][\w.]*)((?:\s+[^<>]*?)?)(\s*\/?)>/g;
 
   return sourceWithoutExtraSpaces.replace(jsxTagPattern, (match, componentName: string, props: string, closing: string) => {
@@ -146,8 +139,9 @@ const preview: Preview = {
     },
     docs: {
       source: {
+        format: false,
         language: 'tsx',
-        type: 'dynamic',
+        type: 'code',
         transform: formatJsxSource,
       },
     },
