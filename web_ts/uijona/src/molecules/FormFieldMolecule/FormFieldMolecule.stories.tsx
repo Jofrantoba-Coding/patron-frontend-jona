@@ -53,7 +53,11 @@ export const Horizontal: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+    onBlur: fn(),
+  },
+  render: (args) => {
     const [email, setEmail] = useState('');
     const [touched, setTouched] = useState(false);
     const error =
@@ -69,8 +73,8 @@ export const Interactive: Story = {
           description="Usaremos este correo para enviarte notificaciones"
           errorMessage={error}
           value={email}
-          onChange={(v) => setEmail(v)}
-          onBlur={() => setTouched(true)}
+          onChange={(v, e) => { args.onChange?.(v, e); setEmail(v); }}
+          onBlur={(v, e) => { args.onBlur?.(v, e); setTouched(true); }}
         />
       </div>
     );

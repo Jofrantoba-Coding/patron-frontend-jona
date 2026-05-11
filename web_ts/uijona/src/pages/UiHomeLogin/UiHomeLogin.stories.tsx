@@ -30,13 +30,19 @@ export const LoginError: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onLogin: fn(),
+    onGoToCreateAccount: fn(),
+    onGoToRecoverPassword: fn(),
+  },
+  render: (args) => {
     const [attempts, setAttempts] = useState(0);
     return (
       <UiHomeLogin
         appTitle="JONA UI"
         footerText="© 2026 JONA Pattern"
-        onLogin={async () => {
+        onLogin={async (email, password) => {
+          await args.onLogin?.(email, password);
           await new Promise((r) => setTimeout(r, 1200));
           const next = attempts + 1;
           setAttempts(next);
@@ -48,8 +54,8 @@ export const Interactive: Story = {
             );
           }
         }}
-        onGoToCreateAccount={() => alert('Ir a crear cuenta')}
-        onGoToRecoverPassword={() => alert('Recuperar contraseña')}
+        onGoToCreateAccount={args.onGoToCreateAccount}
+        onGoToRecoverPassword={args.onGoToRecoverPassword}
       />
     );
   },

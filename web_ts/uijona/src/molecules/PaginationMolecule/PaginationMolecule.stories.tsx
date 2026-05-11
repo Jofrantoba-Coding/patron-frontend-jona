@@ -30,7 +30,10 @@ export const LastPage: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onPageChange: fn(),
+  },
+  render: (args) => {
     const [page, setPage] = useState(1);
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
@@ -38,7 +41,7 @@ export const Interactive: Story = {
         <PaginationMolecule
           currentPage={page}
           totalPages={15}
-          onPageChange={setPage}
+          onPageChange={(p) => { args.onPageChange?.(p); setPage(p); }}
         />
       </div>
     );

@@ -49,10 +49,15 @@ export const Disabled: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onCheckedChange: fn(),
+  },
+  render: (args) => {
     const [values, setValues] = useState({ emails: false, push: true, sms: false });
-    const set = (key: keyof typeof values) => (v: boolean) =>
+    const set = (key: keyof typeof values) => (v: boolean) => {
+      args.onCheckedChange?.(v);
       setValues((s) => ({ ...s, [key]: v }));
+    };
     return (
       <div className="flex flex-col gap-4 w-72">
         <SwitchFieldMolecule id="emails" label="Correos electrónicos"

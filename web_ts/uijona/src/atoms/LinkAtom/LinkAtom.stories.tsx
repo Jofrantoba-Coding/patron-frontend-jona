@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { LinkAtom } from './LinkAtom';
 
@@ -67,7 +68,10 @@ export const AllVariants: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onClick: fn(),
+  },
+  render: (args) => {
     const pages = ['Inicio', 'Productos', 'Detalle', 'Soporte'];
     const [current, setCurrent] = useState('Inicio');
     return (
@@ -78,7 +82,7 @@ export const Interactive: Story = {
               key={page}
               href="#"
               variant={current === page ? 'button' : 'default'}
-              onClick={(e) => { e.preventDefault(); setCurrent(page); }}
+              onClick={(e) => { args.onClick?.(e); e.preventDefault(); setCurrent(page); }}
             >
               {page}
             </LinkAtom>

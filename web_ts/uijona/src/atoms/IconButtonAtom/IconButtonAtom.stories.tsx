@@ -43,7 +43,10 @@ export const Disabled: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onClick: fn(),
+  },
+  render: (args) => {
     const [saved, setSaved] = useState(false);
     const HeartIcon = () => (
       <span aria-hidden="true" style={{ fontSize: 16, lineHeight: 1 }}>{saved ? '♥' : '♡'}</span>
@@ -54,7 +57,7 @@ export const Interactive: Story = {
           icon={<HeartIcon />}
           label={saved ? 'Quitar de favoritos' : 'Añadir a favoritos'}
           variant={saved ? 'destructive' : 'outline'}
-          onClick={() => setSaved((s) => !s)}
+          onClick={(event) => { args.onClick?.(event); setSaved((s) => !s); }}
         />
         <p className="text-xs text-neutral-500">{saved ? 'Guardado en favoritos' : 'Sin guardar'}</p>
       </div>

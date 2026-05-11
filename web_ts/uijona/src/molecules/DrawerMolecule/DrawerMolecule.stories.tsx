@@ -61,7 +61,10 @@ export const WithFooter: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onClose: fn(),
+  },
+  render: (args) => {
     const [open, setOpen] = useState(false);
     return (
       <div>
@@ -73,7 +76,7 @@ export const Interactive: Story = {
         </button>
         <DrawerMolecule
           open={open}
-          onClose={() => setOpen(false)}
+          onClose={() => { args.onClose?.(); setOpen(false); }}
           title="Editar perfil"
           description="Actualiza los datos de tu cuenta."
         >

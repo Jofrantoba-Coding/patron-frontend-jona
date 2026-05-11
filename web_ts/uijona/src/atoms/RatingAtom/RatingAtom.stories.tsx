@@ -45,11 +45,14 @@ export const MaxTen: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+  },
+  render: (args) => {
     const [rating, setRating] = useState(0);
     return (
       <div className="flex flex-col gap-3">
-        <RatingAtom value={rating} onChange={setRating} />
+        <RatingAtom value={rating} onChange={(v) => { args.onChange?.(v); setRating(v); }} />
         <p className="text-sm text-neutral-500">
           {rating === 0 ? 'Sin calificación' : `Calificación: ${rating} / 5`}
         </p>

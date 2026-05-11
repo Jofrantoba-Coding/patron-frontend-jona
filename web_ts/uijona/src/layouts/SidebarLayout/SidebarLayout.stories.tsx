@@ -81,13 +81,16 @@ export const NotCollapsible: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onNavItemClick: fn(),
+  },
+  render: (args) => {
     const [activeKey, setActiveKey] = useState('home');
     return (
       <SidebarLayout
         nav={NAV}
         activeKey={activeKey}
-        onNavItemClick={(item) => setActiveKey(item.key)}
+        onNavItemClick={(item) => { args.onNavItemClick?.(item); setActiveKey(item.key); }}
         header={
           <div className="flex items-center gap-2 px-4 py-3">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-600 text-xs font-bold text-white">J</div>

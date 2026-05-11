@@ -57,7 +57,10 @@ export const LineVariant: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+  },
+  render: (args) => {
     const [tab, setTab] = useState('perfil');
     const tabData = {
       perfil: { title: 'Mi perfil', content: 'Nombre: Jonathan Franck\nEmail: jofrantoba@gmail.com\nRol: Administrador' },
@@ -67,7 +70,7 @@ export const Interactive: Story = {
     const current = tabData[tab as keyof typeof tabData];
     return (
       <div style={{ width: '420px' }}>
-        <TabsMolecule value={tab} onChange={setTab}>
+        <TabsMolecule value={tab} onChange={(v) => { args.onChange?.(v); setTab(v); }}>
           <TabsList>
             <TabsTrigger value="perfil">Perfil</TabsTrigger>
             <TabsTrigger value="seguridad">Seguridad</TabsTrigger>

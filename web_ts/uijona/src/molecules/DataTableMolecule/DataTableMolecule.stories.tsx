@@ -84,7 +84,11 @@ export const ClickableRows: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onFilterChange: fn(),
+    onRowClick: fn(),
+  },
+  render: (args) => {
     const [filter, setFilter] = useState('');
     const [selected, setSelected] = useState<string | null>(null);
     const filtered = USERS.filter((u) =>
@@ -98,8 +102,8 @@ export const Interactive: Story = {
           rowKey={(row) => String(row.id)}
           showFilter
           filterPlaceholder="Buscar por nombre, email o rol..."
-          onFilterChange={setFilter}
-          onRowClick={(row) => setSelected(String(row.name))}
+          onFilterChange={(v) => { args.onFilterChange?.(v); setFilter(v); }}
+          onRowClick={(row, index) => { args.onRowClick?.(row, index); setSelected(String(row.name)); }}
         />
         {selected && (
           <p className="text-sm text-neutral-500">

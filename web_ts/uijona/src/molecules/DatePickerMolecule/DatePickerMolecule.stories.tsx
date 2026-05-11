@@ -75,7 +75,10 @@ export const DateTimeWithTimezone: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+  },
+  render: (args) => {
     const [date, setDate] = useState('');
     return (
       <div className="flex w-80 flex-col gap-3 pb-96">
@@ -87,7 +90,7 @@ export const Interactive: Story = {
           timezone="America/Lima"
           timezoneOptions={['America/Lima', 'UTC', 'America/Bogota']}
           placeholder="dd/mm/aaaa hh:mm:ss timezone"
-          onChange={setDate}
+          onChange={(v) => { args.onChange?.(v); setDate(v); }}
         />
         <p className="text-sm text-neutral-500">
           {date ? `Valor: ${date}` : 'Sin fecha seleccionada'}

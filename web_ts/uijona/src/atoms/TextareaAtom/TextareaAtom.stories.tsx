@@ -62,7 +62,12 @@ export const ResizableBoth: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+    onBlur: fn(),
+    onFocus: fn(),
+  },
+  render: (args) => {
     const [value, setValue] = useState('');
     const max = 200;
     const over = value.length > max;
@@ -74,7 +79,9 @@ export const Interactive: Story = {
           autoResize
           resize="horizontal"
           hasError={over}
-          onChange={(v) => setValue(v)}
+          onChange={(v, e) => { args.onChange?.(v, e); setValue(v); }}
+          onBlur={args.onBlur}
+          onFocus={args.onFocus}
         />
         <p className={`text-xs text-right ${over ? 'text-red-500' : 'text-neutral-400'}`}>
           {value.length}/{max}

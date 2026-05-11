@@ -29,7 +29,11 @@ export const ServerError: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onGoHome: fn(),
+    onGoBack: fn(),
+  },
+  render: (args) => {
     const [code, setCode] = useState<number>(404);
     const configs: Record<number, { title: string; message: string; primaryLabel: string; secondaryLabel: string }> = {
       404: { title: 'Página no encontrada', message: 'La página que buscas no existe o fue movida.', primaryLabel: 'Ir al inicio', secondaryLabel: 'Volver' },
@@ -52,8 +56,8 @@ export const Interactive: Story = {
         <UiHomeError
           errorCode={code}
           {...configs[code]}
-          onGoHome={() => setCode(404)}
-          onGoBack={() => alert('Volver')}
+          onGoHome={() => { args.onGoHome?.(); setCode(404); }}
+          onGoBack={args.onGoBack}
         />
       </div>
     );

@@ -61,7 +61,10 @@ export const WithDisabledItem: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onValueChange: fn(),
+  },
+  render: (args) => {
     const [current, setCurrent] = useState<string>('pregunta-1');
     const faqItems = [
       { value: 'pregunta-1', title: '¿Cómo creo una cuenta?', content: 'Haz clic en "Registrarse" y completa el formulario con tu nombre, correo y contraseña.' },
@@ -74,7 +77,7 @@ export const Interactive: Story = {
         <AccordionMolecule
           items={faqItems}
           defaultValue={current}
-          onValueChange={(v) => setCurrent(String(v))}
+          onValueChange={(v) => { args.onValueChange?.(v); setCurrent(String(v)); }}
         />
         <p className="text-xs text-neutral-400">Última sección abierta: <strong>{current}</strong></p>
       </div>

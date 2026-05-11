@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { useState } from 'react';
+import React, { type FormEvent, useState } from 'react';
 import { LoginOrganism } from './LoginOrganism';
 
 const meta: Meta<typeof LoginOrganism> = {
@@ -72,12 +72,18 @@ export const WithAlert: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onSubmit: fn(),
+    onGoToCreateAccount: fn(),
+    onGoToRecoverPassword: fn(),
+  },
+  render: (args) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
     const [alertMessage, setAlertMessage] = useState('');
-    const handleSubmit = async (e: { preventDefault(): void }) => {
+    const handleSubmit = async (e: FormEvent) => {
+      args.onSubmit?.(e);
       e.preventDefault();
       setStatus('loading');
       await new Promise((r) => setTimeout(r, 1500));
@@ -106,8 +112,8 @@ export const Interactive: Story = {
         isLoading={status === 'loading'}
         alertMessage={alertMessage}
         onSubmit={handleSubmit}
-        onGoToCreateAccount={() => alert('Ir a crear cuenta')}
-        onGoToRecoverPassword={() => alert('Recuperar contraseña')}
+        onGoToCreateAccount={args.onGoToCreateAccount}
+        onGoToRecoverPassword={args.onGoToRecoverPassword}
       />
     );
   },

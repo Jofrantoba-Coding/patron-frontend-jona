@@ -64,7 +64,10 @@ export const Trigger: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onClose: fn(),
+  },
+  render: (args) => {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('Jonathan Franck');
     const [draft, setDraft] = useState('Jonathan Franck');
@@ -79,10 +82,10 @@ export const Interactive: Story = {
           title="Editar perfil"
           description="Modifica tu nombre de usuario y guarda los cambios."
           showCloseButton
-          onClose={() => setOpen(false)}
+          onClose={() => { args.onClose?.(); setOpen(false); }}
           footer={
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <ButtonAtom variant="outline" onClick={() => setOpen(false)}>Cancelar</ButtonAtom>
+              <ButtonAtom variant="outline" onClick={() => { args.onClose?.(); setOpen(false); }}>Cancelar</ButtonAtom>
               <ButtonAtom onClick={() => { setName(draft); setOpen(false); }}>Guardar</ButtonAtom>
             </div>
           }

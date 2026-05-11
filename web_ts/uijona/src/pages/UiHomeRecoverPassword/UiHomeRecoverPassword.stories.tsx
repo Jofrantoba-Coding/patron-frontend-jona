@@ -29,17 +29,22 @@ export const RecoverError: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onRecover: fn(),
+    onGoToLogin: fn(),
+  },
+  render: (args) => {
     const [attempt, setAttempt] = useState(0);
     return (
       <UiHomeRecoverPassword
         appTitle="JONA UI"
         footerText="© 2026 JONA Pattern"
-        onRecover={async () => {
+        onRecover={async (email) => {
+          await args.onRecover?.(email);
           await new Promise((r) => setTimeout(r, 1200));
           setAttempt((a) => a + 1);
         }}
-        onGoToLogin={() => alert('Volver al login')}
+        onGoToLogin={args.onGoToLogin}
       />
     );
   },

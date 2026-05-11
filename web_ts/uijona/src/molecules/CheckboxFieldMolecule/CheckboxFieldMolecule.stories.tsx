@@ -50,7 +50,10 @@ export const Disabled: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onCheckedChange: fn(),
+  },
+  render: (args) => {
     const [values, setValues] = useState({ terms: false, newsletter: false, offers: false });
     return (
       <div className="flex flex-col gap-3">
@@ -58,20 +61,20 @@ export const Interactive: Story = {
           id="terms"
           label="Acepto los términos y condiciones"
           checked={values.terms}
-          onCheckedChange={(v) => setValues((s) => ({ ...s, terms: v }))}
+          onCheckedChange={(v) => { args.onCheckedChange?.(v); setValues((s) => ({ ...s, terms: v })); }}
         />
         <CheckboxFieldMolecule
           id="newsletter"
           label="Suscribirme al boletín"
           description="Recibirás noticias y actualizaciones cada semana"
           checked={values.newsletter}
-          onCheckedChange={(v) => setValues((s) => ({ ...s, newsletter: v }))}
+          onCheckedChange={(v) => { args.onCheckedChange?.(v); setValues((s) => ({ ...s, newsletter: v })); }}
         />
         <CheckboxFieldMolecule
           id="offers"
           label="Recibir ofertas especiales"
           checked={values.offers}
-          onCheckedChange={(v) => setValues((s) => ({ ...s, offers: v }))}
+          onCheckedChange={(v) => { args.onCheckedChange?.(v); setValues((s) => ({ ...s, offers: v })); }}
         />
         <p className="text-xs text-neutral-500 mt-1">
           Seleccionados: {Object.entries(values).filter(([, v]) => v).map(([k]) => k).join(', ') || 'ninguno'}

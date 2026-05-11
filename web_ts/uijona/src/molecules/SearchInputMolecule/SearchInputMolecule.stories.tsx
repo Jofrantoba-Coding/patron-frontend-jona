@@ -28,7 +28,12 @@ export const Loading: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+    onSearch: fn(),
+    onClear: fn(),
+  },
+  render: (args) => {
     const [query, setQuery] = useState('');
     const allItems = ['React', 'Vue', 'Angular', 'TypeScript', 'Node.js', 'GraphQL', 'Tailwind CSS', 'Storybook'];
     const filtered = query
@@ -38,9 +43,9 @@ export const Interactive: Story = {
       <div className="flex flex-col gap-3 w-72">
         <SearchInputMolecule
           placeholder="Buscar tecnología..."
-          onSearch={setQuery}
-          onChange={(v) => setQuery(v)}
-          onClear={() => setQuery('')}
+          onSearch={(v, e) => { args.onSearch?.(v, e); setQuery(v); }}
+          onChange={(v, e) => { args.onChange?.(v, e); setQuery(v); }}
+          onClear={() => { args.onClear?.(); setQuery(''); }}
         />
         <ul className="text-sm text-neutral-600 flex flex-col gap-1">
           {filtered.length > 0

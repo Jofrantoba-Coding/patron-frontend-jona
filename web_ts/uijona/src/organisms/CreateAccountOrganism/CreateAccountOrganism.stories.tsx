@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
+import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { CreateAccountOrganism } from './CreateAccountOrganism';
 
@@ -62,7 +63,11 @@ export const Loading: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onSubmit: fn(),
+    onGoToLogin: fn(),
+  },
+  render: (args) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -77,7 +82,8 @@ export const Interactive: Story = {
       if (password !== confirmPassword) e.confirmPassword = 'Las contraseñas no coinciden';
       return e;
     };
-    const handleSubmit = async (e: { preventDefault(): void }) => {
+    const handleSubmit = async (e: FormEvent) => {
+      args.onSubmit?.(e as FormEvent);
       e.preventDefault();
       const errs = validate();
       if (Object.keys(errs).length > 0) { setErrors(errs); return; }
@@ -107,7 +113,7 @@ export const Interactive: Story = {
         passwordError={errors.password}
         confirmPasswordError={errors.confirmPassword}
         onSubmit={handleSubmit}
-        onGoToLogin={() => alert('Ir a login')}
+        onGoToLogin={args.onGoToLogin}
       />
     );
   },

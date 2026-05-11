@@ -49,7 +49,10 @@ export const AllVariants: Story = {
 
 // Historia interactiva: simula la gestión de visibilidad que haría useToast
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onDismiss: fn(),
+  },
+  render: (args) => {
     const [toasts, setToasts] = useState<{ id: string; variant: 'default' | 'success' | 'warning' | 'danger'; message: string }[]>([]);
     let counter = 0;
 
@@ -58,7 +61,10 @@ export const Interactive: Story = {
       setToasts((prev) => [...prev, { id, variant, message }]);
     };
 
-    const dismiss = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id));
+    const dismiss = (id: string) => {
+      args.onDismiss?.(id);
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    };
 
     return (
       <div className="flex flex-col gap-4">

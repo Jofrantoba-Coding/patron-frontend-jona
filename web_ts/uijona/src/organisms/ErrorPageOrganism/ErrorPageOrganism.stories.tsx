@@ -44,7 +44,11 @@ export const Forbidden: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onGoHome: fn(),
+    onGoBack: fn(),
+  },
+  render: (args) => {
     const [errorCode, setErrorCode] = useState<'404' | '500' | '403'>('404');
     const errors = {
       '404': { title: 'Página no encontrada', message: 'La página que buscas no existe o fue movida.', primaryLabel: 'Ir al inicio', secondaryLabel: 'Volver' },
@@ -67,8 +71,8 @@ export const Interactive: Story = {
         <ErrorPageOrganism
           errorCode={errorCode}
           {...errors[errorCode]}
-          onGoHome={() => setErrorCode('404')}
-          onGoBack={() => alert('Volver')}
+          onGoHome={() => { args.onGoHome?.(); setErrorCode('404'); }}
+          onGoBack={args.onGoBack}
         />
       </div>
     );

@@ -29,7 +29,11 @@ export const CreateError: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onCreateAccount: fn(),
+    onGoToLogin: fn(),
+  },
+  render: (args) => {
     const [success, setSuccess] = useState(false);
     if (success) {
       return (
@@ -43,11 +47,12 @@ export const Interactive: Story = {
       <UiHomeCreateAccount
         appTitle="JONA UI"
         footerText="© 2026 JONA Pattern"
-        onCreateAccount={async () => {
+        onCreateAccount={async (name, email, password) => {
+          await args.onCreateAccount?.(name, email, password);
           await new Promise((r) => setTimeout(r, 1500));
           setSuccess(true);
         }}
-        onGoToLogin={() => alert('Ir a login')}
+        onGoToLogin={args.onGoToLogin}
       />
     );
   },

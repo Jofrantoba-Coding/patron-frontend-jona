@@ -29,7 +29,10 @@ export const Error: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onValueChange: fn(),
+  },
+  render: (args) => {
     const [qty, setQty] = useState(1);
     const pricePerUnit = 49.99;
     const total = qty * pricePerUnit;
@@ -41,7 +44,7 @@ export const Interactive: Story = {
           max={10}
           step={1}
           value={qty}
-          onValueChange={(v) => setQty(v ?? 1)}
+          onValueChange={(v, e) => { args.onValueChange?.(v, e); setQty(v ?? 1); }}
         />
         <div className="rounded-md bg-neutral-50 border p-3 text-sm">
           <p className="text-neutral-500">Precio unitario: <strong>${pricePerUnit.toFixed(2)}</strong></p>

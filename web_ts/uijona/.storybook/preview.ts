@@ -42,7 +42,65 @@ const splitJsxProps = (props: string): string[] => {
   return chunks;
 };
 
-const formatJsxSource = (source: string): string => {
+const getComponentName = (storyContext: { title?: string; component?: { displayName?: string; name?: string } }): string => {
+  const titleName = storyContext.title?.split('/').filter(Boolean).at(-1);
+  return titleName || storyContext.component?.displayName || storyContext.component?.name || 'Component';
+};
+
+const shouldGenerateJsxSource = (source: string): boolean => {
+  const normalized = source.trim();
+  return normalized === '{}' || /^\{\s*args\s*:/.test(normalized);
+};
+
+const formatArgValue = (value: unknown): string | undefined => {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === 'function') return '{fn()}';
+  if (typeof value === 'boolean') return `{${value}}`;
+  if (typeof value === 'number') return `{${value}}`;
+  if (typeof value === 'string') return JSON.stringify(value);
+
+  if (typeof value === 'object' && value && '$$typeof' in value) {
+    const elementType = (value as { type?: string | { displayName?: string; name?: string } }).type;
+    const elementName = typeof elementType === 'string'
+      ? elementType
+      : elementType?.displayName || elementType?.name || 'Component';
+
+    return `{<${elementName} />}`;
+  }
+
+  try {
+    return `{${JSON.stringify(value)}}`;
+  } catch {
+    return undefined;
+  }
+};
+
+const buildJsxSourceFromArgs = (
+  storyContext: { title?: string; component?: { displayName?: string; name?: string }; args?: Record<string, unknown> }
+): string => {
+  const componentName = getComponentName(storyContext);
+  const args = storyContext.args ?? {};
+  const props = Object.entries(args)
+    .map(([key, value]) => {
+      const formatted = formatArgValue(value);
+      if (formatted === undefined) return undefined;
+      return `${key}=${formatted}`;
+    })
+    .filter(Boolean);
+
+  if (props.length === 0) return `<${componentName} />`;
+
+  return `<${componentName}\n  ${props.join('\n  ')}\n/>`;
+};
+
+const formatJsxSource = (
+  source: string,
+  storyContext: { title?: string; component?: { displayName?: string; name?: string }; args?: Record<string, unknown> } = {}
+): string => {
+  if (shouldGenerateJsxSource(source)) {
+    return buildJsxSourceFromArgs(storyContext);
+  }
+
   const sourceWithoutExtraSpaces = source.includes('\n') ? source.trim() : source.replace(/\s+/g, ' ').trim();
   const jsxTagPattern = /<([A-Z][\w.]*)((?:\s+[^<>]*?)?)(\s*\/?)>/g;
 
@@ -80,6 +138,7 @@ const preview: Preview = {
       source: {
         format: 'tsx',
         language: 'tsx',
+        type: 'dynamic',
         transform: formatJsxSource,
       },
     },

@@ -37,11 +37,14 @@ export const DisabledChecked: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onCheckedChange: fn(),
+  },
+  render: (args) => {
     const [checked, setChecked] = useState(false);
     return (
       <div className="flex items-center gap-2">
-        <CheckboxAtom checked={checked} onCheckedChange={setChecked} />
+        <CheckboxAtom checked={checked} onCheckedChange={(v) => { args.onCheckedChange?.(v); setChecked(v); }} />
         <span className="text-sm text-neutral-600">
           {checked ? 'Seleccionado' : 'Sin seleccionar'}
         </span>

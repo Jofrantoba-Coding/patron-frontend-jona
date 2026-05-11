@@ -44,7 +44,10 @@ export const WithError: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+  },
+  render: (args) => {
     const [country, setCountry] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const error = submitted && !country ? 'Este campo es requerido' : undefined;
@@ -57,7 +60,7 @@ export const Interactive: Story = {
           placeholder="Selecciona un país"
           required
           errorMessage={error}
-          onChange={setCountry}
+          onChange={(v, e) => { args.onChange?.(v, e); setCountry(v); }}
         />
         <button
           onClick={() => setSubmitted(true)}

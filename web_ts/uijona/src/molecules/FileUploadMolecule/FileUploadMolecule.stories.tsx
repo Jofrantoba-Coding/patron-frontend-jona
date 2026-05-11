@@ -30,7 +30,10 @@ export const WithHelper: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onFilesChange: fn(),
+  },
+  render: (args) => {
     const [files, setFiles] = useState<File[]>([]);
     return (
       <div className="flex flex-col gap-3 w-96">
@@ -40,7 +43,7 @@ export const Interactive: Story = {
           accept=".pdf,image/*"
           multiple
           maxFiles={3}
-          onFilesChange={setFiles}
+          onFilesChange={(f) => { args.onFilesChange?.(f); setFiles(f); }}
           helperText={
             files.length > 0
               ? `${files.length} archivo(s) seleccionado(s). Listos para enviar.`

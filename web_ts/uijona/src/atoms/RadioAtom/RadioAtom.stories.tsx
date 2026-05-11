@@ -49,7 +49,10 @@ export const Disabled: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onCheckedChange: fn(),
+  },
+  render: (args) => {
     const [selected, setSelected] = useState('');
     const methods = [
       { value: 'card', label: 'Tarjeta de crédito' },
@@ -65,7 +68,7 @@ export const Interactive: Story = {
               name="payment"
               value={m.value}
               checked={selected === m.value}
-              onCheckedChange={() => setSelected(m.value)}
+              onCheckedChange={(checked, value, e) => { args.onCheckedChange?.(checked, value, e); setSelected(m.value); }}
             />
             <span className="text-sm">{m.label}</span>
           </label>

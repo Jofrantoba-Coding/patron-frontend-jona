@@ -50,11 +50,14 @@ export const AllSizes: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onCheckedChange: fn(),
+  },
+  render: (args) => {
     const [checked, setChecked] = useState(false);
     return (
       <div className="flex items-center gap-3">
-        <SwitchAtom checked={checked} onCheckedChange={setChecked} />
+        <SwitchAtom checked={checked} onCheckedChange={(v) => { args.onCheckedChange?.(v); setChecked(v); }} />
         <span className="text-sm text-neutral-600">
           {checked ? 'Activado' : 'Desactivado'}
         </span>

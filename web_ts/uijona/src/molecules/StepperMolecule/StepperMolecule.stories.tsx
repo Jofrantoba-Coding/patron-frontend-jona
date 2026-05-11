@@ -38,7 +38,10 @@ export const Vertical: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onStepChange: fn(),
+  },
+  render: (args) => {
     const [step, setStep] = useState(0);
     const wizardSteps = [
       { id: 'account', label: 'Cuenta', description: 'Datos básicos' },
@@ -61,7 +64,12 @@ export const Interactive: Story = {
     }
     return (
       <div className="flex flex-col gap-6 w-full max-w-lg">
-        <StepperMolecule steps={wizardSteps} currentStep={step} onStepChange={setStep} allowStepClick />
+        <StepperMolecule
+          steps={wizardSteps}
+          currentStep={step}
+          onStepChange={(i, s) => { args.onStepChange?.(i, s); setStep(i); }}
+          allowStepClick
+        />
         <div className="rounded-lg border p-4 text-sm text-neutral-600">{contents[step]}</div>
         <div className="flex justify-between">
           <button

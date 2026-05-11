@@ -43,7 +43,10 @@ export const Disabled: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+  },
+  render: (args) => {
     const [values, setValues] = useState<string[]>([]);
     return (
       <div className="flex w-72 flex-col gap-3">
@@ -52,7 +55,7 @@ export const Interactive: Story = {
           value={values}
           placeholder="Seleccionar habilidades..."
           maxSelected={4}
-          onChange={(v) => setValues(v)}
+          onChange={(v, options) => { args.onChange?.(v, options); setValues(v); }}
         />
         <p className="text-sm text-neutral-500">
           {values.length === 0 ? 'Ninguna seleccionada' : `Seleccionadas (${values.length}): ${values.join(', ')}`}

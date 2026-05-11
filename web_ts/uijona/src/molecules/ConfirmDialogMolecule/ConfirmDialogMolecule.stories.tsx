@@ -40,7 +40,11 @@ export const Loading: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onConfirm: fn(),
+    onCancel: fn(),
+  },
+  render: (args) => {
     const [open, setOpen] = useState(false);
     const [result, setResult] = useState<string | null>(null);
     return (
@@ -57,8 +61,8 @@ export const Interactive: Story = {
           variant="danger"
           title="Eliminar elemento"
           description="¿Estás seguro? Esta acción no se puede deshacer."
-          onConfirm={() => { setResult('Confirmado'); setOpen(false); }}
-          onCancel={() => { setResult('Cancelado'); setOpen(false); }}
+          onConfirm={() => { args.onConfirm?.(); setResult('Confirmado'); setOpen(false); }}
+          onCancel={() => { args.onCancel?.(); setResult('Cancelado'); setOpen(false); }}
         />
       </div>
     );

@@ -63,7 +63,10 @@ export const DisabledOption: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onValueChange: fn(),
+  },
+  render: (args) => {
     const [plan, setPlan] = useState<string>('');
     const prices: Record<string, string> = { basic: 'Gratis', pro: '$29/mes', enterprise: 'Contactar ventas' };
     return (
@@ -73,7 +76,7 @@ export const Interactive: Story = {
           label="Selecciona tu plan"
           description="Puedes cambiar de plan en cualquier momento"
           options={options}
-          onValueChange={setPlan}
+          onValueChange={(v, option) => { args.onValueChange?.(v, option); setPlan(v); }}
         />
         {plan && (
           <div className="rounded-md bg-neutral-50 border p-4 text-sm flex justify-between">

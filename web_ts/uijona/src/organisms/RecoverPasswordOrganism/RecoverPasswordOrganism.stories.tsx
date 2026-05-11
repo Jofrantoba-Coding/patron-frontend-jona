@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { useState } from 'react';
+import React, { type FormEvent, useState } from 'react';
 import { RecoverPasswordOrganism } from './RecoverPasswordOrganism';
 
 const meta: Meta<typeof RecoverPasswordOrganism> = {
@@ -64,11 +64,16 @@ export const Loading: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onSubmit: fn(),
+    onGoToLogin: fn(),
+  },
+  render: (args) => {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
     const [emailError, setEmailError] = useState('');
-    const handleSubmit = async (e: { preventDefault(): void }) => {
+    const handleSubmit = async (e: FormEvent) => {
+      args.onSubmit?.(e);
       e.preventDefault();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         setEmailError('Ingresa un email válido');
@@ -91,7 +96,7 @@ export const Interactive: Story = {
             : undefined
         }
         onSubmit={handleSubmit}
-        onGoToLogin={() => alert('Volver al login')}
+        onGoToLogin={args.onGoToLogin}
       />
     );
   },

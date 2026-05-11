@@ -50,7 +50,10 @@ export const WithDisabledOption: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+  },
+  render: (args) => {
     const [value, setValue] = useState('');
     const selected = COUNTRIES.find((c) => c.value === value);
     return (
@@ -59,7 +62,7 @@ export const Interactive: Story = {
           options={COUNTRIES}
           value={value}
           placeholder="Seleccionar país..."
-          onChange={(v) => setValue(v)}
+          onChange={(v, option) => { args.onChange?.(v, option); setValue(v); }}
         />
         <p className="text-sm text-neutral-500">
           {selected ? `Seleccionado: ${selected.label}` : 'Ninguno seleccionado'}

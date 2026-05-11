@@ -38,7 +38,11 @@ export const WithValue: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+    onBlur: fn(),
+  },
+  render: (args) => {
     const [value, setValue] = useState('');
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     const hasError = value.length > 0 && !isValid;
@@ -49,7 +53,8 @@ export const Interactive: Story = {
           placeholder="correo@ejemplo.com"
           value={value}
           hasError={hasError}
-          onChange={(v) => setValue(v)}
+          onChange={(v, e) => { args.onChange?.(v, e); setValue(v); }}
+          onBlur={args.onBlur}
         />
         {hasError && <p className="text-xs text-red-500">El formato de email no es válido</p>}
         {isValid && <p className="text-xs text-green-600">Email válido</p>}

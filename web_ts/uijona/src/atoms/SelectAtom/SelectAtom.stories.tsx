@@ -40,14 +40,17 @@ export const WithError: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onChange: fn(),
+  },
+  render: (args) => {
     const [country, setCountry] = useState('');
     return (
       <div className="flex flex-col gap-2 w-64">
         <SelectAtom
           options={options}
           placeholder="Selecciona un país"
-          onChange={setCountry}
+          onChange={(v, e) => { args.onChange?.(v, e); setCountry(v); }}
         />
         {country && (
           <p className="text-sm text-neutral-600">

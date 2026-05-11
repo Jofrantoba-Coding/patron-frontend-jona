@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ButtonAtom } from './ButtonAtom';
 
 const meta: Meta<typeof ButtonAtom> = {
@@ -74,10 +74,14 @@ export const AllVariants: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  args: {
+    onClick: fn(),
+  },
+  render: (args) => {
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const handleClick = async () => {
+    const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+      args.onClick?.(e);
       setLoading(true);
       await new Promise((r) => setTimeout(r, 1500));
       setLoading(false);
@@ -89,7 +93,7 @@ export const Interactive: Story = {
           {submitted ? 'Enviado correctamente' : 'Enviar formulario'}
         </ButtonAtom>
         {submitted && (
-          <ButtonAtom variant="outline" size="sm" onClick={() => setSubmitted(false)} fullWidth>
+          <ButtonAtom variant="outline" size="sm" onClick={(event) => { args.onClick?.(event); setSubmitted(false); }} fullWidth>
             Restablecer
           </ButtonAtom>
         )}
