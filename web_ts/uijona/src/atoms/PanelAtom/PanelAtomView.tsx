@@ -33,31 +33,43 @@ const radiusClasses: Record<PanelRadius, string> = {
   full: 'rounded-full',
 };
 
+const resolvePanelTag = (as?: React.ElementType): React.ElementType => {
+  if (typeof as === 'string') {
+    return as.trim() ? as : 'div';
+  }
+
+  return as ?? 'div';
+};
+
 export const PanelAtomView = React.forwardRef<HTMLDivElement, InterPanelAtom>(
   (
     {
       variant = PANEL_ATOM_DEFAULTS.variant,
       padding = PANEL_ATOM_DEFAULTS.padding,
       radius  = PANEL_ATOM_DEFAULTS.radius,
-      as: Tag = 'div',
+      as,
       className,
       children,
       ...props
     },
     ref
-  ) => (
-    <Tag
-      ref={ref}
-      className={cn(
-        variantClasses[variant],
-        paddingClasses[padding],
-        radiusClasses[radius],
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </Tag>
-  )
+  ) => {
+    const Tag = resolvePanelTag(as);
+
+    return (
+      <Tag
+        ref={ref}
+        className={cn(
+          variantClasses[variant],
+          paddingClasses[padding],
+          radiusClasses[radius],
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Tag>
+    );
+  }
 );
 PanelAtomView.displayName = 'PanelAtomView';
