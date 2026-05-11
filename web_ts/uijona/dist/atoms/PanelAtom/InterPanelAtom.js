@@ -1,9 +1,14 @@
-const d = {
+const t = {
   variant: "default",
   padding: "md",
-  radius: "md"
+  radius: "md",
+  layout: "none",
+  direction: "row",
+  gap: "md",
+  alignItems: "stretch",
+  justifyContent: "start"
 };
 export {
-  d as PANEL_ATOM_DEFAULTS
+  t as PANEL_ATOM_DEFAULTS
 };
 //# sourceMappingURL=InterPanelAtom.js.map
