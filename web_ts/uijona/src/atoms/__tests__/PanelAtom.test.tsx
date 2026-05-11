@@ -30,7 +30,7 @@ describe('PanelAtom', () => {
       </PanelAtom>
     );
 
-    expect(screen.getByTestId('panel')).toHaveClass('flex', 'flex-row', 'flex-wrap', 'gap-2');
+    expect(screen.getByTestId('panel')).toHaveClass('flex', 'flex-row', 'flex-wrap', 'gap-2', 'w-full', 'max-w-full');
   });
 
   it('wraps box layout rows by default', () => {
@@ -63,6 +63,19 @@ describe('PanelAtom', () => {
     expect(screen.getByTestId('panel')).toHaveStyle({
       gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
       gridTemplateRows: 'auto 1fr',
+    });
+  });
+
+  it('uses responsive grid columns by default', () => {
+    render(
+      <PanelAtom layout="grid" data-testid="panel">
+        Content
+      </PanelAtom>
+    );
+
+    expect(screen.getByTestId('panel')).toHaveClass('grid', 'w-full', 'max-w-full');
+    expect(screen.getByTestId('panel')).toHaveStyle({
+      gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))',
     });
   });
 

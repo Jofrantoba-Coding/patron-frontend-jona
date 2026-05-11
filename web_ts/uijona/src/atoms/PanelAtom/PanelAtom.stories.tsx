@@ -235,7 +235,7 @@ export const Nested: Story = {
 
 export const FlowLayoutManager: Story = {
   render: () => (
-    <PanelAtom layout="flow" wrap="wrap" gap="sm" alignItems="center" variant="outlined" padding="lg" className="w-80">
+    <PanelAtom layout="flow" gap="sm" alignItems="center" variant="outlined" padding="lg" className="w-full max-w-sm">
       {['Uno', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis'].map((item) => (
         <DemoItem key={item}>{item}</DemoItem>
       ))}
@@ -257,8 +257,8 @@ export const BoxLayoutManager: Story = {
 
 export const GridLayoutManager: Story = {
   render: () => (
-    <PanelAtom layout="grid" columns={3} gap="sm" variant="outlined" padding="lg" className="w-96">
-      {['A1', 'A2', 'A3', 'B1', 'B2', 'B3'].map((item) => (
+    <PanelAtom layout="grid" gap="sm" variant="outlined" padding="lg" className="w-full max-w-2xl">
+      {['Usuarios', 'Ventas', 'Tickets', 'Riesgos', 'Alertas', 'Tareas'].map((item) => (
         <DemoItem key={item}>{item}</DemoItem>
       ))}
     </PanelAtom>

@@ -1,11 +1,12 @@
 import { jsx as i } from "react/jsx-runtime";
-import m from "react";
-import { PanelAtomImpl as a } from "../../atoms/PanelAtom/PanelAtomImpl.js";
-const e = m.forwardRef(
-  ({ children: o, ...r }, t) => /* @__PURE__ */ i(a, { ref: t, layout: "grid", ...r, children: o })
+import t from "react";
+import { cn as l } from "../../lib/cn.js";
+import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+const f = t.forwardRef(
+  ({ children: o, className: m, ...r }, a) => /* @__PURE__ */ i(e, { ref: a, layout: "grid", className: l("w-full max-w-full min-w-0", m), ...r, children: o })
 );
-e.displayName = "GridLayoutView";
+f.displayName = "GridLayoutView";
 export {
-  e as GridLayoutView
+  f as GridLayoutView
 };
 //# sourceMappingURL=GridLayoutView.js.map

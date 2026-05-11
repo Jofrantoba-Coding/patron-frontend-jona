@@ -1,11 +1,12 @@
 import { jsx as r } from "react/jsx-runtime";
-import a from "react";
-import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
-const l = a.forwardRef(
-  ({ children: o, ...t }, m) => /* @__PURE__ */ r(e, { ref: m, layout: "flow", ...t, children: o })
+import t from "react";
+import { cn as f } from "../../lib/cn.js";
+import { PanelAtomImpl as w } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+const e = t.forwardRef(
+  ({ children: o, className: m, ...l }, a) => /* @__PURE__ */ r(w, { ref: a, layout: "flow", className: f("w-full max-w-full min-w-0", m), ...l, children: o })
 );
-l.displayName = "FlowLayoutView";
+e.displayName = "FlowLayoutView";
 export {
-  l as FlowLayoutView
+  e as FlowLayoutView
 };
 //# sourceMappingURL=FlowLayoutView.js.map

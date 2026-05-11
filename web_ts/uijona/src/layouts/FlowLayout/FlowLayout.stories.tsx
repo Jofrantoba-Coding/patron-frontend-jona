@@ -6,7 +6,7 @@ const meta: Meta<typeof FlowLayout> = {
   title: 'Layouts/FlowLayout',
   component: FlowLayout,
   tags: ['autodocs'],
-  parameters: { layout: 'centered' },
+  parameters: { layout: 'padded' },
   argTypes: {
     gap: {
       control: 'select',
@@ -38,7 +38,7 @@ const DemoItem = ({ label }: { label: string }) => (
 
 export const WrappedItems: Story = {
   render: (args) => (
-    <FlowLayout {...args} className="w-80">
+    <FlowLayout {...args} className="w-full max-w-sm">
       {['Uno', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis'].map((item) => (
         <DemoItem key={item} label={item} />
       ))}
@@ -49,7 +49,7 @@ export const WrappedItems: Story = {
 export const Centered: Story = {
   args: { alignItems: 'center', justifyContent: 'center', gap: 'sm' },
   render: (args) => (
-    <FlowLayout {...args} className="w-96">
+    <FlowLayout {...args} className="w-full max-w-md">
       {['Accion', 'Filtro', 'Exportar'].map((item) => (
         <DemoItem key={item} label={item} />
       ))}

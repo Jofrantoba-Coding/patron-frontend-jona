@@ -1,7 +1,7 @@
 import { jsx as R } from "react/jsx-runtime";
 import m from "react";
 import { cn as i } from "../../lib/cn.js";
-import { PANEL_ATOM_DEFAULTS as a } from "./InterPanelAtom.js";
+import { PANEL_ATOM_DEFAULTS as s } from "./InterPanelAtom.js";
 const k = {
   default: "bg-white border border-neutral-200",
   outlined: "bg-transparent border border-neutral-300",
@@ -28,7 +28,7 @@ const k = {
   md: "gap-4",
   lg: "gap-6",
   xl: "gap-8"
-}, f = {
+}, p = {
   start: "items-start",
   center: "items-center",
   end: "items-end",
@@ -48,22 +48,22 @@ const k = {
   nowrap: "flex-nowrap",
   wrap: "flex-wrap",
   reverse: "flex-wrap-reverse"
-}, K = (e) => typeof e == "string" ? e.trim() ? e : "div" : e ?? "div", w = (e, t) => typeof e == "boolean" ? e ? "wrap" : "nowrap" : e ?? t, g = (e) => typeof e == "number" ? `repeat(${e}, minmax(0, 1fr))` : e, O = (e, t, n, o, r, s) => {
+}, K = (e) => typeof e == "string" ? e.trim() ? e : "div" : e ?? "div", w = (e, t) => typeof e == "boolean" ? e ? "wrap" : "nowrap" : e ?? t, g = (e) => typeof e == "number" ? `repeat(${e}, minmax(0, 1fr))` : e, O = (e, t, n, o, r, a) => {
   if (e !== "none")
     return e === "flow" ? i(
-      "flex min-w-0 flex-row",
-      c[w(s, "wrap")],
+      "flex min-w-0 w-full max-w-full flex-row",
+      c[w(a, "wrap")],
       l[n],
-      f[o],
+      p[o],
       u[r]
     ) : e === "box" ? i(
       "flex min-w-0",
       W[t],
-      c[w(s, t === "column" ? "nowrap" : "wrap")],
+      c[w(a, t === "column" ? "nowrap" : "wrap")],
       l[n],
-      f[o],
+      p[o],
       u[r]
-    ) : e === "grid" ? i("grid min-w-0", l[n], f[o], u[r]) : e === "border" ? i(
+    ) : e === "grid" ? i("grid min-w-0 w-full max-w-full", l[n], p[o], u[r]) : e === "border" ? i(
       "grid min-h-0 min-w-0",
       "[grid-template-areas:'top'_'left'_'center'_'right'_'bottom']",
       "[grid-template-columns:minmax(0,1fr)]",
@@ -72,12 +72,12 @@ const k = {
       "md:[grid-template-columns:auto_minmax(0,1fr)_auto]",
       "md:[grid-template-rows:auto_minmax(0,1fr)_auto]",
       l[n],
-      f[o],
+      p[o],
       u[r]
     ) : e === "card" ? i("relative min-w-0 w-full max-w-full", l[n]) : i("relative min-w-0", l[n]);
 }, $ = (e, t, n, o, r) => {
-  const s = {};
-  return e === "grid" && (s.gridTemplateColumns = o ? `repeat(auto-fit, minmax(${o}, 1fr))` : g(t), s.gridTemplateRows = g(n)), e === "border" && (s.gridTemplateColumns = g(t), s.gridTemplateRows = g(n)), Object.keys(s).length > 0 ? { ...s, ...r } : r;
+  const a = {};
+  return e === "grid" && (a.gridTemplateColumns = o ? `repeat(auto-fit, minmax(${o}, 1fr))` : g(t) ?? "repeat(auto-fit, minmax(12rem, 1fr))", a.gridTemplateRows = g(n)), e === "border" && (a.gridTemplateColumns = g(t), a.gridTemplateRows = g(n)), Object.keys(a).length > 0 ? { ...a, ...r } : r;
 }, D = (e) => {
   const t = e.props["data-panel-card"];
   if (t !== void 0) return String(t);
@@ -88,12 +88,12 @@ const k = {
   return m.Children.map(e, (r) => {
     if (!m.isValidElement(r)) return r;
     if (t === "border") {
-      const p = r.props["data-panel-area"];
-      return p ? m.cloneElement(r, {
-        style: { ...r.props.style, gridArea: p }
+      const f = r.props["data-panel-area"];
+      return f ? m.cloneElement(r, {
+        style: { ...r.props.style, gridArea: f }
       }) : r;
     }
-    const s = D(r), d = n === void 0 ? !o : s === String(n);
+    const a = D(r), d = n === void 0 ? !o : a === String(n);
     return o = o || d, d ? m.cloneElement(r, {
       style: {
         ...r.props.style,
@@ -107,15 +107,15 @@ const k = {
   });
 }, q = m.forwardRef(
   ({
-    variant: e = a.variant,
-    padding: t = a.padding,
-    radius: n = a.radius,
+    variant: e = s.variant,
+    padding: t = s.padding,
+    radius: n = s.radius,
     as: o,
-    layout: r = a.layout,
-    direction: s = a.direction,
-    gap: d = a.gap,
-    alignItems: p = a.alignItems,
-    justifyContent: b = a.justifyContent,
+    layout: r = s.layout,
+    direction: a = s.direction,
+    gap: d = s.gap,
+    alignItems: f = s.alignItems,
+    justifyContent: b = s.justifyContent,
     wrap: x,
     columns: y,
     rows: _,
@@ -135,7 +135,7 @@ const k = {
           k[e],
           N[t],
           V[n],
-          O(r, s, d, p, b, x),
+          O(r, a, d, f, b, x),
           T
         ),
         style: P,

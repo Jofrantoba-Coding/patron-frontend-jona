@@ -6,7 +6,7 @@ const meta: Meta<typeof GridLayout> = {
   title: 'Layouts/GridLayout',
   component: GridLayout,
   tags: ['autodocs'],
-  parameters: { layout: 'centered' },
+  parameters: { layout: 'padded' },
   argTypes: {
     gap: {
       control: 'select',
@@ -36,7 +36,7 @@ const DemoItem = ({ label }: { label: string }) => (
 export const FixedColumns: Story = {
   args: { columns: 3, gap: 'sm' },
   render: (args) => (
-    <GridLayout {...args} className="w-96">
+    <GridLayout {...args} className="w-full max-w-xl">
       {['A1', 'A2', 'A3', 'B1', 'B2', 'B3'].map((item) => (
         <DemoItem key={item} label={item} />
       ))}

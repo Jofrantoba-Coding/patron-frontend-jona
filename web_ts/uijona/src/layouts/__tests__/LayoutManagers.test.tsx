@@ -13,7 +13,7 @@ describe('layout manager components', () => {
       </FlowLayout>
     );
 
-    expect(screen.getByTestId('flow')).toHaveClass('flex', 'flex-row', 'flex-wrap', 'gap-2');
+    expect(screen.getByTestId('flow')).toHaveClass('flex', 'flex-row', 'flex-wrap', 'gap-2', 'w-full', 'max-w-full', 'min-w-0');
   });
 
   it('renders BoxLayout with configurable direction', () => {
@@ -45,6 +45,7 @@ describe('layout manager components', () => {
     );
 
     expect(screen.getByTestId('grid')).toHaveClass('grid');
+    expect(screen.getByTestId('grid')).toHaveClass('w-full', 'max-w-full', 'min-w-0');
     expect(screen.getByTestId('grid')).toHaveStyle({
       gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
     });

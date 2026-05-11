@@ -110,7 +110,7 @@ const getLayoutClasses = (
 
   if (layout === 'flow') {
     return cn(
-      'flex min-w-0 flex-row',
+      'flex min-w-0 w-full max-w-full flex-row',
       wrapClasses[resolveWrap(wrap, 'wrap')],
       gapClasses[gap],
       alignClasses[alignItems],
@@ -130,7 +130,7 @@ const getLayoutClasses = (
   }
 
   if (layout === 'grid') {
-    return cn('grid min-w-0', gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
+    return cn('grid min-w-0 w-full max-w-full', gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
   }
 
   if (layout === 'border') {
@@ -167,7 +167,7 @@ const getLayoutStyle = (
   if (layout === 'grid') {
     layoutStyle.gridTemplateColumns = autoFitMin
       ? `repeat(auto-fit, minmax(${autoFitMin}, 1fr))`
-      : resolveTemplate(columns);
+      : resolveTemplate(columns) ?? 'repeat(auto-fit, minmax(12rem, 1fr))';
     layoutStyle.gridTemplateRows = resolveTemplate(rows);
   }
 
