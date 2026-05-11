@@ -3,6 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { ComboboxOption } from './InterComboboxMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface ComboboxMoleculeViewProps {
   selected: ComboboxOption | null;
@@ -30,7 +31,7 @@ export const ComboboxMoleculeView: React.FC<ComboboxMoleculeViewProps> = ({
   className, listStyle, triggerRef, inputRef, listRef, activeIndex,
   onTriggerClick, onQueryChange, onSelect, onKeyDown,
 }) => (
-  <div className={cn('relative inline-block w-full', className)}>
+  <PanelAtom variant="ghost" padding="none" radius="none" className={cn('relative inline-block w-full', className)}>
     {/* Trigger */}
     <button
       ref={triggerRef}
@@ -60,9 +61,9 @@ export const ComboboxMoleculeView: React.FC<ComboboxMoleculeViewProps> = ({
 
     {/* Dropdown panel */}
     {open && createPortal(
-      <div ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
+      <PanelAtom variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
         {/* Search */}
-        <div className="border-b border-neutral-100 p-2">
+        <PanelAtom variant="ghost" padding="none" radius="none" className="border-b border-neutral-100 p-2">
           <input
             ref={inputRef}
             type="text"
@@ -72,9 +73,9 @@ export const ComboboxMoleculeView: React.FC<ComboboxMoleculeViewProps> = ({
             aria-label={searchPlaceholder}
             className="h-8 w-full rounded border border-neutral-200 bg-white px-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
           />
-        </div>
+        </PanelAtom>
         {/* Options */}
-        <div role="listbox" className="overflow-y-auto py-1">
+        <PanelAtom variant="ghost" padding="none" radius="none" role="listbox" className="overflow-y-auto py-1">
           {filtered.length === 0 ? (
             <p className="px-3 py-4 text-center text-sm text-neutral-400">{emptyText}</p>
           ) : (
@@ -105,9 +106,9 @@ export const ComboboxMoleculeView: React.FC<ComboboxMoleculeViewProps> = ({
               </button>
             ))
           )}
-        </div>
-      </div>,
+        </PanelAtom>
+      </PanelAtom>,
       document.body
     )}
-  </div>
+  </PanelAtom>
 );

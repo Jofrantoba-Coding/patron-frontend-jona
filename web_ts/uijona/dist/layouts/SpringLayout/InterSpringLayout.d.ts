@@ -1,5 +1,5 @@
 import React from 'react';
-import { PanelGap, PanelLayoutPlacement, PanelPadding, PanelRadius, PanelVariant } from '../../atoms/PanelAtom/PanelAtom';
+import type { PanelGap, PanelLayoutPlacement, PanelPadding, PanelRadius, PanelVariant } from '../../atoms/PanelAtom/PanelAtom';
 export interface InterSpringLayout extends React.HTMLAttributes<HTMLDivElement> {
     variant?: PanelVariant;
     padding?: PanelPadding;

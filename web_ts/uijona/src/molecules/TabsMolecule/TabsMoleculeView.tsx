@@ -2,6 +2,7 @@
 import React, { createContext, useContext } from 'react';
 import { cn } from '../../lib/cn';
 import { InterTabsMolecule } from './InterTabsMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface TabsContextValue {
   value: string;
@@ -20,16 +21,16 @@ export const TabsMoleculeView: React.FC<InterTabsMolecule> = ({
   value, onChange, onTabFocus, onDisabledTabClick, variant = 'pill', orientation = 'horizontal', className, children,
 }) => (
   <TabsContext.Provider value={{ value, onChange: onChange ?? (() => {}), onTabFocus, onDisabledTabClick, variant, orientation }}>
-    <div className={cn('min-w-0', orientation === 'vertical' ? 'flex flex-col gap-4 sm:flex-row' : 'flex flex-col gap-2', className)}>{children}</div>
+    <PanelAtom variant="ghost" padding="none" radius="none" className={cn('min-w-0', orientation === 'vertical' ? 'flex flex-col gap-4 sm:flex-row' : 'flex flex-col gap-2', className)}>{children}</PanelAtom>
   </TabsContext.Provider>
 );
 
 export const TabsListView: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => {
   const { variant, orientation } = useContext(TabsContext);
   return (
-    <div role="tablist" aria-orientation={orientation}
+    <PanelAtom variant="ghost" padding="none" radius="none" role="tablist" aria-orientation={orientation}
       className={cn('flex max-w-full min-w-0', orientation === 'vertical' ? 'flex-row overflow-x-auto sm:flex-col sm:overflow-visible' : 'flex-row overflow-x-auto', variant === 'pill' ? 'bg-neutral-100 rounded-md p-1 gap-1' : 'border-b border-neutral-200 gap-0', className)}
-      {...props}>{children}</div>
+      {...props}>{children}</PanelAtom>
   );
 };
 
@@ -55,5 +56,5 @@ interface TabsContentViewProps extends React.HTMLAttributes<HTMLDivElement> { va
 export const TabsContentView: React.FC<TabsContentViewProps> = ({ value, className, children, ...props }) => {
   const { value: activeValue } = useContext(TabsContext);
   if (activeValue !== value) return null;
-  return <div role="tabpanel" tabIndex={0} className={cn('min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500', className)} {...props}>{children}</div>;
+  return <PanelAtom variant="ghost" padding="none" radius="none" role="tabpanel" tabIndex={0} className={cn('min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500', className)} {...props}>{children}</PanelAtom>;
 };

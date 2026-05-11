@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterToastAtom, ToastVariant } from './InterToastAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const variantClasses: Record<ToastVariant, string> = {
   default: 'bg-neutral-900 text-white',
@@ -18,7 +19,7 @@ interface ToastAtomViewProps extends Omit<InterToastAtom, 'className'> {
 export const ToastAtomView: React.FC<ToastAtomViewProps> = ({
   message, title, variant = 'default', className, onDismissClick,
 }) => (
-  <div
+  <PanelAtom variant="ghost" padding="none" radius="none"
     role="status"
     aria-live="polite"
     className={cn(
@@ -27,10 +28,10 @@ export const ToastAtomView: React.FC<ToastAtomViewProps> = ({
       className
     )}
   >
-    <div className="flex-1 min-w-0">
+    <PanelAtom variant="ghost" padding="none" radius="none" className="flex-1 min-w-0">
       {title && <p className="text-sm font-semibold leading-none mb-1 break-words">{title}</p>}
       <p className="text-sm leading-snug break-words">{message}</p>
-    </div>
+    </PanelAtom>
     <button
       type="button"
       aria-label="Dismiss notification"
@@ -41,5 +42,5 @@ export const ToastAtomView: React.FC<ToastAtomViewProps> = ({
         <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
       </svg>
     </button>
-  </div>
+  </PanelAtom>
 );

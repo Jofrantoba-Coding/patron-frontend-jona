@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterStepperMolecule, StepperStepStatus } from './InterStepperMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 type StepperMoleculeViewProps = Omit<InterStepperMolecule, 'currentStep' | 'defaultStep' | 'onStepChange'> & {
   activeStep: number;
@@ -82,7 +83,7 @@ export const StepperMoleculeView: React.FC<StepperMoleculeViewProps> = ({
               {content}
             </button>
           ) : (
-            <div className="flex min-w-0 gap-3">{content}</div>
+            <PanelAtom variant="ghost" padding="none" radius="none" className="flex min-w-0 gap-3">{content}</PanelAtom>
           )}
         </li>
       );

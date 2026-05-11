@@ -8,6 +8,7 @@ import {
   TimerMoleculeTone,
   TimerMoleculeVariant,
 } from './InterTimerMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const variantClasses: Record<TimerMoleculeVariant, string> = {
   plain: 'bg-transparent',
@@ -109,7 +110,7 @@ export const TimerMoleculeView: React.FC<TimerMoleculeViewProps> = ({
   const isInline = variant === 'inline';
 
   return (
-    <div
+    <PanelAtom variant="ghost" padding="none" radius="none"
       className={cn(
         'min-w-0',
         variantClasses[variant],
@@ -121,15 +122,15 @@ export const TimerMoleculeView: React.FC<TimerMoleculeViewProps> = ({
       {...props}
     >
       {(label || completedLabel) && !isInline && (
-        <div className="min-w-0">
+        <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0">
           {label && <p className={cn('break-words font-medium text-neutral-500', sizeClasses[size].label)}>{label}</p>}
           {status === 'completed' && completedLabel && (
             <p className={cn('mt-1 break-words font-medium', sizeClasses[size].label, toneClasses[tone])}>{completedLabel}</p>
           )}
-        </div>
+        </PanelAtom>
       )}
 
-      <div className={cn('min-w-0', isInline && 'flex items-center gap-3')}>
+      <PanelAtom variant="ghost" padding="none" radius="none" className={cn('min-w-0', isInline && 'flex items-center gap-3')}>
         <output
           aria-live={status === 'running' ? 'off' : 'polite'}
           aria-label="Timer"
@@ -144,7 +145,7 @@ export const TimerMoleculeView: React.FC<TimerMoleculeViewProps> = ({
         <span className="sr-only">{statusText[status]}</span>
 
         {controls && (
-          <div className={cn('flex flex-wrap items-center gap-2', isInline ? 'ml-1' : 'mt-3')}>
+          <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex flex-wrap items-center gap-2', isInline ? 'ml-1' : 'mt-3')}>
             {canStart && (
               <button
                 type="button"
@@ -195,9 +196,9 @@ export const TimerMoleculeView: React.FC<TimerMoleculeViewProps> = ({
             >
               {resetLabel}
             </button>
-          </div>
+          </PanelAtom>
         )}
-      </div>
-    </div>
+      </PanelAtom>
+    </PanelAtom>
   );
 };

@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterAvatarAtom, AvatarSize, AvatarShape } from './InterAvatarAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const sizeClasses: Record<AvatarSize, string> = {
   xs: 'w-6 h-6 text-xs',
@@ -23,7 +24,7 @@ interface AvatarAtomViewProps extends InterAvatarAtom {
 export const AvatarAtomView: React.FC<AvatarAtomViewProps> = ({
   src, alt, initials, size, shape, className, onImageError,
 }) => (
-  <div
+  <PanelAtom variant="ghost" padding="none" radius="none"
     className={cn(
       'relative inline-flex items-center justify-center overflow-hidden bg-primary-100 text-primary-700 font-semibold flex-shrink-0',
       sizeClasses[size!],
@@ -42,5 +43,5 @@ export const AvatarAtomView: React.FC<AvatarAtomViewProps> = ({
     ) : (
       <span aria-hidden="true">{initials ?? '?'}</span>
     )}
-  </div>
+  </PanelAtom>
 );

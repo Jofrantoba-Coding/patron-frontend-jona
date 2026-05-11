@@ -8,6 +8,7 @@ import {
   TableSortDirection,
 } from './InterTableMolecule';
 import { useTableContext } from './TableMoleculeContext';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const outerClasses: Record<TableResponsiveMode, string> = {
   scroll: 'relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200',
@@ -25,8 +26,8 @@ export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMo
   ({ className, wrapperClassName, responsiveMode = 'scroll', pagination, style,
      columns: _columns, data: _data, caption: _caption, emptyMessage: _emptyMessage,
      ...props }, ref) => (
-    <div className={cn(outerClasses[responsiveMode], wrapperClassName)}>
-      <div className={innerScrollClasses[responsiveMode]}>
+    <PanelAtom variant="ghost" padding="none" radius="none" className={cn(outerClasses[responsiveMode], wrapperClassName)}>
+      <PanelAtom variant="ghost" padding="none" radius="none" className={innerScrollClasses[responsiveMode]}>
         <table
           ref={ref}
           style={responsiveMode !== 'none' ? undefined : style}
@@ -39,9 +40,9 @@ export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMo
           )}
           {...props}
         />
-      </div>
+      </PanelAtom>
       {pagination && <TablePaginationView {...pagination} />}
-    </div>
+    </PanelAtom>
   )
 );
 TableMoleculeView.displayName = 'TableMolecule';
@@ -104,7 +105,7 @@ function TablePaginationView({
   const pages = getPageNumbers(safeCurrentPage, totalPages);
 
   return (
-    <div className="flex flex-col gap-3 border-t border-neutral-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-col gap-3 border-t border-neutral-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       {showRowsInfo && (
         <p className="shrink-0 text-sm text-neutral-500">
           Mostrando{' '}
@@ -117,9 +118,9 @@ function TablePaginationView({
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-4">
+      <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-wrap items-center gap-4">
         {showPageSizeSelector && onPageSizeChange && (
-          <div className="flex items-center gap-2 text-sm text-neutral-600">
+          <PanelAtom variant="ghost" padding="none" radius="none" className="flex items-center gap-2 text-sm text-neutral-600">
             <span className="shrink-0">Filas por pagina</span>
             <select
               value={pageSize}
@@ -133,7 +134,7 @@ function TablePaginationView({
                 <option key={size} value={size}>{size}</option>
               ))}
             </select>
-          </div>
+          </PanelAtom>
         )}
 
         <nav aria-label="Paginacion de tabla" className="flex items-center gap-1">
@@ -185,8 +186,8 @@ function TablePaginationView({
             {'>>'}
           </PaginationButton>
         </nav>
-      </div>
-    </div>
+      </PanelAtom>
+    </PanelAtom>
   );
 }
 
@@ -428,7 +429,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
         onClick={onClick}
         {...props}
       >
-        <div
+        <PanelAtom variant="ghost" padding="none" radius="none"
           className={cn(
             'flex min-w-0 items-center gap-2',
             filterable && 'flex-col items-stretch gap-1 py-2',
@@ -475,7 +476,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
               )}
             />
           )}
-        </div>
+        </PanelAtom>
 
         {resizable && (
           <button

@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterSidebarLayout, SidebarNavItem, SidebarNavGroup } from './InterSidebarLayout';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface SidebarLayoutViewProps extends Omit<InterSidebarLayout, 'defaultCollapsed' | 'collapsible'> {
   collapsed: boolean;
@@ -20,7 +21,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
   onItemClick: (item: SidebarNavItem) => void;
 }) {
   return (
-    <div className="flex flex-col gap-0.5">
+    <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-col gap-0.5">
       {group.label && !collapsed && (
         <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">{group.label}</p>
       )}
@@ -51,7 +52,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
           </button>
         );
       })}
-    </div>
+    </PanelAtom>
   );
 }
 
@@ -63,10 +64,10 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
   const effectiveWidth = collapsed ? '3.5rem' : sidebarWidth;
 
   return (
-    <div className={cn('flex min-h-screen min-w-0 bg-neutral-50', className)}>
+    <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex min-h-screen min-w-0 bg-neutral-50', className)}>
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-30 bg-black/40 lg:hidden" aria-hidden="true" onClick={onCloseMobile} />
+        <PanelAtom variant="ghost" padding="none" radius="none" className="fixed inset-0 z-30 bg-black/40 lg:hidden" aria-hidden="true" onClick={onCloseMobile} />
       )}
 
       {/* Sidebar */}
@@ -81,9 +82,9 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
       >
         {/* Sidebar header slot */}
         {header && (
-          <div className={cn('flex shrink-0 items-center border-b border-neutral-100 px-3 py-3', collapsed && 'justify-center')}>
+          <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex shrink-0 items-center border-b border-neutral-100 px-3 py-3', collapsed && 'justify-center')}>
             {header}
-          </div>
+          </PanelAtom>
         )}
 
         {/* Nav */}
@@ -94,9 +95,9 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
         </nav>
 
         {/* Footer slot + collapse toggle */}
-        <div className="flex shrink-0 flex-col border-t border-neutral-100 p-2 gap-1">
+        <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 flex-col border-t border-neutral-100 p-2 gap-1">
           {footer && !collapsed && (
-            <div className="min-w-0 px-1 py-1">{footer}</div>
+            <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0 px-1 py-1">{footer}</PanelAtom>
           )}
           {collapsible && (
             <button
@@ -115,13 +116,13 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
               {!collapsed && <span>Colapsar</span>}
             </button>
           )}
-        </div>
+        </PanelAtom>
       </aside>
 
       {/* Main content */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <PanelAtom variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Mobile top bar with hamburger */}
-        <div className="flex shrink-0 items-center border-b border-neutral-200 bg-white px-4 py-3 lg:hidden">
+        <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center border-b border-neutral-200 bg-white px-4 py-3 lg:hidden">
           <button
             type="button"
             onClick={onToggleMobile}
@@ -133,13 +134,13 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
-        </div>
+        </PanelAtom>
 
         {/* Page content */}
         <main className="min-h-0 flex-1 overflow-auto p-4 sm:p-6">
           {children}
         </main>
-      </div>
-    </div>
+      </PanelAtom>
+    </PanelAtom>
   );
 };

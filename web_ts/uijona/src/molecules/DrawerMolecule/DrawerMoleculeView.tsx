@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { ButtonAtom } from '../../atoms/ButtonAtom';
 import { InterDrawerMolecule, DrawerSide } from './InterDrawerMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const sideStyles: Record<DrawerSide, { panel: string; open: string }> = {
   right:  { panel: 'inset-y-0 right-0 h-full flex-col', open: 'translate-x-0' },
@@ -47,7 +48,7 @@ export const DrawerMoleculeView: React.FC<DrawerMoleculeViewProps> = ({
   return createPortal(
     <>
       {/* Overlay */}
-      <div
+      <PanelAtom variant="ghost" padding="none" radius="none"
         aria-hidden="true"
         onClick={onOverlayClick}
         className={cn(
@@ -56,7 +57,7 @@ export const DrawerMoleculeView: React.FC<DrawerMoleculeViewProps> = ({
         )}
       />
       {/* Panel */}
-      <div
+      <PanelAtom variant="ghost" padding="none" radius="none"
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'drawer-title' : undefined}
@@ -71,11 +72,11 @@ export const DrawerMoleculeView: React.FC<DrawerMoleculeViewProps> = ({
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex shrink-0 items-start justify-between gap-4 border-b border-neutral-200 p-4 sm:p-5">
-            <div className="flex min-w-0 flex-col gap-0.5">
+          <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 items-start justify-between gap-4 border-b border-neutral-200 p-4 sm:p-5">
+            <PanelAtom variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-0.5">
               {title && <h2 id="drawer-title" className="break-words text-base font-semibold text-neutral-900">{title}</h2>}
               {description && <p id="drawer-desc" className="break-words text-sm text-neutral-500">{description}</p>}
-            </div>
+            </PanelAtom>
             {showCloseButton && (
               <ButtonAtom variant="ghost" size="icon" onClick={onClose} aria-label="Cerrar panel" className="shrink-0">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -83,19 +84,19 @@ export const DrawerMoleculeView: React.FC<DrawerMoleculeViewProps> = ({
                 </svg>
               </ButtonAtom>
             )}
-          </div>
+          </PanelAtom>
         )}
         {/* Body */}
-        <div className={cn('min-h-0 flex-1 overflow-y-auto p-4 sm:p-5', !isHorizontal && 'overflow-x-auto')}>
+        <PanelAtom variant="ghost" padding="none" radius="none" className={cn('min-h-0 flex-1 overflow-y-auto p-4 sm:p-5', !isHorizontal && 'overflow-x-auto')}>
           {children}
-        </div>
+        </PanelAtom>
         {/* Footer */}
         {footer && (
-          <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-neutral-200 p-4 sm:flex-row sm:justify-end sm:p-5">
+          <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 flex-col-reverse gap-2 border-t border-neutral-200 p-4 sm:flex-row sm:justify-end sm:p-5">
             {footer}
-          </div>
+          </PanelAtom>
         )}
-      </div>
+      </PanelAtom>
     </>,
     document.body
   );

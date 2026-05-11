@@ -2,6 +2,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface PopoverMoleculeViewProps {
   trigger: React.ReactNode;
@@ -18,11 +19,11 @@ export const PopoverMoleculeView: React.FC<PopoverMoleculeViewProps> = ({
   trigger, children, open, panelStyle, triggerRef, panelRef, className, onTriggerClick,
 }) => (
   <>
-    <div ref={triggerRef} className="inline-block" onClick={onTriggerClick}>
+    <PanelAtom variant="ghost" padding="none" radius="none" ref={triggerRef} className="inline-block" onClick={onTriggerClick}>
       {trigger}
-    </div>
+    </PanelAtom>
     {open && createPortal(
-      <div
+      <PanelAtom variant="ghost" padding="none" radius="none"
         ref={panelRef}
         role="dialog"
         style={panelStyle}
@@ -32,7 +33,7 @@ export const PopoverMoleculeView: React.FC<PopoverMoleculeViewProps> = ({
         )}
       >
         {children}
-      </div>,
+      </PanelAtom>,
       document.body
     )}
   </>

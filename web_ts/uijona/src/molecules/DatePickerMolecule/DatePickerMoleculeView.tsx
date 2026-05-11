@@ -2,6 +2,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const DAYS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -97,8 +98,8 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
   const canNext = !max || new Date(viewYear, viewMonth + 1, 1) <= max;
 
   return (
-    <div className={cn('relative inline-block w-full', className)}>
-      <div
+    <PanelAtom variant="ghost" padding="none" radius="none" className={cn('relative inline-block w-full', className)}>
+      <PanelAtom variant="ghost" padding="none" radius="none"
         ref={triggerRef}
         className={cn(
           'flex h-9 w-full items-center rounded-md border border-neutral-300 bg-neutral-50 text-sm transition-colors',
@@ -140,17 +141,17 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
             <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
         </button>
-      </div>
+      </PanelAtom>
 
       {open && createPortal(
-        <div
+        <PanelAtom variant="ghost" padding="none" radius="none"
           ref={panelRef}
           role="dialog"
           aria-label="Calendario"
           style={panelStyle}
           className="z-50 w-80 max-w-[calc(100vw-16px)] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl"
         >
-          <div className="mb-2 flex items-center justify-between gap-2">
+          <PanelAtom variant="ghost" padding="none" radius="none" className="mb-2 flex items-center justify-between gap-2">
             <button
               type="button"
               onClick={onPrevMonth}
@@ -170,13 +171,13 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
             </button>
-          </div>
+          </PanelAtom>
 
-          <div className="mb-1 grid grid-cols-7 text-center">
+          <PanelAtom variant="ghost" padding="none" radius="none" className="mb-1 grid grid-cols-7 text-center">
             {DAYS.map((d) => <span key={d} className="text-xs font-medium text-neutral-400">{d}</span>)}
-          </div>
+          </PanelAtom>
 
-          <div className="grid grid-cols-7 gap-y-0.5">
+          <PanelAtom variant="ghost" padding="none" radius="none" className="grid grid-cols-7 gap-y-0.5">
             {cells.map((date, i) => {
               if (!date) return <span key={i} />;
               const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
@@ -202,12 +203,12 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                 </button>
               );
             })}
-          </div>
+          </PanelAtom>
 
           {(showTime || showTimezone) && (
-            <div className="mt-3 border-t border-neutral-200 pt-3">
+            <PanelAtom variant="ghost" padding="none" radius="none" className="mt-3 border-t border-neutral-200 pt-3">
               {showTime && (
-                <div className="grid grid-cols-3 gap-2">
+                <PanelAtom variant="ghost" padding="none" radius="none" className="grid grid-cols-3 gap-2">
                   <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     HH
                     <input
@@ -243,7 +244,7 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                       />
                     </label>
                   )}
-                </div>
+                </PanelAtom>
               )}
 
               {showTimezone && (
@@ -271,11 +272,11 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                   )}
                 </label>
               )}
-            </div>
+            </PanelAtom>
           )}
-        </div>,
+        </PanelAtom>,
         document.body
       )}
-    </div>
+    </PanelAtom>
   );
 };

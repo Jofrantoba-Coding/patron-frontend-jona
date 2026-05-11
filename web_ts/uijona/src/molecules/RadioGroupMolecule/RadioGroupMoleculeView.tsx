@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { RadioAtom } from '../../atoms/RadioAtom';
 import { InterRadioGroupMolecule, RadioGroupOption } from './InterRadioGroupMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface RadioGroupMoleculeViewProps extends InterRadioGroupMolecule {
   selectedValue?: string;
@@ -16,7 +17,7 @@ export const RadioGroupMoleculeView: React.FC<RadioGroupMoleculeViewProps> = ({
   <fieldset className={cn('flex flex-col gap-2', className)} disabled={disabled}>
     {label && <legend className="text-sm font-medium text-neutral-900">{label}</legend>}
     {description && <p className="text-sm text-neutral-500">{description}</p>}
-    <div
+    <PanelAtom variant="ghost" padding="none" radius="none"
       role="radiogroup"
       aria-invalid={!!errorMessage || undefined}
       className={cn(
@@ -53,7 +54,7 @@ export const RadioGroupMoleculeView: React.FC<RadioGroupMoleculeViewProps> = ({
           </label>
         );
       })}
-    </div>
+    </PanelAtom>
     {errorMessage && <p className="text-sm text-danger-500">{errorMessage}</p>}
   </fieldset>
 );

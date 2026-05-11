@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterFileUploadMolecule } from './InterFileUploadMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 type FileUploadMoleculeViewProps = Omit<InterFileUploadMolecule, 'files' | 'defaultFiles' | 'onFilesChange' | 'onReject' | 'onRemoveFile'> & {
   selectedFiles: File[];
@@ -46,7 +47,7 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
   disabled,
   ...inputProps
 }) => (
-  <div className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
+  <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
     <label
       htmlFor={inputId}
       onDragOver={onDropZoneDragOver}
@@ -82,10 +83,10 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
       <ul className={cn('flex min-w-0 flex-col gap-2', fileListClassName)}>
         {selectedFiles.map((file) => (
           <li key={`${file.name}-${file.size}-${file.lastModified}`} className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-            <div className="min-w-0">
+            <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0">
               <p className="truncate text-sm font-medium text-neutral-900">{file.name}</p>
               <p className="text-xs text-neutral-500">{formatBytes(file.size)}</p>
-            </div>
+            </PanelAtom>
             <button
               type="button"
               onClick={() => onRemoveClick(file)}
@@ -97,5 +98,5 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
         ))}
       </ul>
     )}
-  </div>
+  </PanelAtom>
 );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PanelAlign, PanelGap, PanelJustify, PanelLayoutPlacement, PanelPadding, PanelRadius, PanelVariant } from '../../atoms/PanelAtom/PanelAtom';
+import type { PanelAlign, PanelGap, PanelJustify, PanelLayoutPlacement, PanelPadding, PanelRadius, PanelVariant } from '../../atoms/PanelAtom/PanelAtom';
 export type GroupLayoutMode = 'sequential' | 'parallel';
 export interface InterGroupLayout extends React.HTMLAttributes<HTMLDivElement> {
     variant?: PanelVariant;

@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterRatingAtom } from './InterRatingAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const sizeClasses = {
   sm: 'w-4 h-4',
@@ -23,7 +24,7 @@ export const RatingAtomView: React.FC<RatingAtomViewProps> = ({
 }) => {
   const active = hovered ?? value;
   return (
-    <div
+    <PanelAtom variant="ghost" padding="none" radius="none"
       role={readOnly ? 'img' : 'group'}
       aria-label={readOnly ? `Calificación: ${value} de ${max}` : `Selecciona calificación de ${max}`}
       className={cn('inline-flex items-center gap-0.5', className)}
@@ -60,6 +61,6 @@ export const RatingAtomView: React.FC<RatingAtomViewProps> = ({
           </button>
         );
       })}
-    </div>
+    </PanelAtom>
   );
 };

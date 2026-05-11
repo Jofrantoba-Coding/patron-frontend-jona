@@ -2,11 +2,12 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterSeparatorAtom } from './InterSeparatorAtom';
+import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 export const SeparatorAtomView: React.FC<InterSeparatorAtom> = ({
   orientation = 'horizontal', className,
 }) => (
-  <div
+  <PanelAtom variant="ghost" padding="none" radius="none"
     role="separator"
     aria-orientation={orientation}
     className={cn(

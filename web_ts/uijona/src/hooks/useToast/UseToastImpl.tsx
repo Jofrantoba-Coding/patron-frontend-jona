@@ -2,6 +2,7 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { ToastAtom } from '../../atoms/ToastAtom';
 import { ToastData, InterUseToast } from './InterUseToast';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const ToastContext = createContext<InterUseToast | null>(null);
 
@@ -20,16 +21,16 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ toast, dismiss }}>
       {children}
-      <div
+      <PanelAtom variant="ghost" padding="none" radius="none"
         aria-label="Notifications"
         className="fixed inset-x-4 bottom-4 z-[100] flex flex-col gap-2 pointer-events-none sm:inset-x-auto sm:right-4 sm:w-auto"
       >
         {toasts.map((t) => (
-          <div key={t.id} className="pointer-events-auto w-full sm:w-auto">
+          <PanelAtom variant="ghost" padding="none" radius="none" key={t.id} className="pointer-events-auto w-full sm:w-auto">
             <ToastAtom {...t} onDismiss={dismiss} />
-          </div>
+          </PanelAtom>
         ))}
-      </div>
+      </PanelAtom>
     </ToastContext.Provider>
   );
 };

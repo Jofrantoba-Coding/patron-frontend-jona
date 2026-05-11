@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { ButtonAtom } from '../../atoms/ButtonAtom';
 import { ConfirmDialogVariant } from './InterConfirmDialogMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const iconByVariant: Record<ConfirmDialogVariant, React.ReactNode> = {
   danger: (
@@ -46,39 +47,39 @@ export const ConfirmDialogMoleculeView: React.FC<ConfirmDialogMoleculeViewProps>
 }) => {
   if (!open) return null;
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" aria-hidden="true" onClick={onCancel} />
-      <div
+    <PanelAtom variant="ghost" padding="none" radius="none" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <PanelAtom variant="ghost" padding="none" radius="none" className="absolute inset-0 bg-black/50" aria-hidden="true" onClick={onCancel} />
+      <PanelAtom variant="ghost" padding="none" radius="none"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
         aria-describedby={description ? 'confirm-desc' : undefined}
         className="relative z-10 flex w-full max-w-sm flex-col gap-4 rounded-lg bg-white p-5 shadow-xl sm:max-w-md"
       >
-        <div className="flex items-start gap-3">
-          <div className={cn(
+        <PanelAtom variant="ghost" padding="none" radius="none" className="flex items-start gap-3">
+          <PanelAtom variant="ghost" padding="none" radius="none" className={cn(
             'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
             variant === 'danger' && 'bg-danger-50',
             variant === 'warning' && 'bg-yellow-50',
             variant === 'info' && 'bg-primary-50',
           )}>
             {iconByVariant[variant]}
-          </div>
-          <div className="flex min-w-0 flex-col gap-1">
+          </PanelAtom>
+          <PanelAtom variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-1">
             <h2 id="confirm-title" className="break-words text-base font-semibold text-neutral-900">{title}</h2>
             {description && <p id="confirm-desc" className="break-words text-sm text-neutral-500">{description}</p>}
-          </div>
-        </div>
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          </PanelAtom>
+        </PanelAtom>
+        <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <ButtonAtom variant="outline" onClick={onCancel} disabled={isLoading}>
             {cancelLabel}
           </ButtonAtom>
           <ButtonAtom variant={confirmVariantMap[variant]} onClick={onConfirm} loading={isLoading}>
             {confirmLabel}
           </ButtonAtom>
-        </div>
-      </div>
-    </div>,
+        </PanelAtom>
+      </PanelAtom>
+    </PanelAtom>,
     document.body
   );
 };

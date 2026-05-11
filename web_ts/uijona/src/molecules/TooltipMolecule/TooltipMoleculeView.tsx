@@ -3,6 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { InterTooltipMolecule } from './InterTooltipMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface TooltipMoleculeViewProps extends InterTooltipMolecule {
   visible: boolean;
@@ -23,9 +24,9 @@ export const TooltipMoleculeView: React.FC<TooltipMoleculeViewProps> = ({
       {children}
     </span>
     {visible && createPortal(
-      <div role="tooltip" style={style} className={cn('max-w-xs break-words rounded bg-neutral-900 px-2.5 py-1.5 text-xs text-white shadow-md pointer-events-none select-none', className)}>
+      <PanelAtom variant="ghost" padding="none" radius="none" role="tooltip" style={style} className={cn('max-w-xs break-words rounded bg-neutral-900 px-2.5 py-1.5 text-xs text-white shadow-md pointer-events-none select-none', className)}>
         {content}
-      </div>,
+      </PanelAtom>,
       document.body
     )}
   </>

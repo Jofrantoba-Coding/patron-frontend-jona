@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterFooterPageOrganism } from './InterFooterPageOrganism';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 export const FooterPageOrganismView: React.FC<InterFooterPageOrganism> = ({
   text,
@@ -18,22 +19,22 @@ export const FooterPageOrganismView: React.FC<InterFooterPageOrganism> = ({
     )}
   >
     {/* Left slot or fallback text */}
-    <div className="min-w-0 flex-1 break-words md:flex-none">
+    <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0 flex-1 break-words md:flex-none">
       {left ?? <span>{text}</span>}
-    </div>
+    </PanelAtom>
 
     {/* Center slot */}
     {center && (
-      <div className="hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex">
+      <PanelAtom variant="ghost" padding="none" radius="none" className="hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex">
         {center}
-      </div>
+      </PanelAtom>
     )}
 
     {/* Right slot */}
     {right && (
-      <div className="flex shrink-0 items-center gap-2">
+      <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center gap-2">
         {right}
-      </div>
+      </PanelAtom>
     )}
   </footer>
 );

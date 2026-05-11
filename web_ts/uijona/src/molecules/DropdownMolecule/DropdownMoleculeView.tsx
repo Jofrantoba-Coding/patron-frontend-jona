@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { SeparatorAtom } from '../../atoms/SeparatorAtom';
 import { InterDropdownMolecule, DropdownGroup } from './InterDropdownMolecule';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface DropdownMoleculeViewProps extends InterDropdownMolecule {
   open: boolean;
@@ -18,9 +19,9 @@ export const DropdownMoleculeView: React.FC<DropdownMoleculeViewProps> = ({
   trigger, groups, className, open, menuStyle, triggerRef, menuRef, onTriggerClick, onItemClick, onDisabledItemClick,
 }) => (
   <>
-    <div ref={triggerRef} className="inline-block" onClick={onTriggerClick}>{trigger}</div>
+    <PanelAtom variant="ghost" padding="none" radius="none" ref={triggerRef} className="inline-block" onClick={onTriggerClick}>{trigger}</PanelAtom>
     {open && createPortal(
-      <div ref={menuRef} role="menu" style={menuStyle} className={cn('max-w-[calc(100vw-1rem)] overflow-hidden rounded-md border border-neutral-200 bg-white py-1 shadow-lg', className)}>
+      <PanelAtom variant="ghost" padding="none" radius="none" ref={menuRef} role="menu" style={menuStyle} className={cn('max-w-[calc(100vw-1rem)] overflow-hidden rounded-md border border-neutral-200 bg-white py-1 shadow-lg', className)}>
         {groups.map((group, gi) => (
           <React.Fragment key={gi}>
             {gi > 0 && <SeparatorAtom className="my-1" />}
@@ -39,7 +40,7 @@ export const DropdownMoleculeView: React.FC<DropdownMoleculeViewProps> = ({
             ))}
           </React.Fragment>
         ))}
-      </div>,
+      </PanelAtom>,
       document.body
     )}
   </>
