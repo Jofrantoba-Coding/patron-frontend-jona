@@ -59,6 +59,10 @@ export * from './molecules/TimerMolecule';
 
 // Layouts
 export * from './layouts/BorderLayout';
+export * from './layouts/FlowLayout';
+export * from './layouts/BoxLayout';
+export * from './layouts/GridLayout';
+export * from './layouts/CardLayout';
 export * from './layouts/SidebarLayout';
 
 // Organisms

@@ -267,6 +267,31 @@
       "require": "./dist/layouts/BorderLayout.cjs",
       "types": "./dist/layouts/BorderLayout.d.ts"
     },
+    "./layouts/FlowLayout": {
+      "import": "./dist/layouts/FlowLayout.js",
+      "require": "./dist/layouts/FlowLayout.cjs",
+      "types": "./dist/layouts/FlowLayout.d.ts"
+    },
+    "./layouts/BoxLayout": {
+      "import": "./dist/layouts/BoxLayout.js",
+      "require": "./dist/layouts/BoxLayout.cjs",
+      "types": "./dist/layouts/BoxLayout.d.ts"
+    },
+    "./layouts/GridLayout": {
+      "import": "./dist/layouts/GridLayout.js",
+      "require": "./dist/layouts/GridLayout.cjs",
+      "types": "./dist/layouts/GridLayout.d.ts"
+    },
+    "./layouts/CardLayout": {
+      "import": "./dist/layouts/CardLayout.js",
+      "require": "./dist/layouts/CardLayout.cjs",
+      "types": "./dist/layouts/CardLayout.d.ts"
+    },
+    "./layouts/SidebarLayout": {
+      "import": "./dist/layouts/SidebarLayout.js",
+      "require": "./dist/layouts/SidebarLayout.cjs",
+      "types": "./dist/layouts/SidebarLayout.d.ts"
+    },
     "./organisms/LoginOrganism": {
       "import": "./dist/organisms/LoginOrganism.js",
       "require": "./dist/organisms/LoginOrganism.cjs",
