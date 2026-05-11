@@ -6,7 +6,7 @@ const meta: Meta<typeof BoxLayout> = {
   title: 'Layouts/BoxLayout',
   component: BoxLayout,
   tags: ['autodocs'],
-  parameters: { layout: 'centered' },
+  parameters: { layout: 'padded' },
   argTypes: {
     direction: {
       control: 'radio',
@@ -41,8 +41,15 @@ const DemoItem = ({ label }: { label: string }) => (
 );
 
 export const Row: Story = {
+  args: {
+    direction: 'row',
+    gap: 'md',
+    alignItems: 'center',
+    justifyContent: 'start',
+    wrap: 'wrap',
+  },
   render: (args) => (
-    <BoxLayout {...args}>
+    <BoxLayout {...args} className="min-h-24 w-full">
       <DemoItem label="Inicio" />
       <DemoItem label="Centro" />
       <DemoItem label="Fin" />
