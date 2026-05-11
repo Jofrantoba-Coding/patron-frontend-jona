@@ -22,7 +22,9 @@ const innerScrollClasses: Record<TableResponsiveMode, string> = {
 };
 
 export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMolecule>(
-  ({ className, wrapperClassName, responsiveMode = 'scroll', pagination, style, ...props }, ref) => (
+  ({ className, wrapperClassName, responsiveMode = 'scroll', pagination, style,
+     columns: _columns, data: _data, caption: _caption, emptyMessage: _emptyMessage,
+     ...props }, ref) => (
     <div className={cn(outerClasses[responsiveMode], wrapperClassName)}>
       <div className={innerScrollClasses[responsiveMode]}>
         <table

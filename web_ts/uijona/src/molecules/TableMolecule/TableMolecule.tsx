@@ -14,4 +14,7 @@ export type {
   TablePaginationConfig,
   TableResponsiveMode,
   TableSortDirection,
+  TableColumnDef,
+  TableColumnGroup,
+  TableColumnsConfig,
 } from './InterTableMolecule';
