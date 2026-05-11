@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ConfirmDialogMolecule } from './ConfirmDialogMolecule';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof ConfirmDialogMolecule> = {
@@ -50,12 +51,9 @@ export const Interactive: Story = {
     const [result, setResult] = useState<string | null>(null);
     return (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col items-start gap-4">
-        <button
-          onClick={() => setOpen(true)}
-          className="rounded-md bg-red-600 px-4 py-2 text-sm text-white"
-        >
+        <ButtonAtom variant="destructive" onClick={() => setOpen(true)}>
           Eliminar elemento
-        </button>
+        </ButtonAtom>
         {result && <p className="text-sm text-neutral-600">Resultado: {result}</p>}
         <ConfirmDialogMolecule
           open={open}

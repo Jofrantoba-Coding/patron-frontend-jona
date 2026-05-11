@@ -5,6 +5,7 @@ import { FlowLayout } from '../FlowLayout/FlowLayout';
 import { BoxLayout } from '../BoxLayout/BoxLayout';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
 const meta: Meta<typeof CardLayout> = {
   title: 'Layouts/CardLayout',
@@ -43,14 +44,14 @@ export const Interactive: Story = {
       <BoxLayout direction="column" gap="sm" className="w-full max-w-lg">
         <FlowLayout gap="sm" className="w-full">
           {cards.map((card) => (
-            <button
+            <ButtonAtom
               key={card}
-              type="button"
-              className={`rounded border px-3 py-1 text-sm ${activeCard === card ? 'border-blue-600 text-blue-700' : 'border-neutral-300 text-neutral-700'}`}
+              variant={activeCard === card ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setActiveCard(card)}
             >
               {card}
-            </button>
+            </ButtonAtom>
           ))}
         </FlowLayout>
 

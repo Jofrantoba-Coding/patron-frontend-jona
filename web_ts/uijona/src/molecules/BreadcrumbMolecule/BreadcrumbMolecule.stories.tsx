@@ -10,6 +10,7 @@ import {
   BreadcrumbSeparator,
 } from './BreadcrumbMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
 const meta: Meta<typeof BreadcrumbMolecule> = {
   title: 'Molecules/BreadcrumbMolecule',
@@ -83,12 +84,9 @@ export const Interactive: Story = {
           </BreadcrumbList>
         </BreadcrumbMolecule>
         {nextPage && (
-          <button
-            onClick={() => setTrail((t) => [...t, nextPage])}
-            className="rounded-md border px-3 py-1.5 text-sm w-fit"
-          >
+          <ButtonAtom variant="outline" size="sm" onClick={() => setTrail((t) => [...t, nextPage])}>
             Navegar a: {nextPage}
-          </button>
+          </ButtonAtom>
         )}
       </PanelAtom>
     );

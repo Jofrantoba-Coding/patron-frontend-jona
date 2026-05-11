@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { EmptyStateMolecule } from './EmptyStateMolecule';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const EmptyIcon = () => (
@@ -68,20 +69,14 @@ export const Interactive: Story = {
             {projects.map((p) => (
               <PanelAtom variant="ghost" padding="none" key={p} className="flex justify-between items-center rounded-lg border p-3">
                 <p className="text-sm font-medium">{p}</p>
-                <button
-                  onClick={() => setProjects((prev) => prev.filter((x) => x !== p))}
-                  className="text-xs text-red-500 hover:text-red-700"
-                >
+                <ButtonAtom variant="ghost" size="sm" onClick={() => setProjects((prev) => prev.filter((x) => x !== p))} className="text-xs text-red-500 hover:text-red-700">
                   Eliminar
-                </button>
+                </ButtonAtom>
               </PanelAtom>
             ))}
-            <button
-              onClick={() => setProjects((prev) => [...prev, `Proyecto ${String.fromCharCode(65 + prev.length)}`])}
-              className="rounded-md border px-3 py-1.5 text-sm"
-            >
+            <ButtonAtom variant="outline" size="sm" onClick={() => setProjects((prev) => [...prev, `Proyecto ${String.fromCharCode(65 + prev.length)}`])}>
               Agregar proyecto
-            </button>
+            </ButtonAtom>
           </PanelAtom>
         )}
       </PanelAtom>

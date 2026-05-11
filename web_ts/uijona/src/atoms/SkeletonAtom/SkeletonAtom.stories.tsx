@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { SkeletonAtom } from './SkeletonAtom';
+import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof SkeletonAtom> = {
@@ -61,12 +62,9 @@ export const Interactive: Story = {
             </PanelAtom>
           </PanelAtom>
         )}
-        <button
-          onClick={() => setLoaded((l) => !l)}
-          style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '6px 12px', fontSize: '14px', cursor: 'pointer' }}
-        >
+        <ButtonAtom variant="outline" onClick={() => setLoaded((l) => !l)}>
           {loaded ? 'Mostrar skeleton' : 'Simular carga completa'}
-        </button>
+        </ButtonAtom>
       </PanelAtom>
     );
   },

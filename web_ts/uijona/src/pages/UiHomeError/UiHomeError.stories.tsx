@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { UiHomeError } from './UiHomeError';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof UiHomeError> = {
@@ -45,13 +46,14 @@ export const Interactive: Story = {
       <PanelAtom variant="ghost" padding="none" style={{ position: 'relative' }}>
         <PanelAtom variant="ghost" padding="none" style={{ position: 'absolute', top: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
           {[404, 500, 403].map((c) => (
-            <button
+            <ButtonAtom
               key={c}
+              variant={code === c ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setCode(c)}
-              style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 12px', fontSize: '13px', cursor: 'pointer', background: code === c ? '#171717' : '#fff', color: code === c ? '#fff' : '#404040' }}
             >
               {c}
-            </button>
+            </ButtonAtom>
           ))}
         </PanelAtom>
         <UiHomeError

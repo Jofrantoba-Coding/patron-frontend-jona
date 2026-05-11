@@ -74,19 +74,12 @@ export const Interactive: Story = {
         />
         <PanelAtom variant="ghost" padding="none" className="rounded-lg border p-4 text-sm text-neutral-600">{contents[step]}</PanelAtom>
         <PanelAtom variant="ghost" padding="none" className="flex justify-between">
-          <button
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
-            disabled={step === 0}
-            className="rounded-md border px-4 py-2 text-sm disabled:opacity-40"
-          >
+          <ButtonAtom variant="outline" disabled={step === 0} onClick={() => setStep((s) => Math.max(0, s - 1))}>
             Anterior
-          </button>
-          <button
-            onClick={() => setStep((s) => s + 1)}
-            className="rounded-md bg-primary-600 text-white px-4 py-2 text-sm"
-          >
+          </ButtonAtom>
+          <ButtonAtom onClick={() => setStep((s) => s + 1)}>
             {step === wizardSteps.length - 1 ? 'Finalizar' : 'Siguiente'}
-          </button>
+          </ButtonAtom>
         </PanelAtom>
       </PanelAtom>
     );

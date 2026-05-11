@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState, type HTMLAttributes, type ReactNode } from 'react';
 import { PanelAtom, type PanelArea } from './PanelAtom';
 import { TextAtom } from '../TextAtom/TextAtom';
+import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 
 const meta: Meta<typeof PanelAtom> = {
   title: 'Atoms/PanelAtom',
@@ -362,14 +363,14 @@ export const CardLayoutManager: Story = {
       <PanelAtom layout="box" direction="column" gap="sm" variant="ghost" padding="none" className="w-full max-w-md">
         <PanelAtom layout="flow" gap="sm" variant="ghost" padding="none">
           {cards.map((card) => (
-            <button
+            <ButtonAtom
               key={card}
-              type="button"
-              className={`rounded border px-3 py-1 text-sm ${activeCard === card ? 'border-blue-600 text-blue-700' : 'border-neutral-300 text-neutral-700'}`}
+              variant={activeCard === card ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setActiveCard(card)}
             >
               {card}
-            </button>
+            </ButtonAtom>
           ))}
         </PanelAtom>
 

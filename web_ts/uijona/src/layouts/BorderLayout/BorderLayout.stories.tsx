@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { BorderLayout } from './BorderLayout';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof BorderLayout> = {
@@ -78,25 +79,25 @@ export const Interactive: Story = {
           north={
             <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#1e40af', color: '#fff' }}>
               <span style={{ fontWeight: 700, fontSize: '15px' }}>JONA UI</span>
-              <button
-                onClick={() => setSidebarOpen((s) => !s)}
-                style={{ background: 'none', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '4px', color: '#fff', padding: '3px 10px', fontSize: '12px', cursor: 'pointer' }}
-              >
+              <ButtonAtom variant="outline" size="sm" onClick={() => setSidebarOpen((s) => !s)} className="border-white/40 text-white hover:bg-white/10 hover:text-white">
                 {sidebarOpen ? 'Colapsar' : 'Expandir'}
-              </button>
+              </ButtonAtom>
             </PanelAtom>
           }
           west={sidebarOpen ? (
             <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '12px 8px', background: '#f5f5f5', borderRight: '1px solid #e5e5e5', height: '100%' }}>
               <p style={{ fontSize: '10px', fontWeight: 600, color: '#a3a3a3', textTransform: 'uppercase', padding: '4px 8px', marginBottom: '4px' }}>Menú</p>
               {pages.map((page) => (
-                <button
+                <ButtonAtom
                   key={page}
+                  variant={activePage === page ? 'secondary' : 'ghost'}
+                  size="sm"
                   onClick={() => setActivePage(page)}
-                  style={{ textAlign: 'left', padding: '7px 12px', borderRadius: '6px', fontSize: '13px', border: 'none', cursor: 'pointer', background: activePage === page ? '#dbeafe' : 'transparent', color: activePage === page ? '#1d4ed8' : '#404040', fontWeight: activePage === page ? 600 : 400 }}
+                  fullWidth
+                  className="justify-start"
                 >
                   {page}
-                </button>
+                </ButtonAtom>
               ))}
             </PanelAtom>
           ) : undefined}

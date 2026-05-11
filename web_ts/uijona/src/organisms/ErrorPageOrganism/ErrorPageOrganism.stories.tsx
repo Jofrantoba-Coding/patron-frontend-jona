@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ErrorPageOrganism } from './ErrorPageOrganism';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof ErrorPageOrganism> = {
@@ -60,13 +61,14 @@ export const Interactive: Story = {
       <PanelAtom variant="ghost" padding="none" style={{ position: 'relative' }}>
         <PanelAtom variant="ghost" padding="none" style={{ position: 'absolute', top: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
           {(['404', '500', '403'] as const).map((code) => (
-            <button
+            <ButtonAtom
               key={code}
+              variant={errorCode === code ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setErrorCode(code)}
-              style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 12px', fontSize: '13px', cursor: 'pointer', background: errorCode === code ? '#171717' : '#fff', color: errorCode === code ? '#fff' : '#404040' }}
             >
               {code}
-            </button>
+            </ButtonAtom>
           ))}
         </PanelAtom>
         <ErrorPageOrganism

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { FooterPageOrganism } from './FooterPageOrganism';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof FooterPageOrganism> = {
@@ -53,12 +54,9 @@ export const Interactive: Story = {
             </nav>
           }
           right={
-            <button
-              onClick={() => setLang((l) => l === 'es' ? 'en' : 'es')}
-              style={{ fontSize: '12px', border: '1px solid #d4d4d4', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', background: 'none' }}
-            >
+            <ButtonAtom variant="outline" size="sm" onClick={() => setLang((l) => l === 'es' ? 'en' : 'es')}>
               {lang === 'es' ? 'EN' : 'ES'}
-            </button>
+            </ButtonAtom>
           }
         />
       </PanelAtom>

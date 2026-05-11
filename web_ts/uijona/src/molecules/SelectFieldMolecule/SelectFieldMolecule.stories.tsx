@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SelectFieldMolecule } from './SelectFieldMolecule';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const options = [
@@ -63,12 +64,9 @@ export const Interactive: Story = {
           errorMessage={error}
           onChange={(v, e) => { args.onChange?.(v, e); setCountry(v); }}
         />
-        <button
-          onClick={() => setSubmitted(true)}
-          style={{ borderRadius: '6px', background: '#2563eb', color: '#fff', border: 'none', padding: '8px 16px', fontSize: '14px', cursor: 'pointer' }}
-        >
+        <ButtonAtom onClick={() => setSubmitted(true)}>
           Confirmar
-        </button>
+        </ButtonAtom>
         {submitted && country && (
           <p className="text-sm text-green-600">
             País guardado: <strong>{options.find((o) => o.value === country)?.label}</strong>

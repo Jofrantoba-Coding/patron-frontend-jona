@@ -60,13 +60,15 @@ export const Interactive: Story = {
           nav={
             <nav style={{ display: 'flex', gap: '4px' }}>
               {pages.map((p) => (
-                <button
+                <ButtonAtom
                   key={p}
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setCurrentPage(p)}
-                  style={{ padding: '4px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '14px', background: currentPage === p ? 'rgba(255,255,255,0.2)' : 'transparent', color: 'inherit', fontWeight: currentPage === p ? 600 : 400 }}
+                  className={currentPage === p ? 'bg-white/20 text-inherit font-semibold hover:bg-white/30 hover:text-inherit' : 'text-inherit hover:bg-white/10 hover:text-inherit'}
                 >
                   {p}
-                </button>
+                </ButtonAtom>
               ))}
             </nav>
           }

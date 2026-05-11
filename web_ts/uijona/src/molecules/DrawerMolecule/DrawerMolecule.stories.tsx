@@ -70,12 +70,9 @@ export const Interactive: Story = {
     const [open, setOpen] = useState(false);
     return (
       <PanelAtom variant="ghost" padding="none">
-        <button
-          onClick={() => setOpen(true)}
-          className="rounded-md bg-primary-600 px-4 py-2 text-sm text-white"
-        >
+        <ButtonAtom onClick={() => setOpen(true)}>
           Abrir Drawer
-        </button>
+        </ButtonAtom>
         <DrawerMolecule
           open={open}
           onClose={() => { args.onClose?.(); setOpen(false); }}

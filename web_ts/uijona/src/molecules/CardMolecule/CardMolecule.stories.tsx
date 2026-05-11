@@ -54,13 +54,15 @@ export const Interactive: Story = {
         <CardHeader>
           <PanelAtom variant="ghost" padding="none" className="flex justify-between items-start">
             <CardTitle>Producto Premium</CardTitle>
-            <button
+            <ButtonAtom
+              variant="ghost"
+              size="icon"
               onClick={() => setLiked((l) => !l)}
-              style={{ fontSize: '20px', background: 'none', border: 'none', cursor: 'pointer', lineHeight: 1 }}
+              className="text-xl"
               aria-label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
             >
               {liked ? '♥' : '♡'}
-            </button>
+            </ButtonAtom>
           </PanelAtom>
           <CardDescription>Plan anual con soporte prioritario incluido</CardDescription>
         </CardHeader>

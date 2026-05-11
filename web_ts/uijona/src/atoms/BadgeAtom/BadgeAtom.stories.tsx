@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { BadgeAtom } from './BadgeAtom';
+import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof BadgeAtom> = {
@@ -54,19 +55,12 @@ export const Interactive: Story = {
           </BadgeAtom>
         </PanelAtom>
         <PanelAtom variant="ghost" padding="none" className="flex gap-2">
-          <button
-            onClick={() => setCount((c) => c + 1)}
-            style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '6px 12px', fontSize: '14px', cursor: 'pointer' }}
-          >
+          <ButtonAtom variant="outline" size="sm" onClick={() => setCount((c) => c + 1)}>
             Nueva notificación
-          </button>
-          <button
-            onClick={() => setCount(0)}
-            disabled={count === 0}
-            style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '6px 12px', fontSize: '14px', cursor: count === 0 ? 'not-allowed' : 'pointer', opacity: count === 0 ? 0.4 : 1 }}
-          >
+          </ButtonAtom>
+          <ButtonAtom variant="ghost" size="sm" disabled={count === 0} onClick={() => setCount(0)}>
             Marcar leídas
-          </button>
+          </ButtonAtom>
         </PanelAtom>
       </PanelAtom>
     );

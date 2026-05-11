@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { AlertMolecule } from './AlertMolecule';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof AlertMolecule> = {
@@ -52,24 +53,23 @@ export const Interactive: Story = {
         {alerts.map((a) => (
           <PanelAtom variant="ghost" padding="none" key={a.id} className="relative">
             <AlertMolecule variant={a.variant} title={a.title}>{a.message}</AlertMolecule>
-            <button
+            <ButtonAtom
+              variant="ghost"
+              size="icon"
               onClick={() => dismiss(a.id)}
-              className="absolute top-2 right-2 text-xs text-neutral-400 hover:text-neutral-700"
+              className="absolute top-2 right-2 h-6 w-6 text-neutral-400 hover:text-neutral-700"
               aria-label="Cerrar"
             >
               ✕
-            </button>
+            </ButtonAtom>
           </PanelAtom>
         ))}
         {alerts.length === 0 && (
           <p className="text-sm text-neutral-400">Sin alertas activas.</p>
         )}
-        <button
-          onClick={() => setAlerts(initialAlerts)}
-          className="rounded-md border px-3 py-1.5 text-sm w-fit"
-        >
+        <ButtonAtom variant="outline" size="sm" onClick={() => setAlerts(initialAlerts)}>
           Restaurar alertas
-        </button>
+        </ButtonAtom>
       </PanelAtom>
     );
   },

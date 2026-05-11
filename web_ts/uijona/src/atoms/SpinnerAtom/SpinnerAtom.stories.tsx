@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { SpinnerAtom } from './SpinnerAtom';
+import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof SpinnerAtom> = {
@@ -49,13 +50,9 @@ export const Interactive: Story = {
         {loading
           ? <SpinnerAtom size="lg" />
           : <p style={{ fontSize: '14px', color: '#737373' }}>Datos listos</p>}
-        <button
-          onClick={load}
-          disabled={loading}
-          style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '6px 12px', fontSize: '14px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}
-        >
+        <ButtonAtom variant="outline" disabled={loading} onClick={load}>
           {loading ? 'Cargando...' : 'Recargar datos'}
-        </button>
+        </ButtonAtom>
       </PanelAtom>
     );
   },

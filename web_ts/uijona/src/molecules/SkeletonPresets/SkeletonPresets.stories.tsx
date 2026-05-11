@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { SkeletonCard, SkeletonUserRow, SkeletonTableRows, SkeletonForm } from './SkeletonPresets';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta = {
@@ -44,12 +45,9 @@ export const Interactive: StoryObj = {
         ) : (
           <SkeletonCard />
         )}
-        <button
-          onClick={() => setLoaded((l) => !l)}
-          style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '6px 12px', fontSize: '14px', cursor: 'pointer' }}
-        >
+        <ButtonAtom variant="outline" onClick={() => setLoaded((l) => !l)}>
           {loaded ? 'Ver skeleton' : 'Simular carga completa'}
-        </button>
+        </ButtonAtom>
       </PanelAtom>
     );
   },

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { StatCardMolecule } from './StatCardMolecule';
 import type { StatCardTone, StatCardTrend } from './InterStatCardMolecule';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta<typeof StatCardMolecule> = {
@@ -64,13 +65,9 @@ export const Interactive: Story = {
     return (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 w-64">
         <StatCardMolecule label="Ingresos mensuales" {...data} description="vs mes anterior" />
-        <button
-          onClick={refresh}
-          disabled={loading}
-          className="rounded-md border px-3 py-1.5 text-sm disabled:opacity-50"
-        >
+        <ButtonAtom variant="outline" size="sm" disabled={loading} loading={loading} onClick={refresh}>
           {loading ? 'Actualizando...' : 'Actualizar métrica'}
-        </button>
+        </ButtonAtom>
       </PanelAtom>
     );
   },

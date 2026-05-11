@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ProgressAtom } from './ProgressAtom';
+import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof ProgressAtom> = {
@@ -71,13 +72,9 @@ export const Interactive: Story = {
     return (
       <PanelAtom variant="ghost" padding="none" style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <ProgressAtom value={progress} variant={variant} showLabel />
-        <button
-          onClick={start}
-          disabled={running}
-          style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '6px 12px', fontSize: '14px', cursor: running ? 'not-allowed' : 'pointer' }}
-        >
+        <ButtonAtom variant="outline" disabled={running} loading={running} onClick={start}>
           {running ? 'Subiendo...' : progress === 100 ? 'Subir de nuevo' : 'Iniciar subida'}
-        </button>
+        </ButtonAtom>
       </PanelAtom>
     );
   },
