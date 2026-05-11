@@ -47,9 +47,19 @@ const getComponentName = (storyContext: { title?: string; component?: { displayN
   return titleName || storyContext.component?.displayName || storyContext.component?.name || 'Component';
 };
 
-const shouldGenerateJsxSource = (source: string): boolean => {
+const shouldGenerateJsxSource = (source: string | undefined): boolean => {
+  if (!source) return true;
   const normalized = source.trim();
-  return normalized === '{}' || /^\{\s*args\s*:/.test(normalized);
+  return (
+    !normalized ||
+    normalized === '{}' ||
+    /^\{\s*args\s*:/.test(normalized) ||
+    // render function captured as string — not useful as JSX
+    /^(\(args\)|args|\(\))\s*=>/.test(normalized) ||
+    normalized.startsWith('function ') ||
+    // dynamic capture returned an HTML element (lowercase) — not a React component
+    /^<[a-z]/.test(normalized)
+  );
 };
 
 const formatArgValue = (value: unknown): string | undefined => {
