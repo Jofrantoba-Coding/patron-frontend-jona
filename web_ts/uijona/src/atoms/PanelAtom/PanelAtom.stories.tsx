@@ -293,7 +293,7 @@ export const CardLayoutManager: Story = {
     const [activeCard, setActiveCard] = useState(cards[0]);
 
     return (
-      <PanelAtom layout="box" direction="column" gap="sm" variant="ghost" padding="none" className="w-96">
+      <PanelAtom layout="box" direction="column" gap="sm" variant="ghost" padding="none" className="w-full max-w-md">
         <PanelAtom layout="flow" gap="sm" variant="ghost" padding="none">
           {cards.map((card) => (
             <button

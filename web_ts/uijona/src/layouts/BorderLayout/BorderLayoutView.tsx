@@ -8,7 +8,7 @@ export const BorderLayoutView: React.FC<InterBorderLayout> = ({
   northClassName, southClassName, eastClassName, westClassName, centerClassName,
   className,
 }) => (
-  <div className={cn('flex min-h-screen min-w-0 flex-col bg-neutral-50', className)}>
+  <div className={cn('flex min-h-screen w-full max-w-full min-w-0 flex-col overflow-hidden bg-neutral-50', className)}>
     {north && (
       <header className={northClassName}>
         {north}

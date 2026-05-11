@@ -63,6 +63,9 @@ export * from './layouts/FlowLayout';
 export * from './layouts/BoxLayout';
 export * from './layouts/GridLayout';
 export * from './layouts/CardLayout';
+export * from './layouts/GridBagLayout';
+export * from './layouts/GroupLayout';
+export * from './layouts/SpringLayout';
 export * from './layouts/SidebarLayout';
 
 // Organisms

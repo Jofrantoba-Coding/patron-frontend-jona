@@ -287,6 +287,21 @@
       "require": "./dist/layouts/CardLayout.cjs",
       "types": "./dist/layouts/CardLayout.d.ts"
     },
+    "./layouts/GridBagLayout": {
+      "import": "./dist/layouts/GridBagLayout.js",
+      "require": "./dist/layouts/GridBagLayout.cjs",
+      "types": "./dist/layouts/GridBagLayout.d.ts"
+    },
+    "./layouts/GroupLayout": {
+      "import": "./dist/layouts/GroupLayout.js",
+      "require": "./dist/layouts/GroupLayout.cjs",
+      "types": "./dist/layouts/GroupLayout.d.ts"
+    },
+    "./layouts/SpringLayout": {
+      "import": "./dist/layouts/SpringLayout.js",
+      "require": "./dist/layouts/SpringLayout.cjs",
+      "types": "./dist/layouts/SpringLayout.d.ts"
+    },
     "./layouts/SidebarLayout": {
       "import": "./dist/layouts/SidebarLayout.js",
       "require": "./dist/layouts/SidebarLayout.cjs",

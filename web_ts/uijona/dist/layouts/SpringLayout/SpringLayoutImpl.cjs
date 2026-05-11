@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const i=require("react/jsx-runtime"),o=require("react"),n=require("./InterSpringLayout.cjs"),u=require("./SpringLayoutView.cjs"),e=o.forwardRef((r,t)=>i.jsx(u.SpringLayoutView,{ref:t,...n.SPRING_LAYOUT_DEFAULTS,...r}));e.displayName="SpringLayout";exports.SpringLayoutImpl=e;
+//# sourceMappingURL=SpringLayoutImpl.cjs.map

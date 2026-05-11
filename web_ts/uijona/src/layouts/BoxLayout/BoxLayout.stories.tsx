@@ -60,7 +60,7 @@ export const Row: Story = {
 export const Column: Story = {
   args: { direction: 'column', gap: 'sm' },
   render: (args) => (
-    <BoxLayout {...args} className="w-72">
+    <BoxLayout {...args} className="w-full max-w-xs">
       <DemoItem label="Header" />
       <DemoItem label="Contenido" />
       <DemoItem label="Footer" />

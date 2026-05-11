@@ -120,7 +120,7 @@ const getLayoutClasses = (
 
   if (layout === 'box') {
     return cn(
-      'flex min-w-0',
+      'flex min-w-0 w-full max-w-full',
       directionClasses[direction],
       wrapClasses[resolveWrap(wrap, direction === 'column' ? 'nowrap' : 'wrap')],
       gapClasses[gap],
@@ -135,7 +135,7 @@ const getLayoutClasses = (
 
   if (layout === 'border') {
     return cn(
-      'grid min-h-0 min-w-0',
+      'grid min-h-0 min-w-0 w-full max-w-full',
       "[grid-template-areas:'top'_'left'_'center'_'right'_'bottom']",
       '[grid-template-columns:minmax(0,1fr)]',
       '[grid-template-rows:auto_auto_minmax(0,1fr)_auto_auto]',

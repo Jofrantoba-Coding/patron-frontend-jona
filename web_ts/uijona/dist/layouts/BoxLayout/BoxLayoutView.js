@@ -1,8 +1,9 @@
-import { jsx as r } from "react/jsx-runtime";
-import a from "react";
-import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
-const i = a.forwardRef(
-  ({ children: o, ...t }, m) => /* @__PURE__ */ r(e, { ref: m, layout: "box", ...t, children: o })
+import { jsx as t } from "react/jsx-runtime";
+import l from "react";
+import { cn as e } from "../../lib/cn.js";
+import { PanelAtomImpl as f } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+const i = l.forwardRef(
+  ({ children: o, className: m, ...a }, r) => /* @__PURE__ */ t(f, { ref: r, layout: "box", className: e("w-full max-w-full min-w-0", m), ...a, children: o })
 );
 i.displayName = "BoxLayoutView";
 export {

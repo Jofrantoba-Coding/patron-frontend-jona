@@ -13,3 +13,107 @@
 /* 2. Tailwind base reset + utilities */
 @tailwind base;
 @tailwind utilities;
+
+@layer utilities {
+  .jona-layout-mobile-grid {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--jona-layout-min, 12rem)), 1fr));
+    grid-template-rows: auto;
+  }
+
+  .jona-layout-mobile-grid[data-jona-layout-placement='fixed'] {
+    grid-template-columns: var(--jona-layout-columns, repeat(auto-fit, minmax(min(100%, var(--jona-layout-min, 12rem)), 1fr)));
+    grid-template-rows: var(--jona-layout-rows, auto);
+  }
+
+  .jona-layout-mobile-grid[data-jona-layout-dense='true'] {
+    grid-auto-flow: row dense;
+  }
+
+  .jona-gridbag > [data-jona-gridbag-item],
+  .jona-group-layout > [data-jona-group-item] {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .jona-gridbag[data-jona-layout-placement='fixed'] > [data-jona-gridbag-item] {
+    grid-column: var(--jona-gridbag-column, auto) / span var(--jona-gridbag-column-span, 1);
+    grid-row: var(--jona-gridbag-row, auto) / span var(--jona-gridbag-row-span, 1);
+    justify-self: var(--jona-gridbag-justify, stretch);
+    align-self: var(--jona-gridbag-align, stretch);
+  }
+
+  .jona-group-layout[data-jona-layout-placement='fixed'] > [data-jona-group-item] {
+    grid-column: auto / span var(--jona-group-span, 1);
+    justify-self: var(--jona-group-justify, stretch);
+    align-self: var(--jona-group-align, stretch);
+  }
+
+  .jona-spring-layout {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--jona-layout-min, 12rem)), 1fr));
+  }
+
+  .jona-spring-layout > [data-jona-spring-item] {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .jona-spring-layout[data-jona-layout-placement='fixed'] {
+    position: relative;
+    display: block;
+    min-height: var(--jona-spring-min-height, 16rem);
+  }
+
+  .jona-spring-layout[data-jona-layout-placement='fixed'] > [data-jona-spring-item] {
+    position: absolute;
+    inset-inline-start: var(--jona-spring-left, auto);
+    inset-inline-end: var(--jona-spring-right, auto);
+    top: var(--jona-spring-top, auto);
+    bottom: var(--jona-spring-bottom, auto);
+    width: var(--jona-spring-width, auto);
+    height: var(--jona-spring-height, auto);
+  }
+
+  @media (min-width: 768px) {
+    .jona-layout-mobile-grid[data-jona-layout-placement='responsive'] {
+      grid-template-columns: var(--jona-layout-columns, repeat(auto-fit, minmax(min(100%, var(--jona-layout-min, 12rem)), 1fr)));
+      grid-template-rows: var(--jona-layout-rows, auto);
+    }
+
+    .jona-gridbag[data-jona-layout-placement='responsive'] > [data-jona-gridbag-item] {
+      grid-column: var(--jona-gridbag-column, auto) / span var(--jona-gridbag-column-span, 1);
+      grid-row: var(--jona-gridbag-row, auto) / span var(--jona-gridbag-row-span, 1);
+      justify-self: var(--jona-gridbag-justify, stretch);
+      align-self: var(--jona-gridbag-align, stretch);
+    }
+
+    .jona-group-layout[data-jona-layout-placement='responsive'] > [data-jona-group-item] {
+      grid-column: auto / span var(--jona-group-span, 1);
+      justify-self: var(--jona-group-justify, stretch);
+      align-self: var(--jona-group-align, stretch);
+    }
+
+    .jona-spring-layout[data-jona-layout-placement='responsive'] {
+      position: relative;
+      display: block;
+      min-height: var(--jona-spring-min-height, 16rem);
+    }
+
+    .jona-spring-layout[data-jona-layout-placement='responsive'] > [data-jona-spring-item] {
+      position: absolute;
+      inset-inline-start: var(--jona-spring-left, auto);
+      inset-inline-end: var(--jona-spring-right, auto);
+      top: var(--jona-spring-top, auto);
+      bottom: var(--jona-spring-bottom, auto);
+      width: var(--jona-spring-width, auto);
+      height: var(--jona-spring-height, auto);
+    }
+  }
+}
