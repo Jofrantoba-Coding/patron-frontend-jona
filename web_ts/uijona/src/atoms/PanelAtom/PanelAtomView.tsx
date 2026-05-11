@@ -148,6 +148,10 @@ const getLayoutClasses = (
     );
   }
 
+  if (layout === 'card') {
+    return cn('relative min-w-0 w-full max-w-full', gapClasses[gap]);
+  }
+
   return cn('relative min-w-0', gapClasses[gap]);
 };
 
@@ -215,7 +219,16 @@ const prepareLayoutChildren = (
       : cardKey === String(activeCard);
     firstCardShown = firstCardShown || isActive;
 
-    if (isActive) return child;
+    if (isActive) {
+      return React.cloneElement(child, {
+        style: {
+          ...child.props.style,
+          minWidth: 0,
+          width: '100%',
+          maxWidth: '100%',
+        },
+      });
+    }
 
     return React.cloneElement(child, {
       style: { ...child.props.style, display: 'none' },

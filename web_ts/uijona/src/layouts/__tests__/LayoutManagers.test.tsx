@@ -64,7 +64,7 @@ describe('layout manager components', () => {
 
   it('renders CardLayout showing only the active card', () => {
     render(
-      <CardLayout activeCard="second">
+      <CardLayout activeCard="second" data-testid="cards">
         <PanelAtom data-testid="first" data-panel-card="first">
           First
         </PanelAtom>
@@ -74,7 +74,13 @@ describe('layout manager components', () => {
       </CardLayout>
     );
 
+    expect(screen.getByTestId('cards')).toHaveClass('w-full', 'max-w-full', 'min-w-0');
     expect(screen.getByTestId('first')).toHaveStyle({ display: 'none' });
     expect(screen.getByTestId('second')).not.toHaveStyle({ display: 'none' });
+    expect(screen.getByTestId('second')).toHaveStyle({
+      width: '100%',
+      maxWidth: '100%',
+      minWidth: '0',
+    });
   });
 });

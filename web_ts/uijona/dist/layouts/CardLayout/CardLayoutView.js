@@ -1,8 +1,9 @@
 import { jsx as t } from "react/jsx-runtime";
-import m from "react";
-import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
-const i = m.forwardRef(
-  ({ children: o, ...r }, a) => /* @__PURE__ */ t(e, { ref: a, layout: "card", ...r, children: o })
+import l from "react";
+import { cn as e } from "../../lib/cn.js";
+import { PanelAtomImpl as f } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+const i = l.forwardRef(
+  ({ children: o, className: a, ...m }, r) => /* @__PURE__ */ t(f, { ref: r, layout: "card", className: e("w-full max-w-full min-w-0", a), ...m, children: o })
 );
 i.displayName = "CardLayoutView";
 export {

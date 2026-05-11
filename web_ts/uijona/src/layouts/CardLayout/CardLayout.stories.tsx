@@ -10,7 +10,7 @@ const meta: Meta<typeof CardLayout> = {
   title: 'Layouts/CardLayout',
   component: CardLayout,
   tags: ['autodocs'],
-  parameters: { layout: 'centered' },
+  parameters: { layout: 'padded' },
   argTypes: {
     activeCard: {
       control: 'text',
@@ -23,7 +23,7 @@ type Story = StoryObj<typeof CardLayout>;
 
 export const FirstCardByDefault: Story = {
   render: (args) => (
-    <CardLayout {...args} className="w-80">
+    <CardLayout {...args} className="w-full max-w-md">
       <PanelAtom data-panel-card="profile" variant="outlined" padding="lg">
         <TextAtom size="sm">Perfil visible por defecto.</TextAtom>
       </PanelAtom>
@@ -40,8 +40,8 @@ export const Interactive: Story = {
     const [activeCard, setActiveCard] = useState(cards[0]);
 
     return (
-      <BoxLayout direction="column" gap="sm" className="w-96">
-        <FlowLayout gap="sm">
+      <BoxLayout direction="column" gap="sm" className="w-full max-w-lg">
+        <FlowLayout gap="sm" className="w-full">
           {cards.map((card) => (
             <button
               key={card}
