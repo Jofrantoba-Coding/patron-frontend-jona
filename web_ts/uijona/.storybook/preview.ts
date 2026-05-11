@@ -146,7 +146,6 @@ const preview: Preview = {
     },
     docs: {
       source: {
-        format: 'tsx',
         language: 'tsx',
         type: 'dynamic',
         transform: formatJsxSource,
