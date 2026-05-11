@@ -1,11 +1,11 @@
 import React from 'react';
 import type {
   PanelGap,
+  PanelLayoutPlacement,
   PanelPadding,
   PanelRadius,
   PanelVariant,
 } from '../../atoms/PanelAtom/PanelAtom';
-import type { LayoutPlacement } from '../layoutPrimitives';
 
 export interface InterSpringLayout extends React.HTMLAttributes<HTMLDivElement> {
   variant?: PanelVariant;
@@ -14,7 +14,7 @@ export interface InterSpringLayout extends React.HTMLAttributes<HTMLDivElement> 
   gap?: PanelGap;
   autoFitMin?: string;
   minHeight?: string;
-  placement?: LayoutPlacement;
+  placement?: PanelLayoutPlacement;
 }
 
 export const SPRING_LAYOUT_DEFAULTS: Required<Pick<

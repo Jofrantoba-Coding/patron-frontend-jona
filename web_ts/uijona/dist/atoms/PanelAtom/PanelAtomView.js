@@ -1,27 +1,27 @@
-import { jsx as R } from "react/jsx-runtime";
-import m from "react";
-import { cn as l } from "../../lib/cn.js";
-import { PANEL_ATOM_DEFAULTS as s } from "./InterPanelAtom.js";
-const k = {
+import { jsx as W } from "react/jsx-runtime";
+import d from "react";
+import { cn as g } from "../../lib/cn.js";
+import { PANEL_ATOM_DEFAULTS as m } from "./InterPanelAtom.js";
+const K = {
   default: "bg-white border border-neutral-200",
   outlined: "bg-transparent border border-neutral-300",
   elevated: "bg-white shadow-md border-0",
   flat: "bg-neutral-50 border-0",
   ghost: "bg-transparent border-0"
-}, N = {
+}, O = {
   none: "p-0",
   sm: "p-2",
   md: "p-4",
   lg: "p-6",
   xl: "p-8"
-}, V = {
+}, $ = {
   none: "rounded-none",
   sm: "rounded-sm",
   md: "rounded-md",
   lg: "rounded-lg",
   xl: "rounded-xl",
   full: "rounded-full"
-}, i = {
+}, l = {
   none: "gap-0",
   xs: "gap-1",
   sm: "gap-2",
@@ -34,36 +34,55 @@ const k = {
   end: "items-end",
   stretch: "items-stretch",
   baseline: "items-baseline"
-}, p = {
+}, f = {
   start: "justify-start",
   center: "justify-center",
   end: "justify-end",
   between: "justify-between",
   around: "justify-around",
   evenly: "justify-evenly"
-}, W = {
+}, q = {
   row: "flex-row",
   column: "flex-col"
-}, w = {
+}, c = {
   nowrap: "flex-nowrap",
   wrap: "flex-wrap",
   reverse: "flex-wrap-reverse"
-}, K = (e) => typeof e == "string" ? e.trim() ? e : "div" : e ?? "div", c = (e, t) => typeof e == "boolean" ? e ? "wrap" : "nowrap" : e ?? t, g = (e) => typeof e == "number" ? `repeat(${e}, minmax(0, 1fr))` : e, O = (e, t, n, o, r, a) => {
-  if (e !== "none")
-    return e === "flow" ? l(
+}, U = /* @__PURE__ */ new Set(["gridbag", "group", "spring"]), z = (r) => typeof r == "string" ? r.trim() ? r : "div" : r ?? "div", j = (r, t) => typeof r == "boolean" ? r ? "wrap" : "nowrap" : r ?? t, b = (r) => typeof r == "number" ? `repeat(${r}, minmax(0, 1fr))` : r, i = (r) => {
+  if (r !== void 0)
+    return String(r);
+}, H = (r, t) => U.has(r) ? t ?? "responsive" : void 0, J = (r, t, n, a, e, s, o) => {
+  if (r !== "none")
+    return r === "flow" ? g(
       "flex min-w-0 w-full max-w-full flex-row",
-      w[c(a, "wrap")],
-      i[n],
-      u[o],
-      p[r]
-    ) : e === "box" ? l(
+      c[j(s, "wrap")],
+      l[n],
+      u[a],
+      f[e]
+    ) : r === "box" ? g(
       "flex min-w-0 w-full max-w-full",
-      W[t],
-      w[c(a, t === "column" ? "nowrap" : "wrap")],
-      i[n],
-      u[o],
-      p[r]
-    ) : e === "grid" ? l("grid min-w-0 w-full max-w-full", i[n], u[o], p[r]) : e === "border" ? l(
+      q[t],
+      c[j(s, t === "column" ? "nowrap" : "wrap")],
+      l[n],
+      u[a],
+      f[e]
+    ) : r === "grid" ? g("grid min-w-0 w-full max-w-full", l[n], u[a], f[e]) : r === "gridbag" ? g(
+      "jona-layout-mobile-grid jona-gridbag",
+      l[n],
+      u[a],
+      f[e]
+    ) : r === "group" ? g(
+      "jona-layout-mobile-grid jona-group-layout",
+      o === "parallel" && "justify-items-stretch",
+      l[n],
+      u[a],
+      f[e]
+    ) : r === "spring" ? g(
+      "jona-spring-layout",
+      l[n],
+      u[a],
+      f[e]
+    ) : r === "border" ? g(
       "grid min-h-0 min-w-0 w-full max-w-full",
       "[grid-template-areas:'top'_'left'_'center'_'right'_'bottom']",
       "[grid-template-columns:minmax(0,1fr)]",
@@ -71,82 +90,132 @@ const k = {
       "md:[grid-template-areas:'top_top_top'_'left_center_right'_'bottom_bottom_bottom']",
       "md:[grid-template-columns:auto_minmax(0,1fr)_auto]",
       "md:[grid-template-rows:auto_minmax(0,1fr)_auto]",
-      i[n],
-      u[o],
-      p[r]
-    ) : e === "card" ? l("relative min-w-0 w-full max-w-full", i[n]) : l("relative min-w-0", i[n]);
-}, $ = (e, t, n, o, r) => {
-  const a = {};
-  return e === "grid" && (a.gridTemplateColumns = o ? `repeat(auto-fit, minmax(${o}, 1fr))` : g(t) ?? "repeat(auto-fit, minmax(12rem, 1fr))", a.gridTemplateRows = g(n)), e === "border" && (a.gridTemplateColumns = g(t), a.gridTemplateRows = g(n)), Object.keys(a).length > 0 ? { ...a, ...r } : r;
-}, D = (e) => {
-  const t = e.props["data-panel-card"];
+      l[n],
+      u[a],
+      f[e]
+    ) : r === "card" ? g("relative min-w-0 w-full max-w-full", l[n]) : g("relative min-w-0", l[n]);
+}, Q = (r, t, n, a, e, s) => {
+  const o = {};
+  return r === "grid" && (o.gridTemplateColumns = a ? `repeat(auto-fit, minmax(${a}, 1fr))` : b(t) ?? "repeat(auto-fit, minmax(12rem, 1fr))", o.gridTemplateRows = b(n)), r === "border" && (o.gridTemplateColumns = b(t), o.gridTemplateRows = b(n)), r === "gridbag" && (o["--jona-layout-min"] = a ?? "12rem", o["--jona-layout-columns"] = b(t), o["--jona-layout-rows"] = b(n)), r === "group" && (o["--jona-layout-min"] = a ?? "12rem", o["--jona-layout-columns"] = b(t)), r === "spring" && (o["--jona-layout-min"] = a ?? "12rem", o["--jona-spring-min-height"] = e ?? "16rem"), Object.keys(o).length > 0 ? { ...o, ...s } : s;
+}, X = (r) => {
+  const t = r.props["data-panel-card"];
   if (t !== void 0) return String(t);
-  if (e.key !== null) return String(e.key);
-}, U = (e, t, n) => {
-  if (t !== "border" && t !== "card") return e;
-  let o = !1;
-  return m.Children.map(e, (r) => {
-    if (!m.isValidElement(r)) return r;
+  if (r.key !== null) return String(r.key);
+}, Y = (r) => i(r["data-gridbag-column"] ?? r["data-gridbag-col"]), Z = (r) => i(r["data-gridbag-column-span"] ?? r["data-gridbag-colspan"]), F = (r) => i(r["data-gridbag-row-span"] ?? r["data-gridbag-rowspan"]), M = (r, t, n) => {
+  if (!["border", "card", "gridbag", "group", "spring"].includes(t)) return r;
+  let a = !1;
+  return d.Children.map(r, (e) => {
+    if (!d.isValidElement(e)) return e;
     if (t === "border") {
-      const f = r.props["data-panel-area"];
-      return f ? m.cloneElement(r, {
-        style: { ...r.props.style, gridArea: f }
-      }) : r;
+      const p = e.props["data-panel-area"];
+      return p ? d.cloneElement(e, {
+        style: { ...e.props.style, gridArea: p }
+      }) : e;
     }
-    const a = D(r), d = n === void 0 ? !o : a === String(n);
-    return o = o || d, d ? m.cloneElement(r, {
+    if (t === "gridbag") {
+      const p = {
+        ...e.props.style,
+        "--jona-gridbag-column": Y(e.props),
+        "--jona-gridbag-row": i(e.props["data-gridbag-row"]),
+        "--jona-gridbag-column-span": Z(e.props),
+        "--jona-gridbag-row-span": F(e.props),
+        "--jona-gridbag-align": e.props["data-gridbag-align"],
+        "--jona-gridbag-justify": e.props["data-gridbag-justify"]
+      };
+      return d.cloneElement(e, {
+        "data-jona-gridbag-item": "",
+        style: p
+      });
+    }
+    if (t === "group") {
+      const p = {
+        ...e.props.style,
+        "--jona-group-span": i(e.props["data-group-span"]),
+        "--jona-group-align": e.props["data-group-align"],
+        "--jona-group-justify": e.props["data-group-justify"]
+      };
+      return d.cloneElement(e, {
+        "data-jona-group-item": "",
+        style: p
+      });
+    }
+    if (t === "spring") {
+      const p = {
+        ...e.props.style,
+        "--jona-spring-left": i(e.props["data-spring-left"]),
+        "--jona-spring-right": i(e.props["data-spring-right"]),
+        "--jona-spring-top": i(e.props["data-spring-top"]),
+        "--jona-spring-bottom": i(e.props["data-spring-bottom"]),
+        "--jona-spring-width": i(e.props["data-spring-width"]),
+        "--jona-spring-height": i(e.props["data-spring-height"])
+      };
+      return d.cloneElement(e, {
+        "data-jona-spring-item": "",
+        style: p
+      });
+    }
+    const s = X(e), o = n === void 0 ? !a : s === String(n);
+    return a = a || o, o ? d.cloneElement(e, {
       style: {
-        ...r.props.style,
+        ...e.props.style,
         minWidth: 0,
         width: "100%",
         maxWidth: "100%"
       }
-    }) : m.cloneElement(r, {
-      style: { ...r.props.style, display: "none" }
+    }) : d.cloneElement(e, {
+      style: { ...e.props.style, display: "none" }
     });
   });
-}, q = m.forwardRef(
+}, h = (r, t, n, a) => {
+  const e = {}, s = H(r, t);
+  return s && (e["data-jona-layout-placement"] = s), r === "gridbag" && (e["data-jona-layout-dense"] = n === !1 ? "false" : "true"), r === "group" && (e["data-jona-layout-mode"] = a ?? "sequential"), e;
+}, I = d.forwardRef(
   ({
-    variant: e = s.variant,
-    padding: t = s.padding,
-    radius: n = s.radius,
-    as: o,
-    layout: r = s.layout,
-    direction: a = s.direction,
-    gap: d = s.gap,
-    alignItems: f = s.alignItems,
-    justifyContent: x = s.justifyContent,
-    wrap: b,
-    columns: y,
+    variant: r = m.variant,
+    padding: t = m.padding,
+    radius: n = m.radius,
+    as: a,
+    layout: e = m.layout,
+    direction: s = m.direction,
+    gap: o = m.gap,
+    alignItems: p = m.alignItems,
+    justifyContent: y = m.justifyContent,
+    wrap: x,
+    columns: v,
     rows: _,
-    autoFitMin: v,
-    activeCard: C,
-    className: T,
-    children: S,
-    style: j,
-    ...A
-  }, E) => {
-    const h = K(o), L = U(S, r, C), P = $(r, y, _, v, j);
-    return /* @__PURE__ */ R(
-      h,
+    autoFitMin: C,
+    placement: S,
+    dense: A,
+    mode: w,
+    minHeight: E,
+    activeCard: T,
+    className: L,
+    children: P,
+    style: R,
+    ...V
+  }, k) => {
+    const B = z(a), D = M(P, e, T), G = Q(e, v, _, C, E, R), N = h(e, S, A, w);
+    return /* @__PURE__ */ W(
+      B,
       {
-        ref: E,
-        className: l(
-          k[e],
-          N[t],
-          V[n],
-          O(r, a, d, f, x, b),
-          T
+        ref: k,
+        className: g(
+          K[r],
+          O[t],
+          $[n],
+          J(e, s, o, p, y, x, w),
+          L
         ),
-        style: P,
-        ...A,
-        children: L
+        style: G,
+        ...V,
+        ...N,
+        children: D
       }
     );
   }
 );
-q.displayName = "PanelAtomView";
+I.displayName = "PanelAtomView";
 export {
-  q as PanelAtomView
+  I as PanelAtomView
 };
 //# sourceMappingURL=PanelAtomView.js.map

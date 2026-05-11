@@ -109,4 +109,67 @@ describe('PanelAtom', () => {
     expect(screen.getByTestId('profile')).toHaveStyle({ display: 'none' });
     expect(screen.getByTestId('security')).not.toHaveStyle({ display: 'none' });
   });
+
+  it('supports GridBag constraints with mobile-first placement', () => {
+    render(
+      <PanelAtom layout="gridbag" columns={3} data-testid="panel">
+        <PanelAtom data-testid="item" data-gridbag-column="1" data-gridbag-row="2" data-gridbag-column-span="2">
+          Item
+        </PanelAtom>
+      </PanelAtom>
+    );
+
+    const panel = screen.getByTestId('panel');
+    const item = screen.getByTestId('item');
+
+    expect(panel).toHaveClass('jona-layout-mobile-grid', 'jona-gridbag');
+    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(panel).toHaveAttribute('data-jona-layout-dense', 'true');
+    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('repeat(3, minmax(0, 1fr))');
+    expect(item).toHaveAttribute('data-jona-gridbag-item');
+    expect(item.style.getPropertyValue('--jona-gridbag-column')).toBe('1');
+    expect(item.style.getPropertyValue('--jona-gridbag-row')).toBe('2');
+    expect(item.style.getPropertyValue('--jona-gridbag-column-span')).toBe('2');
+  });
+
+  it('supports Group constraints from PanelAtom', () => {
+    render(
+      <PanelAtom layout="group" columns={2} mode="parallel" data-testid="panel">
+        <PanelAtom data-testid="item" data-group-span="2">
+          Item
+        </PanelAtom>
+      </PanelAtom>
+    );
+
+    const panel = screen.getByTestId('panel');
+    const item = screen.getByTestId('item');
+
+    expect(panel).toHaveClass('jona-layout-mobile-grid', 'jona-group-layout', 'justify-items-stretch');
+    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(panel).toHaveAttribute('data-jona-layout-mode', 'parallel');
+    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('repeat(2, minmax(0, 1fr))');
+    expect(item).toHaveAttribute('data-jona-group-item');
+    expect(item.style.getPropertyValue('--jona-group-span')).toBe('2');
+  });
+
+  it('supports Spring constraints without breaking mobile-first defaults', () => {
+    render(
+      <PanelAtom layout="spring" minHeight="18rem" data-testid="panel">
+        <PanelAtom data-testid="item" data-spring-left="1rem" data-spring-top="2rem" data-spring-width="10rem">
+          Item
+        </PanelAtom>
+      </PanelAtom>
+    );
+
+    const panel = screen.getByTestId('panel');
+    const item = screen.getByTestId('item');
+
+    expect(panel).toHaveClass('jona-spring-layout');
+    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(panel.style.getPropertyValue('--jona-spring-min-height')).toBe('18rem');
+    expect(item).toHaveAttribute('data-jona-spring-item');
+    expect(item.style.getPropertyValue('--jona-spring-left')).toBe('1rem');
+    expect(item.style.getPropertyValue('--jona-spring-top')).toBe('2rem');
+    expect(item.style.getPropertyValue('--jona-spring-width')).toBe('10rem');
+  });
 });

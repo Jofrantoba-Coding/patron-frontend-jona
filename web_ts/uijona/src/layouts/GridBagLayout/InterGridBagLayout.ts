@@ -3,11 +3,11 @@ import type {
   PanelAlign,
   PanelGap,
   PanelJustify,
+  PanelLayoutPlacement,
   PanelPadding,
   PanelRadius,
   PanelVariant,
 } from '../../atoms/PanelAtom/PanelAtom';
-import type { LayoutPlacement } from '../layoutPrimitives';
 
 export interface InterGridBagLayout extends React.HTMLAttributes<HTMLDivElement> {
   variant?: PanelVariant;
@@ -20,7 +20,7 @@ export interface InterGridBagLayout extends React.HTMLAttributes<HTMLDivElement>
   rows?: number | string;
   autoFitMin?: string;
   dense?: boolean;
-  placement?: LayoutPlacement;
+  placement?: PanelLayoutPlacement;
 }
 
 export const GRID_BAG_LAYOUT_DEFAULTS: Required<Pick<

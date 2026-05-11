@@ -1,6 +1,5 @@
 import React from 'react';
-import { PanelAlign, PanelGap, PanelJustify, PanelPadding, PanelRadius, PanelVariant } from '../../atoms/PanelAtom/PanelAtom';
-import { LayoutPlacement } from '../layoutPrimitives';
+import { PanelAlign, PanelGap, PanelJustify, PanelLayoutPlacement, PanelPadding, PanelRadius, PanelVariant } from '../../atoms/PanelAtom/PanelAtom';
 export interface InterGridBagLayout extends React.HTMLAttributes<HTMLDivElement> {
     variant?: PanelVariant;
     padding?: PanelPadding;
@@ -12,6 +11,6 @@ export interface InterGridBagLayout extends React.HTMLAttributes<HTMLDivElement>
     rows?: number | string;
     autoFitMin?: string;
     dense?: boolean;
-    placement?: LayoutPlacement;
+    placement?: PanelLayoutPlacement;
 }
 export declare const GRID_BAG_LAYOUT_DEFAULTS: Required<Pick<InterGridBagLayout, 'variant' | 'padding' | 'radius' | 'gap' | 'alignItems' | 'justifyContent' | 'autoFitMin' | 'dense' | 'placement'>>;

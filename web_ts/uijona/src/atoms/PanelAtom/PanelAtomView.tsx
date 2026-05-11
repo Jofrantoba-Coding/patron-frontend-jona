@@ -7,8 +7,10 @@ import {
   PanelArea,
   PanelDirection,
   PanelGap,
+  PanelGroupMode,
   PanelJustify,
   PanelLayout,
+  PanelLayoutPlacement,
   PanelPadding,
   PanelRadius,
   PanelWrap,
@@ -77,6 +79,10 @@ const wrapClasses: Record<PanelWrap, string> = {
   reverse:'flex-wrap-reverse',
 };
 
+type PanelLayoutCssVars = React.CSSProperties & Record<`--${string}`, string | number | undefined>;
+
+const complexLayouts = new Set<PanelLayout>(['gridbag', 'group', 'spring']);
+
 const resolvePanelTag = (as?: React.ElementType): React.ElementType => {
   if (typeof as === 'string') {
     return as.trim() ? as : 'div';
@@ -98,13 +104,24 @@ const resolveTemplate = (value: number | string | undefined): string | undefined
   return value;
 };
 
+const resolveCssValue = (value: number | string | undefined): string | undefined => {
+  if (value === undefined) return undefined;
+  return String(value);
+};
+
+const resolvePlacement = (
+  layout: PanelLayout,
+  placement: PanelLayoutPlacement | undefined
+): PanelLayoutPlacement | undefined => complexLayouts.has(layout) ? placement ?? 'responsive' : undefined;
+
 const getLayoutClasses = (
   layout: PanelLayout,
   direction: PanelDirection,
   gap: PanelGap,
   alignItems: PanelAlign,
   justifyContent: PanelJustify,
-  wrap: boolean | PanelWrap | undefined
+  wrap: boolean | PanelWrap | undefined,
+  mode: PanelGroupMode | undefined
 ): string | undefined => {
   if (layout === 'none') return undefined;
 
@@ -131,6 +148,34 @@ const getLayoutClasses = (
 
   if (layout === 'grid') {
     return cn('grid min-w-0 w-full max-w-full', gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
+  }
+
+  if (layout === 'gridbag') {
+    return cn(
+      'jona-layout-mobile-grid jona-gridbag',
+      gapClasses[gap],
+      alignClasses[alignItems],
+      justifyClasses[justifyContent]
+    );
+  }
+
+  if (layout === 'group') {
+    return cn(
+      'jona-layout-mobile-grid jona-group-layout',
+      mode === 'parallel' && 'justify-items-stretch',
+      gapClasses[gap],
+      alignClasses[alignItems],
+      justifyClasses[justifyContent]
+    );
+  }
+
+  if (layout === 'spring') {
+    return cn(
+      'jona-spring-layout',
+      gapClasses[gap],
+      alignClasses[alignItems],
+      justifyClasses[justifyContent]
+    );
   }
 
   if (layout === 'border') {
@@ -160,9 +205,10 @@ const getLayoutStyle = (
   columns: number | string | undefined,
   rows: number | string | undefined,
   autoFitMin: string | undefined,
+  minHeight: string | undefined,
   style: React.CSSProperties | undefined
 ): React.CSSProperties | undefined => {
-  const layoutStyle: React.CSSProperties = {};
+  const layoutStyle: PanelLayoutCssVars = {};
 
   if (layout === 'grid') {
     layoutStyle.gridTemplateColumns = autoFitMin
@@ -176,6 +222,22 @@ const getLayoutStyle = (
     layoutStyle.gridTemplateRows = resolveTemplate(rows);
   }
 
+  if (layout === 'gridbag') {
+    layoutStyle['--jona-layout-min'] = autoFitMin ?? '12rem';
+    layoutStyle['--jona-layout-columns'] = resolveTemplate(columns);
+    layoutStyle['--jona-layout-rows'] = resolveTemplate(rows);
+  }
+
+  if (layout === 'group') {
+    layoutStyle['--jona-layout-min'] = autoFitMin ?? '12rem';
+    layoutStyle['--jona-layout-columns'] = resolveTemplate(columns);
+  }
+
+  if (layout === 'spring') {
+    layoutStyle['--jona-layout-min'] = autoFitMin ?? '12rem';
+    layoutStyle['--jona-spring-min-height'] = minHeight ?? '16rem';
+  }
+
   return Object.keys(layoutStyle).length > 0 ? { ...layoutStyle, ...style } : style;
 };
 
@@ -183,6 +245,24 @@ type PanelManagedChildProps = {
   style?: React.CSSProperties;
   'data-panel-area'?: PanelArea;
   'data-panel-card'?: string | number;
+  'data-gridbag-column'?: number | string;
+  'data-gridbag-col'?: number | string;
+  'data-gridbag-row'?: number | string;
+  'data-gridbag-column-span'?: number | string;
+  'data-gridbag-colspan'?: number | string;
+  'data-gridbag-row-span'?: number | string;
+  'data-gridbag-rowspan'?: number | string;
+  'data-gridbag-align'?: string;
+  'data-gridbag-justify'?: string;
+  'data-group-span'?: number | string;
+  'data-group-align'?: string;
+  'data-group-justify'?: string;
+  'data-spring-left'?: number | string;
+  'data-spring-right'?: number | string;
+  'data-spring-top'?: number | string;
+  'data-spring-bottom'?: number | string;
+  'data-spring-width'?: number | string;
+  'data-spring-height'?: number | string;
 };
 
 const getCardKey = (child: React.ReactElement<PanelManagedChildProps>): string | undefined => {
@@ -192,12 +272,21 @@ const getCardKey = (child: React.ReactElement<PanelManagedChildProps>): string |
   return undefined;
 };
 
+const getGridBagColumn = (props: PanelManagedChildProps): string | undefined =>
+  resolveCssValue(props['data-gridbag-column'] ?? props['data-gridbag-col']);
+
+const getGridBagColumnSpan = (props: PanelManagedChildProps): string | undefined =>
+  resolveCssValue(props['data-gridbag-column-span'] ?? props['data-gridbag-colspan']);
+
+const getGridBagRowSpan = (props: PanelManagedChildProps): string | undefined =>
+  resolveCssValue(props['data-gridbag-row-span'] ?? props['data-gridbag-rowspan']);
+
 const prepareLayoutChildren = (
   children: React.ReactNode,
   layout: PanelLayout,
   activeCard: string | number | undefined
 ): React.ReactNode => {
-  if (layout !== 'border' && layout !== 'card') return children;
+  if (!['border', 'card', 'gridbag', 'group', 'spring'].includes(layout)) return children;
 
   let firstCardShown = false;
 
@@ -211,6 +300,54 @@ const prepareLayoutChildren = (
       return React.cloneElement(child, {
         style: { ...child.props.style, gridArea: area },
       });
+    }
+
+    if (layout === 'gridbag') {
+      const style: PanelLayoutCssVars = {
+        ...child.props.style,
+        '--jona-gridbag-column': getGridBagColumn(child.props),
+        '--jona-gridbag-row': resolveCssValue(child.props['data-gridbag-row']),
+        '--jona-gridbag-column-span': getGridBagColumnSpan(child.props),
+        '--jona-gridbag-row-span': getGridBagRowSpan(child.props),
+        '--jona-gridbag-align': child.props['data-gridbag-align'],
+        '--jona-gridbag-justify': child.props['data-gridbag-justify'],
+      };
+
+      return React.cloneElement(child, {
+        'data-jona-gridbag-item': '',
+        style,
+      } as Partial<PanelManagedChildProps> & { 'data-jona-gridbag-item': string });
+    }
+
+    if (layout === 'group') {
+      const style: PanelLayoutCssVars = {
+        ...child.props.style,
+        '--jona-group-span': resolveCssValue(child.props['data-group-span']),
+        '--jona-group-align': child.props['data-group-align'],
+        '--jona-group-justify': child.props['data-group-justify'],
+      };
+
+      return React.cloneElement(child, {
+        'data-jona-group-item': '',
+        style,
+      } as Partial<PanelManagedChildProps> & { 'data-jona-group-item': string });
+    }
+
+    if (layout === 'spring') {
+      const style: PanelLayoutCssVars = {
+        ...child.props.style,
+        '--jona-spring-left': resolveCssValue(child.props['data-spring-left']),
+        '--jona-spring-right': resolveCssValue(child.props['data-spring-right']),
+        '--jona-spring-top': resolveCssValue(child.props['data-spring-top']),
+        '--jona-spring-bottom': resolveCssValue(child.props['data-spring-bottom']),
+        '--jona-spring-width': resolveCssValue(child.props['data-spring-width']),
+        '--jona-spring-height': resolveCssValue(child.props['data-spring-height']),
+      };
+
+      return React.cloneElement(child, {
+        'data-jona-spring-item': '',
+        style,
+      } as Partial<PanelManagedChildProps> & { 'data-jona-spring-item': string });
     }
 
     const cardKey = getCardKey(child);
@@ -236,6 +373,30 @@ const prepareLayoutChildren = (
   });
 };
 
+const getLayoutDataAttributes = (
+  layout: PanelLayout,
+  placement: PanelLayoutPlacement | undefined,
+  dense: boolean | undefined,
+  mode: PanelGroupMode | undefined
+): Record<string, string> => {
+  const attributes: Record<string, string> = {};
+  const resolvedPlacement = resolvePlacement(layout, placement);
+
+  if (resolvedPlacement) {
+    attributes['data-jona-layout-placement'] = resolvedPlacement;
+  }
+
+  if (layout === 'gridbag') {
+    attributes['data-jona-layout-dense'] = dense === false ? 'false' : 'true';
+  }
+
+  if (layout === 'group') {
+    attributes['data-jona-layout-mode'] = mode ?? 'sequential';
+  }
+
+  return attributes;
+};
+
 export const PanelAtomView = React.forwardRef<HTMLDivElement, InterPanelAtom>(
   (
     {
@@ -252,6 +413,10 @@ export const PanelAtomView = React.forwardRef<HTMLDivElement, InterPanelAtom>(
       columns,
       rows,
       autoFitMin,
+      placement,
+      dense,
+      mode,
+      minHeight,
       activeCard,
       className,
       children,
@@ -262,7 +427,8 @@ export const PanelAtomView = React.forwardRef<HTMLDivElement, InterPanelAtom>(
   ) => {
     const Tag = resolvePanelTag(as);
     const managedChildren = prepareLayoutChildren(children, layout, activeCard);
-    const layoutStyle = getLayoutStyle(layout, columns, rows, autoFitMin, style);
+    const layoutStyle = getLayoutStyle(layout, columns, rows, autoFitMin, minHeight, style);
+    const layoutDataAttributes = getLayoutDataAttributes(layout, placement, dense, mode);
 
     return (
       <Tag
@@ -271,11 +437,12 @@ export const PanelAtomView = React.forwardRef<HTMLDivElement, InterPanelAtom>(
           variantClasses[variant],
           paddingClasses[padding],
           radiusClasses[radius],
-          getLayoutClasses(layout, direction, gap, alignItems, justifyContent, wrap),
+          getLayoutClasses(layout, direction, gap, alignItems, justifyContent, wrap, mode),
           className
         )}
         style={layoutStyle}
         {...props}
+        {...layoutDataAttributes}
       >
         {managedChildren}
       </Tag>

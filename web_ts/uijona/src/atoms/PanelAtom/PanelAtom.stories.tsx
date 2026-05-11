@@ -33,7 +33,7 @@ const meta: Meta<typeof PanelAtom> = {
     },
     layout: {
       control: 'select',
-      options: ['none', 'flow', 'box', 'grid', 'border', 'card'],
+      options: ['none', 'flow', 'box', 'grid', 'border', 'card', 'gridbag', 'group', 'spring'],
       description: 'Layout manager interno inspirado en Swing.',
       table: { defaultValue: { summary: 'none' } },
     },
@@ -77,7 +77,29 @@ const meta: Meta<typeof PanelAtom> = {
     },
     autoFitMin: {
       control: 'text',
-      description: 'Minimo responsive para columnas auto-fit en layout="grid".',
+      description: 'Minimo responsive para columnas auto-fit en grid, gridbag, group y spring.',
+    },
+    placement: {
+      control: 'select',
+      options: ['responsive', 'fixed'],
+      description: 'Aplica constraints desde md o inmediatamente para layouts avanzados.',
+      table: { defaultValue: { summary: 'responsive' } },
+    },
+    dense: {
+      control: 'boolean',
+      description: 'Activa compactacion densa para layout="gridbag".',
+      table: { defaultValue: { summary: 'true' } },
+    },
+    mode: {
+      control: 'select',
+      options: ['sequential', 'parallel'],
+      description: 'Modo semantico para layout="group".',
+      table: { defaultValue: { summary: 'sequential' } },
+    },
+    minHeight: {
+      control: 'text',
+      description: 'Altura minima cuando layout="spring" activa constraints.',
+      table: { defaultValue: { summary: '16rem' } },
     },
     activeCard: {
       control: 'text',
@@ -104,6 +126,16 @@ const DemoItem = ({ children }: { children: ReactNode }) => (
 
 type DemoZoneProps = HTMLAttributes<HTMLDivElement> & {
   'data-panel-area'?: PanelArea;
+  'data-gridbag-column'?: number | string;
+  'data-gridbag-row'?: number | string;
+  'data-gridbag-column-span'?: number | string;
+  'data-gridbag-row-span'?: number | string;
+  'data-group-span'?: number | string;
+  'data-spring-left'?: number | string;
+  'data-spring-right'?: number | string;
+  'data-spring-top'?: number | string;
+  'data-spring-bottom'?: number | string;
+  'data-spring-width'?: number | string;
 };
 
 const DemoZone = ({ children, className, ...props }: DemoZoneProps) => (
@@ -120,7 +152,7 @@ const DemoZone = ({ children, className, ...props }: DemoZoneProps) => (
 export const Default: Story = {
   args: { variant: 'default', padding: 'md', radius: 'md' },
   render: (args) => (
-    <PanelAtom {...args} className="w-72">
+    <PanelAtom {...args} className="w-full max-w-xs">
       <SampleContent />
     </PanelAtom>
   ),
@@ -129,7 +161,7 @@ export const Default: Story = {
 export const Outlined: Story = {
   args: { variant: 'outlined', padding: 'md', radius: 'md' },
   render: (args) => (
-    <PanelAtom {...args} className="w-72">
+    <PanelAtom {...args} className="w-full max-w-xs">
       <SampleContent />
     </PanelAtom>
   ),
@@ -138,7 +170,7 @@ export const Outlined: Story = {
 export const Elevated: Story = {
   args: { variant: 'elevated', padding: 'md', radius: 'md' },
   render: (args) => (
-    <PanelAtom {...args} className="w-72">
+    <PanelAtom {...args} className="w-full max-w-xs">
       <SampleContent />
     </PanelAtom>
   ),
@@ -147,7 +179,7 @@ export const Elevated: Story = {
 export const Flat: Story = {
   args: { variant: 'flat', padding: 'md', radius: 'md' },
   render: (args) => (
-    <PanelAtom {...args} className="w-72">
+    <PanelAtom {...args} className="w-full max-w-xs">
       <SampleContent />
     </PanelAtom>
   ),
@@ -156,7 +188,7 @@ export const Flat: Story = {
 export const Ghost: Story = {
   args: { variant: 'ghost', padding: 'md', radius: 'md' },
   render: (args) => (
-    <PanelAtom {...args} className="w-72">
+    <PanelAtom {...args} className="w-full max-w-xs">
       <SampleContent />
     </PanelAtom>
   ),
@@ -166,7 +198,7 @@ export const PaddingSizes: Story = {
   render: () => (
     <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
       {(['none', 'sm', 'md', 'lg', 'xl'] as const).map((padding) => (
-        <PanelAtom key={padding} variant="outlined" padding={padding} className="w-72">
+        <PanelAtom key={padding} variant="outlined" padding={padding} className="w-full max-w-xs">
           <TextAtom size="xs" color="muted" className="font-mono">padding="{padding}"</TextAtom>
         </PanelAtom>
       ))}
@@ -178,7 +210,7 @@ export const RadiusSizes: Story = {
   render: () => (
     <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
       {(['none', 'sm', 'md', 'lg', 'xl'] as const).map((radius) => (
-        <PanelAtom key={radius} variant="default" radius={radius} className="w-72">
+        <PanelAtom key={radius} variant="default" radius={radius} className="w-full max-w-xs">
           <TextAtom size="xs" color="muted" className="font-mono">radius="{radius}"</TextAtom>
         </PanelAtom>
       ))}
@@ -190,7 +222,7 @@ export const AllVariants: Story = {
   render: () => (
     <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
       {(['default', 'outlined', 'elevated', 'flat', 'ghost'] as const).map((variant) => (
-        <PanelAtom key={variant} variant={variant} className="w-72">
+        <PanelAtom key={variant} variant={variant} className="w-full max-w-xs">
           <TextAtom size="xs" color="muted" className="font-mono">variant="{variant}"</TextAtom>
         </PanelAtom>
       ))}
@@ -200,7 +232,7 @@ export const AllVariants: Story = {
 
 export const AsSemanticElement: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 w-80">
+    <PanelAtom variant="ghost" padding="none" className="flex w-full max-w-sm flex-col gap-4">
       <PanelAtom as="section" variant="outlined" padding="lg">
         <TextAtom as="h2" size="sm" className="mb-1 font-semibold">section</TextAtom>
         <TextAtom size="sm" color="muted">PanelAtom renderizado como &lt;section&gt;</TextAtom>
@@ -219,7 +251,7 @@ export const AsSemanticElement: Story = {
 
 export const Nested: Story = {
   render: () => (
-    <PanelAtom variant="elevated" padding="lg" className="w-96">
+    <PanelAtom variant="elevated" padding="lg" className="w-full max-w-md">
       <TextAtom as="h3" size="sm" className="mb-3 font-semibold">Panel externo (elevated)</TextAtom>
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
         <PanelAtom variant="outlined" padding="sm">
@@ -275,13 +307,47 @@ export const ResponsiveGridLayoutManager: Story = {
   ),
 };
 
+export const GridBagLayoutManager: Story = {
+  render: () => (
+    <PanelAtom layout="gridbag" columns={4} gap="sm" variant="outlined" padding="lg" className="w-full max-w-3xl">
+      <DemoZone data-gridbag-column="1" data-gridbag-row="1" data-gridbag-column-span="2">Header span 2</DemoZone>
+      <DemoZone>Metric A</DemoZone>
+      <DemoZone>Metric B</DemoZone>
+      <DemoZone data-gridbag-column="1" data-gridbag-row="2" data-gridbag-row-span="2">Side span rows</DemoZone>
+      <DemoZone data-gridbag-column="2" data-gridbag-row="2" data-gridbag-column-span="3">Content span 3</DemoZone>
+    </PanelAtom>
+  ),
+};
+
+export const GroupLayoutManager: Story = {
+  render: () => (
+    <PanelAtom layout="group" columns={3} gap="md" variant="outlined" padding="lg" className="w-full max-w-3xl">
+      <DemoZone>Name</DemoZone>
+      <DemoZone>Email</DemoZone>
+      <DemoZone>Phone</DemoZone>
+      <DemoZone data-group-span="2">Address spans two columns from desktop</DemoZone>
+      <DemoZone>Status</DemoZone>
+    </PanelAtom>
+  ),
+};
+
+export const SpringLayoutManager: Story = {
+  render: () => (
+    <PanelAtom layout="spring" minHeight="18rem" gap="sm" variant="outlined" padding="lg" className="w-full max-w-3xl">
+      <DemoZone data-spring-left="0" data-spring-top="0" data-spring-width="12rem">Left anchored</DemoZone>
+      <DemoZone data-spring-left="14rem" data-spring-top="4rem" data-spring-width="14rem">Offset</DemoZone>
+      <DemoZone data-spring-right="0" data-spring-bottom="0" data-spring-width="12rem">Bottom end</DemoZone>
+    </PanelAtom>
+  ),
+};
+
 export const BorderLayoutManager: Story = {
   render: () => (
     <PanelAtom layout="border" gap="sm" variant="outlined" padding="lg" className="h-72 w-full max-w-xl">
       <DemoZone data-panel-area="top">Top</DemoZone>
-      <DemoZone data-panel-area="left" className="w-24">Left</DemoZone>
+      <DemoZone data-panel-area="left" className="w-full md:w-24">Left</DemoZone>
       <DemoZone data-panel-area="center">Center</DemoZone>
-      <DemoZone data-panel-area="right" className="w-24">Right</DemoZone>
+      <DemoZone data-panel-area="right" className="w-full md:w-24">Right</DemoZone>
       <DemoZone data-panel-area="bottom">Bottom</DemoZone>
     </PanelAtom>
   ),
