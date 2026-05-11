@@ -343,7 +343,7 @@ export const SpringLayoutManager: Story = {
 
 export const BorderLayoutManager: Story = {
   render: () => (
-    <PanelAtom layout="border" gap="sm" variant="outlined" padding="lg" className="h-72 w-full max-w-xl">
+    <PanelAtom layout="border" gap="sm" variant="outlined" padding="lg" className="min-h-72 w-full max-w-xl md:h-72">
       <DemoZone data-panel-area="top">Top</DemoZone>
       <DemoZone data-panel-area="left" className="w-full md:w-24">Left</DemoZone>
       <DemoZone data-panel-area="center">Center</DemoZone>

@@ -183,7 +183,7 @@ const getLayoutClasses = (
       'grid min-h-0 min-w-0 w-full max-w-full',
       "[grid-template-areas:'top'_'left'_'center'_'right'_'bottom']",
       '[grid-template-columns:minmax(0,1fr)]',
-      '[grid-template-rows:auto_auto_minmax(0,1fr)_auto_auto]',
+      '[grid-template-rows:auto_auto_auto_auto_auto]',
       "md:[grid-template-areas:'top_top_top'_'left_center_right'_'bottom_bottom_bottom']",
       'md:[grid-template-columns:auto_minmax(0,1fr)_auto]',
       'md:[grid-template-rows:auto_minmax(0,1fr)_auto]',
