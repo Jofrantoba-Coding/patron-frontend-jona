@@ -48,10 +48,10 @@ describe('layout manager components', () => {
     );
 
     expect(screen.getByTestId('grid')).toHaveClass('grid');
-    expect(screen.getByTestId('grid')).toHaveClass('w-full', 'max-w-full', 'min-w-0');
-    expect(screen.getByTestId('grid')).toHaveStyle({
-      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-    });
+    expect(screen.getByTestId('grid')).toHaveClass('jona-layout-mobile-grid', 'w-full', 'max-w-full', 'min-w-0');
+    expect(screen.getByTestId('grid')).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(screen.getByTestId('grid').style.gridTemplateColumns).toBe('');
+    expect(screen.getByTestId('grid').style.getPropertyValue('--jona-layout-columns')).toBe('repeat(2, minmax(0, 1fr))');
   });
 
   it('uses responsive auto-fit columns by default in GridLayout', () => {
@@ -61,9 +61,11 @@ describe('layout manager components', () => {
       </GridLayout>
     );
 
-    expect(screen.getByTestId('responsive-grid')).toHaveStyle({
-      gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))',
-    });
+    expect(screen.getByTestId('responsive-grid')).toHaveClass('jona-layout-mobile-grid');
+    expect(screen.getByTestId('responsive-grid')).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(screen.getByTestId('responsive-grid').style.gridTemplateColumns).toBe('');
+    expect(screen.getByTestId('responsive-grid').style.getPropertyValue('--jona-layout-min')).toBe('12rem');
+    expect(screen.getByTestId('responsive-grid').style.getPropertyValue('--jona-layout-columns')).toBe('');
   });
 
   it('renders CardLayout showing only the active card', () => {

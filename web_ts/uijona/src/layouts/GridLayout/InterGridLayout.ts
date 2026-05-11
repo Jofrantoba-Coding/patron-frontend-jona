@@ -7,7 +7,7 @@ export interface InterGridLayout extends Omit<
 
 export const GRID_LAYOUT_DEFAULTS: Required<Pick<
   InterGridLayout,
-  'variant' | 'padding' | 'radius' | 'gap' | 'alignItems' | 'justifyContent' | 'autoFitMin'
+  'variant' | 'padding' | 'radius' | 'gap' | 'alignItems' | 'justifyContent' | 'autoFitMin' | 'placement'
 >> = {
   variant: 'ghost',
   padding: 'none',
@@ -16,4 +16,5 @@ export const GRID_LAYOUT_DEFAULTS: Required<Pick<
   alignItems: 'stretch',
   justifyContent: 'start',
   autoFitMin: '12rem',
+  placement: 'responsive',
 };

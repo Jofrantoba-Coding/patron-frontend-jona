@@ -81,7 +81,7 @@ const wrapClasses: Record<PanelWrap, string> = {
 
 type PanelLayoutCssVars = React.CSSProperties & Record<`--${string}`, string | number | undefined>;
 
-const complexLayouts = new Set<PanelLayout>(['gridbag', 'group', 'spring']);
+const responsiveLayouts = new Set<PanelLayout>(['grid', 'gridbag', 'group', 'spring']);
 
 const resolvePanelTag = (as?: React.ElementType): React.ElementType => {
   if (typeof as === 'string') {
@@ -112,7 +112,7 @@ const resolveCssValue = (value: number | string | undefined): string | undefined
 const resolvePlacement = (
   layout: PanelLayout,
   placement: PanelLayoutPlacement | undefined
-): PanelLayoutPlacement | undefined => complexLayouts.has(layout) ? placement ?? 'responsive' : undefined;
+): PanelLayoutPlacement | undefined => responsiveLayouts.has(layout) ? placement ?? 'responsive' : undefined;
 
 const getLayoutClasses = (
   layout: PanelLayout,
@@ -147,7 +147,12 @@ const getLayoutClasses = (
   }
 
   if (layout === 'grid') {
-    return cn('grid min-w-0 w-full max-w-full', gapClasses[gap], alignClasses[alignItems], justifyClasses[justifyContent]);
+    return cn(
+      'grid jona-layout-mobile-grid min-w-0 w-full max-w-full',
+      gapClasses[gap],
+      alignClasses[alignItems],
+      justifyClasses[justifyContent]
+    );
   }
 
   if (layout === 'gridbag') {
@@ -211,10 +216,9 @@ const getLayoutStyle = (
   const layoutStyle: PanelLayoutCssVars = {};
 
   if (layout === 'grid') {
-    layoutStyle.gridTemplateColumns = autoFitMin
-      ? `repeat(auto-fit, minmax(${autoFitMin}, 1fr))`
-      : resolveTemplate(columns) ?? 'repeat(auto-fit, minmax(12rem, 1fr))';
-    layoutStyle.gridTemplateRows = resolveTemplate(rows);
+    layoutStyle['--jona-layout-min'] = autoFitMin ?? '12rem';
+    layoutStyle['--jona-layout-columns'] = resolveTemplate(columns);
+    layoutStyle['--jona-layout-rows'] = resolveTemplate(rows);
   }
 
   if (layout === 'border') {

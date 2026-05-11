@@ -60,10 +60,14 @@ describe('PanelAtom', () => {
       </PanelAtom>
     );
 
-    expect(screen.getByTestId('panel')).toHaveStyle({
-      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-      gridTemplateRows: 'auto 1fr',
-    });
+    const panel = screen.getByTestId('panel');
+
+    expect(panel).toHaveClass('grid', 'jona-layout-mobile-grid');
+    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(panel.style.gridTemplateColumns).toBe('');
+    expect(panel.style.gridTemplateRows).toBe('');
+    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('repeat(3, minmax(0, 1fr))');
+    expect(panel.style.getPropertyValue('--jona-layout-rows')).toBe('auto 1fr');
   });
 
   it('uses responsive grid columns by default', () => {
@@ -73,10 +77,26 @@ describe('PanelAtom', () => {
       </PanelAtom>
     );
 
-    expect(screen.getByTestId('panel')).toHaveClass('grid', 'w-full', 'max-w-full');
-    expect(screen.getByTestId('panel')).toHaveStyle({
-      gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))',
-    });
+    const panel = screen.getByTestId('panel');
+
+    expect(panel).toHaveClass('grid', 'jona-layout-mobile-grid', 'w-full', 'max-w-full');
+    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(panel.style.gridTemplateColumns).toBe('');
+    expect(panel.style.getPropertyValue('--jona-layout-min')).toBe('12rem');
+    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('');
+  });
+
+  it('can apply grid templates immediately with fixed placement', () => {
+    render(
+      <PanelAtom layout="grid" placement="fixed" columns={2} data-testid="panel">
+        Content
+      </PanelAtom>
+    );
+
+    const panel = screen.getByTestId('panel');
+
+    expect(panel).toHaveAttribute('data-jona-layout-placement', 'fixed');
+    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('repeat(2, minmax(0, 1fr))');
   });
 
   it('maps border layout children into named grid areas', () => {

@@ -21,6 +21,10 @@ const meta: Meta<typeof GridLayout> = {
     autoFitMin: {
       control: 'text',
     },
+    placement: {
+      control: 'select',
+      options: ['responsive', 'fixed'],
+    },
   },
 };
 
@@ -34,7 +38,7 @@ const DemoItem = ({ label }: { label: string }) => (
 );
 
 export const FixedColumns: Story = {
-  args: { columns: 3, gap: 'sm' },
+  args: { columns: 3, gap: 'sm', placement: 'responsive' },
   render: (args) => (
     <GridLayout {...args} className="w-full max-w-xl">
       {['A1', 'A2', 'A3', 'B1', 'B2', 'B3'].map((item) => (

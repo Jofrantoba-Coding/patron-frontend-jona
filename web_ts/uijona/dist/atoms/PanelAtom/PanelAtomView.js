@@ -1,7 +1,7 @@
 import { jsx as W } from "react/jsx-runtime";
 import d from "react";
 import { cn as g } from "../../lib/cn.js";
-import { PANEL_ATOM_DEFAULTS as m } from "./InterPanelAtom.js";
+import { PANEL_ATOM_DEFAULTS as u } from "./InterPanelAtom.js";
 const K = {
   default: "bg-white border border-neutral-200",
   outlined: "bg-transparent border border-neutral-300",
@@ -14,7 +14,7 @@ const K = {
   md: "p-4",
   lg: "p-6",
   xl: "p-8"
-}, $ = {
+}, q = {
   none: "rounded-none",
   sm: "rounded-sm",
   md: "rounded-md",
@@ -28,7 +28,7 @@ const K = {
   md: "gap-4",
   lg: "gap-6",
   xl: "gap-8"
-}, u = {
+}, m = {
   start: "items-start",
   center: "items-center",
   end: "items-end",
@@ -41,46 +41,51 @@ const K = {
   between: "justify-between",
   around: "justify-around",
   evenly: "justify-evenly"
-}, q = {
+}, U = {
   row: "flex-row",
   column: "flex-col"
-}, c = {
+}, j = {
   nowrap: "flex-nowrap",
   wrap: "flex-wrap",
   reverse: "flex-wrap-reverse"
-}, U = /* @__PURE__ */ new Set(["gridbag", "group", "spring"]), z = (r) => typeof r == "string" ? r.trim() ? r : "div" : r ?? "div", j = (r, t) => typeof r == "boolean" ? r ? "wrap" : "nowrap" : r ?? t, b = (r) => typeof r == "number" ? `repeat(${r}, minmax(0, 1fr))` : r, i = (r) => {
+}, $ = /* @__PURE__ */ new Set(["grid", "gridbag", "group", "spring"]), z = (r) => typeof r == "string" ? r.trim() ? r : "div" : r ?? "div", c = (r, t) => typeof r == "boolean" ? r ? "wrap" : "nowrap" : r ?? t, b = (r) => typeof r == "number" ? `repeat(${r}, minmax(0, 1fr))` : r, i = (r) => {
   if (r !== void 0)
     return String(r);
-}, H = (r, t) => U.has(r) ? t ?? "responsive" : void 0, J = (r, t, n, a, e, s, o) => {
+}, H = (r, t) => $.has(r) ? t ?? "responsive" : void 0, J = (r, t, a, o, e, s, n) => {
   if (r !== "none")
     return r === "flow" ? g(
       "flex min-w-0 w-full max-w-full flex-row",
-      c[j(s, "wrap")],
-      l[n],
-      u[a],
+      j[c(s, "wrap")],
+      l[a],
+      m[o],
       f[e]
     ) : r === "box" ? g(
       "flex min-w-0 w-full max-w-full",
-      q[t],
-      c[j(s, t === "column" ? "nowrap" : "wrap")],
-      l[n],
-      u[a],
+      U[t],
+      j[c(s, t === "column" ? "nowrap" : "wrap")],
+      l[a],
+      m[o],
       f[e]
-    ) : r === "grid" ? g("grid min-w-0 w-full max-w-full", l[n], u[a], f[e]) : r === "gridbag" ? g(
+    ) : r === "grid" ? g(
+      "grid jona-layout-mobile-grid min-w-0 w-full max-w-full",
+      l[a],
+      m[o],
+      f[e]
+    ) : r === "gridbag" ? g(
       "jona-layout-mobile-grid jona-gridbag",
-      l[n],
-      u[a],
+      l[a],
+      m[o],
       f[e]
     ) : r === "group" ? g(
       "jona-layout-mobile-grid jona-group-layout",
-      o === "parallel" && "justify-items-stretch",
-      l[n],
-      u[a],
+      n === "parallel" && "justify-items-stretch",
+      l[a],
+      m[o],
       f[e]
     ) : r === "spring" ? g(
       "jona-spring-layout",
-      l[n],
-      u[a],
+      l[a],
+      m[o],
       f[e]
     ) : r === "border" ? g(
       "grid min-h-0 min-w-0 w-full max-w-full",
@@ -90,20 +95,20 @@ const K = {
       "md:[grid-template-areas:'top_top_top'_'left_center_right'_'bottom_bottom_bottom']",
       "md:[grid-template-columns:auto_minmax(0,1fr)_auto]",
       "md:[grid-template-rows:auto_minmax(0,1fr)_auto]",
-      l[n],
-      u[a],
+      l[a],
+      m[o],
       f[e]
-    ) : r === "card" ? g("relative min-w-0 w-full max-w-full", l[n]) : g("relative min-w-0", l[n]);
-}, Q = (r, t, n, a, e, s) => {
-  const o = {};
-  return r === "grid" && (o.gridTemplateColumns = a ? `repeat(auto-fit, minmax(${a}, 1fr))` : b(t) ?? "repeat(auto-fit, minmax(12rem, 1fr))", o.gridTemplateRows = b(n)), r === "border" && (o.gridTemplateColumns = b(t), o.gridTemplateRows = b(n)), r === "gridbag" && (o["--jona-layout-min"] = a ?? "12rem", o["--jona-layout-columns"] = b(t), o["--jona-layout-rows"] = b(n)), r === "group" && (o["--jona-layout-min"] = a ?? "12rem", o["--jona-layout-columns"] = b(t)), r === "spring" && (o["--jona-layout-min"] = a ?? "12rem", o["--jona-spring-min-height"] = e ?? "16rem"), Object.keys(o).length > 0 ? { ...o, ...s } : s;
+    ) : r === "card" ? g("relative min-w-0 w-full max-w-full", l[a]) : g("relative min-w-0", l[a]);
+}, Q = (r, t, a, o, e, s) => {
+  const n = {};
+  return r === "grid" && (n["--jona-layout-min"] = o ?? "12rem", n["--jona-layout-columns"] = b(t), n["--jona-layout-rows"] = b(a)), r === "border" && (n.gridTemplateColumns = b(t), n.gridTemplateRows = b(a)), r === "gridbag" && (n["--jona-layout-min"] = o ?? "12rem", n["--jona-layout-columns"] = b(t), n["--jona-layout-rows"] = b(a)), r === "group" && (n["--jona-layout-min"] = o ?? "12rem", n["--jona-layout-columns"] = b(t)), r === "spring" && (n["--jona-layout-min"] = o ?? "12rem", n["--jona-spring-min-height"] = e ?? "16rem"), Object.keys(n).length > 0 ? { ...n, ...s } : s;
 }, X = (r) => {
   const t = r.props["data-panel-card"];
   if (t !== void 0) return String(t);
   if (r.key !== null) return String(r.key);
-}, Y = (r) => i(r["data-gridbag-column"] ?? r["data-gridbag-col"]), Z = (r) => i(r["data-gridbag-column-span"] ?? r["data-gridbag-colspan"]), F = (r) => i(r["data-gridbag-row-span"] ?? r["data-gridbag-rowspan"]), M = (r, t, n) => {
+}, Y = (r) => i(r["data-gridbag-column"] ?? r["data-gridbag-col"]), Z = (r) => i(r["data-gridbag-column-span"] ?? r["data-gridbag-colspan"]), F = (r) => i(r["data-gridbag-row-span"] ?? r["data-gridbag-rowspan"]), M = (r, t, a) => {
   if (!["border", "card", "gridbag", "group", "spring"].includes(t)) return r;
-  let a = !1;
+  let o = !1;
   return d.Children.map(r, (e) => {
     if (!d.isValidElement(e)) return e;
     if (t === "border") {
@@ -154,8 +159,8 @@ const K = {
         style: p
       });
     }
-    const s = X(e), o = n === void 0 ? !a : s === String(n);
-    return a = a || o, o ? d.cloneElement(e, {
+    const s = X(e), n = a === void 0 ? !o : s === String(a);
+    return o = o || n, n ? d.cloneElement(e, {
       style: {
         ...e.props.style,
         minWidth: 0,
@@ -166,20 +171,20 @@ const K = {
       style: { ...e.props.style, display: "none" }
     });
   });
-}, h = (r, t, n, a) => {
+}, h = (r, t, a, o) => {
   const e = {}, s = H(r, t);
-  return s && (e["data-jona-layout-placement"] = s), r === "gridbag" && (e["data-jona-layout-dense"] = n === !1 ? "false" : "true"), r === "group" && (e["data-jona-layout-mode"] = a ?? "sequential"), e;
+  return s && (e["data-jona-layout-placement"] = s), r === "gridbag" && (e["data-jona-layout-dense"] = a === !1 ? "false" : "true"), r === "group" && (e["data-jona-layout-mode"] = o ?? "sequential"), e;
 }, I = d.forwardRef(
   ({
-    variant: r = m.variant,
-    padding: t = m.padding,
-    radius: n = m.radius,
-    as: a,
-    layout: e = m.layout,
-    direction: s = m.direction,
-    gap: o = m.gap,
-    alignItems: p = m.alignItems,
-    justifyContent: y = m.justifyContent,
+    variant: r = u.variant,
+    padding: t = u.padding,
+    radius: a = u.radius,
+    as: o,
+    layout: e = u.layout,
+    direction: s = u.direction,
+    gap: n = u.gap,
+    alignItems: p = u.alignItems,
+    justifyContent: y = u.justifyContent,
     wrap: x,
     columns: v,
     rows: _,
@@ -188,13 +193,13 @@ const K = {
     dense: A,
     mode: w,
     minHeight: E,
-    activeCard: T,
-    className: L,
+    activeCard: L,
+    className: T,
     children: P,
     style: R,
     ...V
   }, k) => {
-    const B = z(a), D = M(P, e, T), G = Q(e, v, _, C, E, R), N = h(e, S, A, w);
+    const B = z(o), D = M(P, e, L), G = Q(e, v, _, C, E, R), N = h(e, S, A, w);
     return /* @__PURE__ */ W(
       B,
       {
@@ -202,9 +207,9 @@ const K = {
         className: g(
           K[r],
           O[t],
-          $[n],
-          J(e, s, o, p, y, x, w),
-          L
+          q[a],
+          J(e, s, n, p, y, x, w),
+          T
         ),
         style: G,
         ...V,
