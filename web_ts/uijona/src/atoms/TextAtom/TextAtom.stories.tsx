@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { TextAtom } from './TextAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 
 const meta: Meta<typeof TextAtom> = {
   title: 'Atoms/TextAtom',
@@ -76,9 +77,9 @@ export const Interactive: Story = {
       <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <TextAtom color={colorMap[status]}>{msgMap[status]}</TextAtom>
         <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => setStatus('success')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Éxito</button>
-          <button onClick={() => setStatus('error')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Error</button>
-          <button onClick={() => setStatus('idle')} style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '4px 10px', fontSize: '13px', cursor: 'pointer' }}>Reiniciar</button>
+          <ButtonAtom variant="outline" size="sm" onClick={() => setStatus('success')}>Éxito</ButtonAtom>
+          <ButtonAtom variant="outline" size="sm" onClick={() => setStatus('error')}>Error</ButtonAtom>
+          <ButtonAtom variant="outline" size="sm" onClick={() => setStatus('idle')}>Reiniciar</ButtonAtom>
         </PanelAtom>
       </PanelAtom>
     );

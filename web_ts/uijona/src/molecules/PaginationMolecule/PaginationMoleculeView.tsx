@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterPaginationMolecule } from './InterPaginationMolecule';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
 function buildRange(current: number, total: number, siblings: number): (number | '...')[] {
   const range: number[] = [];
@@ -26,23 +27,23 @@ export const PaginationMoleculeView: React.FC<InterPaginationMolecule> = ({
 
   return (
     <nav aria-label="Pagination" className={cn('flex max-w-full items-center gap-1 overflow-x-auto', className)}>
-      <button type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
+      <ButtonAtom variant="ghost" type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
         onClick={() => { if (currentPage <= 1) { onFirstPageReached?.(); return; } onPrevious?.(currentPage); onPageChange?.(currentPage - 1); }}
         className={cn(btnBase, 'gap-1 pr-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}>
         <ChevronLeft /><span className="hidden sm:inline">Previous</span>
-      </button>
+      </ButtonAtom>
       {pages.map((page, i) => page === '...' ? (
         <span key={`e-${i}`} className="shrink-0 px-2 text-neutral-400 select-none">…</span>
       ) : (
-        <button key={page} type="button" aria-label={`Page ${page}`} aria-current={page === currentPage ? 'page' : undefined}
+        <ButtonAtom variant="ghost" key={page} type="button" aria-label={`Page ${page}`} aria-current={page === currentPage ? 'page' : undefined}
           onClick={() => onPageChange?.(page as number)}
-          className={cn(btnBase, page === currentPage ? 'bg-primary-600 text-white border border-primary-600' : 'text-neutral-700 hover:bg-neutral-100 border border-neutral-200')}>{page}</button>
+          className={cn(btnBase, page === currentPage ? 'bg-primary-600 text-white border border-primary-600' : 'text-neutral-700 hover:bg-neutral-100 border border-neutral-200')}>{page}</ButtonAtom>
       ))}
-      <button type="button" aria-label="Go to next page" disabled={currentPage >= totalPages}
+      <ButtonAtom variant="ghost" type="button" aria-label="Go to next page" disabled={currentPage >= totalPages}
         onClick={() => { if (currentPage >= totalPages) { onLastPageReached?.(); return; } onNext?.(currentPage); onPageChange?.(currentPage + 1); }}
         className={cn(btnBase, 'gap-1 pl-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}>
         <span className="hidden sm:inline">Next</span><ChevronRight />
-      </button>
+      </ButtonAtom>
     </nav>
   );
 };

@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DrawerMolecule } from './DrawerMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
 const meta: Meta<typeof DrawerMolecule> = {
   title: 'Molecules/DrawerMolecule',
@@ -54,8 +55,8 @@ export const WithFooter: Story = {
     open: true,
     footer: (
       <PanelAtom variant="ghost" padding="none" className="flex justify-end gap-2">
-        <button className="rounded-md border border-neutral-300 px-4 py-2 text-sm">Cancelar</button>
-        <button className="rounded-md bg-primary-600 px-4 py-2 text-sm text-white">Guardar</button>
+        <ButtonAtom variant="outline" size="sm">Cancelar</ButtonAtom>
+        <ButtonAtom size="sm">Guardar</ButtonAtom>
       </PanelAtom>
     ),
   },

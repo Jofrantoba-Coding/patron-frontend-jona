@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { StepperMolecule } from './StepperMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
 const steps = [
   { id: 'account', label: 'Account', description: 'Basic profile data' },
@@ -59,7 +60,7 @@ export const Interactive: Story = {
       return (
         <PanelAtom variant="ghost" padding="none" className="flex flex-col items-center gap-4 p-8">
           <p className="text-lg font-semibold text-green-600">Configuración completada</p>
-          <button onClick={() => setStep(0)} className="rounded-md border px-4 py-2 text-sm">Reiniciar</button>
+          <ButtonAtom variant="outline" size="sm" onClick={() => setStep(0)}>Reiniciar</ButtonAtom>
         </PanelAtom>
       );
     }

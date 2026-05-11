@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { CreateAccountOrganism } from './CreateAccountOrganism';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
 const meta: Meta<typeof CreateAccountOrganism> = {
   title: 'Organisms/CreateAccountOrganism',
@@ -98,7 +99,7 @@ export const Interactive: Story = {
         <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
           <p style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>¡Cuenta creada!</p>
           <p style={{ fontSize: '14px', color: '#737373' }}>Bienvenido, {name}</p>
-          <button onClick={() => { setStatus('idle'); setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setErrors({}); }} style={{ fontSize: '14px', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}>Volver</button>
+          <ButtonAtom variant="link" size="sm" onClick={() => { setStatus('idle'); setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setErrors({}); }}>Volver</ButtonAtom>
         </PanelAtom>
       );
     }

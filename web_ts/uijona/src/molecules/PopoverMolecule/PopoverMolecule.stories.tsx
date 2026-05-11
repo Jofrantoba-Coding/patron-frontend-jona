@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { PopoverMolecule } from './PopoverMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
 const meta: Meta<typeof PopoverMolecule> = {
   title: 'Molecules/PopoverMolecule',
@@ -11,7 +12,7 @@ const meta: Meta<typeof PopoverMolecule> = {
   args: {
     onOpen: fn(),
     onClose: fn(),
-    trigger: <button className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm">Abrir popover</button>,
+    trigger: <ButtonAtom variant="outline" size="sm">Abrir popover</ButtonAtom>,
     children: (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm">
         <p className="font-medium text-neutral-800">Información</p>
@@ -46,16 +47,12 @@ export const LeftEnd: Story = {
 
 export const WithActions: Story = {
   args: {
-    trigger: (
-      <button className="rounded-md bg-primary-600 px-3 py-1.5 text-sm text-white">
-        Opciones
-      </button>
-    ),
+    trigger: <ButtonAtom size="sm">Opciones</ButtonAtom>,
     children: (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1">
-        <button className="rounded px-3 py-1.5 text-left text-sm hover:bg-neutral-100">Editar</button>
-        <button className="rounded px-3 py-1.5 text-left text-sm hover:bg-neutral-100">Duplicar</button>
-        <button className="rounded px-3 py-1.5 text-left text-sm text-red-600 hover:bg-red-50">Eliminar</button>
+        <ButtonAtom variant="ghost" size="sm" className="justify-start w-full">Editar</ButtonAtom>
+        <ButtonAtom variant="ghost" size="sm" className="justify-start w-full">Duplicar</ButtonAtom>
+        <ButtonAtom variant="ghost" size="sm" className="justify-start w-full text-red-600 hover:bg-red-50 hover:text-red-600">Eliminar</ButtonAtom>
       </PanelAtom>
     ),
   },
@@ -69,9 +66,9 @@ export const Interactive: Story = {
       <PanelAtom variant="ghost" padding="none" className="flex h-48 items-start justify-center gap-6 pt-8">
         <PopoverMolecule
           trigger={
-            <button className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm">
+            <ButtonAtom variant="outline" size="sm">
               {selectedRole ? `Rol: ${selectedRole}` : 'Filtrar por rol'}
-            </button>
+            </ButtonAtom>
           }
           side="bottom"
           align="start"
@@ -79,13 +76,15 @@ export const Interactive: Story = {
           <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 min-w-[120px]">
             <p className="text-xs font-semibold text-neutral-400 uppercase px-2 pb-1">Roles</p>
             {roles.map((r) => (
-              <button
+              <ButtonAtom
                 key={r}
+                variant="ghost"
+                size="sm"
                 onClick={() => setSelectedRole(r === selectedRole ? null : r)}
-                className={`rounded px-3 py-1.5 text-left text-sm ${selectedRole === r ? 'bg-primary-50 text-primary-700 font-medium' : 'hover:bg-neutral-100'}`}
+                className={`justify-start w-full ${selectedRole === r ? 'bg-primary-50 text-primary-700 font-medium hover:bg-primary-50' : ''}`}
               >
                 {r}
-              </button>
+              </ButtonAtom>
             ))}
           </PanelAtom>
         </PopoverMolecule>

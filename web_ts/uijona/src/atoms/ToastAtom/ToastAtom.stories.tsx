@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ToastAtom } from './ToastAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 
 const meta: Meta<typeof ToastAtom> = {
   title: 'Atoms/ToastAtom',
@@ -70,14 +71,10 @@ export const Interactive: Story = {
     return (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
         <PanelAtom variant="ghost" padding="none" className="flex flex-wrap gap-2">
-          <button onClick={() => add('default', 'Notificación por defecto')}
-            className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50">Default</button>
-          <button onClick={() => add('success', 'Acción completada con éxito')}
-            className="rounded-md bg-success-600 px-3 py-1.5 text-sm text-white">Success</button>
-          <button onClick={() => add('warning', 'Revisa esta advertencia')}
-            className="rounded-md bg-warning-500 px-3 py-1.5 text-sm text-white">Warning</button>
-          <button onClick={() => add('danger', 'Ocurrió un error')}
-            className="rounded-md bg-danger-500 px-3 py-1.5 text-sm text-white">Danger</button>
+          <ButtonAtom variant="outline" size="sm" onClick={() => add('default', 'Notificación por defecto')}>Default</ButtonAtom>
+          <ButtonAtom size="sm" className="bg-success-600 hover:bg-success-700 text-white" onClick={() => add('success', 'Acción completada con éxito')}>Success</ButtonAtom>
+          <ButtonAtom size="sm" className="bg-warning-500 hover:bg-warning-600 text-white" onClick={() => add('warning', 'Revisa esta advertencia')}>Warning</ButtonAtom>
+          <ButtonAtom variant="destructive" size="sm" onClick={() => add('danger', 'Ocurrió un error')}>Danger</ButtonAtom>
         </PanelAtom>
         <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
           {toasts.map((t) => (

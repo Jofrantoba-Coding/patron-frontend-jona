@@ -3,6 +3,7 @@ import React, { createContext, useContext } from 'react';
 import { cn } from '../../lib/cn';
 import { InterTabsMolecule } from './InterTabsMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 
 interface TabsContextValue {
   value: string;
@@ -40,14 +41,14 @@ export const TabsTriggerView: React.FC<TabsTriggerViewProps> = ({ value, classNa
   const { value: activeValue, onChange, onTabFocus, onDisabledTabClick, variant } = useContext(TabsContext);
   const isActive = activeValue === value;
   return (
-    <button role="tab" type="button" aria-selected={isActive} disabled={disabled}
+    <ButtonAtom variant="ghost" role="tab" type="button" aria-selected={isActive} disabled={disabled}
       onClick={() => { if (disabled) onDisabledTabClick?.(value); else onChange(value); }}
       onFocus={() => onTabFocus?.(value)}
       className={cn('inline-flex max-w-full shrink-0 items-center justify-center gap-1.5 text-sm font-medium transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50',
         variant === 'pill'
           ? cn('px-3 py-1.5 rounded', isActive ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-700')
           : cn('px-4 py-2 border-b-2 -mb-px rounded-none', isActive ? 'border-primary-600 text-primary-600' : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'),
-        className)} {...props}>{children}</button>
+        className)} {...props}>{children}</ButtonAtom>
   );
 };
 
