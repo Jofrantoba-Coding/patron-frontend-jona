@@ -9,9 +9,9 @@ import {
 import { useTableContext } from './TableMoleculeContext';
 
 const wrapperClasses: Record<TableResponsiveMode, string> = {
-  scroll: 'relative w-full max-w-full overflow-x-auto rounded-md border border-neutral-200',
-  cards: 'relative w-full max-w-full',
-  none: 'relative w-full max-w-full overflow-x-auto',
+  scroll: 'relative w-full max-w-full md:overflow-x-auto md:rounded-md md:border md:border-neutral-200',
+  cards: 'relative w-full max-w-full md:rounded-md md:border md:border-neutral-200',
+  none: 'relative w-full max-w-full overflow-x-auto rounded-md border border-neutral-200',
 };
 
 export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMolecule>(
@@ -19,10 +19,10 @@ export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMo
     <div className={cn(wrapperClasses[responsiveMode], wrapperClassName)}>
       <table
         ref={ref}
-        style={responsiveMode === 'cards' ? undefined : style}
+        style={responsiveMode !== 'none' ? undefined : style}
         className={cn(
           'caption-bottom text-sm text-neutral-900',
-          responsiveMode === 'scroll' && 'w-full min-w-max',
+          responsiveMode === 'scroll' && 'block w-full min-w-0 md:table md:min-w-max',
           responsiveMode === 'cards' && 'block w-full min-w-0 md:table',
           responsiveMode === 'none' && 'w-full min-w-max',
           className
@@ -48,7 +48,7 @@ export const TableHeaderView = React.forwardRef<HTMLTableSectionElement, React.H
       <thead
         ref={ref}
         className={cn(
-          responsiveMode === 'cards' ? 'hidden md:table-header-group' : 'table-header-group',
+          responsiveMode !== 'none' ? 'hidden md:table-header-group' : 'table-header-group',
           'bg-neutral-50 [&_tr]:border-b',
           className
         )}
@@ -66,7 +66,7 @@ export const TableBodyView = React.forwardRef<HTMLTableSectionElement, React.HTM
       <tbody
         ref={ref}
         className={cn(
-          responsiveMode === 'cards' ? 'block md:table-row-group' : 'table-row-group',
+          responsiveMode !== 'none' ? 'block md:table-row-group' : 'table-row-group',
           '[&_tr:last-child]:border-b-0',
           className
         )}
@@ -84,7 +84,7 @@ export const TableFooterView = React.forwardRef<HTMLTableSectionElement, React.H
       <tfoot
         ref={ref}
         className={cn(
-          responsiveMode === 'cards' ? 'block md:table-footer-group' : 'table-footer-group',
+          responsiveMode !== 'none' ? 'block md:table-footer-group' : 'table-footer-group',
           'bg-neutral-50 font-medium [&>tr]:last:border-b-0',
           className
         )}
@@ -151,7 +151,7 @@ export const TableRowView = React.forwardRef<HTMLTableRowElement, React.HTMLAttr
         ref={ref}
         className={cn(
           'transition-colors hover:bg-neutral-50 data-[state=selected]:bg-primary-50',
-          responsiveMode === 'cards'
+          responsiveMode !== 'none'
             ? 'mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b md:border-neutral-200 md:bg-transparent md:p-0 md:shadow-none'
             : 'border-b border-neutral-200',
           className
@@ -345,7 +345,7 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, React.TdHTML
         ref={ref}
         className={cn(
           'text-neutral-900',
-          responsiveMode === 'cards'
+          responsiveMode !== 'none'
             ? cn(
               'flex min-w-0 flex-col gap-1 text-sm md:table-cell md:px-4 md:py-3 md:align-middle',
               'before:break-words before:text-[10px] before:font-semibold before:uppercase before:tracking-wide before:text-neutral-400',

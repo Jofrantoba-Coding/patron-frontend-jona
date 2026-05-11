@@ -172,7 +172,7 @@ export const TableBodyImpl = forwardRef<HTMLTableSectionElement, React.HTMLAttri
       const rowEl = row as React.ReactElement<{ children?: React.ReactNode }>;
 
       if (!rowMatchesFilters(rowEl, columnFilters)) return null;
-      if (responsiveMode !== 'cards') return rowEl;
+      if (responsiveMode === 'none') return rowEl;
 
       const cells = React.Children.map(rowEl.props.children, (cell, colIdx) => {
         if (!React.isValidElement(cell)) return cell;
