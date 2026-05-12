@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DialogMolecule } from './DialogMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { InputAtom } from '../../atoms/InputAtom/InputAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
@@ -92,10 +93,9 @@ export const Interactive: Story = {
             </PanelAtom>
           }
         >
-          <input
-            style={{ width: '100%', borderRadius: '6px', border: '1px solid #d4d4d4', padding: '8px 12px', fontSize: '14px', boxSizing: 'border-box' }}
+          <InputAtom
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={setDraft}
           />
         </DialogMolecule>
       </PanelAtom>

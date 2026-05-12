@@ -1,6 +1,7 @@
-import { jsxs as s, jsx as t } from "react/jsx-runtime";
+import { jsxs as s, jsx as n } from "react/jsx-runtime";
 import { cn as e } from "../../lib/cn.js";
-const I = {
+import { PanelAtomImpl as a } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+const P = {
   plain: "bg-transparent",
   card: "rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-5",
   inline: "inline-flex items-center gap-3"
@@ -20,7 +21,7 @@ const I = {
     label: "text-base",
     button: "h-10 px-4 text-sm"
   }
-}, d = {
+}, c = {
   neutral: "text-neutral-900",
   success: "text-success-700",
   warning: "text-warning-700",
@@ -31,135 +32,138 @@ const I = {
   running: "Running",
   paused: "Paused",
   completed: "Completed"
-}, z = ({
-  status: i,
-  context: c,
+}, ne = ({
+  status: r,
+  context: p,
   displayValue: b,
-  canStart: p,
+  canStart: g,
   canPause: x,
   canResume: f,
-  onStartClick: g,
-  onPauseClick: h,
-  onResumeClick: v,
-  onResetClick: _,
+  onStartClick: h,
+  onPauseClick: v,
+  onResumeClick: _,
+  onResetClick: w,
   mode: H,
-  valueMs: P,
-  defaultValueMs: S,
-  durationMs: V,
-  minMs: j,
-  maxMs: O,
+  valueMs: S,
+  defaultValueMs: V,
+  durationMs: j,
+  minMs: O,
+  maxMs: A,
   autoStart: q,
-  tickIntervalMs: A,
-  resetOnComplete: B,
-  loop: D,
-  showHours: E,
-  showMilliseconds: F,
-  padHours: G,
-  formatter: J,
-  onChange: K,
-  onTick: Q,
-  onStart: U,
-  onPause: W,
-  onResume: X,
-  onReset: Y,
-  onComplete: Z,
-  controls: w = !0,
-  label: a,
-  completedLabel: l,
-  startLabel: y = "Iniciar",
-  pauseLabel: C = "Pausar",
-  resumeLabel: M = "Continuar",
-  resetLabel: k = "Reiniciar",
-  variant: u = "card",
-  size: n = "md",
+  tickIntervalMs: B,
+  resetOnComplete: D,
+  loop: E,
+  showHours: F,
+  showMilliseconds: G,
+  padHours: J,
+  formatter: K,
+  onChange: Q,
+  onTick: U,
+  onStart: W,
+  onPause: X,
+  onResume: Y,
+  onReset: Z,
+  onComplete: $,
+  controls: y = !0,
+  label: l,
+  completedLabel: u,
+  startLabel: C = "Iniciar",
+  pauseLabel: M = "Pausar",
+  resumeLabel: k = "Continuar",
+  resetLabel: N = "Reiniciar",
+  variant: d = "card",
+  size: t = "md",
   tone: m = "neutral",
-  className: N,
+  className: I,
   ...R
 }) => {
-  const r = u === "inline";
+  const i = d === "inline";
   return /* @__PURE__ */ s(
-    "div",
+    a,
     {
+      variant: "ghost",
+      padding: "none",
+      radius: "none",
       className: e(
         "min-w-0",
-        I[u],
-        !r && "flex flex-col gap-3",
-        N
+        P[d],
+        !i && "flex flex-col gap-3",
+        I
       ),
-      "data-status": i,
-      "data-mode": c.mode,
+      "data-status": r,
+      "data-mode": p.mode,
       ...R,
       children: [
-        (a || l) && !r && /* @__PURE__ */ s("div", { className: "min-w-0", children: [
-          a && /* @__PURE__ */ t("p", { className: e("break-words font-medium text-neutral-500", o[n].label), children: a }),
-          i === "completed" && l && /* @__PURE__ */ t("p", { className: e("mt-1 break-words font-medium", o[n].label, d[m]), children: l })
+        (l || u) && !i && /* @__PURE__ */ s(a, { variant: "ghost", padding: "none", radius: "none", className: "min-w-0", children: [
+          l && /* @__PURE__ */ n("p", { className: e("break-words font-medium text-neutral-500", o[t].label), children: l }),
+          r === "completed" && u && /* @__PURE__ */ n("p", { className: e("mt-1 break-words font-medium", o[t].label, c[m]), children: u })
         ] }),
-        /* @__PURE__ */ s("div", { className: e("min-w-0", r && "flex items-center gap-3"), children: [
-          /* @__PURE__ */ t(
+        /* @__PURE__ */ s(a, { variant: "ghost", padding: "none", radius: "none", className: e("min-w-0", i && "flex items-center gap-3"), children: [
+          /* @__PURE__ */ n(
             "output",
             {
-              "aria-live": i === "running" ? "off" : "polite",
+              "aria-live": r === "running" ? "off" : "polite",
               "aria-label": "Timer",
               className: e(
                 "block break-words font-mono font-semibold leading-none tabular-nums",
-                o[n].display,
-                d[m]
+                o[t].display,
+                c[m]
               ),
               children: b
             }
           ),
-          /* @__PURE__ */ t("span", { className: "sr-only", children: T[i] }),
-          w && /* @__PURE__ */ s("div", { className: e("flex flex-wrap items-center gap-2", r ? "ml-1" : "mt-3"), children: [
-            p && /* @__PURE__ */ t(
-              "button",
-              {
-                type: "button",
-                onClick: g,
-                className: e(
-                  "rounded-md bg-primary-600 font-medium text-white transition-colors hover:bg-primary-700",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
-                  o[n].button
-                ),
-                children: y
-              }
-            ),
-            x && /* @__PURE__ */ t(
+          /* @__PURE__ */ n("span", { className: "sr-only", children: T[r] }),
+          y && /* @__PURE__ */ s(a, { variant: "ghost", padding: "none", radius: "none", className: e("flex flex-wrap items-center gap-2", i ? "ml-1" : "mt-3"), children: [
+            g && /* @__PURE__ */ n(
               "button",
               {
                 type: "button",
                 onClick: h,
                 className: e(
-                  "rounded-md border border-neutral-300 bg-white font-medium text-neutral-700 transition-colors hover:bg-neutral-50",
+                  "rounded-md bg-primary-600 font-medium text-white transition-colors hover:bg-primary-700",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
-                  o[n].button
+                  o[t].button
                 ),
                 children: C
               }
             ),
-            f && /* @__PURE__ */ t(
+            x && /* @__PURE__ */ n(
               "button",
               {
                 type: "button",
                 onClick: v,
                 className: e(
-                  "rounded-md bg-primary-600 font-medium text-white transition-colors hover:bg-primary-700",
+                  "rounded-md border border-neutral-300 bg-white font-medium text-neutral-700 transition-colors hover:bg-neutral-50",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
-                  o[n].button
+                  o[t].button
                 ),
                 children: M
               }
             ),
-            /* @__PURE__ */ t(
+            f && /* @__PURE__ */ n(
               "button",
               {
                 type: "button",
                 onClick: _,
                 className: e(
-                  "rounded-md border border-neutral-300 bg-white font-medium text-neutral-700 transition-colors hover:bg-neutral-50",
+                  "rounded-md bg-primary-600 font-medium text-white transition-colors hover:bg-primary-700",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
-                  o[n].button
+                  o[t].button
                 ),
                 children: k
+              }
+            ),
+            /* @__PURE__ */ n(
+              "button",
+              {
+                type: "button",
+                onClick: w,
+                className: e(
+                  "rounded-md border border-neutral-300 bg-white font-medium text-neutral-700 transition-colors hover:bg-neutral-50",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
+                  o[t].button
+                ),
+                children: N
               }
             )
           ] })
@@ -169,6 +173,6 @@ const I = {
   );
 };
 export {
-  z as TimerMoleculeView
+  ne as TimerMoleculeView
 };
 //# sourceMappingURL=TimerMoleculeView.js.map

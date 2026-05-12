@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterFileUploadMolecule } from './InterFileUploadMolecule';
+import { InputAtom } from '../../atoms/InputAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 type FileUploadMoleculeViewProps = Omit<InterFileUploadMolecule, 'files' | 'defaultFiles' | 'onFilesChange' | 'onReject' | 'onRemoveFile'> & {
@@ -45,6 +46,7 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
   onDropZoneDrop,
   onRemoveClick,
   disabled,
+  onBlur,
   ...inputProps
 }) => (
   <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
@@ -66,13 +68,14 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
       <span className="break-words text-sm font-medium text-neutral-900">{label}</span>
       {description && <span className="max-w-sm break-words text-sm text-neutral-500">{description}</span>}
       {maxFiles && <span className="text-xs text-neutral-400">Max {maxFiles} file{maxFiles === 1 ? '' : 's'}</span>}
-      <input
+      <InputAtom
         {...inputProps}
         id={inputId}
         type="file"
         disabled={disabled}
         aria-label={typeof label === 'string' ? label : 'Upload files'}
-        onChange={onInputChange}
+        onChange={(_, event) => onInputChange(event)}
+        onBlur={onBlur ? (_, event) => onBlur(event) : undefined}
         className="sr-only"
       />
     </label>

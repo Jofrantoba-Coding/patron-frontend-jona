@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
+import { InputAtom } from '../../atoms/InputAtom';
 import { SpinnerAtom } from '../../atoms/SpinnerAtom';
 import { InterSearchInputMolecule } from './InterSearchInputMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
@@ -50,7 +51,7 @@ export const SearchInputMoleculeView: React.FC<SearchInputMoleculeViewProps> = (
       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
         {loading ? <SpinnerAtom size="sm" /> : <SearchIcon />}
       </span>
-      <input
+      <InputAtom
         {...props}
         ref={forwardedRef}
         type="search"
@@ -59,8 +60,8 @@ export const SearchInputMoleculeView: React.FC<SearchInputMoleculeViewProps> = (
         disabled={disabled}
         placeholder={placeholder}
         aria-label={ariaLabel}
-        onChange={onInputChange}
-        onBlur={onInputBlur}
+        onChange={(_, event) => onInputChange(event)}
+        onBlur={(_, event) => onInputBlur(event)}
         onKeyDown={onInputKeyDown}
         className={cn(
           'flex h-9 w-full min-w-0 rounded-md border border-neutral-300 bg-neutral-50 py-1 pl-9 pr-9 text-sm text-neutral-900',

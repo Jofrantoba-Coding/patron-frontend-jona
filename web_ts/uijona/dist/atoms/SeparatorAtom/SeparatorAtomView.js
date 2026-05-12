@@ -1,21 +1,25 @@
 import { jsx as a } from "react/jsx-runtime";
 import { cn as t } from "../../lib/cn.js";
-const e = ({
-  orientation: r = "horizontal",
-  className: o
+import { PanelAtomImpl as n } from "../PanelAtom/PanelAtomImpl.js";
+const m = ({
+  orientation: o = "horizontal",
+  className: r
 }) => /* @__PURE__ */ a(
-  "div",
+  n,
   {
+    variant: "ghost",
+    padding: "none",
+    radius: "none",
     role: "separator",
-    "aria-orientation": r,
+    "aria-orientation": o,
     className: t(
       "bg-neutral-200 shrink-0",
-      r === "horizontal" ? "h-px w-full" : "w-px h-full",
-      o
+      o === "horizontal" ? "h-px w-full" : "w-px h-full",
+      r
     )
   }
 );
 export {
-  e as SeparatorAtomView
+  m as SeparatorAtomView
 };
 //# sourceMappingURL=SeparatorAtomView.js.map

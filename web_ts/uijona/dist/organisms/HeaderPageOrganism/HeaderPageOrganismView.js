@@ -1,22 +1,23 @@
-import { jsxs as s, jsx as e } from "react/jsx-runtime";
-import { cn as i } from "../../lib/cn.js";
+import { jsxs as i, jsx as e } from "react/jsx-runtime";
+import { cn as s } from "../../lib/cn.js";
+import { PanelAtomImpl as t } from "../../atoms/PanelAtom/PanelAtomImpl.js";
 const x = ({
-  title: m,
-  nav: r,
-  actions: t,
-  className: a
-}) => /* @__PURE__ */ s(
+  title: a,
+  nav: n,
+  actions: r,
+  className: m
+}) => /* @__PURE__ */ i(
   "header",
   {
-    className: i(
+    className: s(
       "flex min-w-0 flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6",
       "bg-white border-b border-neutral-200 shadow-sm",
-      a
+      m
     ),
     children: [
-      /* @__PURE__ */ e("div", { className: "min-w-0 flex-1 truncate text-lg font-semibold text-primary-600 md:flex-none", children: m }),
-      r && /* @__PURE__ */ e("nav", { className: "hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto text-sm text-neutral-600 md:flex", children: r }),
-      t && /* @__PURE__ */ e("div", { className: "flex shrink-0 items-center gap-2", children: t })
+      /* @__PURE__ */ e(t, { variant: "ghost", padding: "none", radius: "none", className: "min-w-0 flex-1 truncate text-lg font-semibold text-primary-600 md:flex-none", children: a }),
+      n && /* @__PURE__ */ e("nav", { className: "hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto text-sm text-neutral-600 md:flex", children: n }),
+      r && /* @__PURE__ */ e(t, { variant: "ghost", padding: "none", radius: "none", className: "flex shrink-0 items-center gap-2", children: r })
     ]
   }
 );

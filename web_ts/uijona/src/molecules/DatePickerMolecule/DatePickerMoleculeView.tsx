@@ -2,6 +2,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
+import { InputAtom } from '../../atoms/InputAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const DAYS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
@@ -108,17 +109,17 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
           open && 'ring-2 ring-primary-500'
         )}
       >
-        <input
+        <InputAtom
           ref={inputRef}
           type="text"
           disabled={disabled}
           value={inputValue}
-          onChange={(event) => onInputChange(event.target.value)}
+          onChange={onInputChange}
           placeholder={placeholder || mask}
           aria-label={placeholder || 'Fecha'}
           className={cn(
-            'min-w-0 flex-1 rounded-l-md bg-transparent px-3 py-1 text-sm text-neutral-900 outline-none',
-            'placeholder:text-neutral-400 disabled:cursor-not-allowed'
+            'min-w-0 flex-1 rounded-l-md rounded-r-none border-0 bg-transparent px-3 py-1 text-sm text-neutral-900',
+            'placeholder:text-neutral-400 focus-visible:ring-0 disabled:cursor-not-allowed'
           )}
         />
         <button
@@ -211,35 +212,35 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                 <PanelAtom variant="ghost" padding="none" radius="none" className="grid grid-cols-3 gap-2">
                   <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     HH
-                    <input
+                    <InputAtom
                       type="number"
                       min={0}
                       max={23}
                       value={pad(timeParts.hour)}
-                      onChange={(event) => onTimeChange('hour', event.target.value)}
+                      onChange={(value) => onTimeChange('hour', value)}
                       className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     />
                   </label>
                   <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     mm
-                    <input
+                    <InputAtom
                       type="number"
                       min={0}
                       max={59}
                       value={pad(timeParts.minute)}
-                      onChange={(event) => onTimeChange('minute', event.target.value)}
+                      onChange={(value) => onTimeChange('minute', value)}
                       className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     />
                   </label>
                   {showSeconds && (
                     <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                       ss
-                      <input
+                      <InputAtom
                         type="number"
                         min={0}
                         max={59}
                         value={pad(timeParts.second)}
-                        onChange={(event) => onTimeChange('second', event.target.value)}
+                        onChange={(value) => onTimeChange('second', value)}
                         className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                       />
                     </label>
@@ -262,10 +263,10 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                       ))}
                     </select>
                   ) : (
-                    <input
+                    <InputAtom
                       type="text"
                       value={timeParts.timezone ?? ''}
-                      onChange={(event) => onTimezoneChange(event.target.value)}
+                      onChange={onTimezoneChange}
                       placeholder="America/Lima"
                       className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     />

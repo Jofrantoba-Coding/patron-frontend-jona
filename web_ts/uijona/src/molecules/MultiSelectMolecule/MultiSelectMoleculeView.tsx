@@ -3,6 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { MultiSelectOption } from './InterMultiSelectMolecule';
+import { InputAtom } from '../../atoms/InputAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface MultiSelectMoleculeViewProps {
@@ -77,11 +78,11 @@ export const MultiSelectMoleculeView: React.FC<MultiSelectMoleculeViewProps> = (
       {open && createPortal(
         <PanelAtom variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
           <PanelAtom variant="ghost" padding="none" radius="none" className="border-b border-neutral-100 p-2">
-            <input
+            <InputAtom
               ref={inputRef}
               type="text"
               value={query}
-              onChange={(e) => onQueryChange(e.target.value)}
+              onChange={onQueryChange}
               onKeyDown={onInputKeyDown}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterNumberInputMolecule } from './InterNumberInputMolecule';
+import { InputAtom } from '../../atoms/InputAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 type NumberInputMoleculeViewProps = Omit<InterNumberInputMolecule, 'value' | 'defaultValue' | 'onValueChange' | 'onIncrement' | 'onDecrement' | 'onBlur'> & {
@@ -51,16 +52,16 @@ export const NumberInputMoleculeView: React.FC<NumberInputMoleculeViewProps> = (
     >
       <MinusIcon />
     </button>
-    <input
+    <InputAtom
       {...props}
       ref={forwardedRef}
       type="number"
       value={displayValue}
       disabled={disabled}
-      aria-invalid={hasError || undefined}
-      onChange={onInputChange}
-      onBlur={onInputBlur}
-      className="h-9 min-w-0 flex-1 bg-neutral-50 px-3 py-1 text-center text-sm text-neutral-900 placeholder:text-neutral-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+      hasError={hasError}
+      onChange={(_, event) => onInputChange(event)}
+      onBlur={(_, event) => onInputBlur(event)}
+      className="h-9 min-w-0 flex-1 rounded-none border-0 bg-neutral-50 px-3 py-1 text-center text-sm text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
     />
     <button
       type="button"

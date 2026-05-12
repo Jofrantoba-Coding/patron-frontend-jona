@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ToastProvider, useToast } from './useToast';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { InputAtom } from '../../atoms/InputAtom/InputAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const meta: Meta = {
@@ -76,12 +77,11 @@ const InteractiveForm = () => {
   };
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '280px' }}>
-      <input
+      <InputAtom
         type="email"
         placeholder="correo@ejemplo.com"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ borderRadius: '6px', border: '1px solid #d4d4d4', padding: '8px 12px', fontSize: '14px' }}
+        onChange={setEmail}
       />
       <ButtonAtom type="submit" loading={loading} fullWidth>Registrarse</ButtonAtom>
     </form>

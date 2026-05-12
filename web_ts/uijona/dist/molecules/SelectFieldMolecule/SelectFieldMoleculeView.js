@@ -1,49 +1,50 @@
-import { jsxs as g, jsx as r } from "react/jsx-runtime";
-import { cn as y } from "../../lib/cn.js";
-import { SelectAtomImpl as A } from "../../atoms/SelectAtom/SelectAtomImpl.js";
-import { LabelAtomImpl as I } from "../../atoms/LabelAtom/LabelAtomImpl.js";
+import { jsxs as A, jsx as o } from "react/jsx-runtime";
+import { cn as I } from "../../lib/cn.js";
+import { PanelAtomImpl as b } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { SelectAtomImpl as y } from "../../atoms/SelectAtom/SelectAtomImpl.js";
+import { LabelAtomImpl as j } from "../../atoms/LabelAtom/LabelAtomImpl.js";
 import { ErrorMessageAtomImpl as s } from "../../atoms/ErrorMessageAtom/ErrorMessageAtomImpl.js";
-const $ = ({
+const w = ({
   id: e,
-  label: c,
+  label: a,
   options: p,
-  groups: a,
-  placeholder: f,
-  errorMessage: l,
-  description: o,
-  required: t,
+  groups: c,
+  placeholder: n,
+  errorMessage: t,
+  description: r,
+  required: l,
   className: i,
-  onChange: d,
-  onBlur: n,
-  onFocus: x,
+  onChange: f,
+  onBlur: d,
+  onFocus: g,
   forwardedRef: h,
-  ...b
+  ...x
 }) => {
-  const m = !!l;
-  return /* @__PURE__ */ g("div", { className: y("flex flex-col gap-1.5", i), children: [
-    /* @__PURE__ */ r(I, { htmlFor: e, required: t, children: c }),
-    /* @__PURE__ */ r(
-      A,
+  const m = !!t;
+  return /* @__PURE__ */ A(b, { variant: "ghost", padding: "none", radius: "none", className: I("flex flex-col gap-1.5", i), children: [
+    /* @__PURE__ */ o(j, { htmlFor: e, required: l, children: a }),
+    /* @__PURE__ */ o(
+      y,
       {
         ref: h,
         id: e,
         options: p,
-        groups: a,
-        placeholder: f,
+        groups: c,
+        placeholder: n,
         hasError: m,
-        required: t,
-        "aria-describedby": o ? `${e}-desc` : void 0,
-        onChange: d,
-        onBlur: n,
-        onFocus: x,
-        ...b
+        required: l,
+        "aria-describedby": r ? `${e}-desc` : void 0,
+        onChange: f,
+        onBlur: d,
+        onFocus: g,
+        ...x
       }
     ),
-    o && !m && /* @__PURE__ */ r(s, { id: `${e}-desc`, message: o, type: "description" }),
-    m && /* @__PURE__ */ r(s, { message: l, type: "error" })
+    r && !m && /* @__PURE__ */ o(s, { id: `${e}-desc`, message: r, type: "description" }),
+    m && /* @__PURE__ */ o(s, { message: t, type: "error" })
   ] });
 };
 export {
-  $ as SelectFieldMoleculeView
+  w as SelectFieldMoleculeView
 };
 //# sourceMappingURL=SelectFieldMoleculeView.js.map

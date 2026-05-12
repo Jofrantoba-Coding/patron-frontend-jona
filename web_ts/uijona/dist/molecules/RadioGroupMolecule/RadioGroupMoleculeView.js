@@ -1,31 +1,35 @@
 import { jsxs as t, jsx as l } from "react/jsx-runtime";
 import { cn as s } from "../../lib/cn.js";
-import { RadioAtomImpl as v } from "../../atoms/RadioAtom/RadioAtomImpl.js";
-const b = ({
-  name: c,
-  options: x,
-  selectedValue: o,
-  label: r,
+import { PanelAtomImpl as v } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { RadioAtomImpl as N } from "../../atoms/RadioAtom/RadioAtomImpl.js";
+const j = ({
+  name: r,
+  options: o,
+  selectedValue: x,
+  label: c,
   errorMessage: a,
-  description: d,
+  description: m,
   orientation: u = "vertical",
-  disabled: m,
+  disabled: d,
   className: f,
-  onOptionChange: h
-}) => /* @__PURE__ */ t("fieldset", { className: s("flex flex-col gap-2", f), disabled: m, children: [
-  r && /* @__PURE__ */ l("legend", { className: "text-sm font-medium text-neutral-900", children: r }),
-  d && /* @__PURE__ */ l("p", { className: "text-sm text-neutral-500", children: d }),
+  onOptionChange: p
+}) => /* @__PURE__ */ t("fieldset", { className: s("flex flex-col gap-2", f), disabled: d, children: [
+  c && /* @__PURE__ */ l("legend", { className: "text-sm font-medium text-neutral-900", children: c }),
+  m && /* @__PURE__ */ l("p", { className: "text-sm text-neutral-500", children: m }),
   /* @__PURE__ */ l(
-    "div",
+    v,
     {
+      variant: "ghost",
+      padding: "none",
+      radius: "none",
       role: "radiogroup",
       "aria-invalid": !!a || void 0,
       className: s(
         "flex gap-3",
         u === "vertical" ? "flex-col" : "flex-row flex-wrap"
       ),
-      children: x.map((e) => {
-        const i = `${c}-${e.value}`, n = m || e.disabled;
+      children: o.map((e) => {
+        const i = `${r}-${e.value}`, n = d || e.disabled;
         return /* @__PURE__ */ t(
           "label",
           {
@@ -36,16 +40,16 @@ const b = ({
             ),
             children: [
               /* @__PURE__ */ l(
-                v,
+                N,
                 {
                   id: i,
-                  name: c,
+                  name: r,
                   value: e.value,
-                  checked: o === e.value,
+                  checked: x === e.value,
                   disabled: n,
                   hasError: !!a,
-                  onCheckedChange: (p) => {
-                    p && h(e);
+                  onCheckedChange: (h) => {
+                    h && p(e);
                   },
                   className: "mt-0.5"
                 }
@@ -64,6 +68,6 @@ const b = ({
   a && /* @__PURE__ */ l("p", { className: "text-sm text-danger-500", children: a })
 ] });
 export {
-  b as RadioGroupMoleculeView
+  j as RadioGroupMoleculeView
 };
 //# sourceMappingURL=RadioGroupMoleculeView.js.map

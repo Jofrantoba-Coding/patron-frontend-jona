@@ -3,6 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { ComboboxOption } from './InterComboboxMolecule';
+import { InputAtom } from '../../atoms/InputAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 interface ComboboxMoleculeViewProps {
@@ -64,11 +65,11 @@ export const ComboboxMoleculeView: React.FC<ComboboxMoleculeViewProps> = ({
       <PanelAtom variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
         {/* Search */}
         <PanelAtom variant="ghost" padding="none" radius="none" className="border-b border-neutral-100 p-2">
-          <input
+          <InputAtom
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
+            onChange={onQueryChange}
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder}
             className="h-8 w-full rounded border border-neutral-200 bg-white px-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"

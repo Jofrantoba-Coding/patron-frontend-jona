@@ -1,45 +1,47 @@
-import { jsxs as r, jsx as e } from "react/jsx-runtime";
-import { cn as m } from "../../lib/cn.js";
-const p = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: /* @__PURE__ */ e("path", { d: "M5 12h14" }) }), v = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
+import { jsxs as i, jsx as e } from "react/jsx-runtime";
+import { cn as f } from "../../lib/cn.js";
+import { PanelAtomImpl as v } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { InputAtomImpl as x } from "../../atoms/InputAtom/InputAtomImpl.js";
+const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: /* @__PURE__ */ e("path", { d: "M5 12h14" }) }), w = () => /* @__PURE__ */ i("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
   /* @__PURE__ */ e("path", { d: "M12 5v14" }),
   /* @__PURE__ */ e("path", { d: "M5 12h14" })
-] }), g = ({
-  displayValue: t,
+] }), C = ({
+  displayValue: o,
   canDecrement: l,
-  canIncrement: o,
-  hasError: i,
+  canIncrement: s,
+  hasError: t,
   disabled: n,
-  className: s,
-  forwardedRef: a,
-  onInputChange: c,
-  onInputBlur: d,
-  onDecrementClick: u,
+  className: a,
+  forwardedRef: d,
+  onInputChange: u,
+  onInputBlur: c,
+  onDecrementClick: m,
   onIncrementClick: b,
   ...h
-}) => /* @__PURE__ */ r("div", { className: m("inline-flex max-w-full min-w-0 items-stretch rounded-md border bg-white", i ? "border-danger-500" : "border-neutral-300", s), children: [
+}) => /* @__PURE__ */ i(v, { variant: "ghost", padding: "none", radius: "none", className: f("inline-flex max-w-full min-w-0 items-stretch rounded-md border bg-white", t ? "border-danger-500" : "border-neutral-300", a), children: [
   /* @__PURE__ */ e(
     "button",
     {
       type: "button",
       "aria-label": "Decrement",
       disabled: n || !l,
-      onClick: u,
+      onClick: m,
       className: "inline-flex min-h-9 w-9 shrink-0 items-center justify-center border-r border-neutral-200 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40",
-      children: /* @__PURE__ */ e(p, {})
+      children: /* @__PURE__ */ e(g, {})
     }
   ),
   /* @__PURE__ */ e(
-    "input",
+    x,
     {
       ...h,
-      ref: a,
+      ref: d,
       type: "number",
-      value: t,
+      value: o,
       disabled: n,
-      "aria-invalid": i || void 0,
-      onChange: c,
-      onBlur: d,
-      className: "h-9 min-w-0 flex-1 bg-neutral-50 px-3 py-1 text-center text-sm text-neutral-900 placeholder:text-neutral-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+      hasError: t,
+      onChange: (p, r) => u(r),
+      onBlur: (p, r) => c(r),
+      className: "h-9 min-w-0 flex-1 rounded-none border-0 bg-neutral-50 px-3 py-1 text-center text-sm text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
     }
   ),
   /* @__PURE__ */ e(
@@ -47,14 +49,14 @@ const p = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 2
     {
       type: "button",
       "aria-label": "Increment",
-      disabled: n || !o,
+      disabled: n || !s,
       onClick: b,
       className: "inline-flex min-h-9 w-9 shrink-0 items-center justify-center border-l border-neutral-200 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40",
-      children: /* @__PURE__ */ e(v, {})
+      children: /* @__PURE__ */ e(w, {})
     }
   )
 ] });
 export {
-  g as NumberInputMoleculeView
+  C as NumberInputMoleculeView
 };
 //# sourceMappingURL=NumberInputMoleculeView.js.map

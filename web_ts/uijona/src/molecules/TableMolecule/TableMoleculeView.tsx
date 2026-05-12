@@ -8,6 +8,7 @@ import {
   TableSortDirection,
 } from './InterTableMolecule';
 import { useTableContext } from './TableMoleculeContext';
+import { InputAtom } from '../../atoms/InputAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const outerClasses: Record<TableResponsiveMode, string> = {
@@ -363,6 +364,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
     const effectiveFilterValue = filterValue ?? (
       columnIndex !== undefined ? columnFilters[columnIndex] ?? '' : internalFilterValue
     );
+    const { onBlur: filterInputOnBlur, className: filterInputClassName, ...inputFilterProps } = filterInputProps ?? {};
 
     React.useEffect(() => {
       const nextWidth = getNumericWidth(width);
@@ -451,15 +453,14 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
           )}
 
           {filterable && (
-            <input
-              {...filterInputProps}
+            <InputAtom
+              {...inputFilterProps}
               type={filterInputProps?.type ?? 'text'}
               value={effectiveFilterValue}
               placeholder={filterPlaceholder}
               aria-label={filterInputProps?.['aria-label'] ?? filterPlaceholder}
               onClick={(event) => event.stopPropagation()}
-              onChange={(event) => {
-                const value = event.target.value;
+              onChange={(value) => {
                 if (filterValue === undefined) {
                   if (columnIndex !== undefined) {
                     setColumnFilter(columnIndex, value);
@@ -469,10 +470,11 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
                 }
                 onFilterChange?.(value);
               }}
+              onBlur={filterInputOnBlur ? (_, event) => filterInputOnBlur(event) : undefined}
               className={cn(
                 'h-8 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-900 placeholder:text-neutral-400',
                 'focus:outline-none focus:ring-2 focus:ring-primary-500',
-                filterInputProps?.className
+                filterInputClassName
               )}
             />
           )}

@@ -1,35 +1,39 @@
-import { jsxs as n, Fragment as t, jsx as e } from "react/jsx-runtime";
-import { createPortal as s } from "react-dom";
-import { cn as p } from "../../lib/cn.js";
-const g = ({
+import { jsxs as s, Fragment as c, jsx as o } from "react/jsx-runtime";
+import { createPortal as p } from "react-dom";
+import { cn as g } from "../../lib/cn.js";
+import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+const b = ({
   trigger: r,
-  children: o,
-  open: l,
-  panelStyle: m,
-  triggerRef: i,
-  panelRef: c,
-  className: d,
-  onTriggerClick: a
-}) => /* @__PURE__ */ n(t, { children: [
-  /* @__PURE__ */ e("div", { ref: i, className: "inline-block", onClick: a, children: r }),
-  l && s(
-    /* @__PURE__ */ e(
-      "div",
+  children: n,
+  open: a,
+  panelStyle: i,
+  triggerRef: m,
+  panelRef: l,
+  className: t,
+  onTriggerClick: d
+}) => /* @__PURE__ */ s(c, { children: [
+  /* @__PURE__ */ o(e, { variant: "ghost", padding: "none", radius: "none", ref: m, className: "inline-block", onClick: d, children: r }),
+  a && p(
+    /* @__PURE__ */ o(
+      e,
       {
-        ref: c,
+        variant: "ghost",
+        padding: "none",
+        radius: "none",
+        ref: l,
         role: "dialog",
-        style: m,
-        className: p(
+        style: i,
+        className: g(
           "z-50 min-w-[12rem] max-w-[calc(100vw-1rem)] rounded-md border border-neutral-200 bg-white p-3 shadow-lg",
-          d
+          t
         ),
-        children: o
+        children: n
       }
     ),
     document.body
   )
 ] });
 export {
-  g as PopoverMoleculeView
+  b as PopoverMoleculeView
 };
 //# sourceMappingURL=PopoverMoleculeView.js.map

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ErrorMessageAtom } from './ErrorMessageAtom';
+import { InputAtom } from '../InputAtom/InputAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
 
 const meta: Meta<typeof ErrorMessageAtom> = {
@@ -35,12 +36,12 @@ export const Interactive: Story = {
         : '';
     return (
       <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '280px' }}>
-        <input
+        <InputAtom
           type="email"
           value={email}
           placeholder="correo@ejemplo.com"
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ borderRadius: '6px', border: `1px solid ${error ? '#ef4444' : '#d4d4d4'}`, padding: '8px 12px', fontSize: '14px', outline: 'none' }}
+          onChange={setEmail}
+          hasError={!!error}
         />
         <ErrorMessageAtom message={error} type={error ? 'error' : 'description'} />
       </PanelAtom>

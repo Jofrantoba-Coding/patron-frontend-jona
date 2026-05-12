@@ -1,55 +1,56 @@
-import { jsxs as c, jsx as e } from "react/jsx-runtime";
-import { cn as s } from "../../lib/cn.js";
-import { LabelAtomImpl as w } from "../../atoms/LabelAtom/LabelAtomImpl.js";
-import { InputAtomImpl as y } from "../../atoms/InputAtom/InputAtomImpl.js";
-import { ErrorMessageAtomImpl as i } from "../../atoms/ErrorMessageAtom/ErrorMessageAtomImpl.js";
-const $ = ({
-  id: l,
-  label: n,
-  errorMessage: a,
-  description: m,
-  orientation: o = "vertical",
-  required: t,
-  className: p,
-  onChange: f,
-  onBlur: x,
-  onFocus: d,
-  onKeyDown: h,
+import { jsxs as t, jsx as e } from "react/jsx-runtime";
+import { cn as a } from "../../lib/cn.js";
+import { PanelAtomImpl as i } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { LabelAtomImpl as b } from "../../atoms/LabelAtom/LabelAtomImpl.js";
+import { InputAtomImpl as w } from "../../atoms/InputAtom/InputAtomImpl.js";
+import { ErrorMessageAtomImpl as p } from "../../atoms/ErrorMessageAtom/ErrorMessageAtomImpl.js";
+const L = ({
+  id: o,
+  label: c,
+  errorMessage: n,
+  description: r,
+  orientation: l = "vertical",
+  required: s,
+  className: f,
+  onChange: d,
+  onBlur: h,
+  onFocus: x,
+  onKeyDown: g,
   onEnterPress: I,
-  onClear: g,
-  onValid: z,
-  onInvalid: A,
+  onClear: v,
+  onValid: y,
+  onInvalid: z,
   onInvalidInternal: F,
-  forwardedRef: v,
-  ...b
+  forwardedRef: u,
+  ...A
 }) => {
-  const r = !!a;
-  return /* @__PURE__ */ c("div", { className: s(o === "horizontal" ? "flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4" : "flex flex-col gap-1.5", p), children: [
-    /* @__PURE__ */ e(w, { htmlFor: l, required: t, className: s(o === "horizontal" && "sm:shrink-0"), children: n }),
-    /* @__PURE__ */ c("div", { className: s("flex min-w-0 flex-col gap-1", o === "horizontal" && "sm:flex-1"), children: [
+  const m = !!n;
+  return /* @__PURE__ */ t(i, { variant: "ghost", padding: "none", radius: "none", className: a(l === "horizontal" ? "flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4" : "flex flex-col gap-1.5", f), children: [
+    /* @__PURE__ */ e(b, { htmlFor: o, required: s, className: a(l === "horizontal" && "sm:shrink-0"), children: c }),
+    /* @__PURE__ */ t(i, { variant: "ghost", padding: "none", radius: "none", className: a("flex min-w-0 flex-col gap-1", l === "horizontal" && "sm:flex-1"), children: [
       /* @__PURE__ */ e(
-        y,
+        w,
         {
-          ref: v,
-          id: l,
-          hasError: r,
-          required: t,
-          "aria-describedby": m ? `${l}-desc` : void 0,
-          onChange: f,
-          onBlur: x,
-          onFocus: d,
-          onKeyDown: h,
+          ref: u,
+          id: o,
+          hasError: m,
+          required: s,
+          "aria-describedby": r ? `${o}-desc` : void 0,
+          onChange: d,
+          onBlur: h,
+          onFocus: x,
+          onKeyDown: g,
           onEnterPress: I,
-          onClear: g,
-          ...b
+          onClear: v,
+          ...A
         }
       ),
-      m && !r && /* @__PURE__ */ e(i, { id: `${l}-desc`, message: m, type: "description" }),
-      r && /* @__PURE__ */ e(i, { message: a, type: "error" })
+      r && !m && /* @__PURE__ */ e(p, { id: `${o}-desc`, message: r, type: "description" }),
+      m && /* @__PURE__ */ e(p, { message: n, type: "error" })
     ] })
   ] });
 };
 export {
-  $ as FormFieldMoleculeView
+  L as FormFieldMoleculeView
 };
 //# sourceMappingURL=FormFieldMoleculeView.js.map
