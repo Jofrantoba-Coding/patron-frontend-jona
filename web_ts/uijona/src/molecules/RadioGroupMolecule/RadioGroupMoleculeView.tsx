@@ -1,6 +1,7 @@
 // RadioGroupMoleculeView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
+import { LabelAtom } from '../../atoms/LabelAtom';
 import { RadioAtom } from '../../atoms/RadioAtom';
 import { InterRadioGroupMolecule, RadioGroupOption } from './InterRadioGroupMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
@@ -29,7 +30,7 @@ export const RadioGroupMoleculeView: React.FC<RadioGroupMoleculeViewProps> = ({
         const optionId = `${name}-${option.value}`;
         const isDisabled = disabled || option.disabled;
         return (
-          <label
+          <LabelAtom
             key={option.value}
             htmlFor={optionId}
             className={cn(
@@ -51,7 +52,7 @@ export const RadioGroupMoleculeView: React.FC<RadioGroupMoleculeViewProps> = ({
               <span className="text-sm font-medium text-neutral-900">{option.label}</span>
               {option.description && <span className="text-sm text-neutral-500">{option.description}</span>}
             </span>
-          </label>
+          </LabelAtom>
         );
       })}
     </PanelAtom>

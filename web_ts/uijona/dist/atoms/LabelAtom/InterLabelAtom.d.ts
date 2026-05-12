@@ -1,8 +1,6 @@
 import React from 'react';
-export interface InterLabelAtom {
-    htmlFor?: string;
+export interface InterLabelAtom extends Omit<React.LabelHTMLAttributes<HTMLLabelElement>, 'children'> {
     required?: boolean;
     disabled?: boolean;
-    className?: string;
     children?: React.ReactNode;
 }

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RadioAtom } from './RadioAtom';
+import { LabelAtom } from '../LabelAtom/LabelAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
 import { TextAtom } from '../TextAtom/TextAtom';
 
@@ -65,7 +66,7 @@ export const Interactive: Story = {
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
         <TextAtom size="sm" className="font-medium text-neutral-700">Método de pago</TextAtom>
         {methods.map((m) => (
-          <label key={m.value} className="flex items-center gap-2 cursor-pointer">
+          <LabelAtom key={m.value} className="flex items-center gap-2 cursor-pointer">
             <RadioAtom
               name="payment"
               value={m.value}
@@ -73,7 +74,7 @@ export const Interactive: Story = {
               onCheckedChange={(checked, value, e) => { args.onCheckedChange?.(checked, value, e); setSelected(m.value); }}
             />
             <TextAtom as="span" size="sm">{m.label}</TextAtom>
-          </label>
+          </LabelAtom>
         ))}
         {selected && (
           <TextAtom size="xs" color="muted" className="mt-1">

@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterFileUploadMolecule } from './InterFileUploadMolecule';
 import { InputAtom } from '../../atoms/InputAtom';
+import { LabelAtom } from '../../atoms/LabelAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 type FileUploadMoleculeViewProps = Omit<InterFileUploadMolecule, 'files' | 'defaultFiles' | 'onFilesChange' | 'onReject' | 'onRemoveFile'> & {
@@ -50,7 +51,7 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
   ...inputProps
 }) => (
   <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
-    <label
+    <LabelAtom
       htmlFor={inputId}
       onDragOver={onDropZoneDragOver}
       onDragLeave={onDropZoneDragLeave}
@@ -78,7 +79,7 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
         onBlur={onBlur ? (_, event) => onBlur(event) : undefined}
         className="sr-only"
       />
-    </label>
+    </LabelAtom>
 
     {helperText && <p className="break-words text-xs text-neutral-500">{helperText}</p>}
 

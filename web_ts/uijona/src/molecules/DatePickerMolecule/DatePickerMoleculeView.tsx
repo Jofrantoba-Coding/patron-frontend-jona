@@ -3,6 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { InputAtom } from '../../atoms/InputAtom';
+import { LabelAtom } from '../../atoms/LabelAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
 const DAYS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
@@ -210,7 +211,7 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
             <PanelAtom variant="ghost" padding="none" radius="none" className="mt-3 border-t border-neutral-200 pt-3">
               {showTime && (
                 <PanelAtom variant="ghost" padding="none" radius="none" className="grid grid-cols-3 gap-2">
-                  <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                  <LabelAtom className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     HH
                     <InputAtom
                       type="number"
@@ -220,8 +221,8 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                       onChange={(value) => onTimeChange('hour', value)}
                       className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     />
-                  </label>
-                  <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                  </LabelAtom>
+                  <LabelAtom className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     mm
                     <InputAtom
                       type="number"
@@ -231,9 +232,9 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                       onChange={(value) => onTimeChange('minute', value)}
                       className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     />
-                  </label>
+                  </LabelAtom>
                   {showSeconds && (
-                    <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                    <LabelAtom className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                       ss
                       <InputAtom
                         type="number"
@@ -243,13 +244,13 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                         onChange={(value) => onTimeChange('second', value)}
                         className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                       />
-                    </label>
+                    </LabelAtom>
                   )}
                 </PanelAtom>
               )}
 
               {showTimezone && (
-                <label className="mt-2 flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                <LabelAtom className="mt-2 flex flex-col gap-1 text-xs font-medium text-neutral-600">
                   Timezone
                   {timezoneOptions?.length ? (
                     <select
@@ -271,7 +272,7 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                       className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     />
                   )}
-                </label>
+                </LabelAtom>
               )}
             </PanelAtom>
           )}

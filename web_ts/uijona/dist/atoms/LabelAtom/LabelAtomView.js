@@ -1,27 +1,29 @@
-import { jsxs as o, jsx as r } from "react/jsx-runtime";
-import { cn as s } from "../../lib/cn.js";
-const c = ({
+import { jsxs as r, jsx as s } from "react/jsx-runtime";
+import { cn as m } from "../../lib/cn.js";
+const d = ({
   htmlFor: e,
   required: a = !1,
   disabled: t = !1,
   className: l,
-  children: n
-}) => /* @__PURE__ */ o(
+  children: n,
+  ...o
+}) => /* @__PURE__ */ r(
   "label",
   {
+    ...o,
     htmlFor: e,
-    className: s(
+    className: m(
       "text-sm font-medium text-neutral-700 leading-none",
       t && "opacity-50 cursor-not-allowed",
       l
     ),
     children: [
       n,
-      a && /* @__PURE__ */ r("span", { className: "ml-0.5 text-danger-500", "aria-hidden": "true", children: "*" })
+      a && /* @__PURE__ */ s("span", { className: "ml-0.5 text-danger-500", "aria-hidden": "true", children: "*" })
     ]
   }
 );
 export {
-  c as LabelAtomView
+  d as LabelAtomView
 };
 //# sourceMappingURL=LabelAtomView.js.map

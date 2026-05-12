@@ -4,9 +4,10 @@ import { cn } from '../../lib/cn';
 import { InterLabelAtom } from './InterLabelAtom';
 
 export const LabelAtomView: React.FC<InterLabelAtom> = ({
-  htmlFor, required = false, disabled = false, className, children,
+  htmlFor, required = false, disabled = false, className, children, ...props
 }) => (
   <label
+    {...props}
     htmlFor={htmlFor}
     className={cn(
       'text-sm font-medium text-neutral-700 leading-none',

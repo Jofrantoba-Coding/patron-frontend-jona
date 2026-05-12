@@ -36,14 +36,14 @@ export const Interactive: Story = {
       <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <LabelAtom required={required} disabled={disabled}>Correo electrónico</LabelAtom>
         <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '16px', fontSize: '14px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+          <LabelAtom style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
             <CheckboxAtom checked={required} onCheckedChange={setRequired} />
             Requerido
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+          </LabelAtom>
+          <LabelAtom style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
             <CheckboxAtom checked={disabled} onCheckedChange={setDisabled} />
             Deshabilitado
-          </label>
+          </LabelAtom>
         </PanelAtom>
       </PanelAtom>
     );

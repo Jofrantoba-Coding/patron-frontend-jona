@@ -1,21 +1,22 @@
 import { jsxs as t, jsx as l } from "react/jsx-runtime";
-import { cn as s } from "../../lib/cn.js";
+import { cn as r } from "../../lib/cn.js";
 import { PanelAtomImpl as v } from "../../atoms/PanelAtom/PanelAtomImpl.js";
 import { RadioAtomImpl as N } from "../../atoms/RadioAtom/RadioAtomImpl.js";
-const j = ({
-  name: r,
+import { LabelAtomImpl as g } from "../../atoms/LabelAtom/LabelAtomImpl.js";
+const k = ({
+  name: s,
   options: o,
   selectedValue: x,
-  label: c,
+  label: m,
   errorMessage: a,
-  description: m,
-  orientation: u = "vertical",
+  description: c,
+  orientation: p = "vertical",
   disabled: d,
-  className: f,
-  onOptionChange: p
-}) => /* @__PURE__ */ t("fieldset", { className: s("flex flex-col gap-2", f), disabled: d, children: [
-  c && /* @__PURE__ */ l("legend", { className: "text-sm font-medium text-neutral-900", children: c }),
-  m && /* @__PURE__ */ l("p", { className: "text-sm text-neutral-500", children: m }),
+  className: u,
+  onOptionChange: f
+}) => /* @__PURE__ */ t("fieldset", { className: r("flex flex-col gap-2", u), disabled: d, children: [
+  m && /* @__PURE__ */ l("legend", { className: "text-sm font-medium text-neutral-900", children: m }),
+  c && /* @__PURE__ */ l("p", { className: "text-sm text-neutral-500", children: c }),
   /* @__PURE__ */ l(
     v,
     {
@@ -24,17 +25,17 @@ const j = ({
       radius: "none",
       role: "radiogroup",
       "aria-invalid": !!a || void 0,
-      className: s(
+      className: r(
         "flex gap-3",
-        u === "vertical" ? "flex-col" : "flex-row flex-wrap"
+        p === "vertical" ? "flex-col" : "flex-row flex-wrap"
       ),
       children: o.map((e) => {
-        const i = `${r}-${e.value}`, n = d || e.disabled;
+        const i = `${s}-${e.value}`, n = d || e.disabled;
         return /* @__PURE__ */ t(
-          "label",
+          g,
           {
             htmlFor: i,
-            className: s(
+            className: r(
               "flex items-start gap-2 rounded-md",
               n ? "cursor-not-allowed opacity-60" : "cursor-pointer"
             ),
@@ -43,13 +44,13 @@ const j = ({
                 N,
                 {
                   id: i,
-                  name: r,
+                  name: s,
                   value: e.value,
                   checked: x === e.value,
                   disabled: n,
                   hasError: !!a,
                   onCheckedChange: (h) => {
-                    h && p(e);
+                    h && f(e);
                   },
                   className: "mt-0.5"
                 }
@@ -68,6 +69,6 @@ const j = ({
   a && /* @__PURE__ */ l("p", { className: "text-sm text-danger-500", children: a })
 ] });
 export {
-  j as RadioGroupMoleculeView
+  k as RadioGroupMoleculeView
 };
 //# sourceMappingURL=RadioGroupMoleculeView.js.map
