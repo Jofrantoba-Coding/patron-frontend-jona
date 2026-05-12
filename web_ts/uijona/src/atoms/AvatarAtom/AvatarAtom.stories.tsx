@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { AvatarAtom } from './AvatarAtom';
 import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof AvatarAtom> = {
   title: 'Atoms/AvatarAtom',
@@ -66,9 +67,9 @@ export const Interactive: Story = {
             </ButtonAtom>
           ))}
         </PanelAtom>
-        <p className="text-sm text-neutral-600">
+        <TextAtom size="sm" className="text-neutral-600">
           Usuario activo: <strong>{users[active].name}</strong>
-        </p>
+        </TextAtom>
       </PanelAtom>
     );
   },

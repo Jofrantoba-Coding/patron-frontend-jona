@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BadgeAtom } from './BadgeAtom';
 import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof BadgeAtom> = {
   title: 'Atoms/BadgeAtom',
@@ -49,7 +50,7 @@ export const Interactive: Story = {
     return (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 items-start">
         <PanelAtom variant="ghost" padding="none" className="flex items-center gap-2">
-          <span className="text-sm">Notificaciones</span>
+          <TextAtom as="span" size="sm">Notificaciones</TextAtom>
           <BadgeAtom variant={count > 5 ? 'destructive' : count > 0 ? 'default' : 'secondary'}>
             {count}
           </BadgeAtom>

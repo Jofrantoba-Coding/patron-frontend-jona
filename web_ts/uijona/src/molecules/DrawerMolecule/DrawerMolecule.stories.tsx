@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DrawerMolecule } from './DrawerMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof DrawerMolecule> = {
   title: 'Molecules/DrawerMolecule',
@@ -14,7 +15,7 @@ const meta: Meta<typeof DrawerMolecule> = {
     onClose: fn(),
     title: 'Panel lateral',
     description: 'Contenido del drawer.',
-    children: <p className="text-sm text-neutral-600">Contenido del panel deslizante.</p>,
+    children: <TextAtom size="sm" className="text-neutral-600">Contenido del panel deslizante.</TextAtom>,
   },
   argTypes: {
     side:            { control: 'select', options: ['left', 'right', 'top', 'bottom'] },
@@ -79,7 +80,7 @@ export const Interactive: Story = {
           title="Editar perfil"
           description="Actualiza los datos de tu cuenta."
         >
-          <p className="text-sm text-neutral-600">Aquí irían los campos del formulario.</p>
+          <TextAtom size="sm" className="text-neutral-600">Aquí irían los campos del formulario.</TextAtom>
         </DrawerMolecule>
       </PanelAtom>
     );

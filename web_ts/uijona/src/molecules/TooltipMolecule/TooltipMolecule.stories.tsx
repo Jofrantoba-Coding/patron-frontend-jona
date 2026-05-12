@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { TooltipMolecule } from './TooltipMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof TooltipMolecule> = {
   title: 'Molecules/TooltipMolecule',
@@ -71,9 +72,9 @@ export const Interactive: Story = {
           ))}
         </PanelAtom>
         {lastClicked && (
-          <p className="text-sm text-neutral-500">
+          <TextAtom size="sm" color="muted">
             Última acción: <strong>{lastClicked}</strong>
-          </p>
+          </TextAtom>
         )}
       </PanelAtom>
     );

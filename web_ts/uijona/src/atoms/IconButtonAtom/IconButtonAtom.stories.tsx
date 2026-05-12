@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { IconButtonAtom } from './IconButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const SearchIcon = () => (
   <span aria-hidden="true" style={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>
@@ -60,7 +61,7 @@ export const Interactive: Story = {
           variant={saved ? 'destructive' : 'outline'}
           onClick={(event) => { args.onClick?.(event); setSaved((s) => !s); }}
         />
-        <p className="text-xs text-neutral-500">{saved ? 'Guardado en favoritos' : 'Sin guardar'}</p>
+        <TextAtom size="xs" color="muted">{saved ? 'Guardado en favoritos' : 'Sin guardar'}</TextAtom>
       </PanelAtom>
     );
   },

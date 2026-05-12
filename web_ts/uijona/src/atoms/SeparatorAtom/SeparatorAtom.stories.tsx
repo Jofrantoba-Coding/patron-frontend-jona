@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SeparatorAtom } from './SeparatorAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 
 const meta: Meta<typeof SeparatorAtom> = {
@@ -23,9 +24,9 @@ export const Vertical: Story = {
   args: { orientation: 'vertical' },
   decorators: [(Story) => (
     <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', height: '40px', alignItems: 'center', gap: '8px' }}>
-      <span>Izquierda</span>
+      <TextAtom as="span">Izquierda</TextAtom>
       <Story />
-      <span>Derecha</span>
+      <TextAtom as="span">Derecha</TextAtom>
     </PanelAtom>
   )],
 };

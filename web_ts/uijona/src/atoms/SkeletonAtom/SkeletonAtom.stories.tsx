@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { SkeletonAtom } from './SkeletonAtom';
 import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof SkeletonAtom> = {
   title: 'Atoms/SkeletonAtom',
@@ -49,8 +50,8 @@ export const Interactive: Story = {
           <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', border: '1px solid #e5e5e5', borderRadius: '8px' }}>
             <PanelAtom variant="ghost" padding="none" style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#4f46e5', fontSize: '14px' }}>JF</PanelAtom>
             <PanelAtom variant="ghost" padding="none">
-              <p style={{ fontWeight: 600, fontSize: '14px', margin: 0 }}>Jonathan Franck</p>
-              <p style={{ fontSize: '12px', color: '#a3a3a3', margin: 0 }}>jofrantoba@gmail.com</p>
+              <TextAtom size="sm" className="font-semibold">Jonathan Franck</TextAtom>
+              <TextAtom size="xs" className="text-neutral-400">jofrantoba@gmail.com</TextAtom>
             </PanelAtom>
           </PanelAtom>
         ) : (

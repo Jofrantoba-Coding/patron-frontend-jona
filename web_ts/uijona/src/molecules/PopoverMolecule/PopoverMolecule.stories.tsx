@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { PopoverMolecule } from './PopoverMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof PopoverMolecule> = {
   title: 'Molecules/PopoverMolecule',
@@ -15,8 +16,8 @@ const meta: Meta<typeof PopoverMolecule> = {
     trigger: <ButtonAtom variant="outline" size="sm">Abrir popover</ButtonAtom>,
     children: (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm">
-        <p className="font-medium text-neutral-800">Información</p>
-        <p className="text-neutral-500">Contenido del popover con detalles adicionales.</p>
+        <TextAtom className="font-medium text-neutral-800">Información</TextAtom>
+        <TextAtom className="text-neutral-500">Contenido del popover con detalles adicionales.</TextAtom>
       </PanelAtom>
     ),
   },
@@ -74,7 +75,7 @@ export const Interactive: Story = {
           align="start"
         >
           <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 min-w-[120px]">
-            <p className="text-xs font-semibold text-neutral-400 uppercase px-2 pb-1">Roles</p>
+            <TextAtom size="xs" className="font-semibold text-neutral-400 uppercase px-2 pb-1">Roles</TextAtom>
             {roles.map((r) => (
               <ButtonAtom
                 key={r}
@@ -89,9 +90,9 @@ export const Interactive: Story = {
           </PanelAtom>
         </PopoverMolecule>
         {selectedRole && (
-          <p className="text-sm text-neutral-500 self-center">
+          <TextAtom size="sm" color="muted" className="self-center">
             Filtrando por: <strong>{selectedRole}</strong>
-          </p>
+          </TextAtom>
         )}
       </PanelAtom>
     );

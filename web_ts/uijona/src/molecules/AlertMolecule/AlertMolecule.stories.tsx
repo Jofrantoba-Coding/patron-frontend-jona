@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { AlertMolecule } from './AlertMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof AlertMolecule> = {
   title: 'Molecules/AlertMolecule',
@@ -65,7 +66,7 @@ export const Interactive: Story = {
           </PanelAtom>
         ))}
         {alerts.length === 0 && (
-          <p className="text-sm text-neutral-400">Sin alertas activas.</p>
+          <TextAtom size="sm" className="text-neutral-400">Sin alertas activas.</TextAtom>
         )}
         <ButtonAtom variant="outline" size="sm" onClick={() => setAlerts(initialAlerts)}>
           Restaurar alertas

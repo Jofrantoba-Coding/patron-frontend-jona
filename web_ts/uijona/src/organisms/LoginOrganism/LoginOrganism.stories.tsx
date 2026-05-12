@@ -4,6 +4,7 @@ import React, { type FormEvent, useState } from 'react';
 import { LoginOrganism } from './LoginOrganism';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof LoginOrganism> = {
   title: 'Organisms/LoginOrganism',
@@ -100,7 +101,7 @@ export const Interactive: Story = {
     if (status === 'success') {
       return (
         <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>¡Bienvenido, {email}!</p>
+          <TextAtom size="xl" color="success" className="font-bold">¡Bienvenido, {email}!</TextAtom>
           <ButtonAtom variant="link" size="sm" onClick={() => { setStatus('idle'); setEmail(''); setPassword(''); setAlertMessage(''); }}>Cerrar sesión</ButtonAtom>
         </PanelAtom>
       );

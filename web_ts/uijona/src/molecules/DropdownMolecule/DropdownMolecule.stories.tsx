@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DropdownMolecule } from './DropdownMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const groups = [
   {
@@ -71,9 +72,9 @@ export const Interactive: Story = {
           groups={menuGroups}
         />
         {lastAction && (
-          <p className="text-sm text-neutral-500">
+          <TextAtom size="sm" color="muted">
             Última acción: <strong>{lastAction}</strong>
-          </p>
+          </TextAtom>
         )}
       </PanelAtom>
     );

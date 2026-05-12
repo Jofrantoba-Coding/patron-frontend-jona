@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SwitchAtom } from './SwitchAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof SwitchAtom> = {
   title: 'Atoms/SwitchAtom',
@@ -59,9 +60,9 @@ export const Interactive: Story = {
     return (
       <PanelAtom variant="ghost" padding="none" className="flex items-center gap-3">
         <SwitchAtom checked={checked} onCheckedChange={(v) => { args.onCheckedChange?.(v); setChecked(v); }} />
-        <span className="text-sm text-neutral-600">
+        <TextAtom as="span" size="sm" className="text-neutral-600">
           {checked ? 'Activado' : 'Desactivado'}
-        </span>
+        </TextAtom>
       </PanelAtom>
     );
   },

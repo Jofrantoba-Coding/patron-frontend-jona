@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { PanelAtom } from '../../atoms/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 import { GroupLayout } from './GroupLayout';
 
 const meta: Meta<typeof GroupLayout> = {
@@ -30,8 +31,8 @@ type Story = StoryObj<typeof GroupLayout>;
 
 const FieldPanel = ({ title, body }: { title: string; body: string }) => (
   <PanelAtom variant="outlined" padding="md" radius="sm" className="min-h-20">
-    <p className="text-sm font-semibold text-neutral-800">{title}</p>
-    <p className="mt-1 text-xs text-neutral-500">{body}</p>
+    <TextAtom size="sm" className="font-semibold text-neutral-800">{title}</TextAtom>
+    <TextAtom size="xs" color="muted" className="mt-1">{body}</TextAtom>
   </PanelAtom>
 );
 
@@ -48,8 +49,8 @@ export const SequentialGroups: Story = {
       <FieldPanel title="Correo" body="Validacion de contacto" />
       <FieldPanel title="Telefono" body="Dato opcional" />
       <PanelAtom data-group-span="2" variant="outlined" padding="md" radius="sm" className="min-h-24">
-        <p className="text-sm font-semibold text-neutral-800">Direccion</p>
-        <p className="mt-1 text-xs text-neutral-500">Esta seccion puede ocupar dos columnas desde desktop.</p>
+        <TextAtom size="sm" className="font-semibold text-neutral-800">Direccion</TextAtom>
+        <TextAtom size="xs" color="muted" className="mt-1">Esta seccion puede ocupar dos columnas desde desktop.</TextAtom>
       </PanelAtom>
       <FieldPanel title="Estado" body="Activo o inactivo" />
     </GroupLayout>

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { SkeletonCard, SkeletonUserRow, SkeletonTableRows, SkeletonForm } from './SkeletonPresets';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta = {
   title: 'Molecules/SkeletonPresets',
@@ -36,11 +37,11 @@ export const Interactive: StoryObj = {
             <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <PanelAtom variant="ghost" padding="none" style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#4f46e5' }}>JF</PanelAtom>
               <PanelAtom variant="ghost" padding="none">
-                <p style={{ fontWeight: 600, margin: 0, fontSize: '14px' }}>Jonathan Franck</p>
-                <p style={{ fontSize: '12px', color: '#a3a3a3', margin: 0 }}>jofrantoba@gmail.com</p>
+                <TextAtom size="sm" className="font-semibold">Jonathan Franck</TextAtom>
+                <TextAtom size="xs" className="text-neutral-400">jofrantoba@gmail.com</TextAtom>
               </PanelAtom>
             </PanelAtom>
-            <p style={{ fontSize: '13px', color: '#525252', margin: 0 }}>Administrador con acceso completo a todos los módulos del sistema.</p>
+            <TextAtom size="sm" className="text-neutral-600">Administrador con acceso completo a todos los módulos del sistema.</TextAtom>
           </PanelAtom>
         ) : (
           <SkeletonCard />

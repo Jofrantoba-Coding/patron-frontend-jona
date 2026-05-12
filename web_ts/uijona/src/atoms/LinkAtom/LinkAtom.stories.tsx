@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { LinkAtom } from './LinkAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof LinkAtom> = {
   title: 'Atoms/LinkAtom',
@@ -89,9 +90,9 @@ export const Interactive: Story = {
             </LinkAtom>
           ))}
         </PanelAtom>
-        <p className="text-sm text-neutral-500">
+        <TextAtom size="sm" color="muted">
           Página actual: <strong>{current}</strong>
-        </p>
+        </TextAtom>
       </PanelAtom>
     );
   },

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { DataTableMolecule } from './DataTableMolecule';
 import type { DataTableColumn, InterDataTableMolecule } from './InterDataTableMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 // Non-generic wrapper for Storybook type inference
 const DataTableStory = (props: InterDataTableMolecule<Record<string, unknown>>) => (
@@ -107,9 +108,9 @@ export const Interactive: Story = {
           onRowClick={(row, index) => { args.onRowClick?.(row, index); setSelected(String(row.name)); }}
         />
         {selected && (
-          <p className="text-sm text-neutral-500">
+          <TextAtom size="sm" color="muted">
             Fila seleccionada: <strong>{selected}</strong>
-          </p>
+          </TextAtom>
         )}
       </PanelAtom>
     );

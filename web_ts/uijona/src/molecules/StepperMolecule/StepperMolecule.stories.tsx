@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { StepperMolecule } from './StepperMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const steps = [
   { id: 'account', label: 'Account', description: 'Basic profile data' },
@@ -59,7 +60,7 @@ export const Interactive: Story = {
     if (done) {
       return (
         <PanelAtom variant="ghost" padding="none" className="flex flex-col items-center gap-4 p-8">
-          <p className="text-lg font-semibold text-green-600">Configuración completada</p>
+          <TextAtom size="lg" className="font-semibold text-green-600">Configuración completada</TextAtom>
           <ButtonAtom variant="outline" size="sm" onClick={() => setStep(0)}>Reiniciar</ButtonAtom>
         </PanelAtom>
       );

@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SidebarLayout } from './SidebarLayout';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const HomeIcon = () => (
   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -51,8 +52,8 @@ const meta: Meta<typeof SidebarLayout> = {
     onNavItemClick: fn(),
     children: (
       <PanelAtom variant="ghost" padding="none" className="p-6">
-        <h1 className="text-xl font-semibold text-neutral-800">Contenido principal</h1>
-        <p className="mt-2 text-sm text-neutral-500">Área de trabajo de la aplicación.</p>
+        <TextAtom as="h1" size="xl" className="font-semibold text-neutral-800">Contenido principal</TextAtom>
+        <TextAtom size="sm" color="muted" className="mt-2">Área de trabajo de la aplicación.</TextAtom>
       </PanelAtom>
     ),
   },
@@ -67,7 +68,7 @@ export const WithHeader: Story = {
     header: (
       <PanelAtom variant="ghost" padding="none" className="flex items-center gap-2 px-4 py-3">
         <PanelAtom variant="ghost" padding="none" className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-600 text-xs font-bold text-white">J</PanelAtom>
-        <span className="text-sm font-semibold text-neutral-800">JONA App</span>
+        <TextAtom as="span" size="sm" className="font-semibold text-neutral-800">JONA App</TextAtom>
       </PanelAtom>
     ),
   },
@@ -95,13 +96,13 @@ export const Interactive: Story = {
         header={
           <PanelAtom variant="ghost" padding="none" className="flex items-center gap-2 px-4 py-3">
             <PanelAtom variant="ghost" padding="none" className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-600 text-xs font-bold text-white">J</PanelAtom>
-            <span className="text-sm font-semibold text-neutral-800">JONA App</span>
+            <TextAtom as="span" size="sm" className="font-semibold text-neutral-800">JONA App</TextAtom>
           </PanelAtom>
         }
       >
         <PanelAtom variant="ghost" padding="none" className="p-6">
-          <h1 className="text-xl font-semibold text-neutral-800">Sección: {activeKey}</h1>
-          <p className="mt-2 text-sm text-neutral-500">Haz clic en un ítem de la barra lateral para navegar.</p>
+          <TextAtom as="h1" size="xl" className="font-semibold text-neutral-800">Sección: {activeKey}</TextAtom>
+          <TextAtom size="sm" color="muted" className="mt-2">Haz clic en un ítem de la barra lateral para navegar.</TextAtom>
         </PanelAtom>
       </SidebarLayout>
     );

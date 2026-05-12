@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { SpinnerAtom } from './SpinnerAtom';
 import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof SpinnerAtom> = {
   title: 'Atoms/SpinnerAtom',
@@ -49,7 +50,7 @@ export const Interactive: Story = {
       <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
         {loading
           ? <SpinnerAtom size="lg" />
-          : <p style={{ fontSize: '14px', color: '#737373' }}>Datos listos</p>}
+          : <TextAtom size="sm" color="muted">Datos listos</TextAtom>}
         <ButtonAtom variant="outline" disabled={loading} onClick={load}>
           {loading ? 'Cargando...' : 'Recargar datos'}
         </ButtonAtom>

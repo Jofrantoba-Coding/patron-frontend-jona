@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ConfirmDialogMolecule } from './ConfirmDialogMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof ConfirmDialogMolecule> = {
   title: 'Molecules/ConfirmDialogMolecule',
@@ -54,7 +55,7 @@ export const Interactive: Story = {
         <ButtonAtom variant="destructive" onClick={() => setOpen(true)}>
           Eliminar elemento
         </ButtonAtom>
-        {result && <p className="text-sm text-neutral-600">Resultado: {result}</p>}
+        {result && <TextAtom size="sm" className="text-neutral-600">Resultado: {result}</TextAtom>}
         <ConfirmDialogMolecule
           open={open}
           variant="danger"

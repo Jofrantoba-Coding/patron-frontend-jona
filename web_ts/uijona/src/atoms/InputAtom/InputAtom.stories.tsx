@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { InputAtom } from './InputAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof InputAtom> = {
   title: 'Atoms/InputAtom',
@@ -57,8 +58,8 @@ export const Interactive: Story = {
           onChange={(v, e) => { args.onChange?.(v, e); setValue(v); }}
           onBlur={args.onBlur}
         />
-        {hasError && <p className="text-xs text-red-500">El formato de email no es válido</p>}
-        {isValid && <p className="text-xs text-green-600">Email válido</p>}
+        {hasError && <TextAtom size="xs" className="text-red-500">El formato de email no es válido</TextAtom>}
+        {isValid && <TextAtom size="xs" className="text-green-600">Email válido</TextAtom>}
       </PanelAtom>
     );
   },

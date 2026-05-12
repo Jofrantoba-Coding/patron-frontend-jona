@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RadioAtom } from './RadioAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof RadioAtom> = {
   title: 'Atoms/RadioAtom',
@@ -62,7 +63,7 @@ export const Interactive: Story = {
     ];
     return (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
-        <p className="text-sm font-medium text-neutral-700">Método de pago</p>
+        <TextAtom size="sm" className="font-medium text-neutral-700">Método de pago</TextAtom>
         {methods.map((m) => (
           <label key={m.value} className="flex items-center gap-2 cursor-pointer">
             <RadioAtom
@@ -71,13 +72,13 @@ export const Interactive: Story = {
               checked={selected === m.value}
               onCheckedChange={(checked, value, e) => { args.onCheckedChange?.(checked, value, e); setSelected(m.value); }}
             />
-            <span className="text-sm">{m.label}</span>
+            <TextAtom as="span" size="sm">{m.label}</TextAtom>
           </label>
         ))}
         {selected && (
-          <p className="text-xs text-neutral-500 mt-1">
+          <TextAtom size="xs" color="muted" className="mt-1">
             Método elegido: <strong>{methods.find((m) => m.value === selected)?.label}</strong>
-          </p>
+          </TextAtom>
         )}
       </PanelAtom>
     );

@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DatePickerMolecule } from './DatePickerMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof DatePickerMolecule> = {
   title: 'Molecules/DatePickerMolecule',
@@ -93,9 +94,9 @@ export const Interactive: Story = {
           placeholder="dd/mm/aaaa hh:mm:ss timezone"
           onChange={(v) => { args.onChange?.(v); setDate(v); }}
         />
-        <p className="text-sm text-neutral-500">
+        <TextAtom size="sm" color="muted">
           {date ? `Valor: ${date}` : 'Sin fecha seleccionada'}
-        </p>
+        </TextAtom>
       </PanelAtom>
     );
   },

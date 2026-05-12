@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { TabsMolecule, TabsList, TabsTrigger, TabsContent } from './TabsMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof TabsMolecule> = {
   title: 'Molecules/TabsMolecule',
@@ -79,17 +80,17 @@ export const Interactive: Story = {
           </TabsList>
           <TabsContent value="perfil">
             <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
-              {current.content.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+              {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
             </PanelAtom>
           </TabsContent>
           <TabsContent value="seguridad">
             <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
-              {current.content.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+              {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
             </PanelAtom>
           </TabsContent>
           <TabsContent value="notificaciones">
             <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
-              {current.content.split('\n').map((line, i) => <p key={i}>{line}</p>)}
+              {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
             </PanelAtom>
           </TabsContent>
         </TabsMolecule>

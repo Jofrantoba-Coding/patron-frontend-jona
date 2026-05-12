@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SelectAtom } from './SelectAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const options = [
   { value: 'mx', label: 'México' },
@@ -54,9 +55,9 @@ export const Interactive: Story = {
           onChange={(v, e) => { args.onChange?.(v, e); setCountry(v); }}
         />
         {country && (
-          <p className="text-sm text-neutral-600">
+          <TextAtom size="sm" className="text-neutral-600">
             País seleccionado: <strong>{options.find((o) => o.value === country)?.label}</strong>
-          </p>
+          </TextAtom>
         )}
       </PanelAtom>
     );

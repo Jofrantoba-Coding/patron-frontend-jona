@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { SelectFieldMolecule } from './SelectFieldMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const options = [
   { value: 'mx', label: 'México' },
@@ -68,9 +69,9 @@ export const Interactive: Story = {
           Confirmar
         </ButtonAtom>
         {submitted && country && (
-          <p className="text-sm text-green-600">
+          <TextAtom size="sm" className="text-green-600">
             País guardado: <strong>{options.find((o) => o.value === country)?.label}</strong>
-          </p>
+          </TextAtom>
         )}
       </PanelAtom>
     );

@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ChipAtom } from './ChipAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof ChipAtom> = {
   title: 'Atoms/ChipAtom',
@@ -62,9 +63,9 @@ export const FilterChips: Story = {
             </ChipAtom>
           ))}
         </PanelAtom>
-        <p className="text-xs text-neutral-500">
+        <TextAtom size="xs" color="muted">
           {selected.length === 0 ? 'Ninguno seleccionado' : `Seleccionados: ${selected.join(', ')}`}
-        </p>
+        </TextAtom>
       </PanelAtom>
     );
   },
@@ -85,7 +86,7 @@ export const RemovableChips: Story = {
             {chip}
           </ChipAtom>
         ))}
-        {chips.length === 0 && <p className="text-sm text-neutral-400">Sin chips</p>}
+        {chips.length === 0 && <TextAtom size="sm" className="text-neutral-400">Sin chips</TextAtom>}
       </PanelAtom>
     );
   },

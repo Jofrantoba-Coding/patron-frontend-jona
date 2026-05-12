@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { PaginationMolecule } from './PaginationMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof PaginationMolecule> = {
   title: 'Molecules/PaginationMolecule',
@@ -38,7 +39,7 @@ export const Interactive: Story = {
     const [page, setPage] = useState(1);
     return (
       <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-        <p>Página actual: <strong>{page}</strong> de 15</p>
+        <TextAtom>Página actual: <strong>{page}</strong> de 15</TextAtom>
         <PaginationMolecule
           currentPage={page}
           totalPages={15}

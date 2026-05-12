@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { FooterPageOrganism } from './FooterPageOrganism';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof FooterPageOrganism> = {
   title: 'Organisms/FooterPageOrganism',
@@ -19,7 +20,7 @@ export const Default: Story = {
 
 export const WithSlots: Story = {
   args: {
-    left:   <span style={{ fontWeight: 'bold' }}>JONA UI</span>,
+    left:   <TextAtom as="span" className="font-bold">JONA UI</TextAtom>,
     center: (
       <nav style={{ display: 'flex', gap: '16px' }}>
         <a href="#">Términos</a>
@@ -27,7 +28,7 @@ export const WithSlots: Story = {
         <a href="#">Contacto</a>
       </nav>
     ),
-    right: <span>v1.2.5</span>,
+    right: <TextAtom as="span">v1.2.5</TextAtom>,
   },
 };
 
@@ -45,7 +46,7 @@ export const Interactive: Story = {
           Contenido de la aplicación
         </PanelAtom>
         <FooterPageOrganism
-          left={<span style={{ fontWeight: 700 }}>JONA UI</span>}
+          left={<TextAtom as="span" className="font-bold">JONA UI</TextAtom>}
           center={
             <nav style={{ display: 'flex', gap: '16px', fontSize: '14px' }}>
               <a href="#">{t.terms}</a>

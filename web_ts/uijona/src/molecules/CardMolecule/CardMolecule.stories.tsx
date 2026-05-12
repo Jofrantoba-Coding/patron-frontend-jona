@@ -10,6 +10,7 @@ import {
 } from './CardMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof CardMolecule> = {
   title: 'Molecules/CardMolecule',
@@ -27,7 +28,7 @@ export const Default: Story = {
         <CardDescription>Descripción breve del contenido</CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Contenido principal de la tarjeta. Puede ser cualquier elemento React.</p>
+        <TextAtom>Contenido principal de la tarjeta. Puede ser cualquier elemento React.</TextAtom>
       </CardContent>
       <CardFooter>
         <ButtonAtom variant="outline" size="sm">Cancelar</ButtonAtom>
@@ -40,7 +41,7 @@ export const Default: Story = {
 export const Simple: Story = {
   render: () => (
     <CardMolecule style={{ width: '360px', padding: '16px' }}>
-      <p>Tarjeta simple con solo contenido directo.</p>
+      <TextAtom>Tarjeta simple con solo contenido directo.</TextAtom>
     </CardMolecule>
   ),
 };
@@ -67,8 +68,8 @@ export const Interactive: Story = {
           <CardDescription>Plan anual con soporte prioritario incluido</CardDescription>
         </CardHeader>
         <CardContent>
-          <p style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 4px' }}>$99.00/año</p>
-          <p style={{ fontSize: '13px', color: '#737373', margin: 0 }}>Equivale a $8.25/mes. Cancela cuando quieras.</p>
+          <TextAtom size="2xl" className="font-bold mb-1">$99.00/año</TextAtom>
+          <TextAtom size="sm" color="muted">Equivale a $8.25/mes. Cancela cuando quieras.</TextAtom>
         </CardContent>
         <CardFooter>
           <ButtonAtom variant="outline" size="sm" onClick={() => setAdded(false)} disabled={!added}>

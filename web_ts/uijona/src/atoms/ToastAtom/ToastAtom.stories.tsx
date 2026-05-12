@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ToastAtom } from './ToastAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
 import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof ToastAtom> = {
   title: 'Atoms/ToastAtom',
@@ -82,7 +83,7 @@ export const Interactive: Story = {
               duration={3000} onDismiss={dismiss} />
           ))}
           {toasts.length === 0 && (
-            <p className="text-sm text-neutral-400">Sin notificaciones. Haz clic en un botón.</p>
+            <TextAtom size="sm" className="text-neutral-400">Sin notificaciones. Haz clic en un botón.</TextAtom>
           )}
         </PanelAtom>
       </PanelAtom>

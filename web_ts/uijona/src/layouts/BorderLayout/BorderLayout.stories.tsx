@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BorderLayout } from './BorderLayout';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof BorderLayout> = {
   title: 'Layouts/BorderLayout',
@@ -78,7 +79,7 @@ export const Interactive: Story = {
         <BorderLayout
           north={
             <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#1e40af', color: '#fff' }}>
-              <span style={{ fontWeight: 700, fontSize: '15px' }}>JONA UI</span>
+              <TextAtom as="span" className="font-bold text-neutral-950">JONA UI</TextAtom>
               <ButtonAtom variant="outline" size="sm" onClick={() => setSidebarOpen((s) => !s)} className="border-white/40 text-white hover:bg-white/10 hover:text-white">
                 {sidebarOpen ? 'Colapsar' : 'Expandir'}
               </ButtonAtom>
@@ -86,7 +87,7 @@ export const Interactive: Story = {
           }
           west={sidebarOpen ? (
             <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '12px 8px', background: '#f5f5f5', borderRight: '1px solid #e5e5e5', height: '100%' }}>
-              <p style={{ fontSize: '10px', fontWeight: 600, color: '#a3a3a3', textTransform: 'uppercase', padding: '4px 8px', marginBottom: '4px' }}>Menú</p>
+              <TextAtom as="p" className="text-[10px] font-semibold text-neutral-400 uppercase px-2 mb-1">Menú</TextAtom>
               {pages.map((page) => (
                 <ButtonAtom
                   key={page}
@@ -102,9 +103,9 @@ export const Interactive: Story = {
             </PanelAtom>
           ) : undefined}
           center={
-            <PanelAtom variant="ghost" padding="none" style={{ padding: '20px', fontSize: '14px', color: '#525252' }}>
-              <p style={{ fontWeight: 600, marginBottom: '8px', color: '#171717' }}>{activePage}</p>
-              <p>Contenido de la sección <strong>{activePage}</strong>. El sidebar está {sidebarOpen ? 'visible' : 'colapsado'}.</p>
+            <PanelAtom variant="ghost" padding="none" className="p-5">
+              <TextAtom className="font-semibold mb-2 text-neutral-950">{activePage}</TextAtom>
+              <TextAtom size="sm" className="text-neutral-600">Contenido de la sección <strong>{activePage}</strong>. El sidebar está {sidebarOpen ? 'visible' : 'colapsado'}.</TextAtom>
             </PanelAtom>
           }
           south={

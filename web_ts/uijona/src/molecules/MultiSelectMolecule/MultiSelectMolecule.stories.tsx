@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { MultiSelectMolecule } from './MultiSelectMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const SKILLS = [
   { value: 'react', label: 'React' },
@@ -58,9 +59,9 @@ export const Interactive: Story = {
           maxSelected={4}
           onChange={(v, options) => { args.onChange?.(v, options); setValues(v); }}
         />
-        <p className="text-sm text-neutral-500">
+        <TextAtom size="sm" color="muted">
           {values.length === 0 ? 'Ninguna seleccionada' : `Seleccionadas (${values.length}): ${values.join(', ')}`}
-        </p>
+        </TextAtom>
       </PanelAtom>
     );
   },

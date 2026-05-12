@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { PanelAtom } from '../../atoms/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 import { SpringLayout } from './SpringLayout';
 
 const meta: Meta<typeof SpringLayout> = {
@@ -26,7 +27,7 @@ type Story = StoryObj<typeof SpringLayout>;
 
 const SpringNode = ({ label }: { label: string }) => (
   <PanelAtom variant="outlined" padding="md" radius="sm">
-    <span className="text-sm font-medium text-neutral-700">{label}</span>
+    <TextAtom as="span" size="sm" className="font-medium text-neutral-700">{label}</TextAtom>
   </PanelAtom>
 );
 
@@ -39,13 +40,13 @@ export const ResponsiveConstraints: Story = {
   render: (args) => (
     <SpringLayout {...args} className="w-full max-w-3xl">
       <PanelAtom data-spring-left="0" data-spring-top="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
-        <span className="text-sm font-medium text-neutral-700">Left anchored</span>
+        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Left anchored</TextAtom>
       </PanelAtom>
       <PanelAtom data-spring-left="14rem" data-spring-top="4rem" data-spring-width="14rem" variant="outlined" padding="md" radius="sm">
-        <span className="text-sm font-medium text-neutral-700">Offset from first</span>
+        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Offset from first</TextAtom>
       </PanelAtom>
       <PanelAtom data-spring-right="0" data-spring-bottom="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
-        <span className="text-sm font-medium text-neutral-700">Bottom end</span>
+        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Bottom end</TextAtom>
       </PanelAtom>
     </SpringLayout>
   ),

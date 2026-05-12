@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ComboboxMolecule } from './ComboboxMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const COUNTRIES = [
   { value: 'pe', label: 'Perú' },
@@ -65,9 +66,9 @@ export const Interactive: Story = {
           placeholder="Seleccionar país..."
           onChange={(v, option) => { args.onChange?.(v, option); setValue(v); }}
         />
-        <p className="text-sm text-neutral-500">
+        <TextAtom size="sm" color="muted">
           {selected ? `Seleccionado: ${selected.label}` : 'Ninguno seleccionado'}
-        </p>
+        </TextAtom>
       </PanelAtom>
     );
   },

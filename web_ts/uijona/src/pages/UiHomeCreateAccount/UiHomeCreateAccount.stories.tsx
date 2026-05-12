@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { UiHomeCreateAccount } from './UiHomeCreateAccount';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof UiHomeCreateAccount> = {
   title: 'Pages/UiHomeCreateAccount',
@@ -40,7 +41,7 @@ export const Interactive: Story = {
     if (success) {
       return (
         <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>¡Cuenta creada exitosamente!</p>
+          <TextAtom size="xl" color="success" className="font-bold">¡Cuenta creada exitosamente!</TextAtom>
           <ButtonAtom variant="link" size="sm" onClick={() => setSuccess(false)}>Registrar otra cuenta</ButtonAtom>
         </PanelAtom>
       );

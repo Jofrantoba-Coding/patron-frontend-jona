@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { TextareaAtom } from './TextareaAtom';
 import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof TextareaAtom> = {
   title: 'Atoms/TextareaAtom',
@@ -84,10 +85,10 @@ export const Interactive: Story = {
           onBlur={args.onBlur}
           onFocus={args.onFocus}
         />
-        <p className={`text-xs text-right ${over ? 'text-red-500' : 'text-neutral-400'}`}>
+        <TextAtom size="xs" className={`text-right ${over ? 'text-red-500' : 'text-neutral-400'}`}>
           {value.length}/{max}
-        </p>
-        {over && <p className="text-xs text-red-500">Has superado el límite de {max} caracteres</p>}
+        </TextAtom>
+        {over && <TextAtom size="xs" className="text-red-500">Has superado el límite de {max} caracteres</TextAtom>}
       </PanelAtom>
     );
   },

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { EmptyStateMolecule } from './EmptyStateMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const EmptyIcon = () => (
   <span aria-hidden="true" style={{ fontSize: 24, fontWeight: 700, lineHeight: 1 }}>
@@ -68,7 +69,7 @@ export const Interactive: Story = {
           <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
             {projects.map((p) => (
               <PanelAtom variant="ghost" padding="none" key={p} className="flex justify-between items-center rounded-lg border p-3">
-                <p className="text-sm font-medium">{p}</p>
+                <TextAtom size="sm" className="font-medium">{p}</TextAtom>
                 <ButtonAtom variant="ghost" size="sm" onClick={() => setProjects((prev) => prev.filter((x) => x !== p))} className="text-xs text-red-500 hover:text-red-700">
                   Eliminar
                 </ButtonAtom>

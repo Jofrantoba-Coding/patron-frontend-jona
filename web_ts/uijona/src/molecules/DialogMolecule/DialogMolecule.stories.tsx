@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DialogMolecule } from './DialogMolecule';
 import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof DialogMolecule> = {
   title: 'Molecules/DialogMolecule',
@@ -74,7 +75,7 @@ export const Interactive: Story = {
     const [draft, setDraft] = useState('Jonathan Franck');
     return (
       <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 items-start">
-        <p className="text-sm">Nombre actual: <strong>{name}</strong></p>
+        <TextAtom size="sm">Nombre actual: <strong>{name}</strong></TextAtom>
         <ButtonAtom variant="outline" onClick={() => { setDraft(name); setOpen(true); }}>
           Editar nombre
         </ButtonAtom>

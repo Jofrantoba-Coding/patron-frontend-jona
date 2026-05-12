@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { CheckboxFieldMolecule } from './CheckboxFieldMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof CheckboxFieldMolecule> = {
   title: 'Molecules/CheckboxFieldMolecule',
@@ -77,9 +78,9 @@ export const Interactive: Story = {
           checked={values.offers}
           onCheckedChange={(v) => { args.onCheckedChange?.(v); setValues((s) => ({ ...s, offers: v })); }}
         />
-        <p className="text-xs text-neutral-500 mt-1">
+        <TextAtom size="xs" color="muted" className="mt-1">
           Seleccionados: {Object.entries(values).filter(([, v]) => v).map(([k]) => k).join(', ') || 'ninguno'}
-        </p>
+        </TextAtom>
       </PanelAtom>
     );
   },
