@@ -42,45 +42,88 @@ const splitJsxProps = (props: string): string[] => {
   return chunks;
 };
 
-const getComponentName = (storyContext: { title?: string; component?: { displayName?: string; name?: string } }): string => {
+interface DocsStoryContext {
+  title?: string;
+  component?: { displayName?: string; name?: string };
+  args?: Record<string, unknown>;
+}
+
+const getComponentName = (storyContext: DocsStoryContext): string => {
+  const componentName = storyContext.component?.displayName || storyContext.component?.name;
   const titleName = storyContext.title?.split('/').filter(Boolean).at(-1);
-  return titleName || storyContext.component?.displayName || storyContext.component?.name || 'Component';
+  return componentName || titleName || 'Component';
 };
 
 const shouldGenerateJsxSource = (source: string | undefined): boolean => {
   const normalized = source?.trim() ?? '';
-  return !normalized || normalized === '{}' || /^\{\s*args\s*:/.test(normalized);
+  return (
+    !normalized ||
+    normalized === '{}' ||
+    normalized === '<Story />' ||
+    /^\{\s*args\s*:/.test(normalized) ||
+    /\{\s*\.\.\.args\s*\}/.test(normalized) ||
+    /^args$/i.test(normalized)
+  );
 };
 
-const formatArgValue = (value: unknown): string | undefined => {
-  if (value === undefined || value === null) return undefined;
-  if (typeof value === 'function') return '{fn()}';
-  if (typeof value === 'boolean') return `{${value}}`;
-  if (typeof value === 'number') return `{${value}}`;
-  if (typeof value === 'string') return JSON.stringify(value);
+const escapeJsxText = (value: string): string =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  if (typeof value === 'object' && value && '$$typeof' in value) {
-    const elementType = (value as { type?: string | { displayName?: string; name?: string } }).type;
-    const elementName = typeof elementType === 'string'
-      ? elementType
-      : elementType?.displayName || elementType?.name || 'Component';
+const isReactElementLike = (value: unknown): boolean =>
+  typeof value === 'object' && value !== null && '$$typeof' in value;
 
-    return `{<${elementName} />}`;
-  }
+const getElementName = (value: unknown): string => {
+  const elementType = (value as { type?: string | { displayName?: string; name?: string } }).type;
+  return typeof elementType === 'string'
+    ? elementType
+    : elementType?.displayName || elementType?.name || 'Component';
+};
 
+const formatObjectLiteral = (value: unknown): string | undefined => {
   try {
-    return `{${JSON.stringify(value)}}`;
+    return JSON.stringify(value, null, 2)
+      .replace(/"([^"]+)":/g, '$1:')
+      .replace(/\n/g, '\n  ');
   } catch {
     return undefined;
   }
 };
 
-const buildJsxSourceFromArgs = (
-  storyContext: { title?: string; component?: { displayName?: string; name?: string }; args?: Record<string, unknown> }
-): string => {
+const formatArgValue = (value: unknown): string | undefined => {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === 'function') return undefined;
+  if (typeof value === 'boolean') return `{${value}}`;
+  if (typeof value === 'number') return `{${value}}`;
+  if (typeof value === 'string') return JSON.stringify(value);
+
+  if (isReactElementLike(value)) {
+    return `{<${getElementName(value)} />}`;
+  }
+
+  const objectLiteral = formatObjectLiteral(value);
+  return objectLiteral ? `{${objectLiteral}}` : undefined;
+};
+
+const formatChildren = (children: unknown): string | undefined => {
+  if (children === undefined || children === null || children === false) return undefined;
+  if (typeof children === 'string') return escapeJsxText(children);
+  if (typeof children === 'number') return `{${children}}`;
+  if (isReactElementLike(children)) return `<${getElementName(children)} />`;
+  if (Array.isArray(children)) {
+    const rendered = children.map(formatChildren).filter(Boolean).join('\n');
+    return rendered || undefined;
+  }
+
+  const objectLiteral = formatObjectLiteral(children);
+  return objectLiteral ? `{${objectLiteral}}` : undefined;
+};
+
+const buildJsxSourceFromArgs = (storyContext: DocsStoryContext): string => {
   const componentName = getComponentName(storyContext);
   const args = storyContext.args ?? {};
+  const children = formatChildren(args.children);
   const props = Object.entries(args)
+    .filter(([key]) => key !== 'children')
     .map(([key, value]) => {
       const formatted = formatArgValue(value);
       if (formatted === undefined) return undefined;
@@ -88,14 +131,20 @@ const buildJsxSourceFromArgs = (
     })
     .filter(Boolean);
 
-  if (props.length === 0) return `<${componentName} />`;
+  const propsSource = props.length > 0 ? `\n  ${props.join('\n  ')}` : '';
 
-  return `<${componentName}\n  ${props.join('\n  ')}\n/>`;
+  if (!children) {
+    return propsSource ? `<${componentName}${propsSource}\n/>` : `<${componentName} />`;
+  }
+
+  return propsSource
+    ? `<${componentName}${propsSource}\n>\n  ${children.replace(/\n/g, '\n  ')}\n</${componentName}>`
+    : `<${componentName}>${children}</${componentName}>`;
 };
 
 const formatJsxSource = (
   source: string | undefined,
-  storyContext: { title?: string; component?: { displayName?: string; name?: string }; args?: Record<string, unknown> } = {}
+  storyContext: DocsStoryContext = {}
 ): string => {
   if (shouldGenerateJsxSource(source)) {
     return buildJsxSourceFromArgs(storyContext);
