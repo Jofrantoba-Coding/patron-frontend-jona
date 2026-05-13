@@ -47,6 +47,28 @@ export const WithError: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const options = [
+  { value: 'mx', label: 'México' },
+  { value: 'co', label: 'Colombia' },
+  { value: 'pe', label: 'Perú' },
+];
+
+const [country, setCountry] = useState('');
+
+<SelectFieldMolecule
+  id="country"
+  label="País de residencia"
+  options={options}
+  placeholder="Selecciona un país"
+  required
+  onChange={(v) => setCountry(v)}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
   },

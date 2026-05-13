@@ -89,5 +89,18 @@ const InteractiveForm = () => {
 };
 
 export const Interactive: StoryObj = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const { toast } = useToast();
+
+// Inside a ToastProvider:
+toast({ variant: 'success', title: '¡Éxito!', message: 'Operación completada' });
+toast({ variant: 'danger',  title: 'Error',   message: 'No se pudo guardar los cambios' });
+toast({ variant: 'warning', title: 'Aviso',   message: 'Tu sesión expirará pronto' });
+toast({ message: 'Notificación sin título' });`,
+      },
+    },
+  },
   render: () => <InteractiveForm />,
 };

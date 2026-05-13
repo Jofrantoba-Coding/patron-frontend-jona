@@ -42,6 +42,25 @@ export const WithError: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const options = [
+  { value: 'mx', label: 'México' },
+  { value: 'co', label: 'Colombia' },
+  { value: 'ar', label: 'Argentina' },
+];
+
+const [country, setCountry] = useState('');
+
+<SelectAtom
+  options={options}
+  placeholder="Selecciona un país"
+  onChange={(v) => setCountry(v)}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
   },

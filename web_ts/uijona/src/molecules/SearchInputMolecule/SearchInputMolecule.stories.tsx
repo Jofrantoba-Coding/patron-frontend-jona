@@ -29,6 +29,20 @@ export const Loading: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [query, setQuery] = useState('');
+
+<SearchInputMolecule
+  placeholder="Buscar..."
+  onChange={(v) => setQuery(v)}
+  onSearch={(v) => setQuery(v)}
+  onClear={() => setQuery('')}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
     onSearch: fn(),

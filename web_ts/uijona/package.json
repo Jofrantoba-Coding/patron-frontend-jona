@@ -1,6 +1,6 @@
 {
   "name": "jona-ui",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "JONA Design System - Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
@@ -121,6 +121,11 @@
       "import": "./dist/atoms/ToastAtom.js",
       "require": "./dist/atoms/ToastAtom.cjs",
       "types": "./dist/atoms/ToastAtom.d.ts"
+    },
+    "./atoms/RatingAtom": {
+      "import": "./dist/atoms/RatingAtom.js",
+      "require": "./dist/atoms/RatingAtom.cjs",
+      "types": "./dist/atoms/RatingAtom.d.ts"
     },
     "./atoms/PanelAtom": {
       "import": "./dist/atoms/PanelAtom.js",
@@ -251,6 +256,36 @@
       "import": "./dist/molecules/TimerMolecule.js",
       "require": "./dist/molecules/TimerMolecule.cjs",
       "types": "./dist/molecules/TimerMolecule.d.ts"
+    },
+    "./molecules/DrawerMolecule": {
+      "import": "./dist/molecules/DrawerMolecule.js",
+      "require": "./dist/molecules/DrawerMolecule.cjs",
+      "types": "./dist/molecules/DrawerMolecule.d.ts"
+    },
+    "./molecules/PopoverMolecule": {
+      "import": "./dist/molecules/PopoverMolecule.js",
+      "require": "./dist/molecules/PopoverMolecule.cjs",
+      "types": "./dist/molecules/PopoverMolecule.d.ts"
+    },
+    "./molecules/ConfirmDialogMolecule": {
+      "import": "./dist/molecules/ConfirmDialogMolecule.js",
+      "require": "./dist/molecules/ConfirmDialogMolecule.cjs",
+      "types": "./dist/molecules/ConfirmDialogMolecule.d.ts"
+    },
+    "./molecules/ComboboxMolecule": {
+      "import": "./dist/molecules/ComboboxMolecule.js",
+      "require": "./dist/molecules/ComboboxMolecule.cjs",
+      "types": "./dist/molecules/ComboboxMolecule.d.ts"
+    },
+    "./molecules/MultiSelectMolecule": {
+      "import": "./dist/molecules/MultiSelectMolecule.js",
+      "require": "./dist/molecules/MultiSelectMolecule.cjs",
+      "types": "./dist/molecules/MultiSelectMolecule.d.ts"
+    },
+    "./molecules/DataTableMolecule": {
+      "import": "./dist/molecules/DataTableMolecule.js",
+      "require": "./dist/molecules/DataTableMolecule.cjs",
+      "types": "./dist/molecules/DataTableMolecule.d.ts"
     },
     "./hooks/useToast": {
       "import": "./dist/hooks/useToast.js",

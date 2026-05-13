@@ -5,7 +5,7 @@ JONA Design System para React. Es una libreria de componentes basada en Atomic D
 - Package: https://www.npmjs.com/package/jona-ui
 - Docs: https://jofrantoba-coding.github.io/patron-frontend-jona/uijona
 - Storybook: https://jofrantoba-coding.github.io/patron-frontend-jona/storybook/
-- Version publicada: `1.2.7`
+- Version: consulta la version publicada directamente en npm.
 
 ## Instalacion
 
@@ -119,6 +119,7 @@ dist/
 ```tsx
 import { TextareaAtom } from 'jona-ui/atoms/TextareaAtom';
 import { RadioGroupMolecule } from 'jona-ui/molecules/RadioGroupMolecule';
+import { DataTableMolecule } from 'jona-ui/molecules/DataTableMolecule';
 import { BorderLayout } from 'jona-ui/layouts/BorderLayout';
 import { LoginOrganism } from 'jona-ui/organisms/LoginOrganism';
 import { UiHomeLogin } from 'jona-ui/pages/UiHomeLogin';
@@ -140,8 +141,10 @@ import { UiHomeLogin } from 'jona-ui/pages/UiHomeLogin';
 | `InputAtom` | Input de texto con eventos normalizados |
 | `LabelAtom` | Label de formulario |
 | `LinkAtom` | Enlace con variantes visuales |
+| `PanelAtom` | Panel estructural para superficies y contenedores |
 | `ProgressAtom` | Barra de progreso |
 | `RadioAtom` | Radio input base |
+| `RatingAtom` | Selector o indicador de calificacion |
 | `SelectAtom` | Select nativo |
 | `SeparatorAtom` | Separador horizontal o vertical |
 | `SkeletonAtom` | Placeholder de carga |
@@ -160,22 +163,30 @@ import { UiHomeLogin } from 'jona-ui/pages/UiHomeLogin';
 | `BreadcrumbMolecule` | Navegacion jerarquica |
 | `CardMolecule` | Contenedor con header, content y footer |
 | `CheckboxFieldMolecule` | Checkbox con label y descripcion |
+| `ComboboxMolecule` | Combobox con busqueda y seleccion |
+| `ConfirmDialogMolecule` | Dialogo de confirmacion |
+| `DataTableMolecule` | Tabla de datos con columnas configurables |
+| `DatePickerMolecule` | Selector de fecha |
 | `DialogMolecule` | Modal con portal |
+| `DrawerMolecule` | Panel lateral con portal |
 | `DropdownMolecule` | Menu desplegable |
 | `EmptyStateMolecule` | Estado vacio con acciones |
+| `FileUploadMolecule` | Dropzone/input de archivos con lista seleccionada |
 | `FormFieldMolecule` | Campo con label, ayuda y error |
+| `MultiSelectMolecule` | Selector multiple con busqueda |
+| `NumberInputMolecule` | Entrada numerica con stepper, min y max |
 | `PaginationMolecule` | Navegacion paginada |
+| `PopoverMolecule` | Contenido flotante anclado a un trigger |
 | `RadioGroupMolecule` | Grupo de opciones radio |
+| `SearchInputMolecule` | Busqueda con clear, loading y submit por Enter |
 | `SelectFieldMolecule` | Select con label, ayuda y error |
 | `SkeletonPresets` | Presets de skeleton |
-| `SearchInputMolecule` | Busqueda con clear, loading y submit por Enter |
-| `NumberInputMolecule` | Entrada numerica con stepper, min y max |
-| `FileUploadMolecule` | Dropzone/input de archivos con lista seleccionada |
 | `StatCardMolecule` | Metrica compacta para dashboards |
 | `StepperMolecule` | Indicador de progreso por pasos |
 | `SwitchFieldMolecule` | Switch con label y descripcion |
 | `TableMolecule` | Tabla componible |
 | `TabsMolecule` | Navegacion por tabs |
+| `TimerMolecule` | Temporizador visual |
 | `TooltipMolecule` | Tooltip con portal |
 | `UserAvatarMolecule` | Avatar con metadata de usuario |
 
@@ -183,7 +194,7 @@ import { UiHomeLogin } from 'jona-ui/pages/UiHomeLogin';
 
 | Tipo | Exports |
 | --- | --- |
-| Layouts | `BorderLayout` |
+| Layouts | `BorderLayout`, `FlowLayout`, `BoxLayout`, `GridLayout`, `CardLayout`, `GridBagLayout`, `GroupLayout`, `SpringLayout`, `SidebarLayout` |
 | Organisms | `LoginOrganism`, `RecoverPasswordOrganism`, `CreateAccountOrganism`, `ErrorPageOrganism`, `HeaderPageOrganism`, `FooterPageOrganism` |
 | Pages | `UiHomeLogin`, `UiHomeRecoverPassword`, `UiHomeCreateAccount`, `UiHomeError` |
 

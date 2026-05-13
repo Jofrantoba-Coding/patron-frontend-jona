@@ -40,6 +40,22 @@ export const WithValue: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [value, setValue] = useState('');
+const hasError = value.length > 0 && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(value);
+
+<InputAtom
+  type="email"
+  placeholder="correo@ejemplo.com"
+  value={value}
+  hasError={hasError}
+  onChange={(v) => setValue(v)}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
     onBlur: fn(),

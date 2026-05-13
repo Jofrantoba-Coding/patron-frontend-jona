@@ -45,6 +45,27 @@ export const Disabled: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const options = [
+  { value: 'react', label: 'React' },
+  { value: 'ts', label: 'TypeScript' },
+  { value: 'node', label: 'Node.js' },
+];
+
+const [values, setValues] = useState<string[]>([]);
+
+<MultiSelectMolecule
+  options={options}
+  value={values}
+  placeholder="Seleccionar habilidades..."
+  maxSelected={4}
+  onChange={(v) => setValues(v)}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
   },

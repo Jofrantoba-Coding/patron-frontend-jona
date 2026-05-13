@@ -64,6 +64,22 @@ export const ResizableBoth: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [value, setValue] = useState('');
+const max = 200;
+
+<TextareaAtom
+  placeholder="Escribe tu mensaje..."
+  value={value}
+  autoResize
+  hasError={value.length > max}
+  onChange={(v) => setValue(v)}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
     onBlur: fn(),

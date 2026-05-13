@@ -54,6 +54,28 @@ export const Horizontal: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [email, setEmail] = useState('');
+const [touched, setTouched] = useState(false);
+const error = touched && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)
+  ? 'El formato de email no es válido'
+  : undefined;
+
+<FormFieldMolecule
+  id="email"
+  label="Correo electrónico"
+  required
+  description="Usaremos este correo para enviarte notificaciones"
+  errorMessage={error}
+  value={email}
+  onChange={(v) => setEmail(v)}
+  onBlur={() => setTouched(true)}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
     onBlur: fn(),

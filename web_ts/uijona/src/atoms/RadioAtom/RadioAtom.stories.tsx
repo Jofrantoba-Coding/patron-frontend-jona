@@ -52,6 +52,30 @@ export const Disabled: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [selected, setSelected] = useState('');
+
+const methods = [
+  { value: 'card', label: 'Tarjeta de crédito' },
+  { value: 'transfer', label: 'Transferencia bancaria' },
+];
+
+{methods.map((m) => (
+  <LabelAtom key={m.value} className="flex items-center gap-2 cursor-pointer">
+    <RadioAtom
+      name="payment"
+      value={m.value}
+      checked={selected === m.value}
+      onCheckedChange={(checked, value) => setSelected(value)}
+    />
+    <TextAtom as="span" size="sm">{m.label}</TextAtom>
+  </LabelAtom>
+))}`,
+      },
+    },
+  },
   args: {
     onCheckedChange: fn(),
   },

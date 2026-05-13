@@ -50,6 +50,21 @@ export const Disabled: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [checked, setChecked] = useState(false);
+
+<SwitchFieldMolecule
+  id="notifications"
+  label="Recibir notificaciones"
+  description="Recibirás alertas en tu dispositivo"
+  checked={checked}
+  onCheckedChange={setChecked}
+/>`,
+      },
+    },
+  },
   args: {
     onCheckedChange: fn(),
   },

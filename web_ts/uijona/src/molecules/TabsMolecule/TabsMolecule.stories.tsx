@@ -59,6 +59,24 @@ export const LineVariant: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [tab, setTab] = useState('cuenta');
+
+<TabsMolecule value={tab} onChange={setTab}>
+  <TabsList>
+    <TabsTrigger value="cuenta">Cuenta</TabsTrigger>
+    <TabsTrigger value="seguridad">Seguridad</TabsTrigger>
+    <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
+  </TabsList>
+  <TabsContent value="cuenta">Configuración de cuenta</TabsContent>
+  <TabsContent value="seguridad">Configuración de seguridad</TabsContent>
+  <TabsContent value="notificaciones">Preferencias de notificación</TabsContent>
+</TabsMolecule>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
   },

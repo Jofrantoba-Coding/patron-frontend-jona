@@ -52,6 +52,21 @@ export const AllVariants: Story = {
 
 // Historia interactiva: simula la gestión de visibilidad que haría useToast
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `// ToastAtom es presentacional — gestiona su propia visibilidad vía useToast
+<ToastAtom
+  id="toast-1"
+  variant="success"
+  title="¡Éxito!"
+  message="Acción completada correctamente"
+  duration={3000}
+  onDismiss={(id) => removeToast(id)}
+/>`,
+      },
+    },
+  },
   args: {
     onDismiss: fn(),
   },

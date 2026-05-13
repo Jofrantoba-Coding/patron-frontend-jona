@@ -32,6 +32,19 @@ export const LastPage: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [page, setPage] = useState(1);
+
+<PaginationMolecule
+  currentPage={page}
+  totalPages={15}
+  onPageChange={setPage}
+/>`,
+      },
+    },
+  },
   args: {
     onPageChange: fn(),
   },

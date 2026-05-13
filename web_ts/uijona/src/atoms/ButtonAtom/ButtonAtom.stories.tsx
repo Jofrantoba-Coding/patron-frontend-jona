@@ -75,6 +75,25 @@ export const AllVariants: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [loading, setLoading] = useState(false);
+
+<ButtonAtom
+  loading={loading}
+  onClick={async () => {
+    setLoading(true);
+    await submitForm();
+    setLoading(false);
+  }}
+  fullWidth
+>
+  Enviar formulario
+</ButtonAtom>`,
+      },
+    },
+  },
   args: {
     onClick: fn(),
   },

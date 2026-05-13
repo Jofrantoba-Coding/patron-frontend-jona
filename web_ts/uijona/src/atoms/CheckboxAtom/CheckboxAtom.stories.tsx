@@ -39,6 +39,18 @@ export const DisabledChecked: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [checked, setChecked] = useState(false);
+
+<CheckboxAtom
+  checked={checked}
+  onCheckedChange={setChecked}
+/>`,
+      },
+    },
+  },
   args: {
     onCheckedChange: fn(),
   },

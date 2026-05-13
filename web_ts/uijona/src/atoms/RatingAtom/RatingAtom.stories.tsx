@@ -47,6 +47,18 @@ export const MaxTen: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [rating, setRating] = useState(0);
+
+<RatingAtom
+  value={rating}
+  onChange={setRating}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
   },

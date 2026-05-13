@@ -70,6 +70,25 @@ export const AllVariants: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [current, setCurrent] = useState('Inicio');
+const pages = ['Inicio', 'Productos', 'Detalle'];
+
+{pages.map((page) => (
+  <LinkAtom
+    key={page}
+    href="#"
+    variant={current === page ? 'button' : 'default'}
+    onClick={(e) => { e.preventDefault(); setCurrent(page); }}
+  >
+    {page}
+  </LinkAtom>
+))}`,
+      },
+    },
+  },
   args: {
     onClick: fn(),
   },

@@ -52,6 +52,18 @@ export const AllSizes: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const [checked, setChecked] = useState(false);
+
+<SwitchAtom
+  checked={checked}
+  onCheckedChange={setChecked}
+/>`,
+      },
+    },
+  },
   args: {
     onCheckedChange: fn(),
   },

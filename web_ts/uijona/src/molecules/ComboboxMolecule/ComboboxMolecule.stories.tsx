@@ -52,6 +52,26 @@ export const WithDisabledOption: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `const options = [
+  { value: 'pe', label: 'Perú' },
+  { value: 'mx', label: 'México' },
+  { value: 'co', label: 'Colombia' },
+];
+
+const [value, setValue] = useState('');
+
+<ComboboxMolecule
+  options={options}
+  value={value}
+  placeholder="Seleccionar país..."
+  onChange={(v) => setValue(v)}
+/>`,
+      },
+    },
+  },
   args: {
     onChange: fn(),
   },
