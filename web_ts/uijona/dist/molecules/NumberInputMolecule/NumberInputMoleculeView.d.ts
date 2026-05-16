@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterNumberInputMolecule } from './InterNumberInputMolecule';
+
 type NumberInputMoleculeViewProps = Omit<InterNumberInputMolecule, 'value' | 'defaultValue' | 'onValueChange' | 'onIncrement' | 'onDecrement' | 'onBlur'> & {
     displayValue: string;
     canDecrement: boolean;

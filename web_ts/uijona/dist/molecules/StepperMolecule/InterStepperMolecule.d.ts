@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export type StepperOrientation = 'horizontal' | 'vertical';
 export type StepperStepStatus = 'complete' | 'current' | 'upcoming';
 export interface StepperStep {

@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export declare const CardMoleculeImpl: React.FC<React.HTMLAttributes<HTMLDivElement>>;
 export declare const CardHeaderImpl: React.FC<React.HTMLAttributes<HTMLDivElement>>;
 export declare const CardTitleImpl: React.FC<{

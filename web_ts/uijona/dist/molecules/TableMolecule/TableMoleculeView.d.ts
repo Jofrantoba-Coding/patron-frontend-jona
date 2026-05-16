@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterTableHeadProps, InterTableMolecule } from './InterTableMolecule';
+
 export declare const TableMoleculeView: React.ForwardRefExoticComponent<InterTableMolecule & React.RefAttributes<HTMLTableElement>>;
 export declare const TableCaptionView: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableCaptionElement> & React.RefAttributes<HTMLTableCaptionElement>>;
 export declare const TableHeaderView: React.ForwardRefExoticComponent<React.HTMLAttributes<HTMLTableSectionElement> & React.RefAttributes<HTMLTableSectionElement>>;

@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RatingMolecule } from './RatingMolecule';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof RatingMolecule> = {
   title: 'Atoms/RatingMolecule',

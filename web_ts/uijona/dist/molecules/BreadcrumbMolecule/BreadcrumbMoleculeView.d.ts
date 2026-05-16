@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterBreadcrumbLink } from './InterBreadcrumbMolecule';
+
 export declare const BreadcrumbMoleculeView: React.FC<React.HTMLAttributes<HTMLElement>>;
 export declare const BreadcrumbListView: React.FC<React.OlHTMLAttributes<HTMLOListElement>>;
 export declare const BreadcrumbItemView: React.FC<React.LiHTMLAttributes<HTMLLIElement>>;

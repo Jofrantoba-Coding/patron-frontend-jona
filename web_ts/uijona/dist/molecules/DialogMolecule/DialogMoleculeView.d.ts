@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterDialogMolecule } from './InterDialogMolecule';
+
 interface DialogMoleculeViewProps extends InterDialogMolecule {
     overlayRef: React.RefObject<HTMLDivElement>;
     dialogRef: React.RefObject<HTMLDivElement>;

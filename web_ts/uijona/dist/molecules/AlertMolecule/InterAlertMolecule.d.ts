@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export type AlertVariant = 'default' | 'destructive';
 export interface InterAlertMolecule extends React.HTMLAttributes<HTMLDivElement> {
     variant?: AlertVariant;

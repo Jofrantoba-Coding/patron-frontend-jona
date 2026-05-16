@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export type TextareaAtomResize = 'none' | 'vertical' | 'horizontal' | 'both';
 export interface InterTextareaAtom {
     hasError?: boolean;

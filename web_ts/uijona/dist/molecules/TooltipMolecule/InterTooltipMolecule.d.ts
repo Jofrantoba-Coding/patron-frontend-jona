@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 export interface InterTooltipMolecule {
     content: React.ReactNode;

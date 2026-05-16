@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 type CardTitleProps = Omit<React.HTMLAttributes<HTMLHeadingElement>, 'color'>;
 type CardDescriptionProps = Omit<React.HTMLAttributes<HTMLParagraphElement>, 'color'>;
 export declare const CardMoleculeView: React.FC<React.HTMLAttributes<HTMLDivElement>>;

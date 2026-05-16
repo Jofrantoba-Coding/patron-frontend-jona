@@ -1,1 +1,1 @@
-export declare const NumberInputMolecule: import("react").ForwardRefExoticComponent<import("./InterNumberInputMolecule").InterNumberInputMolecule & import("react").RefAttributes<HTMLInputElement>>;
+export declare const NumberInputMolecule: import('../../../node_modules/react').ForwardRefExoticComponent<import('./InterNumberInputMolecule').InterNumberInputMolecule & import('../../../node_modules/react').RefAttributes<HTMLInputElement>>;

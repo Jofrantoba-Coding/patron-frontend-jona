@@ -1,1 +1,1 @@
-export declare const FileUploadMolecule: import("react").FC<import("./InterFileUploadMolecule").InterFileUploadMolecule>;
+export declare const FileUploadMolecule: import('../../../node_modules/react').FC<import('./InterFileUploadMolecule').InterFileUploadMolecule>;

@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export type ImageFit = 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
 export type ImageRadius = 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 export type ImageAspectRatio = 'auto' | 'square' | 'video' | 'wide' | 'portrait';

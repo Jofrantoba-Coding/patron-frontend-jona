@@ -1,1 +1,1 @@
-export declare const StatCardMolecule: import("react").FC<import("./InterStatCardMolecule").InterStatCardMolecule>;
+export declare const StatCardMolecule: import('../../../node_modules/react').FC<import('./InterStatCardMolecule').InterStatCardMolecule>;

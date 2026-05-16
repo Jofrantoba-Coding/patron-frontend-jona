@@ -1,5 +1,6 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
 import { InterTimerMolecule, TimerMoleculeFormatContext, TimerMoleculeStatus } from './InterTimerMolecule';
+
 interface TimerMoleculeViewProps extends InterTimerMolecule {
     status: TimerMoleculeStatus;
     context: TimerMoleculeFormatContext;

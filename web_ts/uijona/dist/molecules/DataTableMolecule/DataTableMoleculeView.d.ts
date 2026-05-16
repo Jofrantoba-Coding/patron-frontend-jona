@@ -1,4 +1,5 @@
 import { DataTableColumn, DataTableSort } from './InterDataTableMolecule';
+
 interface DataTableMoleculeViewProps<T> {
     columns: DataTableColumn<T>[];
     rows: T[];

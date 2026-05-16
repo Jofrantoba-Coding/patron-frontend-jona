@@ -18,7 +18,8 @@
       "Bash(npx vite *)",
       "Bash(Remove-Item -Recurse -Force src/atoms/SectionShellAtom, src/atoms/EyebrowAtom)",
       "Bash(Remove-Item -Recurse -Force src/molecules/SalesCTAMolecule, src/molecules/MarketingHeroMolecule)",
-      "Bash(Write-Host \"done\")"
+      "Bash(Write-Host \"done\")",
+      "Bash(npx storybook *)"
     ]
   }
 }

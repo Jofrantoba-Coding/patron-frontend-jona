@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ToastMolecule } from './ToastMolecule';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
-import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof ToastMolecule> = {
   title: 'Atoms/ToastMolecule',

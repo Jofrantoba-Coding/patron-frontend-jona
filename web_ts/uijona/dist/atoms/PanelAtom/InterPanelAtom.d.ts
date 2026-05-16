@@ -1,4 +1,5 @@
-import React from 'react';
+import { default as React } from '../../../node_modules/react';
+
 export type PanelVariant = 'default' | 'outlined' | 'elevated' | 'flat' | 'ghost';
 export type PanelPadding = 'none' | 'sm' | 'md' | 'lg' | 'xl';
 export type PanelRadius = 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
