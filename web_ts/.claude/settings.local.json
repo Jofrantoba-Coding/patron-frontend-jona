@@ -6,7 +6,16 @@
       "Bash(Get-ChildItem -Path \"d:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\appjona_react_hooks\\\\src\" -Recurse -Directory)",
       "Bash(Select-Object FullName)",
       "Bash(Get-ChildItem -Path 'd:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts' -Directory)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(npx tsc *)",
+      "Bash(Get-ChildItem -Path \"d:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\uijona\\\\src\" -Recurse -Directory)",
+      "Bash(Select-Object -First 20)",
+      "WebFetch(domain:www.develtrex.com)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem \"d:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\website-develtrex\\\\src\\\\features\" -Recurse -Name)",
+      "Bash(Sort-Object)",
+      "Bash(npx vite *)"
     ]
   }
 }

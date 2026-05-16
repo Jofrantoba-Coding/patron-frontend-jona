@@ -22,11 +22,11 @@ const colorClasses: Record<TextColor, string> = {
 };
 
 export const TextAtomView: React.FC<InterTextAtom> = ({
-  as: Tag = 'p', size = 'base', color = 'default', truncate, className, children,
+  as: Tag = 'p', size = 'base', color = 'default', truncate, className, children, ...props
 }) => {
   const Comp = Tag as React.ElementType;
   return (
-    <Comp className={cn(sizeClasses[size], colorClasses[color], truncate && 'truncate', className)}>
+    <Comp className={cn(sizeClasses[size], colorClasses[color], truncate && 'truncate', className)} {...props}>
       {children}
     </Comp>
   );

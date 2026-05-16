@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const x=require("react/jsx-runtime"),c=require("../../lib/cn.cjs"),n={sm:"max-w-screen-sm",md:"max-w-screen-md",lg:"max-w-screen-lg",xl:"max-w-screen-xl","2xl":"max-w-screen-2xl"},a=({as:e="div",maxWidth:s="xl",className:l,children:m,...t})=>x.jsx(e,{className:c.cn("mx-auto w-full px-4 sm:px-6 lg:px-8",n[s],l),...t,children:m});exports.SectionShellAtomView=a;
+//# sourceMappingURL=SectionShellAtomView.cjs.map

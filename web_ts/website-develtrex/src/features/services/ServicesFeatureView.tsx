@@ -1,89 +1,82 @@
 import {
-  BadgeAtom,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardMolecule,
-  CardTitle,
-  LinkAtom,
-  PanelAtom,
-  TextAtom,
+  GridLayout,
+  SalesCTAMolecule,
+  SectionHeadingMolecule,
+  SectionShellAtom,
+  ServiceCardMolecule,
 } from 'jona-ui';
 import type { InterServicesFeature } from './InterServicesFeature';
 
+const SERVICE_CATEGORIES = [
+  'Desarrollo Digital',
+  'Cloud & Arquitectura',
+  'Plataforma & DevOps',
+  'Datos & IA',
+  'Seguridad & Operaciones',
+] as const;
+
+const VISUAL_EMOJI: Record<string, string> = {
+  build:    '🏗️',
+  modern:   '📱',
+  cloud:    '☁️',
+  data:     '📊',
+  database: '🗄️',
+  commerce: '🛍️',
+};
+
 export function ServicesFeatureView({ content }: InterServicesFeature) {
+  const servicesByCategory = SERVICE_CATEGORIES.map((cat) => ({
+    category: cat,
+    items: content.services.filter((s) => s.category === cat),
+  }));
+
   return (
     <>
-      <section id="servicios" className="section-shell services-section">
-        <div className="section-heading compact">
-          <BadgeAtom className="eyebrow">Servicios</BadgeAtom>
-          <TextAtom as="h2" className="section-title">
-            {content.servicesIntro.title}
-          </TextAtom>
-          <TextAtom className="section-copy">{content.servicesIntro.description}</TextAtom>
-        </div>
+      {/* ── Services by category ── */}
+      <section id="servicios" className="services-section">
+        <SectionShellAtom>
+          <SectionHeadingMolecule
+            eyebrow="Servicios"
+            heading={content.servicesIntro.title}
+            description={content.servicesIntro.description}
+            className="mb-12"
+          />
 
-        <PanelAtom className="service-grid" variant="ghost" padding="none">
-          {content.services.map((service) => (
-            <CardMolecule key={service.name} className="service-card business-card">
-              <CardHeader>
-                <div className={`service-icon icon-${service.visual}`} aria-hidden="true" />
-                <CardTitle>{service.name}</CardTitle>
-                <CardDescription>{service.promise}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="business-proof">{service.proof}</p>
-              </CardContent>
-            </CardMolecule>
-          ))}
-        </PanelAtom>
-      </section>
-
-      <section id="proceso" className="section-shell process-section">
-        <PanelAtom className="process-layout" variant="ghost" padding="none">
-          <div>
-            <BadgeAtom className="eyebrow">Proceso de venta consultiva</BadgeAtom>
-            <TextAtom as="h2" className="section-title">
-              De la idea al lanzamiento sin improvisar
-            </TextAtom>
-            <TextAtom className="section-copy">
-              Un flujo pensado para vender servicios tecnologicos con alcance claro, entregables verificables y una base mantenible.
-            </TextAtom>
-            <PanelAtom className="offer-list" variant="ghost" padding="none">
-              {content.offers.map((offer) => (
-                <span key={offer}>{offer}</span>
-              ))}
-            </PanelAtom>
-          </div>
-
-          <PanelAtom className="timeline" variant="ghost" padding="none">
-            {content.process.map((step, index) => (
-              <CardMolecule key={step.title} className="timeline-card">
-                <span className="step-number">{String(index + 1).padStart(2, '0')}</span>
-                <CardHeader>
-                  <CardTitle>{step.title}</CardTitle>
-                  <CardDescription>{step.description}</CardDescription>
-                </CardHeader>
-              </CardMolecule>
+          <div className="services-by-category">
+            {servicesByCategory.map(({ category, items }) => (
+              <div key={category} className="services-cat-section">
+                <div className="services-cat-header">
+                  <span className="services-cat-badge">{category}</span>
+                </div>
+                <GridLayout autoFitMin="300px" gap="md">
+                  {items.map((service) => (
+                    <ServiceCardMolecule
+                      key={service.slug}
+                      icon={VISUAL_EMOJI[service.visual] ?? '⚡'}
+                      title={service.name}
+                      description={service.promise}
+                      tags={[service.proof]}
+                      href={`/servicios/${service.slug}`}
+                    />
+                  ))}
+                </GridLayout>
+              </div>
             ))}
-          </PanelAtom>
-        </PanelAtom>
+          </div>
+        </SectionShellAtom>
       </section>
 
-      <section className="sales-cta">
-        <PanelAtom className="sales-cta-shell" variant="ghost" padding="none">
-          <div>
-            <TextAtom as="h2" className="sales-title">
-              Lista tu proxima solucion digital para vender u operar mejor.
-            </TextAtom>
-            <TextAtom className="sales-copy">
-              En una sesion inicial podemos priorizar el caso de negocio, definir alcance y estimar una primera entrega.
-            </TextAtom>
-          </div>
-          <LinkAtom href={content.contact.whatsappHref} variant="button" className="sales-link">
-            Solicitar diagnostico
-          </LinkAtom>
-        </PanelAtom>
+      {/* ── Sales CTA ── */}
+      <section className="sales-cta-section">
+        <SectionShellAtom>
+          <SalesCTAMolecule
+            heading="Ordena tu tecnología antes de que el caos frene tu crecimiento."
+            description="30 minutos son suficientes para identificar tus principales brechas, riesgos y la primera ruta de acción concreta."
+            primaryLabel="Diagnóstico gratuito"
+            primaryHref={content.contact.whatsappHref}
+            tone="brand"
+          />
+        </SectionShellAtom>
       </section>
     </>
   );

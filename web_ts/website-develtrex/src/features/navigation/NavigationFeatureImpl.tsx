@@ -1,6 +1,60 @@
+import { useEffect, useRef, useState } from 'react';
 import type { InterNavigationFeature } from './InterNavigationFeature';
-import { NavigationFeatureView } from './NavigationFeatureView';
+import { NavigationFeatureView, type InterNavigationFeatureView } from './NavigationFeatureView';
+
+type DropdownMenu = InterNavigationFeatureView['activeDropdown'];
 
 export function NavigationFeatureImpl(props: InterNavigationFeature) {
-  return <NavigationFeatureView {...props} />;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<DropdownMenu>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function clearLeaveTimeout() {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+  }
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setActiveDropdown(null);
+        setIsMenuOpen(false);
+      }
+    }
+    function handleClickOutside(e: MouseEvent) {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null);
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+      clearLeaveTimeout();
+    };
+  }, []);
+
+  return (
+    <NavigationFeatureView
+      {...props}
+      navRef={navRef}
+      isMenuOpen={isMenuOpen}
+      activeDropdown={activeDropdown}
+      onToggleMenu={() => setIsMenuOpen((prev) => !prev)}
+      onCloseMenu={() => setIsMenuOpen(false)}
+      onDropdownEnter={(menu) => {
+        clearLeaveTimeout();
+        setActiveDropdown(menu);
+      }}
+      onDropdownToggle={(menu) => setActiveDropdown((prev) => (prev === menu ? null : menu))}
+      onDropdownLeave={() => {
+        leaveTimeoutRef.current = setTimeout(() => setActiveDropdown(null), 180);
+      }}
+      onCloseDropdown={() => setActiveDropdown(null)}
+    />
+  );
 }

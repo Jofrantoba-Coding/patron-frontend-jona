@@ -22,6 +22,16 @@
       "types": "./dist/theme/index.d.ts"
     },
     "./theme/tokens.css": "./dist/theme/tokens.css",
+    "./atoms/SectionShellAtom": {
+      "import": "./dist/atoms/SectionShellAtom.js",
+      "require": "./dist/atoms/SectionShellAtom.cjs",
+      "types": "./dist/atoms/SectionShellAtom.d.ts"
+    },
+    "./atoms/EyebrowAtom": {
+      "import": "./dist/atoms/EyebrowAtom.js",
+      "require": "./dist/atoms/EyebrowAtom.cjs",
+      "types": "./dist/atoms/EyebrowAtom.d.ts"
+    },
     "./atoms/ButtonAtom": {
       "import": "./dist/atoms/ButtonAtom.js",
       "require": "./dist/atoms/ButtonAtom.cjs",
@@ -56,6 +66,11 @@
       "import": "./dist/atoms/AvatarAtom.js",
       "require": "./dist/atoms/AvatarAtom.cjs",
       "types": "./dist/atoms/AvatarAtom.d.ts"
+    },
+    "./atoms/ImageAtom": {
+      "import": "./dist/atoms/ImageAtom.js",
+      "require": "./dist/atoms/ImageAtom.cjs",
+      "types": "./dist/atoms/ImageAtom.d.ts"
     },
     "./atoms/SelectAtom": {
       "import": "./dist/atoms/SelectAtom.js",
@@ -131,6 +146,31 @@
       "import": "./dist/atoms/PanelAtom.js",
       "require": "./dist/atoms/PanelAtom.cjs",
       "types": "./dist/atoms/PanelAtom.d.ts"
+    },
+    "./molecules/SectionHeadingMolecule": {
+      "import": "./dist/molecules/SectionHeadingMolecule.js",
+      "require": "./dist/molecules/SectionHeadingMolecule.cjs",
+      "types": "./dist/molecules/SectionHeadingMolecule.d.ts"
+    },
+    "./molecules/MetricCardMolecule": {
+      "import": "./dist/molecules/MetricCardMolecule.js",
+      "require": "./dist/molecules/MetricCardMolecule.cjs",
+      "types": "./dist/molecules/MetricCardMolecule.d.ts"
+    },
+    "./molecules/ServiceCardMolecule": {
+      "import": "./dist/molecules/ServiceCardMolecule.js",
+      "require": "./dist/molecules/ServiceCardMolecule.cjs",
+      "types": "./dist/molecules/ServiceCardMolecule.d.ts"
+    },
+    "./molecules/SalesCTAMolecule": {
+      "import": "./dist/molecules/SalesCTAMolecule.js",
+      "require": "./dist/molecules/SalesCTAMolecule.cjs",
+      "types": "./dist/molecules/SalesCTAMolecule.d.ts"
+    },
+    "./molecules/MarketingHeroMolecule": {
+      "import": "./dist/molecules/MarketingHeroMolecule.js",
+      "require": "./dist/molecules/MarketingHeroMolecule.cjs",
+      "types": "./dist/molecules/MarketingHeroMolecule.d.ts"
     },
     "./molecules/CardMolecule": {
       "import": "./dist/molecules/CardMolecule.js",

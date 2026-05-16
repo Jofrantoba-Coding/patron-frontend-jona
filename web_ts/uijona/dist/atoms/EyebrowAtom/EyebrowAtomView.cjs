@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const i=require("react/jsx-runtime"),o=require("../../lib/cn.cjs"),a={primary:"text-primary-600",white:"text-white/70",muted:"text-neutral-500"},n=({variant:e="primary",className:t,children:r,...s})=>i.jsx("span",{className:o.cn("block text-xs font-semibold uppercase tracking-widest",a[e],t),...s,children:r});exports.EyebrowAtomView=n;
+//# sourceMappingURL=EyebrowAtomView.cjs.map

@@ -1,6 +1,8 @@
 // @jona/ui — barrel export
 
 // Atoms
+export * from './atoms/SectionShellAtom';
+export * from './atoms/EyebrowAtom';
 export * from './atoms/ButtonAtom';
 export * from './atoms/InputAtom';
 export * from './atoms/TextareaAtom';
@@ -9,6 +11,7 @@ export * from './atoms/SpinnerAtom';
 export * from './atoms/CheckboxAtom';
 export * from './atoms/RadioAtom';
 export * from './atoms/AvatarAtom';
+export * from './atoms/ImageAtom';
 export * from './atoms/SelectAtom';
 export * from './atoms/SwitchAtom';
 export * from './atoms/TextAtom';
@@ -25,6 +28,11 @@ export * from './atoms/RatingAtom';
 export * from './atoms/PanelAtom';
 
 // Molecules
+export * from './molecules/SectionHeadingMolecule';
+export * from './molecules/MetricCardMolecule';
+export * from './molecules/ServiceCardMolecule';
+export * from './molecules/SalesCTAMolecule';
+export * from './molecules/MarketingHeroMolecule';
 export * from './molecules/CardMolecule';
 export * from './molecules/AlertMolecule';
 export * from './molecules/FormFieldMolecule';

@@ -15,6 +15,7 @@ describe('package exports', () => {
       './atoms/CheckboxAtom',
       './atoms/RadioAtom',
       './atoms/AvatarAtom',
+      './atoms/ImageAtom',
       './atoms/SelectAtom',
       './atoms/SwitchAtom',
       './atoms/TextAtom',
