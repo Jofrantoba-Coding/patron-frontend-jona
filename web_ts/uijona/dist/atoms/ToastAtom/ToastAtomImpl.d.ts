@@ -1,3 +1,1 @@
-import React from 'react';
-import { InterToastAtom } from './InterToastAtom';
-export declare const ToastAtomImpl: React.FC<InterToastAtom>;
+export { ToastAtomView as ToastAtomImpl } from './ToastAtomView';

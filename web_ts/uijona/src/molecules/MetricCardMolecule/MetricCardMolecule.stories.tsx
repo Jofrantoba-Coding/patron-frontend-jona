@@ -5,39 +5,21 @@ const meta: Meta<typeof MetricCardMolecule> = {
   title: 'Molecules/MetricCardMolecule',
   component: MetricCardMolecule,
   tags: ['autodocs'],
-  argTypes: {
-    tone: { control: 'radio', options: ['dark', 'light'] },
-  },
 };
 
 export default meta;
 type Story = StoryObj<typeof MetricCardMolecule>;
 
-export const Dark: Story = {
+export const Default: Story = {
   args: { value: '+50', label: 'proyectos entregados' },
-  decorators: [(Story) => <div style={{ background: '#0f172a', padding: '24px', width: '200px' }}><Story /></div>],
 };
 
-export const Light: Story = {
-  args: { value: '+50', label: 'proyectos entregados', tone: 'light' },
-};
-
-export const MetricRow: Story = {
+export const Fila: Story = {
   render: () => (
-    <div style={{ background: '#0f172a', padding: '24px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-      <MetricCardMolecule value="+50" label="proyectos entregados" />
-      <MetricCardMolecule value="18" label="servicios especializados" />
-      <MetricCardMolecule value="30 min" label="diagnóstico sin costo" />
-    </div>
-  ),
-};
-
-export const LightRow: Story = {
-  render: () => (
-    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-      <MetricCardMolecule value="+50" label="proyectos entregados" tone="light" />
-      <MetricCardMolecule value="18" label="servicios especializados" tone="light" />
-      <MetricCardMolecule value="30 min" label="diagnóstico sin costo" tone="light" />
+    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', background: '#0a0f1e', padding: '24px' }}>
+      <MetricCardMolecule value="+50" label="proyectos entregados en apps, cloud, datos y plataformas" />
+      <MetricCardMolecule value="18" label="servicios especializados que cubren todo el ciclo tecnológico" />
+      <MetricCardMolecule value="30 min" label="diagnóstico ejecutivo sin costo para evaluar tu arquitectura" />
     </div>
   ),
 };

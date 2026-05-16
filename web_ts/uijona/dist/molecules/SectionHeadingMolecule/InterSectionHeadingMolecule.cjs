@@ -1,2 +1,2 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e={align:"left",tone:"light",eyebrowVariant:"primary"};exports.SECTION_HEADING_MOLECULE_DEFAULTS=e;
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const E={};exports.SECTION_HEADING_MOLECULE_DEFAULTS=E;
 //# sourceMappingURL=InterSectionHeadingMolecule.cjs.map

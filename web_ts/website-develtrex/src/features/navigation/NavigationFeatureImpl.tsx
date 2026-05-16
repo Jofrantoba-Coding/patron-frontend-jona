@@ -8,14 +8,6 @@ export function NavigationFeatureImpl(props: InterNavigationFeature) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<DropdownMenu>(null);
   const navRef = useRef<HTMLElement>(null);
-  const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  function clearLeaveTimeout() {
-    if (leaveTimeoutRef.current) {
-      clearTimeout(leaveTimeoutRef.current);
-      leaveTimeoutRef.current = null;
-    }
-  }
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -34,7 +26,6 @@ export function NavigationFeatureImpl(props: InterNavigationFeature) {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('mousedown', handleClickOutside);
-      clearLeaveTimeout();
     };
   }, []);
 
@@ -46,14 +37,8 @@ export function NavigationFeatureImpl(props: InterNavigationFeature) {
       activeDropdown={activeDropdown}
       onToggleMenu={() => setIsMenuOpen((prev) => !prev)}
       onCloseMenu={() => setIsMenuOpen(false)}
-      onDropdownEnter={(menu) => {
-        clearLeaveTimeout();
-        setActiveDropdown(menu);
-      }}
+      onDropdownEnter={(menu) => setActiveDropdown(menu)}
       onDropdownToggle={(menu) => setActiveDropdown((prev) => (prev === menu ? null : menu))}
-      onDropdownLeave={() => {
-        leaveTimeoutRef.current = setTimeout(() => setActiveDropdown(null), 180);
-      }}
       onCloseDropdown={() => setActiveDropdown(null)}
     />
   );

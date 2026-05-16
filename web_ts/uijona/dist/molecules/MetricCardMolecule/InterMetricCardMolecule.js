@@ -1,6 +1,4 @@
-const E = {
-  tone: "dark"
-};
+const E = {};
 export {
   E as METRIC_CARD_MOLECULE_DEFAULTS
 };

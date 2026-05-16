@@ -1,8 +1,6 @@
 // @jona/ui — barrel export
 
 // Atoms
-export * from './atoms/SectionShellAtom';
-export * from './atoms/EyebrowAtom';
 export * from './atoms/ButtonAtom';
 export * from './atoms/InputAtom';
 export * from './atoms/TextareaAtom';
@@ -24,15 +22,12 @@ export * from './atoms/SeparatorAtom';
 export * from './atoms/ProgressAtom';
 export * from './atoms/SkeletonAtom';
 export * from './atoms/ToastAtom';
-export * from './atoms/RatingAtom';
 export * from './atoms/PanelAtom';
 
 // Molecules
 export * from './molecules/SectionHeadingMolecule';
 export * from './molecules/MetricCardMolecule';
 export * from './molecules/ServiceCardMolecule';
-export * from './molecules/SalesCTAMolecule';
-export * from './molecules/MarketingHeroMolecule';
 export * from './molecules/CardMolecule';
 export * from './molecules/AlertMolecule';
 export * from './molecules/FormFieldMolecule';
@@ -77,6 +72,8 @@ export * from './layouts/SpringLayout';
 export * from './layouts/SidebarLayout';
 
 // Organisms
+export * from './organisms/MarketingHeroOrganism';
+export * from './organisms/MarketingCTAOrganism';
 export * from './organisms/LoginOrganism';
 export * from './organisms/RecoverPasswordOrganism';
 export * from './organisms/CreateAccountOrganism';

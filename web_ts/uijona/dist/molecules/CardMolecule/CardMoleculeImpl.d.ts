@@ -2,9 +2,13 @@ import React from 'react';
 export declare const CardMoleculeImpl: React.FC<React.HTMLAttributes<HTMLDivElement>>;
 export declare const CardHeaderImpl: React.FC<React.HTMLAttributes<HTMLDivElement>>;
 export declare const CardTitleImpl: React.FC<{
-    slot?: string | undefined | undefined;
-    style?: React.CSSProperties | undefined;
-    title?: string | undefined | undefined;
+    className?: string | undefined | undefined;
+    children?: React.ReactNode;
+    onClick?: React.MouseEventHandler<HTMLHeadingElement> | undefined;
+    onFocus?: React.FocusEventHandler<HTMLHeadingElement> | undefined;
+    onBlur?: React.FocusEventHandler<HTMLHeadingElement> | undefined;
+    onKeyDown?: React.KeyboardEventHandler<HTMLHeadingElement> | undefined;
+    role?: React.AriaRole | undefined;
     defaultChecked?: boolean | undefined | undefined;
     defaultValue?: string | number | readonly string[] | undefined;
     suppressContentEditableWarning?: boolean | undefined | undefined;
@@ -12,8 +16,7 @@ export declare const CardTitleImpl: React.FC<{
     accessKey?: string | undefined | undefined;
     autoCapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters" | undefined | (string & {}) | undefined;
     autoFocus?: boolean | undefined | undefined;
-    className?: string | undefined | undefined;
-    contentEditable?: "inherit" | (boolean | "true" | "false") | "plaintext-only" | undefined;
+    contentEditable?: (boolean | "true" | "false") | "inherit" | "plaintext-only" | undefined;
     contextMenu?: string | undefined | undefined;
     dir?: string | undefined | undefined;
     draggable?: (boolean | "true" | "false") | undefined;
@@ -22,11 +25,13 @@ export declare const CardTitleImpl: React.FC<{
     id?: string | undefined | undefined;
     lang?: string | undefined | undefined;
     nonce?: string | undefined | undefined;
+    slot?: string | undefined | undefined;
     spellCheck?: (boolean | "true" | "false") | undefined;
+    style?: React.CSSProperties | undefined;
     tabIndex?: number | undefined | undefined;
+    title?: string | undefined | undefined;
     translate?: "yes" | "no" | undefined | undefined;
     radioGroup?: string | undefined | undefined;
-    role?: React.AriaRole | undefined;
     about?: string | undefined | undefined;
     content?: string | undefined | undefined;
     datatype?: string | undefined | undefined;
@@ -105,7 +110,6 @@ export declare const CardTitleImpl: React.FC<{
     "aria-valuemin"?: number | undefined | undefined;
     "aria-valuenow"?: number | undefined | undefined;
     "aria-valuetext"?: string | undefined | undefined;
-    children?: React.ReactNode;
     dangerouslySetInnerHTML?: {
         __html: string | TrustedHTML;
     } | undefined | undefined;
@@ -121,9 +125,7 @@ export declare const CardTitleImpl: React.FC<{
     onCompositionStartCapture?: React.CompositionEventHandler<HTMLHeadingElement> | undefined;
     onCompositionUpdate?: React.CompositionEventHandler<HTMLHeadingElement> | undefined;
     onCompositionUpdateCapture?: React.CompositionEventHandler<HTMLHeadingElement> | undefined;
-    onFocus?: React.FocusEventHandler<HTMLHeadingElement> | undefined;
     onFocusCapture?: React.FocusEventHandler<HTMLHeadingElement> | undefined;
-    onBlur?: React.FocusEventHandler<HTMLHeadingElement> | undefined;
     onBlurCapture?: React.FocusEventHandler<HTMLHeadingElement> | undefined;
     onChange?: React.FormEventHandler<HTMLHeadingElement> | undefined;
     onChangeCapture?: React.FormEventHandler<HTMLHeadingElement> | undefined;
@@ -141,7 +143,6 @@ export declare const CardTitleImpl: React.FC<{
     onLoadCapture?: React.ReactEventHandler<HTMLHeadingElement> | undefined;
     onError?: React.ReactEventHandler<HTMLHeadingElement> | undefined;
     onErrorCapture?: React.ReactEventHandler<HTMLHeadingElement> | undefined;
-    onKeyDown?: React.KeyboardEventHandler<HTMLHeadingElement> | undefined;
     onKeyDownCapture?: React.KeyboardEventHandler<HTMLHeadingElement> | undefined;
     onKeyPress?: React.KeyboardEventHandler<HTMLHeadingElement> | undefined;
     onKeyPressCapture?: React.KeyboardEventHandler<HTMLHeadingElement> | undefined;
@@ -193,7 +194,6 @@ export declare const CardTitleImpl: React.FC<{
     onWaitingCapture?: React.ReactEventHandler<HTMLHeadingElement> | undefined;
     onAuxClick?: React.MouseEventHandler<HTMLHeadingElement> | undefined;
     onAuxClickCapture?: React.MouseEventHandler<HTMLHeadingElement> | undefined;
-    onClick?: React.MouseEventHandler<HTMLHeadingElement> | undefined;
     onClickCapture?: React.MouseEventHandler<HTMLHeadingElement> | undefined;
     onContextMenu?: React.MouseEventHandler<HTMLHeadingElement> | undefined;
     onContextMenuCapture?: React.MouseEventHandler<HTMLHeadingElement> | undefined;
@@ -269,9 +269,13 @@ export declare const CardTitleImpl: React.FC<{
     onTransitionEndCapture?: React.TransitionEventHandler<HTMLHeadingElement> | undefined;
 }>;
 export declare const CardDescriptionImpl: React.FC<{
-    slot?: string | undefined | undefined;
-    style?: React.CSSProperties | undefined;
-    title?: string | undefined | undefined;
+    className?: string | undefined | undefined;
+    children?: React.ReactNode;
+    onClick?: React.MouseEventHandler<HTMLParagraphElement> | undefined;
+    onFocus?: React.FocusEventHandler<HTMLParagraphElement> | undefined;
+    onBlur?: React.FocusEventHandler<HTMLParagraphElement> | undefined;
+    onKeyDown?: React.KeyboardEventHandler<HTMLParagraphElement> | undefined;
+    role?: React.AriaRole | undefined;
     defaultChecked?: boolean | undefined | undefined;
     defaultValue?: string | number | readonly string[] | undefined;
     suppressContentEditableWarning?: boolean | undefined | undefined;
@@ -279,8 +283,7 @@ export declare const CardDescriptionImpl: React.FC<{
     accessKey?: string | undefined | undefined;
     autoCapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters" | undefined | (string & {}) | undefined;
     autoFocus?: boolean | undefined | undefined;
-    className?: string | undefined | undefined;
-    contentEditable?: "inherit" | (boolean | "true" | "false") | "plaintext-only" | undefined;
+    contentEditable?: (boolean | "true" | "false") | "inherit" | "plaintext-only" | undefined;
     contextMenu?: string | undefined | undefined;
     dir?: string | undefined | undefined;
     draggable?: (boolean | "true" | "false") | undefined;
@@ -289,11 +292,13 @@ export declare const CardDescriptionImpl: React.FC<{
     id?: string | undefined | undefined;
     lang?: string | undefined | undefined;
     nonce?: string | undefined | undefined;
+    slot?: string | undefined | undefined;
     spellCheck?: (boolean | "true" | "false") | undefined;
+    style?: React.CSSProperties | undefined;
     tabIndex?: number | undefined | undefined;
+    title?: string | undefined | undefined;
     translate?: "yes" | "no" | undefined | undefined;
     radioGroup?: string | undefined | undefined;
-    role?: React.AriaRole | undefined;
     about?: string | undefined | undefined;
     content?: string | undefined | undefined;
     datatype?: string | undefined | undefined;
@@ -372,7 +377,6 @@ export declare const CardDescriptionImpl: React.FC<{
     "aria-valuemin"?: number | undefined | undefined;
     "aria-valuenow"?: number | undefined | undefined;
     "aria-valuetext"?: string | undefined | undefined;
-    children?: React.ReactNode;
     dangerouslySetInnerHTML?: {
         __html: string | TrustedHTML;
     } | undefined | undefined;
@@ -388,9 +392,7 @@ export declare const CardDescriptionImpl: React.FC<{
     onCompositionStartCapture?: React.CompositionEventHandler<HTMLParagraphElement> | undefined;
     onCompositionUpdate?: React.CompositionEventHandler<HTMLParagraphElement> | undefined;
     onCompositionUpdateCapture?: React.CompositionEventHandler<HTMLParagraphElement> | undefined;
-    onFocus?: React.FocusEventHandler<HTMLParagraphElement> | undefined;
     onFocusCapture?: React.FocusEventHandler<HTMLParagraphElement> | undefined;
-    onBlur?: React.FocusEventHandler<HTMLParagraphElement> | undefined;
     onBlurCapture?: React.FocusEventHandler<HTMLParagraphElement> | undefined;
     onChange?: React.FormEventHandler<HTMLParagraphElement> | undefined;
     onChangeCapture?: React.FormEventHandler<HTMLParagraphElement> | undefined;
@@ -408,7 +410,6 @@ export declare const CardDescriptionImpl: React.FC<{
     onLoadCapture?: React.ReactEventHandler<HTMLParagraphElement> | undefined;
     onError?: React.ReactEventHandler<HTMLParagraphElement> | undefined;
     onErrorCapture?: React.ReactEventHandler<HTMLParagraphElement> | undefined;
-    onKeyDown?: React.KeyboardEventHandler<HTMLParagraphElement> | undefined;
     onKeyDownCapture?: React.KeyboardEventHandler<HTMLParagraphElement> | undefined;
     onKeyPress?: React.KeyboardEventHandler<HTMLParagraphElement> | undefined;
     onKeyPressCapture?: React.KeyboardEventHandler<HTMLParagraphElement> | undefined;
@@ -460,7 +461,6 @@ export declare const CardDescriptionImpl: React.FC<{
     onWaitingCapture?: React.ReactEventHandler<HTMLParagraphElement> | undefined;
     onAuxClick?: React.MouseEventHandler<HTMLParagraphElement> | undefined;
     onAuxClickCapture?: React.MouseEventHandler<HTMLParagraphElement> | undefined;
-    onClick?: React.MouseEventHandler<HTMLParagraphElement> | undefined;
     onClickCapture?: React.MouseEventHandler<HTMLParagraphElement> | undefined;
     onContextMenu?: React.MouseEventHandler<HTMLParagraphElement> | undefined;
     onContextMenuCapture?: React.MouseEventHandler<HTMLParagraphElement> | undefined;

@@ -1,3 +1,3 @@
-// ToastAtom.tsx — JONA Template (punto de entrada público)
+// ToastAtom.tsx — JONA Template
 export { ToastAtomImpl as ToastAtom } from './ToastAtomImpl';
 export type { InterToastAtom, ToastVariant } from './InterToastAtom';

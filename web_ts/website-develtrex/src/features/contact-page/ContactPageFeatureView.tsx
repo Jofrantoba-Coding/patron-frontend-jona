@@ -1,4 +1,4 @@
-import { BoxLayout, LinkAtom, SectionHeadingMolecule, SectionShellAtom } from 'jona-ui';
+import { LinkAtom, PanelAtom, TextAtom } from 'jona-ui';
 import { NavigationFeature } from '../navigation/NavigationFeature';
 import type { InterContactPageFeature } from './InterContactPageFeature';
 
@@ -59,30 +59,23 @@ export function ContactPageFeatureView({ content }: InterContactPageFeature) {
         services={content.services}
       />
 
-      <main>
-        {/* ── Hero ── */}
-        <section className="contact-page-hero">
-          <SectionShellAtom>
-            <SectionHeadingMolecule
-              eyebrow="Contacto"
-              heading={c.title}
-              description={c.subtitle}
-              tone="dark"
-              eyebrowVariant="white"
-              align="center"
-            />
-          </SectionShellAtom>
-        </section>
+      <PanelAtom as="main" variant="ghost" padding="none" radius="none">
+        <PanelAtom as="section" className="contact-page-hero" variant="ghost" padding="none" radius="none">
+          <PanelAtom className="section-shell section-heading align-center" variant="ghost" padding="none" radius="none">
+            <TextAtom as="span" className="eyebrow">Contacto</TextAtom>
+            <TextAtom as="h1" className="section-title">{c.title}</TextAtom>
+            <TextAtom className="section-copy">{c.subtitle}</TextAtom>
+          </PanelAtom>
+        </PanelAtom>
 
-        {/* ── Contact methods ── */}
-        <section className="contact-methods-section">
-          <SectionShellAtom>
-            <div className="contact-methods-grid">
+        <PanelAtom as="section" className="contact-methods-section" variant="ghost" padding="none" radius="none">
+          <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
+            <PanelAtom className="contact-methods-grid" variant="ghost" padding="none" radius="none">
               {CONTACT_METHODS.map((method) => (
-                <div key={method.label} className={`contact-method-card${method.primary ? ' primary' : ''}`}>
-                  <span className="contact-method-icon" aria-hidden="true">{method.icon}</span>
-                  <strong className="contact-method-label">{method.label}</strong>
-                  <p className="contact-method-desc">{method.description}</p>
+                <PanelAtom key={method.label} className={`contact-method-card${method.primary ? ' primary' : ''}`} variant="ghost" padding="none" radius="none">
+                  <TextAtom as="span" className="contact-method-icon" aria-hidden="true">{method.icon}</TextAtom>
+                  <TextAtom as="strong" className="contact-method-label">{method.label}</TextAtom>
+                  <TextAtom className="contact-method-desc">{method.description}</TextAtom>
                   {method.primary ? (
                     <LinkAtom href={c[method.hrefKey]} variant="button" className="contact-method-cta">
                       {method.action}
@@ -92,43 +85,40 @@ export function ContactPageFeatureView({ content }: InterContactPageFeature) {
                       {method.hrefKey === 'phoneHref' ? c.phone : c.email}
                     </LinkAtom>
                   )}
-                </div>
+                </PanelAtom>
               ))}
-            </div>
-          </SectionShellAtom>
-        </section>
+            </PanelAtom>
+          </PanelAtom>
+        </PanelAtom>
 
-        {/* ── What to expect ── */}
-        <section className="contact-steps-section">
-          <SectionShellAtom>
-            <SectionHeadingMolecule
-              eyebrow="Qué esperar"
-              heading="Así empieza la conversación"
-              className="mb-10"
-            />
-            <div className="contact-steps-list">
+        <PanelAtom as="section" className="contact-steps-section" variant="ghost" padding="none" radius="none">
+          <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
+            <PanelAtom className="section-heading mb-10" variant="ghost" padding="none" radius="none">
+              <TextAtom as="span" className="eyebrow">Qué esperar</TextAtom>
+              <TextAtom as="h2" className="section-title">Así empieza la conversación</TextAtom>
+            </PanelAtom>
+            <PanelAtom className="contact-steps-list" variant="ghost" padding="none" radius="none">
               {STEPS.map((step) => (
-                <div key={step.num} className="contact-step">
-                  <span className="contact-step-num">{step.num}</span>
-                  <div className="contact-step-body">
-                    <strong className="contact-step-title">{step.title}</strong>
-                    <p className="contact-step-desc">{step.body}</p>
-                  </div>
-                </div>
+                <PanelAtom key={step.num} className="contact-step" variant="ghost" padding="none" radius="none">
+                  <TextAtom as="span" className="contact-step-num">{step.num}</TextAtom>
+                  <PanelAtom className="contact-step-body" variant="ghost" padding="none" radius="none">
+                    <TextAtom as="strong" className="contact-step-title">{step.title}</TextAtom>
+                    <TextAtom className="contact-step-desc">{step.body}</TextAtom>
+                  </PanelAtom>
+                </PanelAtom>
               ))}
-            </div>
-          </SectionShellAtom>
-        </section>
+            </PanelAtom>
+          </PanelAtom>
+        </PanelAtom>
 
-        {/* ── Footer strip ── */}
-        <footer className="contact-page-footer">
-          <span>© {new Date().getFullYear()} Develtrex. Todos los derechos reservados.</span>
-          <BoxLayout gap="sm">
+        <PanelAtom as="footer" className="contact-page-footer" variant="ghost" padding="none" radius="none">
+          <TextAtom as="span">© {new Date().getFullYear()} Develtrex. Todos los derechos reservados.</TextAtom>
+          <PanelAtom className="contact-page-footer-links" variant="ghost" padding="none" radius="none">
             <LinkAtom href={c.phoneHref} className="footer-link">{c.phone}</LinkAtom>
             <LinkAtom href={c.emailHref} className="footer-link">{c.email}</LinkAtom>
-          </BoxLayout>
-        </footer>
-      </main>
+          </PanelAtom>
+        </PanelAtom>
+      </PanelAtom>
     </>
   );
 }

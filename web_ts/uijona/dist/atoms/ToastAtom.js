@@ -1,5 +1,5 @@
-import { ToastAtomImpl as m } from "./ToastAtom/ToastAtomImpl.js";
+import { ToastAtomView as a } from "./ToastAtom/ToastAtomView.js";
 export {
-  m as ToastAtom
+  a as ToastAtom
 };
 //# sourceMappingURL=ToastAtom.js.map

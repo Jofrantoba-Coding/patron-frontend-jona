@@ -1,8 +1,6 @@
-import React from 'react';
-export type MetricCardTone = 'light' | 'dark';
-export interface InterMetricCardMolecule extends React.HTMLAttributes<HTMLDivElement> {
+export interface InterMetricCardMolecule {
     value: string;
     label: string;
-    tone?: MetricCardTone;
+    className?: string;
 }
-export declare const METRIC_CARD_MOLECULE_DEFAULTS: Required<Pick<InterMetricCardMolecule, 'tone'>>;
+export declare const METRIC_CARD_MOLECULE_DEFAULTS: Partial<InterMetricCardMolecule>;

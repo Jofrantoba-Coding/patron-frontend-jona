@@ -270,6 +270,49 @@ a { color: inherit; }
   gap: 16px;
 }
 
+.two-column,
+.product-showcase,
+.service-grid,
+.detail-two-column,
+.detail-benefits-grid,
+.detail-related-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.two-column,
+.detail-two-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.product-showcase,
+.service-grid,
+.detail-benefits-grid,
+.detail-related-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.detail-copy-block,
+.detail-step-body,
+.contact-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-page-footer-links,
+.detail-hero-actions,
+.detail-cta-actions,
+.contact-actions,
+.product-card-actions,
+.sales-cta-shell {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .about-section {
   background: var(--surface);
   padding: 88px 0;

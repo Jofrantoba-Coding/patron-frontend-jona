@@ -22,16 +22,6 @@
       "types": "./dist/theme/index.d.ts"
     },
     "./theme/tokens.css": "./dist/theme/tokens.css",
-    "./atoms/SectionShellAtom": {
-      "import": "./dist/atoms/SectionShellAtom.js",
-      "require": "./dist/atoms/SectionShellAtom.cjs",
-      "types": "./dist/atoms/SectionShellAtom.d.ts"
-    },
-    "./atoms/EyebrowAtom": {
-      "import": "./dist/atoms/EyebrowAtom.js",
-      "require": "./dist/atoms/EyebrowAtom.cjs",
-      "types": "./dist/atoms/EyebrowAtom.d.ts"
-    },
     "./atoms/ButtonAtom": {
       "import": "./dist/atoms/ButtonAtom.js",
       "require": "./dist/atoms/ButtonAtom.cjs",
@@ -161,16 +151,6 @@
       "import": "./dist/molecules/ServiceCardMolecule.js",
       "require": "./dist/molecules/ServiceCardMolecule.cjs",
       "types": "./dist/molecules/ServiceCardMolecule.d.ts"
-    },
-    "./molecules/SalesCTAMolecule": {
-      "import": "./dist/molecules/SalesCTAMolecule.js",
-      "require": "./dist/molecules/SalesCTAMolecule.cjs",
-      "types": "./dist/molecules/SalesCTAMolecule.d.ts"
-    },
-    "./molecules/MarketingHeroMolecule": {
-      "import": "./dist/molecules/MarketingHeroMolecule.js",
-      "require": "./dist/molecules/MarketingHeroMolecule.cjs",
-      "types": "./dist/molecules/MarketingHeroMolecule.d.ts"
     },
     "./molecules/CardMolecule": {
       "import": "./dist/molecules/CardMolecule.js",
@@ -381,6 +361,16 @@
       "import": "./dist/layouts/SidebarLayout.js",
       "require": "./dist/layouts/SidebarLayout.cjs",
       "types": "./dist/layouts/SidebarLayout.d.ts"
+    },
+    "./organisms/MarketingHeroOrganism": {
+      "import": "./dist/organisms/MarketingHeroOrganism.js",
+      "require": "./dist/organisms/MarketingHeroOrganism.cjs",
+      "types": "./dist/organisms/MarketingHeroOrganism.d.ts"
+    },
+    "./organisms/MarketingCTAOrganism": {
+      "import": "./dist/organisms/MarketingCTAOrganism.js",
+      "require": "./dist/organisms/MarketingCTAOrganism.cjs",
+      "types": "./dist/organisms/MarketingCTAOrganism.d.ts"
     },
     "./organisms/LoginOrganism": {
       "import": "./dist/organisms/LoginOrganism.js",

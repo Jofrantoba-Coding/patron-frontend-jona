@@ -1,42 +1,25 @@
-import { jsxs as c, jsx as e } from "react/jsx-runtime";
-import { cn as m } from "../../lib/cn.js";
-const p = ({
-  icon: l,
-  title: o,
-  description: i,
-  tags: r,
-  href: n,
-  className: s,
-  ...d
-}) => {
-  const a = /* @__PURE__ */ c(
-    "div",
-    {
-      className: m(
-        "group flex min-w-0 flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-5 shadow-sm",
-        "transition-shadow duration-200 hover:shadow-md",
-        n && "cursor-pointer",
-        s
-      ),
-      ...d,
-      children: [
-        l && /* @__PURE__ */ e("span", { className: "text-2xl leading-none", "aria-hidden": "true", children: l }),
-        /* @__PURE__ */ e("h3", { className: "text-base font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors duration-200", children: o }),
-        /* @__PURE__ */ e("p", { className: "flex-1 text-sm leading-relaxed text-neutral-600", children: i }),
-        r && r.length > 0 && /* @__PURE__ */ e("div", { className: "flex flex-wrap gap-1.5 pt-1", children: r.map((t) => /* @__PURE__ */ e(
-          "span",
-          {
-            className: "rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600",
-            children: t
-          },
-          t
-        )) })
-      ]
-    }
-  );
-  return n ? /* @__PURE__ */ e("a", { href: n, className: "block min-w-0 no-underline", children: a }) : a;
-};
+import { jsxs as c, jsx as a } from "react/jsx-runtime";
+import { cn as t } from "../../lib/cn.js";
+import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { TextAtomImpl as r } from "../../atoms/TextAtom/TextAtomImpl.js";
+import { LinkAtomImpl as m } from "../../atoms/LinkAtom/LinkAtomImpl.js";
+const v = ({
+  icon: n,
+  title: d,
+  description: o,
+  proof: i,
+  href: s,
+  className: l
+}) => /* @__PURE__ */ c(e, { variant: "ghost", padding: "none", radius: "none", className: t("service-card business-card", l), children: [
+  /* @__PURE__ */ c(e, { className: "card-area-header", variant: "ghost", padding: "none", radius: "none", children: [
+    n && /* @__PURE__ */ a(r, { as: "span", className: "service-icon-emoji", "aria-hidden": "true", children: n }),
+    /* @__PURE__ */ a(r, { as: "h3", className: "card-title", children: d }),
+    /* @__PURE__ */ a(r, { className: "card-description", children: o })
+  ] }),
+  i && /* @__PURE__ */ a(e, { className: "card-area-content", variant: "ghost", padding: "none", radius: "none", children: /* @__PURE__ */ a(r, { className: "business-proof", children: i }) }),
+  s && /* @__PURE__ */ a(e, { className: "card-area-footer", variant: "ghost", padding: "none", radius: "none", children: /* @__PURE__ */ a(m, { href: s, className: "card-detail-link", children: "Ver servicio →" }) })
+] });
 export {
-  p as ServiceCardMoleculeView
+  v as ServiceCardMoleculeView
 };
 //# sourceMappingURL=ServiceCardMoleculeView.js.map

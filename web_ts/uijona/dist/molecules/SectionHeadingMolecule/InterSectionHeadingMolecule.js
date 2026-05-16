@@ -1,9 +1,5 @@
-const t = {
-  align: "left",
-  tone: "light",
-  eyebrowVariant: "primary"
-};
+const E = {};
 export {
-  t as SECTION_HEADING_MOLECULE_DEFAULTS
+  E as SECTION_HEADING_MOLECULE_DEFAULTS
 };
 //# sourceMappingURL=InterSectionHeadingMolecule.js.map

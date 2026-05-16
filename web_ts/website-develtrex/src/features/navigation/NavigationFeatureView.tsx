@@ -1,6 +1,6 @@
 import { type RefObject } from 'react';
 import { Link } from 'react-router-dom';
-import { DrawerMolecule, IconButtonAtom, ImageAtom, LinkAtom, PanelAtom } from 'jona-ui';
+import { DrawerMolecule, IconButtonAtom, ImageAtom, LinkAtom, PanelAtom, TextAtom } from 'jona-ui';
 import type { InterNavigationFeature } from './InterNavigationFeature';
 
 type DropdownMenu = 'products' | 'services';
@@ -13,7 +13,6 @@ export interface InterNavigationFeatureView extends InterNavigationFeature {
   onCloseMenu: () => void;
   onDropdownEnter: (menu: DropdownMenu) => void;
   onDropdownToggle: (menu: DropdownMenu) => void;
-  onDropdownLeave: () => void;
   onCloseDropdown: () => void;
 }
 
@@ -47,7 +46,7 @@ export function NavigationFeatureView({
   content, contact, products, services,
   navRef, isMenuOpen, activeDropdown,
   onToggleMenu, onCloseMenu,
-  onDropdownEnter, onDropdownToggle, onDropdownLeave, onCloseDropdown,
+  onDropdownEnter, onDropdownToggle, onCloseDropdown,
 }: InterNavigationFeatureView) {
   const servicesByCategory = SERVICE_CATEGORIES.map((cat) => ({
     category: cat,
@@ -57,8 +56,8 @@ export function NavigationFeatureView({
   const secondaryLinks = content.links.filter((link) => link.label !== 'Inicio');
 
   return (
-    <header className="site-header" ref={navRef as RefObject<HTMLDivElement>}>
-      <nav className="nav-shell" aria-label="Navegación principal">
+    <PanelAtom as="header" className="site-header" variant="ghost" padding="none" radius="none" ref={navRef as RefObject<HTMLDivElement>}>
+      <PanelAtom as="nav" className="nav-shell" variant="ghost" padding="none" radius="none" aria-label="Navegación principal">
 
         <IconButtonAtom
           icon={<MenuIcon />}
@@ -70,22 +69,22 @@ export function NavigationFeatureView({
 
         <Link to="/" className="brand-mark" aria-label="Develtrex inicio">
           <ImageAtom className="brand-symbol" src="/assets/develtrex-logo.svg" alt="" aria-hidden="true" loading="eager" />
-          <span className="brand-name">{content.brand}</span>
+          <TextAtom as="span" className="brand-name">{content.brand}</TextAtom>
         </Link>
 
-        {/* Desktop nav */}
-        <div className="nav-links">
+        <PanelAtom className="nav-links" variant="ghost" padding="none" radius="none">
           {homeLink ? (
             <Link to={homeLink.href} className="nav-link">
               {homeLink.label}
             </Link>
           ) : null}
 
-          {/* Productos — full-width mega menu */}
-          <div
+          <PanelAtom
             className="nav-dropdown-wrapper"
+            variant="ghost"
+            padding="none"
+            radius="none"
             onMouseEnter={() => onDropdownEnter('products')}
-            onMouseLeave={onDropdownLeave}
           >
             <button
               className={`nav-link nav-dropdown-trigger${activeDropdown === 'products' ? ' active' : ''}`}
@@ -96,30 +95,31 @@ export function NavigationFeatureView({
               Productos <ChevronIcon open={activeDropdown === 'products'} />
             </button>
 
-            <div className={`nav-dropdown-panel${activeDropdown === 'products' ? ' open' : ''}`}>
-              <div className="dropdown-inner">
-                <div className="dropdown-header">
-                  <strong className="dropdown-label">Producto</strong>
-                  <span className="dropdown-sub">ERP Softcommerce para facturación, inventario, contabilidad y tesorería</span>
-                </div>
-                <div className="products-mega-grid">
+            <PanelAtom className={`nav-dropdown-panel${activeDropdown === 'products' ? ' open' : ''}`} variant="ghost" padding="none" radius="none">
+              <PanelAtom className="dropdown-inner" variant="ghost" padding="none" radius="none">
+                <PanelAtom className="dropdown-header" variant="ghost" padding="none" radius="none">
+                  <TextAtom as="strong" className="dropdown-label">Producto</TextAtom>
+                  <TextAtom as="span" className="dropdown-sub">ERP Softcommerce para facturación, inventario, contabilidad y tesorería</TextAtom>
+                </PanelAtom>
+                <PanelAtom className="products-mega-grid" variant="ghost" padding="none" radius="none">
                   {products.map((p) => (
                     <Link key={p.slug} to={`/productos/${p.slug}`} className="mega-item" onClick={onCloseDropdown}>
-                      <strong className="mega-item-name">{p.name}</strong>
-                      <span className="mega-item-sub">{p.outcome}</span>
-                      <span className="mega-item-tag">{p.tag}</span>
+                      <TextAtom as="strong" className="mega-item-name">{p.name}</TextAtom>
+                      <TextAtom as="span" className="mega-item-sub">{p.outcome}</TextAtom>
+                      <TextAtom as="span" className="mega-item-tag">{p.tag}</TextAtom>
                     </Link>
                   ))}
-                </div>
-              </div>
-            </div>
-          </div>
+                </PanelAtom>
+              </PanelAtom>
+            </PanelAtom>
+          </PanelAtom>
 
-          {/* Servicios — full-width mega menu */}
-          <div
+          <PanelAtom
             className="nav-dropdown-wrapper"
+            variant="ghost"
+            padding="none"
+            radius="none"
             onMouseEnter={() => onDropdownEnter('services')}
-            onMouseLeave={onDropdownLeave}
           >
             <button
               className={`nav-link nav-dropdown-trigger${activeDropdown === 'services' ? ' active' : ''}`}
@@ -130,42 +130,41 @@ export function NavigationFeatureView({
               Servicios <ChevronIcon open={activeDropdown === 'services'} />
             </button>
 
-            <div className={`nav-dropdown-panel${activeDropdown === 'services' ? ' open' : ''}`}>
-              <div className="dropdown-inner">
-                <div className="dropdown-header">
-                  <strong className="dropdown-label">Portafolio de servicios</strong>
-                  <span className="dropdown-sub">Desarrollo, cloud, datos, seguridad y operación tecnológica</span>
-                </div>
-                <div className="services-mega-grid">
+            <PanelAtom className={`nav-dropdown-panel${activeDropdown === 'services' ? ' open' : ''}`} variant="ghost" padding="none" radius="none">
+              <PanelAtom className="dropdown-inner" variant="ghost" padding="none" radius="none">
+                <PanelAtom className="dropdown-header" variant="ghost" padding="none" radius="none">
+                  <TextAtom as="strong" className="dropdown-label">Portafolio de servicios</TextAtom>
+                  <TextAtom as="span" className="dropdown-sub">Desarrollo, cloud, datos, seguridad y operación tecnológica</TextAtom>
+                </PanelAtom>
+                <PanelAtom className="services-mega-grid" variant="ghost" padding="none" radius="none">
                   {servicesByCategory.map(({ category, items }) => (
-                    <div key={category} className="services-category">
-                      <span className="services-cat-label">{category}</span>
-                      <div className="services-cat-items">
+                    <PanelAtom key={category} className="services-category" variant="ghost" padding="none" radius="none">
+                      <TextAtom as="span" className="services-cat-label">{category}</TextAtom>
+                      <PanelAtom className="services-cat-items" variant="ghost" padding="none" radius="none">
                         {items.map((s) => (
                           <Link key={s.slug} to={`/servicios/${s.slug}`} className="mega-service-item" onClick={onCloseDropdown}>
                             {s.name}
                           </Link>
                         ))}
-                      </div>
-                    </div>
+                      </PanelAtom>
+                    </PanelAtom>
                   ))}
-                </div>
-              </div>
-            </div>
-          </div>
+                </PanelAtom>
+              </PanelAtom>
+            </PanelAtom>
+          </PanelAtom>
 
-          {/* Regular links — hash anchors use <a> so the browser scrolls natively */}
           {secondaryLinks.map((link) => (
             link.href.includes('#')
-              ? <a key={link.href} href={link.href} className="nav-link">{link.label}</a>
+              ? <LinkAtom key={link.href} href={link.href} className="nav-link">{link.label}</LinkAtom>
               : <Link key={link.href} to={link.href} className="nav-link">{link.label}</Link>
           ))}
-        </div>
+        </PanelAtom>
 
         <LinkAtom href={contact.whatsappHref} variant="button" className="nav-action">
           Agendar
         </LinkAtom>
-      </nav>
+      </PanelAtom>
 
       {/* Mobile drawer — adaptive layout */}
       <DrawerMolecule
@@ -183,32 +182,29 @@ export function NavigationFeatureView({
             </Link>
           ) : null}
 
-          {/* Products */}
-          <div className="drawer-section">
-            <span className="drawer-section-label">Productos</span>
+          <PanelAtom className="drawer-section" variant="ghost" padding="none" radius="none">
+            <TextAtom as="span" className="drawer-section-label">Productos</TextAtom>
             {products.map((p) => (
               <Link key={p.slug} to={`/productos/${p.slug}`} className="drawer-nav-link" onClick={onCloseMenu}>
                 {p.name}
               </Link>
             ))}
-          </div>
+          </PanelAtom>
 
-          {/* Services — 2-col grid */}
-          <div className="drawer-section">
-            <span className="drawer-section-label">Servicios</span>
-            <div className="drawer-services-grid">
+          <PanelAtom className="drawer-section" variant="ghost" padding="none" radius="none">
+            <TextAtom as="span" className="drawer-section-label">Servicios</TextAtom>
+            <PanelAtom className="drawer-services-grid" variant="ghost" padding="none" radius="none">
               {services.map((s) => (
                 <Link key={s.slug} to={`/servicios/${s.slug}`} className="drawer-nav-link drawer-nav-link-sm" onClick={onCloseMenu}>
                   {s.name}
                 </Link>
               ))}
-            </div>
-          </div>
+            </PanelAtom>
+          </PanelAtom>
 
-          {/* Regular links */}
           {secondaryLinks.map((link) => (
             link.href.includes('#')
-              ? <a key={link.href} href={link.href} className="drawer-nav-link" onClick={onCloseMenu}>{link.label}</a>
+              ? <LinkAtom key={link.href} href={link.href} className="drawer-nav-link" onClick={onCloseMenu}>{link.label}</LinkAtom>
               : <Link key={link.href} to={link.href} className="drawer-nav-link" onClick={onCloseMenu}>{link.label}</Link>
           ))}
 
@@ -217,6 +213,6 @@ export function NavigationFeatureView({
           </LinkAtom>
         </PanelAtom>
       </DrawerMolecule>
-    </header>
+    </PanelAtom>
   );
 }

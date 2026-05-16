@@ -8,6 +8,6 @@ export interface InterToastAtom {
   title?: string;
   variant?: ToastVariant;
   duration?: number;
-  // Observer events
   onDismiss?: (id: string) => void;
+  className?: string;
 }

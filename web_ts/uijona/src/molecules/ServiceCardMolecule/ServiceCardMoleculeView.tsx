@@ -1,58 +1,36 @@
 // ServiceCardMoleculeView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
+import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { LinkAtom } from '../../atoms/LinkAtom/LinkAtom';
 import { InterServiceCardMolecule } from './InterServiceCardMolecule';
 
 export const ServiceCardMoleculeView: React.FC<InterServiceCardMolecule> = ({
   icon,
   title,
   description,
-  tags,
+  proof,
   href,
   className,
-  ...props
-}) => {
-  const inner = (
-    <div
-      className={cn(
-        'group flex min-w-0 flex-col gap-3 rounded-xl border border-neutral-200 bg-white p-5 shadow-sm',
-        'transition-shadow duration-200 hover:shadow-md',
-        href && 'cursor-pointer',
-        className
-      )}
-      {...props}
-    >
+}) => (
+  <PanelAtom variant="ghost" padding="none" radius="none" className={cn('service-card business-card', className)}>
+    <PanelAtom className="card-area-header" variant="ghost" padding="none" radius="none">
       {icon && (
-        <span className="text-2xl leading-none" aria-hidden="true">
-          {icon}
-        </span>
+        <TextAtom as="span" className="service-icon-emoji" aria-hidden="true">{icon}</TextAtom>
       )}
-      <h3 className="text-base font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors duration-200">
-        {title}
-      </h3>
-      <p className="flex-1 text-sm leading-relaxed text-neutral-600">{description}</p>
-      {tags && tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
-  if (href) {
-    return (
-      <a href={href} className="block min-w-0 no-underline">
-        {inner}
-      </a>
-    );
-  }
-
-  return inner;
-};
+      <TextAtom as="h3" className="card-title">{title}</TextAtom>
+      <TextAtom className="card-description">{description}</TextAtom>
+    </PanelAtom>
+    {proof && (
+      <PanelAtom className="card-area-content" variant="ghost" padding="none" radius="none">
+        <TextAtom className="business-proof">{proof}</TextAtom>
+      </PanelAtom>
+    )}
+    {href && (
+      <PanelAtom className="card-area-footer" variant="ghost" padding="none" radius="none">
+        <LinkAtom href={href} className="card-detail-link">Ver servicio →</LinkAtom>
+      </PanelAtom>
+    )}
+  </PanelAtom>
+);

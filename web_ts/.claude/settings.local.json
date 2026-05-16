@@ -15,7 +15,10 @@
       "Bash(npm run *)",
       "Bash(Get-ChildItem \"d:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\website-develtrex\\\\src\\\\features\" -Recurse -Name)",
       "Bash(Sort-Object)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(Remove-Item -Recurse -Force src/atoms/SectionShellAtom, src/atoms/EyebrowAtom)",
+      "Bash(Remove-Item -Recurse -Force src/molecules/SalesCTAMolecule, src/molecules/MarketingHeroMolecule)",
+      "Bash(Write-Host \"done\")"
     ]
   }
 }

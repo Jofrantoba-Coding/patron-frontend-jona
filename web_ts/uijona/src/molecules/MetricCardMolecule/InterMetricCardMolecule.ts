@@ -1,14 +1,9 @@
 // InterMetricCardMolecule.ts — JONA Interface
-import React from 'react';
 
-export type MetricCardTone = 'light' | 'dark';
-
-export interface InterMetricCardMolecule extends React.HTMLAttributes<HTMLDivElement> {
+export interface InterMetricCardMolecule {
   value: string;
   label: string;
-  tone?: MetricCardTone;
+  className?: string;
 }
 
-export const METRIC_CARD_MOLECULE_DEFAULTS: Required<Pick<InterMetricCardMolecule, 'tone'>> = {
-  tone: 'dark',
-};
+export const METRIC_CARD_MOLECULE_DEFAULTS: Partial<InterMetricCardMolecule> = {};

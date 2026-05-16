@@ -1,9 +1,7 @@
 import {
-  GridLayout,
-  SalesCTAMolecule,
-  SectionHeadingMolecule,
-  SectionShellAtom,
-  ServiceCardMolecule,
+  LinkAtom,
+  PanelAtom,
+  TextAtom,
 } from 'jona-ui';
 import type { InterServicesFeature } from './InterServicesFeature';
 
@@ -15,15 +13,6 @@ const SERVICE_CATEGORIES = [
   'Seguridad & Operaciones',
 ] as const;
 
-const VISUAL_EMOJI: Record<string, string> = {
-  build:    '🏗️',
-  modern:   '📱',
-  cloud:    '☁️',
-  data:     '📊',
-  database: '🗄️',
-  commerce: '🛍️',
-};
-
 export function ServicesFeatureView({ content }: InterServicesFeature) {
   const servicesByCategory = SERVICE_CATEGORIES.map((cat) => ({
     category: cat,
@@ -32,52 +21,60 @@ export function ServicesFeatureView({ content }: InterServicesFeature) {
 
   return (
     <>
-      {/* ── Services by category ── */}
-      <section id="servicios" className="services-section">
-        <SectionShellAtom>
-          <SectionHeadingMolecule
-            eyebrow="Servicios"
-            heading={content.servicesIntro.title}
-            description={content.servicesIntro.description}
-            className="mb-12"
-          />
+      <PanelAtom as="section" id="servicios" className="services-section" variant="ghost" padding="none" radius="none">
+        <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
+          <PanelAtom className="section-heading mb-12" variant="ghost" padding="none" radius="none">
+            <TextAtom as="span" className="eyebrow">Servicios</TextAtom>
+            <TextAtom as="h2" className="section-title">{content.servicesIntro.title}</TextAtom>
+            <TextAtom className="section-copy">{content.servicesIntro.description}</TextAtom>
+          </PanelAtom>
 
-          <div className="services-by-category">
+          <PanelAtom className="services-by-category" variant="ghost" padding="none" radius="none">
             {servicesByCategory.map(({ category, items }) => (
-              <div key={category} className="services-cat-section">
-                <div className="services-cat-header">
-                  <span className="services-cat-badge">{category}</span>
-                </div>
-                <GridLayout autoFitMin="300px" gap="md">
+              <PanelAtom key={category} className="services-cat-section" variant="ghost" padding="none" radius="none">
+                <PanelAtom className="services-cat-header" variant="ghost" padding="none" radius="none">
+                  <TextAtom as="span" className="services-cat-badge">{category}</TextAtom>
+                </PanelAtom>
+                <PanelAtom className="service-grid" variant="ghost" padding="none" radius="none">
                   {items.map((service) => (
-                    <ServiceCardMolecule
-                      key={service.slug}
-                      icon={VISUAL_EMOJI[service.visual] ?? '⚡'}
-                      title={service.name}
-                      description={service.promise}
-                      tags={[service.proof]}
-                      href={`/servicios/${service.slug}`}
-                    />
+                    <PanelAtom key={service.slug} className="service-card business-card" variant="ghost" padding="none" radius="none">
+                      <PanelAtom className="card-area-header" variant="ghost" padding="none" radius="none">
+                        <PanelAtom as="span" className={`service-icon icon-${service.visual}`} variant="ghost" padding="none" radius="none" aria-hidden="true" />
+                        <TextAtom as="h3" className="card-title">{service.name}</TextAtom>
+                        <TextAtom className="card-description">{service.promise}</TextAtom>
+                      </PanelAtom>
+                      <PanelAtom className="card-area-content" variant="ghost" padding="none" radius="none">
+                        <TextAtom className="business-proof">{service.proof}</TextAtom>
+                      </PanelAtom>
+                      <PanelAtom className="card-area-footer" variant="ghost" padding="none" radius="none">
+                        <LinkAtom href={`/servicios/${service.slug}`} className="card-detail-link">
+                          Ver servicio →
+                        </LinkAtom>
+                      </PanelAtom>
+                    </PanelAtom>
                   ))}
-                </GridLayout>
-              </div>
+                </PanelAtom>
+              </PanelAtom>
             ))}
-          </div>
-        </SectionShellAtom>
-      </section>
+          </PanelAtom>
+        </PanelAtom>
+      </PanelAtom>
 
-      {/* ── Sales CTA ── */}
-      <section className="sales-cta-section">
-        <SectionShellAtom>
-          <SalesCTAMolecule
-            heading="Ordena tu tecnología antes de que el caos frene tu crecimiento."
-            description="30 minutos son suficientes para identificar tus principales brechas, riesgos y la primera ruta de acción concreta."
-            primaryLabel="Diagnóstico gratuito"
-            primaryHref={content.contact.whatsappHref}
-            tone="brand"
-          />
-        </SectionShellAtom>
-      </section>
+      <PanelAtom as="section" className="sales-cta-section" variant="ghost" padding="none" radius="none">
+        <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
+          <PanelAtom className="sales-cta-shell" variant="ghost" padding="none" radius="none">
+            <PanelAtom variant="ghost" padding="none" radius="none">
+              <TextAtom as="h2" className="sales-title">Ordena tu tecnología antes de que el caos frene tu crecimiento.</TextAtom>
+              <TextAtom className="sales-copy">
+                30 minutos son suficientes para identificar tus principales brechas, riesgos y la primera ruta de acción concreta.
+              </TextAtom>
+            </PanelAtom>
+            <LinkAtom href={content.contact.whatsappHref} variant="button" className="sales-link">
+              Diagnóstico gratuito
+            </LinkAtom>
+          </PanelAtom>
+        </PanelAtom>
+      </PanelAtom>
     </>
   );
 }

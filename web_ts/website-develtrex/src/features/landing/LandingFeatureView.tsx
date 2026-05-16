@@ -1,15 +1,6 @@
 import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardMolecule,
-  CardTitle,
-  GridLayout,
-  MarketingHeroMolecule,
-  MetricCardMolecule,
+  LinkAtom,
   PanelAtom,
-  SectionHeadingMolecule,
-  SectionShellAtom,
   TextAtom,
 } from 'jona-ui';
 import type { InterLandingFeature } from './InterLandingFeature';
@@ -24,7 +15,7 @@ function DashboardVisual() {
         <TextAtom as="span" className="dashboard-title-bar">Observability Platform</TextAtom>
         <PanelAtom as="span" className="status-pill" variant="ghost" padding="none" radius="none">
           <PanelAtom as="span" className="status-dot" variant="ghost" padding="none" radius="none" />
-          All Systems Operational
+          <TextAtom as="span">All Systems Operational</TextAtom>
         </PanelAtom>
       </PanelAtom>
       <PanelAtom className="dashboard-grid" variant="ghost" padding="none" radius="none">
@@ -61,7 +52,7 @@ function DashboardVisual() {
             ].map(({ text, type }) => (
               <PanelAtom key={text} as="li" className={`alert-item ${type}`} variant="ghost" padding="none" radius="none">
                 <PanelAtom as="span" className="alert-dot" variant="ghost" padding="none" radius="none" />
-                {text}
+                <TextAtom as="span">{text}</TextAtom>
               </PanelAtom>
             ))}
           </PanelAtom>
@@ -74,48 +65,57 @@ function DashboardVisual() {
 export function LandingFeatureView({ content }: InterLandingFeature) {
   return (
     <>
-      {/* ── Hero ── */}
-      <MarketingHeroMolecule
-        id="inicio"
-        eyebrow={content.hero.eyebrow}
-        title={content.hero.title}
-        subtitle={content.hero.summary}
-        ctas={[
-          { label: content.hero.primaryAction.label, href: content.hero.primaryAction.href, variant: 'primary' },
-          { label: content.hero.secondaryAction.label, href: content.hero.secondaryAction.href, variant: 'outline' },
-        ]}
-        visual={<DashboardVisual />}
-      />
+      <PanelAtom as="section" id="inicio" className="hero-section" variant="ghost" padding="none" radius="none">
+        <PanelAtom className="hero-grid" variant="ghost" padding="none" radius="none">
+          <PanelAtom className="hero-copy" variant="ghost" padding="none" radius="none">
+            <TextAtom as="span" className="eyebrow">{content.hero.eyebrow}</TextAtom>
+            <TextAtom as="h1" className="hero-title">{content.hero.title}</TextAtom>
+            <TextAtom className="hero-summary">{content.hero.summary}</TextAtom>
+            <PanelAtom className="hero-actions" variant="ghost" padding="none" radius="none">
+              <LinkAtom href={content.hero.primaryAction.href} variant="button" className="hero-link-primary">
+                {content.hero.primaryAction.label}
+              </LinkAtom>
+              <LinkAtom href={content.hero.secondaryAction.href} className="hero-link-secondary">
+                {content.hero.secondaryAction.label}
+              </LinkAtom>
+            </PanelAtom>
+          </PanelAtom>
+          <DashboardVisual />
+        </PanelAtom>
+      </PanelAtom>
 
-      {/* ── Metrics band ── */}
-      <section className="metrics-section" aria-label="Indicadores Develtrex">
-        <SectionShellAtom>
-          <div className="metrics-grid">
+      <PanelAtom as="section" className="metrics-section" variant="ghost" padding="none" radius="none" aria-label="Indicadores Develtrex">
+        <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
+          <PanelAtom className="metrics-grid" variant="ghost" padding="none" radius="none">
             {content.metrics.map((metric) => (
-              <MetricCardMolecule key={metric.label} value={metric.value} label={metric.label} tone="dark" />
+              <PanelAtom key={metric.label} className="metric-item" variant="ghost" padding="none" radius="none">
+                <TextAtom as="strong">{metric.value}</TextAtom>
+                <TextAtom as="span">{metric.label}</TextAtom>
+              </PanelAtom>
             ))}
-          </div>
-        </SectionShellAtom>
-      </section>
+          </PanelAtom>
+        </PanelAtom>
+      </PanelAtom>
 
-      {/* ── About / Purpose ── */}
-      <section className="about-section">
-        <SectionShellAtom>
-          <SectionHeadingMolecule heading={content.purpose.title} className="mb-10" />
-          <GridLayout autoFitMin="360px" gap="lg">
+      <PanelAtom as="section" className="about-section" variant="ghost" padding="none" radius="none">
+        <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
+          <PanelAtom className="section-heading mb-10" variant="ghost" padding="none" radius="none">
+            <TextAtom as="h2" className="section-title">{content.purpose.title}</TextAtom>
+          </PanelAtom>
+          <PanelAtom className="two-column" variant="ghost" padding="none" radius="none">
             {content.purpose.items.map((item) => (
-              <CardMolecule key={item.title}>
-                <CardHeader>
-                  <CardTitle>{item.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>{item.description}</CardDescription>
-                </CardContent>
-              </CardMolecule>
+              <PanelAtom key={item.title} className="quiet-card" variant="ghost" padding="none" radius="none">
+                <PanelAtom className="card-area-header" variant="ghost" padding="none" radius="none">
+                  <TextAtom as="h3" className="card-title">{item.title}</TextAtom>
+                </PanelAtom>
+                <PanelAtom className="card-area-content" variant="ghost" padding="none" radius="none">
+                  <TextAtom className="card-description">{item.description}</TextAtom>
+                </PanelAtom>
+              </PanelAtom>
             ))}
-          </GridLayout>
-        </SectionShellAtom>
-      </section>
+          </PanelAtom>
+        </PanelAtom>
+      </PanelAtom>
     </>
   );
 }

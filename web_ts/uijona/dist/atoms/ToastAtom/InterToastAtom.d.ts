@@ -6,4 +6,5 @@ export interface InterToastAtom {
     variant?: ToastVariant;
     duration?: number;
     onDismiss?: (id: string) => void;
+    className?: string;
 }
