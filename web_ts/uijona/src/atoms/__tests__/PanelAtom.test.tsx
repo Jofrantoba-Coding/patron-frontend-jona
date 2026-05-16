@@ -30,7 +30,12 @@ describe('PanelAtom', () => {
       </PanelAtom>
     );
 
-    expect(screen.getByTestId('panel')).toHaveClass('flex', 'flex-row', 'flex-wrap', 'gap-2', 'w-full', 'max-w-full');
+    const panel = screen.getByTestId('panel');
+
+    expect(panel).toHaveClass('jpanel');
+    expect(panel).toHaveAttribute('data-jpanel-layout', 'flow');
+    expect(panel.style.getPropertyValue('--jpanel-gap')).toBe('0.5rem');
+    expect(panel.style.getPropertyValue('--jpanel-wrap')).toBe('wrap');
   });
 
   it('wraps box layout rows by default', () => {
@@ -40,7 +45,11 @@ describe('PanelAtom', () => {
       </PanelAtom>
     );
 
-    expect(screen.getByTestId('panel')).toHaveClass('flex', 'flex-row', 'flex-wrap', 'w-full', 'max-w-full');
+    const panel = screen.getByTestId('panel');
+
+    expect(panel).toHaveAttribute('data-jpanel-layout', 'box');
+    expect(panel.style.getPropertyValue('--jpanel-direction')).toBe('row');
+    expect(panel.style.getPropertyValue('--jpanel-wrap')).toBe('wrap');
   });
 
   it('keeps box layout columns without wrapping by default', () => {
@@ -50,7 +59,11 @@ describe('PanelAtom', () => {
       </PanelAtom>
     );
 
-    expect(screen.getByTestId('panel')).toHaveClass('flex', 'flex-col', 'flex-nowrap', 'w-full', 'max-w-full');
+    const panel = screen.getByTestId('panel');
+
+    expect(panel).toHaveAttribute('data-jpanel-layout', 'box');
+    expect(panel.style.getPropertyValue('--jpanel-direction')).toBe('column');
+    expect(panel.style.getPropertyValue('--jpanel-wrap')).toBe('nowrap');
   });
 
   it('builds grid templates from numeric and string props', () => {
@@ -62,12 +75,13 @@ describe('PanelAtom', () => {
 
     const panel = screen.getByTestId('panel');
 
-    expect(panel).toHaveClass('grid', 'jona-layout-mobile-grid');
-    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(panel).toHaveClass('jpanel');
+    expect(panel).toHaveAttribute('data-jpanel-layout', 'grid');
+    expect(panel).toHaveAttribute('data-jpanel-placement', 'responsive');
     expect(panel.style.gridTemplateColumns).toBe('');
     expect(panel.style.gridTemplateRows).toBe('');
-    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('repeat(3, minmax(0, 1fr))');
-    expect(panel.style.getPropertyValue('--jona-layout-rows')).toBe('auto 1fr');
+    expect(panel.style.getPropertyValue('--jpanel-columns')).toBe('repeat(3, minmax(0, 1fr))');
+    expect(panel.style.getPropertyValue('--jpanel-rows')).toBe('auto 1fr');
   });
 
   it('uses responsive grid columns by default', () => {
@@ -79,11 +93,12 @@ describe('PanelAtom', () => {
 
     const panel = screen.getByTestId('panel');
 
-    expect(panel).toHaveClass('grid', 'jona-layout-mobile-grid', 'w-full', 'max-w-full');
-    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
+    expect(panel).toHaveClass('jpanel');
+    expect(panel).toHaveAttribute('data-jpanel-layout', 'grid');
+    expect(panel).toHaveAttribute('data-jpanel-placement', 'responsive');
     expect(panel.style.gridTemplateColumns).toBe('');
-    expect(panel.style.getPropertyValue('--jona-layout-min')).toBe('12rem');
-    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('');
+    expect(panel.style.getPropertyValue('--jpanel-auto-fit-min')).toBe('12rem');
+    expect(panel.style.getPropertyValue('--jpanel-columns')).toBe('');
   });
 
   it('can apply grid templates immediately with fixed placement', () => {
@@ -95,8 +110,8 @@ describe('PanelAtom', () => {
 
     const panel = screen.getByTestId('panel');
 
-    expect(panel).toHaveAttribute('data-jona-layout-placement', 'fixed');
-    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('repeat(2, minmax(0, 1fr))');
+    expect(panel).toHaveAttribute('data-jpanel-placement', 'fixed');
+    expect(panel.style.getPropertyValue('--jpanel-columns')).toBe('repeat(2, minmax(0, 1fr))');
   });
 
   it('maps border layout children into named grid areas', () => {
@@ -108,11 +123,8 @@ describe('PanelAtom', () => {
       </PanelAtom>
     );
 
-    expect(screen.getByTestId('border-panel').className).toContain("[grid-template-areas:'top'_'left'_'center'_'right'_'bottom']");
-    expect(screen.getByTestId('border-panel').className).toContain('[grid-template-rows:auto_auto_auto_auto_auto]');
-    expect(screen.getByTestId('border-panel').className).toContain("md:[grid-template-areas:'top_top_top'_'left_center_right'_'bottom_bottom_bottom']");
-    expect(screen.getByTestId('border-panel').className).toContain('md:[grid-template-rows:auto_minmax(0,1fr)_auto]');
-    expect(screen.getByTestId('border-panel')).toHaveClass('w-full', 'max-w-full');
+    expect(screen.getByTestId('border-panel')).toHaveAttribute('data-jpanel-layout', 'border');
+    expect(screen.getByTestId('border-panel')).toHaveAttribute('data-jpanel-tablet-layout', 'border');
     expect(screen.getByTestId('top')).toHaveStyle({ gridArea: 'top' });
   });
 
@@ -128,8 +140,8 @@ describe('PanelAtom', () => {
       </PanelAtom>
     );
 
-    expect(screen.getByTestId('profile')).toHaveStyle({ display: 'none' });
-    expect(screen.getByTestId('security')).not.toHaveStyle({ display: 'none' });
+    expect(screen.getByTestId('profile')).toHaveAttribute('data-jpanel-card-state', 'hidden');
+    expect(screen.getByTestId('security')).toHaveAttribute('data-jpanel-card-state', 'active');
   });
 
   it('supports GridBag constraints with mobile-first placement', () => {
@@ -144,14 +156,15 @@ describe('PanelAtom', () => {
     const panel = screen.getByTestId('panel');
     const item = screen.getByTestId('item');
 
-    expect(panel).toHaveClass('jona-layout-mobile-grid', 'jona-gridbag');
-    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
-    expect(panel).toHaveAttribute('data-jona-layout-dense', 'true');
-    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('repeat(3, minmax(0, 1fr))');
+    expect(panel).toHaveAttribute('data-jpanel-layout', 'gridbag');
+    expect(panel).toHaveAttribute('data-jpanel-placement', 'responsive');
+    expect(panel).toHaveAttribute('data-jpanel-dense', 'true');
+    expect(panel.style.getPropertyValue('--jpanel-columns')).toBe('repeat(3, minmax(0, 1fr))');
+    expect(item).toHaveAttribute('data-jpanel-gridbag-item');
     expect(item).toHaveAttribute('data-jona-gridbag-item');
-    expect(item.style.getPropertyValue('--jona-gridbag-column')).toBe('1');
-    expect(item.style.getPropertyValue('--jona-gridbag-row')).toBe('2');
-    expect(item.style.getPropertyValue('--jona-gridbag-column-span')).toBe('2');
+    expect(item.style.getPropertyValue('--jpanel-gridbag-column')).toBe('1');
+    expect(item.style.getPropertyValue('--jpanel-gridbag-row')).toBe('2');
+    expect(item.style.getPropertyValue('--jpanel-gridbag-column-span')).toBe('2');
   });
 
   it('supports Group constraints from PanelAtom', () => {
@@ -166,12 +179,13 @@ describe('PanelAtom', () => {
     const panel = screen.getByTestId('panel');
     const item = screen.getByTestId('item');
 
-    expect(panel).toHaveClass('jona-layout-mobile-grid', 'jona-group-layout', 'justify-items-stretch');
-    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
-    expect(panel).toHaveAttribute('data-jona-layout-mode', 'parallel');
-    expect(panel.style.getPropertyValue('--jona-layout-columns')).toBe('repeat(2, minmax(0, 1fr))');
+    expect(panel).toHaveAttribute('data-jpanel-layout', 'group');
+    expect(panel).toHaveAttribute('data-jpanel-placement', 'responsive');
+    expect(panel).toHaveAttribute('data-jpanel-mode', 'parallel');
+    expect(panel.style.getPropertyValue('--jpanel-columns')).toBe('repeat(2, minmax(0, 1fr))');
+    expect(item).toHaveAttribute('data-jpanel-group-item');
     expect(item).toHaveAttribute('data-jona-group-item');
-    expect(item.style.getPropertyValue('--jona-group-span')).toBe('2');
+    expect(item.style.getPropertyValue('--jpanel-group-span')).toBe('2');
   });
 
   it('supports Spring constraints without breaking mobile-first defaults', () => {
@@ -186,12 +200,13 @@ describe('PanelAtom', () => {
     const panel = screen.getByTestId('panel');
     const item = screen.getByTestId('item');
 
-    expect(panel).toHaveClass('jona-spring-layout');
-    expect(panel).toHaveAttribute('data-jona-layout-placement', 'responsive');
-    expect(panel.style.getPropertyValue('--jona-spring-min-height')).toBe('18rem');
+    expect(panel).toHaveAttribute('data-jpanel-layout', 'spring');
+    expect(panel).toHaveAttribute('data-jpanel-placement', 'responsive');
+    expect(panel.style.getPropertyValue('--jpanel-spring-min-height')).toBe('18rem');
+    expect(item).toHaveAttribute('data-jpanel-spring-item');
     expect(item).toHaveAttribute('data-jona-spring-item');
-    expect(item.style.getPropertyValue('--jona-spring-left')).toBe('1rem');
-    expect(item.style.getPropertyValue('--jona-spring-top')).toBe('2rem');
-    expect(item.style.getPropertyValue('--jona-spring-width')).toBe('10rem');
+    expect(item.style.getPropertyValue('--jpanel-spring-left')).toBe('1rem');
+    expect(item.style.getPropertyValue('--jpanel-spring-top')).toBe('2rem');
+    expect(item.style.getPropertyValue('--jpanel-spring-width')).toBe('10rem');
   });
 });

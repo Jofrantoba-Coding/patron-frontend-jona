@@ -1,4 +1,3 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterAccordionMolecule } from './InterAccordionMolecule';
-
 export declare const AccordionMoleculeImpl: React.FC<InterAccordionMolecule>;

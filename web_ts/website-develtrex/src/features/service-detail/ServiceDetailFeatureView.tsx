@@ -1,5 +1,12 @@
 import { Link } from 'react-router-dom';
-import { LinkAtom, PanelAtom, TextAtom } from 'jona-ui';
+import { GridLayout, LinkAtom, PanelAtom, TextAtom } from 'jona-ui';
+import {
+  BenefitItemMolecule,
+  DetailCTAOrganism,
+  DetailHeroOrganism,
+  FaqItemMolecule,
+  RelatedItemMolecule,
+} from 'jona-ui';
 import { ContactFeature } from '../contact/ContactFeature';
 import { NavigationFeature } from '../navigation/NavigationFeature';
 import type { InterServiceDetailFeatureView } from './InterServiceDetailFeature';
@@ -8,6 +15,16 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
   const relatedServices = content.services
     .filter((s) => s.category === service.category && s.slug !== service.slug)
     .slice(0, 3);
+
+  const visual = (
+    <PanelAtom
+      className={`detail-hero-asset service-visual-asset icon-${service.visual}`}
+      variant="ghost"
+      padding="none"
+      radius="none"
+      aria-hidden="true"
+    />
+  );
 
   return (
     <>
@@ -19,30 +36,23 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
       />
 
       <PanelAtom as="main" variant="ghost" padding="none" radius="none">
-        <PanelAtom as="section" className="detail-hero service-hero" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="detail-hero-inner" variant="ghost" padding="none" radius="none">
-            <Link to="/" className="detail-back">← Todos los servicios</Link>
-            <PanelAtom className="detail-hero-copy" variant="ghost" padding="none" radius="none">
-              <TextAtom as="span" className="eyebrow service-eyebrow">{service.category}</TextAtom>
-              <TextAtom as="h1" className="detail-title">{service.name}</TextAtom>
-              <TextAtom className="detail-outcome">{service.promise}</TextAtom>
-              <PanelAtom className="detail-hero-actions" variant="ghost" padding="none" radius="none">
-                <LinkAtom href={content.contact.whatsappHref} variant="button" className="detail-cta-primary">
-                  Solicitar información
-                </LinkAtom>
-                <LinkAtom href={content.contact.emailHref} className="detail-cta-secondary">
-                  Escribirnos
-                </LinkAtom>
-              </PanelAtom>
-            </PanelAtom>
-
-            <PanelAtom className={`detail-hero-asset service-visual-asset icon-${service.visual}`} variant="ghost" padding="none" radius="none" aria-hidden="true" />
-          </PanelAtom>
-        </PanelAtom>
+        <DetailHeroOrganism
+          className="service-hero"
+          backHref="/"
+          backLabel="← Todos los servicios"
+          eyebrow={service.category}
+          title={service.name}
+          outcome={service.promise}
+          primaryHref={content.contact.whatsappHref}
+          primaryLabel="Solicitar información"
+          secondaryHref={content.contact.emailHref}
+          secondaryLabel="Escribirnos"
+          visual={visual}
+        />
 
         <PanelAtom as="section" className="detail-section detail-overview" variant="ghost" padding="none" radius="none">
           <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
-            <PanelAtom className="detail-two-column" variant="ghost" padding="none" radius="none">
+            <GridLayout columns="repeat(2, minmax(0, 1fr))" placement="fixed" className="detail-two-column">
               <PanelAtom className="detail-copy-block" variant="ghost" padding="none" radius="none">
                 <TextAtom as="span" className="eyebrow">Descripción</TextAtom>
                 <TextAtom as="h2" className="detail-h2">¿De qué se trata?</TextAtom>
@@ -56,7 +66,7 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
                   <TextAtom className="service-proof-text">{service.proof}</TextAtom>
                 </PanelAtom>
               </PanelAtom>
-            </PanelAtom>
+            </GridLayout>
           </PanelAtom>
         </PanelAtom>
 
@@ -64,14 +74,11 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
           <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="eyebrow">Beneficios</TextAtom>
             <TextAtom as="h2" className="detail-h2">¿Qué obtienes?</TextAtom>
-            <PanelAtom className="detail-benefits-grid" variant="ghost" padding="none" radius="none">
+            <GridLayout autoFitMin="280px" className="detail-benefits-grid">
               {detail.benefits.map((benefit) => (
-                <PanelAtom key={benefit} className="detail-benefit-card" variant="ghost" padding="none" radius="none">
-                  <PanelAtom as="span" className="detail-benefit-dot" variant="ghost" padding="none" radius="none" />
-                  <TextAtom className="detail-benefit-text">{benefit}</TextAtom>
-                </PanelAtom>
+                <BenefitItemMolecule key={benefit} text={benefit} />
               ))}
-            </PanelAtom>
+            </GridLayout>
           </PanelAtom>
         </PanelAtom>
 
@@ -96,10 +103,7 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
             <TextAtom as="h2" className="detail-h2">Preguntas frecuentes</TextAtom>
             <PanelAtom className="detail-faq-list" variant="ghost" padding="none" radius="none">
               {detail.faqs.map((faq) => (
-                <PanelAtom key={faq.q} className="detail-faq-item" variant="ghost" padding="none" radius="none">
-                  <TextAtom as="strong" className="detail-faq-q">{faq.q}</TextAtom>
-                  <TextAtom className="detail-faq-a">{faq.a}</TextAtom>
-                </PanelAtom>
+                <FaqItemMolecule key={faq.q} question={faq.q} answer={faq.a} />
               ))}
             </PanelAtom>
           </PanelAtom>
@@ -110,37 +114,29 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
             <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
               <TextAtom as="span" className="eyebrow">También en {service.category}</TextAtom>
               <TextAtom as="h2" className="detail-h2">Servicios relacionados que podrían interesarte</TextAtom>
-              <PanelAtom className="detail-related-grid" variant="ghost" padding="none" radius="none">
+              <GridLayout autoFitMin="280px" className="detail-related-grid">
                 {relatedServices.map((s) => (
-                  <Link key={s.slug} to={`/servicios/${s.slug}`} className="detail-related-card">
-                    <TextAtom as="strong" className="detail-related-name">{s.name}</TextAtom>
-                    <TextAtom className="detail-related-outcome">{s.promise}</TextAtom>
-                    <TextAtom as="span" className="detail-related-link">Ver servicio →</TextAtom>
-                  </Link>
+                  <RelatedItemMolecule
+                    key={s.slug}
+                    name={s.name}
+                    outcome={s.promise}
+                    href={`/servicios/${s.slug}`}
+                    linkLabel="Ver servicio →"
+                  />
                 ))}
-              </PanelAtom>
+              </GridLayout>
             </PanelAtom>
           </PanelAtom>
         )}
 
-        <PanelAtom as="section" className="detail-section detail-cta-section" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
-            <PanelAtom className="detail-cta-box" variant="ghost" padding="none" radius="none">
-              <TextAtom as="h2" className="detail-cta-title">¿Te interesa este servicio?</TextAtom>
-              <TextAtom className="detail-cta-body">
-                Conversemos sobre tu caso específico. Una sesión de 30 minutos es suficiente para saber si podemos ayudarte y cómo.
-              </TextAtom>
-              <PanelAtom className="detail-cta-actions" variant="ghost" padding="none" radius="none">
-                <LinkAtom href={content.contact.whatsappHref} variant="button" className="detail-cta-primary">
-                  Agendar por WhatsApp
-                </LinkAtom>
-                <LinkAtom href={content.contact.emailHref} className="detail-cta-secondary">
-                  {content.contact.email}
-                </LinkAtom>
-              </PanelAtom>
-            </PanelAtom>
-          </PanelAtom>
-        </PanelAtom>
+        <DetailCTAOrganism
+          title="¿Te interesa este servicio?"
+          body="Conversemos sobre tu caso específico. Una sesión de 30 minutos es suficiente para saber si podemos ayudarte y cómo."
+          primaryHref={content.contact.whatsappHref}
+          primaryLabel="Agendar por WhatsApp"
+          secondaryHref={content.contact.emailHref}
+          secondaryLabel={content.contact.email}
+        />
 
         <ContactFeature content={content.contact} />
       </PanelAtom>

@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { MultiSelectOption } from './InterMultiSelectMolecule';
-
 interface MultiSelectMoleculeViewProps {
     selected: MultiSelectOption[];
     filtered: MultiSelectOption[];

@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterSelectAtom } from './InterSelectAtom';
-
 interface SelectAtomViewProps {
     options?: InterSelectAtom['options'];
     groups?: InterSelectAtom['groups'];

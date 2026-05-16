@@ -1,4 +1,3 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterComboboxMolecule } from './InterComboboxMolecule';
-
 export declare const ComboboxMoleculeImpl: React.FC<InterComboboxMolecule>;

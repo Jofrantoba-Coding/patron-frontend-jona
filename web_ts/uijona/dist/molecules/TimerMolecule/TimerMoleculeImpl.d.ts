@@ -1,4 +1,3 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterTimerMolecule } from './InterTimerMolecule';
-
 export declare const TimerMoleculeImpl: React.FC<InterTimerMolecule>;

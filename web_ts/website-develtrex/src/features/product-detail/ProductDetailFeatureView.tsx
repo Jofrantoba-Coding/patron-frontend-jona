@@ -1,10 +1,29 @@
-import { Link } from 'react-router-dom';
-import { BadgeAtom, LinkAtom, PanelAtom, TextAtom } from 'jona-ui';
+import { BadgeAtom, GridLayout, PanelAtom, TextAtom } from 'jona-ui';
+import {
+  BenefitItemMolecule,
+  DetailCTAOrganism,
+  DetailHeroOrganism,
+  FaqItemMolecule,
+} from 'jona-ui';
 import { ContactFeature } from '../contact/ContactFeature';
 import { NavigationFeature } from '../navigation/NavigationFeature';
 import type { InterProductDetailFeatureView } from './InterProductDetailFeature';
 
 export function ProductDetailFeatureView({ content, product, detail, assetClass }: InterProductDetailFeatureView) {
+  const visual = (
+    <PanelAtom
+      className={`detail-hero-asset light-asset ${assetClass}`}
+      variant="ghost"
+      padding="none"
+      radius="none"
+      aria-hidden="true"
+    >
+      <PanelAtom as="span" variant="ghost" padding="none" radius="none" />
+      <PanelAtom as="span" variant="ghost" padding="none" radius="none" />
+      <PanelAtom as="span" variant="ghost" padding="none" radius="none" />
+    </PanelAtom>
+  );
+
   return (
     <>
       <NavigationFeature
@@ -15,34 +34,22 @@ export function ProductDetailFeatureView({ content, product, detail, assetClass 
       />
 
       <PanelAtom as="main" variant="ghost" padding="none" radius="none">
-        <PanelAtom as="section" className="detail-hero" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="detail-hero-inner" variant="ghost" padding="none" radius="none">
-            <Link to="/" className="detail-back">← Productos</Link>
-            <PanelAtom className="detail-hero-copy" variant="ghost" padding="none" radius="none">
-              <BadgeAtom variant="outline" className="detail-tag">{product.tag}</BadgeAtom>
-              <TextAtom as="h1" className="detail-title">{product.name}</TextAtom>
-              <TextAtom className="detail-outcome">{product.outcome}</TextAtom>
-              <PanelAtom className="detail-hero-actions" variant="ghost" padding="none" radius="none">
-                <LinkAtom href={content.contact.whatsappHref} variant="button" className="detail-cta-primary">
-                  Solicitar información
-                </LinkAtom>
-                <LinkAtom href={content.contact.emailHref} className="detail-cta-secondary">
-                  Escribirnos
-                </LinkAtom>
-              </PanelAtom>
-            </PanelAtom>
-
-            <PanelAtom className={`detail-hero-asset light-asset ${assetClass}`} variant="ghost" padding="none" radius="none" aria-hidden="true">
-              <PanelAtom as="span" variant="ghost" padding="none" radius="none" />
-              <PanelAtom as="span" variant="ghost" padding="none" radius="none" />
-              <PanelAtom as="span" variant="ghost" padding="none" radius="none" />
-            </PanelAtom>
-          </PanelAtom>
-        </PanelAtom>
+        <DetailHeroOrganism
+          backHref="/"
+          backLabel="← Productos"
+          eyebrow={<BadgeAtom variant="outline" className="detail-tag">{product.tag}</BadgeAtom>}
+          title={product.name}
+          outcome={product.outcome}
+          primaryHref={content.contact.whatsappHref}
+          primaryLabel="Solicitar información"
+          secondaryHref={content.contact.emailHref}
+          secondaryLabel="Escribirnos"
+          visual={visual}
+        />
 
         <PanelAtom as="section" className="detail-section detail-overview" variant="ghost" padding="none" radius="none">
           <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
-            <PanelAtom className="detail-two-column" variant="ghost" padding="none" radius="none">
+            <GridLayout columns="repeat(2, minmax(0, 1fr))" placement="fixed" className="detail-two-column">
               <PanelAtom className="detail-copy-block" variant="ghost" padding="none" radius="none">
                 <TextAtom as="span" className="eyebrow">Descripción</TextAtom>
                 <TextAtom as="h2" className="detail-h2">¿De qué se trata?</TextAtom>
@@ -53,7 +60,7 @@ export function ProductDetailFeatureView({ content, product, detail, assetClass 
                 <TextAtom as="h2" className="detail-h2">¿A quién le sirve?</TextAtom>
                 <TextAtom className="detail-body">{detail.forWho}</TextAtom>
               </PanelAtom>
-            </PanelAtom>
+            </GridLayout>
           </PanelAtom>
         </PanelAtom>
 
@@ -61,14 +68,11 @@ export function ProductDetailFeatureView({ content, product, detail, assetClass 
           <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="eyebrow">Beneficios</TextAtom>
             <TextAtom as="h2" className="detail-h2">¿Qué obtienes?</TextAtom>
-            <PanelAtom className="detail-benefits-grid" variant="ghost" padding="none" radius="none">
+            <GridLayout autoFitMin="280px" className="detail-benefits-grid">
               {detail.benefits.map((benefit) => (
-                <PanelAtom key={benefit} className="detail-benefit-card" variant="ghost" padding="none" radius="none">
-                  <PanelAtom as="span" className="detail-benefit-dot" variant="ghost" padding="none" radius="none" />
-                  <TextAtom className="detail-benefit-text">{benefit}</TextAtom>
-                </PanelAtom>
+                <BenefitItemMolecule key={benefit} text={benefit} />
               ))}
-            </PanelAtom>
+            </GridLayout>
           </PanelAtom>
         </PanelAtom>
 
@@ -92,7 +96,7 @@ export function ProductDetailFeatureView({ content, product, detail, assetClass 
 
         <PanelAtom as="section" className="detail-section detail-deliverables" variant="ghost" padding="none" radius="none">
           <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
-            <PanelAtom className="detail-two-column" variant="ghost" padding="none" radius="none">
+            <GridLayout columns="repeat(2, minmax(0, 1fr))" placement="fixed" className="detail-two-column">
               <PanelAtom className="detail-copy-block" variant="ghost" padding="none" radius="none">
                 <TextAtom as="span" className="eyebrow">Entregables</TextAtom>
                 <TextAtom as="h2" className="detail-h2">¿Qué recibes?</TextAtom>
@@ -118,7 +122,7 @@ export function ProductDetailFeatureView({ content, product, detail, assetClass 
                   ))}
                 </PanelAtom>
               </PanelAtom>
-            </PanelAtom>
+            </GridLayout>
           </PanelAtom>
         </PanelAtom>
 
@@ -128,33 +132,20 @@ export function ProductDetailFeatureView({ content, product, detail, assetClass 
             <TextAtom as="h2" className="detail-h2">Preguntas frecuentes</TextAtom>
             <PanelAtom className="detail-faq-list" variant="ghost" padding="none" radius="none">
               {detail.faqs.map((faq) => (
-                <PanelAtom key={faq.q} className="detail-faq-item" variant="ghost" padding="none" radius="none">
-                  <TextAtom as="strong" className="detail-faq-q">{faq.q}</TextAtom>
-                  <TextAtom className="detail-faq-a">{faq.a}</TextAtom>
-                </PanelAtom>
+                <FaqItemMolecule key={faq.q} question={faq.q} answer={faq.a} />
               ))}
             </PanelAtom>
           </PanelAtom>
         </PanelAtom>
 
-        <PanelAtom as="section" className="detail-section detail-cta-section" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
-            <PanelAtom className="detail-cta-box" variant="ghost" padding="none" radius="none">
-              <TextAtom as="h2" className="detail-cta-title">¿Quieres evaluar {product.name} para tu empresa?</TextAtom>
-              <TextAtom className="detail-cta-body">
-                En una sesión de 30 minutos evaluamos si aplica a tu operación, resolvemos tus dudas y definimos los siguientes pasos concretos.
-              </TextAtom>
-              <PanelAtom className="detail-cta-actions" variant="ghost" padding="none" radius="none">
-                <LinkAtom href={content.contact.whatsappHref} variant="button" className="detail-cta-primary">
-                  Agendar sesión por WhatsApp
-                </LinkAtom>
-                <LinkAtom href={content.contact.emailHref} className="detail-cta-secondary">
-                  {content.contact.email}
-                </LinkAtom>
-              </PanelAtom>
-            </PanelAtom>
-          </PanelAtom>
-        </PanelAtom>
+        <DetailCTAOrganism
+          title={`¿Quieres evaluar ${product.name} para tu empresa?`}
+          body="En una sesión de 30 minutos evaluamos si aplica a tu operación, resolvemos tus dudas y definimos los siguientes pasos concretos."
+          primaryHref={content.contact.whatsappHref}
+          primaryLabel="Agendar sesión por WhatsApp"
+          secondaryHref={content.contact.emailHref}
+          secondaryLabel={content.contact.email}
+        />
 
         <ContactFeature content={content.contact} />
       </PanelAtom>

@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export interface FileUploadReject {
     reason: 'max-files' | 'accept';
     files: File[];

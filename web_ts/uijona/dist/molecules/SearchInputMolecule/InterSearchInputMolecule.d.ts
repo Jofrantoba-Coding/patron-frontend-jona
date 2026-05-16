@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export interface InterSearchInputMolecule extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'defaultValue' | 'onChange' | 'onBlur' | 'onKeyDown'> {
     value?: string;
     defaultValue?: string;

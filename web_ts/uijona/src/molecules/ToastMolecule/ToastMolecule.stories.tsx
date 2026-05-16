@@ -7,7 +7,7 @@ import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof ToastMolecule> = {
-  title: 'Atoms/ToastMolecule',
+  title: 'Molecules/ToastMolecule',
   component: ToastMolecule,
   tags: ['autodocs'],
   args: {

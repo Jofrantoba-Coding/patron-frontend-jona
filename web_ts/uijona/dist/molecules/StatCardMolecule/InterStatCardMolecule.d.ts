@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export type StatCardTone = 'neutral' | 'success' | 'warning' | 'danger' | 'info';
 export type StatCardTrend = 'up' | 'down' | 'flat';
 export interface InterStatCardMolecule extends React.HTMLAttributes<HTMLDivElement> {

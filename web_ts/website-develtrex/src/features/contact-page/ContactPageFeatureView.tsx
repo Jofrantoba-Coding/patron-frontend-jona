@@ -1,33 +1,11 @@
-import { LinkAtom, PanelAtom, TextAtom } from 'jona-ui';
+import { PanelAtom, TextAtom } from 'jona-ui';
+import {
+  ContactMethodsOrganism,
+  ContactStepsOrganism,
+  SiteFooterOrganism,
+} from 'jona-ui';
 import { NavigationFeature } from '../navigation/NavigationFeature';
 import type { InterContactPageFeature } from './InterContactPageFeature';
-
-const CONTACT_METHODS = [
-  {
-    icon: '💬',
-    label: 'WhatsApp',
-    description: 'La forma más rápida. Respondemos en menos de 2 horas en horario laboral.',
-    action: 'Abrir WhatsApp',
-    hrefKey: 'whatsappHref' as const,
-    primary: true,
-  },
-  {
-    icon: '📞',
-    label: 'Teléfono',
-    description: 'Llámanos directamente para una conversación inmediata.',
-    action: null,
-    hrefKey: 'phoneHref' as const,
-    primary: false,
-  },
-  {
-    icon: '✉️',
-    label: 'Email',
-    description: 'Para consultas detalladas o documentación. Respondemos el mismo día.',
-    action: null,
-    hrefKey: 'emailHref' as const,
-    primary: false,
-  },
-] as const;
 
 const STEPS = [
   {
@@ -50,6 +28,36 @@ const STEPS = [
 export function ContactPageFeatureView({ content }: InterContactPageFeature) {
   const c = content.contact;
 
+  const CONTACT_METHODS = [
+    {
+      icon: '💬',
+      label: 'WhatsApp',
+      description: 'La forma más rápida. Respondemos en menos de 2 horas en horario laboral.',
+      href: c.whatsappHref,
+      actionLabel: 'Abrir WhatsApp',
+      isPrimary: true,
+    },
+    {
+      icon: '📞',
+      label: 'Teléfono',
+      description: 'Llámanos directamente para una conversación inmediata.',
+      href: c.phoneHref,
+      isPrimary: false,
+    },
+    {
+      icon: '✉️',
+      label: 'Email',
+      description: 'Para consultas detalladas o documentación. Respondemos el mismo día.',
+      href: c.emailHref,
+      isPrimary: false,
+    },
+  ];
+
+  const FOOTER_LINKS = [
+    { label: c.phone, href: c.phoneHref },
+    { label: c.email, href: c.emailHref },
+  ];
+
   return (
     <>
       <NavigationFeature
@@ -68,56 +76,18 @@ export function ContactPageFeatureView({ content }: InterContactPageFeature) {
           </PanelAtom>
         </PanelAtom>
 
-        <PanelAtom as="section" className="contact-methods-section" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
-            <PanelAtom className="contact-methods-grid" variant="ghost" padding="none" radius="none">
-              {CONTACT_METHODS.map((method) => (
-                <PanelAtom key={method.label} className={`contact-method-card${method.primary ? ' primary' : ''}`} variant="ghost" padding="none" radius="none">
-                  <TextAtom as="span" className="contact-method-icon" aria-hidden="true">{method.icon}</TextAtom>
-                  <TextAtom as="strong" className="contact-method-label">{method.label}</TextAtom>
-                  <TextAtom className="contact-method-desc">{method.description}</TextAtom>
-                  {method.primary ? (
-                    <LinkAtom href={c[method.hrefKey]} variant="button" className="contact-method-cta">
-                      {method.action}
-                    </LinkAtom>
-                  ) : (
-                    <LinkAtom href={c[method.hrefKey]} className="contact-method-link">
-                      {method.hrefKey === 'phoneHref' ? c.phone : c.email}
-                    </LinkAtom>
-                  )}
-                </PanelAtom>
-              ))}
-            </PanelAtom>
-          </PanelAtom>
-        </PanelAtom>
+        <ContactMethodsOrganism methods={CONTACT_METHODS} />
 
-        <PanelAtom as="section" className="contact-steps-section" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
-            <PanelAtom className="section-heading mb-10" variant="ghost" padding="none" radius="none">
-              <TextAtom as="span" className="eyebrow">Qué esperar</TextAtom>
-              <TextAtom as="h2" className="section-title">Así empieza la conversación</TextAtom>
-            </PanelAtom>
-            <PanelAtom className="contact-steps-list" variant="ghost" padding="none" radius="none">
-              {STEPS.map((step) => (
-                <PanelAtom key={step.num} className="contact-step" variant="ghost" padding="none" radius="none">
-                  <TextAtom as="span" className="contact-step-num">{step.num}</TextAtom>
-                  <PanelAtom className="contact-step-body" variant="ghost" padding="none" radius="none">
-                    <TextAtom as="strong" className="contact-step-title">{step.title}</TextAtom>
-                    <TextAtom className="contact-step-desc">{step.body}</TextAtom>
-                  </PanelAtom>
-                </PanelAtom>
-              ))}
-            </PanelAtom>
-          </PanelAtom>
-        </PanelAtom>
+        <ContactStepsOrganism
+          eyebrow="Qué esperar"
+          heading="Así empieza la conversación"
+          steps={STEPS}
+        />
 
-        <PanelAtom as="footer" className="contact-page-footer" variant="ghost" padding="none" radius="none">
-          <TextAtom as="span">© {new Date().getFullYear()} Develtrex. Todos los derechos reservados.</TextAtom>
-          <PanelAtom className="contact-page-footer-links" variant="ghost" padding="none" radius="none">
-            <LinkAtom href={c.phoneHref} className="footer-link">{c.phone}</LinkAtom>
-            <LinkAtom href={c.emailHref} className="footer-link">{c.email}</LinkAtom>
-          </PanelAtom>
-        </PanelAtom>
+        <SiteFooterOrganism
+          copyright={`© ${new Date().getFullYear()} Develtrex. Todos los derechos reservados.`}
+          links={FOOTER_LINKS}
+        />
       </PanelAtom>
     </>
   );

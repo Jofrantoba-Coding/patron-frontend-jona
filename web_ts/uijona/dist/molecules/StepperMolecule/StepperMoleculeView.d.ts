@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterStepperMolecule } from './InterStepperMolecule';
-
 type StepperMoleculeViewProps = Omit<InterStepperMolecule, 'currentStep' | 'defaultStep' | 'onStepChange'> & {
     activeStep: number;
     onStepClick: (stepIndex: number) => void;

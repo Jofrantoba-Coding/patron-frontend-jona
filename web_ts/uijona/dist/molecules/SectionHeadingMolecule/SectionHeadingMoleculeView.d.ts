@@ -1,4 +1,3 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterSectionHeadingMolecule } from './InterSectionHeadingMolecule';
-
 export declare const SectionHeadingMoleculeView: React.FC<InterSectionHeadingMolecule>;

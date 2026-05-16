@@ -1,6 +1,6 @@
 // UseToastImpl.tsx — JONA Implementation
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { ToastAtom } from '../../atoms/ToastAtom';
+import { ToastMolecule } from '../../molecules/ToastMolecule';
 import { ToastData, InterUseToast } from './InterUseToast';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 
@@ -27,7 +27,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       >
         {toasts.map((t) => (
           <PanelAtom variant="ghost" padding="none" radius="none" key={t.id} className="pointer-events-auto w-full sm:w-auto">
-            <ToastAtom {...t} onDismiss={dismiss} />
+            <ToastMolecule {...t} onDismiss={dismiss} />
           </PanelAtom>
         ))}
       </PanelAtom>

@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export type SortDirection = 'asc' | 'desc' | null;
 export interface DataTableColumn<T = Record<string, unknown>> {
     key: string;

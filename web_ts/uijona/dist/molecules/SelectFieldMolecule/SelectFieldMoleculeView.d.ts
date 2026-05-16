@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterSelectFieldMolecule } from './InterSelectFieldMolecule';
-
 type SelectFieldMoleculeViewProps = InterSelectFieldMolecule & {
     forwardedRef?: React.Ref<HTMLSelectElement>;
     value?: string;

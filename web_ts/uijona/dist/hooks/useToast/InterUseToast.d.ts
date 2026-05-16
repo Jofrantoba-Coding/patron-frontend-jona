@@ -1,5 +1,4 @@
-import { ToastVariant } from '../../atoms/ToastAtom';
-
+import { ToastVariant } from '../../molecules/ToastMolecule';
 export interface ToastData {
     id: string;
     message: string;

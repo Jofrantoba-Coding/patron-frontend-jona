@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export type TimerMoleculeMode = 'countdown' | 'stopwatch';
 export type TimerMoleculeStatus = 'idle' | 'running' | 'paused' | 'completed';
 export type TimerMoleculeVariant = 'plain' | 'card' | 'inline';

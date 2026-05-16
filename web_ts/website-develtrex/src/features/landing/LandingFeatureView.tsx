@@ -1,5 +1,6 @@
 import {
   LinkAtom,
+  MetricsBandOrganism,
   PanelAtom,
   TextAtom,
 } from 'jona-ui';
@@ -84,18 +85,7 @@ export function LandingFeatureView({ content }: InterLandingFeature) {
         </PanelAtom>
       </PanelAtom>
 
-      <PanelAtom as="section" className="metrics-section" variant="ghost" padding="none" radius="none" aria-label="Indicadores Develtrex">
-        <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="metrics-grid" variant="ghost" padding="none" radius="none">
-            {content.metrics.map((metric) => (
-              <PanelAtom key={metric.label} className="metric-item" variant="ghost" padding="none" radius="none">
-                <TextAtom as="strong">{metric.value}</TextAtom>
-                <TextAtom as="span">{metric.label}</TextAtom>
-              </PanelAtom>
-            ))}
-          </PanelAtom>
-        </PanelAtom>
-      </PanelAtom>
+      <MetricsBandOrganism metrics={content.metrics} aria-label="Indicadores Develtrex" />
 
       <PanelAtom as="section" className="about-section" variant="ghost" padding="none" radius="none">
         <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">

@@ -1,4 +1,3 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterUiHomeError } from './InterUiHomeError';
-
 export declare const UiHomeErrorView: React.FC<InterUiHomeError>;

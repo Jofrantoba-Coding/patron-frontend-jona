@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export type DrawerSide = 'left' | 'right' | 'top' | 'bottom';
 export interface InterDrawerMolecule {
     open: boolean;

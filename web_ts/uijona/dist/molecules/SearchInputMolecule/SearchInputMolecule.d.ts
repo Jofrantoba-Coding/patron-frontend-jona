@@ -1,1 +1,1 @@
-export declare const SearchInputMolecule: import('../../../node_modules/react').ForwardRefExoticComponent<import('./InterSearchInputMolecule').InterSearchInputMolecule & import('../../../node_modules/react').RefAttributes<HTMLInputElement>>;
+export declare const SearchInputMolecule: import("react").ForwardRefExoticComponent<import("./InterSearchInputMolecule").InterSearchInputMolecule & import("react").RefAttributes<HTMLInputElement>>;

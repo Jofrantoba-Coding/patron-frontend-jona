@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const t=require("react/jsx-runtime"),o=require("./InterContactMethodCardMolecule.cjs"),c=require("./ContactMethodCardMoleculeView.cjs"),r=e=>t.jsx(c.ContactMethodCardMoleculeView,{...o.CONTACT_METHOD_CARD_MOLECULE_DEFAULTS,...e});exports.ContactMethodCardMoleculeImpl=r;
+//# sourceMappingURL=ContactMethodCardMoleculeImpl.cjs.map

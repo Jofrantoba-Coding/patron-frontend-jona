@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterSearchInputMolecule } from './InterSearchInputMolecule';
-
 type SearchInputMoleculeViewProps = Omit<InterSearchInputMolecule, 'onChange' | 'onSearch' | 'onClear' | 'onBlur' | 'onEnterPress'> & {
     inputValue: string;
     forwardedRef?: React.Ref<HTMLInputElement>;

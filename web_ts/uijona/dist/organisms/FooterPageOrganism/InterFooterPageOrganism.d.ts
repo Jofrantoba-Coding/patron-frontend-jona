@@ -1,5 +1,4 @@
-import { ReactNode } from '../../../node_modules/react';
-
+import { ReactNode } from 'react';
 export interface InterFooterPageOrganism {
     /** Copyright / main text */
     text?: ReactNode;

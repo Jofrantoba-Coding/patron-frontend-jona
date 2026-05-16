@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { ConfirmDialogVariant } from './InterConfirmDialogMolecule';
-
 interface ConfirmDialogMoleculeViewProps {
     open: boolean;
     title: string;

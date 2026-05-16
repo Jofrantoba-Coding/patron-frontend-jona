@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 export type PopoverAlign = 'start' | 'center' | 'end';
 export type PopoverSide = 'top' | 'bottom' | 'left' | 'right';
 export interface InterPopoverMolecule {

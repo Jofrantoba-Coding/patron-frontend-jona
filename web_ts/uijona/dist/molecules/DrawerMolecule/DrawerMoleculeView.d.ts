@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterDrawerMolecule } from './InterDrawerMolecule';
-
 interface DrawerMoleculeViewProps extends Required<Pick<InterDrawerMolecule, 'open' | 'side' | 'size' | 'showCloseButton' | 'onClose'>> {
     title?: string;
     description?: string;

@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterRatingMolecule } from './InterRatingMolecule';
-
 interface RatingMoleculeViewProps extends Required<Pick<InterRatingMolecule, 'value' | 'max' | 'readOnly' | 'size'>> {
     hovered: number | null;
     className?: string;

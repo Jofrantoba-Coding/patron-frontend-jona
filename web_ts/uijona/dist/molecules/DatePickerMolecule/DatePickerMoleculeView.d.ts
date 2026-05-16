@@ -1,5 +1,4 @@
-import { default as React } from '../../../node_modules/react';
-
+import React from 'react';
 interface DatePickerTimeParts {
     hour: number;
     minute: number;

@@ -6,7 +6,7 @@ import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof RatingMolecule> = {
-  title: 'Atoms/RatingMolecule',
+  title: 'Molecules/RatingMolecule',
   component: RatingMolecule,
   tags: ['autodocs'],
   args: {

@@ -11,6 +11,7 @@ export type {
   PanelLayoutPlacement,
   PanelPadding,
   PanelRadius,
+  PanelResponsiveConfig,
   PanelVariant,
   PanelWrap,
 } from './InterPanelAtom';

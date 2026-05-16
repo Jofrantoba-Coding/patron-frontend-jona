@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { InterLoginOrganism } from './InterLoginOrganism';
-
 type LoginOrganismImplProps = Partial<InterLoginOrganism> & Pick<InterLoginOrganism, 'onSubmit'> & {
     email?: string;
     password?: string;

@@ -1,6 +1,5 @@
-import { default as React } from '../../../node_modules/react';
+import React from 'react';
 import { SelectOption, SelectGroup } from '../../atoms/SelectAtom';
-
 export interface InterSelectFieldMolecule {
     id: string;
     label: string;

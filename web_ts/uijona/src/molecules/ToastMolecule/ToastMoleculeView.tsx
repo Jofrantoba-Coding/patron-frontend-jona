@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterToastMolecule, ToastVariant } from './InterToastMolecule';
 import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const variantClasses: Record<ToastVariant, string> = {
   default: 'bg-neutral-900 text-white',
@@ -29,8 +30,14 @@ export const ToastMoleculeView: React.FC<ToastMoleculeViewProps> = ({
     )}
   >
     <PanelAtom variant="ghost" padding="none" radius="none" className="flex-1 min-w-0">
-      {title && <p className="text-sm font-semibold leading-none mb-1 break-words">{title}</p>}
-      <p className="text-sm leading-snug break-words">{message}</p>
+      {title && (
+        <TextAtom as="span" className="block text-sm font-semibold leading-none mb-1 break-words">
+          {title}
+        </TextAtom>
+      )}
+      <TextAtom as="span" className="block text-sm leading-snug break-words">
+        {message}
+      </TextAtom>
     </PanelAtom>
     <button
       type="button"
