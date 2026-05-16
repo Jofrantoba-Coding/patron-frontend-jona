@@ -1,7 +1,7 @@
 import type React from 'react';
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
-import { JPanel, JPANEL_LAYOUT_DEFAULTS } from '../JPanel';
+import { JPanel, JPANEL_BREAKPOINTS, JPANEL_LAYOUT_DEFAULTS } from '../JPanel';
 
 describe('JPanel', () => {
   it('renders as a neutral mobile-first vertical panel by default', () => {
@@ -16,6 +16,13 @@ describe('JPanel', () => {
   });
 
   it('exports the default contract for every layout', () => {
+    expect(JPANEL_BREAKPOINTS).toEqual({
+      mobileSmall: '0px',
+      mobileLarge: '480px',
+      tablet: '640px',
+      desktop: '1024px',
+      tv: '1920px',
+    });
     expect(JPANEL_LAYOUT_DEFAULTS.box.defaults.direction).toBe('column');
     expect(JPANEL_LAYOUT_DEFAULTS.grid.defaults.autoFitMin).toBe('12rem');
     expect(JPANEL_LAYOUT_DEFAULTS.border.required[0]).toContain('area');
@@ -43,13 +50,17 @@ describe('JPanel', () => {
     expect(screen.getByTestId('panel').tagName).toBe('DIV');
   });
 
-  it('sets tablet and desktop layout overrides without redefining every prop', () => {
+  it('sets mobile small, mobile large, tablet, desktop and tv overrides without redefining every prop', () => {
     render(
       <JPanel
         data-testid="panel"
+        layout="box"
         gap="sm"
-        tablet={{ direction: 'row', gap: 'md' }}
-        desktop={{ layout: 'grid', columns: 3, gap: 'lg' }}
+        mobileSmall={{ gap: 'xs' }}
+        mobileLarge={{ direction: 'row', gap: 'sm' }}
+        tablet={{ layout: 'grid', columns: 2, gap: 'md' }}
+        desktop={{ columns: 4, gap: 'lg' }}
+        tv={{ columns: 6, gap: 'xl' }}
       >
         Content
       </JPanel>
@@ -58,13 +69,20 @@ describe('JPanel', () => {
     const panel = screen.getByTestId('panel');
 
     expect(panel).toHaveAttribute('data-jpanel-layout', 'box');
-    expect(panel).toHaveAttribute('data-jpanel-tablet-layout', 'box');
+    expect(panel).toHaveAttribute('data-jpanel-mobile-small-layout', 'box');
+    expect(panel).toHaveAttribute('data-jpanel-mobile-large-layout', 'box');
+    expect(panel).toHaveAttribute('data-jpanel-tablet-layout', 'grid');
     expect(panel).toHaveAttribute('data-jpanel-desktop-layout', 'grid');
-    expect(panel.style.getPropertyValue('--jpanel-gap')).toBe('0.5rem');
-    expect(panel.style.getPropertyValue('--jpanel-tablet-direction')).toBe('row');
+    expect(panel).toHaveAttribute('data-jpanel-tv-layout', 'grid');
+    expect(panel.style.getPropertyValue('--jpanel-gap')).toBe('0.25rem');
+    expect(panel.style.getPropertyValue('--jpanel-mobile-large-direction')).toBe('row');
+    expect(panel.style.getPropertyValue('--jpanel-mobile-large-gap')).toBe('0.5rem');
+    expect(panel.style.getPropertyValue('--jpanel-tablet-columns')).toBe('repeat(2, minmax(0, 1fr))');
     expect(panel.style.getPropertyValue('--jpanel-tablet-gap')).toBe('1rem');
-    expect(panel.style.getPropertyValue('--jpanel-desktop-columns')).toBe('repeat(3, minmax(0, 1fr))');
+    expect(panel.style.getPropertyValue('--jpanel-desktop-columns')).toBe('repeat(4, minmax(0, 1fr))');
     expect(panel.style.getPropertyValue('--jpanel-desktop-gap')).toBe('1.5rem');
+    expect(panel.style.getPropertyValue('--jpanel-tv-columns')).toBe('repeat(6, minmax(0, 1fr))');
+    expect(panel.style.getPropertyValue('--jpanel-tv-gap')).toBe('2rem');
   });
 
   it('supports border layout with the area prop', () => {

@@ -1,8 +1,9 @@
-import { JPANEL_DEFAULTS as e, JPANEL_LAYOUT_DEFAULTS as o } from "./JPanel/InterJPanel.js";
-import { JPanelImpl as E } from "./JPanel/JPanelImpl.js";
+import { JPANEL_BREAKPOINTS as L, JPANEL_DEFAULTS as P, JPANEL_LAYOUT_DEFAULTS as J } from "./JPanel/InterJPanel.js";
+import { JPanelImpl as o } from "./JPanel/JPanelImpl.js";
 export {
-  e as JPANEL_DEFAULTS,
-  o as JPANEL_LAYOUT_DEFAULTS,
-  E as JPanel
+  L as JPANEL_BREAKPOINTS,
+  P as JPANEL_DEFAULTS,
+  J as JPANEL_LAYOUT_DEFAULTS,
+  o as JPanel
 };
 //# sourceMappingURL=JPanel.js.map

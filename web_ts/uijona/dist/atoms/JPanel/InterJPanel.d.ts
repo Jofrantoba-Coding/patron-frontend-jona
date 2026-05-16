@@ -11,11 +11,13 @@ export type JPanelJustify = 'start' | 'center' | 'end' | 'between' | 'around' | 
 export type JPanelArea = 'top' | 'right' | 'bottom' | 'left' | 'center';
 export type JPanelLayoutPlacement = 'responsive' | 'fixed';
 export type JPanelGroupMode = 'sequential' | 'parallel';
+export type JPanelBreakpoint = 'mobileSmall' | 'mobileLarge' | 'tablet' | 'desktop' | 'tv';
 export interface JPanelLayoutDefaultDoc {
     behavior: string;
     defaults: Record<string, string>;
     required: string[];
 }
+export declare const JPANEL_BREAKPOINTS: Record<JPanelBreakpoint, string>;
 export interface JPanelResponsiveConfig {
     layout?: JPanelLayout;
     direction?: JPanelDirection;
@@ -50,8 +52,11 @@ export interface InterJPanel extends React.HTMLAttributes<HTMLElement> {
     mode?: JPanelGroupMode;
     minHeight?: string;
     activeCard?: string | number;
+    mobileSmall?: JPanelResponsiveConfig;
+    mobileLarge?: JPanelResponsiveConfig;
     tablet?: JPanelResponsiveConfig;
     desktop?: JPanelResponsiveConfig;
+    tv?: JPanelResponsiveConfig;
     area?: JPanelArea;
     card?: string | number;
     gridBagColumn?: number | string;

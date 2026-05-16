@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState, type ReactNode } from 'react';
 import {
   JPanel,
+  JPANEL_BREAKPOINTS,
   JPANEL_LAYOUT_DEFAULTS,
   type JPanelArea,
   type JPanelLayout,
@@ -60,6 +61,7 @@ export default meta;
 type Story = StoryObj<typeof JPanel>;
 
 const layoutDocs = Object.entries(JPANEL_LAYOUT_DEFAULTS) as [JPanelLayout, JPanelLayoutDefaultDoc][];
+const breakpointDocs = Object.entries(JPANEL_BREAKPOINTS);
 
 const DemoItem = ({ children }: { children: ReactNode }) => (
   <JPanel variant="flat" padding="sm" radius="sm" className="min-h-12 text-center text-sm font-medium text-neutral-700">
@@ -137,7 +139,17 @@ spring   -> mobile grid; tablet/desktop requiere constraints spring`,
     },
   },
   render: () => (
-    <JPanel layout="grid" gap="sm" tablet={{ columns: 2 }} desktop={{ columns: 3 }} className="max-w-5xl">
+    <JPanel gap="md" className="max-w-5xl">
+      <JPanel layout="flow" gap="sm">
+        {breakpointDocs.map(([name, value]) => (
+          <JPanel key={name} variant="flat" padding="sm" radius="sm">
+            <TextAtom size="xs" className="font-semibold">{name}</TextAtom>
+            <TextAtom size="xs" color="muted">{value}</TextAtom>
+          </JPanel>
+        ))}
+      </JPanel>
+
+      <JPanel layout="grid" gap="sm" mobileLarge={{ columns: 2 }} tablet={{ columns: 2 }} desktop={{ columns: 3 }} tv={{ columns: 4, gap: 'lg' }}>
       {layoutDocs.map(([layoutName, doc]) => (
         <JPanel key={layoutName} variant="outlined" padding="md" radius="md" gap="sm">
           <TextAtom as="h3" size="sm" className="font-semibold">{layoutName}</TextAtom>
@@ -154,6 +166,7 @@ spring   -> mobile grid; tablet/desktop requiere constraints spring`,
           </TextAtom>
         </JPanel>
       ))}
+      </JPanel>
     </JPanel>
   ),
 };
@@ -186,8 +199,10 @@ export const GridResponsive: Story = {
         code: `<JPanel
   layout="grid"
   gap="sm"
+  mobileLarge={{ columns: 2 }}
   tablet={{ columns: 2, gap: 'md' }}
   desktop={{ columns: 3, gap: 'lg' }}
+  tv={{ columns: 6, gap: 'xl' }}
 >
   {items}
 </JPanel>`,
@@ -198,8 +213,10 @@ export const GridResponsive: Story = {
     <JPanel
       layout="grid"
       gap="sm"
+      mobileLarge={{ columns: 2 }}
       tablet={{ columns: 2, gap: 'md' }}
       desktop={{ columns: 3, gap: 'lg' }}
+      tv={{ columns: 6, gap: 'xl' }}
       variant="outlined"
       padding="md"
       radius="md"

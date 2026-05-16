@@ -1,9 +1,10 @@
 export { JPanelImpl as JPanel } from './JPanelImpl';
-export { JPANEL_DEFAULTS, JPANEL_LAYOUT_DEFAULTS } from './InterJPanel';
+export { JPANEL_BREAKPOINTS, JPANEL_DEFAULTS, JPANEL_LAYOUT_DEFAULTS } from './InterJPanel';
 export type {
   InterJPanel,
   JPanelAlign,
   JPanelArea,
+  JPanelBreakpoint,
   JPanelDirection,
   JPanelGap,
   JPanelGroupMode,

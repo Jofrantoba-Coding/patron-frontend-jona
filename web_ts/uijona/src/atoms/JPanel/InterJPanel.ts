@@ -12,12 +12,21 @@ export type JPanelJustify = 'start' | 'center' | 'end' | 'between' | 'around' | 
 export type JPanelArea = 'top' | 'right' | 'bottom' | 'left' | 'center';
 export type JPanelLayoutPlacement = 'responsive' | 'fixed';
 export type JPanelGroupMode = 'sequential' | 'parallel';
+export type JPanelBreakpoint = 'mobileSmall' | 'mobileLarge' | 'tablet' | 'desktop' | 'tv';
 
 export interface JPanelLayoutDefaultDoc {
   behavior: string;
   defaults: Record<string, string>;
   required: string[];
 }
+
+export const JPANEL_BREAKPOINTS: Record<JPanelBreakpoint, string> = {
+  mobileSmall: '0px',
+  mobileLarge: '480px',
+  tablet: '640px',
+  desktop: '1024px',
+  tv: '1920px',
+};
 
 export interface JPanelResponsiveConfig {
   layout?: JPanelLayout;
@@ -54,8 +63,11 @@ export interface InterJPanel extends React.HTMLAttributes<HTMLElement> {
   mode?: JPanelGroupMode;
   minHeight?: string;
   activeCard?: string | number;
+  mobileSmall?: JPanelResponsiveConfig;
+  mobileLarge?: JPanelResponsiveConfig;
   tablet?: JPanelResponsiveConfig;
   desktop?: JPanelResponsiveConfig;
+  tv?: JPanelResponsiveConfig;
   area?: JPanelArea;
   card?: string | number;
   gridBagColumn?: number | string;
@@ -129,6 +141,11 @@ export const JPANEL_LAYOUT_DEFAULTS: Record<JPanelLayout, JPanelLayoutDefaultDoc
       gap: JPANEL_DEFAULTS.gap,
       alignItems: JPANEL_DEFAULTS.alignItems,
       justifyContent: JPANEL_DEFAULTS.justifyContent,
+      mobileSmall: 'base',
+      mobileLarge: '>= 480px',
+      tablet: '>= 640px',
+      desktop: '>= 1024px',
+      tv: '>= 1920px',
     },
     required: [],
   },
@@ -141,6 +158,11 @@ export const JPANEL_LAYOUT_DEFAULTS: Record<JPanelLayout, JPanelLayoutDefaultDoc
       gap: JPANEL_DEFAULTS.gap,
       alignItems: JPANEL_DEFAULTS.alignItems,
       justifyContent: JPANEL_DEFAULTS.justifyContent,
+      mobileSmall: 'base',
+      mobileLarge: '>= 480px',
+      tablet: '>= 640px',
+      desktop: '>= 1024px',
+      tv: '>= 1920px',
     },
     required: [],
   },
@@ -153,6 +175,11 @@ export const JPANEL_LAYOUT_DEFAULTS: Record<JPanelLayout, JPanelLayoutDefaultDoc
       gap: JPANEL_DEFAULTS.gap,
       alignItems: JPANEL_DEFAULTS.alignItems,
       justifyContent: JPANEL_DEFAULTS.justifyContent,
+      mobileSmall: 'auto-fit base',
+      mobileLarge: 'override opcional >= 480px',
+      tablet: 'override opcional >= 640px',
+      desktop: 'override opcional >= 1024px',
+      tv: 'override opcional >= 1920px',
     },
     required: [],
   },

@@ -1,4 +1,10 @@
-const e = {
+const a = {
+  mobileSmall: "0px",
+  mobileLarge: "480px",
+  tablet: "640px",
+  desktop: "1024px",
+  tv: "1920px"
+}, e = {
   variant: "ghost",
   padding: "none",
   radius: "none",
@@ -7,7 +13,7 @@ const e = {
   gap: "none",
   alignItems: "stretch",
   justifyContent: "start"
-}, a = {
+}, i = {
   none: {
     behavior: "Renderiza un contenedor sin reglas de distribucion internas.",
     defaults: {
@@ -26,7 +32,12 @@ const e = {
       wrap: "wrap",
       gap: e.gap,
       alignItems: e.alignItems,
-      justifyContent: e.justifyContent
+      justifyContent: e.justifyContent,
+      mobileSmall: "base",
+      mobileLarge: ">= 480px",
+      tablet: ">= 640px",
+      desktop: ">= 1024px",
+      tv: ">= 1920px"
     },
     required: []
   },
@@ -38,7 +49,12 @@ const e = {
       wrap: "nowrap cuando direction=column, wrap cuando direction=row",
       gap: e.gap,
       alignItems: e.alignItems,
-      justifyContent: e.justifyContent
+      justifyContent: e.justifyContent,
+      mobileSmall: "base",
+      mobileLarge: ">= 480px",
+      tablet: ">= 640px",
+      desktop: ">= 1024px",
+      tv: ">= 1920px"
     },
     required: []
   },
@@ -50,7 +66,12 @@ const e = {
       autoFitMin: "12rem",
       gap: e.gap,
       alignItems: e.alignItems,
-      justifyContent: e.justifyContent
+      justifyContent: e.justifyContent,
+      mobileSmall: "auto-fit base",
+      mobileLarge: "override opcional >= 480px",
+      tablet: "override opcional >= 640px",
+      desktop: "override opcional >= 1024px",
+      tv: "override opcional >= 1920px"
     },
     required: []
   },
@@ -108,7 +129,8 @@ const e = {
   }
 };
 export {
+  a as JPANEL_BREAKPOINTS,
   e as JPANEL_DEFAULTS,
-  a as JPANEL_LAYOUT_DEFAULTS
+  i as JPANEL_LAYOUT_DEFAULTS
 };
 //# sourceMappingURL=InterJPanel.js.map

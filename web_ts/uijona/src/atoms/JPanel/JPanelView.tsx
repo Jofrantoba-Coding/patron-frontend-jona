@@ -133,9 +133,9 @@ const resolveConfig = (
 const setConfigVars = (
   style: JPanelCssVars,
   config: ReturnType<typeof resolveConfig>,
-  prefix: '' | 'tablet' | 'desktop'
+  prefix: '' | 'mobile-large' | 'tablet' | 'desktop' | 'tv'
 ) => {
-  const cssPrefix = (prefix ? `--jpanel-${prefix}` : '--jpanel') as '--jpanel' | '--jpanel-tablet' | '--jpanel-desktop';
+  const cssPrefix = prefix ? `--jpanel-${prefix}` : '--jpanel';
   const setVar = (name: string, value: string | number | undefined) => {
     style[`${cssPrefix}-${name}` as `--${string}`] = value;
   };
@@ -371,8 +371,11 @@ export const JPanelView = React.forwardRef<HTMLElement, InterJPanel>(
       mode,
       minHeight,
       activeCard,
+      mobileSmall,
+      mobileLarge,
       tablet,
       desktop,
+      tv,
       area,
       card,
       gridBagColumn,
@@ -413,14 +416,25 @@ export const JPanelView = React.forwardRef<HTMLElement, InterJPanel>(
       mode,
       minHeight,
     };
-    const tabletConfig = resolveConfig(baseConfig, tablet);
+    const mobileSmallConfig = resolveConfig(baseConfig, mobileSmall);
+    const mobileLargeConfig = resolveConfig(mobileSmallConfig, mobileLarge);
+    const tabletConfig = resolveConfig(mobileLargeConfig, tablet);
     const desktopConfig = resolveConfig(tabletConfig, desktop);
-    const layoutVariants = new Set<JPanelLayout>([layout, tabletConfig.layout, desktopConfig.layout]);
+    const tvConfig = resolveConfig(desktopConfig, tv);
+    const layoutVariants = new Set<JPanelLayout>([
+      mobileSmallConfig.layout,
+      mobileLargeConfig.layout,
+      tabletConfig.layout,
+      desktopConfig.layout,
+      tvConfig.layout,
+    ]);
     const layoutStyle: JPanelCssVars = { ...style };
 
-    setConfigVars(layoutStyle, baseConfig, '');
+    setConfigVars(layoutStyle, mobileSmallConfig, '');
+    setConfigVars(layoutStyle, mobileLargeConfig, 'mobile-large');
     setConfigVars(layoutStyle, tabletConfig, 'tablet');
     setConfigVars(layoutStyle, desktopConfig, 'desktop');
+    setConfigVars(layoutStyle, tvConfig, 'tv');
 
     const diagnostics = getJPanelDiagnostics(children, layoutVariants, activeCard);
     const diagnosticsKey = diagnostics.join('\n');
@@ -469,18 +483,30 @@ export const JPanelView = React.forwardRef<HTMLElement, InterJPanel>(
           className
         )}
         style={layoutStyle}
-        data-jpanel-layout={layout}
+        data-jpanel-layout={mobileSmallConfig.layout}
+        data-jpanel-mobile-small-layout={mobileSmallConfig.layout}
+        data-jpanel-mobile-large-layout={mobileLargeConfig.layout}
         data-jpanel-tablet-layout={tabletConfig.layout}
         data-jpanel-desktop-layout={desktopConfig.layout}
-        data-jpanel-placement={resolvePlacement(layout, placement)}
+        data-jpanel-tv-layout={tvConfig.layout}
+        data-jpanel-placement={resolvePlacement(mobileSmallConfig.layout, mobileSmallConfig.placement)}
+        data-jpanel-mobile-small-placement={resolvePlacement(mobileSmallConfig.layout, mobileSmallConfig.placement)}
+        data-jpanel-mobile-large-placement={resolvePlacement(mobileLargeConfig.layout, mobileLargeConfig.placement)}
         data-jpanel-tablet-placement={resolvePlacement(tabletConfig.layout, tabletConfig.placement)}
         data-jpanel-desktop-placement={resolvePlacement(desktopConfig.layout, desktopConfig.placement)}
-        data-jpanel-dense={dense === false ? 'false' : 'true'}
+        data-jpanel-tv-placement={resolvePlacement(tvConfig.layout, tvConfig.placement)}
+        data-jpanel-dense={mobileSmallConfig.dense === false ? 'false' : 'true'}
+        data-jpanel-mobile-small-dense={mobileSmallConfig.dense === false ? 'false' : 'true'}
+        data-jpanel-mobile-large-dense={mobileLargeConfig.dense === false ? 'false' : 'true'}
         data-jpanel-tablet-dense={tabletConfig.dense === false ? 'false' : 'true'}
         data-jpanel-desktop-dense={desktopConfig.dense === false ? 'false' : 'true'}
-        data-jpanel-mode={mode ?? 'sequential'}
+        data-jpanel-tv-dense={tvConfig.dense === false ? 'false' : 'true'}
+        data-jpanel-mode={mobileSmallConfig.mode ?? 'sequential'}
+        data-jpanel-mobile-small-mode={mobileSmallConfig.mode ?? 'sequential'}
+        data-jpanel-mobile-large-mode={mobileLargeConfig.mode ?? 'sequential'}
         data-jpanel-tablet-mode={tabletConfig.mode ?? 'sequential'}
         data-jpanel-desktop-mode={desktopConfig.mode ?? 'sequential'}
+        data-jpanel-tv-mode={tvConfig.mode ?? 'sequential'}
         data-panel-area={resolvedArea}
         data-panel-card={resolvedCard}
         {...props}
