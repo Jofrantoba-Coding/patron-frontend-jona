@@ -1,6 +1,6 @@
 import {
   LinkAtom,
-  PanelAtom,
+  JPanel,
   TextAtom,
 } from 'jona-ui';
 import type { InterServicesFeature } from './InterServicesFeature';
@@ -21,60 +21,60 @@ export function ServicesFeatureView({ content }: InterServicesFeature) {
 
   return (
     <>
-      <PanelAtom as="section" id="servicios" className="services-section" variant="ghost" padding="none" radius="none">
-        <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="section-heading mb-12" variant="ghost" padding="none" radius="none">
+      <JPanel as="section" id="servicios" className="services-section" variant="ghost" padding="none" radius="none">
+        <JPanel className="section-shell" variant="ghost" padding="none" radius="none">
+          <JPanel className="section-heading mb-12" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="eyebrow">Servicios</TextAtom>
             <TextAtom as="h2" className="section-title">{content.servicesIntro.title}</TextAtom>
             <TextAtom className="section-copy">{content.servicesIntro.description}</TextAtom>
-          </PanelAtom>
+          </JPanel>
 
-          <PanelAtom className="services-by-category" variant="ghost" padding="none" radius="none">
+          <JPanel className="services-by-category" variant="ghost" padding="none" radius="none">
             {servicesByCategory.map(({ category, items }) => (
-              <PanelAtom key={category} className="services-cat-section" variant="ghost" padding="none" radius="none">
-                <PanelAtom className="services-cat-header" variant="ghost" padding="none" radius="none">
+              <JPanel key={category} className="services-cat-section" variant="ghost" padding="none" radius="none">
+                <JPanel className="services-cat-header" variant="ghost" padding="none" radius="none">
                   <TextAtom as="span" className="services-cat-badge">{category}</TextAtom>
-                </PanelAtom>
-                <PanelAtom className="service-grid" variant="ghost" padding="none" radius="none">
+                </JPanel>
+                <JPanel className="service-grid" variant="ghost" padding="none" radius="none">
                   {items.map((service) => (
-                    <PanelAtom key={service.slug} className="service-card business-card" variant="ghost" padding="none" radius="none">
-                      <PanelAtom className="card-area-header" variant="ghost" padding="none" radius="none">
-                        <PanelAtom as="span" className={`service-icon icon-${service.visual}`} variant="ghost" padding="none" radius="none" aria-hidden="true" />
+                    <JPanel key={service.slug} className="service-card business-card" variant="ghost" padding="none" radius="none">
+                      <JPanel className="card-area-header" variant="ghost" padding="none" radius="none">
+                        <JPanel as="span" className={`service-icon icon-${service.visual}`} variant="ghost" padding="none" radius="none" aria-hidden="true" />
                         <TextAtom as="h3" className="card-title">{service.name}</TextAtom>
                         <TextAtom className="card-description">{service.promise}</TextAtom>
-                      </PanelAtom>
-                      <PanelAtom className="card-area-content" variant="ghost" padding="none" radius="none">
+                      </JPanel>
+                      <JPanel className="card-area-content" variant="ghost" padding="none" radius="none">
                         <TextAtom className="business-proof">{service.proof}</TextAtom>
-                      </PanelAtom>
-                      <PanelAtom className="card-area-footer" variant="ghost" padding="none" radius="none">
+                      </JPanel>
+                      <JPanel className="card-area-footer" variant="ghost" padding="none" radius="none">
                         <LinkAtom href={`/servicios/${service.slug}`} className="card-detail-link">
                           Ver servicio →
                         </LinkAtom>
-                      </PanelAtom>
-                    </PanelAtom>
+                      </JPanel>
+                    </JPanel>
                   ))}
-                </PanelAtom>
-              </PanelAtom>
+                </JPanel>
+              </JPanel>
             ))}
-          </PanelAtom>
-        </PanelAtom>
-      </PanelAtom>
+          </JPanel>
+        </JPanel>
+      </JPanel>
 
-      <PanelAtom as="section" className="sales-cta-section" variant="ghost" padding="none" radius="none">
-        <PanelAtom className="section-shell" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="sales-cta-shell" variant="ghost" padding="none" radius="none">
-            <PanelAtom variant="ghost" padding="none" radius="none">
+      <JPanel as="section" className="sales-cta-section" variant="ghost" padding="none" radius="none">
+        <JPanel className="section-shell" variant="ghost" padding="none" radius="none">
+          <JPanel className="sales-cta-shell" variant="ghost" padding="none" radius="none">
+            <JPanel variant="ghost" padding="none" radius="none">
               <TextAtom as="h2" className="sales-title">Ordena tu tecnología antes de que el caos frene tu crecimiento.</TextAtom>
               <TextAtom className="sales-copy">
                 30 minutos son suficientes para identificar tus principales brechas, riesgos y la primera ruta de acción concreta.
               </TextAtom>
-            </PanelAtom>
+            </JPanel>
             <LinkAtom href={content.contact.whatsappHref} variant="button" className="sales-link">
               Diagnóstico gratuito
             </LinkAtom>
-          </PanelAtom>
-        </PanelAtom>
-      </PanelAtom>
+          </JPanel>
+        </JPanel>
+      </JPanel>
     </>
   );
 }

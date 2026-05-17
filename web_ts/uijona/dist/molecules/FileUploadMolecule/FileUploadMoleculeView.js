@@ -1,13 +1,13 @@
 import { jsxs as n, jsx as e } from "react/jsx-runtime";
 import { cn as s } from "../../lib/cn.js";
-import { PanelAtomImpl as u } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as u } from "../../atoms/JPanel/JPanelImpl.js";
 import { LabelAtomImpl as M } from "../../atoms/LabelAtom/LabelAtomImpl.js";
 import { InputAtomImpl as $ } from "../../atoms/InputAtom/InputAtomImpl.js";
 const j = () => /* @__PURE__ */ n("svg", { className: "h-5 w-5", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
   /* @__PURE__ */ e("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
   /* @__PURE__ */ e("path", { d: "m17 8-5-5-5 5" }),
   /* @__PURE__ */ e("path", { d: "M12 3v12" })
-] }), B = (r) => r < 1024 ? `${r} B` : r < 1024 * 1024 ? `${(r / 1024).toFixed(1)} KB` : `${(r / 1024 / 1024).toFixed(1)} MB`, z = ({
+] }), B = (r) => r < 1024 ? `${r} B` : r < 1024 * 1024 ? `${(r / 1024).toFixed(1)} KB` : `${(r / 1024 / 1024).toFixed(1)} MB`, A = ({
   selectedFiles: r,
   inputId: i,
   isDragging: x,
@@ -84,6 +84,6 @@ const j = () => /* @__PURE__ */ n("svg", { className: "h-5 w-5", viewBox: "0 0 2
   ] }, `${t.name}-${t.size}-${t.lastModified}`)) })
 ] });
 export {
-  z as FileUploadMoleculeView
+  A as FileUploadMoleculeView
 };
 //# sourceMappingURL=FileUploadMoleculeView.js.map

@@ -1,9 +1,9 @@
 import { jsxs as n, jsx as e } from "react/jsx-runtime";
 import { createPortal as I } from "react-dom";
 import { cn as i } from "../../lib/cn.js";
-import { PanelAtomImpl as t } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as t } from "../../atoms/JPanel/JPanelImpl.js";
 import { InputAtomImpl as W } from "../../atoms/InputAtom/InputAtomImpl.js";
-const Q = ({
+const K = ({
   selected: l,
   filtered: u,
   query: x,
@@ -132,6 +132,6 @@ const Q = ({
   ] });
 };
 export {
-  Q as MultiSelectMoleculeView
+  K as MultiSelectMoleculeView
 };
 //# sourceMappingURL=MultiSelectMoleculeView.js.map

@@ -1,10 +1,10 @@
 import { jsx as e, jsxs as c, Fragment as h } from "react/jsx-runtime";
 import { cn as i } from "../../lib/cn.js";
-import { PanelAtomImpl as x } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as x } from "../../atoms/JPanel/JPanelImpl.js";
 const g = (l, n) => l < n ? "complete" : l === n ? "current" : "upcoming", w = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: /* @__PURE__ */ e("path", { d: "m20 6-11 11-5-5" }) }), v = ({
   steps: l,
   activeStep: n,
-  orientation: o = "horizontal",
+  orientation: s = "horizontal",
   allowStepClick: m = !1,
   onStepClick: d,
   className: u,
@@ -13,7 +13,7 @@ const g = (l, n) => l < n ? "complete" : l === n ? "current" : "upcoming", w = (
   "ol",
   {
     className: i(
-      o === "vertical" ? "flex min-w-0 flex-col gap-4" : "flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start",
+      s === "vertical" ? "flex min-w-0 flex-col gap-4" : "flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start",
       u
     ),
     ...p,
@@ -24,7 +24,7 @@ const g = (l, n) => l < n ? "complete" : l === n ? "current" : "upcoming", w = (
         t === "current" && "border-primary-600 bg-white text-primary-700",
         t === "upcoming" && "border-neutral-300 bg-white text-neutral-500",
         r.disabled && "opacity-50"
-      ), s = /* @__PURE__ */ c(h, { children: [
+      ), o = /* @__PURE__ */ c(h, { children: [
         /* @__PURE__ */ e("span", { className: b, children: t === "complete" ? /* @__PURE__ */ e(w, {}) : a + 1 }),
         /* @__PURE__ */ c("span", { className: "min-w-0", children: [
           /* @__PURE__ */ e("span", { className: i("block break-words text-sm font-medium", t === "current" ? "text-neutral-900" : "text-neutral-700"), children: r.label }),
@@ -36,7 +36,7 @@ const g = (l, n) => l < n ? "complete" : l === n ? "current" : "upcoming", w = (
         {
           className: i(
             "relative flex min-w-0 gap-3",
-            o === "horizontal" && "sm:flex-1",
+            s === "horizontal" && "sm:flex-1",
             r.disabled && "opacity-60"
           ),
           "aria-current": t === "current" ? "step" : void 0,
@@ -47,9 +47,9 @@ const g = (l, n) => l < n ? "complete" : l === n ? "current" : "upcoming", w = (
               disabled: r.disabled,
               onClick: () => d(a),
               className: "flex min-w-0 gap-3 rounded text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
-              children: s
+              children: o
             }
-          ) : /* @__PURE__ */ e(x, { variant: "ghost", padding: "none", radius: "none", className: "flex min-w-0 gap-3", children: s })
+          ) : /* @__PURE__ */ e(x, { variant: "ghost", padding: "none", radius: "none", className: "flex min-w-0 gap-3", children: o })
         },
         r.id
       );

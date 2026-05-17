@@ -1,6 +1,6 @@
 import { jsxs as r, jsx as e } from "react/jsx-runtime";
 import { cn as n } from "../../lib/cn.js";
-import { PanelAtomImpl as a } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as a } from "../../atoms/JPanel/JPanelImpl.js";
 import { TextAtomImpl as i } from "../../atoms/TextAtom/TextAtomImpl.js";
 const d = {
   sm: { avatar: "w-7 h-7 text-xs", text: "text-xs" },

@@ -1,6 +1,6 @@
 import { jsxs as c, jsx as a } from "react/jsx-runtime";
 import { cn as t } from "../../lib/cn.js";
-import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as e } from "../../atoms/JPanel/JPanelImpl.js";
 import { TextAtomImpl as r } from "../../atoms/TextAtom/TextAtomImpl.js";
 import { LinkAtomImpl as m } from "../../atoms/LinkAtom/LinkAtomImpl.js";
 const v = ({

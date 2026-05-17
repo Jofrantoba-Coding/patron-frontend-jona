@@ -1,6 +1,6 @@
 import { type RefObject } from 'react';
 import { Link } from 'react-router-dom';
-import { DrawerMolecule, IconButtonAtom, ImageAtom, LinkAtom, PanelAtom, TextAtom } from 'jona-ui';
+import { DrawerMolecule, IconButtonAtom, ImageAtom, LinkAtom, JPanel, TextAtom } from 'jona-ui';
 import type { InterNavigationFeature } from './InterNavigationFeature';
 
 type DropdownMenu = 'products' | 'services';
@@ -56,8 +56,8 @@ export function NavigationFeatureView({
   const secondaryLinks = content.links.filter((link) => link.label !== 'Inicio');
 
   return (
-    <PanelAtom as="header" className="site-header" variant="ghost" padding="none" radius="none" ref={navRef as RefObject<HTMLDivElement>}>
-      <PanelAtom as="nav" className="nav-shell" variant="ghost" padding="none" radius="none" aria-label="Navegación principal">
+    <JPanel as="header" className="site-header" variant="ghost" padding="none" radius="none" ref={navRef as RefObject<HTMLDivElement>}>
+      <JPanel as="nav" className="nav-shell" variant="ghost" padding="none" radius="none" aria-label="Navegación principal">
 
         <IconButtonAtom
           icon={<MenuIcon />}
@@ -72,14 +72,14 @@ export function NavigationFeatureView({
           <TextAtom as="span" className="brand-name">{content.brand}</TextAtom>
         </Link>
 
-        <PanelAtom className="nav-links" variant="ghost" padding="none" radius="none">
+        <JPanel className="nav-links" variant="ghost" padding="none" radius="none">
           {homeLink ? (
             <Link to={homeLink.href} className="nav-link">
               {homeLink.label}
             </Link>
           ) : null}
 
-          <PanelAtom
+          <JPanel
             className="nav-dropdown-wrapper"
             variant="ghost"
             padding="none"
@@ -95,13 +95,13 @@ export function NavigationFeatureView({
               Productos <ChevronIcon open={activeDropdown === 'products'} />
             </button>
 
-            <PanelAtom className={`nav-dropdown-panel${activeDropdown === 'products' ? ' open' : ''}`} variant="ghost" padding="none" radius="none">
-              <PanelAtom className="dropdown-inner" variant="ghost" padding="none" radius="none">
-                <PanelAtom className="dropdown-header" variant="ghost" padding="none" radius="none">
+            <JPanel className={`nav-dropdown-panel${activeDropdown === 'products' ? ' open' : ''}`} variant="ghost" padding="none" radius="none">
+              <JPanel className="dropdown-inner" variant="ghost" padding="none" radius="none">
+                <JPanel className="dropdown-header" variant="ghost" padding="none" radius="none">
                   <TextAtom as="strong" className="dropdown-label">Producto</TextAtom>
                   <TextAtom as="span" className="dropdown-sub">ERP Softcommerce para facturación, inventario, contabilidad y tesorería</TextAtom>
-                </PanelAtom>
-                <PanelAtom className="products-mega-grid" variant="ghost" padding="none" radius="none">
+                </JPanel>
+                <JPanel className="products-mega-grid" variant="ghost" padding="none" radius="none">
                   {products.map((p) => (
                     <Link key={p.slug} to={`/productos/${p.slug}`} className="mega-item" onClick={onCloseDropdown}>
                       <TextAtom as="strong" className="mega-item-name">{p.name}</TextAtom>
@@ -109,12 +109,12 @@ export function NavigationFeatureView({
                       <TextAtom as="span" className="mega-item-tag">{p.tag}</TextAtom>
                     </Link>
                   ))}
-                </PanelAtom>
-              </PanelAtom>
-            </PanelAtom>
-          </PanelAtom>
+                </JPanel>
+              </JPanel>
+            </JPanel>
+          </JPanel>
 
-          <PanelAtom
+          <JPanel
             className="nav-dropdown-wrapper"
             variant="ghost"
             padding="none"
@@ -130,41 +130,41 @@ export function NavigationFeatureView({
               Servicios <ChevronIcon open={activeDropdown === 'services'} />
             </button>
 
-            <PanelAtom className={`nav-dropdown-panel${activeDropdown === 'services' ? ' open' : ''}`} variant="ghost" padding="none" radius="none">
-              <PanelAtom className="dropdown-inner" variant="ghost" padding="none" radius="none">
-                <PanelAtom className="dropdown-header" variant="ghost" padding="none" radius="none">
+            <JPanel className={`nav-dropdown-panel${activeDropdown === 'services' ? ' open' : ''}`} variant="ghost" padding="none" radius="none">
+              <JPanel className="dropdown-inner" variant="ghost" padding="none" radius="none">
+                <JPanel className="dropdown-header" variant="ghost" padding="none" radius="none">
                   <TextAtom as="strong" className="dropdown-label">Portafolio de servicios</TextAtom>
                   <TextAtom as="span" className="dropdown-sub">Desarrollo, cloud, datos, seguridad y operación tecnológica</TextAtom>
-                </PanelAtom>
-                <PanelAtom className="services-mega-grid" variant="ghost" padding="none" radius="none">
+                </JPanel>
+                <JPanel className="services-mega-grid" variant="ghost" padding="none" radius="none">
                   {servicesByCategory.map(({ category, items }) => (
-                    <PanelAtom key={category} className="services-category" variant="ghost" padding="none" radius="none">
+                    <JPanel key={category} className="services-category" variant="ghost" padding="none" radius="none">
                       <TextAtom as="span" className="services-cat-label">{category}</TextAtom>
-                      <PanelAtom className="services-cat-items" variant="ghost" padding="none" radius="none">
+                      <JPanel className="services-cat-items" variant="ghost" padding="none" radius="none">
                         {items.map((s) => (
                           <Link key={s.slug} to={`/servicios/${s.slug}`} className="mega-service-item" onClick={onCloseDropdown}>
                             {s.name}
                           </Link>
                         ))}
-                      </PanelAtom>
-                    </PanelAtom>
+                      </JPanel>
+                    </JPanel>
                   ))}
-                </PanelAtom>
-              </PanelAtom>
-            </PanelAtom>
-          </PanelAtom>
+                </JPanel>
+              </JPanel>
+            </JPanel>
+          </JPanel>
 
           {secondaryLinks.map((link) => (
             link.href.includes('#')
               ? <LinkAtom key={link.href} href={link.href} className="nav-link">{link.label}</LinkAtom>
               : <Link key={link.href} to={link.href} className="nav-link">{link.label}</Link>
           ))}
-        </PanelAtom>
+        </JPanel>
 
         <LinkAtom href={contact.whatsappHref} variant="button" className="nav-action">
           Agendar
         </LinkAtom>
-      </PanelAtom>
+      </JPanel>
 
       {/* Mobile drawer — adaptive layout */}
       <DrawerMolecule
@@ -175,32 +175,32 @@ export function NavigationFeatureView({
         size="sm"
         showCloseButton
       >
-        <PanelAtom variant="ghost" padding="none" layout="flow" direction="column" gap="md">
+        <JPanel variant="ghost" padding="none" layout="flow" direction="column" gap="md">
           {homeLink ? (
             <Link to={homeLink.href} className="drawer-nav-link" onClick={onCloseMenu}>
               {homeLink.label}
             </Link>
           ) : null}
 
-          <PanelAtom className="drawer-section" variant="ghost" padding="none" radius="none">
+          <JPanel className="drawer-section" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="drawer-section-label">Productos</TextAtom>
             {products.map((p) => (
               <Link key={p.slug} to={`/productos/${p.slug}`} className="drawer-nav-link" onClick={onCloseMenu}>
                 {p.name}
               </Link>
             ))}
-          </PanelAtom>
+          </JPanel>
 
-          <PanelAtom className="drawer-section" variant="ghost" padding="none" radius="none">
+          <JPanel className="drawer-section" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="drawer-section-label">Servicios</TextAtom>
-            <PanelAtom className="drawer-services-grid" variant="ghost" padding="none" radius="none">
+            <JPanel className="drawer-services-grid" variant="ghost" padding="none" radius="none">
               {services.map((s) => (
                 <Link key={s.slug} to={`/servicios/${s.slug}`} className="drawer-nav-link drawer-nav-link-sm" onClick={onCloseMenu}>
                   {s.name}
                 </Link>
               ))}
-            </PanelAtom>
-          </PanelAtom>
+            </JPanel>
+          </JPanel>
 
           {secondaryLinks.map((link) => (
             link.href.includes('#')
@@ -211,8 +211,8 @@ export function NavigationFeatureView({
           <LinkAtom href={contact.whatsappHref} variant="button" className="drawer-nav-action" onClick={onCloseMenu}>
             Agendar diagnóstico
           </LinkAtom>
-        </PanelAtom>
+        </JPanel>
       </DrawerMolecule>
-    </PanelAtom>
+    </JPanel>
   );
 }

@@ -1,6 +1,6 @@
 import { jsx as n, jsxs as m } from "react/jsx-runtime";
 import { cn as l } from "../../lib/cn.js";
-import { PanelAtomImpl as a } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as a } from "../../atoms/JPanel/JPanelImpl.js";
 import { GridLayoutImpl as c } from "../../layouts/GridLayout/GridLayoutImpl.js";
 import { TextAtomImpl as e } from "../../atoms/TextAtom/TextAtomImpl.js";
 const f = ({

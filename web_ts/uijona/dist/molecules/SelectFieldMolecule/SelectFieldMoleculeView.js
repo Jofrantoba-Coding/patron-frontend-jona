@@ -1,7 +1,7 @@
-import { jsxs as A, jsx as o } from "react/jsx-runtime";
-import { cn as I } from "../../lib/cn.js";
-import { PanelAtomImpl as b } from "../../atoms/PanelAtom/PanelAtomImpl.js";
-import { SelectAtomImpl as y } from "../../atoms/SelectAtom/SelectAtomImpl.js";
+import { jsxs as I, jsx as o } from "react/jsx-runtime";
+import { cn as b } from "../../lib/cn.js";
+import { JPanelImpl as y } from "../../atoms/JPanel/JPanelImpl.js";
+import { SelectAtomImpl as A } from "../../atoms/SelectAtom/SelectAtomImpl.js";
 import { LabelAtomImpl as j } from "../../atoms/LabelAtom/LabelAtomImpl.js";
 import { ErrorMessageAtomImpl as s } from "../../atoms/ErrorMessageAtom/ErrorMessageAtomImpl.js";
 const w = ({
@@ -21,10 +21,10 @@ const w = ({
   ...x
 }) => {
   const m = !!t;
-  return /* @__PURE__ */ A(b, { variant: "ghost", padding: "none", radius: "none", className: I("flex flex-col gap-1.5", i), children: [
+  return /* @__PURE__ */ I(y, { variant: "ghost", padding: "none", radius: "none", className: b("flex flex-col gap-1.5", i), children: [
     /* @__PURE__ */ o(j, { htmlFor: e, required: l, children: a }),
     /* @__PURE__ */ o(
-      y,
+      A,
       {
         ref: h,
         id: e,

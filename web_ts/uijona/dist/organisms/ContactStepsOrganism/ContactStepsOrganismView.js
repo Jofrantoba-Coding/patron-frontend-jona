@@ -1,6 +1,6 @@
 import { jsx as o, jsxs as r } from "react/jsx-runtime";
 import { cn as c } from "../../lib/cn.js";
-import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as e } from "../../atoms/JPanel/JPanelImpl.js";
 import { SectionHeadingMoleculeImpl as l } from "../../molecules/SectionHeadingMolecule/SectionHeadingMoleculeImpl.js";
 import { NumberedStepMoleculeImpl as d } from "../../molecules/NumberedStepMolecule/NumberedStepMoleculeImpl.js";
 const N = ({

@@ -1,9 +1,9 @@
 import { jsxs as t, jsx as l } from "react/jsx-runtime";
 import { cn as r } from "../../lib/cn.js";
-import { PanelAtomImpl as v } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as v } from "../../atoms/JPanel/JPanelImpl.js";
 import { RadioAtomImpl as N } from "../../atoms/RadioAtom/RadioAtomImpl.js";
 import { LabelAtomImpl as g } from "../../atoms/LabelAtom/LabelAtomImpl.js";
-const k = ({
+const A = ({
   name: s,
   options: o,
   selectedValue: x,
@@ -69,6 +69,6 @@ const k = ({
   a && /* @__PURE__ */ l("p", { className: "text-sm text-danger-500", children: a })
 ] });
 export {
-  k as RadioGroupMoleculeView
+  A as RadioGroupMoleculeView
 };
 //# sourceMappingURL=RadioGroupMoleculeView.js.map

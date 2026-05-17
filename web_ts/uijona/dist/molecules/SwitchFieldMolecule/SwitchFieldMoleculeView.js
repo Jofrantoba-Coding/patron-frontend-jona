@@ -1,10 +1,10 @@
 import { jsxs as f, jsx as r } from "react/jsx-runtime";
 import { cn as a } from "../../lib/cn.js";
-import { PanelAtomImpl as t } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as t } from "../../atoms/JPanel/JPanelImpl.js";
 import { SwitchAtomImpl as v } from "../../atoms/SwitchAtom/SwitchAtomImpl.js";
 import { LabelAtomImpl as y } from "../../atoms/LabelAtom/LabelAtomImpl.js";
 import { ErrorMessageAtomImpl as u } from "../../atoms/ErrorMessageAtom/ErrorMessageAtomImpl.js";
-const j = ({
+const A = ({
   id: e,
   label: d,
   checked: l,
@@ -37,6 +37,6 @@ const j = ({
   ) : /* @__PURE__ */ r(t, { variant: "ghost", padding: "none", radius: "none", className: a("flex flex-col gap-1", p), children: c });
 };
 export {
-  j as SwitchFieldMoleculeView
+  A as SwitchFieldMoleculeView
 };
 //# sourceMappingURL=SwitchFieldMoleculeView.js.map

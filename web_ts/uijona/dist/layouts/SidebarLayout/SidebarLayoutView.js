@@ -1,6 +1,6 @@
 import { jsxs as a, jsx as e } from "react/jsx-runtime";
 import { cn as l } from "../../lib/cn.js";
-import { PanelAtomImpl as i } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as i } from "../../atoms/JPanel/JPanelImpl.js";
 function k({ group: s, activeKey: o, collapsed: t, onItemClick: c }) {
   return /* @__PURE__ */ a(i, { variant: "ghost", padding: "none", radius: "none", className: "flex flex-col gap-0.5", children: [
     s.label && !t && /* @__PURE__ */ e("p", { className: "px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-neutral-400", children: s.label }),

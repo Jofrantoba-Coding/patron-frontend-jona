@@ -1,7 +1,7 @@
-import { jsx as n } from "react/jsx-runtime";
+import { jsx as o } from "react/jsx-runtime";
 import { cn as r } from "../../lib/cn.js";
-import { PanelAtomImpl as a } from "../PanelAtom/PanelAtomImpl.js";
-const d = ({ circle: e = !1, className: o }) => /* @__PURE__ */ n(
+import { JPanelImpl as a } from "../JPanel/JPanelImpl.js";
+const d = ({ circle: e = !1, className: n }) => /* @__PURE__ */ o(
   a,
   {
     variant: "ghost",
@@ -11,7 +11,7 @@ const d = ({ circle: e = !1, className: o }) => /* @__PURE__ */ n(
     className: r(
       "animate-pulse bg-neutral-200",
       e ? "rounded-full" : "rounded",
-      o
+      n
     )
   }
 );

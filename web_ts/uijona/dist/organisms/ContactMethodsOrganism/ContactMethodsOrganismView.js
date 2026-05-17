@@ -1,6 +1,6 @@
 import { jsx as a } from "react/jsx-runtime";
 import { cn as e } from "../../lib/cn.js";
-import { PanelAtomImpl as n } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as n } from "../../atoms/JPanel/JPanelImpl.js";
 import { ContactMethodCardMoleculeImpl as c } from "../../molecules/ContactMethodCardMolecule/ContactMethodCardMoleculeImpl.js";
 import { GridLayoutImpl as s } from "../../layouts/GridLayout/GridLayoutImpl.js";
 const g = ({

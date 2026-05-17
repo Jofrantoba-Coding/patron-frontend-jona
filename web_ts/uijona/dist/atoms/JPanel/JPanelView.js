@@ -1,54 +1,54 @@
-import { jsx as ma } from "react/jsx-runtime";
+import { jsx as da } from "react/jsx-runtime";
 import u from "react";
-import { cn as fa } from "../../lib/cn.js";
+import { cn as ua } from "../../lib/cn.js";
 import { JPANEL_DEFAULTS as c } from "./InterJPanel.js";
-const ja = {
+const ma = {
   default: "bg-white border border-neutral-200",
   outlined: "bg-transparent border border-neutral-300",
   elevated: "bg-white shadow-md border-0",
   flat: "bg-neutral-50 border-0",
   ghost: "bg-transparent border-0"
-}, ba = {
+}, ja = {
   none: "p-0",
   sm: "p-2",
   md: "p-4",
   lg: "p-6",
   xl: "p-8"
-}, ca = {
+}, fa = {
   none: "rounded-none",
   sm: "rounded-sm",
   md: "rounded-md",
   lg: "rounded-lg",
   xl: "rounded-xl",
   full: "rounded-full"
-}, ya = {
+}, ba = {
   none: "0",
   xs: "0.25rem",
   sm: "0.5rem",
   md: "1rem",
   lg: "1.5rem",
   xl: "2rem"
-}, wa = {
+}, ca = {
   start: "flex-start",
   center: "center",
   end: "flex-end",
   stretch: "stretch",
   baseline: "baseline"
-}, Ca = {
+}, ya = {
   start: "flex-start",
   center: "center",
   end: "flex-end",
   between: "space-between",
   around: "space-around",
   evenly: "space-evenly"
-}, Sa = {
+}, wa = {
   row: "row",
   column: "column"
-}, Va = {
+}, Ca = {
   nowrap: "nowrap",
   wrap: "wrap",
   reverse: "wrap-reverse"
-}, xa = /* @__PURE__ */ new Set(["grid", "gridbag", "group", "spring"]), Ea = (t) => typeof t == "string" ? t.trim() ? t : "div" : t ?? "div", Pa = (t, a) => typeof t == "boolean" ? t ? "wrap" : "nowrap" : t ?? a, $ = (t) => typeof t == "number" ? `repeat(${t}, minmax(0, 1fr))` : t, p = (t) => t === void 0 ? void 0 : String(t), C = (t, a) => xa.has(t) ? a ?? "responsive" : a, S = (t, a) => ({
+}, Sa = /* @__PURE__ */ new Set(["grid", "gridbag", "group", "spring"]), Va = (t) => t ?? "div", ha = (t, a) => typeof t == "boolean" ? t ? "wrap" : "nowrap" : t ?? a, q = (t) => typeof t == "number" ? `repeat(${t}, minmax(0, 1fr))` : t, p = (t) => t === void 0 ? void 0 : String(t), w = (t, a) => Sa.has(t) ? a ?? "responsive" : a, C = (t, a) => ({
   layout: (a == null ? void 0 : a.layout) ?? t.layout,
   direction: (a == null ? void 0 : a.direction) ?? t.direction,
   gap: (a == null ? void 0 : a.gap) ?? t.gap,
@@ -62,16 +62,16 @@ const ja = {
   dense: (a == null ? void 0 : a.dense) ?? t.dense,
   mode: (a == null ? void 0 : a.mode) ?? t.mode,
   minHeight: (a == null ? void 0 : a.minHeight) ?? t.minHeight
-}), V = (t, a, i) => {
+}), S = (t, a, i) => {
   const m = i ? `--jpanel-${i}` : "--jpanel", s = (o, d) => {
     t[`${m}-${o}`] = d;
-  }, n = a.layout === "flow" ? "wrap" : a.direction === "column" ? "nowrap" : "wrap", l = C(a.layout, a.placement);
-  s("gap", ya[a.gap]), s("direction", Sa[a.direction]), s("wrap", Va[Pa(a.wrap, n)]), s("align-items", wa[a.alignItems]), s("justify-content", Ca[a.justifyContent]), s("columns", $(a.columns)), s("rows", $(a.rows)), s("auto-fit-min", a.autoFitMin ?? "12rem"), s("spring-min-height", a.minHeight ?? "16rem"), s("placement", l);
-}, F = (t) => {
+  }, n = a.layout === "flow" ? "wrap" : a.direction === "column" ? "nowrap" : "wrap", g = w(a.layout, a.placement);
+  s("gap", ba[a.gap]), s("direction", wa[a.direction]), s("wrap", Ca[ha(a.wrap, n)]), s("align-items", ca[a.alignItems]), s("justify-content", ya[a.justifyContent]), s("columns", q(a.columns)), s("rows", q(a.rows)), s("auto-fit-min", a.autoFitMin ?? "12rem"), s("spring-min-height", a.minHeight ?? "16rem"), s("placement", g);
+}, L = (t) => {
   const a = t.props.card ?? t.props["data-panel-card"];
   if (a !== void 0) return String(a);
   if (t.key !== null) return String(t.key);
-}, Ja = (t) => t.props.area ?? t.props["data-panel-area"], ka = (t) => [
+}, xa = (t) => t.props.area ?? t.props["data-panel-area"], Ea = (t) => [
   t.props.springLeft,
   t.props.springRight,
   t.props.springTop,
@@ -84,47 +84,45 @@ const ja = {
   t.props["data-spring-bottom"],
   t.props["data-spring-width"],
   t.props["data-spring-height"]
-].some((a) => a !== void 0), y = (t, a) => t.has(a), ha = (t, a, i) => {
+].some((a) => a !== void 0), Pa = (t, a, i) => {
   const m = [];
-  if (y(a, "border") && u.Children.forEach(t, (s, n) => {
-    u.isValidElement(s) && !Ja(s) && m.push(
+  if (a.has("border") && u.Children.forEach(t, (s, n) => {
+    u.isValidElement(s) && !xa(s) && m.push(
       `[JPanel] layout="border" necesita que el hijo #${n + 1} defina area="top|right|bottom|left|center" o data-panel-area.`
     );
-  }), y(a, "card") && i !== void 0) {
+  }), a.has("card") && i !== void 0) {
     let s = !1;
     u.Children.forEach(t, (n) => {
-      u.isValidElement(n) && F(n) === String(i) && (s = !0);
+      u.isValidElement(n) && L(n) === String(i) && (s = !0);
     }), s || m.push(
       `[JPanel] layout="card" recibio activeCard="${String(i)}", pero ningun hijo define card, data-panel-card o key con ese valor.`
     );
   }
-  return y(a, "spring") && u.Children.forEach(t, (s, n) => {
-    u.isValidElement(s) && !ka(s) && m.push(
+  return a.has("spring") && u.Children.forEach(t, (s, n) => {
+    u.isValidElement(s) && !Ea(s) && m.push(
       `[JPanel] layout="spring" necesita que el hijo #${n + 1} defina al menos una constraint springLeft/right/top/bottom/width/height o data-spring-*.`
     );
   }), m;
-}, Aa = (t) => {
-  t.length === 0 || typeof console > "u" || typeof console.log != "function" || t.forEach((a) => console.log(a));
-}, qa = (t, a, i) => {
+}, ka = (t, a, i) => {
   if (!["border", "card", "gridbag", "group", "spring"].some((n) => a.has(n))) return t;
   let s = !1;
   return u.Children.map(t, (n) => {
     if (!u.isValidElement(n)) return n;
-    const l = {}, o = { ...n.props.style };
-    if (y(a, "border")) {
+    const g = {}, o = { ...n.props.style };
+    if (a.has("border")) {
       const d = n.props.area ?? n.props["data-panel-area"];
-      d && (l["data-panel-area"] = d, o.gridArea = d);
+      d && (g["data-panel-area"] = d, o.gridArea = d);
     }
-    if (y(a, "gridbag") && (l["data-jpanel-gridbag-item"] = "", l["data-jona-gridbag-item"] = "", o["--jpanel-gridbag-column"] = p(n.props.gridBagColumn ?? n.props["data-gridbag-column"] ?? n.props["data-gridbag-col"]), o["--jpanel-gridbag-row"] = p(n.props.gridBagRow ?? n.props["data-gridbag-row"]), o["--jpanel-gridbag-column-span"] = p(n.props.gridBagColumnSpan ?? n.props["data-gridbag-column-span"] ?? n.props["data-gridbag-colspan"]), o["--jpanel-gridbag-row-span"] = p(n.props.gridBagRowSpan ?? n.props["data-gridbag-row-span"] ?? n.props["data-gridbag-rowspan"]), o["--jpanel-gridbag-align"] = n.props.gridBagAlign ?? n.props["data-gridbag-align"], o["--jpanel-gridbag-justify"] = n.props.gridBagJustify ?? n.props["data-gridbag-justify"]), y(a, "group") && (l["data-jpanel-group-item"] = "", l["data-jona-group-item"] = "", o["--jpanel-group-span"] = p(n.props.groupSpan ?? n.props["data-group-span"]), o["--jpanel-group-align"] = n.props.groupAlign ?? n.props["data-group-align"], o["--jpanel-group-justify"] = n.props.groupJustify ?? n.props["data-group-justify"]), y(a, "spring") && (l["data-jpanel-spring-item"] = "", l["data-jona-spring-item"] = "", o["--jpanel-spring-left"] = p(n.props.springLeft ?? n.props["data-spring-left"]), o["--jpanel-spring-right"] = p(n.props.springRight ?? n.props["data-spring-right"]), o["--jpanel-spring-top"] = p(n.props.springTop ?? n.props["data-spring-top"]), o["--jpanel-spring-bottom"] = p(n.props.springBottom ?? n.props["data-spring-bottom"]), o["--jpanel-spring-width"] = p(n.props.springWidth ?? n.props["data-spring-width"]), o["--jpanel-spring-height"] = p(n.props.springHeight ?? n.props["data-spring-height"])), y(a, "card")) {
-      const d = F(n), x = i === void 0 ? !s : d === String(i);
-      s = s || x, l["data-jpanel-card-state"] = x ? "active" : "hidden", d !== void 0 && (l["data-panel-card"] = d);
+    if (a.has("gridbag") && (g["data-jpanel-gridbag-item"] = "", g["data-jona-gridbag-item"] = "", o["--jpanel-gridbag-column"] = p(n.props.gridBagColumn ?? n.props["data-gridbag-column"] ?? n.props["data-gridbag-col"]), o["--jpanel-gridbag-row"] = p(n.props.gridBagRow ?? n.props["data-gridbag-row"]), o["--jpanel-gridbag-column-span"] = p(n.props.gridBagColumnSpan ?? n.props["data-gridbag-column-span"] ?? n.props["data-gridbag-colspan"]), o["--jpanel-gridbag-row-span"] = p(n.props.gridBagRowSpan ?? n.props["data-gridbag-row-span"] ?? n.props["data-gridbag-rowspan"]), o["--jpanel-gridbag-align"] = n.props.gridBagAlign ?? n.props["data-gridbag-align"], o["--jpanel-gridbag-justify"] = n.props.gridBagJustify ?? n.props["data-gridbag-justify"]), a.has("group") && (g["data-jpanel-group-item"] = "", g["data-jona-group-item"] = "", o["--jpanel-group-span"] = p(n.props.groupSpan ?? n.props["data-group-span"]), o["--jpanel-group-align"] = n.props.groupAlign ?? n.props["data-group-align"], o["--jpanel-group-justify"] = n.props.groupJustify ?? n.props["data-group-justify"]), a.has("spring") && (g["data-jpanel-spring-item"] = "", g["data-jona-spring-item"] = "", o["--jpanel-spring-left"] = p(n.props.springLeft ?? n.props["data-spring-left"]), o["--jpanel-spring-right"] = p(n.props.springRight ?? n.props["data-spring-right"]), o["--jpanel-spring-top"] = p(n.props.springTop ?? n.props["data-spring-top"]), o["--jpanel-spring-bottom"] = p(n.props.springBottom ?? n.props["data-spring-bottom"]), o["--jpanel-spring-width"] = p(n.props.springWidth ?? n.props["data-spring-width"]), o["--jpanel-spring-height"] = p(n.props.springHeight ?? n.props["data-spring-height"])), a.has("card")) {
+      const d = L(n), V = i === void 0 ? !s : d === String(i);
+      s = s || V, g["data-jpanel-card-state"] = V ? "active" : "hidden", d !== void 0 && (g["data-panel-card"] = d);
     }
     return u.cloneElement(n, {
-      ...l,
+      ...g,
       style: o
     });
   });
-}, La = u.forwardRef(
+}, Ja = u.forwardRef(
   ({
     variant: t = c.variant,
     padding: a = c.padding,
@@ -132,121 +130,120 @@ const ja = {
     as: m,
     layout: s = c.layout,
     direction: n = c.direction,
-    gap: l = c.gap,
+    gap: g = c.gap,
     alignItems: o = c.alignItems,
     justifyContent: d = c.justifyContent,
-    wrap: x,
-    columns: H,
-    rows: I,
-    autoFitMin: M,
-    placement: T,
-    dense: B,
-    mode: R,
-    minHeight: D,
-    activeCard: E,
-    mobileSmall: K,
-    mobileLarge: N,
-    tablet: W,
-    desktop: U,
-    tv: _,
-    area: z,
-    card: G,
-    gridBagColumn: P,
-    gridBagRow: J,
-    gridBagColumnSpan: k,
-    gridBagRowSpan: h,
-    gridBagAlign: O,
-    gridBagJustify: Q,
-    groupSpan: X,
-    groupAlign: Y,
-    groupJustify: Z,
-    springLeft: v,
-    springRight: aa,
-    springTop: ta,
-    springBottom: na,
-    springWidth: ea,
-    springHeight: sa,
-    className: pa,
-    children: A,
-    style: oa,
+    wrap: V,
+    columns: $,
+    rows: F,
+    autoFitMin: H,
+    placement: M,
+    dense: T,
+    mode: B,
+    minHeight: I,
+    activeCard: h,
+    mobileSmall: R,
+    mobileLarge: K,
+    tablet: N,
+    desktop: W,
+    tv: D,
+    area: U,
+    card: _,
+    gridBagColumn: x,
+    gridBagRow: E,
+    gridBagColumnSpan: P,
+    gridBagRowSpan: k,
+    gridBagAlign: z,
+    gridBagJustify: G,
+    groupSpan: O,
+    groupAlign: Q,
+    groupJustify: X,
+    springLeft: Y,
+    springRight: Z,
+    springTop: v,
+    springBottom: aa,
+    springWidth: ta,
+    springHeight: na,
+    className: ea,
+    children: J,
+    style: sa,
     ...e
-  }, ra) => {
-    const la = Ea(m), g = S({
+  }, pa) => {
+    const oa = Va(m), l = C({
       layout: s,
       direction: n,
-      gap: l,
+      gap: g,
       alignItems: o,
       justifyContent: d,
-      wrap: x,
-      columns: H,
-      rows: I,
-      autoFitMin: M,
-      placement: T,
-      dense: B,
-      mode: R,
-      minHeight: D
-    }, K), f = S(g, N), j = S(f, W), b = S(j, U), w = S(b, _), q = /* @__PURE__ */ new Set([
-      g.layout,
-      f.layout,
+      wrap: V,
+      columns: $,
+      rows: F,
+      autoFitMin: H,
+      placement: M,
+      dense: T,
+      mode: B,
+      minHeight: I
+    }, R), j = C(l, K), f = C(j, N), b = C(f, W), y = C(b, D), A = /* @__PURE__ */ new Set([
+      l.layout,
       j.layout,
+      f.layout,
       b.layout,
-      w.layout
-    ]), r = { ...oa };
-    V(r, g, ""), V(r, f, "mobile-large"), V(r, j, "tablet"), V(r, b, "desktop"), V(r, w, "tv");
-    const L = ha(A, q, E), ga = L.join(`
+      y.layout
+    ]), r = { ...sa };
+    S(r, l, ""), S(r, j, "mobile-large"), S(r, f, "tablet"), S(r, b, "desktop"), S(r, y, "tv");
+    const ra = Pa(J, A, h).join(`
 `);
     u.useEffect(() => {
-      Aa(L);
-    }, [ga]);
-    const ia = z ?? e["data-panel-area"], da = G ?? e["data-panel-card"];
-    (P ?? e["data-gridbag-column"] ?? e["data-gridbag-col"]) && (r["--jpanel-gridbag-column"] = p(P ?? e["data-gridbag-column"] ?? e["data-gridbag-col"])), (J ?? e["data-gridbag-row"]) && (r["--jpanel-gridbag-row"] = p(J ?? e["data-gridbag-row"])), (k ?? e["data-gridbag-column-span"] ?? e["data-gridbag-colspan"]) && (r["--jpanel-gridbag-column-span"] = p(k ?? e["data-gridbag-column-span"] ?? e["data-gridbag-colspan"])), (h ?? e["data-gridbag-row-span"] ?? e["data-gridbag-rowspan"]) && (r["--jpanel-gridbag-row-span"] = p(h ?? e["data-gridbag-row-span"] ?? e["data-gridbag-rowspan"])), r["--jpanel-gridbag-align"] = O ?? e["data-gridbag-align"], r["--jpanel-gridbag-justify"] = Q ?? e["data-gridbag-justify"], r["--jpanel-group-span"] = p(X ?? e["data-group-span"]), r["--jpanel-group-align"] = Y ?? e["data-group-align"], r["--jpanel-group-justify"] = Z ?? e["data-group-justify"], r["--jpanel-spring-left"] = p(v ?? e["data-spring-left"]), r["--jpanel-spring-right"] = p(aa ?? e["data-spring-right"]), r["--jpanel-spring-top"] = p(ta ?? e["data-spring-top"]), r["--jpanel-spring-bottom"] = p(na ?? e["data-spring-bottom"]), r["--jpanel-spring-width"] = p(ea ?? e["data-spring-width"]), r["--jpanel-spring-height"] = p(sa ?? e["data-spring-height"]);
-    const ua = qa(A, q, E);
-    return /* @__PURE__ */ ma(
-      la,
+    }, [ra]);
+    const ga = U ?? e["data-panel-area"], la = _ ?? e["data-panel-card"];
+    (x ?? e["data-gridbag-column"] ?? e["data-gridbag-col"]) && (r["--jpanel-gridbag-column"] = p(x ?? e["data-gridbag-column"] ?? e["data-gridbag-col"])), (E ?? e["data-gridbag-row"]) && (r["--jpanel-gridbag-row"] = p(E ?? e["data-gridbag-row"])), (P ?? e["data-gridbag-column-span"] ?? e["data-gridbag-colspan"]) && (r["--jpanel-gridbag-column-span"] = p(P ?? e["data-gridbag-column-span"] ?? e["data-gridbag-colspan"])), (k ?? e["data-gridbag-row-span"] ?? e["data-gridbag-rowspan"]) && (r["--jpanel-gridbag-row-span"] = p(k ?? e["data-gridbag-row-span"] ?? e["data-gridbag-rowspan"])), r["--jpanel-gridbag-align"] = z ?? e["data-gridbag-align"], r["--jpanel-gridbag-justify"] = G ?? e["data-gridbag-justify"], r["--jpanel-group-span"] = p(O ?? e["data-group-span"]), r["--jpanel-group-align"] = Q ?? e["data-group-align"], r["--jpanel-group-justify"] = X ?? e["data-group-justify"], r["--jpanel-spring-left"] = p(Y ?? e["data-spring-left"]), r["--jpanel-spring-right"] = p(Z ?? e["data-spring-right"]), r["--jpanel-spring-top"] = p(v ?? e["data-spring-top"]), r["--jpanel-spring-bottom"] = p(aa ?? e["data-spring-bottom"]), r["--jpanel-spring-width"] = p(ta ?? e["data-spring-width"]), r["--jpanel-spring-height"] = p(na ?? e["data-spring-height"]);
+    const ia = ka(J, A, h);
+    return /* @__PURE__ */ da(
+      oa,
       {
-        ref: ra,
-        className: fa(
+        ref: pa,
+        className: ua(
           "jpanel",
-          ja[t],
-          ba[a],
-          ca[i],
-          pa
+          ma[t],
+          ja[a],
+          fa[i],
+          ea
         ),
         style: r,
-        "data-jpanel-layout": g.layout,
-        "data-jpanel-mobile-small-layout": g.layout,
-        "data-jpanel-mobile-large-layout": f.layout,
-        "data-jpanel-tablet-layout": j.layout,
+        "data-jpanel-layout": l.layout,
+        "data-jpanel-mobile-small-layout": l.layout,
+        "data-jpanel-mobile-large-layout": j.layout,
+        "data-jpanel-tablet-layout": f.layout,
         "data-jpanel-desktop-layout": b.layout,
-        "data-jpanel-tv-layout": w.layout,
-        "data-jpanel-placement": C(g.layout, g.placement),
-        "data-jpanel-mobile-small-placement": C(g.layout, g.placement),
-        "data-jpanel-mobile-large-placement": C(f.layout, f.placement),
-        "data-jpanel-tablet-placement": C(j.layout, j.placement),
-        "data-jpanel-desktop-placement": C(b.layout, b.placement),
-        "data-jpanel-tv-placement": C(w.layout, w.placement),
-        "data-jpanel-dense": g.dense === !1 ? "false" : "true",
-        "data-jpanel-mobile-small-dense": g.dense === !1 ? "false" : "true",
-        "data-jpanel-mobile-large-dense": f.dense === !1 ? "false" : "true",
-        "data-jpanel-tablet-dense": j.dense === !1 ? "false" : "true",
-        "data-jpanel-desktop-dense": b.dense === !1 ? "false" : "true",
-        "data-jpanel-tv-dense": w.dense === !1 ? "false" : "true",
-        "data-jpanel-mode": g.mode ?? "sequential",
-        "data-jpanel-mobile-small-mode": g.mode ?? "sequential",
-        "data-jpanel-mobile-large-mode": f.mode ?? "sequential",
-        "data-jpanel-tablet-mode": j.mode ?? "sequential",
+        "data-jpanel-tv-layout": y.layout,
+        "data-jpanel-placement": w(l.layout, l.placement),
+        "data-jpanel-mobile-small-placement": w(l.layout, l.placement),
+        "data-jpanel-mobile-large-placement": w(j.layout, j.placement),
+        "data-jpanel-tablet-placement": w(f.layout, f.placement),
+        "data-jpanel-desktop-placement": w(b.layout, b.placement),
+        "data-jpanel-tv-placement": w(y.layout, y.placement),
+        "data-jpanel-dense": l.dense ? "true" : "false",
+        "data-jpanel-mobile-small-dense": l.dense ? "true" : "false",
+        "data-jpanel-mobile-large-dense": j.dense ? "true" : "false",
+        "data-jpanel-tablet-dense": f.dense ? "true" : "false",
+        "data-jpanel-desktop-dense": b.dense ? "true" : "false",
+        "data-jpanel-tv-dense": y.dense ? "true" : "false",
+        "data-jpanel-mode": l.mode ?? "sequential",
+        "data-jpanel-mobile-small-mode": l.mode ?? "sequential",
+        "data-jpanel-mobile-large-mode": j.mode ?? "sequential",
+        "data-jpanel-tablet-mode": f.mode ?? "sequential",
         "data-jpanel-desktop-mode": b.mode ?? "sequential",
-        "data-jpanel-tv-mode": w.mode ?? "sequential",
-        "data-panel-area": ia,
-        "data-panel-card": da,
+        "data-jpanel-tv-mode": y.mode ?? "sequential",
+        "data-panel-area": ga,
+        "data-panel-card": la,
         ...e,
-        children: ua
+        children: ia
       }
     );
   }
 );
-La.displayName = "JPanelView";
+Ja.displayName = "JPanelView";
 export {
-  La as JPanelView
+  Ja as JPanelView
 };
 //# sourceMappingURL=JPanelView.js.map

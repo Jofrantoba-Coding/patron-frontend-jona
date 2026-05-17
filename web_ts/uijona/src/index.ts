@@ -22,8 +22,6 @@ export * from './atoms/ErrorMessageAtom';
 export * from './atoms/SeparatorAtom';
 export * from './atoms/ProgressAtom';
 export * from './atoms/SkeletonAtom';
-export * from './atoms/PanelAtom';
-
 // Molecules
 export * from './molecules/SectionHeadingMolecule';
 export * from './molecules/ContactMethodCardMolecule';

@@ -1,6 +1,6 @@
 import { jsxs as t, jsx as s } from "react/jsx-runtime";
 import { cn as o } from "../../lib/cn.js";
-import { PanelAtomImpl as a } from "../PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as a } from "../JPanel/JPanelImpl.js";
 const u = {
   default: "bg-primary-600",
   success: "bg-success-600",

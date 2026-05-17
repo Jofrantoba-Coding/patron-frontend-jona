@@ -84,26 +84,49 @@ const DemoZone = ({
 );
 
 export const Default: Story = {
+  args: {
+    variant: 'ghost',
+    padding: 'none',
+    radius: 'none',
+    layout: 'box',
+    direction: 'column',
+    gap: 'none',
+  },
   parameters: {
     docs: {
+      description: {
+        story: 'Playground interactivo. Modificá cualquier prop del panel de controles para ver los cambios en tiempo real.',
+      },
       source: {
-        code: `<JPanel>
-  <TextAtom>Contenido</TextAtom>
+        code: `<JPanel variant="ghost" layout="box" direction="column" gap="none">
+  {items}
 </JPanel>`,
       },
     },
   },
-  render: () => (
-    <JPanel className="max-w-sm">
-      <TextAtom as="h3" size="sm" className="font-semibold">JPanel base</TextAtom>
-      <TextAtom size="sm" color="muted">Sin props, JPanel se comporta como stack vertical neutro.</TextAtom>
+  render: (args) => (
+    <JPanel className="max-w-sm" {...args}>
+      <DemoItem>Item 1</DemoItem>
+      <DemoItem>Item 2</DemoItem>
+      <DemoItem>Item 3</DemoItem>
     </JPanel>
   ),
 };
 
 export const CardPanel: Story = {
+  args: {
+    variant: 'default',
+    padding: 'md',
+    radius: 'md',
+    gap: 'sm',
+    layout: 'box',
+    direction: 'column',
+  },
   parameters: {
     docs: {
+      description: {
+        story: 'Panel con superficie visual. Cambiá variant, padding y radius desde los controles.',
+      },
       source: {
         code: `<JPanel variant="default" padding="md" radius="md" gap="sm">
   <TextAtom as="h3">Titulo</TextAtom>
@@ -112,8 +135,8 @@ export const CardPanel: Story = {
       },
     },
   },
-  render: () => (
-    <JPanel variant="default" padding="md" radius="md" gap="sm" className="max-w-sm">
+  render: (args) => (
+    <JPanel className="max-w-sm" {...args}>
       <TextAtom as="h3" size="sm" className="font-semibold">Panel con superficie</TextAtom>
       <TextAtom size="sm" color="muted">El contenedor visual sale de props, no de una etiqueta HTML directa.</TextAtom>
     </JPanel>
@@ -121,8 +144,19 @@ export const CardPanel: Story = {
 };
 
 export const LayoutDefaults: Story = {
+  argTypes: {
+    variant: { control: false },
+    padding: { control: false },
+    radius: { control: false },
+    layout: { control: false },
+    direction: { control: false },
+    gap: { control: false },
+  },
   parameters: {
     docs: {
+      description: {
+        story: 'Referencia de todos los layouts y breakpoints disponibles en JPanel. Demo estático.',
+      },
       source: {
         code: `JPANEL_LAYOUT_DEFAULTS
 
@@ -172,8 +206,21 @@ spring   -> mobile grid; tablet/desktop requiere constraints spring`,
 };
 
 export const BoxResponsive: Story = {
+  args: {
+    variant: 'outlined',
+    padding: 'md',
+    radius: 'md',
+  },
+  argTypes: {
+    layout: { control: false },
+    direction: { control: false },
+    gap: { control: false },
+  },
   parameters: {
     docs: {
+      description: {
+        story: 'Layout box que cambia de columna a fila en tablet. Controlá variant, padding y radius.',
+      },
       source: {
         code: `<JPanel layout="box" gap="sm" tablet={{ direction: 'row', gap: 'md' }}>
   <JPanel>Uno</JPanel>
@@ -183,8 +230,8 @@ export const BoxResponsive: Story = {
       },
     },
   },
-  render: () => (
-    <JPanel layout="box" gap="sm" tablet={{ direction: 'row', gap: 'md' }} variant="outlined" padding="md" radius="md" className="max-w-2xl">
+  render: ({ variant, padding, radius }) => (
+    <JPanel layout="box" gap="sm" tablet={{ direction: 'row', gap: 'md' }} variant={variant} padding={padding} radius={radius} className="max-w-2xl">
       <DemoItem>Uno</DemoItem>
       <DemoItem>Dos</DemoItem>
       <DemoItem>Tres</DemoItem>
@@ -193,8 +240,21 @@ export const BoxResponsive: Story = {
 };
 
 export const GridResponsive: Story = {
+  args: {
+    variant: 'outlined',
+    padding: 'md',
+    radius: 'md',
+  },
+  argTypes: {
+    layout: { control: false },
+    direction: { control: false },
+    gap: { control: false },
+  },
   parameters: {
     docs: {
+      description: {
+        story: 'Grid responsive con columnas que crecen por breakpoint. Controlá variant, padding y radius.',
+      },
       source: {
         code: `<JPanel
   layout="grid"
@@ -209,7 +269,7 @@ export const GridResponsive: Story = {
       },
     },
   },
-  render: () => (
+  render: ({ variant, padding, radius }) => (
     <JPanel
       layout="grid"
       gap="sm"
@@ -217,9 +277,9 @@ export const GridResponsive: Story = {
       tablet={{ columns: 2, gap: 'md' }}
       desktop={{ columns: 3, gap: 'lg' }}
       tv={{ columns: 6, gap: 'xl' }}
-      variant="outlined"
-      padding="md"
-      radius="md"
+      variant={variant}
+      padding={padding}
+      radius={radius}
       className="max-w-3xl"
     >
       {['Clientes', 'Ventas', 'Inventario', 'Riesgos', 'Reportes', 'Alertas'].map((item) => (
@@ -230,8 +290,19 @@ export const GridResponsive: Story = {
 };
 
 export const BorderLayout: Story = {
+  argTypes: {
+    variant: { control: false },
+    padding: { control: false },
+    radius: { control: false },
+    layout: { control: false },
+    direction: { control: false },
+    gap: { control: false },
+  },
   parameters: {
     docs: {
+      description: {
+        story: 'Distribuye zonas top / left / center / right / bottom. Cada hijo requiere area=. Demo estático.',
+      },
       source: {
         code: `<JPanel layout="border" gap="sm">
   <JPanel area="top">Header</JPanel>
@@ -255,6 +326,21 @@ export const BorderLayout: Story = {
 };
 
 export const CardLayout: Story = {
+  argTypes: {
+    variant: { control: false },
+    padding: { control: false },
+    radius: { control: false },
+    layout: { control: false },
+    direction: { control: false },
+    gap: { control: false },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Muestra una sola tarjeta a la vez según activeCard. Demo estático con estado local.',
+      },
+    },
+  },
   render: () => {
     const cards = ['perfil', 'seguridad', 'facturacion'];
     const [activeCard, setActiveCard] = useState(cards[0]);
@@ -285,6 +371,21 @@ export const CardLayout: Story = {
 };
 
 export const AdvancedLayouts: Story = {
+  argTypes: {
+    variant: { control: false },
+    padding: { control: false },
+    radius: { control: false },
+    layout: { control: false },
+    direction: { control: false },
+    gap: { control: false },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demuestra gridbag (posicion exacta por hijo) y group (spans). Demo estático.',
+      },
+    },
+  },
   render: () => (
     <JPanel gap="lg" className="max-w-3xl">
       <JPanel layout="gridbag" gap="sm" tablet={{ columns: 4 }} variant="outlined" padding="md" radius="md">

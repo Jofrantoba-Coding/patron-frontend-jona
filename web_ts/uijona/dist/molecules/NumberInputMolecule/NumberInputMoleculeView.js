@@ -1,6 +1,6 @@
 import { jsxs as i, jsx as e } from "react/jsx-runtime";
 import { cn as f } from "../../lib/cn.js";
-import { PanelAtomImpl as v } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as v } from "../../atoms/JPanel/JPanelImpl.js";
 import { InputAtomImpl as x } from "../../atoms/InputAtom/InputAtomImpl.js";
 const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: /* @__PURE__ */ e("path", { d: "M5 12h14" }) }), w = () => /* @__PURE__ */ i("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
   /* @__PURE__ */ e("path", { d: "M12 5v14" }),
@@ -15,8 +15,8 @@ const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 2
   forwardedRef: d,
   onInputChange: u,
   onInputBlur: c,
-  onDecrementClick: m,
-  onIncrementClick: b,
+  onDecrementClick: b,
+  onIncrementClick: m,
   ...h
 }) => /* @__PURE__ */ i(v, { variant: "ghost", padding: "none", radius: "none", className: f("inline-flex max-w-full min-w-0 items-stretch rounded-md border bg-white", t ? "border-danger-500" : "border-neutral-300", a), children: [
   /* @__PURE__ */ e(
@@ -25,7 +25,7 @@ const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 2
       type: "button",
       "aria-label": "Decrement",
       disabled: n || !l,
-      onClick: m,
+      onClick: b,
       className: "inline-flex min-h-9 w-9 shrink-0 items-center justify-center border-r border-neutral-200 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40",
       children: /* @__PURE__ */ e(g, {})
     }
@@ -50,7 +50,7 @@ const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 2
       type: "button",
       "aria-label": "Increment",
       disabled: n || !s,
-      onClick: b,
+      onClick: m,
       className: "inline-flex min-h-9 w-9 shrink-0 items-center justify-center border-l border-neutral-200 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40",
       children: /* @__PURE__ */ e(w, {})
     }

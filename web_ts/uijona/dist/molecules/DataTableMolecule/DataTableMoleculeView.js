@@ -1,6 +1,6 @@
 import { jsxs as a, jsx as e } from "react/jsx-runtime";
 import { cn as s } from "../../lib/cn.js";
-import { PanelAtomImpl as l } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as l } from "../../atoms/JPanel/JPanelImpl.js";
 import { InputAtomImpl as B } from "../../atoms/InputAtom/InputAtomImpl.js";
 function C({ direction: r }) {
   return /* @__PURE__ */ a("svg", { className: "ml-1 inline-block h-3.5 w-3.5 shrink-0", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2.5, "aria-hidden": "true", children: [
@@ -8,9 +8,9 @@ function C({ direction: r }) {
     /* @__PURE__ */ e("polyline", { points: "6 15 12 21 18 15", className: r === "desc" ? "text-primary-600" : "text-neutral-300" })
   ] });
 }
-function A({
+function M({
   columns: r,
-  rows: h,
+  rows: m,
   rowKey: g,
   sort: n,
   loading: c,
@@ -23,7 +23,7 @@ function A({
   className: b,
   onSortChange: u,
   onFilterChange: o,
-  onRowClick: m
+  onRowClick: h
 }) {
   const w = (t) => {
     if (!t.sortable || !u) return;
@@ -76,18 +76,18 @@ function A({
           ] }),
           /* @__PURE__ */ e("span", { className: "text-sm", children: "Cargando..." })
         ] }) }) }),
-        !c && h.length === 0 && /* @__PURE__ */ e("tr", { children: /* @__PURE__ */ e("td", { colSpan: r.length, className: "px-4 py-12 text-center", children: /* @__PURE__ */ a(l, { variant: "ghost", padding: "none", radius: "none", className: "flex flex-col items-center gap-1 text-neutral-400", children: [
+        !c && m.length === 0 && /* @__PURE__ */ e("tr", { children: /* @__PURE__ */ e("td", { colSpan: r.length, className: "px-4 py-12 text-center", children: /* @__PURE__ */ a(l, { variant: "ghost", padding: "none", radius: "none", className: "flex flex-col items-center gap-1 text-neutral-400", children: [
           /* @__PURE__ */ e("svg", { className: "h-8 w-8", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.5, "aria-hidden": "true", children: /* @__PURE__ */ e("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" }) }),
           /* @__PURE__ */ e("p", { className: "text-sm font-medium text-neutral-600", children: f }),
           /* @__PURE__ */ e("p", { className: "text-xs text-neutral-400", children: y })
         ] }) }) }),
-        !c && h.map((t, d) => /* @__PURE__ */ e(
+        !c && m.map((t, d) => /* @__PURE__ */ e(
           "tr",
           {
-            onClick: m ? () => m(t, d) : void 0,
+            onClick: h ? () => h(t, d) : void 0,
             className: s(
               "border-b border-neutral-100 transition-colors",
-              m && "cursor-pointer hover:bg-neutral-50"
+              h && "cursor-pointer hover:bg-neutral-50"
             ),
             children: r.map((i) => {
               const x = t[i.key];
@@ -112,6 +112,6 @@ function A({
   ] });
 }
 export {
-  A as DataTableMoleculeView
+  M as DataTableMoleculeView
 };
 //# sourceMappingURL=DataTableMoleculeView.js.map

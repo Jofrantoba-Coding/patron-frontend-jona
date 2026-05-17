@@ -1,8 +1,8 @@
 import { jsxs as i, jsx as e } from "react/jsx-runtime";
 import { cn as c } from "../../lib/cn.js";
-import { PanelAtomImpl as s } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as s } from "../../atoms/JPanel/JPanelImpl.js";
 import { TextAtomImpl as t } from "../../atoms/TextAtom/TextAtomImpl.js";
-const m = {
+const d = {
   default: "bg-neutral-900 text-white",
   success: "bg-success-600 text-white",
   warning: "bg-warning-500 text-white",
@@ -23,7 +23,7 @@ const m = {
     "aria-live": "polite",
     className: c(
       "flex w-full min-w-0 max-w-sm items-start gap-3 rounded-md px-4 py-3 shadow-lg sm:min-w-[240px]",
-      m[o],
+      d[o],
       r
     ),
     children: [

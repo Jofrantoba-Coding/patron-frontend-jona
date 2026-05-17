@@ -1,7 +1,7 @@
 import { jsxs as a, jsx as e } from "react/jsx-runtime";
 import { createPortal as u } from "react-dom";
 import { cn as f } from "../../lib/cn.js";
-import { PanelAtomImpl as n } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as n } from "../../atoms/JPanel/JPanelImpl.js";
 import { ButtonAtomImpl as l } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
 const g = {
   danger: /* @__PURE__ */ e("svg", { className: "h-6 w-6 text-danger-500", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 2, "aria-hidden": "true", children: /* @__PURE__ */ e("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" }) }),

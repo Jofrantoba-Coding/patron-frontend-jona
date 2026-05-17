@@ -84,10 +84,7 @@ const wrapValues: Record<JPanelWrap, string> = {
 
 const responsiveLayouts = new Set<JPanelLayout>(['grid', 'gridbag', 'group', 'spring']);
 
-const resolveJPanelTag = (as?: React.ElementType): React.ElementType => {
-  if (typeof as === 'string') return as.trim() ? as : 'div';
-  return as ?? 'div';
-};
+const resolveJPanelTag = (as?: React.ElementType): React.ElementType => as ?? 'div';
 
 const resolveWrap = (
   wrap: boolean | JPanelWrap | undefined,
@@ -223,8 +220,6 @@ const hasSpringConstraint = (child: React.ReactElement<JPanelManagedChildProps>)
     child.props['data-spring-height'],
   ].some((value) => value !== undefined);
 
-const layoutSetIncludes = (layouts: Set<JPanelLayout>, layout: JPanelLayout): boolean => layouts.has(layout);
-
 const getJPanelDiagnostics = (
   children: React.ReactNode,
   layouts: Set<JPanelLayout>,
@@ -232,7 +227,7 @@ const getJPanelDiagnostics = (
 ): string[] => {
   const diagnostics: string[] = [];
 
-  if (layoutSetIncludes(layouts, 'border')) {
+  if (layouts.has('border')) {
     React.Children.forEach(children, (child, index) => {
       if (React.isValidElement<JPanelManagedChildProps>(child) && !getBorderArea(child)) {
         diagnostics.push(
@@ -242,7 +237,7 @@ const getJPanelDiagnostics = (
     });
   }
 
-  if (layoutSetIncludes(layouts, 'card') && activeCard !== undefined) {
+  if (layouts.has('card') && activeCard !== undefined) {
     let hasActiveCard = false;
 
     React.Children.forEach(children, (child) => {
@@ -258,7 +253,7 @@ const getJPanelDiagnostics = (
     }
   }
 
-  if (layoutSetIncludes(layouts, 'spring')) {
+  if (layouts.has('spring')) {
     React.Children.forEach(children, (child, index) => {
       if (React.isValidElement<JPanelManagedChildProps>(child) && !hasSpringConstraint(child)) {
         diagnostics.push(
@@ -272,7 +267,7 @@ const getJPanelDiagnostics = (
 };
 
 const logJPanelDiagnostics = (diagnostics: string[]) => {
-  if (diagnostics.length === 0 || typeof console === 'undefined' || typeof console.log !== 'function') return;
+  if (import.meta.env.PROD || diagnostics.length === 0) return;
   diagnostics.forEach((message) => console.log(message));
 };
 
@@ -294,7 +289,7 @@ const prepareLayoutChildren = (
     const nextProps: Partial<JPanelManagedChildProps> & Record<string, string | React.CSSProperties | undefined> = {};
     const nextStyle: JPanelCssVars = { ...child.props.style };
 
-    if (layoutSetIncludes(layouts, 'border')) {
+    if (layouts.has('border')) {
       const area = child.props.area ?? child.props['data-panel-area'];
       if (area) {
         nextProps['data-panel-area'] = area;
@@ -302,7 +297,7 @@ const prepareLayoutChildren = (
       }
     }
 
-    if (layoutSetIncludes(layouts, 'gridbag')) {
+    if (layouts.has('gridbag')) {
       nextProps['data-jpanel-gridbag-item'] = '';
       nextProps['data-jona-gridbag-item'] = '';
       nextStyle['--jpanel-gridbag-column'] = resolveCssValue(child.props.gridBagColumn ?? child.props['data-gridbag-column'] ?? child.props['data-gridbag-col']);
@@ -313,7 +308,7 @@ const prepareLayoutChildren = (
       nextStyle['--jpanel-gridbag-justify'] = child.props.gridBagJustify ?? child.props['data-gridbag-justify'];
     }
 
-    if (layoutSetIncludes(layouts, 'group')) {
+    if (layouts.has('group')) {
       nextProps['data-jpanel-group-item'] = '';
       nextProps['data-jona-group-item'] = '';
       nextStyle['--jpanel-group-span'] = resolveCssValue(child.props.groupSpan ?? child.props['data-group-span']);
@@ -321,7 +316,7 @@ const prepareLayoutChildren = (
       nextStyle['--jpanel-group-justify'] = child.props.groupJustify ?? child.props['data-group-justify'];
     }
 
-    if (layoutSetIncludes(layouts, 'spring')) {
+    if (layouts.has('spring')) {
       nextProps['data-jpanel-spring-item'] = '';
       nextProps['data-jona-spring-item'] = '';
       nextStyle['--jpanel-spring-left'] = resolveCssValue(child.props.springLeft ?? child.props['data-spring-left']);
@@ -332,7 +327,7 @@ const prepareLayoutChildren = (
       nextStyle['--jpanel-spring-height'] = resolveCssValue(child.props.springHeight ?? child.props['data-spring-height']);
     }
 
-    if (layoutSetIncludes(layouts, 'card')) {
+    if (layouts.has('card')) {
       const cardKey = getCardKey(child);
       const isActive = activeCard === undefined
         ? !firstCardShown
@@ -495,12 +490,12 @@ export const JPanelView = React.forwardRef<HTMLElement, InterJPanel>(
         data-jpanel-tablet-placement={resolvePlacement(tabletConfig.layout, tabletConfig.placement)}
         data-jpanel-desktop-placement={resolvePlacement(desktopConfig.layout, desktopConfig.placement)}
         data-jpanel-tv-placement={resolvePlacement(tvConfig.layout, tvConfig.placement)}
-        data-jpanel-dense={mobileSmallConfig.dense === false ? 'false' : 'true'}
-        data-jpanel-mobile-small-dense={mobileSmallConfig.dense === false ? 'false' : 'true'}
-        data-jpanel-mobile-large-dense={mobileLargeConfig.dense === false ? 'false' : 'true'}
-        data-jpanel-tablet-dense={tabletConfig.dense === false ? 'false' : 'true'}
-        data-jpanel-desktop-dense={desktopConfig.dense === false ? 'false' : 'true'}
-        data-jpanel-tv-dense={tvConfig.dense === false ? 'false' : 'true'}
+        data-jpanel-dense={mobileSmallConfig.dense ? 'true' : 'false'}
+        data-jpanel-mobile-small-dense={mobileSmallConfig.dense ? 'true' : 'false'}
+        data-jpanel-mobile-large-dense={mobileLargeConfig.dense ? 'true' : 'false'}
+        data-jpanel-tablet-dense={tabletConfig.dense ? 'true' : 'false'}
+        data-jpanel-desktop-dense={desktopConfig.dense ? 'true' : 'false'}
+        data-jpanel-tv-dense={tvConfig.dense ? 'true' : 'false'}
         data-jpanel-mode={mobileSmallConfig.mode ?? 'sequential'}
         data-jpanel-mobile-small-mode={mobileSmallConfig.mode ?? 'sequential'}
         data-jpanel-mobile-large-mode={mobileLargeConfig.mode ?? 'sequential'}

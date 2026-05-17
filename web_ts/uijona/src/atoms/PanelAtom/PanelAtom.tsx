@@ -1,4 +1,4 @@
-export { PanelAtomImpl as PanelAtom } from './PanelAtomImpl';
+export { JPanelImpl as PanelAtom } from '../JPanel/JPanelImpl';
 export type {
   InterPanelAtom,
   PanelAlign,

@@ -1,11 +1,11 @@
 import { jsxs as i, jsx as r } from "react/jsx-runtime";
-import { cn as m } from "../../lib/cn.js";
-import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
-import { TextAtomImpl as s } from "../../atoms/TextAtom/TextAtomImpl.js";
+import { cn as s } from "../../lib/cn.js";
+import { JPanelImpl as e } from "../../atoms/JPanel/JPanelImpl.js";
+import { TextAtomImpl as m } from "../../atoms/TextAtom/TextAtomImpl.js";
 import { LinkAtomImpl as l } from "../../atoms/LinkAtom/LinkAtomImpl.js";
 const g = ({
-  copyright: t,
-  links: n,
+  copyright: n,
+  links: t,
   className: a
 }) => /* @__PURE__ */ i(
   e,
@@ -14,10 +14,10 @@ const g = ({
     variant: "ghost",
     padding: "none",
     radius: "none",
-    className: m("site-footer", a),
+    className: s("site-footer", a),
     children: [
-      /* @__PURE__ */ r(s, { as: "span", children: t }),
-      /* @__PURE__ */ r(e, { variant: "ghost", padding: "none", radius: "none", className: "site-footer-links", children: n.map((o) => /* @__PURE__ */ r(l, { href: o.href, className: "footer-link", children: o.label }, o.href)) })
+      /* @__PURE__ */ r(m, { as: "span", children: n }),
+      /* @__PURE__ */ r(e, { variant: "ghost", padding: "none", radius: "none", className: "site-footer-links", children: t.map((o) => /* @__PURE__ */ r(l, { href: o.href, className: "footer-link", children: o.label }, o.href)) })
     ]
   }
 );

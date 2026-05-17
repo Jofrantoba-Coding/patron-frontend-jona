@@ -1,6 +1,6 @@
 import { jsxs as v, jsx as r } from "react/jsx-runtime";
 import { useState as x, useCallback as l, useContext as g, createContext as h } from "react";
-import { PanelAtomImpl as u } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as u } from "../../atoms/JPanel/JPanelImpl.js";
 import { ToastMoleculeImpl as w } from "../../molecules/ToastMolecule/ToastMoleculeImpl.js";
 const c = h(null), j = ({ children: s }) => {
   const [o, t] = x([]), i = l((e) => {

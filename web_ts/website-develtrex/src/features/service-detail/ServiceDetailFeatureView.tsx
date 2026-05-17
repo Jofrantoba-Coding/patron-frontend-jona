@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { GridLayout, LinkAtom, PanelAtom, TextAtom } from 'jona-ui';
+import { GridLayout, LinkAtom, JPanel, TextAtom } from 'jona-ui';
 import {
   BenefitItemMolecule,
   DetailCTAOrganism,
@@ -17,7 +17,7 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
     .slice(0, 3);
 
   const visual = (
-    <PanelAtom
+    <JPanel
       className={`detail-hero-asset service-visual-asset icon-${service.visual}`}
       variant="ghost"
       padding="none"
@@ -35,7 +35,7 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
         services={content.services}
       />
 
-      <PanelAtom as="main" variant="ghost" padding="none" radius="none">
+      <JPanel as="main" variant="ghost" padding="none" radius="none">
         <DetailHeroOrganism
           className="service-hero"
           backHref="/"
@@ -50,28 +50,28 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
           visual={visual}
         />
 
-        <PanelAtom as="section" className="detail-section detail-overview" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
+        <JPanel as="section" className="detail-section detail-overview" variant="ghost" padding="none" radius="none">
+          <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
             <GridLayout columns="repeat(2, minmax(0, 1fr))" placement="fixed" className="detail-two-column">
-              <PanelAtom className="detail-copy-block" variant="ghost" padding="none" radius="none">
+              <JPanel className="detail-copy-block" variant="ghost" padding="none" radius="none">
                 <TextAtom as="span" className="eyebrow">Descripción</TextAtom>
                 <TextAtom as="h2" className="detail-h2">¿De qué se trata?</TextAtom>
                 <TextAtom className="detail-body">{detail.intro}</TextAtom>
-              </PanelAtom>
-              <PanelAtom className="detail-copy-block" variant="ghost" padding="none" radius="none">
+              </JPanel>
+              <JPanel className="detail-copy-block" variant="ghost" padding="none" radius="none">
                 <TextAtom as="span" className="eyebrow">Para quién</TextAtom>
                 <TextAtom as="h2" className="detail-h2">¿A quién le sirve?</TextAtom>
                 <TextAtom className="detail-body">{detail.forWho}</TextAtom>
-                <PanelAtom className="service-proof-box" variant="ghost" padding="none" radius="none">
+                <JPanel className="service-proof-box" variant="ghost" padding="none" radius="none">
                   <TextAtom className="service-proof-text">{service.proof}</TextAtom>
-                </PanelAtom>
-              </PanelAtom>
+                </JPanel>
+              </JPanel>
             </GridLayout>
-          </PanelAtom>
-        </PanelAtom>
+          </JPanel>
+        </JPanel>
 
-        <PanelAtom as="section" className="detail-section detail-benefits" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
+        <JPanel as="section" className="detail-section detail-benefits" variant="ghost" padding="none" radius="none">
+          <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="eyebrow">Beneficios</TextAtom>
             <TextAtom as="h2" className="detail-h2">¿Qué obtienes?</TextAtom>
             <GridLayout autoFitMin="280px" className="detail-benefits-grid">
@@ -79,39 +79,39 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
                 <BenefitItemMolecule key={benefit} text={benefit} />
               ))}
             </GridLayout>
-          </PanelAtom>
-        </PanelAtom>
+          </JPanel>
+        </JPanel>
 
-        <PanelAtom as="section" className="detail-section detail-process-section" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
+        <JPanel as="section" className="detail-section detail-process-section" variant="ghost" padding="none" radius="none">
+          <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="eyebrow">Metodología</TextAtom>
             <TextAtom as="h2" className="detail-h2">¿Cómo lo hacemos?</TextAtom>
-            <PanelAtom className="detail-process-list" variant="ghost" padding="none" radius="none">
+            <JPanel className="detail-process-list" variant="ghost" padding="none" radius="none">
               {detail.approach.map((step, index) => (
-                <PanelAtom key={step} className="detail-process-item" variant="ghost" padding="none" radius="none">
+                <JPanel key={step} className="detail-process-item" variant="ghost" padding="none" radius="none">
                   <TextAtom as="span" className="detail-step-num">{String(index + 1).padStart(2, '0')}</TextAtom>
                   <TextAtom className="detail-step-title">{step}</TextAtom>
-                </PanelAtom>
+                </JPanel>
               ))}
-            </PanelAtom>
-          </PanelAtom>
-        </PanelAtom>
+            </JPanel>
+          </JPanel>
+        </JPanel>
 
-        <PanelAtom as="section" className="detail-section detail-faq" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
+        <JPanel as="section" className="detail-section detail-faq" variant="ghost" padding="none" radius="none">
+          <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="eyebrow">FAQ</TextAtom>
             <TextAtom as="h2" className="detail-h2">Preguntas frecuentes</TextAtom>
-            <PanelAtom className="detail-faq-list" variant="ghost" padding="none" radius="none">
+            <JPanel className="detail-faq-list" variant="ghost" padding="none" radius="none">
               {detail.faqs.map((faq) => (
                 <FaqItemMolecule key={faq.q} question={faq.q} answer={faq.a} />
               ))}
-            </PanelAtom>
-          </PanelAtom>
-        </PanelAtom>
+            </JPanel>
+          </JPanel>
+        </JPanel>
 
         {relatedServices.length > 0 && (
-          <PanelAtom as="section" className="detail-section detail-related" variant="ghost" padding="none" radius="none">
-            <PanelAtom className="detail-shell" variant="ghost" padding="none" radius="none">
+          <JPanel as="section" className="detail-section detail-related" variant="ghost" padding="none" radius="none">
+            <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
               <TextAtom as="span" className="eyebrow">También en {service.category}</TextAtom>
               <TextAtom as="h2" className="detail-h2">Servicios relacionados que podrían interesarte</TextAtom>
               <GridLayout autoFitMin="280px" className="detail-related-grid">
@@ -125,8 +125,8 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
                   />
                 ))}
               </GridLayout>
-            </PanelAtom>
-          </PanelAtom>
+            </JPanel>
+          </JPanel>
         )}
 
         <DetailCTAOrganism
@@ -139,7 +139,7 @@ export function ServiceDetailFeatureView({ content, service, detail }: InterServ
         />
 
         <ContactFeature content={content.contact} />
-      </PanelAtom>
+      </JPanel>
     </>
   );
 }

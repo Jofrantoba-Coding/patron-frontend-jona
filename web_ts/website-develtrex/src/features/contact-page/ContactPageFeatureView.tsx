@@ -1,4 +1,4 @@
-import { PanelAtom, TextAtom } from 'jona-ui';
+import { JPanel, TextAtom } from 'jona-ui';
 import {
   ContactMethodsOrganism,
   ContactStepsOrganism,
@@ -67,14 +67,14 @@ export function ContactPageFeatureView({ content }: InterContactPageFeature) {
         services={content.services}
       />
 
-      <PanelAtom as="main" variant="ghost" padding="none" radius="none">
-        <PanelAtom as="section" className="contact-page-hero" variant="ghost" padding="none" radius="none">
-          <PanelAtom className="section-shell section-heading align-center" variant="ghost" padding="none" radius="none">
+      <JPanel as="main" variant="ghost" padding="none" radius="none">
+        <JPanel as="section" className="contact-page-hero" variant="ghost" padding="none" radius="none">
+          <JPanel className="section-shell section-heading align-center" variant="ghost" padding="none" radius="none">
             <TextAtom as="span" className="eyebrow">Contacto</TextAtom>
             <TextAtom as="h1" className="section-title">{c.title}</TextAtom>
             <TextAtom className="section-copy">{c.subtitle}</TextAtom>
-          </PanelAtom>
-        </PanelAtom>
+          </JPanel>
+        </JPanel>
 
         <ContactMethodsOrganism methods={CONTACT_METHODS} />
 
@@ -88,7 +88,7 @@ export function ContactPageFeatureView({ content }: InterContactPageFeature) {
           copyright={`© ${new Date().getFullYear()} Develtrex. Todos los derechos reservados.`}
           links={FOOTER_LINKS}
         />
-      </PanelAtom>
+      </JPanel>
     </>
   );
 }

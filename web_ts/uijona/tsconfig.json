@@ -12,6 +12,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "skipLibCheck": true,
+    "types": ["vite/client"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,

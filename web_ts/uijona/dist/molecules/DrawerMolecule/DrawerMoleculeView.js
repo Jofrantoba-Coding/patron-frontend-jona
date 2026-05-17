@@ -1,7 +1,7 @@
 import { jsxs as l, Fragment as y, jsx as e } from "react/jsx-runtime";
 import { createPortal as v } from "react-dom";
 import { cn as o } from "../../lib/cn.js";
-import { PanelAtomImpl as a } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as a } from "../../atoms/JPanel/JPanelImpl.js";
 import { ButtonAtomImpl as k } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
 const m = {
   right: { panel: "inset-y-0 right-0 h-full flex-col", open: "translate-x-0" },
@@ -18,7 +18,7 @@ const m = {
   md: { right: "w-80", left: "w-80", top: "h-64", bottom: "h-64" },
   lg: { right: "w-[28rem]", left: "w-[28rem]", top: "h-80", bottom: "h-80" },
   full: { right: "w-full", left: "w-full", top: "h-full", bottom: "h-full" }
-}, P = ({
+}, S = ({
   open: i,
   side: t,
   size: c,
@@ -86,6 +86,6 @@ const m = {
   );
 };
 export {
-  P as DrawerMoleculeView
+  S as DrawerMoleculeView
 };
 //# sourceMappingURL=DrawerMoleculeView.js.map

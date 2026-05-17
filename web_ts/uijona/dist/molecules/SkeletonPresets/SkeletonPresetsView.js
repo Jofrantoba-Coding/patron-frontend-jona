@@ -1,5 +1,5 @@
 import { jsxs as s, jsx as a } from "react/jsx-runtime";
-import { PanelAtomImpl as n } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as n } from "../../atoms/JPanel/JPanelImpl.js";
 import { SkeletonAtomImpl as e } from "../../atoms/SkeletonAtom/SkeletonAtomImpl.js";
 const p = () => /* @__PURE__ */ s(n, { variant: "ghost", padding: "none", radius: "none", className: "flex items-center gap-3", children: [
   /* @__PURE__ */ a(e, { circle: !0, className: "w-10 h-10 shrink-0" }),

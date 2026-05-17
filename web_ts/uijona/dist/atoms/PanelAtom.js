@@ -1,5 +1,5 @@
-import { PanelAtomImpl as a } from "./PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as l } from "./JPanel/JPanelImpl.js";
 export {
-  a as PanelAtom
+  l as PanelAtom
 };
 //# sourceMappingURL=PanelAtom.js.map

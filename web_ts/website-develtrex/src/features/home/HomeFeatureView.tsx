@@ -1,4 +1,4 @@
-import { PanelAtom } from 'jona-ui';
+import { JPanel } from 'jona-ui';
 import { LandingFeature } from '../landing/LandingFeature';
 import { NavigationFeature } from '../navigation/NavigationFeature';
 import { ProductsFeature } from '../products/ProductsFeature';
@@ -14,11 +14,11 @@ export function HomeFeatureView({ content }: InterHomeFeature) {
         products={content.products}
         services={content.services}
       />
-      <PanelAtom as="main" variant="ghost" padding="none" radius="none">
+      <JPanel as="main" variant="ghost" padding="none" radius="none">
         <LandingFeature content={content} />
         <ProductsFeature content={content} />
         <ServicesFeature content={content} />
-      </PanelAtom>
+      </JPanel>
     </>
   );
 }

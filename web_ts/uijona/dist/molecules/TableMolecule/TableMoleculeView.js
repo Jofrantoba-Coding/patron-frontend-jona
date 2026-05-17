@@ -2,7 +2,7 @@ import { jsx as n, jsxs as u } from "react/jsx-runtime";
 import d from "react";
 import { cn as c } from "../../lib/cn.js";
 import { useTableContext as v } from "./TableMoleculeContext.js";
-import { PanelAtomImpl as w } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as w } from "../../atoms/JPanel/JPanelImpl.js";
 import { InputAtomImpl as le } from "../../atoms/InputAtom/InputAtomImpl.js";
 const ie = {
   scroll: "relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200",
@@ -300,12 +300,12 @@ const ye = d.forwardRef(
     width: y,
     minWidth: R,
     maxWidth: H,
-    resizeHandleLabel: Y = "Redimensionar columna",
+    resizeHandleLabel: U = "Redimensionar columna",
     onColumnResize: V,
-    onClick: q,
-    ...A
-  }, J) => {
-    const { columnFilters: K, setColumnFilter: E } = v(), L = d.useRef(null), [P, Q] = d.useState(""), [Z, C] = d.useState(() => B(y)), O = Z ?? B(y), I = S(O ?? y), M = h || m === "colgroup" || Number(o ?? 1) > 1, _ = k && !M, z = x ?? (a !== void 0 ? K[a] ?? "" : P), { onBlur: X, className: ee, ...te } = b ?? {};
+    onClick: Y,
+    ...L
+  }, q) => {
+    const { columnFilters: K, setColumnFilter: E } = v(), A = d.useRef(null), [P, Q] = d.useState(""), [Z, C] = d.useState(() => B(y)), O = Z ?? B(y), I = S(O ?? y), M = h || m === "colgroup" || Number(o ?? 1) > 1, _ = k && !M, z = x ?? (a !== void 0 ? K[a] ?? "" : P), { onBlur: X, className: ee, ...te } = b ?? {};
     d.useEffect(() => {
       const l = B(y);
       l !== void 0 && C(l);
@@ -317,9 +317,9 @@ const ye = d.forwardRef(
     }, ae = (l) => {
       var G;
       l.preventDefault(), l.stopPropagation();
-      const F = l.clientX, ne = ((G = L.current) == null ? void 0 : G.offsetWidth) || O || R || 120, $ = (oe) => {
-        const U = we(ne + oe.clientX - F, R, H);
-        C(U), V == null || V(U);
+      const F = l.clientX, ne = ((G = A.current) == null ? void 0 : G.offsetWidth) || O || R || 120, $ = (oe) => {
+        const J = we(ne + oe.clientX - F, R, H);
+        C(J), V == null || V(J);
       }, D = () => {
         document.removeEventListener("mousemove", $), document.removeEventListener("mouseup", D);
       };
@@ -329,7 +329,7 @@ const ye = d.forwardRef(
       "th",
       {
         ref: (l) => {
-          L.current = l, Ne(J, l);
+          A.current = l, Ne(q, l);
         },
         style: {
           ...t,
@@ -337,7 +337,7 @@ const ye = d.forwardRef(
           minWidth: S(R) ?? (t == null ? void 0 : t.minWidth),
           maxWidth: S(H) ?? (t == null ? void 0 : t.maxWidth)
         },
-        "aria-sort": _ ? ge(p) : A["aria-sort"],
+        "aria-sort": _ ? ge(p) : L["aria-sort"],
         className: c(
           "relative h-10 px-4 text-left align-middle font-medium text-neutral-500 whitespace-nowrap",
           M && "border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700",
@@ -347,8 +347,8 @@ const ye = d.forwardRef(
         ),
         colSpan: o,
         scope: m ?? (M ? "colgroup" : void 0),
-        onClick: q,
-        ...A,
+        onClick: Y,
+        ...L,
         children: [
           /* @__PURE__ */ u(
             w,
@@ -402,7 +402,7 @@ const ye = d.forwardRef(
             "button",
             {
               type: "button",
-              "aria-label": Y,
+              "aria-label": U,
               className: "absolute right-0 top-0 h-full w-3 cursor-col-resize touch-none border-r border-transparent outline-none hover:border-primary-400 focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500",
               onMouseDown: ae
             }

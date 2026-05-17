@@ -1,6 +1,6 @@
 import { jsx as e } from "react/jsx-runtime";
 import { cn as i } from "../../lib/cn.js";
-import { PanelAtomImpl as m } from "../PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as m } from "../JPanel/JPanelImpl.js";
 const d = {
   xs: "w-6 h-6 text-xs",
   sm: "w-8 h-8 text-xs",
@@ -14,9 +14,9 @@ const d = {
   src: r,
   alt: t,
   initials: s,
-  size: o,
-  shape: l,
-  className: n,
+  size: l,
+  shape: n,
+  className: o,
   onImageError: a
 }) => /* @__PURE__ */ e(
   m,
@@ -26,9 +26,9 @@ const d = {
     radius: "none",
     className: i(
       "relative inline-flex items-center justify-center overflow-hidden bg-primary-100 text-primary-700 font-semibold flex-shrink-0",
-      d[o],
-      x[l],
-      n
+      d[l],
+      x[n],
+      o
     ),
     "aria-label": t || s,
     children: r ? /* @__PURE__ */ e(

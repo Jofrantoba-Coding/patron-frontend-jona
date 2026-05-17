@@ -1,7 +1,7 @@
 import { jsxs as n, jsx as e } from "react/jsx-runtime";
 import { createPortal as f } from "react-dom";
 import { cn as h } from "../../lib/cn.js";
-import { PanelAtomImpl as a } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as a } from "../../atoms/JPanel/JPanelImpl.js";
 import { ButtonAtomImpl as p } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
 const k = ({
   open: s,

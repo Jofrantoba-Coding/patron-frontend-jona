@@ -1,9 +1,9 @@
-import { jsx as t } from "react/jsx-runtime";
-import p from "react";
+import { jsx as p } from "react/jsx-runtime";
+import t from "react";
 import { cn as l } from "../../lib/cn.js";
-import { PanelAtomImpl as e } from "../../atoms/PanelAtom/PanelAtomImpl.js";
-const f = p.forwardRef(
-  ({ children: o, className: m, ...r }, a) => /* @__PURE__ */ t(e, { ref: a, layout: "group", className: l("w-full max-w-full min-w-0", m), ...r, children: o })
+import { JPanelImpl as e } from "../../atoms/JPanel/JPanelImpl.js";
+const f = t.forwardRef(
+  ({ children: o, className: r, ...m }, a) => /* @__PURE__ */ p(e, { ref: a, layout: "group", className: l("w-full max-w-full min-w-0", r), ...m, children: o })
 );
 f.displayName = "GroupLayoutView";
 export {

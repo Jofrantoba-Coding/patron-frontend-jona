@@ -1,11 +1,11 @@
-import { jsxs as n, Fragment as g, jsx as r } from "react/jsx-runtime";
+import { jsxs as t, Fragment as g, jsx as r } from "react/jsx-runtime";
 import v from "react";
 import { createPortal as w } from "react-dom";
 import { cn as l } from "../../lib/cn.js";
-import { PanelAtomImpl as s } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as s } from "../../atoms/JPanel/JPanelImpl.js";
 import { SeparatorAtomImpl as y } from "../../atoms/SeparatorAtom/SeparatorAtomImpl.js";
 import { ButtonAtomImpl as N } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
-const R = ({
+const M = ({
   trigger: i,
   groups: d,
   className: c,
@@ -16,13 +16,13 @@ const R = ({
   onTriggerClick: f,
   onItemClick: x,
   onDisabledItemClick: a
-}) => /* @__PURE__ */ n(g, { children: [
+}) => /* @__PURE__ */ t(g, { children: [
   /* @__PURE__ */ r(s, { variant: "ghost", padding: "none", radius: "none", ref: u, className: "inline-block", onClick: f, children: i }),
   m && w(
-    /* @__PURE__ */ r(s, { variant: "ghost", padding: "none", radius: "none", ref: h, role: "menu", style: p, className: l("max-w-[calc(100vw-1rem)] overflow-hidden rounded-md border border-neutral-200 bg-white py-1 shadow-lg", c), children: d.map((t, o) => /* @__PURE__ */ n(v.Fragment, { children: [
+    /* @__PURE__ */ r(s, { variant: "ghost", padding: "none", radius: "none", ref: h, role: "menu", style: p, className: l("max-w-[calc(100vw-1rem)] overflow-hidden rounded-md border border-neutral-200 bg-white py-1 shadow-lg", c), children: d.map((n, o) => /* @__PURE__ */ t(v.Fragment, { children: [
       o > 0 && /* @__PURE__ */ r(y, { className: "my-1" }),
-      t.label && /* @__PURE__ */ r("p", { className: "px-3 py-1 text-xs font-semibold text-neutral-500 uppercase tracking-wide", children: t.label }),
-      t.items.map((e, b) => /* @__PURE__ */ n(
+      n.label && /* @__PURE__ */ r("p", { className: "px-3 py-1 text-xs font-semibold text-neutral-500 uppercase tracking-wide", children: n.label }),
+      n.items.map((e, b) => /* @__PURE__ */ t(
         N,
         {
           variant: "ghost",
@@ -54,6 +54,6 @@ const R = ({
   )
 ] });
 export {
-  R as DropdownMoleculeView
+  M as DropdownMoleculeView
 };
 //# sourceMappingURL=DropdownMoleculeView.js.map

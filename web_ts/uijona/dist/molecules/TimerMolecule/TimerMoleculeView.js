@@ -1,6 +1,6 @@
 import { jsxs as s, jsx as n } from "react/jsx-runtime";
 import { cn as e } from "../../lib/cn.js";
-import { PanelAtomImpl as a } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as a } from "../../atoms/JPanel/JPanelImpl.js";
 const P = {
   plain: "bg-transparent",
   card: "rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-5",
@@ -48,14 +48,14 @@ const P = {
   defaultValueMs: V,
   durationMs: j,
   minMs: O,
-  maxMs: A,
+  maxMs: J,
   autoStart: q,
-  tickIntervalMs: B,
-  resetOnComplete: D,
-  loop: E,
-  showHours: F,
-  showMilliseconds: G,
-  padHours: J,
+  tickIntervalMs: A,
+  resetOnComplete: B,
+  loop: D,
+  showHours: E,
+  showMilliseconds: F,
+  padHours: G,
   formatter: K,
   onChange: Q,
   onTick: U,

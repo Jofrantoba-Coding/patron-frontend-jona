@@ -1,9 +1,9 @@
 import { jsxs as o, jsx as a } from "react/jsx-runtime";
 import { createPortal as C } from "react-dom";
 import { cn as i } from "../../lib/cn.js";
-import { PanelAtomImpl as l } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as l } from "../../atoms/JPanel/JPanelImpl.js";
 import { InputAtomImpl as j } from "../../atoms/InputAtom/InputAtomImpl.js";
-const M = ({
+const J = ({
   selected: r,
   query: m,
   filtered: t,
@@ -102,6 +102,6 @@ const M = ({
   )
 ] });
 export {
-  M as ComboboxMoleculeView
+  J as ComboboxMoleculeView
 };
 //# sourceMappingURL=ComboboxMoleculeView.js.map

@@ -1,7 +1,7 @@
 import { jsx as l } from "react/jsx-runtime";
 import { useContext as d, createContext as v } from "react";
 import { cn as i } from "../../lib/cn.js";
-import { PanelAtomImpl as f } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as f } from "../../atoms/JPanel/JPanelImpl.js";
 import { ButtonAtomImpl as b } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
 const u = v({
   value: "",
@@ -16,10 +16,10 @@ const u = v({
   onDisabledTabClick: t,
   variant: n = "pill",
   orientation: s = "horizontal",
-  className: m,
+  className: c,
   children: a
 }) => /* @__PURE__ */ l(u.Provider, { value: { value: e, onChange: r ?? (() => {
-}), onTabFocus: o, onDisabledTabClick: t, variant: n, orientation: s }, children: /* @__PURE__ */ l(f, { variant: "ghost", padding: "none", radius: "none", className: i("min-w-0", s === "vertical" ? "flex flex-col gap-4 sm:flex-row" : "flex flex-col gap-2", m), children: a }) }), N = ({ className: e, children: r, ...o }) => {
+}), onTabFocus: o, onDisabledTabClick: t, variant: n, orientation: s }, children: /* @__PURE__ */ l(f, { variant: "ghost", padding: "none", radius: "none", className: i("min-w-0", s === "vertical" ? "flex flex-col gap-4 sm:flex-row" : "flex flex-col gap-2", c), children: a }) }), N = ({ className: e, children: r, ...o }) => {
   const { variant: t, orientation: n } = d(u);
   return /* @__PURE__ */ l(
     f,
@@ -35,7 +35,7 @@ const u = v({
     }
   );
 }, T = ({ value: e, className: r, children: o, disabled: t, ...n }) => {
-  const { value: s, onChange: m, onTabFocus: a, onDisabledTabClick: c, variant: x } = d(u), p = s === e;
+  const { value: s, onChange: c, onTabFocus: a, onDisabledTabClick: m, variant: x } = d(u), p = s === e;
   return /* @__PURE__ */ l(
     b,
     {
@@ -45,7 +45,7 @@ const u = v({
       "aria-selected": p,
       disabled: t,
       onClick: () => {
-        t ? c == null || c(e) : m(e);
+        t ? m == null || m(e) : c(e);
       },
       onFocus: () => a == null ? void 0 : a(e),
       className: i(
@@ -57,12 +57,12 @@ const u = v({
       children: o
     }
   );
-}, A = ({ value: e, className: r, children: o, ...t }) => {
+}, I = ({ value: e, className: r, children: o, ...t }) => {
   const { value: n } = d(u);
   return n !== e ? null : /* @__PURE__ */ l(f, { variant: "ghost", padding: "none", radius: "none", role: "tabpanel", tabIndex: 0, className: i("min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500", r), ...t, children: o });
 };
 export {
-  A as TabsContentView,
+  I as TabsContentView,
   u as TabsContext,
   N as TabsListView,
   V as TabsMoleculeView,

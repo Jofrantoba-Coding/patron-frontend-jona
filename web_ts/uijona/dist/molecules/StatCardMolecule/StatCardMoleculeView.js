@@ -1,6 +1,6 @@
 import { jsxs as t, jsx as e } from "react/jsx-runtime";
 import { cn as r } from "../../lib/cn.js";
-import { PanelAtomImpl as n } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as n } from "../../atoms/JPanel/JPanelImpl.js";
 const u = {
   neutral: "bg-neutral-100 text-neutral-600",
   success: "bg-success-50 text-success-700",

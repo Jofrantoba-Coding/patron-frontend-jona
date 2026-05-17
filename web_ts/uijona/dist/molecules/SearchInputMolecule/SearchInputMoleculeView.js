@@ -1,6 +1,6 @@
 import { jsxs as r, jsx as e } from "react/jsx-runtime";
 import { cn as o } from "../../lib/cn.js";
-import { PanelAtomImpl as l } from "../../atoms/PanelAtom/PanelAtomImpl.js";
+import { JPanelImpl as l } from "../../atoms/JPanel/JPanelImpl.js";
 import { SpinnerAtomImpl as w } from "../../atoms/SpinnerAtom/SpinnerAtomImpl.js";
 import { InputAtomImpl as N } from "../../atoms/InputAtom/InputAtomImpl.js";
 const k = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
@@ -15,8 +15,8 @@ const k = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 2
   loading: s,
   disabled: n,
   className: c,
-  containerClassName: m,
-  forwardedRef: u,
+  containerClassName: u,
+  forwardedRef: m,
   onInputChange: d,
   onInputBlur: h,
   onInputKeyDown: p,
@@ -25,14 +25,14 @@ const k = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 2
   placeholder: v = "Search",
   "aria-label": x = "Search",
   ...g
-}) => /* @__PURE__ */ r(l, { variant: "ghost", padding: "none", radius: "none", className: o("flex w-full min-w-0 items-center gap-2", m), children: [
+}) => /* @__PURE__ */ r(l, { variant: "ghost", padding: "none", radius: "none", className: o("flex w-full min-w-0 items-center gap-2", u), children: [
   /* @__PURE__ */ r(l, { variant: "ghost", padding: "none", radius: "none", className: "relative min-w-0 flex-1", children: [
     /* @__PURE__ */ e("span", { className: "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400", children: s ? /* @__PURE__ */ e(w, { size: "sm" }) : /* @__PURE__ */ e(k, {}) }),
     /* @__PURE__ */ e(
       N,
       {
         ...g,
-        ref: u,
+        ref: m,
         type: "search",
         role: "searchbox",
         value: i,
