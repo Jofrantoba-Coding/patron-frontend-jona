@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { CheckboxAtom } from './CheckboxAtom';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof CheckboxAtom> = {
   title: 'Atoms/CheckboxAtom',
@@ -59,9 +59,9 @@ export const Interactive: Story = {
     return (
       <JPanel variant="ghost" padding="none" className="flex items-center gap-2">
         <CheckboxAtom checked={checked} onCheckedChange={(v) => { args.onCheckedChange?.(v); setChecked(v); }} />
-        <TextAtom as="span" size="sm" className="text-neutral-600">
+        <JLabel as="span" size="sm" className="text-neutral-600">
           {checked ? 'Seleccionado' : 'Sin seleccionar'}
-        </TextAtom>
+        </JLabel>
       </JPanel>
     );
   },

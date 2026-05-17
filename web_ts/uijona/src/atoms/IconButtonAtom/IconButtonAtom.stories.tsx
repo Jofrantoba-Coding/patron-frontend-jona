@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { IconButtonAtom } from './IconButtonAtom';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const SearchIcon = () => (
   <span aria-hidden="true" style={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>
@@ -61,7 +61,7 @@ export const Interactive: Story = {
           variant={saved ? 'destructive' : 'outline'}
           onClick={(event) => { args.onClick?.(event); setSaved((s) => !s); }}
         />
-        <TextAtom size="xs" color="muted">{saved ? 'Guardado en favoritos' : 'Sin guardar'}</TextAtom>
+        <JLabel size="xs" color="muted">{saved ? 'Guardado en favoritos' : 'Sin guardar'}</JLabel>
       </JPanel>
     );
   },

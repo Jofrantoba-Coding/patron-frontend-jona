@@ -1,7 +1,14 @@
-// ErrorMessageAtomImpl.tsx — JONA Implementation
 import React from 'react';
-import { InterErrorMessageAtom } from './InterErrorMessageAtom';
-import { ErrorMessageAtomView } from './ErrorMessageAtomView';
+import { JLabelImpl } from '../JLabel/JLabelImpl';
+import { InterErrorMessageAtom, ErrorMessageType } from './InterErrorMessageAtom';
+import type { JLabelVariant } from '../JLabel/InterJLabel';
 
-export const ErrorMessageAtomImpl: React.FC<InterErrorMessageAtom> = (props) => <ErrorMessageAtomView {...props} />;
+const TYPE_MAP: Record<ErrorMessageType, JLabelVariant> = {
+  'error':       'error',
+  'description': 'description',
+};
+
+export const ErrorMessageAtomImpl: React.FC<InterErrorMessageAtom> = ({ message, type = 'error', id, className }) => (
+  <JLabelImpl variant={TYPE_MAP[type]} message={message} id={id} className={className} />
+);
 ErrorMessageAtomImpl.displayName = 'ErrorMessageAtom';

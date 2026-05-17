@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SelectAtom } from './SelectAtom';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const options = [
   { value: 'mx', label: 'México' },
@@ -74,9 +74,9 @@ const [country, setCountry] = useState('');
           onChange={(v, e) => { args.onChange?.(v, e); setCountry(v); }}
         />
         {country && (
-          <TextAtom size="sm" className="text-neutral-600">
+          <JLabel size="sm" className="text-neutral-600">
             País seleccionado: <strong>{options.find((o) => o.value === country)?.label}</strong>
-          </TextAtom>
+          </JLabel>
         )}
       </JPanel>
     );

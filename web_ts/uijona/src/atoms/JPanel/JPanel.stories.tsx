@@ -7,7 +7,7 @@ import {
   type JPanelLayout,
   type JPanelLayoutDefaultDoc,
 } from './JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 import { JButton } from '../JButton/JButton';
 
 const meta: Meta<typeof JPanel> = {
@@ -108,17 +108,17 @@ export const CardPanel: Story = {
         story: 'Panel con superficie visual. Cambiá variant, padding y radius desde los controles.',
       },
       source: {
-        code: `<JPanel variant="default" padding="md" radius="md" gap="sm">
-  <TextAtom as="h3">Titulo</TextAtom>
-  <TextAtom>Contenido</TextAtom>
+        code: `<JPanel variant="link" padding="md" radius="md" gap="sm">
+  <JLabel as="h3">Titulo</JLabel>
+  <JLabel>Contenido</JLabel>
 </JPanel>`,
       },
     },
   },
   render: (args) => (
     <JPanel className="max-w-sm" {...args}>
-      <TextAtom as="h3" size="sm" className="font-semibold">Panel con superficie</TextAtom>
-      <TextAtom size="sm" color="muted">El contenedor visual sale de props, no de una etiqueta HTML directa.</TextAtom>
+      <JLabel as="h3" size="sm" className="font-semibold">Panel con superficie</JLabel>
+      <JLabel size="sm" color="muted">El contenedor visual sale de props, no de una etiqueta HTML directa.</JLabel>
     </JPanel>
   ),
 };
@@ -157,8 +157,8 @@ spring   -> mobile grid; tablet/desktop requiere constraints spring`,
       <JPanel layout="flow" gap="sm">
         {breakpointDocs.map(([name, value]) => (
           <JPanel key={name} variant="flat" padding="sm" radius="sm">
-            <TextAtom size="xs" className="font-semibold">{name}</TextAtom>
-            <TextAtom size="xs" color="muted">{value}</TextAtom>
+            <JLabel size="xs" className="font-semibold">{name}</JLabel>
+            <JLabel size="xs" color="muted">{value}</JLabel>
           </JPanel>
         ))}
       </JPanel>
@@ -166,18 +166,18 @@ spring   -> mobile grid; tablet/desktop requiere constraints spring`,
       <JPanel layout="grid" gap="sm" mobileLarge={{ columns: 2 }} tablet={{ columns: 2 }} desktop={{ columns: 3 }} tv={{ columns: 4, gap: 'lg' }}>
       {layoutDocs.map(([layoutName, doc]) => (
         <JPanel key={layoutName} variant="outlined" padding="md" radius="md" gap="sm">
-          <TextAtom as="h3" size="sm" className="font-semibold">{layoutName}</TextAtom>
-          <TextAtom size="sm" color="muted">{doc.behavior}</TextAtom>
+          <JLabel as="h3" size="sm" className="font-semibold">{layoutName}</JLabel>
+          <JLabel size="sm" color="muted">{doc.behavior}</JLabel>
           <JPanel gap="xs">
             {Object.entries(doc.defaults).map(([name, value]) => (
-              <TextAtom key={name} size="xs" color="muted">
+              <JLabel key={name} size="xs" color="muted">
                 {name}: {value}
-              </TextAtom>
+              </JLabel>
             ))}
           </JPanel>
-          <TextAtom size="xs" className="font-medium">
+          <JLabel size="xs" className="font-medium">
             {doc.required.length > 0 ? doc.required.join(' ') : 'No requiere valores obligatorios.'}
-          </TextAtom>
+          </JLabel>
         </JPanel>
       ))}
       </JPanel>
@@ -310,7 +310,7 @@ El contenedor necesita altura definida para que center se expanda (usa min-h-* o
         <JButton variant="outline" size="sm">Ayuda</JButton>
       </JPanel>
 
-      <JPanel area="center" variant="default" padding="md" radius="sm" layout="box" gap="sm">
+      <JPanel area="center" variant="link" padding="md" radius="sm" layout="box" gap="sm">
         <JButton size="sm">Acción principal</JButton>
         <JButton variant="outline" size="sm">Acción secundaria</JButton>
       </JPanel>
@@ -364,9 +364,9 @@ export const CardLayout: Story = {
         </JPanel>
 
         <JPanel layout="card" activeCard={activeCard} variant="outlined" padding="md" radius="md">
-          <JPanel card="perfil"><TextAtom size="sm">Configuracion del perfil.</TextAtom></JPanel>
-          <JPanel card="seguridad"><TextAtom size="sm">Sesiones, permisos y accesos.</TextAtom></JPanel>
-          <JPanel card="facturacion"><TextAtom size="sm">Pagos, comprobantes y suscripciones.</TextAtom></JPanel>
+          <JPanel card="perfil"><JLabel size="sm">Configuracion del perfil.</JLabel></JPanel>
+          <JPanel card="seguridad"><JLabel size="sm">Sesiones, permisos y accesos.</JLabel></JPanel>
+          <JPanel card="facturacion"><JLabel size="sm">Pagos, comprobantes y suscripciones.</JLabel></JPanel>
         </JPanel>
       </JPanel>
     );

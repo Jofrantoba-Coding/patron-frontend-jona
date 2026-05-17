@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { BadgeAtom } from './BadgeAtom';
 import { JButton } from '../JButton/JButton';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof BadgeAtom> = {
   title: 'Atoms/BadgeAtom',
@@ -35,7 +35,7 @@ export const Outline: Story = {
 export const AllVariants: Story = {
   render: () => (
     <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-      <BadgeAtom variant="default">Default</BadgeAtom>
+      <BadgeAtom variant="link">Default</BadgeAtom>
       <BadgeAtom variant="secondary">Secondary</BadgeAtom>
       <BadgeAtom variant="destructive">Destructive</BadgeAtom>
       <BadgeAtom variant="outline">Outline</BadgeAtom>
@@ -50,7 +50,7 @@ export const Interactive: Story = {
     return (
       <JPanel variant="ghost" padding="none" className="flex flex-col gap-4 items-start">
         <JPanel variant="ghost" padding="none" className="flex items-center gap-2">
-          <TextAtom as="span" size="sm">Notificaciones</TextAtom>
+          <JLabel as="span" size="sm">Notificaciones</JLabel>
           <BadgeAtom variant={count > 5 ? 'destructive' : count > 0 ? 'default' : 'secondary'}>
             {count}
           </BadgeAtom>

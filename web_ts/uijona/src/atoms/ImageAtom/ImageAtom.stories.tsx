@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ImageAtom } from './ImageAtom';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const sampleSrc = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80';
 
@@ -37,7 +37,7 @@ export const AspectRatios: Story = {
       {(['square', 'video', 'portrait'] as const).map((aspectRatio) => (
         <JPanel key={aspectRatio} variant="ghost" padding="none" className="flex flex-col gap-2">
           <ImageAtom src={sampleSrc} alt={`Imagen con aspecto ${aspectRatio}`} aspectRatio={aspectRatio} radius="md" block />
-          <TextAtom as="span" size="sm" color="muted">{aspectRatio}</TextAtom>
+          <JLabel as="span" size="sm" color="muted">{aspectRatio}</JLabel>
         </JPanel>
       ))}
     </JPanel>

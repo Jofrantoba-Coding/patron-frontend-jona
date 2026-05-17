@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { SpinnerAtom } from './SpinnerAtom';
 import { JButton } from '../JButton/JButton';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof SpinnerAtom> = {
   title: 'Atoms/SpinnerAtom',
@@ -50,7 +50,7 @@ export const Interactive: Story = {
       <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
         {loading
           ? <SpinnerAtom size="lg" />
-          : <TextAtom size="sm" color="muted">Datos listos</TextAtom>}
+          : <JLabel size="sm" color="muted">Datos listos</JLabel>}
         <JButton variant="outline" disabled={loading} onClick={load}>
           {loading ? 'Cargando...' : 'Recargar datos'}
         </JButton>

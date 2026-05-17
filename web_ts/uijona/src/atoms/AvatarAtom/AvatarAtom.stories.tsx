@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { AvatarAtom } from './AvatarAtom';
 import { JButton } from '../JButton/JButton';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof AvatarAtom> = {
   title: 'Atoms/AvatarAtom',
@@ -67,9 +67,9 @@ export const Interactive: Story = {
             </JButton>
           ))}
         </JPanel>
-        <TextAtom size="sm" className="text-neutral-600">
+        <JLabel size="sm" className="text-neutral-600">
           Usuario activo: <strong>{users[active].name}</strong>
-        </TextAtom>
+        </JLabel>
       </JPanel>
     );
   },

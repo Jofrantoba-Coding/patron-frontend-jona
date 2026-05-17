@@ -13,6 +13,7 @@ export * from './atoms/ImageAtom';
 export * from './atoms/JPanel';
 export * from './atoms/SelectAtom';
 export * from './atoms/SwitchAtom';
+export * from './atoms/JLabel';
 export * from './atoms/TextAtom';
 export * from './atoms/LabelAtom';
 export * from './atoms/LinkAtom';

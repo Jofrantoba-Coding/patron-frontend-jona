@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { SkeletonAtom } from './SkeletonAtom';
 import { JButton } from '../JButton/JButton';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof SkeletonAtom> = {
   title: 'Atoms/SkeletonAtom',
@@ -50,8 +50,8 @@ export const Interactive: Story = {
           <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', border: '1px solid #e5e5e5', borderRadius: '8px' }}>
             <JPanel variant="ghost" padding="none" style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#4f46e5', fontSize: '14px' }}>JF</JPanel>
             <JPanel variant="ghost" padding="none">
-              <TextAtom size="sm" className="font-semibold">Jonathan Franck</TextAtom>
-              <TextAtom size="xs" className="text-neutral-400">jofrantoba@gmail.com</TextAtom>
+              <JLabel size="sm" className="font-semibold">Jonathan Franck</JLabel>
+              <JLabel size="xs" className="text-neutral-400">jofrantoba@gmail.com</JLabel>
             </JPanel>
           </JPanel>
         ) : (

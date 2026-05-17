@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RadioAtom } from './RadioAtom';
-import { LabelAtom } from '../LabelAtom/LabelAtom';
+import { JLabel } from '../JLabel';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof RadioAtom> = {
   title: 'Atoms/RadioAtom',
@@ -63,15 +63,15 @@ const methods = [
 ];
 
 {methods.map((m) => (
-  <LabelAtom key={m.value} className="flex items-center gap-2 cursor-pointer">
+  <JLabel variant="label" key={m.value} className="flex items-center gap-2 cursor-pointer">
     <RadioAtom
       name="payment"
       value={m.value}
       checked={selected === m.value}
       onCheckedChange={(checked, value) => setSelected(value)}
     />
-    <TextAtom as="span" size="sm">{m.label}</TextAtom>
-  </LabelAtom>
+    <JLabel as="span" size="sm">{m.label}</JLabel>
+  </JLabel>
 ))}`,
       },
     },
@@ -88,22 +88,22 @@ const methods = [
     ];
     return (
       <JPanel variant="ghost" padding="none" className="flex flex-col gap-3">
-        <TextAtom size="sm" className="font-medium text-neutral-700">Método de pago</TextAtom>
+        <JLabel size="sm" className="font-medium text-neutral-700">Método de pago</JLabel>
         {methods.map((m) => (
-          <LabelAtom key={m.value} className="flex items-center gap-2 cursor-pointer">
+          <JLabel variant="label" key={m.value} className="flex items-center gap-2 cursor-pointer">
             <RadioAtom
               name="payment"
               value={m.value}
               checked={selected === m.value}
               onCheckedChange={(checked, value, e) => { args.onCheckedChange?.(checked, value, e); setSelected(m.value); }}
             />
-            <TextAtom as="span" size="sm">{m.label}</TextAtom>
-          </LabelAtom>
+            <JLabel as="span" size="sm">{m.label}</JLabel>
+          </JLabel>
         ))}
         {selected && (
-          <TextAtom size="xs" color="muted" className="mt-1">
+          <JLabel size="xs" color="muted" className="mt-1">
             Método elegido: <strong>{methods.find((m) => m.value === selected)?.label}</strong>
-          </TextAtom>
+          </JLabel>
         )}
       </JPanel>
     );

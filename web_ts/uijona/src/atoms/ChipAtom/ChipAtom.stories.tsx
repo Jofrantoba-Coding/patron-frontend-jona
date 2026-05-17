@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ChipAtom } from './ChipAtom';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof ChipAtom> = {
   title: 'Atoms/ChipAtom',
@@ -37,7 +37,7 @@ export const AllVariants: Story = {
       <ChipAtom variant="primary">Primary</ChipAtom>
       <ChipAtom variant="success">Success</ChipAtom>
       <ChipAtom variant="warning">Warning</ChipAtom>
-      <ChipAtom variant="danger">Danger</ChipAtom>
+      <ChipAtom variant="link-danger">Danger</ChipAtom>
       <ChipAtom removable onRemove={fn()}>Removable</ChipAtom>
     </JPanel>
   ),
@@ -63,9 +63,9 @@ export const FilterChips: Story = {
             </ChipAtom>
           ))}
         </JPanel>
-        <TextAtom size="xs" color="muted">
+        <JLabel size="xs" color="muted">
           {selected.length === 0 ? 'Ninguno seleccionado' : `Seleccionados: ${selected.join(', ')}`}
-        </TextAtom>
+        </JLabel>
       </JPanel>
     );
   },
@@ -86,7 +86,7 @@ export const RemovableChips: Story = {
             {chip}
           </ChipAtom>
         ))}
-        {chips.length === 0 && <TextAtom size="sm" className="text-neutral-400">Sin chips</TextAtom>}
+        {chips.length === 0 && <JLabel size="sm" className="text-neutral-400">Sin chips</JLabel>}
       </JPanel>
     );
   },

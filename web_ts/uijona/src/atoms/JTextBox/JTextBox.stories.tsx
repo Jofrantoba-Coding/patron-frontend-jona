@@ -10,7 +10,7 @@ import {
   type JTextBoxSize,
 } from './JTextBox';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof JTextBox> = {
   title: 'Atoms/JTextBox',
@@ -109,15 +109,15 @@ export const Variants: Story = {
   render: () => (
     <JPanel gap="md" className="max-w-xs">
       <JPanel gap="xs">
-        <TextAtom size="xs" color="muted">default</TextAtom>
-        <JTextBox variant="default" placeholder="Variante default" />
+        <JLabel size="xs" color="muted">default</JLabel>
+        <JTextBox variant="link" placeholder="Variante default" />
       </JPanel>
       <JPanel gap="xs">
-        <TextAtom size="xs" color="muted">filled</TextAtom>
+        <JLabel size="xs" color="muted">filled</JLabel>
         <JTextBox variant="filled" placeholder="Variante filled" />
       </JPanel>
       <JPanel gap="xs" className="bg-neutral-100 p-3 rounded-md">
-        <TextAtom size="xs" color="muted">ghost (sobre fondo)</TextAtom>
+        <JLabel size="xs" color="muted">ghost (sobre fondo)</JLabel>
         <JTextBox variant="ghost" placeholder="Variante ghost" />
       </JPanel>
     </JPanel>
@@ -248,14 +248,14 @@ const hasError = value.length > 0 && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(valu
           onBlur={args.onBlur}
         />
         {hasError && (
-          <TextAtom size="xs" className="text-danger-500">
+          <JLabel size="xs" className="text-danger-500">
             El formato de email no es válido.
-          </TextAtom>
+          </JLabel>
         )}
         {isValid && (
-          <TextAtom size="xs" className="text-green-600">
+          <JLabel size="xs" className="text-green-600">
             Email válido ✓
-          </TextAtom>
+          </JLabel>
         )}
       </JPanel>
     );

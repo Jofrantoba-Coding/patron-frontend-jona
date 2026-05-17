@@ -104,7 +104,7 @@ export const Variants: Story = {
   },
   render: () => (
     <JPanel layout="flow" gap="sm">
-      <JButton variant="default">Default</JButton>
+      <JButton variant="link">Default</JButton>
       <JButton variant="secondary">Secondary</JButton>
       <JButton variant="outline">Outline</JButton>
       <JButton variant="ghost">Ghost</JButton>
@@ -163,7 +163,7 @@ export const IconOnly: Story = {
   },
   render: () => (
     <JPanel layout="flow" gap="sm" style={{ alignItems: 'center' }}>
-      <JButton size="icon" variant="default" aria-label="Agregar"><PlusIcon /></JButton>
+      <JButton size="icon" variant="link" aria-label="Agregar"><PlusIcon /></JButton>
       <JButton size="icon" variant="outline" aria-label="Descargar"><DownloadIcon /></JButton>
       <JButton size="icon" variant="ghost" aria-label="Ir"><ArrowIcon /></JButton>
     </JPanel>
@@ -178,7 +178,7 @@ export const WithIcons: Story = {
   },
   render: () => (
     <JPanel layout="flow" gap="sm" style={{ alignItems: 'center' }}>
-      <JButton icon={<PlusIcon />} variant="default">Nuevo</JButton>
+      <JButton icon={<PlusIcon />} variant="link">Nuevo</JButton>
       <JButton icon={<DownloadIcon />} variant="outline">Exportar</JButton>
       <JButton icon={<ArrowIcon />} iconPosition="right" variant="secondary">Continuar</JButton>
       <JButton icon={<StarIcon />} iconPosition="top" variant="ghost" size="lg">Favorito</JButton>

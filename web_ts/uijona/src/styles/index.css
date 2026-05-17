@@ -718,6 +718,29 @@
 
   /* Error: tiñe el icono también */
   .jtextbox-root[data-jtextbox-error='true'] .jtextbox-icon { color: var(--danger-500, #ef4444); }
+
+  /* ── JLabel ──────────────────────────────────────────────────────── */
+  .jlabel-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Link variants — shared transition */
+  [data-jlabel-variant='link'],
+  [data-jlabel-variant='link-muted'],
+  [data-jlabel-variant='link-button'],
+  [data-jlabel-variant='link-danger'] {
+    transition: color 150ms ease, background-color 150ms ease, opacity 150ms ease;
+    text-decoration: none;
+  }
+
+  /* Disabled link — remove interactivity */
+  [data-jlabel-variant^='link'][aria-disabled='true'] {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: default;
+  }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */

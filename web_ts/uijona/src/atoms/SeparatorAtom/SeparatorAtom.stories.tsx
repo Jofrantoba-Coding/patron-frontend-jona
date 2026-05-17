@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SeparatorAtom } from './SeparatorAtom';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 
 const meta: Meta<typeof SeparatorAtom> = {
@@ -24,9 +24,9 @@ export const Vertical: Story = {
   args: { orientation: 'vertical' },
   decorators: [(Story) => (
     <JPanel variant="ghost" padding="none" style={{ display: 'flex', height: '40px', alignItems: 'center', gap: '8px' }}>
-      <TextAtom as="span">Izquierda</TextAtom>
+      <JLabel as="span">Izquierda</JLabel>
       <Story />
-      <TextAtom as="span">Derecha</TextAtom>
+      <JLabel as="span">Derecha</JLabel>
     </JPanel>
   )],
 };
