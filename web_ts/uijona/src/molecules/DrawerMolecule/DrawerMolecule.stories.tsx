@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DrawerMolecule } from './DrawerMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
+import { JButton } from '../../atoms/JButton/JButton';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof DrawerMolecule> = {
@@ -55,10 +55,10 @@ export const WithFooter: Story = {
   args: {
     open: true,
     footer: (
-      <PanelAtom variant="ghost" padding="none" className="flex justify-end gap-2">
-        <ButtonAtom variant="outline" size="sm">Cancelar</ButtonAtom>
-        <ButtonAtom size="sm">Guardar</ButtonAtom>
-      </PanelAtom>
+      <JPanel variant="ghost" padding="none" className="flex justify-end gap-2">
+        <JButton variant="outline" size="sm">Cancelar</JButton>
+        <JButton size="sm">Guardar</JButton>
+      </JPanel>
     ),
   },
 };
@@ -70,10 +70,10 @@ export const Interactive: Story = {
   render: (args) => {
     const [open, setOpen] = useState(false);
     return (
-      <PanelAtom variant="ghost" padding="none">
-        <ButtonAtom onClick={() => setOpen(true)}>
+      <JPanel variant="ghost" padding="none">
+        <JButton onClick={() => setOpen(true)}>
           Abrir Drawer
-        </ButtonAtom>
+        </JButton>
         <DrawerMolecule
           open={open}
           onClose={() => { args.onClose?.(); setOpen(false); }}
@@ -82,7 +82,7 @@ export const Interactive: Story = {
         >
           <TextAtom size="sm" className="text-neutral-600">Aquí irían los campos del formulario.</TextAtom>
         </DrawerMolecule>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

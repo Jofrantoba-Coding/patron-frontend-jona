@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { CheckboxAtom } from './CheckboxAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof CheckboxAtom> = {
@@ -57,12 +57,12 @@ export const Interactive: Story = {
   render: (args) => {
     const [checked, setChecked] = useState(false);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex items-center gap-2">
+      <JPanel variant="ghost" padding="none" className="flex items-center gap-2">
         <CheckboxAtom checked={checked} onCheckedChange={(v) => { args.onCheckedChange?.(v); setChecked(v); }} />
         <TextAtom as="span" size="sm" className="text-neutral-600">
           {checked ? 'Seleccionado' : 'Sin seleccionar'}
         </TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

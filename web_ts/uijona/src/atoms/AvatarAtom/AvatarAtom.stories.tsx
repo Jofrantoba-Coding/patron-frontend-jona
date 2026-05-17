@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { AvatarAtom } from './AvatarAtom';
-import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JButton } from '../JButton/JButton';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof AvatarAtom> = {
@@ -35,13 +35,13 @@ export const Square: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+    <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
       <AvatarAtom initials="XS" size="xs" />
       <AvatarAtom initials="SM" size="sm" />
       <AvatarAtom initials="MD" size="md" />
       <AvatarAtom initials="LG" size="lg" />
       <AvatarAtom initials="XL" size="xl" />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -54,23 +54,23 @@ export const Interactive: Story = {
     ];
     const [active, setActive] = useState(0);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
-        <PanelAtom variant="ghost" padding="none" className="flex gap-3">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-3">
+        <JPanel variant="ghost" padding="none" className="flex gap-3">
           {users.map((u, i) => (
-            <ButtonAtom
+            <JButton
               key={i}
               variant="ghost"
               onClick={() => setActive(i)}
               className={`rounded-full p-0.5 border-2 ${active === i ? 'border-primary-500' : 'border-transparent'}`}
             >
               <AvatarAtom initials={u.initials} size="md" />
-            </ButtonAtom>
+            </JButton>
           ))}
-        </PanelAtom>
+        </JPanel>
         <TextAtom size="sm" className="text-neutral-600">
           Usuario activo: <strong>{users[active].name}</strong>
         </TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

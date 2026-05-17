@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ImageAtom } from './ImageAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const sampleSrc = 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80';
@@ -33,14 +33,14 @@ export const Default: Story = {};
 
 export const AspectRatios: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" className="grid gap-4 sm:grid-cols-3">
+    <JPanel variant="ghost" padding="none" className="grid gap-4 sm:grid-cols-3">
       {(['square', 'video', 'portrait'] as const).map((aspectRatio) => (
-        <PanelAtom key={aspectRatio} variant="ghost" padding="none" className="flex flex-col gap-2">
+        <JPanel key={aspectRatio} variant="ghost" padding="none" className="flex flex-col gap-2">
           <ImageAtom src={sampleSrc} alt={`Imagen con aspecto ${aspectRatio}`} aspectRatio={aspectRatio} radius="md" block />
           <TextAtom as="span" size="sm" color="muted">{aspectRatio}</TextAtom>
-        </PanelAtom>
+        </JPanel>
       ))}
-    </PanelAtom>
+    </JPanel>
   ),
 };
 

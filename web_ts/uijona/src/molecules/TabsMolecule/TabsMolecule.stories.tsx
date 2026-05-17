@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { TabsMolecule, TabsList, TabsTrigger, TabsContent } from './TabsMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof TabsMolecule> = {
@@ -22,7 +22,7 @@ export const Default: Story = {
   render: () => {
     const [tab, setTab] = useState('cuenta');
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ width: '400px' }}>
+      <JPanel variant="ghost" padding="none" style={{ width: '400px' }}>
         <TabsMolecule value={tab} onChange={setTab}>
           <TabsList>
             <TabsTrigger value="cuenta">Cuenta</TabsTrigger>
@@ -33,7 +33,7 @@ export const Default: Story = {
           <TabsContent value="seguridad">Configuracion de seguridad</TabsContent>
           <TabsContent value="notificaciones">Preferencias de notificacion</TabsContent>
         </TabsMolecule>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };
@@ -42,7 +42,7 @@ export const LineVariant: Story = {
   render: () => {
     const [tab, setTab] = useState('overview');
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ width: '400px' }}>
+      <JPanel variant="ghost" padding="none" style={{ width: '400px' }}>
         <TabsMolecule value={tab} onChange={setTab} variant="line">
           <TabsList>
             <TabsTrigger value="overview">Resumen</TabsTrigger>
@@ -53,7 +53,7 @@ export const LineVariant: Story = {
           <TabsContent value="analytics">Datos analiticos</TabsContent>
           <TabsContent value="reports">Reportes generados</TabsContent>
         </TabsMolecule>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };
@@ -89,7 +89,7 @@ export const Interactive: Story = {
     };
     const current = tabData[tab as keyof typeof tabData];
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ width: '420px' }}>
+      <JPanel variant="ghost" padding="none" style={{ width: '420px' }}>
         <TabsMolecule value={tab} onChange={(v) => { args.onChange?.(v); setTab(v); }}>
           <TabsList>
             <TabsTrigger value="perfil">Perfil</TabsTrigger>
@@ -97,22 +97,22 @@ export const Interactive: Story = {
             <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
           </TabsList>
           <TabsContent value="perfil">
-            <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
+            <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
               {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
-            </PanelAtom>
+            </JPanel>
           </TabsContent>
           <TabsContent value="seguridad">
-            <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
+            <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
               {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
-            </PanelAtom>
+            </JPanel>
           </TabsContent>
           <TabsContent value="notificaciones">
-            <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
+            <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
               {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
-            </PanelAtom>
+            </JPanel>
           </TabsContent>
         </TabsMolecule>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SwitchAtom } from './SwitchAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof SwitchAtom> = {
@@ -43,11 +43,11 @@ export const Disabled: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+    <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
       <SwitchAtom size="sm" checked />
       <SwitchAtom size="md" checked />
       <SwitchAtom size="lg" checked />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -70,12 +70,12 @@ export const Interactive: Story = {
   render: (args) => {
     const [checked, setChecked] = useState(false);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex items-center gap-3">
+      <JPanel variant="ghost" padding="none" className="flex items-center gap-3">
         <SwitchAtom checked={checked} onCheckedChange={(v) => { args.onCheckedChange?.(v); setChecked(v); }} />
         <TextAtom as="span" size="sm" className="text-neutral-600">
           {checked ? 'Activado' : 'Desactivado'}
         </TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

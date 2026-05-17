@@ -8,7 +8,7 @@ import {
   type JPanelLayoutDefaultDoc,
 } from './JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
-import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
+import { JButton } from '../JButton/JButton';
 
 const meta: Meta<typeof JPanel> = {
   title: 'Atoms/JPanel',
@@ -86,9 +86,9 @@ export const Default: Story = {
   },
   render: (args) => (
     <JPanel className="max-w-sm" {...args}>
-      <ButtonAtom variant="outline" size="sm">Item 1</ButtonAtom>
-      <ButtonAtom variant="outline" size="sm">Item 2</ButtonAtom>
-      <ButtonAtom variant="outline" size="sm">Item 3</ButtonAtom>
+      <JButton variant="outline" size="sm">Item 1</JButton>
+      <JButton variant="outline" size="sm">Item 2</JButton>
+      <JButton variant="outline" size="sm">Item 3</JButton>
     </JPanel>
   ),
 };
@@ -212,9 +212,9 @@ export const BoxResponsive: Story = {
   },
   render: ({ variant, padding, radius }) => (
     <JPanel layout="box" gap="sm" tablet={{ direction: 'row', gap: 'md' }} variant={variant} padding={padding} radius={radius} className="max-w-2xl">
-      <ButtonAtom variant="outline" size="sm">Uno</ButtonAtom>
-      <ButtonAtom variant="outline" size="sm">Dos</ButtonAtom>
-      <ButtonAtom variant="outline" size="sm">Tres</ButtonAtom>
+      <JButton variant="outline" size="sm">Uno</JButton>
+      <JButton variant="outline" size="sm">Dos</JButton>
+      <JButton variant="outline" size="sm">Tres</JButton>
     </JPanel>
   ),
 };
@@ -263,7 +263,7 @@ export const GridResponsive: Story = {
       className="max-w-3xl"
     >
       {['Clientes', 'Ventas', 'Inventario', 'Riesgos', 'Reportes', 'Alertas'].map((item) => (
-        <ButtonAtom key={item} variant="outline" size="sm">{item}</ButtonAtom>
+        <JButton key={item} variant="outline" size="sm">{item}</JButton>
       ))}
     </JPanel>
   ),
@@ -299,30 +299,30 @@ El contenedor necesita altura definida para que center se expanda (usa min-h-* o
   render: () => (
     <JPanel layout="border" gap="sm" variant="outlined" padding="md" radius="md" className="min-h-[500px] max-w-3xl">
       <JPanel area="top" variant="flat" padding="sm" radius="sm" layout="flow" gap="sm">
-        <ButtonAtom variant="outline" size="sm">Inicio</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Servicios</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Contacto</ButtonAtom>
+        <JButton variant="outline" size="sm">Inicio</JButton>
+        <JButton variant="outline" size="sm">Servicios</JButton>
+        <JButton variant="outline" size="sm">Contacto</JButton>
       </JPanel>
 
       <JPanel area="left" variant="flat" padding="sm" radius="sm" layout="box" gap="sm">
-        <ButtonAtom variant="outline" size="sm">Perfil</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Config</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Ayuda</ButtonAtom>
+        <JButton variant="outline" size="sm">Perfil</JButton>
+        <JButton variant="outline" size="sm">Config</JButton>
+        <JButton variant="outline" size="sm">Ayuda</JButton>
       </JPanel>
 
       <JPanel area="center" variant="default" padding="md" radius="sm" layout="box" gap="sm">
-        <ButtonAtom size="sm">Acción principal</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Acción secundaria</ButtonAtom>
+        <JButton size="sm">Acción principal</JButton>
+        <JButton variant="outline" size="sm">Acción secundaria</JButton>
       </JPanel>
 
       <JPanel area="right" variant="flat" padding="sm" radius="sm" layout="box" gap="sm">
-        <ButtonAtom variant="outline" size="sm">Filtrar</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Exportar</ButtonAtom>
+        <JButton variant="outline" size="sm">Filtrar</JButton>
+        <JButton variant="outline" size="sm">Exportar</JButton>
       </JPanel>
 
       <JPanel area="bottom" variant="flat" padding="sm" radius="sm" layout="flow" gap="sm">
-        <ButtonAtom variant="outline" size="sm">Anterior</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Siguiente</ButtonAtom>
+        <JButton variant="outline" size="sm">Anterior</JButton>
+        <JButton variant="outline" size="sm">Siguiente</JButton>
       </JPanel>
     </JPanel>
   ),
@@ -352,14 +352,14 @@ export const CardLayout: Story = {
       <JPanel gap="sm" className="max-w-md">
         <JPanel layout="flow" gap="sm">
           {cards.map((card) => (
-            <ButtonAtom
+            <JButton
               key={card}
               variant={activeCard === card ? 'default' : 'outline'}
               size="sm"
               onClick={() => setActiveCard(card)}
             >
               {card}
-            </ButtonAtom>
+            </JButton>
           ))}
         </JPanel>
 
@@ -393,30 +393,30 @@ export const AdvancedLayouts: Story = {
     <JPanel gap="lg" className="max-w-3xl">
       <JPanel layout="gridbag" gap="sm" tablet={{ columns: 4 }} variant="outlined" padding="md" radius="md">
         <JPanel gridBagColumn={1} gridBagRow={1} gridBagColumnSpan={2} variant="flat" padding="sm">
-          <ButtonAtom variant="outline" size="sm" className="w-full">Span 2 columnas</ButtonAtom>
+          <JButton variant="outline" size="sm" className="w-full">Span 2 columnas</JButton>
         </JPanel>
         <JPanel variant="flat" padding="sm">
-          <ButtonAtom variant="outline" size="sm" className="w-full">Metric A</ButtonAtom>
+          <JButton variant="outline" size="sm" className="w-full">Metric A</JButton>
         </JPanel>
         <JPanel variant="flat" padding="sm">
-          <ButtonAtom variant="outline" size="sm" className="w-full">Metric B</ButtonAtom>
+          <JButton variant="outline" size="sm" className="w-full">Metric B</JButton>
         </JPanel>
         <JPanel gridBagColumn={1} gridBagRow={2} gridBagRowSpan={2} variant="flat" padding="sm">
-          <ButtonAtom variant="outline" size="sm" className="w-full">Side (2 filas)</ButtonAtom>
+          <JButton variant="outline" size="sm" className="w-full">Side (2 filas)</JButton>
         </JPanel>
         <JPanel gridBagColumn={2} gridBagRow={2} gridBagColumnSpan={3} variant="flat" padding="sm">
-          <ButtonAtom variant="outline" size="sm" className="w-full">Content (3 cols)</ButtonAtom>
+          <JButton variant="outline" size="sm" className="w-full">Content (3 cols)</JButton>
         </JPanel>
       </JPanel>
 
       <JPanel layout="group" gap="sm" tablet={{ columns: 3 }} variant="outlined" padding="md" radius="md">
-        <ButtonAtom variant="outline" size="sm">Nombre</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Email</ButtonAtom>
-        <ButtonAtom variant="outline" size="sm">Teléfono</ButtonAtom>
+        <JButton variant="outline" size="sm">Nombre</JButton>
+        <JButton variant="outline" size="sm">Email</JButton>
+        <JButton variant="outline" size="sm">Teléfono</JButton>
         <JPanel groupSpan={2} variant="flat" padding="sm">
-          <ButtonAtom variant="outline" size="sm" className="w-full">Dirección (span 2)</ButtonAtom>
+          <JButton variant="outline" size="sm" className="w-full">Dirección (span 2)</JButton>
         </JPanel>
-        <ButtonAtom variant="outline" size="sm">Estado</ButtonAtom>
+        <JButton variant="outline" size="sm">Estado</JButton>
       </JPanel>
     </JPanel>
   ),

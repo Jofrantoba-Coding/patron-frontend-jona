@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterNumberInputMolecule } from './InterNumberInputMolecule';
 import { InputAtom } from '../../atoms/InputAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 type NumberInputMoleculeViewProps = Omit<InterNumberInputMolecule, 'value' | 'defaultValue' | 'onValueChange' | 'onIncrement' | 'onDecrement' | 'onBlur'> & {
   displayValue: string;
@@ -42,7 +42,7 @@ export const NumberInputMoleculeView: React.FC<NumberInputMoleculeViewProps> = (
   onIncrementClick,
   ...props
 }) => (
-  <PanelAtom variant="ghost" padding="none" radius="none" className={cn('inline-flex max-w-full min-w-0 items-stretch rounded-md border bg-white', hasError ? 'border-danger-500' : 'border-neutral-300', className)}>
+  <JPanel variant="ghost" padding="none" radius="none" className={cn('inline-flex max-w-full min-w-0 items-stretch rounded-md border bg-white', hasError ? 'border-danger-500' : 'border-neutral-300', className)}>
     <button
       type="button"
       aria-label="Decrement"
@@ -72,5 +72,5 @@ export const NumberInputMoleculeView: React.FC<NumberInputMoleculeViewProps> = (
     >
       <PlusIcon />
     </button>
-  </PanelAtom>
+  </JPanel>
 );

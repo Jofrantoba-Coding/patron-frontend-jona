@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { PanelAtom } from '../../atoms/PanelAtom';
+import { JPanel } from '../../atoms/JPanel';
 import { BoxLayout } from '../BoxLayout';
 import { CardLayout } from '../CardLayout';
 import { FlowLayout } from '../FlowLayout';
@@ -88,12 +88,12 @@ describe('layout manager components', () => {
   it('renders CardLayout showing only the active card', () => {
     render(
       <CardLayout activeCard="second" data-testid="cards">
-        <PanelAtom data-testid="first" data-panel-card="first">
+        <JPanel data-testid="first" data-panel-card="first">
           First
-        </PanelAtom>
-        <PanelAtom data-testid="second" data-panel-card="second">
+        </JPanel>
+        <JPanel data-testid="second" data-panel-card="second">
           Second
-        </PanelAtom>
+        </JPanel>
       </CardLayout>
     );
 
@@ -106,14 +106,14 @@ describe('layout manager components', () => {
   it('keeps GridBagLayout mobile-first while exposing desktop constraints', () => {
     render(
       <GridBagLayout columns={3} data-testid="gridbag">
-        <PanelAtom
+        <JPanel
           data-testid="gridbag-item"
           data-gridbag-column="1"
           data-gridbag-row="2"
           data-gridbag-column-span="2"
         >
           Item
-        </PanelAtom>
+        </JPanel>
       </GridBagLayout>
     );
 
@@ -134,9 +134,9 @@ describe('layout manager components', () => {
   it('renders GroupLayout with responsive group spans', () => {
     render(
       <GroupLayout columns={2} data-testid="group">
-        <PanelAtom data-testid="group-item" data-group-span="2">
+        <JPanel data-testid="group-item" data-group-span="2">
           Grouped
-        </PanelAtom>
+        </JPanel>
       </GroupLayout>
     );
 
@@ -155,14 +155,14 @@ describe('layout manager components', () => {
   it('renders SpringLayout as a mobile grid before constraints are applied', () => {
     render(
       <SpringLayout data-testid="spring">
-        <PanelAtom
+        <JPanel
           data-testid="spring-item"
           data-spring-left="1rem"
           data-spring-top="2rem"
           data-spring-width="10rem"
         >
           Spring
-        </PanelAtom>
+        </JPanel>
       </SpringLayout>
     );
 

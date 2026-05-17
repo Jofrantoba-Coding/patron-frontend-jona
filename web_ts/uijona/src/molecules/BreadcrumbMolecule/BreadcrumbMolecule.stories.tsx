@@ -9,8 +9,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from './BreadcrumbMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
+import { JButton } from '../../atoms/JButton/JButton';
 
 const meta: Meta<typeof BreadcrumbMolecule> = {
   title: 'Molecules/BreadcrumbMolecule',
@@ -66,7 +66,7 @@ export const Interactive: Story = {
     };
     const nextPage = allPages[trail.length] ?? null;
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-4">
         <BreadcrumbMolecule>
           <BreadcrumbList>
             {trail.map((page, i) => (
@@ -84,11 +84,11 @@ export const Interactive: Story = {
           </BreadcrumbList>
         </BreadcrumbMolecule>
         {nextPage && (
-          <ButtonAtom variant="outline" size="sm" onClick={() => setTrail((t) => [...t, nextPage])}>
+          <JButton variant="outline" size="sm" onClick={() => setTrail((t) => [...t, nextPage])}>
             Navegar a: {nextPage}
-          </ButtonAtom>
+          </JButton>
         )}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

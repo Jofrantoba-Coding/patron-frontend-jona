@@ -1,8 +1,8 @@
 import { jsx as n } from "react/jsx-runtime";
 import p from "react";
-import { ButtonAtomImpl as a } from "../ButtonAtom/ButtonAtomImpl.js";
+import { JButtonImpl as a } from "../JButton/JButtonImpl.js";
 const c = p.forwardRef(
-  ({ icon: t, label: m, variant: r = "ghost", loading: o, ...e }, i) => /* @__PURE__ */ n(a, { ref: i, type: "button", size: "icon", variant: r, loading: o, "aria-label": m, ...e, children: !o && t })
+  ({ icon: t, label: r, variant: e = "ghost", loading: o, ...m }, i) => /* @__PURE__ */ n(a, { ref: i, type: "button", size: "icon", variant: e, loading: o, "aria-label": r, ...m, children: !o && t })
 );
 c.displayName = "IconButtonAtomView";
 export {

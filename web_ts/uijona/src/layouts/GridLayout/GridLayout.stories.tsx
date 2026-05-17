@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { GridLayout } from './GridLayout';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof GridLayout> = {
   title: 'Layouts/GridLayout',
@@ -32,9 +32,9 @@ export default meta;
 type Story = StoryObj<typeof GridLayout>;
 
 const DemoItem = ({ label }: { label: string }) => (
-  <PanelAtom variant="flat" padding="md" className="text-center text-sm font-medium text-neutral-700">
+  <JPanel variant="flat" padding="md" className="text-center text-sm font-medium text-neutral-700">
     {label}
-  </PanelAtom>
+  </JPanel>
 );
 
 export const FixedColumns: Story = {

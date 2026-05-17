@@ -3,7 +3,7 @@ import { cn } from '../../lib/cn';
 import { InputAtom } from '../../atoms/InputAtom';
 import { SpinnerAtom } from '../../atoms/SpinnerAtom';
 import { InterSearchInputMolecule } from './InterSearchInputMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 type SearchInputMoleculeViewProps = Omit<InterSearchInputMolecule, 'onChange' | 'onSearch' | 'onClear' | 'onBlur' | 'onEnterPress'> & {
   inputValue: string;
@@ -46,8 +46,8 @@ export const SearchInputMoleculeView: React.FC<SearchInputMoleculeViewProps> = (
   'aria-label': ariaLabel = 'Search',
   ...props
 }) => (
-  <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 items-center gap-2', containerClassName)}>
-    <PanelAtom variant="ghost" padding="none" radius="none" className="relative min-w-0 flex-1">
+  <JPanel variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 items-center gap-2', containerClassName)}>
+    <JPanel variant="ghost" padding="none" radius="none" className="relative min-w-0 flex-1">
       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
         {loading ? <SpinnerAtom size="sm" /> : <SearchIcon />}
       </span>
@@ -81,7 +81,7 @@ export const SearchInputMoleculeView: React.FC<SearchInputMoleculeViewProps> = (
           <XIcon />
         </button>
       )}
-    </PanelAtom>
+    </JPanel>
     <button
       type="button"
       disabled={disabled}
@@ -90,5 +90,5 @@ export const SearchInputMoleculeView: React.FC<SearchInputMoleculeViewProps> = (
     >
       Search
     </button>
-  </PanelAtom>
+  </JPanel>
 );

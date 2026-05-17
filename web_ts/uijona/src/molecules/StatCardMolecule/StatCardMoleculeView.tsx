@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterStatCardMolecule, StatCardTone, StatCardTrend } from './InterStatCardMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const toneClasses: Record<StatCardTone, string> = {
   neutral: 'bg-neutral-100 text-neutral-600',
@@ -28,19 +28,19 @@ export const StatCardMoleculeView: React.FC<InterStatCardMolecule> = ({
   className,
   ...props
 }) => (
-  <PanelAtom variant="ghost" padding="none" radius="none" className={cn('min-w-0 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-5', className)} {...props}>
-    <PanelAtom variant="ghost" padding="none" radius="none" className="flex min-w-0 items-start justify-between gap-3">
-      <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0">
+  <JPanel variant="ghost" padding="none" radius="none" className={cn('min-w-0 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-5', className)} {...props}>
+    <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 items-start justify-between gap-3">
+      <JPanel variant="ghost" padding="none" radius="none" className="min-w-0">
         <p className="break-words text-sm font-medium text-neutral-500">{label}</p>
         <p className="mt-1 break-words text-2xl font-semibold leading-tight text-neutral-900">{value}</p>
-      </PanelAtom>
-      {icon && <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-md', toneClasses[tone])}>{icon}</PanelAtom>}
-    </PanelAtom>
+      </JPanel>
+      {icon && <JPanel variant="ghost" padding="none" radius="none" className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-md', toneClasses[tone])}>{icon}</JPanel>}
+    </JPanel>
     {(description || trendLabel) && (
-      <PanelAtom variant="ghost" padding="none" radius="none" className="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+      <JPanel variant="ghost" padding="none" radius="none" className="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
         {trendLabel && <span className={cn('font-medium', trendClasses[trend])}>{trendLabel}</span>}
         {description && <span className="break-words text-neutral-500">{description}</span>}
-      </PanelAtom>
+      </JPanel>
     )}
-  </PanelAtom>
+  </JPanel>
 );

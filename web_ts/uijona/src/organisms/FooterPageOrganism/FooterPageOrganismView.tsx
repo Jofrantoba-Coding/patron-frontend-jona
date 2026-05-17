@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterFooterPageOrganism } from './InterFooterPageOrganism';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 export const FooterPageOrganismView: React.FC<InterFooterPageOrganism> = ({
   text,
@@ -19,22 +19,22 @@ export const FooterPageOrganismView: React.FC<InterFooterPageOrganism> = ({
     )}
   >
     {/* Left slot or fallback text */}
-    <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0 flex-1 break-words md:flex-none">
+    <JPanel variant="ghost" padding="none" radius="none" className="min-w-0 flex-1 break-words md:flex-none">
       {left ?? <span>{text}</span>}
-    </PanelAtom>
+    </JPanel>
 
     {/* Center slot */}
     {center && (
-      <PanelAtom variant="ghost" padding="none" radius="none" className="hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex">
+      <JPanel variant="ghost" padding="none" radius="none" className="hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex">
         {center}
-      </PanelAtom>
+      </JPanel>
     )}
 
     {/* Right slot */}
     {right && (
-      <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center gap-2">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center gap-2">
         {right}
-      </PanelAtom>
+      </JPanel>
     )}
   </footer>
 );

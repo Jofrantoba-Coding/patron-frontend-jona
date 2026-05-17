@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { IconButtonAtom } from './IconButtonAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const SearchIcon = () => (
@@ -54,7 +54,7 @@ export const Interactive: Story = {
       <span aria-hidden="true" style={{ fontSize: 16, lineHeight: 1 }}>{saved ? '♥' : '♡'}</span>
     );
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col items-center gap-2">
+      <JPanel variant="ghost" padding="none" className="flex flex-col items-center gap-2">
         <IconButtonAtom
           icon={<HeartIcon />}
           label={saved ? 'Quitar de favoritos' : 'Añadir a favoritos'}
@@ -62,7 +62,7 @@ export const Interactive: Story = {
           onClick={(event) => { args.onClick?.(event); setSaved((s) => !s); }}
         />
         <TextAtom size="xs" color="muted">{saved ? 'Guardado en favoritos' : 'Sin guardar'}</TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

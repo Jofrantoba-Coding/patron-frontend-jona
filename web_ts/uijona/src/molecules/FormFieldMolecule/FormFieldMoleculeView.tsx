@@ -5,7 +5,7 @@ import { LabelAtom } from '../../atoms/LabelAtom';
 import { InputAtom } from '../../atoms/InputAtom';
 import { ErrorMessageAtom } from '../../atoms/ErrorMessageAtom';
 import { InterFormFieldMolecule } from './InterFormFieldMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 type FormFieldMoleculeViewProps = Omit<InterFormFieldMolecule, 'onInvalid'> &
   Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur' | 'onKeyDown' | 'onInvalid'> & {
@@ -21,9 +21,9 @@ export const FormFieldMoleculeView: React.FC<FormFieldMoleculeViewProps> = ({
 }) => {
   const hasError = !!errorMessage;
   return (
-    <PanelAtom variant="ghost" padding="none" radius="none" className={cn(orientation === 'horizontal' ? 'flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4' : 'flex flex-col gap-1.5', className)}>
+    <JPanel variant="ghost" padding="none" radius="none" className={cn(orientation === 'horizontal' ? 'flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4' : 'flex flex-col gap-1.5', className)}>
       <LabelAtom htmlFor={id} required={required} className={cn(orientation === 'horizontal' && 'sm:shrink-0')}>{label}</LabelAtom>
-      <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex min-w-0 flex-col gap-1', orientation === 'horizontal' && 'sm:flex-1')}>
+      <JPanel variant="ghost" padding="none" radius="none" className={cn('flex min-w-0 flex-col gap-1', orientation === 'horizontal' && 'sm:flex-1')}>
         <InputAtom
           ref={forwardedRef}
           id={id}
@@ -40,7 +40,7 @@ export const FormFieldMoleculeView: React.FC<FormFieldMoleculeViewProps> = ({
         />
         {description && !hasError && <ErrorMessageAtom id={`${id}-desc`} message={description} type="description" />}
         {hasError && <ErrorMessageAtom message={errorMessage} type="error" />}
-      </PanelAtom>
-    </PanelAtom>
+      </JPanel>
+    </JPanel>
   );
 };

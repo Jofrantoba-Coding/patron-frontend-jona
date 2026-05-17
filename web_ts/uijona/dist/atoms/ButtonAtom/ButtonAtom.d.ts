@@ -1,2 +1,2 @@
-export { ButtonAtomImpl as ButtonAtom } from './ButtonAtomImpl';
+export { JButtonImpl as ButtonAtom } from '../JButton/JButtonImpl';
 export type { InterButtonAtom, ButtonVariant, ButtonSize } from './InterButtonAtom';

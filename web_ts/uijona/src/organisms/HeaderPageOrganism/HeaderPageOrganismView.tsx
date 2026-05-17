@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterHeaderPageOrganism } from './InterHeaderPageOrganism';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 export const HeaderPageOrganismView: React.FC<InterHeaderPageOrganism> = ({
   title,
@@ -18,9 +18,9 @@ export const HeaderPageOrganismView: React.FC<InterHeaderPageOrganism> = ({
     )}
   >
     {/* Title / Logo */}
-    <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0 flex-1 truncate text-lg font-semibold text-primary-600 md:flex-none">
+    <JPanel variant="ghost" padding="none" radius="none" className="min-w-0 flex-1 truncate text-lg font-semibold text-primary-600 md:flex-none">
       {title}
-    </PanelAtom>
+    </JPanel>
 
     {/* Navigation */}
     {nav && (
@@ -31,9 +31,9 @@ export const HeaderPageOrganismView: React.FC<InterHeaderPageOrganism> = ({
 
     {/* Actions */}
     {actions && (
-      <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center gap-2">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center gap-2">
         {actions}
-      </PanelAtom>
+      </JPanel>
     )}
   </header>
 );

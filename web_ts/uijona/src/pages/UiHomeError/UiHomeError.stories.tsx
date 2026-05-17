@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { UiHomeError } from './UiHomeError';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof UiHomeError> = {
   title: 'Pages/UiHomeError',
@@ -43,26 +43,26 @@ export const Interactive: Story = {
       403: { title: 'Acceso denegado', message: 'No tienes permisos para ver este recurso.', primaryLabel: 'Iniciar sesión', secondaryLabel: 'Volver' },
     };
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ position: 'relative' }}>
-        <PanelAtom variant="ghost" padding="none" style={{ position: 'absolute', top: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
+      <JPanel variant="ghost" padding="none" style={{ position: 'relative' }}>
+        <JPanel variant="ghost" padding="none" style={{ position: 'absolute', top: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
           {[404, 500, 403].map((c) => (
-            <ButtonAtom
+            <JButton
               key={c}
               variant={code === c ? 'default' : 'outline'}
               size="sm"
               onClick={() => setCode(c)}
             >
               {c}
-            </ButtonAtom>
+            </JButton>
           ))}
-        </PanelAtom>
+        </JPanel>
         <UiHomeError
           errorCode={code}
           {...configs[code]}
           onGoHome={() => { args.onGoHome?.(); setCode(404); }}
           onGoBack={args.onGoBack}
         />
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { AlertMolecule } from './AlertMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof AlertMolecule> = {
@@ -50,11 +50,11 @@ export const Interactive: Story = {
     const [alerts, setAlerts] = useState(initialAlerts);
     const dismiss = (id: number) => setAlerts((a) => a.filter((x) => x.id !== id));
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 w-96">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-3 w-96">
         {alerts.map((a) => (
-          <PanelAtom variant="ghost" padding="none" key={a.id} className="relative">
+          <JPanel variant="ghost" padding="none" key={a.id} className="relative">
             <AlertMolecule variant={a.variant} title={a.title}>{a.message}</AlertMolecule>
-            <ButtonAtom
+            <JButton
               variant="ghost"
               size="icon"
               onClick={() => dismiss(a.id)}
@@ -62,16 +62,16 @@ export const Interactive: Story = {
               aria-label="Cerrar"
             >
               ✕
-            </ButtonAtom>
-          </PanelAtom>
+            </JButton>
+          </JPanel>
         ))}
         {alerts.length === 0 && (
           <TextAtom size="sm" className="text-neutral-400">Sin alertas activas.</TextAtom>
         )}
-        <ButtonAtom variant="outline" size="sm" onClick={() => setAlerts(initialAlerts)}>
+        <JButton variant="outline" size="sm" onClick={() => setAlerts(initialAlerts)}>
           Restaurar alertas
-        </ButtonAtom>
-      </PanelAtom>
+        </JButton>
+      </JPanel>
     );
   },
 };

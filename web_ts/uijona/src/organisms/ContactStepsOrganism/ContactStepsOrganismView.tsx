@@ -1,7 +1,7 @@
 // ContactStepsOrganismView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { SectionHeadingMolecule } from '../../molecules/SectionHeadingMolecule/SectionHeadingMolecule';
 import { NumberedStepMolecule } from '../../molecules/NumberedStepMolecule/NumberedStepMolecule';
 import { InterContactStepsOrganism } from './InterContactStepsOrganism';
@@ -13,16 +13,16 @@ export const ContactStepsOrganismView: React.FC<InterContactStepsOrganism> = ({
   as = 'section',
   className,
 }) => (
-  <PanelAtom
+  <JPanel
     as={as}
     variant="ghost"
     padding="none"
     radius="none"
     className={cn('contact-steps-section', className)}
   >
-    <PanelAtom variant="ghost" padding="none" radius="none" className="section-shell">
+    <JPanel variant="ghost" padding="none" radius="none" className="section-shell">
       <SectionHeadingMolecule eyebrow={eyebrow} heading={heading} className="mb-10" />
-      <PanelAtom variant="ghost" padding="none" radius="none" className="contact-steps-list">
+      <JPanel variant="ghost" padding="none" radius="none" className="contact-steps-list">
         {steps.map((step) => (
           <NumberedStepMolecule
             key={step.num}
@@ -31,7 +31,7 @@ export const ContactStepsOrganismView: React.FC<InterContactStepsOrganism> = ({
             body={step.body}
           />
         ))}
-      </PanelAtom>
-    </PanelAtom>
-  </PanelAtom>
+      </JPanel>
+    </JPanel>
+  </JPanel>
 );

@@ -1,11 +1,11 @@
 // InterIconButtonAtom.ts — JONA Interface
 import React from 'react';
-import { ButtonVariant } from '../ButtonAtom';
+import { JButtonVariant } from '../JButton';
 
 export interface InterIconButtonAtom extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   icon: React.ReactNode;
   label: string;
-  variant?: ButtonVariant;
+  variant?: JButtonVariant;
   loading?: boolean;
 }
 

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { FooterPageOrganism } from './FooterPageOrganism';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof FooterPageOrganism> = {
@@ -41,10 +41,10 @@ export const Interactive: Story = {
     };
     const t = texts[lang];
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-        <PanelAtom variant="ghost" padding="none" style={{ padding: '32px', textAlign: 'center', fontSize: '14px', color: '#a3a3a3' }}>
+      <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <JPanel variant="ghost" padding="none" style={{ padding: '32px', textAlign: 'center', fontSize: '14px', color: '#a3a3a3' }}>
           Contenido de la aplicación
-        </PanelAtom>
+        </JPanel>
         <FooterPageOrganism
           left={<TextAtom as="span" className="font-bold">JONA UI</TextAtom>}
           center={
@@ -55,12 +55,12 @@ export const Interactive: Story = {
             </nav>
           }
           right={
-            <ButtonAtom variant="outline" size="sm" onClick={() => setLang((l) => l === 'es' ? 'en' : 'es')}>
+            <JButton variant="outline" size="sm" onClick={() => setLang((l) => l === 'es' ? 'en' : 'es')}>
               {lang === 'es' ? 'EN' : 'ES'}
-            </ButtonAtom>
+            </JButton>
           }
         />
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

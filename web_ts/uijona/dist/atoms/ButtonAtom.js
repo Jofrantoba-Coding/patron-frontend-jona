@@ -1,4 +1,4 @@
-import { ButtonAtomImpl as m } from "./ButtonAtom/ButtonAtomImpl.js";
+import { JButtonImpl as m } from "./JButton/JButtonImpl.js";
 export {
   m as ButtonAtom
 };

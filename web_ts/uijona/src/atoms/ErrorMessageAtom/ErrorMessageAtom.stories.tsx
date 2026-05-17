@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ErrorMessageAtom } from './ErrorMessageAtom';
 import { InputAtom } from '../InputAtom/InputAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 
 const meta: Meta<typeof ErrorMessageAtom> = {
   title: 'Atoms/ErrorMessageAtom',
@@ -35,7 +35,7 @@ export const Interactive: Story = {
         ? 'El formato de email no es válido'
         : '';
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '280px' }}>
+      <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '280px' }}>
         <InputAtom
           type="email"
           value={email}
@@ -44,7 +44,7 @@ export const Interactive: Story = {
           hasError={!!error}
         />
         <ErrorMessageAtom message={error} type={error ? 'error' : 'description'} />
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

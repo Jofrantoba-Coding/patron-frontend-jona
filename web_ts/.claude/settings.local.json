@@ -19,7 +19,10 @@
       "Bash(Remove-Item -Recurse -Force src/atoms/SectionShellAtom, src/atoms/EyebrowAtom)",
       "Bash(Remove-Item -Recurse -Force src/molecules/SalesCTAMolecule, src/molecules/MarketingHeroMolecule)",
       "Bash(Write-Host \"done\")",
-      "Bash(npx storybook *)"
+      "Bash(npx storybook *)",
+      "Bash(Select-String -Path \"d:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\uijona\\\\src\\\\styles\\\\index.css\" -Pattern \"^\\\\}\")",
+      "Bash(Select-Object -Last 5)",
+      "Bash(Format-Table LineNumber, Line)"
     ]
   }
 }

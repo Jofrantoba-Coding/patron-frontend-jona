@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { MultiSelectOption } from './InterMultiSelectMolecule';
 import { InputAtom } from '../../atoms/InputAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 interface MultiSelectMoleculeViewProps {
   selected: MultiSelectOption[];
@@ -35,9 +35,9 @@ export const MultiSelectMoleculeView: React.FC<MultiSelectMoleculeViewProps> = (
 }) => {
   const atMax = maxSelected !== undefined && selected.length >= maxSelected;
   return (
-    <PanelAtom variant="ghost" padding="none" radius="none" className={cn('relative w-full', className)}>
+    <JPanel variant="ghost" padding="none" radius="none" className={cn('relative w-full', className)}>
       {/* Trigger box */}
-      <PanelAtom variant="ghost" padding="none" radius="none"
+      <JPanel variant="ghost" padding="none" radius="none"
         ref={triggerRef}
         role="combobox"
         aria-expanded={open}
@@ -72,12 +72,12 @@ export const MultiSelectMoleculeView: React.FC<MultiSelectMoleculeViewProps> = (
           style={{ transform: open ? 'rotate(180deg)' : undefined }}>
           <polyline points="6 9 12 15 18 9" />
         </svg>
-      </PanelAtom>
+      </JPanel>
 
       {/* Dropdown */}
       {open && createPortal(
-        <PanelAtom variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
-          <PanelAtom variant="ghost" padding="none" radius="none" className="border-b border-neutral-100 p-2">
+        <JPanel variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
+          <JPanel variant="ghost" padding="none" radius="none" className="border-b border-neutral-100 p-2">
             <InputAtom
               ref={inputRef}
               type="text"
@@ -88,11 +88,11 @@ export const MultiSelectMoleculeView: React.FC<MultiSelectMoleculeViewProps> = (
               aria-label={searchPlaceholder}
               className="h-8 w-full rounded border border-neutral-200 bg-white px-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
-          </PanelAtom>
+          </JPanel>
           {atMax && (
             <p className="px-3 py-1.5 text-xs text-neutral-400">Máximo {maxSelected} seleccionados</p>
           )}
-          <PanelAtom variant="ghost" padding="none" radius="none" role="listbox" aria-multiselectable="true" className="overflow-y-auto py-1">
+          <JPanel variant="ghost" padding="none" radius="none" role="listbox" aria-multiselectable="true" className="overflow-y-auto py-1">
             {filtered.length === 0 ? (
               <p className="px-3 py-4 text-center text-sm text-neutral-400">{emptyText}</p>
             ) : (
@@ -129,10 +129,10 @@ export const MultiSelectMoleculeView: React.FC<MultiSelectMoleculeViewProps> = (
                 );
               })
             )}
-          </PanelAtom>
-        </PanelAtom>,
+          </JPanel>
+        </JPanel>,
         document.body
       )}
-    </PanelAtom>
+    </JPanel>
   );
 };

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RadioGroupMolecule } from './RadioGroupMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const options = [
@@ -72,7 +72,7 @@ export const Interactive: Story = {
     const [plan, setPlan] = useState<string>('');
     const prices: Record<string, string> = { basic: 'Gratis', pro: '$29/mes', enterprise: 'Contactar ventas' };
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-4">
         <RadioGroupMolecule
           name="plan-selector"
           label="Selecciona tu plan"
@@ -81,15 +81,15 @@ export const Interactive: Story = {
           onValueChange={(v, option) => { args.onValueChange?.(v, option); setPlan(v); }}
         />
         {plan && (
-          <PanelAtom variant="ghost" padding="none" className="rounded-md bg-neutral-50 border p-4 text-sm flex justify-between">
-            <PanelAtom variant="ghost" padding="none">
+          <JPanel variant="ghost" padding="none" className="rounded-md bg-neutral-50 border p-4 text-sm flex justify-between">
+            <JPanel variant="ghost" padding="none">
               <TextAtom className="font-semibold">{options.find((o) => o.value === plan)?.label}</TextAtom>
               <TextAtom className="text-neutral-500">{options.find((o) => o.value === plan)?.description}</TextAtom>
-            </PanelAtom>
+            </JPanel>
             <TextAtom className="font-bold text-primary-700">{prices[plan]}</TextAtom>
-          </PanelAtom>
+          </JPanel>
         )}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

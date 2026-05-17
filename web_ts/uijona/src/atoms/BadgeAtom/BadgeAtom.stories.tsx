@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { BadgeAtom } from './BadgeAtom';
-import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JButton } from '../JButton/JButton';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof BadgeAtom> = {
@@ -34,13 +34,13 @@ export const Outline: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
       <BadgeAtom variant="default">Default</BadgeAtom>
       <BadgeAtom variant="secondary">Secondary</BadgeAtom>
       <BadgeAtom variant="destructive">Destructive</BadgeAtom>
       <BadgeAtom variant="outline">Outline</BadgeAtom>
       <BadgeAtom variant="ghost">Ghost</BadgeAtom>
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -48,22 +48,22 @@ export const Interactive: Story = {
   render: () => {
     const [count, setCount] = useState(0);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 items-start">
-        <PanelAtom variant="ghost" padding="none" className="flex items-center gap-2">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-4 items-start">
+        <JPanel variant="ghost" padding="none" className="flex items-center gap-2">
           <TextAtom as="span" size="sm">Notificaciones</TextAtom>
           <BadgeAtom variant={count > 5 ? 'destructive' : count > 0 ? 'default' : 'secondary'}>
             {count}
           </BadgeAtom>
-        </PanelAtom>
-        <PanelAtom variant="ghost" padding="none" className="flex gap-2">
-          <ButtonAtom variant="outline" size="sm" onClick={() => setCount((c) => c + 1)}>
+        </JPanel>
+        <JPanel variant="ghost" padding="none" className="flex gap-2">
+          <JButton variant="outline" size="sm" onClick={() => setCount((c) => c + 1)}>
             Nueva notificación
-          </ButtonAtom>
-          <ButtonAtom variant="ghost" size="sm" disabled={count === 0} onClick={() => setCount(0)}>
+          </JButton>
+          <JButton variant="ghost" size="sm" disabled={count === 0} onClick={() => setCount(0)}>
             Marcar leídas
-          </ButtonAtom>
-        </PanelAtom>
-      </PanelAtom>
+          </JButton>
+        </JPanel>
+      </JPanel>
     );
   },
 };

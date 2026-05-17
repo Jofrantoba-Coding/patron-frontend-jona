@@ -1,7 +1,7 @@
-import type { InterPanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import type { InterJPanel } from '../../atoms/JPanel/JPanel';
 
 export interface InterGridLayout extends Omit<
-  InterPanelAtom,
+  InterJPanel,
   'layout' | 'direction' | 'wrap' | 'activeCard'
 > {}
 

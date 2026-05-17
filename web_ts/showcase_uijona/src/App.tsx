@@ -4,9 +4,9 @@ import { UiShowcase } from './views/uishowcase';
 
 const App: React.FC = () => (
   <Routes>
-    <Route path="/" element={<Navigate to="/showcase/ButtonAtom" replace />} />
+    <Route path="/" element={<Navigate to="/showcase/JButton" replace />} />
     <Route path="/showcase/:componentId" element={<UiShowcase />} />
-    <Route path="/showcase" element={<Navigate to="/showcase/ButtonAtom" replace />} />
+    <Route path="/showcase" element={<Navigate to="/showcase/JButton" replace />} />
   </Routes>
 );
 

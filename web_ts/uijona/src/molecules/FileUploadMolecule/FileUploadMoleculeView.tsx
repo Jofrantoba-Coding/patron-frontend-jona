@@ -3,7 +3,7 @@ import { cn } from '../../lib/cn';
 import { InterFileUploadMolecule } from './InterFileUploadMolecule';
 import { InputAtom } from '../../atoms/InputAtom';
 import { LabelAtom } from '../../atoms/LabelAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 type FileUploadMoleculeViewProps = Omit<InterFileUploadMolecule, 'files' | 'defaultFiles' | 'onFilesChange' | 'onReject' | 'onRemoveFile'> & {
   selectedFiles: File[];
@@ -50,7 +50,7 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
   onBlur,
   ...inputProps
 }) => (
-  <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
+  <JPanel variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
     <LabelAtom
       htmlFor={inputId}
       onDragOver={onDropZoneDragOver}
@@ -87,10 +87,10 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
       <ul className={cn('flex min-w-0 flex-col gap-2', fileListClassName)}>
         {selectedFiles.map((file) => (
           <li key={`${file.name}-${file.size}-${file.lastModified}`} className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
-            <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0">
+            <JPanel variant="ghost" padding="none" radius="none" className="min-w-0">
               <p className="truncate text-sm font-medium text-neutral-900">{file.name}</p>
               <p className="text-xs text-neutral-500">{formatBytes(file.size)}</p>
-            </PanelAtom>
+            </JPanel>
             <button
               type="button"
               onClick={() => onRemoveClick(file)}
@@ -102,5 +102,5 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
         ))}
       </ul>
     )}
-  </PanelAtom>
+  </JPanel>
 );

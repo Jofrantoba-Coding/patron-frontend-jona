@@ -1,7 +1,7 @@
-import type { InterPanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import type { InterJPanel } from '../../atoms/JPanel/JPanel';
 
 export interface InterBoxLayout extends Omit<
-  InterPanelAtom,
+  InterJPanel,
   'layout' | 'columns' | 'rows' | 'autoFitMin' | 'activeCard'
 > {}
 

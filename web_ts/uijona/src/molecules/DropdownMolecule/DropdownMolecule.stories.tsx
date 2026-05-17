@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DropdownMolecule } from './DropdownMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const groups = [
@@ -35,14 +35,14 @@ type Story = StoryObj<typeof DropdownMolecule>;
 
 export const Default: Story = {
   args: {
-    trigger: <ButtonAtom variant="outline">Mi cuenta ▾</ButtonAtom>,
+    trigger: <JButton variant="outline">Mi cuenta ▾</JButton>,
     groups,
   },
 };
 
 export const AlignEnd: Story = {
   args: {
-    trigger: <ButtonAtom>Opciones ▾</ButtonAtom>,
+    trigger: <JButton>Opciones ▾</JButton>,
     groups,
     align: 'end',
   },
@@ -66,9 +66,9 @@ export const Interactive: Story = {
       },
     ];
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 items-start p-8">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-4 items-start p-8">
         <DropdownMolecule
-          trigger={<ButtonAtom variant="outline">Mi cuenta ▾</ButtonAtom>}
+          trigger={<JButton variant="outline">Mi cuenta ▾</JButton>}
           groups={menuGroups}
         />
         {lastAction && (
@@ -76,7 +76,7 @@ export const Interactive: Story = {
             Última acción: <strong>{lastAction}</strong>
           </TextAtom>
         )}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

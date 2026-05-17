@@ -1,7 +1,7 @@
 // ContactMethodsOrganismView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { GridLayout } from '../../layouts/GridLayout';
 import { ContactMethodCardMolecule } from '../../molecules/ContactMethodCardMolecule/ContactMethodCardMolecule';
 import { InterContactMethodsOrganism } from './InterContactMethodsOrganism';
@@ -11,14 +11,14 @@ export const ContactMethodsOrganismView: React.FC<InterContactMethodsOrganism> =
   as = 'section',
   className,
 }) => (
-  <PanelAtom
+  <JPanel
     as={as}
     variant="ghost"
     padding="none"
     radius="none"
     className={cn('contact-methods-section', className)}
   >
-    <PanelAtom variant="ghost" padding="none" radius="none" className="section-shell">
+    <JPanel variant="ghost" padding="none" radius="none" className="section-shell">
       <GridLayout autoFitMin="260px" className="contact-methods-grid">
         {methods.map((method) => (
           <ContactMethodCardMolecule
@@ -32,6 +32,6 @@ export const ContactMethodsOrganismView: React.FC<InterContactMethodsOrganism> =
           />
         ))}
       </GridLayout>
-    </PanelAtom>
-  </PanelAtom>
+    </JPanel>
+  </JPanel>
 );

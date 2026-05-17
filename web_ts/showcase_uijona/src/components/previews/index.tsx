@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  ButtonAtom, InputAtom, BadgeAtom, SpinnerAtom, CheckboxAtom,
+  JButton, InputAtom, BadgeAtom, SpinnerAtom, CheckboxAtom,
   SelectAtom, AvatarAtom, SwitchAtom, TextAtom, ProgressAtom,
   CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter,
   AlertMolecule, FormFieldMolecule, DialogMolecule, UserAvatarMolecule,
@@ -15,14 +15,14 @@ import {
 
 export const ButtonAtomPreview = () => (
   <div className="flex flex-wrap gap-3">
-    <ButtonAtom variant="default">Default</ButtonAtom>
-    <ButtonAtom variant="secondary">Secondary</ButtonAtom>
-    <ButtonAtom variant="outline">Outline</ButtonAtom>
-    <ButtonAtom variant="ghost">Ghost</ButtonAtom>
-    <ButtonAtom variant="destructive">Destructive</ButtonAtom>
-    <ButtonAtom variant="link">Link</ButtonAtom>
-    <ButtonAtom loading>Loading</ButtonAtom>
-    <ButtonAtom disabled>Disabled</ButtonAtom>
+    <JButton variant="default">Default</JButton>
+    <JButton variant="secondary">Secondary</JButton>
+    <JButton variant="outline">Outline</JButton>
+    <JButton variant="ghost">Ghost</JButton>
+    <JButton variant="destructive">Destructive</JButton>
+    <JButton variant="link">Link</JButton>
+    <JButton loading>Loading</JButton>
+    <JButton disabled>Disabled</JButton>
   </div>
 );
 
@@ -145,8 +145,8 @@ export const CardMoleculePreview = () => (
       </CardHeader>
       <CardContent><p className="text-sm text-gray-600">Main content goes here.</p></CardContent>
       <CardFooter className="gap-2">
-        <ButtonAtom variant="outline" size="sm">Cancel</ButtonAtom>
-        <ButtonAtom size="sm">Confirm</ButtonAtom>
+        <JButton variant="outline" size="sm">Cancel</JButton>
+        <JButton size="sm">Confirm</JButton>
       </CardFooter>
     </CardMolecule>
   </div>
@@ -187,7 +187,7 @@ export const DialogMoleculePreview = () => {
   const [open, setOpen] = useState(false);
   return (
     <div>
-      <ButtonAtom onClick={() => setOpen(true)}>Open Dialog</ButtonAtom>
+      <JButton onClick={() => setOpen(true)}>Open Dialog</JButton>
       <DialogMolecule
         open={open}
         onClose={() => setOpen(false)}
@@ -195,8 +195,8 @@ export const DialogMoleculePreview = () => {
         description="Are you sure you want to proceed?"
         footer={
           <div className="flex gap-2 justify-end">
-            <ButtonAtom variant="outline" onClick={() => setOpen(false)}>Cancel</ButtonAtom>
-            <ButtonAtom variant="destructive" onClick={() => setOpen(false)}>Delete</ButtonAtom>
+            <JButton variant="outline" onClick={() => setOpen(false)}>Cancel</JButton>
+            <JButton variant="destructive" onClick={() => setOpen(false)}>Delete</JButton>
           </div>
         }
       >
@@ -284,7 +284,7 @@ export const HeaderPageOrganismPreview = () => (
         </>
       }
       actions={
-        <ButtonAtom size="sm" variant="outline">Sign in</ButtonAtom>
+        <JButton size="sm" variant="outline">Sign in</JButton>
       }
     />
   </div>
@@ -391,7 +391,7 @@ export const UiHomeCreateAccountPreview = () => (
 // ── Registry map ───────────────────────────────────────────────────────────
 
 export const PREVIEW_MAP: Record<string, React.FC> = {
-  ButtonAtom: ButtonAtomPreview,
+  JButton: ButtonAtomPreview,
   InputAtom: InputAtomPreview,
   BadgeAtom: BadgeAtomPreview,
   SpinnerAtom: SpinnerAtomPreview,

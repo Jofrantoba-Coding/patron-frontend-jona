@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { TextareaAtom } from './TextareaAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof TextareaAtom> = {
@@ -57,9 +57,9 @@ export const ResizableBoth: Story = {
     defaultValue: 'Puedes redimensionar este textarea en horizontal y vertical.',
   },
   render: (args) => (
-    <PanelAtom variant="ghost" padding="none" className="w-80 max-w-full">
+    <JPanel variant="ghost" padding="none" className="w-80 max-w-full">
       <TextareaAtom {...args} />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -90,7 +90,7 @@ const max = 200;
     const max = 200;
     const over = value.length > max;
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 w-80">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 w-80">
         <TextareaAtom
           placeholder="Escribe tu mensaje..."
           value={value}
@@ -105,7 +105,7 @@ const max = 200;
           {value.length}/{max}
         </TextAtom>
         {over && <TextAtom size="xs" className="text-red-500">Has superado el límite de {max} caracteres</TextAtom>}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

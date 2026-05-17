@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterSidebarLayout, SidebarNavItem, SidebarNavGroup } from './InterSidebarLayout';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 interface SidebarLayoutViewProps extends Omit<InterSidebarLayout, 'defaultCollapsed' | 'collapsible'> {
   collapsed: boolean;
@@ -21,7 +21,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
   onItemClick: (item: SidebarNavItem) => void;
 }) {
   return (
-    <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-col gap-0.5">
+    <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col gap-0.5">
       {group.label && !collapsed && (
         <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">{group.label}</p>
       )}
@@ -52,7 +52,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
           </button>
         );
       })}
-    </PanelAtom>
+    </JPanel>
   );
 }
 
@@ -64,10 +64,10 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
   const effectiveWidth = collapsed ? '3.5rem' : sidebarWidth;
 
   return (
-    <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex min-h-screen min-w-0 bg-neutral-50', className)}>
+    <JPanel variant="ghost" padding="none" radius="none" className={cn('flex min-h-screen min-w-0 bg-neutral-50', className)}>
       {/* Mobile overlay */}
       {mobileOpen && (
-        <PanelAtom variant="ghost" padding="none" radius="none" className="fixed inset-0 z-30 bg-black/40 lg:hidden" aria-hidden="true" onClick={onCloseMobile} />
+        <JPanel variant="ghost" padding="none" radius="none" className="fixed inset-0 z-30 bg-black/40 lg:hidden" aria-hidden="true" onClick={onCloseMobile} />
       )}
 
       {/* Sidebar */}
@@ -82,9 +82,9 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
       >
         {/* Sidebar header slot */}
         {header && (
-          <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex shrink-0 items-center border-b border-neutral-100 px-3 py-3', collapsed && 'justify-center')}>
+          <JPanel variant="ghost" padding="none" radius="none" className={cn('flex shrink-0 items-center border-b border-neutral-100 px-3 py-3', collapsed && 'justify-center')}>
             {header}
-          </PanelAtom>
+          </JPanel>
         )}
 
         {/* Nav */}
@@ -95,9 +95,9 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
         </nav>
 
         {/* Footer slot + collapse toggle */}
-        <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 flex-col border-t border-neutral-100 p-2 gap-1">
+        <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 flex-col border-t border-neutral-100 p-2 gap-1">
           {footer && !collapsed && (
-            <PanelAtom variant="ghost" padding="none" radius="none" className="min-w-0 px-1 py-1">{footer}</PanelAtom>
+            <JPanel variant="ghost" padding="none" radius="none" className="min-w-0 px-1 py-1">{footer}</JPanel>
           )}
           {collapsible && (
             <button
@@ -116,13 +116,13 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
               {!collapsed && <span>Colapsar</span>}
             </button>
           )}
-        </PanelAtom>
+        </JPanel>
       </aside>
 
       {/* Main content */}
-      <PanelAtom variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Mobile top bar with hamburger */}
-        <PanelAtom variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center border-b border-neutral-200 bg-white px-4 py-3 lg:hidden">
+        <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center border-b border-neutral-200 bg-white px-4 py-3 lg:hidden">
           <button
             type="button"
             onClick={onToggleMobile}
@@ -134,13 +134,13 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
-        </PanelAtom>
+        </JPanel>
 
         {/* Page content */}
         <main className="min-h-0 flex-1 overflow-auto p-4 sm:p-6">
           {children}
         </main>
-      </PanelAtom>
-    </PanelAtom>
+      </JPanel>
+    </JPanel>
   );
 };

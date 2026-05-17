@@ -1,7 +1,7 @@
 import { jsx as e, jsxs as r } from "react/jsx-runtime";
 import { JPanelImpl as n } from "../../atoms/JPanel/JPanelImpl.js";
 import { TextAtomImpl as a } from "../../atoms/TextAtom/TextAtomImpl.js";
-import { ButtonAtomImpl as i } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
+import { JButtonImpl as i } from "../../atoms/JButton/JButtonImpl.js";
 const u = ({
   errorCode: l,
   title: m,

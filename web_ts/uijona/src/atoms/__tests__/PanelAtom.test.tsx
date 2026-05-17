@@ -1,13 +1,13 @@
 import type React from 'react';
 import { render, screen } from '@testing-library/react';
-import { PanelAtom } from '../PanelAtom';
+import { JPanel } from '../JPanel';
 
-describe('PanelAtom', () => {
+describe('JPanel', () => {
   it('renders the semantic element passed through as', () => {
     render(
-      <PanelAtom as="section" aria-label="Panel">
+      <JPanel as="section" aria-label="Panel">
         Content
-      </PanelAtom>
+      </JPanel>
     );
 
     expect(screen.getByLabelText('Panel').tagName).toBe('SECTION');
@@ -15,9 +15,9 @@ describe('PanelAtom', () => {
 
   it('falls back to div when as is an empty string', () => {
     render(
-      <PanelAtom as={'' as React.ElementType} data-testid="panel">
+      <JPanel as={'' as React.ElementType} data-testid="panel">
         Content
-      </PanelAtom>
+      </JPanel>
     );
 
     expect(screen.getByTestId('panel').tagName).toBe('DIV');
@@ -25,9 +25,9 @@ describe('PanelAtom', () => {
 
   it('applies flow layout classes with wrapping and gap', () => {
     render(
-      <PanelAtom layout="flow" gap="sm" data-testid="panel">
+      <JPanel layout="flow" gap="sm" data-testid="panel">
         Content
-      </PanelAtom>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');
@@ -40,9 +40,9 @@ describe('PanelAtom', () => {
 
   it('wraps box layout rows by default', () => {
     render(
-      <PanelAtom layout="box" data-testid="panel">
+      <JPanel layout="box" data-testid="panel">
         Content
-      </PanelAtom>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');
@@ -54,9 +54,9 @@ describe('PanelAtom', () => {
 
   it('keeps box layout columns without wrapping by default', () => {
     render(
-      <PanelAtom layout="box" direction="column" data-testid="panel">
+      <JPanel layout="box" direction="column" data-testid="panel">
         Content
-      </PanelAtom>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');
@@ -68,9 +68,9 @@ describe('PanelAtom', () => {
 
   it('builds grid templates from numeric and string props', () => {
     render(
-      <PanelAtom layout="grid" columns={3} rows="auto 1fr" data-testid="panel">
+      <JPanel layout="grid" columns={3} rows="auto 1fr" data-testid="panel">
         Content
-      </PanelAtom>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');
@@ -86,9 +86,9 @@ describe('PanelAtom', () => {
 
   it('uses responsive grid columns by default', () => {
     render(
-      <PanelAtom layout="grid" data-testid="panel">
+      <JPanel layout="grid" data-testid="panel">
         Content
-      </PanelAtom>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');
@@ -103,9 +103,9 @@ describe('PanelAtom', () => {
 
   it('can apply grid templates immediately with fixed placement', () => {
     render(
-      <PanelAtom layout="grid" placement="fixed" columns={2} data-testid="panel">
+      <JPanel layout="grid" placement="fixed" columns={2} data-testid="panel">
         Content
-      </PanelAtom>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');
@@ -116,11 +116,11 @@ describe('PanelAtom', () => {
 
   it('maps border layout children into named grid areas', () => {
     render(
-      <PanelAtom layout="border" data-testid="border-panel">
-        <PanelAtom data-testid="top" data-panel-area="top">
+      <JPanel layout="border" data-testid="border-panel">
+        <JPanel data-testid="top" data-panel-area="top">
           Top
-        </PanelAtom>
-      </PanelAtom>
+        </JPanel>
+      </JPanel>
     );
 
     expect(screen.getByTestId('border-panel')).toHaveAttribute('data-jpanel-layout', 'border');
@@ -130,14 +130,14 @@ describe('PanelAtom', () => {
 
   it('shows only the active child in card layout', () => {
     render(
-      <PanelAtom layout="card" activeCard="security">
-        <PanelAtom data-testid="profile" data-panel-card="profile">
+      <JPanel layout="card" activeCard="security">
+        <JPanel data-testid="profile" data-panel-card="profile">
           Profile
-        </PanelAtom>
-        <PanelAtom data-testid="security" data-panel-card="security">
+        </JPanel>
+        <JPanel data-testid="security" data-panel-card="security">
           Security
-        </PanelAtom>
-      </PanelAtom>
+        </JPanel>
+      </JPanel>
     );
 
     expect(screen.getByTestId('profile')).toHaveAttribute('data-jpanel-card-state', 'hidden');
@@ -146,11 +146,11 @@ describe('PanelAtom', () => {
 
   it('supports GridBag constraints with mobile-first placement', () => {
     render(
-      <PanelAtom layout="gridbag" columns={3} data-testid="panel">
-        <PanelAtom data-testid="item" data-gridbag-column="1" data-gridbag-row="2" data-gridbag-column-span="2">
+      <JPanel layout="gridbag" columns={3} data-testid="panel">
+        <JPanel data-testid="item" data-gridbag-column="1" data-gridbag-row="2" data-gridbag-column-span="2">
           Item
-        </PanelAtom>
-      </PanelAtom>
+        </JPanel>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');
@@ -167,13 +167,13 @@ describe('PanelAtom', () => {
     expect(item.style.getPropertyValue('--jpanel-gridbag-column-span')).toBe('2');
   });
 
-  it('supports Group constraints from PanelAtom', () => {
+  it('supports Group constraints from JPanel', () => {
     render(
-      <PanelAtom layout="group" columns={2} mode="parallel" data-testid="panel">
-        <PanelAtom data-testid="item" data-group-span="2">
+      <JPanel layout="group" columns={2} mode="parallel" data-testid="panel">
+        <JPanel data-testid="item" data-group-span="2">
           Item
-        </PanelAtom>
-      </PanelAtom>
+        </JPanel>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');
@@ -190,11 +190,11 @@ describe('PanelAtom', () => {
 
   it('supports Spring constraints without breaking mobile-first defaults', () => {
     render(
-      <PanelAtom layout="spring" minHeight="18rem" data-testid="panel">
-        <PanelAtom data-testid="item" data-spring-left="1rem" data-spring-top="2rem" data-spring-width="10rem">
+      <JPanel layout="spring" minHeight="18rem" data-testid="panel">
+        <JPanel data-testid="item" data-spring-left="1rem" data-spring-top="2rem" data-spring-width="10rem">
           Item
-        </PanelAtom>
-      </PanelAtom>
+        </JPanel>
+      </JPanel>
     );
 
     const panel = screen.getByTestId('panel');

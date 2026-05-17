@@ -3,7 +3,7 @@ import React from 'react';
 import { InterCreateAccountOrganism } from './InterCreateAccountOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
 import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom';
+import { JButton } from '../../atoms/JButton';
 import { AlertMolecule } from '../../molecules/AlertMolecule';
 
 export const CreateAccountOrganismView: React.FC<InterCreateAccountOrganism> = ({
@@ -77,17 +77,17 @@ export const CreateAccountOrganismView: React.FC<InterCreateAccountOrganism> = (
           errorMessage={confirmPasswordError}
           required
         />
-        <ButtonAtom type="submit" fullWidth loading={isLoading}>
+        <JButton type="submit" fullWidth loading={isLoading}>
           Create account
-        </ButtonAtom>
+        </JButton>
       </form>
     </CardContent>
 
     <CardFooter>
       {onGoToLogin && (
-        <ButtonAtom variant="ghost" fullWidth onClick={onGoToLogin}>
+        <JButton variant="ghost" fullWidth onClick={onGoToLogin}>
           Already have an account? Sign in
-        </ButtonAtom>
+        </JButton>
       )}
     </CardFooter>
   </CardMolecule>

@@ -4,7 +4,7 @@ import { createPortal as w } from "react-dom";
 import { cn as l } from "../../lib/cn.js";
 import { JPanelImpl as s } from "../../atoms/JPanel/JPanelImpl.js";
 import { SeparatorAtomImpl as y } from "../../atoms/SeparatorAtom/SeparatorAtomImpl.js";
-import { ButtonAtomImpl as N } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
+import { JButtonImpl as N } from "../../atoms/JButton/JButtonImpl.js";
 const M = ({
   trigger: i,
   groups: d,

@@ -19,45 +19,45 @@ export const COMPONENT_REGISTRY: ComponentEntry[] = [
   },
   // ── ATOMS ──────────────────────────────────────────────────────────────────
   {
-    id: 'ButtonAtom',
-    name: 'ButtonAtom',
+    id: 'JButton',
+    name: 'JButton',
     category: 'Atoms',
     description: 'Versatile button with variants, sizes, loading state and full-width support.',
-    defaultCode: `import { ButtonAtom } from 'jona-ui';
+    defaultCode: `import { JButton } from 'jona-ui';
 
 export default function Demo() {
   return (
     <div className="flex flex-wrap gap-3 p-4">
-      <ButtonAtom variant="default">Default</ButtonAtom>
-      <ButtonAtom variant="secondary">Secondary</ButtonAtom>
-      <ButtonAtom variant="outline">Outline</ButtonAtom>
-      <ButtonAtom variant="ghost">Ghost</ButtonAtom>
-      <ButtonAtom variant="destructive">Destructive</ButtonAtom>
-      <ButtonAtom variant="link">Link</ButtonAtom>
-      <ButtonAtom loading>Loading</ButtonAtom>
-      <ButtonAtom disabled>Disabled</ButtonAtom>
-      <ButtonAtom fullWidth>Full Width</ButtonAtom>
+      <JButton variant="default">Default</JButton>
+      <JButton variant="secondary">Secondary</JButton>
+      <JButton variant="outline">Outline</JButton>
+      <JButton variant="ghost">Ghost</JButton>
+      <JButton variant="destructive">Destructive</JButton>
+      <JButton variant="link">Link</JButton>
+      <JButton loading>Loading</JButton>
+      <JButton disabled>Disabled</JButton>
+      <JButton fullWidth>Full Width</JButton>
     </div>
   );
 }`,
-    usage: `import { ButtonAtom } from 'jona-ui';
+    usage: `import { JButton } from 'jona-ui';
 
 // Basic usage
-<ButtonAtom>Click me</ButtonAtom>
+<JButton>Click me</JButton>
 
 // Variants: "default" | "secondary" | "outline" | "ghost" | "destructive" | "link"
-<ButtonAtom variant="destructive">Delete</ButtonAtom>
+<JButton variant="destructive">Delete</JButton>
 
 // Sizes: "sm" | "md" | "lg"
-<ButtonAtom size="lg">Large</ButtonAtom>
+<JButton size="lg">Large</JButton>
 
 // States
-<ButtonAtom loading>Saving...</ButtonAtom>
-<ButtonAtom disabled>Disabled</ButtonAtom>
-<ButtonAtom fullWidth>Full Width</ButtonAtom>
+<JButton loading>Saving...</JButton>
+<JButton disabled>Disabled</JButton>
+<JButton fullWidth>Full Width</JButton>
 
 // HTML button type
-<ButtonAtom type="submit">Submit</ButtonAtom>`,
+<JButton type="submit">Submit</JButton>`,
   },
   {
     id: 'InputAtom',
@@ -319,7 +319,7 @@ export default function Demo() {
     defaultCode: `import {
   CardMolecule, CardHeader, CardTitle,
   CardDescription, CardContent, CardFooter,
-  ButtonAtom, BadgeAtom
+  JButton, BadgeAtom
 } from 'jona-ui';
 
 export default function Demo() {
@@ -337,8 +337,8 @@ export default function Demo() {
           <p className="text-sm text-gray-600">Main content goes here.</p>
         </CardContent>
         <CardFooter className="gap-2">
-          <ButtonAtom variant="outline" size="sm">Cancel</ButtonAtom>
-          <ButtonAtom size="sm">Confirm</ButtonAtom>
+          <JButton variant="outline" size="sm">Cancel</JButton>
+          <JButton size="sm">Confirm</JButton>
         </CardFooter>
       </CardMolecule>
     </div>
@@ -432,14 +432,14 @@ export default function Demo() {
     name: 'DialogMolecule',
     category: 'Molecules',
     description: 'Modal dialog with trigger, header and footer actions.',
-    defaultCode: `import { DialogMolecule, ButtonAtom } from 'jona-ui';
+    defaultCode: `import { DialogMolecule, JButton } from 'jona-ui';
 import { useState } from 'react';
 
 export default function Demo() {
   const [open, setOpen] = useState(false);
   return (
     <div className="p-4">
-      <ButtonAtom onClick={() => setOpen(true)}>Open Dialog</ButtonAtom>
+      <JButton onClick={() => setOpen(true)}>Open Dialog</JButton>
       <DialogMolecule
         open={open}
         onClose={() => setOpen(false)}
@@ -447,8 +447,8 @@ export default function Demo() {
         description="Are you sure you want to proceed?"
         footer={
           <div className="flex gap-2 justify-end">
-            <ButtonAtom variant="outline" onClick={() => setOpen(false)}>Cancel</ButtonAtom>
-            <ButtonAtom variant="destructive" onClick={() => setOpen(false)}>Delete</ButtonAtom>
+            <JButton variant="outline" onClick={() => setOpen(false)}>Cancel</JButton>
+            <JButton variant="destructive" onClick={() => setOpen(false)}>Delete</JButton>
           </div>
         }
       >
@@ -464,7 +464,7 @@ export default function Demo() {
   onClose={() => setOpen(false)}
   title="Confirm"
   description="Are you sure?"
-  footer={<ButtonAtom onClick={() => setOpen(false)}>Close</ButtonAtom>}
+  footer={<JButton onClick={() => setOpen(false)}>Close</JButton>}
 >
   Dialog content here
 </DialogMolecule>`,
@@ -638,7 +638,7 @@ export default function Demo() {
     name: 'HeaderPageOrganism',
     category: 'Organisms',
     description: 'Page header organism with title, navigation and actions slots.',
-    defaultCode: `import { HeaderPageOrganism, ButtonAtom } from 'jona-ui';
+    defaultCode: `import { HeaderPageOrganism, JButton } from 'jona-ui';
 
 export default function Demo() {
   return (
@@ -653,7 +653,7 @@ export default function Demo() {
           </>
         }
         actions={
-          <ButtonAtom size="sm" variant="outline">Sign in</ButtonAtom>
+          <JButton size="sm" variant="outline">Sign in</JButton>
         }
       />
     </div>

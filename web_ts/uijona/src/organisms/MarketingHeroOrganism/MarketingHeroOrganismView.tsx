@@ -1,7 +1,7 @@
 // MarketingHeroOrganismView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 import { LinkAtom } from '../../atoms/LinkAtom/LinkAtom';
 import { InterMarketingHeroOrganism, MarketingHeroCTA } from './InterMarketingHeroOrganism';
@@ -32,24 +32,24 @@ export const MarketingHeroOrganismView: React.FC<InterMarketingHeroOrganism> = (
   className,
   ...props
 }) => (
-  <PanelAtom as="section" variant="ghost" padding="none" radius="none" className={cn('hero-section', className)} {...props}>
-    <PanelAtom className="hero-grid" variant="ghost" padding="none" radius="none">
-      <PanelAtom className="hero-copy" variant="ghost" padding="none" radius="none">
+  <JPanel as="section" variant="ghost" padding="none" radius="none" className={cn('hero-section', className)} {...props}>
+    <JPanel className="hero-grid" variant="ghost" padding="none" radius="none">
+      <JPanel className="hero-copy" variant="ghost" padding="none" radius="none">
         {eyebrow && <TextAtom as="span" className="eyebrow">{eyebrow}</TextAtom>}
         <TextAtom as="h1" className="hero-title">{title}</TextAtom>
         {subtitle && <TextAtom className="hero-summary">{subtitle}</TextAtom>}
         {ctas && ctas.length > 0 && (
-          <PanelAtom className="hero-actions" variant="ghost" padding="none" radius="none">
+          <JPanel className="hero-actions" variant="ghost" padding="none" radius="none">
             {ctas.map(renderCTA)}
-          </PanelAtom>
+          </JPanel>
         )}
         {metrics && (
-          <PanelAtom variant="ghost" padding="none" radius="none">{metrics}</PanelAtom>
+          <JPanel variant="ghost" padding="none" radius="none">{metrics}</JPanel>
         )}
-      </PanelAtom>
+      </JPanel>
       {visual && (
-        <PanelAtom variant="ghost" padding="none" radius="none">{visual}</PanelAtom>
+        <JPanel variant="ghost" padding="none" radius="none">{visual}</JPanel>
       )}
-    </PanelAtom>
-  </PanelAtom>
+    </JPanel>
+  </JPanel>
 );

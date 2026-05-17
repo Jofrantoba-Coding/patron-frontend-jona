@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { PaginationMolecule } from './PaginationMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof PaginationMolecule> = {
@@ -51,14 +51,14 @@ export const Interactive: Story = {
   render: (args) => {
     const [page, setPage] = useState(1);
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+      <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
         <TextAtom>Página actual: <strong>{page}</strong> de 15</TextAtom>
         <PaginationMolecule
           currentPage={page}
           totalPages={15}
           onPageChange={(p) => { args.onPageChange?.(p); setPage(p); }}
         />
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

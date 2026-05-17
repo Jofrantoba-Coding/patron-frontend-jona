@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SelectAtom } from './SelectAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const options = [
@@ -67,7 +67,7 @@ const [country, setCountry] = useState('');
   render: (args) => {
     const [country, setCountry] = useState('');
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-64">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-2 w-64">
         <SelectAtom
           options={options}
           placeholder="Selecciona un país"
@@ -78,7 +78,7 @@ const [country, setCountry] = useState('');
             País seleccionado: <strong>{options.find((o) => o.value === country)?.label}</strong>
           </TextAtom>
         )}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ConfirmDialogMolecule } from './ConfirmDialogMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof ConfirmDialogMolecule> = {
@@ -51,10 +51,10 @@ export const Interactive: Story = {
     const [open, setOpen] = useState(false);
     const [result, setResult] = useState<string | null>(null);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col items-start gap-4">
-        <ButtonAtom variant="destructive" onClick={() => setOpen(true)}>
+      <JPanel variant="ghost" padding="none" className="flex flex-col items-start gap-4">
+        <JButton variant="destructive" onClick={() => setOpen(true)}>
           Eliminar elemento
-        </ButtonAtom>
+        </JButton>
         {result && <TextAtom size="sm" className="text-neutral-600">Resultado: {result}</TextAtom>}
         <ConfirmDialogMolecule
           open={open}
@@ -64,7 +64,7 @@ export const Interactive: Story = {
           onConfirm={() => { args.onConfirm?.(); setResult('Confirmado'); setOpen(false); }}
           onCancel={() => { args.onCancel?.(); setResult('Cancelado'); setOpen(false); }}
         />
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

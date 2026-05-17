@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { EmptyStateMolecule } from './EmptyStateMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const EmptyIcon = () => (
@@ -55,7 +55,7 @@ export const Interactive: Story = {
   render: () => {
     const [projects, setProjects] = useState<string[]>([]);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4 items-center w-full">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-4 items-center w-full">
         {projects.length === 0 ? (
           <EmptyStateMolecule
             icon={<EmptyIcon />}
@@ -66,21 +66,21 @@ export const Interactive: Story = {
             ]}
           />
         ) : (
-          <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
+          <JPanel variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
             {projects.map((p) => (
-              <PanelAtom variant="ghost" padding="none" key={p} className="flex justify-between items-center rounded-lg border p-3">
+              <JPanel variant="ghost" padding="none" key={p} className="flex justify-between items-center rounded-lg border p-3">
                 <TextAtom size="sm" className="font-medium">{p}</TextAtom>
-                <ButtonAtom variant="ghost" size="sm" onClick={() => setProjects((prev) => prev.filter((x) => x !== p))} className="text-xs text-red-500 hover:text-red-700">
+                <JButton variant="ghost" size="sm" onClick={() => setProjects((prev) => prev.filter((x) => x !== p))} className="text-xs text-red-500 hover:text-red-700">
                   Eliminar
-                </ButtonAtom>
-              </PanelAtom>
+                </JButton>
+              </JPanel>
             ))}
-            <ButtonAtom variant="outline" size="sm" onClick={() => setProjects((prev) => [...prev, `Proyecto ${String.fromCharCode(65 + prev.length)}`])}>
+            <JButton variant="outline" size="sm" onClick={() => setProjects((prev) => [...prev, `Proyecto ${String.fromCharCode(65 + prev.length)}`])}>
               Agregar proyecto
-            </ButtonAtom>
-          </PanelAtom>
+            </JButton>
+          </JPanel>
         )}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

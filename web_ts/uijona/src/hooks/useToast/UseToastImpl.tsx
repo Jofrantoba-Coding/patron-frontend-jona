@@ -2,7 +2,7 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { ToastMolecule } from '../../molecules/ToastMolecule';
 import { ToastData, InterUseToast } from './InterUseToast';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const ToastContext = createContext<InterUseToast | null>(null);
 
@@ -21,16 +21,16 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ toast, dismiss }}>
       {children}
-      <PanelAtom variant="ghost" padding="none" radius="none"
+      <JPanel variant="ghost" padding="none" radius="none"
         aria-label="Notifications"
         className="fixed inset-x-4 bottom-4 z-[100] flex flex-col gap-2 pointer-events-none sm:inset-x-auto sm:right-4 sm:w-auto"
       >
         {toasts.map((t) => (
-          <PanelAtom variant="ghost" padding="none" radius="none" key={t.id} className="pointer-events-auto w-full sm:w-auto">
+          <JPanel variant="ghost" padding="none" radius="none" key={t.id} className="pointer-events-auto w-full sm:w-auto">
             <ToastMolecule {...t} onDismiss={dismiss} />
-          </PanelAtom>
+          </JPanel>
         ))}
-      </PanelAtom>
+      </JPanel>
     </ToastContext.Provider>
   );
 };

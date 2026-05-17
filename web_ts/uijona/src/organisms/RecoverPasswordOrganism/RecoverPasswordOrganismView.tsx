@@ -3,7 +3,7 @@ import React from 'react';
 import { InterRecoverPasswordOrganism } from './InterRecoverPasswordOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
 import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom';
+import { JButton } from '../../atoms/JButton';
 import { AlertMolecule } from '../../molecules/AlertMolecule';
 
 export const RecoverPasswordOrganismView: React.FC<InterRecoverPasswordOrganism> = ({
@@ -44,17 +44,17 @@ export const RecoverPasswordOrganismView: React.FC<InterRecoverPasswordOrganism>
           errorMessage={emailError}
           required
         />
-        <ButtonAtom type="submit" fullWidth loading={isLoading}>
+        <JButton type="submit" fullWidth loading={isLoading}>
           Send reset link
-        </ButtonAtom>
+        </JButton>
       </form>
     </CardContent>
 
     <CardFooter>
       {onGoToLogin && (
-        <ButtonAtom variant="ghost" fullWidth onClick={onGoToLogin}>
+        <JButton variant="ghost" fullWidth onClick={onGoToLogin}>
           Back to sign in
-        </ButtonAtom>
+        </JButton>
       )}
     </CardFooter>
   </CardMolecule>

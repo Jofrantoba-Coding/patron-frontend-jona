@@ -1,7 +1,7 @@
 // MarketingCTAOrganismView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 import { LinkAtom } from '../../atoms/LinkAtom/LinkAtom';
 import { InterMarketingCTAOrganism } from './InterMarketingCTAOrganism';
@@ -17,12 +17,12 @@ export const MarketingCTAOrganismView: React.FC<InterMarketingCTAOrganism> = ({
   onSecondaryClick,
   className,
 }) => (
-  <PanelAtom variant="ghost" padding="none" radius="none" className={cn('sales-cta-shell', className)}>
-    <PanelAtom variant="ghost" padding="none" radius="none">
+  <JPanel variant="ghost" padding="none" radius="none" className={cn('sales-cta-shell', className)}>
+    <JPanel variant="ghost" padding="none" radius="none">
       <TextAtom as="h2" className="sales-title">{heading}</TextAtom>
       {description && <TextAtom className="sales-copy">{description}</TextAtom>}
-    </PanelAtom>
-    <PanelAtom variant="ghost" padding="none" radius="none" className="sales-actions">
+    </JPanel>
+    <JPanel variant="ghost" padding="none" radius="none" className="sales-actions">
       {primaryHref ? (
         <LinkAtom href={primaryHref} variant="button" className="sales-link">
           {primaryLabel}
@@ -37,6 +37,6 @@ export const MarketingCTAOrganismView: React.FC<InterMarketingCTAOrganism> = ({
           {secondaryLabel}
         </LinkAtom>
       )}
-    </PanelAtom>
-  </PanelAtom>
+    </JPanel>
+  </JPanel>
 );

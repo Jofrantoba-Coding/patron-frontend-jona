@@ -1,9 +1,9 @@
 // ErrorPageOrganismView.tsx — JONA Layer: View (pure render)
 import React from 'react';
 import { InterErrorPageOrganism } from './InterErrorPageOrganism';
-import { ButtonAtom } from '../../atoms/ButtonAtom';
+import { JButton } from '../../atoms/JButton';
 import { TextAtom } from '../../atoms/TextAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 export const ErrorPageOrganismView: React.FC<InterErrorPageOrganism> = ({
   errorCode,
@@ -14,8 +14,8 @@ export const ErrorPageOrganismView: React.FC<InterErrorPageOrganism> = ({
   primaryLabel,
   secondaryLabel,
 }) => (
-  <PanelAtom variant="ghost" padding="none" radius="none" className="flex w-full flex-col items-center justify-center px-4 py-8 text-center sm:py-12">
-    <PanelAtom variant="ghost" padding="none" radius="none" className="flex w-full max-w-sm flex-col items-center sm:max-w-md">
+  <JPanel variant="ghost" padding="none" radius="none" className="flex w-full flex-col items-center justify-center px-4 py-8 text-center sm:py-12">
+    <JPanel variant="ghost" padding="none" radius="none" className="flex w-full max-w-sm flex-col items-center sm:max-w-md">
       {errorCode && (
         <TextAtom
           as="p"
@@ -31,18 +31,18 @@ export const ErrorPageOrganismView: React.FC<InterErrorPageOrganism> = ({
       <TextAtom as="p" size="base" color="muted" className="mb-8 break-words">
         {message}
       </TextAtom>
-      <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-wrap gap-3 justify-center">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-wrap gap-3 justify-center">
         {onGoHome && (
-          <ButtonAtom variant="default" onClick={onGoHome}>
+          <JButton variant="default" onClick={onGoHome}>
             {primaryLabel}
-          </ButtonAtom>
+          </JButton>
         )}
         {onGoBack && (
-          <ButtonAtom variant="outline" onClick={onGoBack}>
+          <JButton variant="outline" onClick={onGoBack}>
             {secondaryLabel}
-          </ButtonAtom>
+          </JButton>
         )}
-      </PanelAtom>
-    </PanelAtom>
-  </PanelAtom>
+      </JPanel>
+    </JPanel>
+  </JPanel>
 );

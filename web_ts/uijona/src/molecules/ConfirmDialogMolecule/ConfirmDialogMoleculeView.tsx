@@ -2,9 +2,9 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
-import { ButtonAtom } from '../../atoms/ButtonAtom';
+import { JButton } from '../../atoms/JButton';
 import { ConfirmDialogVariant } from './InterConfirmDialogMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const iconByVariant: Record<ConfirmDialogVariant, React.ReactNode> = {
   danger: (
@@ -47,39 +47,39 @@ export const ConfirmDialogMoleculeView: React.FC<ConfirmDialogMoleculeViewProps>
 }) => {
   if (!open) return null;
   return createPortal(
-    <PanelAtom variant="ghost" padding="none" radius="none" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <PanelAtom variant="ghost" padding="none" radius="none" className="absolute inset-0 bg-black/50" aria-hidden="true" onClick={onCancel} />
-      <PanelAtom variant="ghost" padding="none" radius="none"
+    <JPanel variant="ghost" padding="none" radius="none" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <JPanel variant="ghost" padding="none" radius="none" className="absolute inset-0 bg-black/50" aria-hidden="true" onClick={onCancel} />
+      <JPanel variant="ghost" padding="none" radius="none"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
         aria-describedby={description ? 'confirm-desc' : undefined}
         className="relative z-10 flex w-full max-w-sm flex-col gap-4 rounded-lg bg-white p-5 shadow-xl sm:max-w-md"
       >
-        <PanelAtom variant="ghost" padding="none" radius="none" className="flex items-start gap-3">
-          <PanelAtom variant="ghost" padding="none" radius="none" className={cn(
+        <JPanel variant="ghost" padding="none" radius="none" className="flex items-start gap-3">
+          <JPanel variant="ghost" padding="none" radius="none" className={cn(
             'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
             variant === 'danger' && 'bg-danger-50',
             variant === 'warning' && 'bg-yellow-50',
             variant === 'info' && 'bg-primary-50',
           )}>
             {iconByVariant[variant]}
-          </PanelAtom>
-          <PanelAtom variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-1">
+          </JPanel>
+          <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-1">
             <h2 id="confirm-title" className="break-words text-base font-semibold text-neutral-900">{title}</h2>
             {description && <p id="confirm-desc" className="break-words text-sm text-neutral-500">{description}</p>}
-          </PanelAtom>
-        </PanelAtom>
-        <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <ButtonAtom variant="outline" onClick={onCancel} disabled={isLoading}>
+          </JPanel>
+        </JPanel>
+        <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <JButton variant="outline" onClick={onCancel} disabled={isLoading}>
             {cancelLabel}
-          </ButtonAtom>
-          <ButtonAtom variant={confirmVariantMap[variant]} onClick={onConfirm} loading={isLoading}>
+          </JButton>
+          <JButton variant={confirmVariantMap[variant]} onClick={onConfirm} loading={isLoading}>
             {confirmLabel}
-          </ButtonAtom>
-        </PanelAtom>
-      </PanelAtom>
-    </PanelAtom>,
+          </JButton>
+        </JPanel>
+      </JPanel>
+    </JPanel>,
     document.body
   );
 };

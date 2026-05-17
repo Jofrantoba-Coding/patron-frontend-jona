@@ -1,7 +1,7 @@
 // MetricsBandOrganismView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 import { GridLayout } from '../../layouts/GridLayout';
 import { InterMetricsBandOrganism } from './InterMetricsBandOrganism';
@@ -12,7 +12,7 @@ export const MetricsBandOrganismView: React.FC<InterMetricsBandOrganism> = ({
   id,
   className,
 }) => (
-  <PanelAtom
+  <JPanel
     as={as}
     id={id}
     variant="ghost"
@@ -20,15 +20,15 @@ export const MetricsBandOrganismView: React.FC<InterMetricsBandOrganism> = ({
     radius="none"
     className={cn('metrics-section', className)}
   >
-    <PanelAtom variant="ghost" padding="none" radius="none" className="section-shell">
+    <JPanel variant="ghost" padding="none" radius="none" className="section-shell">
       <GridLayout autoFitMin="260px" className="metrics-grid">
         {metrics.map((m) => (
-          <PanelAtom key={m.label} variant="ghost" padding="none" radius="none" className="metric-item">
+          <JPanel key={m.label} variant="ghost" padding="none" radius="none" className="metric-item">
             <TextAtom as="strong">{m.value}</TextAtom>
             <TextAtom as="span">{m.label}</TextAtom>
-          </PanelAtom>
+          </JPanel>
         ))}
       </GridLayout>
-    </PanelAtom>
-  </PanelAtom>
+    </JPanel>
+  </JPanel>
 );

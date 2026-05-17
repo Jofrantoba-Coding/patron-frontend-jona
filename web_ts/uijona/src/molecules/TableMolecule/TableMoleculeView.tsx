@@ -9,7 +9,7 @@ import {
 } from './InterTableMolecule';
 import { useTableContext } from './TableMoleculeContext';
 import { InputAtom } from '../../atoms/InputAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const outerClasses: Record<TableResponsiveMode, string> = {
   scroll: 'relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200',
@@ -27,8 +27,8 @@ export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMo
   ({ className, wrapperClassName, responsiveMode = 'scroll', pagination, style,
      columns: _columns, data: _data, caption: _caption, emptyMessage: _emptyMessage,
      ...props }, ref) => (
-    <PanelAtom variant="ghost" padding="none" radius="none" className={cn(outerClasses[responsiveMode], wrapperClassName)}>
-      <PanelAtom variant="ghost" padding="none" radius="none" className={innerScrollClasses[responsiveMode]}>
+    <JPanel variant="ghost" padding="none" radius="none" className={cn(outerClasses[responsiveMode], wrapperClassName)}>
+      <JPanel variant="ghost" padding="none" radius="none" className={innerScrollClasses[responsiveMode]}>
         <table
           ref={ref}
           style={responsiveMode !== 'none' ? undefined : style}
@@ -41,9 +41,9 @@ export const TableMoleculeView = React.forwardRef<HTMLTableElement, InterTableMo
           )}
           {...props}
         />
-      </PanelAtom>
+      </JPanel>
       {pagination && <TablePaginationView {...pagination} />}
-    </PanelAtom>
+    </JPanel>
   )
 );
 TableMoleculeView.displayName = 'TableMolecule';
@@ -106,7 +106,7 @@ function TablePaginationView({
   const pages = getPageNumbers(safeCurrentPage, totalPages);
 
   return (
-    <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-col gap-3 border-t border-neutral-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col gap-3 border-t border-neutral-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       {showRowsInfo && (
         <p className="shrink-0 text-sm text-neutral-500">
           Mostrando{' '}
@@ -119,9 +119,9 @@ function TablePaginationView({
         </p>
       )}
 
-      <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-wrap items-center gap-4">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-wrap items-center gap-4">
         {showPageSizeSelector && onPageSizeChange && (
-          <PanelAtom variant="ghost" padding="none" radius="none" className="flex items-center gap-2 text-sm text-neutral-600">
+          <JPanel variant="ghost" padding="none" radius="none" className="flex items-center gap-2 text-sm text-neutral-600">
             <span className="shrink-0">Filas por pagina</span>
             <select
               value={pageSize}
@@ -135,7 +135,7 @@ function TablePaginationView({
                 <option key={size} value={size}>{size}</option>
               ))}
             </select>
-          </PanelAtom>
+          </JPanel>
         )}
 
         <nav aria-label="Paginacion de tabla" className="flex items-center gap-1">
@@ -187,8 +187,8 @@ function TablePaginationView({
             {'>>'}
           </PaginationButton>
         </nav>
-      </PanelAtom>
-    </PanelAtom>
+      </JPanel>
+    </JPanel>
   );
 }
 
@@ -431,7 +431,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
         onClick={onClick}
         {...props}
       >
-        <PanelAtom variant="ghost" padding="none" radius="none"
+        <JPanel variant="ghost" padding="none" radius="none"
           className={cn(
             'flex min-w-0 items-center gap-2',
             filterable && 'flex-col items-stretch gap-1 py-2',
@@ -478,7 +478,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
               )}
             />
           )}
-        </PanelAtom>
+        </JPanel>
 
         {resizable && (
           <button

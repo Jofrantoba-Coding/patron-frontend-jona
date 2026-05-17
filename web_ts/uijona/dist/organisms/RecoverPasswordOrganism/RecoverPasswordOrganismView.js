@@ -2,7 +2,7 @@ import { jsxs as r, jsx as e } from "react/jsx-runtime";
 import { CardMoleculeImpl as u, CardHeaderImpl as h, CardTitleImpl as f, CardDescriptionImpl as C, CardContentImpl as I, CardFooterImpl as v } from "../../molecules/CardMolecule/CardMoleculeImpl.js";
 import { AlertMoleculeImpl as a } from "../../molecules/AlertMolecule/AlertMoleculeImpl.js";
 import { FormFieldMoleculeImpl as x } from "../../molecules/FormFieldMolecule/FormFieldMoleculeImpl.js";
-import { ButtonAtomImpl as m } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
+import { JButtonImpl as m } from "../../atoms/JButton/JButtonImpl.js";
 const N = ({
   email: o,
   emailError: d,

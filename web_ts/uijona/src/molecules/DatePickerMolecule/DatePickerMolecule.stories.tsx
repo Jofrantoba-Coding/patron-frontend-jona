@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DatePickerMolecule } from './DatePickerMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof DatePickerMolecule> = {
@@ -27,7 +27,7 @@ const meta: Meta<typeof DatePickerMolecule> = {
     showSeconds: { control: 'boolean' },
     timezone: { control: 'text' },
   },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="w-80 pb-96"><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" className="w-80 pb-96"><Story /></JPanel>],
 };
 export default meta;
 type Story = StoryObj<typeof DatePickerMolecule>;
@@ -83,7 +83,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [date, setDate] = useState('');
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex w-80 flex-col gap-3 pb-96">
+      <JPanel variant="ghost" padding="none" className="flex w-80 flex-col gap-3 pb-96">
         <DatePickerMolecule
           value={date}
           mask="dd/MM/yyyy HH:mm:ss z"
@@ -97,7 +97,7 @@ export const Interactive: Story = {
         <TextAtom size="sm" color="muted">
           {date ? `Valor: ${date}` : 'Sin fecha seleccionada'}
         </TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

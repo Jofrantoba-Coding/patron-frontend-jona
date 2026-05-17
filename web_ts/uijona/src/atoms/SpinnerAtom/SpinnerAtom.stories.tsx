@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { SpinnerAtom } from './SpinnerAtom';
-import { ButtonAtom } from '../ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JButton } from '../JButton/JButton';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof SpinnerAtom> = {
@@ -30,11 +30,11 @@ export const Large: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+    <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
       <SpinnerAtom size="sm" />
       <SpinnerAtom size="md" />
       <SpinnerAtom size="lg" />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -47,14 +47,14 @@ export const Interactive: Story = {
       setLoading(false);
     };
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+      <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
         {loading
           ? <SpinnerAtom size="lg" />
           : <TextAtom size="sm" color="muted">Datos listos</TextAtom>}
-        <ButtonAtom variant="outline" disabled={loading} onClick={load}>
+        <JButton variant="outline" disabled={loading} onClick={load}>
           {loading ? 'Cargando...' : 'Recargar datos'}
-        </ButtonAtom>
-      </PanelAtom>
+        </JButton>
+      </JPanel>
     );
   },
 };

@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DialogMolecule } from './DialogMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JButton } from '../../atoms/JButton/JButton';
 import { InputAtom } from '../../atoms/InputAtom/InputAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof DialogMolecule> = {
@@ -39,10 +39,10 @@ export const WithFooter: Story = {
         description="Esta acción eliminará tu cuenta permanentemente."
         onClose={() => setOpen(false)}
         footer={
-          <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-            <ButtonAtom variant="outline" onClick={() => setOpen(false)}>Cancelar</ButtonAtom>
-            <ButtonAtom variant="destructive" onClick={() => setOpen(false)}>Eliminar</ButtonAtom>
-          </PanelAtom>
+          <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <JButton variant="outline" onClick={() => setOpen(false)}>Cancelar</JButton>
+            <JButton variant="destructive" onClick={() => setOpen(false)}>Eliminar</JButton>
+          </JPanel>
         }
       />
     );
@@ -54,7 +54,7 @@ export const Trigger: Story = {
     const [open, setOpen] = useState(false);
     return (
       <>
-        <ButtonAtom onClick={() => setOpen(true)}>Abrir diálogo</ButtonAtom>
+        <JButton onClick={() => setOpen(true)}>Abrir diálogo</JButton>
         <DialogMolecule
           open={open}
           title="Diálogo de ejemplo"
@@ -75,11 +75,11 @@ export const Interactive: Story = {
     const [name, setName] = useState('Jonathan Franck');
     const [draft, setDraft] = useState('Jonathan Franck');
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 items-start">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-3 items-start">
         <TextAtom size="sm">Nombre actual: <strong>{name}</strong></TextAtom>
-        <ButtonAtom variant="outline" onClick={() => { setDraft(name); setOpen(true); }}>
+        <JButton variant="outline" onClick={() => { setDraft(name); setOpen(true); }}>
           Editar nombre
-        </ButtonAtom>
+        </JButton>
         <DialogMolecule
           open={open}
           title="Editar perfil"
@@ -87,10 +87,10 @@ export const Interactive: Story = {
           showCloseButton
           onClose={() => { args.onClose?.(); setOpen(false); }}
           footer={
-            <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <ButtonAtom variant="outline" onClick={() => { args.onClose?.(); setOpen(false); }}>Cancelar</ButtonAtom>
-              <ButtonAtom onClick={() => { setName(draft); setOpen(false); }}>Guardar</ButtonAtom>
-            </PanelAtom>
+            <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <JButton variant="outline" onClick={() => { args.onClose?.(); setOpen(false); }}>Cancelar</JButton>
+              <JButton onClick={() => { setName(draft); setOpen(false); }}>Guardar</JButton>
+            </JPanel>
           }
         >
           <InputAtom
@@ -98,7 +98,7 @@ export const Interactive: Story = {
             onChange={setDraft}
           />
         </DialogMolecule>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

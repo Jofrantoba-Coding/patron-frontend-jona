@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { FlowLayout } from './FlowLayout';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof FlowLayout> = {
   title: 'Layouts/FlowLayout',
@@ -31,9 +31,9 @@ export default meta;
 type Story = StoryObj<typeof FlowLayout>;
 
 const DemoItem = ({ label }: { label: string }) => (
-  <PanelAtom variant="flat" padding="sm" className="min-w-20 text-center text-sm font-medium text-neutral-700">
+  <JPanel variant="flat" padding="sm" className="min-w-20 text-center text-sm font-medium text-neutral-700">
     {label}
-  </PanelAtom>
+  </JPanel>
 );
 
 export const WrappedItems: Story = {

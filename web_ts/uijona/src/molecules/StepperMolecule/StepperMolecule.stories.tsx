@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { StepperMolecule } from './StepperMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
+import { JButton } from '../../atoms/JButton/JButton';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const steps = [
@@ -59,30 +59,30 @@ export const Interactive: Story = {
     const done = step >= wizardSteps.length;
     if (done) {
       return (
-        <PanelAtom variant="ghost" padding="none" className="flex flex-col items-center gap-4 p-8">
+        <JPanel variant="ghost" padding="none" className="flex flex-col items-center gap-4 p-8">
           <TextAtom size="lg" className="font-semibold text-green-600">Configuración completada</TextAtom>
-          <ButtonAtom variant="outline" size="sm" onClick={() => setStep(0)}>Reiniciar</ButtonAtom>
-        </PanelAtom>
+          <JButton variant="outline" size="sm" onClick={() => setStep(0)}>Reiniciar</JButton>
+        </JPanel>
       );
     }
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-6 w-full max-w-lg">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-6 w-full max-w-lg">
         <StepperMolecule
           steps={wizardSteps}
           currentStep={step}
           onStepChange={(i, s) => { args.onStepChange?.(i, s); setStep(i); }}
           allowStepClick
         />
-        <PanelAtom variant="ghost" padding="none" className="rounded-lg border p-4 text-sm text-neutral-600">{contents[step]}</PanelAtom>
-        <PanelAtom variant="ghost" padding="none" className="flex justify-between">
-          <ButtonAtom variant="outline" disabled={step === 0} onClick={() => setStep((s) => Math.max(0, s - 1))}>
+        <JPanel variant="ghost" padding="none" className="rounded-lg border p-4 text-sm text-neutral-600">{contents[step]}</JPanel>
+        <JPanel variant="ghost" padding="none" className="flex justify-between">
+          <JButton variant="outline" disabled={step === 0} onClick={() => setStep((s) => Math.max(0, s - 1))}>
             Anterior
-          </ButtonAtom>
-          <ButtonAtom onClick={() => setStep((s) => s + 1)}>
+          </JButton>
+          <JButton onClick={() => setStep((s) => s + 1)}>
             {step === wizardSteps.length - 1 ? 'Finalizar' : 'Siguiente'}
-          </ButtonAtom>
-        </PanelAtom>
-      </PanelAtom>
+          </JButton>
+        </JPanel>
+      </JPanel>
     );
   },
 };

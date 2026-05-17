@@ -53,10 +53,10 @@ import 'jona-ui/index.css';`}</Code>
       </SubSection>
 
       <SubSection title="That's it — use any component">
-        <Code>{`import { ButtonAtom } from 'jona-ui';
+        <Code>{`import { JButton } from 'jona-ui';
 
 export default function App() {
-  return <ButtonAtom variant="default">Hello JONA</ButtonAtom>;
+  return <JButton variant="default">Hello JONA</JButton>;
 }`}</Code>
       </SubSection>
     </Section>
@@ -139,9 +139,9 @@ export default function App() {
           Every atom accepts a <InlineCode>className</InlineCode> prop. Use Tailwind utilities to override or extend styles.
         </p>
         <Code>{`// Override button color
-<ButtonAtom className="bg-green-600 hover:bg-green-700">
+<JButton className="bg-green-600 hover:bg-green-700">
   Custom Button
-</ButtonAtom>
+</JButton>
 
 // Override input border
 <InputAtom
@@ -201,7 +201,7 @@ export default function App() {
       <a href="/" className="hover:text-white">Home</a>
     </nav>
   }
-  actions={<ButtonAtom variant="outline" className="text-white border-white">Sign in</ButtonAtom>}
+  actions={<JButton variant="outline" className="text-white border-white">Sign in</JButton>}
 />
 
 // Compact footer

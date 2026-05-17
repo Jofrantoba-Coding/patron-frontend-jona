@@ -650,6 +650,38 @@
       height: var(--jona-spring-height, auto);
     }
   }
+
+  /* ── JButton ──────────────────────────────────────────────────────────────── */
+  .jbutton {
+    box-sizing: border-box;
+    cursor: pointer;
+    user-select: none;
+    vertical-align: middle;
+    text-decoration: none;
+  }
+
+  /* flex-direction por posición de icono (left es el default via row inline-flex) */
+  .jbutton[data-jbutton-icon-position='right']  { flex-direction: row-reverse; }
+  .jbutton[data-jbutton-icon-position='top']    { flex-direction: column; }
+  .jbutton[data-jbutton-icon-position='bottom'] { flex-direction: column-reverse; }
+
+  /* Ancho completo */
+  .jbutton[data-jbutton-full-width='true'] { width: 100%; }
+
+  /* Slot del icono: nunca se encoge, siempre centrado */
+  .jbutton-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  /* Slot del texto: siempre centrado */
+  .jbutton-text {
+    flex: 0 1 auto;
+    text-align: center;
+  }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */

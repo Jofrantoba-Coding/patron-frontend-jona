@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterPaginationMolecule } from './InterPaginationMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JButton } from '../../atoms/JButton/JButton';
 
 function buildRange(current: number, total: number, siblings: number): (number | '...')[] {
   const range: number[] = [];
@@ -27,23 +27,23 @@ export const PaginationMoleculeView: React.FC<InterPaginationMolecule> = ({
 
   return (
     <nav aria-label="Pagination" className={cn('flex max-w-full items-center gap-1 overflow-x-auto', className)}>
-      <ButtonAtom variant="ghost" type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
+      <JButton variant="ghost" type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
         onClick={() => { if (currentPage <= 1) { onFirstPageReached?.(); return; } onPrevious?.(currentPage); onPageChange?.(currentPage - 1); }}
         className={cn(btnBase, 'gap-1 pr-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}>
         <ChevronLeft /><span className="hidden sm:inline">Previous</span>
-      </ButtonAtom>
+      </JButton>
       {pages.map((page, i) => page === '...' ? (
         <span key={`e-${i}`} className="shrink-0 px-2 text-neutral-400 select-none">…</span>
       ) : (
-        <ButtonAtom variant="ghost" key={page} type="button" aria-label={`Page ${page}`} aria-current={page === currentPage ? 'page' : undefined}
+        <JButton variant="ghost" key={page} type="button" aria-label={`Page ${page}`} aria-current={page === currentPage ? 'page' : undefined}
           onClick={() => onPageChange?.(page as number)}
-          className={cn(btnBase, page === currentPage ? 'bg-primary-600 text-white border border-primary-600' : 'text-neutral-700 hover:bg-neutral-100 border border-neutral-200')}>{page}</ButtonAtom>
+          className={cn(btnBase, page === currentPage ? 'bg-primary-600 text-white border border-primary-600' : 'text-neutral-700 hover:bg-neutral-100 border border-neutral-200')}>{page}</JButton>
       ))}
-      <ButtonAtom variant="ghost" type="button" aria-label="Go to next page" disabled={currentPage >= totalPages}
+      <JButton variant="ghost" type="button" aria-label="Go to next page" disabled={currentPage >= totalPages}
         onClick={() => { if (currentPage >= totalPages) { onLastPageReached?.(); return; } onNext?.(currentPage); onPageChange?.(currentPage + 1); }}
         className={cn(btnBase, 'gap-1 pl-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}>
         <span className="hidden sm:inline">Next</span><ChevronRight />
-      </ButtonAtom>
+      </JButton>
     </nav>
   );
 };

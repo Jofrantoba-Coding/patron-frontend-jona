@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import React, { useState } from 'react';
 import { DataTableMolecule } from './DataTableMolecule';
 import type { DataTableColumn, InterDataTableMolecule } from './InterDataTableMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 // Non-generic wrapper for Storybook type inference
@@ -97,7 +97,7 @@ export const Interactive: Story = {
       Object.values(u).some((v) => String(v).toLowerCase().includes(filter.toLowerCase()))
     );
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-3">
         <DataTableMolecule
           columns={COLUMNS}
           data={filtered}
@@ -112,7 +112,7 @@ export const Interactive: Story = {
             Fila seleccionada: <strong>{selected}</strong>
           </TextAtom>
         )}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

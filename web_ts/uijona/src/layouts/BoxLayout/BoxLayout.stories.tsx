@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { BoxLayout } from './BoxLayout';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof BoxLayout> = {
   title: 'Layouts/BoxLayout',
@@ -35,9 +35,9 @@ export default meta;
 type Story = StoryObj<typeof BoxLayout>;
 
 const DemoItem = ({ label }: { label: string }) => (
-  <PanelAtom variant="outlined" padding="sm" className="min-w-24 text-center text-sm text-neutral-700">
+  <JPanel variant="outlined" padding="sm" className="min-w-24 text-center text-sm text-neutral-700">
     {label}
-  </PanelAtom>
+  </JPanel>
 );
 
 export const Row: Story = {

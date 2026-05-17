@@ -13,7 +13,7 @@ import {
   type TableColumnDef,
 } from './TableMolecule';
 import { BadgeAtom } from '../../atoms/BadgeAtom/BadgeAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof TableMolecule> = {
   title: 'Molecules/TableMolecule',
@@ -33,7 +33,7 @@ const meta: Meta<typeof TableMolecule> = {
       table: { defaultValue: { summary: 'undefined' } },
     },
   },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="w-full max-w-full p-2"><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" className="w-full max-w-full p-2"><Story /></JPanel>],
 };
 
 export default meta;
@@ -155,28 +155,28 @@ export const Default: Story = {
 export const MobileCards: Story = {
   args: { responsiveMode: 'cards' },
   render: (args) => (
-    <PanelAtom variant="ghost" padding="none" className="max-w-[360px]">
+    <JPanel variant="ghost" padding="none" className="max-w-[360px]">
       <TableMolecule
         responsiveMode={args.responsiveMode}
         columns={userColumns}
         data={users}
         caption="Vista mobile en modo cards"
       />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
 export const WideContent: Story = {
   args: { responsiveMode: 'scroll' },
   render: (args) => (
-    <PanelAtom variant="ghost" padding="none" className="max-w-[360px]">
+    <JPanel variant="ghost" padding="none" className="max-w-[360px]">
       <TableMolecule
         responsiveMode={args.responsiveMode}
         columns={orderColumns}
         data={orders}
         caption="Ordenes — tabla con contenido ancho"
       />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -194,7 +194,7 @@ export const GroupedHeaders: Story = {
 
 export const GroupedHeadersMobileCards: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" className="max-w-[360px]">
+    <JPanel variant="ghost" padding="none" className="max-w-[360px]">
       <TableMolecule
         responsiveMode="cards"
         columns={[
@@ -215,7 +215,7 @@ export const GroupedHeadersMobileCards: Story = {
         data={users.slice(0, 2)}
         caption="Headers agrupados en modo cards"
       />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 

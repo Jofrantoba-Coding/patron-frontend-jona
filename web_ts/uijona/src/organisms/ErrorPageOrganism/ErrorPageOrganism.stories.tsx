@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ErrorPageOrganism } from './ErrorPageOrganism';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof ErrorPageOrganism> = {
   title: 'Organisms/ErrorPageOrganism',
@@ -58,26 +58,26 @@ export const Interactive: Story = {
       '403': { title: 'Acceso denegado', message: 'No tienes permisos para ver este recurso.', primaryLabel: 'Iniciar sesión', secondaryLabel: 'Volver' },
     };
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ position: 'relative' }}>
-        <PanelAtom variant="ghost" padding="none" style={{ position: 'absolute', top: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
+      <JPanel variant="ghost" padding="none" style={{ position: 'relative' }}>
+        <JPanel variant="ghost" padding="none" style={{ position: 'absolute', top: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px', zIndex: 10 }}>
           {(['404', '500', '403'] as const).map((code) => (
-            <ButtonAtom
+            <JButton
               key={code}
               variant={errorCode === code ? 'default' : 'outline'}
               size="sm"
               onClick={() => setErrorCode(code)}
             >
               {code}
-            </ButtonAtom>
+            </JButton>
           ))}
-        </PanelAtom>
+        </JPanel>
         <ErrorPageOrganism
           errorCode={errorCode}
           {...errors[errorCode]}
           onGoHome={() => { args.onGoHome?.(); setErrorCode('404'); }}
           onGoBack={args.onGoBack}
         />
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

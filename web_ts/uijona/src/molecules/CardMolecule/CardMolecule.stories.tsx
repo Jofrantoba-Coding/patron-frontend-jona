@@ -8,8 +8,8 @@ import {
   CardContent,
   CardFooter,
 } from './CardMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof CardMolecule> = {
@@ -31,8 +31,8 @@ export const Default: Story = {
         <TextAtom>Contenido principal de la tarjeta. Puede ser cualquier elemento React.</TextAtom>
       </CardContent>
       <CardFooter>
-        <ButtonAtom variant="outline" size="sm">Cancelar</ButtonAtom>
-        <ButtonAtom size="sm">Confirmar</ButtonAtom>
+        <JButton variant="outline" size="sm">Cancelar</JButton>
+        <JButton size="sm">Confirmar</JButton>
       </CardFooter>
     </CardMolecule>
   ),
@@ -53,9 +53,9 @@ export const Interactive: Story = {
     return (
       <CardMolecule style={{ width: '360px' }}>
         <CardHeader>
-          <PanelAtom variant="ghost" padding="none" className="flex justify-between items-start">
+          <JPanel variant="ghost" padding="none" className="flex justify-between items-start">
             <CardTitle>Producto Premium</CardTitle>
-            <ButtonAtom
+            <JButton
               variant="ghost"
               size="icon"
               onClick={() => setLiked((l) => !l)}
@@ -63,8 +63,8 @@ export const Interactive: Story = {
               aria-label={liked ? 'Quitar de favoritos' : 'Añadir a favoritos'}
             >
               {liked ? '♥' : '♡'}
-            </ButtonAtom>
-          </PanelAtom>
+            </JButton>
+          </JPanel>
           <CardDescription>Plan anual con soporte prioritario incluido</CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,12 +72,12 @@ export const Interactive: Story = {
           <TextAtom size="sm" color="muted">Equivale a $8.25/mes. Cancela cuando quieras.</TextAtom>
         </CardContent>
         <CardFooter>
-          <ButtonAtom variant="outline" size="sm" onClick={() => setAdded(false)} disabled={!added}>
+          <JButton variant="outline" size="sm" onClick={() => setAdded(false)} disabled={!added}>
             Quitar
-          </ButtonAtom>
-          <ButtonAtom size="sm" onClick={() => setAdded(true)} disabled={added}>
+          </JButton>
+          <JButton size="sm" onClick={() => setAdded(true)} disabled={added}>
             {added ? 'En carrito' : 'Agregar al carrito'}
-          </ButtonAtom>
+          </JButton>
         </CardFooter>
       </CardMolecule>
     );

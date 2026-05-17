@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { TimerMolecule } from './TimerMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof TimerMolecule> = {
   title: 'Molecules/TimerMolecule',
@@ -34,7 +34,7 @@ const meta: Meta<typeof TimerMolecule> = {
     maxMs: { control: { type: 'number', min: 0, step: 1000 } },
     tickIntervalMs: { control: { type: 'number', min: 16, step: 100 } },
   },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="w-full max-w-sm"><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" className="w-full max-w-sm"><Story /></JPanel>],
 };
 
 export default meta;

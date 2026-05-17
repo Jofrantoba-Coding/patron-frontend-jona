@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { MultiSelectMolecule } from './MultiSelectMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const SKILLS = [
@@ -25,7 +25,7 @@ const meta: Meta<typeof MultiSelectMolecule> = {
     onChange: fn(),
     placeholder: 'Seleccionar habilidades...',
   },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="w-72"><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" className="w-72"><Story /></JPanel>],
 };
 export default meta;
 type Story = StoryObj<typeof MultiSelectMolecule>;
@@ -72,7 +72,7 @@ const [values, setValues] = useState<string[]>([]);
   render: (args) => {
     const [values, setValues] = useState<string[]>([]);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex w-72 flex-col gap-3">
+      <JPanel variant="ghost" padding="none" className="flex w-72 flex-col gap-3">
         <MultiSelectMolecule
           options={SKILLS}
           value={values}
@@ -83,7 +83,7 @@ const [values, setValues] = useState<string[]>([]);
         <TextAtom size="sm" color="muted">
           {values.length === 0 ? 'Ninguna seleccionada' : `Seleccionadas (${values.length}): ${values.join(', ')}`}
         </TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

@@ -2,8 +2,9 @@ import React from 'react';
 export declare const CardMoleculeImpl: React.FC<React.HTMLAttributes<HTMLDivElement>>;
 export declare const CardHeaderImpl: React.FC<React.HTMLAttributes<HTMLDivElement>>;
 export declare const CardTitleImpl: React.FC<{
-    className?: string | undefined | undefined;
     children?: React.ReactNode;
+    className?: string | undefined | undefined;
+    style?: React.CSSProperties | undefined;
     onClick?: React.MouseEventHandler<HTMLHeadingElement> | undefined;
     onFocus?: React.FocusEventHandler<HTMLHeadingElement> | undefined;
     onBlur?: React.FocusEventHandler<HTMLHeadingElement> | undefined;
@@ -27,7 +28,6 @@ export declare const CardTitleImpl: React.FC<{
     nonce?: string | undefined | undefined;
     slot?: string | undefined | undefined;
     spellCheck?: (boolean | "true" | "false") | undefined;
-    style?: React.CSSProperties | undefined;
     tabIndex?: number | undefined | undefined;
     title?: string | undefined | undefined;
     translate?: "yes" | "no" | undefined | undefined;
@@ -269,8 +269,9 @@ export declare const CardTitleImpl: React.FC<{
     onTransitionEndCapture?: React.TransitionEventHandler<HTMLHeadingElement> | undefined;
 }>;
 export declare const CardDescriptionImpl: React.FC<{
-    className?: string | undefined | undefined;
     children?: React.ReactNode;
+    className?: string | undefined | undefined;
+    style?: React.CSSProperties | undefined;
     onClick?: React.MouseEventHandler<HTMLParagraphElement> | undefined;
     onFocus?: React.FocusEventHandler<HTMLParagraphElement> | undefined;
     onBlur?: React.FocusEventHandler<HTMLParagraphElement> | undefined;
@@ -294,7 +295,6 @@ export declare const CardDescriptionImpl: React.FC<{
     nonce?: string | undefined | undefined;
     slot?: string | undefined | undefined;
     spellCheck?: (boolean | "true" | "false") | undefined;
-    style?: React.CSSProperties | undefined;
     tabIndex?: number | undefined | undefined;
     title?: string | undefined | undefined;
     translate?: "yes" | "no" | undefined | undefined;

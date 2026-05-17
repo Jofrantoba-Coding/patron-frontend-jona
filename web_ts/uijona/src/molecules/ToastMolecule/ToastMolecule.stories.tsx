@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ToastMolecule } from './ToastMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
+import { JButton } from '../../atoms/JButton/JButton';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof ToastMolecule> = {
@@ -41,12 +41,12 @@ export const Danger: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
+    <JPanel variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
       <ToastMolecule id="1" message="Notificación por defecto" variant="default" duration={0} />
       <ToastMolecule id="2" title="Éxito" message="Guardado correctamente" variant="success" duration={0} />
       <ToastMolecule id="3" title="Advertencia" message="Revisa tu conexión" variant="warning" duration={0} />
       <ToastMolecule id="4" title="Error" message="No se pudo completar" variant="danger" duration={0} />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -85,14 +85,14 @@ export const Interactive: Story = {
     };
 
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-4">
-        <PanelAtom variant="ghost" padding="none" className="flex flex-wrap gap-2">
-          <ButtonAtom variant="outline" size="sm" onClick={() => add('default', 'Notificación por defecto')}>Default</ButtonAtom>
-          <ButtonAtom size="sm" className="bg-success-600 hover:bg-success-700 text-white" onClick={() => add('success', 'Acción completada con éxito')}>Success</ButtonAtom>
-          <ButtonAtom size="sm" className="bg-warning-500 hover:bg-warning-600 text-white" onClick={() => add('warning', 'Revisa esta advertencia')}>Warning</ButtonAtom>
-          <ButtonAtom variant="destructive" size="sm" onClick={() => add('danger', 'Ocurrió un error')}>Danger</ButtonAtom>
-        </PanelAtom>
-        <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-4">
+        <JPanel variant="ghost" padding="none" className="flex flex-wrap gap-2">
+          <JButton variant="outline" size="sm" onClick={() => add('default', 'Notificación por defecto')}>Default</JButton>
+          <JButton size="sm" className="bg-success-600 hover:bg-success-700 text-white" onClick={() => add('success', 'Acción completada con éxito')}>Success</JButton>
+          <JButton size="sm" className="bg-warning-500 hover:bg-warning-600 text-white" onClick={() => add('warning', 'Revisa esta advertencia')}>Warning</JButton>
+          <JButton variant="destructive" size="sm" onClick={() => add('danger', 'Ocurrió un error')}>Danger</JButton>
+        </JPanel>
+        <JPanel variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
           {toasts.map((t) => (
             <ToastMolecule key={t.id} id={t.id} message={t.message} variant={t.variant}
               duration={3000} onDismiss={dismiss} />
@@ -100,8 +100,8 @@ export const Interactive: Story = {
           {toasts.length === 0 && (
             <TextAtom size="sm" className="text-neutral-400">Sin notificaciones. Haz clic en un botón.</TextAtom>
           )}
-        </PanelAtom>
-      </PanelAtom>
+        </JPanel>
+      </JPanel>
     );
   },
 };

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SeparatorAtom } from './SeparatorAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 
@@ -17,17 +17,17 @@ type Story = StoryObj<typeof SeparatorAtom>;
 
 export const Horizontal: Story = {
   args: { orientation: 'horizontal' },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '300px' }}><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" style={{ width: '300px' }}><Story /></JPanel>],
 };
 
 export const Vertical: Story = {
   args: { orientation: 'vertical' },
   decorators: [(Story) => (
-    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', height: '40px', alignItems: 'center', gap: '8px' }}>
+    <JPanel variant="ghost" padding="none" style={{ display: 'flex', height: '40px', alignItems: 'center', gap: '8px' }}>
       <TextAtom as="span">Izquierda</TextAtom>
       <Story />
       <TextAtom as="span">Derecha</TextAtom>
-    </PanelAtom>
+    </JPanel>
   )],
 };
 
@@ -35,16 +35,16 @@ export const Interactive: Story = {
   render: () => {
     const sections = ['Información general', 'Facturación', 'Notificaciones', 'Seguridad'];
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ width: '320px', display: 'flex', flexDirection: 'column' }}>
+      <JPanel variant="ghost" padding="none" style={{ width: '320px', display: 'flex', flexDirection: 'column' }}>
         {sections.map((section, i) => (
-          <PanelAtom variant="ghost" padding="none" key={section}>
-            <PanelAtom variant="ghost" padding="none" style={{ padding: '12px 0', fontSize: '14px', fontWeight: 500, color: '#404040' }}>
+          <JPanel variant="ghost" padding="none" key={section}>
+            <JPanel variant="ghost" padding="none" style={{ padding: '12px 0', fontSize: '14px', fontWeight: 500, color: '#404040' }}>
               {section}
-            </PanelAtom>
+            </JPanel>
             {i < sections.length - 1 && <SeparatorAtom />}
-          </PanelAtom>
+          </JPanel>
         ))}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

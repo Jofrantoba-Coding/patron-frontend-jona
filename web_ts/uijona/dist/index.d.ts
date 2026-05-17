@@ -1,3 +1,4 @@
+export * from './atoms/JButton';
 export * from './atoms/ButtonAtom';
 export * from './atoms/InputAtom';
 export * from './atoms/TextareaAtom';

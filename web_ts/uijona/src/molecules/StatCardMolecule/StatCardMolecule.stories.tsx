@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { StatCardMolecule } from './StatCardMolecule';
 import type { StatCardTone, StatCardTrend } from './InterStatCardMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof StatCardMolecule> = {
   title: 'Molecules/StatCardMolecule',
@@ -30,11 +30,11 @@ export const Default: Story = {};
 
 export const DashboardGrid: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <JPanel variant="ghost" padding="none" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <StatCardMolecule label="Active users" value="18,240" trend="up" trendLabel="+8%" description="this week" tone="success" />
       <StatCardMolecule label="Open tickets" value="128" trend="down" trendLabel="-3%" description="today" tone="info" />
       <StatCardMolecule label="Failed jobs" value="7" trend="up" trendLabel="+2" description="needs review" tone="danger" />
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -63,12 +63,12 @@ export const Interactive: Story = {
       setLoading(false);
     };
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3 w-64">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-3 w-64">
         <StatCardMolecule label="Ingresos mensuales" {...data} description="vs mes anterior" />
-        <ButtonAtom variant="outline" size="sm" disabled={loading} loading={loading} onClick={refresh}>
+        <JButton variant="outline" size="sm" disabled={loading} loading={loading} onClick={refresh}>
           {loading ? 'Actualizando...' : 'Actualizar métrica'}
-        </ButtonAtom>
-      </PanelAtom>
+        </JButton>
+      </JPanel>
     );
   },
 };

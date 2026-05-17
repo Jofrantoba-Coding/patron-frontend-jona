@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterToastMolecule, ToastVariant } from './InterToastMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const variantClasses: Record<ToastVariant, string> = {
@@ -20,7 +20,7 @@ interface ToastMoleculeViewProps extends Omit<InterToastMolecule, 'className'> {
 export const ToastMoleculeView: React.FC<ToastMoleculeViewProps> = ({
   message, title, variant = 'default', className, onDismissClick,
 }) => (
-  <PanelAtom variant="ghost" padding="none" radius="none"
+  <JPanel variant="ghost" padding="none" radius="none"
     role="status"
     aria-live="polite"
     className={cn(
@@ -29,7 +29,7 @@ export const ToastMoleculeView: React.FC<ToastMoleculeViewProps> = ({
       className
     )}
   >
-    <PanelAtom variant="ghost" padding="none" radius="none" className="flex-1 min-w-0">
+    <JPanel variant="ghost" padding="none" radius="none" className="flex-1 min-w-0">
       {title && (
         <TextAtom as="span" className="block text-sm font-semibold leading-none mb-1 break-words">
           {title}
@@ -38,7 +38,7 @@ export const ToastMoleculeView: React.FC<ToastMoleculeViewProps> = ({
       <TextAtom as="span" className="block text-sm leading-snug break-words">
         {message}
       </TextAtom>
-    </PanelAtom>
+    </JPanel>
     <button
       type="button"
       aria-label="Dismiss notification"
@@ -49,5 +49,5 @@ export const ToastMoleculeView: React.FC<ToastMoleculeViewProps> = ({
         <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
       </svg>
     </button>
-  </PanelAtom>
+  </JPanel>
 );

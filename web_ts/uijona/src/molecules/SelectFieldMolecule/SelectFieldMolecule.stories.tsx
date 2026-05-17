@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SelectFieldMolecule } from './SelectFieldMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JButton } from '../../atoms/JButton/JButton';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const options = [
@@ -27,12 +27,12 @@ type Story = StoryObj<typeof SelectFieldMolecule>;
 
 export const Default: Story = {
   args: { id: 'country', label: 'País', options, placeholder: 'Selecciona un país' },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" style={{ width: '320px' }}><Story /></JPanel>],
 };
 
 export const Required: Story = {
   args: { id: 'country-req', label: 'País', options, required: true, placeholder: 'Selecciona un país' },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" style={{ width: '320px' }}><Story /></JPanel>],
 };
 
 export const WithError: Story = {
@@ -43,7 +43,7 @@ export const WithError: Story = {
     errorMessage: 'Selecciona un país válido',
     placeholder: 'Selecciona un país',
   },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" style={{ width: '320px' }}><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" style={{ width: '320px' }}><Story /></JPanel>],
 };
 
 export const Interactive: Story = {
@@ -77,7 +77,7 @@ const [country, setCountry] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const error = submitted && !country ? 'Este campo es requerido' : undefined;
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3" style={{ width: '320px' }}>
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-3" style={{ width: '320px' }}>
         <SelectFieldMolecule
           id="country-interactive"
           label="País de residencia"
@@ -87,15 +87,15 @@ const [country, setCountry] = useState('');
           errorMessage={error}
           onChange={(v, e) => { args.onChange?.(v, e); setCountry(v); }}
         />
-        <ButtonAtom onClick={() => setSubmitted(true)}>
+        <JButton onClick={() => setSubmitted(true)}>
           Confirmar
-        </ButtonAtom>
+        </JButton>
         {submitted && country && (
           <TextAtom size="sm" className="text-green-600">
             País guardado: <strong>{options.find((o) => o.value === country)?.label}</strong>
           </TextAtom>
         )}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

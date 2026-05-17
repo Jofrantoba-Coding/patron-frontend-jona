@@ -1,27 +1,27 @@
 import React from 'react';
 import type {
-  PanelAlign,
-  PanelGap,
-  PanelJustify,
-  PanelLayoutPlacement,
-  PanelPadding,
-  PanelRadius,
-  PanelVariant,
-} from '../../atoms/PanelAtom/PanelAtom';
+  JPanelAlign,
+  JPanelGap,
+  JPanelJustify,
+  JPanelLayoutPlacement,
+  JPanelPadding,
+  JPanelRadius,
+  JPanelVariant,
+} from '../../atoms/JPanel/JPanel';
 
 export type GroupLayoutMode = 'sequential' | 'parallel';
 
 export interface InterGroupLayout extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: PanelVariant;
-  padding?: PanelPadding;
-  radius?: PanelRadius;
-  gap?: PanelGap;
-  alignItems?: PanelAlign;
-  justifyContent?: PanelJustify;
+  variant?: JPanelVariant;
+  padding?: JPanelPadding;
+  radius?: JPanelRadius;
+  gap?: JPanelGap;
+  alignItems?: JPanelAlign;
+  justifyContent?: JPanelJustify;
   columns?: number | string;
   autoFitMin?: string;
   mode?: GroupLayoutMode;
-  placement?: PanelLayoutPlacement;
+  placement?: JPanelLayoutPlacement;
 }
 
 export const GROUP_LAYOUT_DEFAULTS: Required<Pick<

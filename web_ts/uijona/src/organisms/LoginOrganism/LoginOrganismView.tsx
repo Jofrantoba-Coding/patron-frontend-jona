@@ -3,7 +3,7 @@ import React from 'react';
 import { InterLoginOrganism } from './InterLoginOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
 import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
-import { ButtonAtom } from '../../atoms/ButtonAtom';
+import { JButton } from '../../atoms/JButton';
 import { AlertMolecule } from '../../molecules/AlertMolecule';
 
 export const LoginOrganismView: React.FC<InterLoginOrganism> = ({
@@ -52,22 +52,22 @@ export const LoginOrganismView: React.FC<InterLoginOrganism> = ({
             errorMessage={passwordError}
             required
           />
-          <ButtonAtom type="submit" fullWidth loading={isLoading}>
+          <JButton type="submit" fullWidth loading={isLoading}>
             Sign in
-          </ButtonAtom>
+          </JButton>
         </form>
       </CardContent>
 
       <CardFooter className="flex-col gap-2">
         {onGoToCreateAccount && (
-          <ButtonAtom variant="ghost" fullWidth onClick={onGoToCreateAccount}>
+          <JButton variant="ghost" fullWidth onClick={onGoToCreateAccount}>
             Create account
-          </ButtonAtom>
+          </JButton>
         )}
         {onGoToRecoverPassword && (
-          <ButtonAtom variant="link" fullWidth onClick={onGoToRecoverPassword}>
+          <JButton variant="link" fullWidth onClick={onGoToRecoverPassword}>
             Forgot password?
-          </ButtonAtom>
+          </JButton>
         )}
       </CardFooter>
   </CardMolecule>

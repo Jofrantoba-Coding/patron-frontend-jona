@@ -2,15 +2,15 @@ import { jsxs as n, jsx as e } from "react/jsx-runtime";
 import { createPortal as f } from "react-dom";
 import { cn as h } from "../../lib/cn.js";
 import { JPanelImpl as a } from "../../atoms/JPanel/JPanelImpl.js";
-import { ButtonAtomImpl as p } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
+import { JButtonImpl as p } from "../../atoms/JButton/JButtonImpl.js";
 const k = ({
   open: s,
   title: i,
   description: o,
   showCloseButton: r = !0,
   className: d,
-  children: t,
-  footer: l,
+  children: l,
+  footer: t,
   overlayRef: m,
   dialogRef: c,
   onOverlayClick: g,
@@ -43,8 +43,8 @@ const k = ({
               /* @__PURE__ */ e("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
             ] }) })
           ] }),
-          t && /* @__PURE__ */ e(a, { variant: "ghost", padding: "none", radius: "none", className: "min-w-0 text-sm text-neutral-700", children: t }),
-          l && /* @__PURE__ */ e(a, { variant: "ghost", padding: "none", radius: "none", className: "flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end", children: l })
+          l && /* @__PURE__ */ e(a, { variant: "ghost", padding: "none", radius: "none", className: "min-w-0 text-sm text-neutral-700", children: l }),
+          t && /* @__PURE__ */ e(a, { variant: "ghost", padding: "none", radius: "none", className: "flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end", children: t })
         ]
       }
     )

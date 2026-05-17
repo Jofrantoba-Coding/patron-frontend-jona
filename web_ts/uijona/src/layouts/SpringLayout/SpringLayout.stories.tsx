@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { PanelAtom } from '../../atoms/PanelAtom';
+import { JPanel } from '../../atoms/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 import { SpringLayout } from './SpringLayout';
 
@@ -26,9 +26,9 @@ export default meta;
 type Story = StoryObj<typeof SpringLayout>;
 
 const SpringNode = ({ label }: { label: string }) => (
-  <PanelAtom variant="outlined" padding="md" radius="sm">
+  <JPanel variant="outlined" padding="md" radius="sm">
     <TextAtom as="span" size="sm" className="font-medium text-neutral-700">{label}</TextAtom>
-  </PanelAtom>
+  </JPanel>
 );
 
 export const ResponsiveConstraints: Story = {
@@ -39,15 +39,15 @@ export const ResponsiveConstraints: Story = {
   },
   render: (args) => (
     <SpringLayout {...args} className="w-full max-w-3xl">
-      <PanelAtom data-spring-left="0" data-spring-top="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
+      <JPanel data-spring-left="0" data-spring-top="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
         <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Left anchored</TextAtom>
-      </PanelAtom>
-      <PanelAtom data-spring-left="14rem" data-spring-top="4rem" data-spring-width="14rem" variant="outlined" padding="md" radius="sm">
+      </JPanel>
+      <JPanel data-spring-left="14rem" data-spring-top="4rem" data-spring-width="14rem" variant="outlined" padding="md" radius="sm">
         <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Offset from first</TextAtom>
-      </PanelAtom>
-      <PanelAtom data-spring-right="0" data-spring-bottom="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
+      </JPanel>
+      <JPanel data-spring-right="0" data-spring-bottom="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
         <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Bottom end</TextAtom>
-      </PanelAtom>
+      </JPanel>
     </SpringLayout>
   ),
 };

@@ -3,8 +3,8 @@ import { fn } from '@storybook/test';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { CreateAccountOrganism } from './CreateAccountOrganism';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
+import { JButton } from '../../atoms/JButton/JButton';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof CreateAccountOrganism> = {
@@ -97,11 +97,11 @@ export const Interactive: Story = {
     };
     if (status === 'success') {
       return (
-        <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
+        <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
           <TextAtom size="xl" color="success" className="font-bold">¡Cuenta creada!</TextAtom>
           <TextAtom size="sm" color="muted">Bienvenido, {name}</TextAtom>
-          <ButtonAtom variant="link" size="sm" onClick={() => { setStatus('idle'); setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setErrors({}); }}>Volver</ButtonAtom>
-        </PanelAtom>
+          <JButton variant="link" size="sm" onClick={() => { setStatus('idle'); setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setErrors({}); }}>Volver</JButton>
+        </JPanel>
       );
     }
     return (

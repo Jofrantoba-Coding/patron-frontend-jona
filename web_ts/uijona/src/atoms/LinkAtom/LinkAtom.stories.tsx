@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { LinkAtom } from './LinkAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof LinkAtom> = {
@@ -59,13 +59,13 @@ export const Disabled: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+    <JPanel variant="ghost" padding="none" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
       <LinkAtom href="#">Default</LinkAtom>
       <LinkAtom href="#" variant="muted">Muted</LinkAtom>
       <LinkAtom href="#" variant="button">Button</LinkAtom>
       <LinkAtom href="#" variant="danger">Danger</LinkAtom>
       <LinkAtom href="#" disabled>Disabled</LinkAtom>
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -96,8 +96,8 @@ const pages = ['Inicio', 'Productos', 'Detalle'];
     const pages = ['Inicio', 'Productos', 'Detalle', 'Soporte'];
     const [current, setCurrent] = useState('Inicio');
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
-        <PanelAtom variant="ghost" padding="none" className="flex flex-wrap gap-3">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-3">
+        <JPanel variant="ghost" padding="none" className="flex flex-wrap gap-3">
           {pages.map((page) => (
             <LinkAtom
               key={page}
@@ -108,11 +108,11 @@ const pages = ['Inicio', 'Productos', 'Detalle'];
               {page}
             </LinkAtom>
           ))}
-        </PanelAtom>
+        </JPanel>
         <TextAtom size="sm" color="muted">
           Página actual: <strong>{current}</strong>
         </TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

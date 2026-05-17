@@ -1,7 +1,7 @@
 // ContactMethodCardMoleculeView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 import { LinkAtom } from '../../atoms/LinkAtom/LinkAtom';
 import { InterContactMethodCardMolecule } from './InterContactMethodCardMolecule';
@@ -15,7 +15,7 @@ export const ContactMethodCardMoleculeView: React.FC<InterContactMethodCardMolec
   isPrimary,
   className,
 }) => (
-  <PanelAtom
+  <JPanel
     variant="ghost"
     padding="none"
     radius="none"
@@ -33,5 +33,5 @@ export const ContactMethodCardMoleculeView: React.FC<InterContactMethodCardMolec
         {href}
       </LinkAtom>
     )}
-  </PanelAtom>
+  </JPanel>
 );

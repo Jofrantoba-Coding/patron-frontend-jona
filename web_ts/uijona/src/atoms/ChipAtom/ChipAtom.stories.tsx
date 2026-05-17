@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ChipAtom } from './ChipAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof ChipAtom> = {
@@ -32,14 +32,14 @@ export const Removable: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <PanelAtom variant="ghost" padding="none" className="flex flex-wrap gap-2">
+    <JPanel variant="ghost" padding="none" className="flex flex-wrap gap-2">
       <ChipAtom>Default</ChipAtom>
       <ChipAtom variant="primary">Primary</ChipAtom>
       <ChipAtom variant="success">Success</ChipAtom>
       <ChipAtom variant="warning">Warning</ChipAtom>
       <ChipAtom variant="danger">Danger</ChipAtom>
       <ChipAtom removable onRemove={fn()}>Removable</ChipAtom>
-    </PanelAtom>
+    </JPanel>
   ),
 };
 
@@ -50,8 +50,8 @@ export const FilterChips: Story = {
     const toggle = (opt: string) =>
       setSelected((prev) => prev.includes(opt) ? prev.filter((o) => o !== opt) : [...prev, opt]);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-3">
-        <PanelAtom variant="ghost" padding="none" className="flex flex-wrap gap-2">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-3">
+        <JPanel variant="ghost" padding="none" className="flex flex-wrap gap-2">
           {options.map((opt) => (
             <ChipAtom
               key={opt}
@@ -62,11 +62,11 @@ export const FilterChips: Story = {
               {opt}
             </ChipAtom>
           ))}
-        </PanelAtom>
+        </JPanel>
         <TextAtom size="xs" color="muted">
           {selected.length === 0 ? 'Ninguno seleccionado' : `Seleccionados: ${selected.join(', ')}`}
         </TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };
@@ -75,7 +75,7 @@ export const RemovableChips: Story = {
   render: () => {
     const [chips, setChips] = useState(['React', 'TypeScript', 'Tailwind']);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-wrap gap-2">
+      <JPanel variant="ghost" padding="none" className="flex flex-wrap gap-2">
         {chips.map((chip) => (
           <ChipAtom
             key={chip}
@@ -87,7 +87,7 @@ export const RemovableChips: Story = {
           </ChipAtom>
         ))}
         {chips.length === 0 && <TextAtom size="sm" className="text-neutral-400">Sin chips</TextAtom>}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

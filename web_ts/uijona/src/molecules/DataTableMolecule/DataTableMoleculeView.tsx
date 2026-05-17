@@ -3,7 +3,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { DataTableColumn, DataTableSort, SortDirection } from './InterDataTableMolecule';
 import { InputAtom } from '../../atoms/InputAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 function SortIcon({ direction }: { direction: SortDirection }) {
   return (
@@ -44,11 +44,11 @@ export function DataTableMoleculeView<T>({
   };
 
   return (
-    <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex w-full flex-col gap-3', className)}>
+    <JPanel variant="ghost" padding="none" radius="none" className={cn('flex w-full flex-col gap-3', className)}>
       {/* Filter bar */}
       {showFilter && (
-        <PanelAtom variant="ghost" padding="none" radius="none" className="flex items-center gap-2">
-          <PanelAtom variant="ghost" padding="none" radius="none" className="relative flex-1">
+        <JPanel variant="ghost" padding="none" radius="none" className="flex items-center gap-2">
+          <JPanel variant="ghost" padding="none" radius="none" className="relative flex-1">
             <svg className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
@@ -60,12 +60,12 @@ export function DataTableMoleculeView<T>({
               aria-label={filterPlaceholder}
               className="h-9 w-full rounded-md border border-neutral-300 bg-white pl-8 pr-3 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
-          </PanelAtom>
-        </PanelAtom>
+          </JPanel>
+        </JPanel>
       )}
 
       {/* Table wrapper */}
-      <PanelAtom variant="ghost" padding="none" radius="none" className="relative max-w-full overflow-auto rounded-md border border-neutral-200">
+      <JPanel variant="ghost" padding="none" radius="none" className="relative max-w-full overflow-auto rounded-md border border-neutral-200">
         <table className="w-full min-w-max caption-bottom text-sm">
           <thead className={cn('bg-neutral-50 [&_tr]:border-b', stickyHeader && 'sticky top-0 z-10')}>
             <tr>
@@ -97,13 +97,13 @@ export function DataTableMoleculeView<T>({
             {loading && (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-12 text-center">
-                  <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-col items-center gap-2 text-neutral-400">
+                  <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col items-center gap-2 text-neutral-400">
                     <svg className="h-6 w-6 animate-spin text-primary-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                     </svg>
                     <span className="text-sm">Cargando...</span>
-                  </PanelAtom>
+                  </JPanel>
                 </td>
               </tr>
             )}
@@ -111,13 +111,13 @@ export function DataTableMoleculeView<T>({
             {!loading && rows.length === 0 && (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-12 text-center">
-                  <PanelAtom variant="ghost" padding="none" radius="none" className="flex flex-col items-center gap-1 text-neutral-400">
+                  <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col items-center gap-1 text-neutral-400">
                     <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                     </svg>
                     <p className="text-sm font-medium text-neutral-600">{emptyTitle}</p>
                     <p className="text-xs text-neutral-400">{emptyDescription}</p>
-                  </PanelAtom>
+                  </JPanel>
                 </td>
               </tr>
             )}
@@ -150,7 +150,7 @@ export function DataTableMoleculeView<T>({
             ))}
           </tbody>
         </table>
-      </PanelAtom>
-    </PanelAtom>
+      </JPanel>
+    </JPanel>
   );
 }

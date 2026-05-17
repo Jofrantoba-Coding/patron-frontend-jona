@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ToastProvider, useToast } from './useToast';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JButton } from '../../atoms/JButton/JButton';
 import { InputAtom } from '../../atoms/InputAtom/InputAtom';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta = {
   title: 'Hooks/useToast',
@@ -20,12 +20,12 @@ const ToastDemo = ({ variant, title, message }: {
 }) => {
   const { toast } = useToast();
   return (
-    <ButtonAtom
+    <JButton
       variant={variant === 'danger' ? 'destructive' : variant === 'default' ? 'default' : 'outline'}
       onClick={() => toast({ variant, title, message })}
     >
       {title ?? variant}
-    </ButtonAtom>
+    </JButton>
   );
 };
 
@@ -49,12 +49,12 @@ export const AllToasts: StoryObj = {
   render: () => {
     const { toast } = useToast();
     return (
-      <PanelAtom variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <ButtonAtom onClick={() => toast({ message: 'Notificación' })}>Default</ButtonAtom>
-        <ButtonAtom variant="outline" onClick={() => toast({ variant: 'success', title: 'Éxito', message: 'Guardado' })}>Success</ButtonAtom>
-        <ButtonAtom variant="outline" onClick={() => toast({ variant: 'warning', title: 'Aviso', message: 'Revisa tu sesión' })}>Warning</ButtonAtom>
-        <ButtonAtom variant="destructive" onClick={() => toast({ variant: 'danger', title: 'Error', message: 'Operación fallida' })}>Danger</ButtonAtom>
-      </PanelAtom>
+      <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <JButton onClick={() => toast({ message: 'Notificación' })}>Default</JButton>
+        <JButton variant="outline" onClick={() => toast({ variant: 'success', title: 'Éxito', message: 'Guardado' })}>Success</JButton>
+        <JButton variant="outline" onClick={() => toast({ variant: 'warning', title: 'Aviso', message: 'Revisa tu sesión' })}>Warning</JButton>
+        <JButton variant="destructive" onClick={() => toast({ variant: 'danger', title: 'Error', message: 'Operación fallida' })}>Danger</JButton>
+      </JPanel>
     );
   },
 };
@@ -83,7 +83,7 @@ const InteractiveForm = () => {
         value={email}
         onChange={setEmail}
       />
-      <ButtonAtom type="submit" loading={loading} fullWidth>Registrarse</ButtonAtom>
+      <JButton type="submit" loading={loading} fullWidth>Registrarse</JButton>
     </form>
   );
 };

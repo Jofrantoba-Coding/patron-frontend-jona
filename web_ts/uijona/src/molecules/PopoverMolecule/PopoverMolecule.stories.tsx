@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { PopoverMolecule } from './PopoverMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
-import { ButtonAtom } from '../../atoms/ButtonAtom/ButtonAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
+import { JButton } from '../../atoms/JButton/JButton';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const meta: Meta<typeof PopoverMolecule> = {
@@ -13,19 +13,19 @@ const meta: Meta<typeof PopoverMolecule> = {
   args: {
     onOpen: fn(),
     onClose: fn(),
-    trigger: <ButtonAtom variant="outline" size="sm">Abrir popover</ButtonAtom>,
+    trigger: <JButton variant="outline" size="sm">Abrir popover</JButton>,
     children: (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 text-sm">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 text-sm">
         <TextAtom className="font-medium text-neutral-800">Información</TextAtom>
         <TextAtom className="text-neutral-500">Contenido del popover con detalles adicionales.</TextAtom>
-      </PanelAtom>
+      </JPanel>
     ),
   },
   argTypes: {
     side:  { control: 'select', options: ['top', 'bottom', 'left', 'right'] },
     align: { control: 'select', options: ['start', 'center', 'end'] },
   },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="flex h-48 items-center justify-center"><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" className="flex h-48 items-center justify-center"><Story /></JPanel>],
 };
 export default meta;
 type Story = StoryObj<typeof PopoverMolecule>;
@@ -48,13 +48,13 @@ export const LeftEnd: Story = {
 
 export const WithActions: Story = {
   args: {
-    trigger: <ButtonAtom size="sm">Opciones</ButtonAtom>,
+    trigger: <JButton size="sm">Opciones</JButton>,
     children: (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1">
-        <ButtonAtom variant="ghost" size="sm" className="justify-start w-full">Editar</ButtonAtom>
-        <ButtonAtom variant="ghost" size="sm" className="justify-start w-full">Duplicar</ButtonAtom>
-        <ButtonAtom variant="ghost" size="sm" className="justify-start w-full text-red-600 hover:bg-red-50 hover:text-red-600">Eliminar</ButtonAtom>
-      </PanelAtom>
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-1">
+        <JButton variant="ghost" size="sm" className="justify-start w-full">Editar</JButton>
+        <JButton variant="ghost" size="sm" className="justify-start w-full">Duplicar</JButton>
+        <JButton variant="ghost" size="sm" className="justify-start w-full text-red-600 hover:bg-red-50 hover:text-red-600">Eliminar</JButton>
+      </JPanel>
     ),
   },
 };
@@ -64,20 +64,20 @@ export const Interactive: Story = {
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const roles = ['Admin', 'Editor', 'Viewer'];
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex h-48 items-start justify-center gap-6 pt-8">
+      <JPanel variant="ghost" padding="none" className="flex h-48 items-start justify-center gap-6 pt-8">
         <PopoverMolecule
           trigger={
-            <ButtonAtom variant="outline" size="sm">
+            <JButton variant="outline" size="sm">
               {selectedRole ? `Rol: ${selectedRole}` : 'Filtrar por rol'}
-            </ButtonAtom>
+            </JButton>
           }
           side="bottom"
           align="start"
         >
-          <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 min-w-[120px]">
+          <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 min-w-[120px]">
             <TextAtom size="xs" className="font-semibold text-neutral-400 uppercase px-2 pb-1">Roles</TextAtom>
             {roles.map((r) => (
-              <ButtonAtom
+              <JButton
                 key={r}
                 variant="ghost"
                 size="sm"
@@ -85,16 +85,16 @@ export const Interactive: Story = {
                 className={`justify-start w-full ${selectedRole === r ? 'bg-primary-50 text-primary-700 font-medium hover:bg-primary-50' : ''}`}
               >
                 {r}
-              </ButtonAtom>
+              </JButton>
             ))}
-          </PanelAtom>
+          </JPanel>
         </PopoverMolecule>
         {selectedRole && (
           <TextAtom size="sm" color="muted" className="self-center">
             Filtrando por: <strong>{selectedRole}</strong>
           </TextAtom>
         )}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ComboboxMolecule } from './ComboboxMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
 const COUNTRIES = [
@@ -26,7 +26,7 @@ const meta: Meta<typeof ComboboxMolecule> = {
     onSearchChange: fn(),
     placeholder: 'Seleccionar país...',
   },
-  decorators: [(Story) => <PanelAtom variant="ghost" padding="none" className="w-64"><Story /></PanelAtom>],
+  decorators: [(Story) => <JPanel variant="ghost" padding="none" className="w-64"><Story /></JPanel>],
 };
 export default meta;
 type Story = StoryObj<typeof ComboboxMolecule>;
@@ -79,7 +79,7 @@ const [value, setValue] = useState('');
     const [value, setValue] = useState('');
     const selected = COUNTRIES.find((c) => c.value === value);
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex w-64 flex-col gap-3">
+      <JPanel variant="ghost" padding="none" className="flex w-64 flex-col gap-3">
         <ComboboxMolecule
           options={COUNTRIES}
           value={value}
@@ -89,7 +89,7 @@ const [value, setValue] = useState('');
         <TextAtom size="sm" color="muted">
           {selected ? `Seleccionado: ${selected.label}` : 'Ninguno seleccionado'}
         </TextAtom>
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

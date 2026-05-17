@@ -5,7 +5,7 @@ import { LabelAtom } from '../../atoms/LabelAtom';
 import { SelectAtom } from '../../atoms/SelectAtom';
 import { ErrorMessageAtom } from '../../atoms/ErrorMessageAtom';
 import { InterSelectFieldMolecule } from './InterSelectFieldMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 type SelectFieldMoleculeViewProps = InterSelectFieldMolecule & {
   forwardedRef?: React.Ref<HTMLSelectElement>;
@@ -18,7 +18,7 @@ export const SelectFieldMoleculeView: React.FC<SelectFieldMoleculeViewProps> = (
 }) => {
   const hasError = !!errorMessage;
   return (
-    <PanelAtom variant="ghost" padding="none" radius="none" className={cn('flex flex-col gap-1.5', className)}>
+    <JPanel variant="ghost" padding="none" radius="none" className={cn('flex flex-col gap-1.5', className)}>
       <LabelAtom htmlFor={id} required={required}>{label}</LabelAtom>
       <SelectAtom
         ref={forwardedRef}
@@ -36,6 +36,6 @@ export const SelectFieldMoleculeView: React.FC<SelectFieldMoleculeViewProps> = (
       />
       {description && !hasError && <ErrorMessageAtom id={`${id}-desc`} message={description} type="description" />}
       {hasError && <ErrorMessageAtom message={errorMessage} type="error" />}
-    </PanelAtom>
+    </JPanel>
   );
 };

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { InputAtom } from './InputAtom';
-import { PanelAtom } from '../PanelAtom/PanelAtom';
+import { JPanel } from '../JPanel/JPanel';
 import { TextAtom } from '../TextAtom/TextAtom';
 
 const meta: Meta<typeof InputAtom> = {
@@ -65,7 +65,7 @@ const hasError = value.length > 0 && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(valu
     const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     const hasError = value.length > 0 && !isValid;
     return (
-      <PanelAtom variant="ghost" padding="none" className="flex flex-col gap-1 w-72">
+      <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 w-72">
         <InputAtom
           type="email"
           placeholder="correo@ejemplo.com"
@@ -76,7 +76,7 @@ const hasError = value.length > 0 && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(valu
         />
         {hasError && <TextAtom size="xs" className="text-red-500">El formato de email no es válido</TextAtom>}
         {isValid && <TextAtom size="xs" className="text-green-600">Email válido</TextAtom>}
-      </PanelAtom>
+      </JPanel>
     );
   },
 };

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { PanelAtom } from '../../atoms/PanelAtom';
+import { JPanel } from '../../atoms/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 import { GridBagLayout } from './GridBagLayout';
 
@@ -26,9 +26,9 @@ export default meta;
 type Story = StoryObj<typeof GridBagLayout>;
 
 const DemoCell = ({ label }: { label: string }) => (
-  <PanelAtom variant="outlined" padding="md" radius="sm" className="min-h-16">
+  <JPanel variant="outlined" padding="md" radius="sm" className="min-h-16">
     <TextAtom as="span" size="sm" className="font-medium text-neutral-700">{label}</TextAtom>
-  </PanelAtom>
+  </JPanel>
 );
 
 export const ResponsiveConstraints: Story = {
@@ -39,17 +39,17 @@ export const ResponsiveConstraints: Story = {
   },
   render: (args) => (
     <GridBagLayout {...args} className="w-full max-w-3xl">
-      <PanelAtom data-gridbag-column="1" data-gridbag-row="1" data-gridbag-column-span="2" variant="outlined" padding="md" radius="sm">
+      <JPanel data-gridbag-column="1" data-gridbag-row="1" data-gridbag-column-span="2" variant="outlined" padding="md" radius="sm">
         <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Header span 2</TextAtom>
-      </PanelAtom>
+      </JPanel>
       <DemoCell label="Metric A" />
       <DemoCell label="Metric B" />
-      <PanelAtom data-gridbag-column="1" data-gridbag-row="2" data-gridbag-row-span="2" variant="outlined" padding="md" radius="sm" className="min-h-32">
+      <JPanel data-gridbag-column="1" data-gridbag-row="2" data-gridbag-row-span="2" variant="outlined" padding="md" radius="sm" className="min-h-32">
         <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Side span rows</TextAtom>
-      </PanelAtom>
-      <PanelAtom data-gridbag-column="2" data-gridbag-row="2" data-gridbag-column-span="3" variant="outlined" padding="md" radius="sm" className="min-h-32">
+      </JPanel>
+      <JPanel data-gridbag-column="2" data-gridbag-row="2" data-gridbag-column-span="3" variant="outlined" padding="md" radius="sm" className="min-h-32">
         <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Content span 3</TextAtom>
-      </PanelAtom>
+      </JPanel>
     </GridBagLayout>
   ),
 };

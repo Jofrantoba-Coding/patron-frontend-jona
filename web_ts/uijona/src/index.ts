@@ -1,7 +1,7 @@
 // @jona/ui — barrel export
 
 // Atoms
-export * from './atoms/ButtonAtom';
+export * from './atoms/JButton';
 export * from './atoms/InputAtom';
 export * from './atoms/TextareaAtom';
 export * from './atoms/BadgeAtom';

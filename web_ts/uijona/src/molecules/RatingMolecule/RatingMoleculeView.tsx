@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterRatingMolecule } from './InterRatingMolecule';
-import { PanelAtom } from '../../atoms/PanelAtom/PanelAtom';
+import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const sizeClasses = {
   sm: 'w-4 h-4',
@@ -24,7 +24,7 @@ export const RatingMoleculeView: React.FC<RatingMoleculeViewProps> = ({
 }) => {
   const active = hovered ?? value;
   return (
-    <PanelAtom variant="ghost" padding="none" radius="none"
+    <JPanel variant="ghost" padding="none" radius="none"
       role={readOnly ? 'img' : 'group'}
       aria-label={readOnly ? `Calificación: ${value} de ${max}` : `Selecciona calificación de ${max}`}
       className={cn('inline-flex items-center gap-0.5', className)}
@@ -61,6 +61,6 @@ export const RatingMoleculeView: React.FC<RatingMoleculeViewProps> = ({
           </button>
         );
       })}
-    </PanelAtom>
+    </JPanel>
   );
 };

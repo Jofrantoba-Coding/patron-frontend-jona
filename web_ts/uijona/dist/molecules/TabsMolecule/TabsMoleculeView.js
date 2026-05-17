@@ -2,7 +2,7 @@ import { jsx as l } from "react/jsx-runtime";
 import { useContext as d, createContext as v } from "react";
 import { cn as i } from "../../lib/cn.js";
 import { JPanelImpl as f } from "../../atoms/JPanel/JPanelImpl.js";
-import { ButtonAtomImpl as b } from "../../atoms/ButtonAtom/ButtonAtomImpl.js";
+import { JButtonImpl as b } from "../../atoms/JButton/JButtonImpl.js";
 const u = v({
   value: "",
   onChange: () => {
@@ -35,22 +35,22 @@ const u = v({
     }
   );
 }, T = ({ value: e, className: r, children: o, disabled: t, ...n }) => {
-  const { value: s, onChange: c, onTabFocus: a, onDisabledTabClick: m, variant: x } = d(u), p = s === e;
+  const { value: s, onChange: c, onTabFocus: a, onDisabledTabClick: p, variant: x } = d(u), m = s === e;
   return /* @__PURE__ */ l(
     b,
     {
       variant: "ghost",
       role: "tab",
       type: "button",
-      "aria-selected": p,
+      "aria-selected": m,
       disabled: t,
       onClick: () => {
-        t ? m == null || m(e) : c(e);
+        t ? p == null || p(e) : c(e);
       },
       onFocus: () => a == null ? void 0 : a(e),
       className: i(
         "inline-flex max-w-full shrink-0 items-center justify-center gap-1.5 text-sm font-medium transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50",
-        x === "pill" ? i("px-3 py-1.5 rounded", p ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500 hover:text-neutral-700") : i("px-4 py-2 border-b-2 -mb-px rounded-none", p ? "border-primary-600 text-primary-600" : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"),
+        x === "pill" ? i("px-3 py-1.5 rounded", m ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500 hover:text-neutral-700") : i("px-4 py-2 border-b-2 -mb-px rounded-none", m ? "border-primary-600 text-primary-600" : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"),
         r
       ),
       ...n,

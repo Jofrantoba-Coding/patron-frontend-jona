@@ -1,26 +1,26 @@
 import React from 'react';
 import type {
-  PanelAlign,
-  PanelGap,
-  PanelJustify,
-  PanelLayoutPlacement,
-  PanelPadding,
-  PanelRadius,
-  PanelVariant,
-} from '../../atoms/PanelAtom/PanelAtom';
+  JPanelAlign,
+  JPanelGap,
+  JPanelJustify,
+  JPanelLayoutPlacement,
+  JPanelPadding,
+  JPanelRadius,
+  JPanelVariant,
+} from '../../atoms/JPanel/JPanel';
 
 export interface InterGridBagLayout extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: PanelVariant;
-  padding?: PanelPadding;
-  radius?: PanelRadius;
-  gap?: PanelGap;
-  alignItems?: PanelAlign;
-  justifyContent?: PanelJustify;
+  variant?: JPanelVariant;
+  padding?: JPanelPadding;
+  radius?: JPanelRadius;
+  gap?: JPanelGap;
+  alignItems?: JPanelAlign;
+  justifyContent?: JPanelJustify;
   columns?: number | string;
   rows?: number | string;
   autoFitMin?: string;
   dense?: boolean;
-  placement?: PanelLayoutPlacement;
+  placement?: JPanelLayoutPlacement;
 }
 
 export const GRID_BAG_LAYOUT_DEFAULTS: Required<Pick<
