@@ -682,6 +682,42 @@
     flex: 0 1 auto;
     text-align: center;
   }
+
+  /* ── JTextBox ─────────────────────────────────────────────────────────────── */
+  .jtextbox-root {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .jtextbox {
+    flex: 1 1 0%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  /* Iconos posicionados absolutamente dentro del root */
+  .jtextbox-icon {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    color: #6b7280; /* neutral-500 */
+    line-height: 1;
+  }
+
+  .jtextbox-icon--left  { left: 0.625rem; }
+  .jtextbox-icon--right { right: 0.625rem; }
+
+  /* Padding del input cuando hay iconos */
+  .jtextbox-root[data-jtextbox-has-icon-left='true']  .jtextbox { padding-left: 2.25rem; }
+  .jtextbox-root[data-jtextbox-has-icon-right='true'] .jtextbox { padding-right: 2.25rem; }
+
+  /* Error: tiñe el icono también */
+  .jtextbox-root[data-jtextbox-error='true'] .jtextbox-icon { color: var(--danger-500, #ef4444); }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */
