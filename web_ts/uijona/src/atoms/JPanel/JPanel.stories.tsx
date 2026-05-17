@@ -1,10 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import {
   JPanel,
   JPANEL_BREAKPOINTS,
   JPANEL_LAYOUT_DEFAULTS,
-  type JPanelArea,
   type JPanelLayout,
   type JPanelLayoutDefaultDoc,
 } from './JPanel';
@@ -63,25 +62,6 @@ type Story = StoryObj<typeof JPanel>;
 const layoutDocs = Object.entries(JPANEL_LAYOUT_DEFAULTS) as [JPanelLayout, JPanelLayoutDefaultDoc][];
 const breakpointDocs = Object.entries(JPANEL_BREAKPOINTS);
 
-const DemoItem = ({ children }: { children: ReactNode }) => (
-  <JPanel variant="flat" padding="sm" radius="sm" className="min-h-12 text-center text-sm font-medium text-neutral-700">
-    {children}
-  </JPanel>
-);
-
-const DemoZone = ({
-  children,
-  area,
-  className,
-}: {
-  children: ReactNode;
-  area?: JPanelArea;
-  className?: string;
-}) => (
-  <JPanel area={area} variant="outlined" padding="sm" radius="sm" className={className}>
-    {children}
-  </JPanel>
-);
 
 export const Default: Story = {
   args: {
@@ -106,9 +86,9 @@ export const Default: Story = {
   },
   render: (args) => (
     <JPanel className="max-w-sm" {...args}>
-      <DemoItem>Item 1</DemoItem>
-      <DemoItem>Item 2</DemoItem>
-      <DemoItem>Item 3</DemoItem>
+      <ButtonAtom variant="outline" size="sm">Item 1</ButtonAtom>
+      <ButtonAtom variant="outline" size="sm">Item 2</ButtonAtom>
+      <ButtonAtom variant="outline" size="sm">Item 3</ButtonAtom>
     </JPanel>
   ),
 };
@@ -232,9 +212,9 @@ export const BoxResponsive: Story = {
   },
   render: ({ variant, padding, radius }) => (
     <JPanel layout="box" gap="sm" tablet={{ direction: 'row', gap: 'md' }} variant={variant} padding={padding} radius={radius} className="max-w-2xl">
-      <DemoItem>Uno</DemoItem>
-      <DemoItem>Dos</DemoItem>
-      <DemoItem>Tres</DemoItem>
+      <ButtonAtom variant="outline" size="sm">Uno</ButtonAtom>
+      <ButtonAtom variant="outline" size="sm">Dos</ButtonAtom>
+      <ButtonAtom variant="outline" size="sm">Tres</ButtonAtom>
     </JPanel>
   ),
 };
@@ -283,7 +263,7 @@ export const GridResponsive: Story = {
       className="max-w-3xl"
     >
       {['Clientes', 'Ventas', 'Inventario', 'Riesgos', 'Reportes', 'Alertas'].map((item) => (
-        <DemoItem key={item}>{item}</DemoItem>
+        <ButtonAtom key={item} variant="outline" size="sm">{item}</ButtonAtom>
       ))}
     </JPanel>
   ),
@@ -301,13 +281,15 @@ export const BorderLayout: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Distribuye zonas top / left / center / right / bottom. Cada hijo requiere area=. Demo estático.',
+        story: `**Mobile**: columna única top → left → center → right → bottom.
+**Tablet/Desktop/TV**: 3 columnas — left y right toman su ancho natural, center absorbe todo el espacio restante.
+El contenedor necesita altura definida para que center se expanda (usa min-h-* o h-* en el className).`,
       },
       source: {
-        code: `<JPanel layout="border" gap="sm">
+        code: `<JPanel layout="border" gap="sm" className="min-h-[500px]">
   <JPanel area="top">Header</JPanel>
   <JPanel area="left">Menu</JPanel>
-  <JPanel area="center">Contenido</JPanel>
+  <JPanel area="center">Contenido principal</JPanel>
   <JPanel area="right">Aside</JPanel>
   <JPanel area="bottom">Footer</JPanel>
 </JPanel>`,
@@ -315,12 +297,33 @@ export const BorderLayout: Story = {
     },
   },
   render: () => (
-    <JPanel layout="border" gap="sm" variant="outlined" padding="md" radius="md" className="min-h-72 max-w-3xl">
-      <DemoZone area="top">Header</DemoZone>
-      <DemoZone area="left" className="w-full md:w-32">Menu</DemoZone>
-      <DemoZone area="center">Contenido</DemoZone>
-      <DemoZone area="right" className="w-full md:w-32">Aside</DemoZone>
-      <DemoZone area="bottom">Footer</DemoZone>
+    <JPanel layout="border" gap="sm" variant="outlined" padding="md" radius="md" className="min-h-[500px] max-w-3xl">
+      <JPanel area="top" variant="flat" padding="sm" radius="sm" layout="flow" gap="sm">
+        <ButtonAtom variant="outline" size="sm">Inicio</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Servicios</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Contacto</ButtonAtom>
+      </JPanel>
+
+      <JPanel area="left" variant="flat" padding="sm" radius="sm" layout="box" gap="sm">
+        <ButtonAtom variant="outline" size="sm">Perfil</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Config</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Ayuda</ButtonAtom>
+      </JPanel>
+
+      <JPanel area="center" variant="default" padding="md" radius="sm" layout="box" gap="sm">
+        <ButtonAtom size="sm">Acción principal</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Acción secundaria</ButtonAtom>
+      </JPanel>
+
+      <JPanel area="right" variant="flat" padding="sm" radius="sm" layout="box" gap="sm">
+        <ButtonAtom variant="outline" size="sm">Filtrar</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Exportar</ButtonAtom>
+      </JPanel>
+
+      <JPanel area="bottom" variant="flat" padding="sm" radius="sm" layout="flow" gap="sm">
+        <ButtonAtom variant="outline" size="sm">Anterior</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Siguiente</ButtonAtom>
+      </JPanel>
     </JPanel>
   ),
 };
@@ -389,19 +392,31 @@ export const AdvancedLayouts: Story = {
   render: () => (
     <JPanel gap="lg" className="max-w-3xl">
       <JPanel layout="gridbag" gap="sm" tablet={{ columns: 4 }} variant="outlined" padding="md" radius="md">
-        <JPanel gridBagColumn={1} gridBagRow={1} gridBagColumnSpan={2} variant="flat" padding="sm">Span 2</JPanel>
-        <JPanel variant="flat" padding="sm">Metric A</JPanel>
-        <JPanel variant="flat" padding="sm">Metric B</JPanel>
-        <JPanel gridBagColumn={1} gridBagRow={2} gridBagRowSpan={2} variant="flat" padding="sm">Side</JPanel>
-        <JPanel gridBagColumn={2} gridBagRow={2} gridBagColumnSpan={3} variant="flat" padding="sm">Content</JPanel>
+        <JPanel gridBagColumn={1} gridBagRow={1} gridBagColumnSpan={2} variant="flat" padding="sm">
+          <ButtonAtom variant="outline" size="sm" className="w-full">Span 2 columnas</ButtonAtom>
+        </JPanel>
+        <JPanel variant="flat" padding="sm">
+          <ButtonAtom variant="outline" size="sm" className="w-full">Metric A</ButtonAtom>
+        </JPanel>
+        <JPanel variant="flat" padding="sm">
+          <ButtonAtom variant="outline" size="sm" className="w-full">Metric B</ButtonAtom>
+        </JPanel>
+        <JPanel gridBagColumn={1} gridBagRow={2} gridBagRowSpan={2} variant="flat" padding="sm">
+          <ButtonAtom variant="outline" size="sm" className="w-full">Side (2 filas)</ButtonAtom>
+        </JPanel>
+        <JPanel gridBagColumn={2} gridBagRow={2} gridBagColumnSpan={3} variant="flat" padding="sm">
+          <ButtonAtom variant="outline" size="sm" className="w-full">Content (3 cols)</ButtonAtom>
+        </JPanel>
       </JPanel>
 
       <JPanel layout="group" gap="sm" tablet={{ columns: 3 }} variant="outlined" padding="md" radius="md">
-        <DemoItem>Name</DemoItem>
-        <DemoItem>Email</DemoItem>
-        <DemoItem>Phone</DemoItem>
-        <JPanel groupSpan={2} variant="flat" padding="sm">Address spans two columns</JPanel>
-        <DemoItem>Status</DemoItem>
+        <ButtonAtom variant="outline" size="sm">Nombre</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Email</ButtonAtom>
+        <ButtonAtom variant="outline" size="sm">Teléfono</ButtonAtom>
+        <JPanel groupSpan={2} variant="flat" padding="sm">
+          <ButtonAtom variant="outline" size="sm" className="w-full">Dirección (span 2)</ButtonAtom>
+        </JPanel>
+        <ButtonAtom variant="outline" size="sm">Estado</ButtonAtom>
       </JPanel>
     </JPanel>
   ),
