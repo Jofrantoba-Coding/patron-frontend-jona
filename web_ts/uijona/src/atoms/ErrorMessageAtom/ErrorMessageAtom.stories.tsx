@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ErrorMessageAtom } from './ErrorMessageAtom';
-import { InputAtom } from '../InputAtom/InputAtom';
+import { JTextBox } from '../JTextBox/JTextBox';
 import { JPanel } from '../JPanel/JPanel';
 
 const meta: Meta<typeof ErrorMessageAtom> = {
@@ -36,7 +36,7 @@ export const Interactive: Story = {
         : '';
     return (
       <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '280px' }}>
-        <InputAtom
+        <JTextBox
           type="email"
           value={email}
           placeholder="correo@ejemplo.com"

@@ -3,7 +3,7 @@ import d from "react";
 import { cn as c } from "../../lib/cn.js";
 import { useTableContext as v } from "./TableMoleculeContext.js";
 import { JPanelImpl as w } from "../../atoms/JPanel/JPanelImpl.js";
-import { InputAtomImpl as le } from "../../atoms/InputAtom/InputAtomImpl.js";
+import { JTextBoxImpl as le } from "../../atoms/JTextBox/JTextBoxImpl.js";
 const ie = {
   scroll: "relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200",
   cards: "relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200",
@@ -253,10 +253,10 @@ function ge(e) {
   if (e === "asc") return "ascending";
   if (e === "desc") return "descending";
 }
-function S(e) {
+function F(e) {
   return typeof e == "number" ? `${e}px` : e;
 }
-function B(e) {
+function S(e) {
   if (typeof e == "number") return e;
   if (typeof e == "string" && e.endsWith("px")) return Number.parseFloat(e);
 }
@@ -305,37 +305,37 @@ const ye = d.forwardRef(
     onClick: Y,
     ...L
   }, q) => {
-    const { columnFilters: K, setColumnFilter: E } = v(), A = d.useRef(null), [P, Q] = d.useState(""), [Z, C] = d.useState(() => B(y)), O = Z ?? B(y), I = S(O ?? y), M = h || m === "colgroup" || Number(o ?? 1) > 1, _ = k && !M, z = x ?? (a !== void 0 ? K[a] ?? "" : P), { onBlur: X, className: ee, ...te } = b ?? {};
+    const { columnFilters: K, setColumnFilter: E } = v(), C = d.useRef(null), [P, Q] = d.useState(""), [Z, O] = d.useState(() => S(y)), X = Z ?? S(y), I = F(X ?? y), M = h || m === "colgroup" || Number(o ?? 1) > 1, _ = k && !M, z = x ?? (a !== void 0 ? K[a] ?? "" : P), { onBlur: $, className: ee, ...te } = b ?? {};
     d.useEffect(() => {
-      const l = B(y);
-      l !== void 0 && C(l);
+      const l = S(y);
+      l !== void 0 && O(l);
     }, [y]), d.useEffect(() => {
       x !== void 0 && a !== void 0 && E(a, x);
     }, [a, x, E]);
     const re = (l) => {
       l.stopPropagation(), N == null || N(he(p, s));
     }, ae = (l) => {
-      var G;
+      var D;
       l.preventDefault(), l.stopPropagation();
-      const F = l.clientX, ne = ((G = A.current) == null ? void 0 : G.offsetWidth) || O || R || 120, $ = (oe) => {
-        const J = we(ne + oe.clientX - F, R, H);
-        C(J), V == null || V(J);
-      }, D = () => {
-        document.removeEventListener("mousemove", $), document.removeEventListener("mouseup", D);
+      const B = l.clientX, ne = ((D = C.current) == null ? void 0 : D.offsetWidth) || X || R || 120, A = (oe) => {
+        const G = we(ne + oe.clientX - B, R, H);
+        O(G), V == null || V(G);
+      }, J = () => {
+        document.removeEventListener("mousemove", A), document.removeEventListener("mouseup", J);
       };
-      document.addEventListener("mousemove", $), document.addEventListener("mouseup", D);
+      document.addEventListener("mousemove", A), document.addEventListener("mouseup", J);
     };
     return /* @__PURE__ */ u(
       "th",
       {
         ref: (l) => {
-          A.current = l, Ne(q, l);
+          C.current = l, Ne(q, l);
         },
         style: {
           ...t,
           width: I ?? (t == null ? void 0 : t.width),
-          minWidth: S(R) ?? (t == null ? void 0 : t.minWidth),
-          maxWidth: S(H) ?? (t == null ? void 0 : t.maxWidth)
+          minWidth: F(R) ?? (t == null ? void 0 : t.minWidth),
+          maxWidth: F(H) ?? (t == null ? void 0 : t.maxWidth)
         },
         "aria-sort": _ ? ge(p) : L["aria-sort"],
         className: c(
@@ -387,7 +387,7 @@ const ye = d.forwardRef(
                     onChange: (l) => {
                       x === void 0 && (a !== void 0 ? E(a, l) : Q(l)), W == null || W(l);
                     },
-                    onBlur: X ? (l, F) => X(F) : void 0,
+                    onBlur: $ ? (l, B) => $(B) : void 0,
                     className: c(
                       "h-8 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-900 placeholder:text-neutral-400",
                       "focus:outline-none focus:ring-2 focus:ring-primary-500",

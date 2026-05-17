@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterFileUploadMolecule } from './InterFileUploadMolecule';
-import { InputAtom } from '../../atoms/InputAtom';
+import { JTextBox } from '../../atoms/JTextBox';
 import { LabelAtom } from '../../atoms/LabelAtom';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -69,7 +69,7 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
       <span className="break-words text-sm font-medium text-neutral-900">{label}</span>
       {description && <span className="max-w-sm break-words text-sm text-neutral-500">{description}</span>}
       {maxFiles && <span className="text-xs text-neutral-400">Max {maxFiles} file{maxFiles === 1 ? '' : 's'}</span>}
-      <InputAtom
+      <JTextBox
         {...inputProps}
         id={inputId}
         type="file"

@@ -1,9 +1,9 @@
 import { jsxs as n, jsx as e } from "react/jsx-runtime";
-import { createPortal as I } from "react-dom";
+import { createPortal as W } from "react-dom";
 import { cn as i } from "../../lib/cn.js";
 import { JPanelImpl as t } from "../../atoms/JPanel/JPanelImpl.js";
-import { InputAtomImpl as W } from "../../atoms/InputAtom/InputAtomImpl.js";
-const K = ({
+import { JTextBoxImpl as D } from "../../atoms/JTextBox/JTextBoxImpl.js";
+const Q = ({
   selected: l,
   filtered: u,
   query: x,
@@ -21,8 +21,8 @@ const K = ({
   onTriggerClick: N,
   onQueryChange: k,
   onToggle: C,
-  onRemove: M,
-  onInputKeyDown: j
+  onRemove: B,
+  onInputKeyDown: M
 }) => {
   const p = d !== void 0 && l.length >= d;
   return /* @__PURE__ */ n(t, { variant: "ghost", padding: "none", radius: "none", className: i("relative w-full", g), children: [
@@ -52,7 +52,7 @@ const K = ({
                 type: "button",
                 "aria-label": `Quitar ${r.label}`,
                 onClick: (a) => {
-                  a.stopPropagation(), M(r.value);
+                  a.stopPropagation(), B(r.value);
                 },
                 className: "ml-0.5 rounded hover:text-primary-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500",
                 children: /* @__PURE__ */ n("svg", { className: "h-3 w-3", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2.5, "aria-hidden": "true", children: [
@@ -79,16 +79,16 @@ const K = ({
         ]
       }
     ),
-    o && I(
+    o && W(
       /* @__PURE__ */ n(t, { variant: "ghost", padding: "none", radius: "none", ref: w, style: f, className: "z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg", children: [
         /* @__PURE__ */ e(t, { variant: "ghost", padding: "none", radius: "none", className: "border-b border-neutral-100 p-2", children: /* @__PURE__ */ e(
-          W,
+          D,
           {
             ref: v,
             type: "text",
             value: x,
             onChange: k,
-            onKeyDown: j,
+            onKeyDown: M,
             placeholder: m,
             "aria-label": m,
             className: "h-8 w-full rounded border border-neutral-200 bg-white px-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
@@ -100,7 +100,7 @@ const K = ({
           " seleccionados"
         ] }),
         /* @__PURE__ */ e(t, { variant: "ghost", padding: "none", radius: "none", role: "listbox", "aria-multiselectable": "true", className: "overflow-y-auto py-1", children: u.length === 0 ? /* @__PURE__ */ e("p", { className: "px-3 py-4 text-center text-sm text-neutral-400", children: b }) : u.map((r) => {
-          const a = l.some((B) => B.value === r.value), c = r.disabled || p && !a;
+          const a = l.some((j) => j.value === r.value), c = r.disabled || p && !a;
           return /* @__PURE__ */ n(
             "button",
             {
@@ -132,6 +132,6 @@ const K = ({
   ] });
 };
 export {
-  K as MultiSelectMoleculeView
+  Q as MultiSelectMoleculeView
 };
 //# sourceMappingURL=MultiSelectMoleculeView.js.map

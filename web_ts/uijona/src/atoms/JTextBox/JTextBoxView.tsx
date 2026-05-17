@@ -14,17 +14,21 @@ const sizeClasses: Record<JTextBoxSize, string> = {
   lg: 'h-11 px-4 text-base rounded-md',
 };
 
+const VALID_SIZES = new Set<string>(['sm', 'md', 'lg']);
+
 interface JTextBoxViewProps extends Omit<InterJTextBox, 'onChange' | 'onBlur' | 'onKeyDown'> {
   forwardedRef?: React.Ref<HTMLInputElement>;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
+  // Acepta HTML size (número) para que {...props} de los molecules no rompa el tipo
+  size?: JTextBoxSize | number;
   [key: string]: unknown;
 }
 
 export const JTextBoxView: React.FC<JTextBoxViewProps> = ({
   variant = 'default',
-  size = 'md',
+  size: sizeProp = 'md',
   type = 'text',
   hasError = false,
   iconLeft,
@@ -36,11 +40,16 @@ export const JTextBoxView: React.FC<JTextBoxViewProps> = ({
   onBlur,
   onFocus,
   onKeyDown,
-  // InterJTextBox-specific props (strip from htmlProps)
   onEnterPress: _onEnterPress,
   onClear: _onClear,
   ...htmlProps
 }) => {
+  // Si llega un número (HTML size legacy), normaliza a 'md'
+  const size: JTextBoxSize =
+    typeof sizeProp === 'string' && VALID_SIZES.has(sizeProp)
+      ? (sizeProp as JTextBoxSize)
+      : 'md';
+
   const hasIconLeft = Boolean(iconLeft);
   const hasIconRight = Boolean(iconRight);
 

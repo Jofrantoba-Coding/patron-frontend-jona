@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterNumberInputMolecule } from './InterNumberInputMolecule';
-import { InputAtom } from '../../atoms/InputAtom';
+import { JTextBox } from '../../atoms/JTextBox';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 type NumberInputMoleculeViewProps = Omit<InterNumberInputMolecule, 'value' | 'defaultValue' | 'onValueChange' | 'onIncrement' | 'onDecrement' | 'onBlur'> & {
@@ -52,7 +52,7 @@ export const NumberInputMoleculeView: React.FC<NumberInputMoleculeViewProps> = (
     >
       <MinusIcon />
     </button>
-    <InputAtom
+    <JTextBox
       {...props}
       ref={forwardedRef}
       type="number"

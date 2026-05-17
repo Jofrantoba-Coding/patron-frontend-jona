@@ -2,8 +2,8 @@ import { jsxs as o, jsx as a } from "react/jsx-runtime";
 import { createPortal as C } from "react-dom";
 import { cn as i } from "../../lib/cn.js";
 import { JPanelImpl as l } from "../../atoms/JPanel/JPanelImpl.js";
-import { InputAtomImpl as j } from "../../atoms/InputAtom/InputAtomImpl.js";
-const J = ({
+import { JTextBoxImpl as j } from "../../atoms/JTextBox/JTextBoxImpl.js";
+const M = ({
   selected: r,
   query: m,
   filtered: t,
@@ -12,8 +12,8 @@ const J = ({
   placeholder: c,
   searchPlaceholder: s,
   emptyText: f,
-  className: p,
-  listStyle: x,
+  className: x,
+  listStyle: p,
   triggerRef: h,
   inputRef: g,
   listRef: v,
@@ -22,7 +22,7 @@ const J = ({
   onQueryChange: y,
   onSelect: N,
   onKeyDown: k
-}) => /* @__PURE__ */ o(l, { variant: "ghost", padding: "none", radius: "none", className: i("relative inline-block w-full", p), children: [
+}) => /* @__PURE__ */ o(l, { variant: "ghost", padding: "none", radius: "none", className: i("relative inline-block w-full", x), children: [
   /* @__PURE__ */ o(
     "button",
     {
@@ -60,7 +60,7 @@ const J = ({
     }
   ),
   n && C(
-    /* @__PURE__ */ o(l, { variant: "ghost", padding: "none", radius: "none", ref: v, style: x, className: "z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg", children: [
+    /* @__PURE__ */ o(l, { variant: "ghost", padding: "none", radius: "none", ref: v, style: p, className: "z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg", children: [
       /* @__PURE__ */ a(l, { variant: "ghost", padding: "none", radius: "none", className: "border-b border-neutral-100 p-2", children: /* @__PURE__ */ a(
         j,
         {
@@ -102,6 +102,6 @@ const J = ({
   )
 ] });
 export {
-  J as ComboboxMoleculeView
+  M as ComboboxMoleculeView
 };
 //# sourceMappingURL=ComboboxMoleculeView.js.map

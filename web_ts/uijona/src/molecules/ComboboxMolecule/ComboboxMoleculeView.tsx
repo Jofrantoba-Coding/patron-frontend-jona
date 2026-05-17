@@ -3,7 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { ComboboxOption } from './InterComboboxMolecule';
-import { InputAtom } from '../../atoms/InputAtom';
+import { JTextBox } from '../../atoms/JTextBox';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 interface ComboboxMoleculeViewProps {
@@ -65,7 +65,7 @@ export const ComboboxMoleculeView: React.FC<ComboboxMoleculeViewProps> = ({
       <JPanel variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
         {/* Search */}
         <JPanel variant="ghost" padding="none" radius="none" className="border-b border-neutral-100 p-2">
-          <InputAtom
+          <JTextBox
             ref={inputRef}
             type="text"
             value={query}

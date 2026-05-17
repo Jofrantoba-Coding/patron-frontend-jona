@@ -1,6 +1,5 @@
 export * from './atoms/JButton';
-export * from './atoms/ButtonAtom';
-export * from './atoms/InputAtom';
+export * from './atoms/JTextBox';
 export * from './atoms/TextareaAtom';
 export * from './atoms/BadgeAtom';
 export * from './atoms/SpinnerAtom';

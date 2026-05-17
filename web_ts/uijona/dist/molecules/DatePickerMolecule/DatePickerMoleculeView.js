@@ -2,7 +2,7 @@ import { jsxs as n, jsx as r } from "react/jsx-runtime";
 import { createPortal as Q } from "react-dom";
 import { cn as d } from "../../lib/cn.js";
 import { JPanelImpl as a } from "../../atoms/JPanel/JPanelImpl.js";
-import { InputAtomImpl as m } from "../../atoms/InputAtom/InputAtomImpl.js";
+import { JTextBoxImpl as m } from "../../atoms/JTextBox/JTextBoxImpl.js";
 import { LabelAtomImpl as p } from "../../atoms/LabelAtom/LabelAtomImpl.js";
 const R = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"], U = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 function X(t, i) {
@@ -11,7 +11,7 @@ function X(t, i) {
   for (; u.length % 7 !== 0; ) u.push(null);
   return u;
 }
-function A(t, i) {
+function j(t, i) {
   return t.getFullYear() === i.getFullYear() && t.getMonth() === i.getMonth() && t.getDate() === i.getDate();
 }
 function N(t) {
@@ -28,18 +28,18 @@ const ee = ({
   max: g,
   disabled: x,
   placeholder: w,
-  mask: j,
+  mask: A,
   showTime: D,
   showSeconds: M,
   showTimezone: k,
   timezoneOptions: f,
   timeParts: c,
-  className: F,
-  panelStyle: I,
-  triggerRef: J,
+  className: J,
+  panelStyle: B,
+  triggerRef: F,
   panelRef: L,
-  inputRef: B,
-  onInputChange: H,
+  inputRef: H,
+  onInputChange: I,
   onTriggerClick: W,
   onPrevMonth: V,
   onNextMonth: E,
@@ -48,14 +48,14 @@ const ee = ({
   onTimezoneChange: C
 }) => {
   const z = X(o, s), G = !l || new Date(o, s, 0) >= l, K = !g || new Date(o, s + 1, 1) <= g;
-  return /* @__PURE__ */ n(a, { variant: "ghost", padding: "none", radius: "none", className: d("relative inline-block w-full", F), children: [
+  return /* @__PURE__ */ n(a, { variant: "ghost", padding: "none", radius: "none", className: d("relative inline-block w-full", J), children: [
     /* @__PURE__ */ n(
       a,
       {
         variant: "ghost",
         padding: "none",
         radius: "none",
-        ref: J,
+        ref: F,
         className: d(
           "flex h-9 w-full items-center rounded-md border border-neutral-300 bg-neutral-50 text-sm transition-colors",
           "focus-within:ring-2 focus-within:ring-primary-500",
@@ -66,12 +66,12 @@ const ee = ({
           /* @__PURE__ */ r(
             m,
             {
-              ref: B,
+              ref: H,
               type: "text",
               disabled: x,
               value: t,
-              onChange: H,
-              placeholder: w || j,
+              onChange: I,
+              placeholder: w || A,
               "aria-label": w || "Fecha",
               className: d(
                 "min-w-0 flex-1 rounded-l-md rounded-r-none border-0 bg-transparent px-3 py-1 text-sm text-neutral-900",
@@ -114,7 +114,7 @@ const ee = ({
           ref: L,
           role: "dialog",
           "aria-label": "Calendario",
-          style: I,
+          style: B,
           className: "z-50 w-80 max-w-[calc(100vw-16px)] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl",
           children: [
             /* @__PURE__ */ n(a, { variant: "ghost", padding: "none", radius: "none", className: "mb-2 flex items-center justify-between gap-2", children: [
@@ -149,7 +149,7 @@ const ee = ({
             /* @__PURE__ */ r(a, { variant: "ghost", padding: "none", radius: "none", className: "mb-1 grid grid-cols-7 text-center", children: R.map((e) => /* @__PURE__ */ r("span", { className: "text-xs font-medium text-neutral-400", children: e }, e)) }),
             /* @__PURE__ */ r(a, { variant: "ghost", padding: "none", radius: "none", className: "grid grid-cols-7 gap-y-0.5", children: z.map((e, S) => {
               if (!e) return /* @__PURE__ */ r("span", {}, S);
-              const y = b ? A(e, b) : !1, P = A(e, u), v = l && e < l || g && e > g;
+              const y = b ? j(e, b) : !1, P = j(e, u), v = l && e < l || g && e > g;
               return /* @__PURE__ */ r(
                 "button",
                 {

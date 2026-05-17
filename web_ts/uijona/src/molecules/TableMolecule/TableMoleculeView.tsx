@@ -8,7 +8,7 @@ import {
   TableSortDirection,
 } from './InterTableMolecule';
 import { useTableContext } from './TableMoleculeContext';
-import { InputAtom } from '../../atoms/InputAtom';
+import { JTextBox } from '../../atoms/JTextBox';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const outerClasses: Record<TableResponsiveMode, string> = {
@@ -453,7 +453,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
           )}
 
           {filterable && (
-            <InputAtom
+            <JTextBox
               {...inputFilterProps}
               type={filterInputProps?.type ?? 'text'}
               value={effectiveFilterValue}

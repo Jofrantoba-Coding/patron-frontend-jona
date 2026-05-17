@@ -5,7 +5,11 @@ import { JTextBoxView } from './JTextBoxView';
 type JTextBoxImplProps = InterJTextBox &
   Omit<
     React.InputHTMLAttributes<HTMLInputElement>,
-    'onChange' | 'onBlur' | 'onKeyDown' | 'size' | 'type'
+    // Eventos reemplazados con firma JONA (value-first)
+    | 'onChange' | 'onBlur' | 'onKeyDown'
+    // Props que define InterJTextBox — si no los omitimos, la intersección
+    // con HTML los narrowea: ('sm'|'md'|'lg'|number) & number = number
+    | 'value' | 'defaultValue' | 'type' | 'size'
   >;
 
 export const JTextBoxImpl = React.forwardRef<HTMLInputElement, JTextBoxImplProps>(

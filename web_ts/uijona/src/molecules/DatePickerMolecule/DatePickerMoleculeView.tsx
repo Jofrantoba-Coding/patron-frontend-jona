@@ -2,7 +2,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
-import { InputAtom } from '../../atoms/InputAtom';
+import { JTextBox } from '../../atoms/JTextBox';
 import { LabelAtom } from '../../atoms/LabelAtom';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -110,7 +110,7 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
           open && 'ring-2 ring-primary-500'
         )}
       >
-        <InputAtom
+        <JTextBox
           ref={inputRef}
           type="text"
           disabled={disabled}
@@ -213,7 +213,7 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                 <JPanel variant="ghost" padding="none" radius="none" className="grid grid-cols-3 gap-2">
                   <LabelAtom className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     HH
-                    <InputAtom
+                    <JTextBox
                       type="number"
                       min={0}
                       max={23}
@@ -224,7 +224,7 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                   </LabelAtom>
                   <LabelAtom className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     mm
-                    <InputAtom
+                    <JTextBox
                       type="number"
                       min={0}
                       max={59}
@@ -236,7 +236,7 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                   {showSeconds && (
                     <LabelAtom className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                       ss
-                      <InputAtom
+                      <JTextBox
                         type="number"
                         min={0}
                         max={59}
@@ -264,7 +264,7 @@ export const DatePickerMoleculeView: React.FC<DatePickerMoleculeViewProps> = ({
                       ))}
                     </select>
                   ) : (
-                    <InputAtom
+                    <JTextBox
                       type="text"
                       value={timeParts.timezone ?? ''}
                       onChange={onTimezoneChange}

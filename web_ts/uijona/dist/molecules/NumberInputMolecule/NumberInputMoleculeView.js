@@ -1,7 +1,7 @@
 import { jsxs as i, jsx as e } from "react/jsx-runtime";
 import { cn as f } from "../../lib/cn.js";
-import { JPanelImpl as v } from "../../atoms/JPanel/JPanelImpl.js";
-import { InputAtomImpl as x } from "../../atoms/InputAtom/InputAtomImpl.js";
+import { JPanelImpl as x } from "../../atoms/JPanel/JPanelImpl.js";
+import { JTextBoxImpl as v } from "../../atoms/JTextBox/JTextBoxImpl.js";
 const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: /* @__PURE__ */ e("path", { d: "M5 12h14" }) }), w = () => /* @__PURE__ */ i("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
   /* @__PURE__ */ e("path", { d: "M12 5v14" }),
   /* @__PURE__ */ e("path", { d: "M5 12h14" })
@@ -13,12 +13,12 @@ const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 2
   disabled: n,
   className: a,
   forwardedRef: d,
-  onInputChange: u,
-  onInputBlur: c,
+  onInputChange: c,
+  onInputBlur: u,
   onDecrementClick: b,
   onIncrementClick: m,
   ...h
-}) => /* @__PURE__ */ i(v, { variant: "ghost", padding: "none", radius: "none", className: f("inline-flex max-w-full min-w-0 items-stretch rounded-md border bg-white", t ? "border-danger-500" : "border-neutral-300", a), children: [
+}) => /* @__PURE__ */ i(x, { variant: "ghost", padding: "none", radius: "none", className: f("inline-flex max-w-full min-w-0 items-stretch rounded-md border bg-white", t ? "border-danger-500" : "border-neutral-300", a), children: [
   /* @__PURE__ */ e(
     "button",
     {
@@ -31,7 +31,7 @@ const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 2
     }
   ),
   /* @__PURE__ */ e(
-    x,
+    v,
     {
       ...h,
       ref: d,
@@ -39,8 +39,8 @@ const g = () => /* @__PURE__ */ e("svg", { className: "h-4 w-4", viewBox: "0 0 2
       value: o,
       disabled: n,
       hasError: t,
-      onChange: (p, r) => u(r),
-      onBlur: (p, r) => c(r),
+      onChange: (p, r) => c(r),
+      onBlur: (p, r) => u(r),
       className: "h-9 min-w-0 flex-1 rounded-none border-0 bg-neutral-50 px-3 py-1 text-center text-sm text-neutral-900 placeholder:text-neutral-400 focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50"
     }
   ),

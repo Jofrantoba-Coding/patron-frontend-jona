@@ -2,21 +2,21 @@ import React from 'react';
 
 export type JTextBoxVariant = 'default' | 'filled' | 'ghost';
 export type JTextBoxSize = 'sm' | 'md' | 'lg';
-export type JTextBoxType =
-  | 'text' | 'email' | 'password' | 'number' | 'tel'
-  | 'url' | 'search' | 'date' | 'time' | 'datetime-local';
+// Acepta todos los type de <input> de HTML para que los molecules puedan pasar type="file", etc.
+export type JTextBoxType = React.InputHTMLAttributes<HTMLInputElement>['type'];
 
 export interface InterJTextBox {
-  // Valor
-  value?: string;
-  defaultValue?: string;
+  // Valor — mismo tipo que React acepta en <input value>
+  value?: string | number | readonly string[];
+  defaultValue?: string | number | readonly string[];
   placeholder?: string;
   name?: string;
   id?: string;
 
   // Apariencia
   variant?: JTextBoxVariant;
-  size?: JTextBoxSize;
+  // Acepta JTextBoxSize ('sm'|'md'|'lg') o number (atributo HTML size — se ignora visualmente)
+  size?: JTextBoxSize | number;
   type?: JTextBoxType;
 
   // Iconos internos

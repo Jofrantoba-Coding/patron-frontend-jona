@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { InputAtom } from '../../atoms/InputAtom';
+import { JTextBox } from '../../atoms/JTextBox';
 import { SpinnerAtom } from '../../atoms/SpinnerAtom';
 import { InterSearchInputMolecule } from './InterSearchInputMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
@@ -51,7 +51,7 @@ export const SearchInputMoleculeView: React.FC<SearchInputMoleculeViewProps> = (
       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
         {loading ? <SpinnerAtom size="sm" /> : <SearchIcon />}
       </span>
-      <InputAtom
+      <JTextBox
         {...props}
         ref={forwardedRef}
         type="search"

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { ToastProvider, useToast } from './useToast';
 import { JButton } from '../../atoms/JButton/JButton';
-import { InputAtom } from '../../atoms/InputAtom/InputAtom';
+import { JTextBox } from '../../atoms/JTextBox/JTextBox';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta = {
@@ -77,7 +77,7 @@ const InteractiveForm = () => {
   };
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '280px' }}>
-      <InputAtom
+      <JTextBox
         type="email"
         placeholder="correo@ejemplo.com"
         value={email}

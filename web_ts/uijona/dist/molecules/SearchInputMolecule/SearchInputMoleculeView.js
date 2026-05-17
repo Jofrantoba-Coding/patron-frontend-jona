@@ -2,11 +2,11 @@ import { jsxs as r, jsx as e } from "react/jsx-runtime";
 import { cn as o } from "../../lib/cn.js";
 import { JPanelImpl as l } from "../../atoms/JPanel/JPanelImpl.js";
 import { SpinnerAtomImpl as w } from "../../atoms/SpinnerAtom/SpinnerAtomImpl.js";
-import { InputAtomImpl as N } from "../../atoms/InputAtom/InputAtomImpl.js";
+import { JTextBoxImpl as N } from "../../atoms/JTextBox/JTextBoxImpl.js";
 const k = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
   /* @__PURE__ */ e("circle", { cx: "11", cy: "11", r: "7" }),
   /* @__PURE__ */ e("path", { d: "m20 20-3.5-3.5" })
-] }), I = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
+] }), C = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
   /* @__PURE__ */ e("path", { d: "M18 6 6 18" }),
   /* @__PURE__ */ e("path", { d: "m6 6 12 12" })
 ] }), M = ({
@@ -22,8 +22,8 @@ const k = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 2
   onInputKeyDown: p,
   onClearClick: f,
   onSearchClick: b,
-  placeholder: v = "Search",
-  "aria-label": x = "Search",
+  placeholder: x = "Search",
+  "aria-label": v = "Search",
   ...g
 }) => /* @__PURE__ */ r(l, { variant: "ghost", padding: "none", radius: "none", className: o("flex w-full min-w-0 items-center gap-2", u), children: [
   /* @__PURE__ */ r(l, { variant: "ghost", padding: "none", radius: "none", className: "relative min-w-0 flex-1", children: [
@@ -37,8 +37,8 @@ const k = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 2
         role: "searchbox",
         value: i,
         disabled: n,
-        placeholder: v,
-        "aria-label": x,
+        placeholder: x,
+        "aria-label": v,
         onChange: (y, t) => d(t),
         onBlur: (y, t) => h(t),
         onKeyDown: p,
@@ -58,7 +58,7 @@ const k = () => /* @__PURE__ */ r("svg", { className: "h-4 w-4", viewBox: "0 0 2
         "aria-label": "Clear search",
         onClick: f,
         className: "absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
-        children: /* @__PURE__ */ e(I, {})
+        children: /* @__PURE__ */ e(C, {})
       }
     )
   ] }),

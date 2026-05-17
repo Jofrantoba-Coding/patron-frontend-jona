@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DialogMolecule } from './DialogMolecule';
 import { JButton } from '../../atoms/JButton/JButton';
-import { InputAtom } from '../../atoms/InputAtom/InputAtom';
+import { JTextBox } from '../../atoms/JTextBox/JTextBox';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { TextAtom } from '../../atoms/TextAtom/TextAtom';
 
@@ -93,7 +93,7 @@ export const Interactive: Story = {
             </JPanel>
           }
         >
-          <InputAtom
+          <JTextBox
             value={draft}
             onChange={setDraft}
           />

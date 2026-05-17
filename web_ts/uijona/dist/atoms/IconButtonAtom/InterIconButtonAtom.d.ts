@@ -1,9 +1,9 @@
 import React from 'react';
-import { ButtonVariant } from '../ButtonAtom';
+import { JButtonVariant } from '../JButton';
 export interface InterIconButtonAtom extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
     icon: React.ReactNode;
     label: string;
-    variant?: ButtonVariant;
+    variant?: JButtonVariant;
     loading?: boolean;
 }
 export declare const ICON_BUTTON_ATOM_DEFAULTS: Required<Pick<InterIconButtonAtom, 'variant' | 'loading'>>;
