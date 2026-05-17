@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { StepperMolecule } from './StepperMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JButton } from '../../atoms/JButton/JButton';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const steps = [
   { id: 'account', label: 'Account', description: 'Basic profile data' },
@@ -60,7 +60,7 @@ export const Interactive: Story = {
     if (done) {
       return (
         <JPanel variant="ghost" padding="none" className="flex flex-col items-center gap-4 p-8">
-          <TextAtom size="lg" className="font-semibold text-green-600">Configuración completada</TextAtom>
+          <JLabel size="lg" className="font-semibold text-green-600">Configuración completada</JLabel>
           <JButton variant="outline" size="sm" onClick={() => setStep(0)}>Reiniciar</JButton>
         </JPanel>
       );

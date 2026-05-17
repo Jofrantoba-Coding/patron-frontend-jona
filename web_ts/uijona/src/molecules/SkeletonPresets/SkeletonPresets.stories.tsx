@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { SkeletonCard, SkeletonUserRow, SkeletonTableRows, SkeletonForm } from './SkeletonPresets';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta = {
   title: 'Molecules/SkeletonPresets',
@@ -37,11 +37,11 @@ export const Interactive: StoryObj = {
             <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <JPanel variant="ghost" padding="none" style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#4f46e5' }}>JF</JPanel>
               <JPanel variant="ghost" padding="none">
-                <TextAtom size="sm" className="font-semibold">Jonathan Franck</TextAtom>
-                <TextAtom size="xs" className="text-neutral-400">jofrantoba@gmail.com</TextAtom>
+                <JLabel size="sm" className="font-semibold">Jonathan Franck</JLabel>
+                <JLabel size="xs" className="text-neutral-400">jofrantoba@gmail.com</JLabel>
               </JPanel>
             </JPanel>
-            <TextAtom size="sm" className="text-neutral-600">Administrador con acceso completo a todos los módulos del sistema.</TextAtom>
+            <JLabel size="sm" className="text-neutral-600">Administrador con acceso completo a todos los módulos del sistema.</JLabel>
           </JPanel>
         ) : (
           <SkeletonCard />

@@ -4,7 +4,7 @@ import { CardLayout } from './CardLayout';
 import { FlowLayout } from '../FlowLayout/FlowLayout';
 import { BoxLayout } from '../BoxLayout/BoxLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { JButton } from '../../atoms/JButton/JButton';
 
 const meta: Meta<typeof CardLayout> = {
@@ -26,10 +26,10 @@ export const FirstCardByDefault: Story = {
   render: (args) => (
     <CardLayout {...args} className="w-full max-w-md">
       <JPanel data-panel-card="profile" variant="outlined" padding="lg">
-        <TextAtom size="sm">Perfil visible por defecto.</TextAtom>
+        <JLabel size="sm">Perfil visible por defecto.</JLabel>
       </JPanel>
       <JPanel data-panel-card="security" variant="outlined" padding="lg">
-        <TextAtom size="sm">Seguridad.</TextAtom>
+        <JLabel size="sm">Seguridad.</JLabel>
       </JPanel>
     </CardLayout>
   ),
@@ -57,13 +57,13 @@ export const Interactive: Story = {
 
         <CardLayout activeCard={activeCard}>
           <JPanel data-panel-card="perfil" variant="outlined" padding="lg">
-            <TextAtom size="sm">Datos generales del perfil.</TextAtom>
+            <JLabel size="sm">Datos generales del perfil.</JLabel>
           </JPanel>
           <JPanel data-panel-card="seguridad" variant="outlined" padding="lg">
-            <TextAtom size="sm">Opciones de acceso y permisos.</TextAtom>
+            <JLabel size="sm">Opciones de acceso y permisos.</JLabel>
           </JPanel>
           <JPanel data-panel-card="facturacion" variant="outlined" padding="lg">
-            <TextAtom size="sm">Informacion de pagos y suscripciones.</TextAtom>
+            <JLabel size="sm">Informacion de pagos y suscripciones.</JLabel>
           </JPanel>
         </CardLayout>
       </BoxLayout>

@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DialogMolecule } from './DialogMolecule';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JTextBox } from '../../atoms/JTextBox/JTextBox';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof DialogMolecule> = {
   title: 'Molecules/DialogMolecule',
@@ -76,7 +76,7 @@ export const Interactive: Story = {
     const [draft, setDraft] = useState('Jonathan Franck');
     return (
       <JPanel variant="ghost" padding="none" className="flex flex-col gap-3 items-start">
-        <TextAtom size="sm">Nombre actual: <strong>{name}</strong></TextAtom>
+        <JLabel size="sm">Nombre actual: <strong>{name}</strong></JLabel>
         <JButton variant="outline" onClick={() => { setDraft(name); setOpen(true); }}>
           Editar nombre
         </JButton>

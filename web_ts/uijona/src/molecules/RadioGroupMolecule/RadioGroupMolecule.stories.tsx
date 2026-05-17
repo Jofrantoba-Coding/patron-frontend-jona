@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RadioGroupMolecule } from './RadioGroupMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const options = [
   { value: 'basic', label: 'Basic', description: 'Para formularios simples y prototipos.' },
@@ -83,10 +83,10 @@ export const Interactive: Story = {
         {plan && (
           <JPanel variant="ghost" padding="none" className="rounded-md bg-neutral-50 border p-4 text-sm flex justify-between">
             <JPanel variant="ghost" padding="none">
-              <TextAtom className="font-semibold">{options.find((o) => o.value === plan)?.label}</TextAtom>
-              <TextAtom className="text-neutral-500">{options.find((o) => o.value === plan)?.description}</TextAtom>
+              <JLabel className="font-semibold">{options.find((o) => o.value === plan)?.label}</JLabel>
+              <JLabel className="text-neutral-500">{options.find((o) => o.value === plan)?.description}</JLabel>
             </JPanel>
-            <TextAtom className="font-bold text-primary-700">{prices[plan]}</TextAtom>
+            <JLabel className="font-bold text-primary-700">{prices[plan]}</JLabel>
           </JPanel>
         )}
       </JPanel>

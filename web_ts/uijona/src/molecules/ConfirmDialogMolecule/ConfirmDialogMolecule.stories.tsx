@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ConfirmDialogMolecule } from './ConfirmDialogMolecule';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof ConfirmDialogMolecule> = {
   title: 'Molecules/ConfirmDialogMolecule',
@@ -55,7 +55,7 @@ export const Interactive: Story = {
         <JButton variant="destructive" onClick={() => setOpen(true)}>
           Eliminar elemento
         </JButton>
-        {result && <TextAtom size="sm" className="text-neutral-600">Resultado: {result}</TextAtom>}
+        {result && <JLabel size="sm" className="text-neutral-600">Resultado: {result}</JLabel>}
         <ConfirmDialogMolecule
           open={open}
           variant="danger"

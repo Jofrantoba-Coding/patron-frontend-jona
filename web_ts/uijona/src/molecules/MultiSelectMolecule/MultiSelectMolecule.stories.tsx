@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { MultiSelectMolecule } from './MultiSelectMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const SKILLS = [
   { value: 'react', label: 'React' },
@@ -80,9 +80,9 @@ const [values, setValues] = useState<string[]>([]);
           maxSelected={4}
           onChange={(v, options) => { args.onChange?.(v, options); setValues(v); }}
         />
-        <TextAtom size="sm" color="muted">
+        <JLabel size="sm" color="muted">
           {values.length === 0 ? 'Ninguna seleccionada' : `Seleccionadas (${values.length}): ${values.join(', ')}`}
-        </TextAtom>
+        </JLabel>
       </JPanel>
     );
   },

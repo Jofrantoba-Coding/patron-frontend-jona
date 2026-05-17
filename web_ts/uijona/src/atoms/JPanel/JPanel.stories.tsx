@@ -310,7 +310,7 @@ El contenedor necesita altura definida para que center se expanda (usa min-h-* o
         <JButton variant="outline" size="sm">Ayuda</JButton>
       </JPanel>
 
-      <JPanel area="center" variant="link" padding="md" radius="sm" layout="box" gap="sm">
+      <JPanel area="center" variant="default" padding="md" radius="sm" layout="box" gap="sm">
         <JButton size="sm">Acción principal</JButton>
         <JButton variant="outline" size="sm">Acción secundaria</JButton>
       </JPanel>

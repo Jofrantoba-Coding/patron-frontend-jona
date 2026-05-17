@@ -45,10 +45,10 @@ export const Danger: Story = {
 export const AllVariants: Story = {
   render: () => (
     <JPanel variant="ghost" padding="none" style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <ProgressAtom value={80} variant="link"  showLabel />
+      <ProgressAtom value={80} variant="default"  showLabel />
       <ProgressAtom value={90} variant="success"  showLabel />
       <ProgressAtom value={55} variant="warning"  showLabel />
-      <ProgressAtom value={25} variant="link-danger"   showLabel />
+      <ProgressAtom value={25} variant="danger"   showLabel />
     </JPanel>
   ),
 };

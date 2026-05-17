@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { AccordionMolecule } from './AccordionMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const items = [
   {
@@ -81,7 +81,7 @@ export const Interactive: Story = {
           defaultValue={current}
           onValueChange={(v) => { args.onValueChange?.(v); setCurrent(String(v)); }}
         />
-        <TextAtom size="xs" className="text-neutral-400">Última sección abierta: <strong>{current}</strong></TextAtom>
+        <JLabel size="xs" className="text-neutral-400">Última sección abierta: <strong>{current}</strong></JLabel>
       </JPanel>
     );
   },

@@ -1,8 +1,8 @@
-import React from 'react';
+﻿import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterFileUploadMolecule } from './InterFileUploadMolecule';
 import { JTextBox } from '../../atoms/JTextBox';
-import { LabelAtom } from '../../atoms/LabelAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 type FileUploadMoleculeViewProps = Omit<InterFileUploadMolecule, 'files' | 'defaultFiles' | 'onFilesChange' | 'onReject' | 'onRemoveFile'> & {
@@ -51,7 +51,7 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
   ...inputProps
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
-    <LabelAtom
+    <JLabel variant="label"
       htmlFor={inputId}
       onDragOver={onDropZoneDragOver}
       onDragLeave={onDropZoneDragLeave}
@@ -79,7 +79,7 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
         onBlur={onBlur ? (_, event) => onBlur(event) : undefined}
         className="sr-only"
       />
-    </LabelAtom>
+    </JLabel>
 
     {helperText && <p className="break-words text-xs text-neutral-500">{helperText}</p>}
 

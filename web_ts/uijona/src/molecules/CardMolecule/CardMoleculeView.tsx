@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 type CardTitleProps = Omit<React.HTMLAttributes<HTMLHeadingElement>, 'color'>;
 type CardDescriptionProps = Omit<React.HTMLAttributes<HTMLParagraphElement>, 'color'>;
@@ -16,11 +16,11 @@ export const CardHeaderView: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 );
 
 export const CardTitleView: React.FC<CardTitleProps> = ({ className, children, ...props }) => (
-  <TextAtom as="h3" className={cn('break-words text-lg font-semibold leading-tight text-neutral-900', className)} {...props}>{children}</TextAtom>
+  <JLabel as="h3" className={cn('break-words text-lg font-semibold leading-tight text-neutral-900', className)} {...props}>{children}</JLabel>
 );
 
 export const CardDescriptionView: React.FC<CardDescriptionProps> = ({ className, children, ...props }) => (
-  <TextAtom className={cn('break-words text-sm text-neutral-500', className)} {...props}>{children}</TextAtom>
+  <JLabel className={cn('break-words text-sm text-neutral-500', className)} {...props}>{children}</JLabel>
 );
 
 export const CardContentView: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (

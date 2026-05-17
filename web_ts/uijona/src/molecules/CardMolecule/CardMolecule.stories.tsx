@@ -10,7 +10,7 @@ import {
 } from './CardMolecule';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof CardMolecule> = {
   title: 'Molecules/CardMolecule',
@@ -28,7 +28,7 @@ export const Default: Story = {
         <CardDescription>Descripción breve del contenido</CardDescription>
       </CardHeader>
       <CardContent>
-        <TextAtom>Contenido principal de la tarjeta. Puede ser cualquier elemento React.</TextAtom>
+        <JLabel>Contenido principal de la tarjeta. Puede ser cualquier elemento React.</JLabel>
       </CardContent>
       <CardFooter>
         <JButton variant="outline" size="sm">Cancelar</JButton>
@@ -41,7 +41,7 @@ export const Default: Story = {
 export const Simple: Story = {
   render: () => (
     <CardMolecule style={{ width: '360px', padding: '16px' }}>
-      <TextAtom>Tarjeta simple con solo contenido directo.</TextAtom>
+      <JLabel>Tarjeta simple con solo contenido directo.</JLabel>
     </CardMolecule>
   ),
 };
@@ -68,8 +68,8 @@ export const Interactive: Story = {
           <CardDescription>Plan anual con soporte prioritario incluido</CardDescription>
         </CardHeader>
         <CardContent>
-          <TextAtom size="2xl" className="font-bold mb-1">$99.00/año</TextAtom>
-          <TextAtom size="sm" color="muted">Equivale a $8.25/mes. Cancela cuando quieras.</TextAtom>
+          <JLabel size="2xl" className="font-bold mb-1">$99.00/año</JLabel>
+          <JLabel size="sm" color="muted">Equivale a $8.25/mes. Cancela cuando quieras.</JLabel>
         </CardContent>
         <CardFooter>
           <JButton variant="outline" size="sm" onClick={() => setAdded(false)} disabled={!added}>

@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { TooltipMolecule } from './TooltipMolecule';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof TooltipMolecule> = {
   title: 'Molecules/TooltipMolecule',
@@ -72,9 +72,9 @@ export const Interactive: Story = {
           ))}
         </JPanel>
         {lastClicked && (
-          <TextAtom size="sm" color="muted">
+          <JLabel size="sm" color="muted">
             Última acción: <strong>{lastClicked}</strong>
-          </TextAtom>
+          </JLabel>
         )}
       </JPanel>
     );

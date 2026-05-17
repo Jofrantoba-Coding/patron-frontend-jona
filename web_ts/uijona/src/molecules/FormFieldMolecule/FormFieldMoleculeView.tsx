@@ -1,9 +1,8 @@
-// FormFieldMoleculeView.tsx — JONA View (render puro)
+﻿// FormFieldMoleculeView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { LabelAtom } from '../../atoms/LabelAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { JTextBox } from '../../atoms/JTextBox';
-import { ErrorMessageAtom } from '../../atoms/ErrorMessageAtom';
 import { InterFormFieldMolecule } from './InterFormFieldMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -22,7 +21,7 @@ export const FormFieldMoleculeView: React.FC<FormFieldMoleculeViewProps> = ({
   const hasError = !!errorMessage;
   return (
     <JPanel variant="ghost" padding="none" radius="none" className={cn(orientation === 'horizontal' ? 'flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-4' : 'flex flex-col gap-1.5', className)}>
-      <LabelAtom htmlFor={id} required={required} className={cn(orientation === 'horizontal' && 'sm:shrink-0')}>{label}</LabelAtom>
+      <JLabel variant="label" htmlFor={id} required={required} className={cn(orientation === 'horizontal' && 'sm:shrink-0')}>{label}</JLabel>
       <JPanel variant="ghost" padding="none" radius="none" className={cn('flex min-w-0 flex-col gap-1', orientation === 'horizontal' && 'sm:flex-1')}>
         <JTextBox
           ref={forwardedRef}
@@ -38,8 +37,8 @@ export const FormFieldMoleculeView: React.FC<FormFieldMoleculeViewProps> = ({
           onClear={onClear}
           {...inputProps}
         />
-        {description && !hasError && <ErrorMessageAtom id={`${id}-desc`} message={description} type="description" />}
-        {hasError && <ErrorMessageAtom message={errorMessage} type="error" />}
+        {description && !hasError && <JLabel id={`${id}-desc`} message={description} variant="description" />}
+        {hasError && <JLabel message={errorMessage} variant="error" />}
       </JPanel>
     </JPanel>
   );

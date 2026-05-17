@@ -1,8 +1,8 @@
-// FaqItemMoleculeView.tsx — JONA View
+﻿// FaqItemMoleculeView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterFaqItemMolecule } from './InterFaqItemMolecule';
 
 export const FaqItemMoleculeView: React.FC<InterFaqItemMolecule> = ({
@@ -11,7 +11,7 @@ export const FaqItemMoleculeView: React.FC<InterFaqItemMolecule> = ({
   className,
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('detail-faq-item', className)}>
-    <TextAtom as="strong" className="detail-faq-q">{question}</TextAtom>
-    <TextAtom className="detail-faq-a">{answer}</TextAtom>
+    <JLabel as="strong" className="detail-faq-q">{question}</JLabel>
+    <JLabel className="detail-faq-a">{answer}</JLabel>
   </JPanel>
 );

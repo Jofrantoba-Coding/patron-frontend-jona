@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { JPanel } from '../../atoms/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { SpringLayout } from './SpringLayout';
 
 const meta: Meta<typeof SpringLayout> = {
@@ -27,7 +27,7 @@ type Story = StoryObj<typeof SpringLayout>;
 
 const SpringNode = ({ label }: { label: string }) => (
   <JPanel variant="outlined" padding="md" radius="sm">
-    <TextAtom as="span" size="sm" className="font-medium text-neutral-700">{label}</TextAtom>
+    <JLabel as="span" size="sm" className="font-medium text-neutral-700">{label}</JLabel>
   </JPanel>
 );
 
@@ -40,13 +40,13 @@ export const ResponsiveConstraints: Story = {
   render: (args) => (
     <SpringLayout {...args} className="w-full max-w-3xl">
       <JPanel data-spring-left="0" data-spring-top="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
-        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Left anchored</TextAtom>
+        <JLabel as="span" size="sm" className="font-medium text-neutral-700">Left anchored</JLabel>
       </JPanel>
       <JPanel data-spring-left="14rem" data-spring-top="4rem" data-spring-width="14rem" variant="outlined" padding="md" radius="sm">
-        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Offset from first</TextAtom>
+        <JLabel as="span" size="sm" className="font-medium text-neutral-700">Offset from first</JLabel>
       </JPanel>
       <JPanel data-spring-right="0" data-spring-bottom="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
-        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Bottom end</TextAtom>
+        <JLabel as="span" size="sm" className="font-medium text-neutral-700">Bottom end</JLabel>
       </JPanel>
     </SpringLayout>
   ),

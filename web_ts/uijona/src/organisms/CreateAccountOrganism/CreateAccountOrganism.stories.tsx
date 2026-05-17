@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { CreateAccountOrganism } from './CreateAccountOrganism';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JButton } from '../../atoms/JButton/JButton';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof CreateAccountOrganism> = {
   title: 'Organisms/CreateAccountOrganism',
@@ -98,8 +98,8 @@ export const Interactive: Story = {
     if (status === 'success') {
       return (
         <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
-          <TextAtom size="xl" color="success" className="font-bold">¡Cuenta creada!</TextAtom>
-          <TextAtom size="sm" color="muted">Bienvenido, {name}</TextAtom>
+          <JLabel size="xl" color="success" className="font-bold">¡Cuenta creada!</JLabel>
+          <JLabel size="sm" color="muted">Bienvenido, {name}</JLabel>
           <JButton variant="link" size="sm" onClick={() => { setStatus('idle'); setName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setErrors({}); }}>Volver</JButton>
         </JPanel>
       );

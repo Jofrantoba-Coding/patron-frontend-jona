@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { BorderLayout } from './BorderLayout';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof BorderLayout> = {
   title: 'Layouts/BorderLayout',
@@ -79,7 +79,7 @@ export const Interactive: Story = {
         <BorderLayout
           north={
             <JPanel variant="ghost" padding="none" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#1e40af', color: '#fff' }}>
-              <TextAtom as="span" className="font-bold text-neutral-950">JONA UI</TextAtom>
+              <JLabel as="span" className="font-bold text-neutral-950">JONA UI</JLabel>
               <JButton variant="outline" size="sm" onClick={() => setSidebarOpen((s) => !s)} className="border-white/40 text-white hover:bg-white/10 hover:text-white">
                 {sidebarOpen ? 'Colapsar' : 'Expandir'}
               </JButton>
@@ -87,7 +87,7 @@ export const Interactive: Story = {
           }
           west={sidebarOpen ? (
             <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '12px 8px', background: '#f5f5f5', borderRight: '1px solid #e5e5e5', height: '100%' }}>
-              <TextAtom as="p" className="text-[10px] font-semibold text-neutral-400 uppercase px-2 mb-1">Menú</TextAtom>
+              <JLabel as="p" className="text-[10px] font-semibold text-neutral-400 uppercase px-2 mb-1">Menú</JLabel>
               {pages.map((page) => (
                 <JButton
                   key={page}
@@ -104,8 +104,8 @@ export const Interactive: Story = {
           ) : undefined}
           center={
             <JPanel variant="ghost" padding="none" className="p-5">
-              <TextAtom className="font-semibold mb-2 text-neutral-950">{activePage}</TextAtom>
-              <TextAtom size="sm" className="text-neutral-600">Contenido de la sección <strong>{activePage}</strong>. El sidebar está {sidebarOpen ? 'visible' : 'colapsado'}.</TextAtom>
+              <JLabel className="font-semibold mb-2 text-neutral-950">{activePage}</JLabel>
+              <JLabel size="sm" className="text-neutral-600">Contenido de la sección <strong>{activePage}</strong>. El sidebar está {sidebarOpen ? 'visible' : 'colapsado'}.</JLabel>
             </JPanel>
           }
           south={

@@ -1,8 +1,8 @@
-// NumberedStepMoleculeView.tsx — JONA View
+﻿// NumberedStepMoleculeView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterNumberedStepMolecule } from './InterNumberedStepMolecule';
 
 export const NumberedStepMoleculeView: React.FC<InterNumberedStepMolecule> = ({
@@ -12,10 +12,10 @@ export const NumberedStepMoleculeView: React.FC<InterNumberedStepMolecule> = ({
   className,
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('contact-step', className)}>
-    <TextAtom as="span" className="contact-step-num">{num}</TextAtom>
+    <JLabel as="span" className="contact-step-num">{num}</JLabel>
     <JPanel variant="ghost" padding="none" radius="none" className="contact-step-body">
-      <TextAtom as="strong" className="contact-step-title">{title}</TextAtom>
-      <TextAtom className="contact-step-desc">{body}</TextAtom>
+      <JLabel as="strong" className="contact-step-title">{title}</JLabel>
+      <JLabel className="contact-step-desc">{body}</JLabel>
     </JPanel>
   </JPanel>
 );

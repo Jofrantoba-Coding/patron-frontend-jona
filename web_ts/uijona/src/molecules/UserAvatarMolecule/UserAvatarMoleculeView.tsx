@@ -1,7 +1,7 @@
-// UserAvatarMoleculeView.tsx — JONA View (render puro)
+﻿// UserAvatarMoleculeView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { TextAtom } from '../../atoms/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterUserAvatarMolecule, UserAvatarSize } from './InterUserAvatarMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -22,8 +22,8 @@ export const UserAvatarMoleculeView: React.FC<InterUserAvatarMolecule> = ({ name
         {initials || '?'}
       </JPanel>
       <JPanel variant="ghost" padding="none" radius="none" className="min-w-0">
-        <TextAtom as="span" size="sm" color="default" className="block font-medium truncate">{name}</TextAtom>
-        {email && <TextAtom as="span" size="xs" color="muted" className="block truncate">{email}</TextAtom>}
+        <JLabel as="span" size="sm" color="default" className="block font-medium truncate">{name}</JLabel>
+        {email && <JLabel as="span" size="xs" color="muted" className="block truncate">{email}</JLabel>}
       </JPanel>
     </JPanel>
   );

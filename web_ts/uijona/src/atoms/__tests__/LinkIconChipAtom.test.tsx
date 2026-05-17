@@ -1,12 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { LinkAtom } from '../LinkAtom';
+import { JLabel } from '../JLabel';
 import { IconButtonAtom } from '../IconButtonAtom';
 import { ChipAtom } from '../ChipAtom';
 
 describe('LinkAtom', () => {
   it('prevents click when disabled', () => {
     const onClick = vi.fn();
-    render(<LinkAtom href="/settings" disabled onClick={onClick}>Settings</LinkAtom>);
+    render(<JLabel variant="link" href="/settings" disabled onClick={onClick}>Settings</JLabel>);
 
     fireEvent.click(screen.getByText('Settings'));
 

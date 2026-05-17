@@ -110,7 +110,7 @@ export const Variants: Story = {
     <JPanel gap="md" className="max-w-xs">
       <JPanel gap="xs">
         <JLabel size="xs" color="muted">default</JLabel>
-        <JTextBox variant="link" placeholder="Variante default" />
+        <JTextBox variant="default" placeholder="Variante default" />
       </JPanel>
       <JPanel gap="xs">
         <JLabel size="xs" color="muted">filled</JLabel>

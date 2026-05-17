@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { JPanel } from '../../atoms/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { GroupLayout } from './GroupLayout';
 
 const meta: Meta<typeof GroupLayout> = {
@@ -31,8 +31,8 @@ type Story = StoryObj<typeof GroupLayout>;
 
 const FieldPanel = ({ title, body }: { title: string; body: string }) => (
   <JPanel variant="outlined" padding="md" radius="sm" className="min-h-20">
-    <TextAtom size="sm" className="font-semibold text-neutral-800">{title}</TextAtom>
-    <TextAtom size="xs" color="muted" className="mt-1">{body}</TextAtom>
+    <JLabel size="sm" className="font-semibold text-neutral-800">{title}</JLabel>
+    <JLabel size="xs" color="muted" className="mt-1">{body}</JLabel>
   </JPanel>
 );
 
@@ -49,8 +49,8 @@ export const SequentialGroups: Story = {
       <FieldPanel title="Correo" body="Validacion de contacto" />
       <FieldPanel title="Telefono" body="Dato opcional" />
       <JPanel data-group-span="2" variant="outlined" padding="md" radius="sm" className="min-h-24">
-        <TextAtom size="sm" className="font-semibold text-neutral-800">Direccion</TextAtom>
-        <TextAtom size="xs" color="muted" className="mt-1">Esta seccion puede ocupar dos columnas desde desktop.</TextAtom>
+        <JLabel size="sm" className="font-semibold text-neutral-800">Direccion</JLabel>
+        <JLabel size="xs" color="muted" className="mt-1">Esta seccion puede ocupar dos columnas desde desktop.</JLabel>
       </JPanel>
       <FieldPanel title="Estado" body="Activo o inactivo" />
     </GroupLayout>

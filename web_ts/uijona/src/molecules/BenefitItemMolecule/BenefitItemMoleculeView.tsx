@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterBenefitItemMolecule } from './InterBenefitItemMolecule';
 
 export const BenefitItemMoleculeView: React.FC<InterBenefitItemMolecule> = ({
@@ -11,6 +11,6 @@ export const BenefitItemMoleculeView: React.FC<InterBenefitItemMolecule> = ({
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('detail-benefit-card', className)}>
     <JPanel as="span" variant="ghost" padding="none" radius="none" className="detail-benefit-dot" />
-    <TextAtom className="detail-benefit-text">{text}</TextAtom>
+    <JLabel className="detail-benefit-text">{text}</JLabel>
   </JPanel>
 );

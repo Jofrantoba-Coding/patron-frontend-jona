@@ -1,9 +1,8 @@
-// SelectFieldMoleculeView.tsx — JONA View (render puro)
+﻿// SelectFieldMoleculeView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { LabelAtom } from '../../atoms/LabelAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { SelectAtom } from '../../atoms/SelectAtom';
-import { ErrorMessageAtom } from '../../atoms/ErrorMessageAtom';
 import { InterSelectFieldMolecule } from './InterSelectFieldMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -19,7 +18,7 @@ export const SelectFieldMoleculeView: React.FC<SelectFieldMoleculeViewProps> = (
   const hasError = !!errorMessage;
   return (
     <JPanel variant="ghost" padding="none" radius="none" className={cn('flex flex-col gap-1.5', className)}>
-      <LabelAtom htmlFor={id} required={required}>{label}</LabelAtom>
+      <JLabel variant="label" htmlFor={id} required={required}>{label}</JLabel>
       <SelectAtom
         ref={forwardedRef}
         id={id}
@@ -34,8 +33,8 @@ export const SelectFieldMoleculeView: React.FC<SelectFieldMoleculeViewProps> = (
         onFocus={onFocus}
         {...rest}
       />
-      {description && !hasError && <ErrorMessageAtom id={`${id}-desc`} message={description} type="description" />}
-      {hasError && <ErrorMessageAtom message={errorMessage} type="error" />}
+      {description && !hasError && <JLabel id={`${id}-desc`} message={description} variant="description" />}
+      {hasError && <JLabel message={errorMessage} variant="error" />}
     </JPanel>
   );
 };

@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SidebarLayout } from './SidebarLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const HomeIcon = () => (
   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -52,8 +52,8 @@ const meta: Meta<typeof SidebarLayout> = {
     onNavItemClick: fn(),
     children: (
       <JPanel variant="ghost" padding="none" className="p-6">
-        <TextAtom as="h1" size="xl" className="font-semibold text-neutral-800">Contenido principal</TextAtom>
-        <TextAtom size="sm" color="muted" className="mt-2">Área de trabajo de la aplicación.</TextAtom>
+        <JLabel as="h1" size="xl" className="font-semibold text-neutral-800">Contenido principal</JLabel>
+        <JLabel size="sm" color="muted" className="mt-2">Área de trabajo de la aplicación.</JLabel>
       </JPanel>
     ),
   },
@@ -68,7 +68,7 @@ export const WithHeader: Story = {
     header: (
       <JPanel variant="ghost" padding="none" className="flex items-center gap-2 px-4 py-3">
         <JPanel variant="ghost" padding="none" className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-600 text-xs font-bold text-white">J</JPanel>
-        <TextAtom as="span" size="sm" className="font-semibold text-neutral-800">JONA App</TextAtom>
+        <JLabel as="span" size="sm" className="font-semibold text-neutral-800">JONA App</JLabel>
       </JPanel>
     ),
   },
@@ -96,13 +96,13 @@ export const Interactive: Story = {
         header={
           <JPanel variant="ghost" padding="none" className="flex items-center gap-2 px-4 py-3">
             <JPanel variant="ghost" padding="none" className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-600 text-xs font-bold text-white">J</JPanel>
-            <TextAtom as="span" size="sm" className="font-semibold text-neutral-800">JONA App</TextAtom>
+            <JLabel as="span" size="sm" className="font-semibold text-neutral-800">JONA App</JLabel>
           </JPanel>
         }
       >
         <JPanel variant="ghost" padding="none" className="p-6">
-          <TextAtom as="h1" size="xl" className="font-semibold text-neutral-800">Sección: {activeKey}</TextAtom>
-          <TextAtom size="sm" color="muted" className="mt-2">Haz clic en un ítem de la barra lateral para navegar.</TextAtom>
+          <JLabel as="h1" size="xl" className="font-semibold text-neutral-800">Sección: {activeKey}</JLabel>
+          <JLabel size="sm" color="muted" className="mt-2">Haz clic en un ítem de la barra lateral para navegar.</JLabel>
         </JPanel>
       </SidebarLayout>
     );

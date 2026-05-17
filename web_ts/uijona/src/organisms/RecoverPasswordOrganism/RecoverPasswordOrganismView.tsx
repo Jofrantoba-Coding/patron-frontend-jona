@@ -1,4 +1,4 @@
-// RecoverPasswordOrganismView.tsx — JONA Layer: View (pure render)
+﻿// RecoverPasswordOrganismView.tsx — JONA Layer: View (pure render)
 import React from 'react';
 import { InterRecoverPasswordOrganism } from './InterRecoverPasswordOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';

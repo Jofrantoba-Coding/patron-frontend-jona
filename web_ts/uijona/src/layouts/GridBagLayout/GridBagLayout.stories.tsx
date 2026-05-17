@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { JPanel } from '../../atoms/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { GridBagLayout } from './GridBagLayout';
 
 const meta: Meta<typeof GridBagLayout> = {
@@ -27,7 +27,7 @@ type Story = StoryObj<typeof GridBagLayout>;
 
 const DemoCell = ({ label }: { label: string }) => (
   <JPanel variant="outlined" padding="md" radius="sm" className="min-h-16">
-    <TextAtom as="span" size="sm" className="font-medium text-neutral-700">{label}</TextAtom>
+    <JLabel as="span" size="sm" className="font-medium text-neutral-700">{label}</JLabel>
   </JPanel>
 );
 
@@ -40,15 +40,15 @@ export const ResponsiveConstraints: Story = {
   render: (args) => (
     <GridBagLayout {...args} className="w-full max-w-3xl">
       <JPanel data-gridbag-column="1" data-gridbag-row="1" data-gridbag-column-span="2" variant="outlined" padding="md" radius="sm">
-        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Header span 2</TextAtom>
+        <JLabel as="span" size="sm" className="font-medium text-neutral-700">Header span 2</JLabel>
       </JPanel>
       <DemoCell label="Metric A" />
       <DemoCell label="Metric B" />
       <JPanel data-gridbag-column="1" data-gridbag-row="2" data-gridbag-row-span="2" variant="outlined" padding="md" radius="sm" className="min-h-32">
-        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Side span rows</TextAtom>
+        <JLabel as="span" size="sm" className="font-medium text-neutral-700">Side span rows</JLabel>
       </JPanel>
       <JPanel data-gridbag-column="2" data-gridbag-row="2" data-gridbag-column-span="3" variant="outlined" padding="md" radius="sm" className="min-h-32">
-        <TextAtom as="span" size="sm" className="font-medium text-neutral-700">Content span 3</TextAtom>
+        <JLabel as="span" size="sm" className="font-medium text-neutral-700">Content span 3</JLabel>
       </JPanel>
     </GridBagLayout>
   ),

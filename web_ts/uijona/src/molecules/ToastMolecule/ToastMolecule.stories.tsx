@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ToastMolecule } from './ToastMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JButton } from '../../atoms/JButton/JButton';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof ToastMolecule> = {
   title: 'Molecules/ToastMolecule',
@@ -98,7 +98,7 @@ export const Interactive: Story = {
               duration={3000} onDismiss={dismiss} />
           ))}
           {toasts.length === 0 && (
-            <TextAtom size="sm" className="text-neutral-400">Sin notificaciones. Haz clic en un botón.</TextAtom>
+            <JLabel size="sm" className="text-neutral-400">Sin notificaciones. Haz clic en un botón.</JLabel>
           )}
         </JPanel>
       </JPanel>

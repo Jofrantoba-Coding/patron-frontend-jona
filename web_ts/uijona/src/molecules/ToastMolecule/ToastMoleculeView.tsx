@@ -1,9 +1,9 @@
-// ToastMoleculeView.tsx — JONA View (render puro)
+﻿// ToastMoleculeView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterToastMolecule, ToastVariant } from './InterToastMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const variantClasses: Record<ToastVariant, string> = {
   default: 'bg-neutral-900 text-white',
@@ -31,13 +31,13 @@ export const ToastMoleculeView: React.FC<ToastMoleculeViewProps> = ({
   >
     <JPanel variant="ghost" padding="none" radius="none" className="flex-1 min-w-0">
       {title && (
-        <TextAtom as="span" className="block text-sm font-semibold leading-none mb-1 break-words">
+        <JLabel as="span" className="block text-sm font-semibold leading-none mb-1 break-words">
           {title}
-        </TextAtom>
+        </JLabel>
       )}
-      <TextAtom as="span" className="block text-sm leading-snug break-words">
+      <JLabel as="span" className="block text-sm leading-snug break-words">
         {message}
-      </TextAtom>
+      </JLabel>
     </JPanel>
     <button
       type="button"

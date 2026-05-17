@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { RatingMolecule } from './RatingMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof RatingMolecule> = {
   title: 'Molecules/RatingMolecule',
@@ -67,9 +67,9 @@ export const Interactive: Story = {
     return (
       <JPanel variant="ghost" padding="none" className="flex flex-col gap-3">
         <RatingMolecule value={rating} onChange={(v) => { args.onChange?.(v); setRating(v); }} />
-        <TextAtom size="sm" color="muted">
+        <JLabel size="sm" color="muted">
           {rating === 0 ? 'Sin calificación' : `Calificación: ${rating} / 5`}
-        </TextAtom>
+        </JLabel>
       </JPanel>
     );
   },

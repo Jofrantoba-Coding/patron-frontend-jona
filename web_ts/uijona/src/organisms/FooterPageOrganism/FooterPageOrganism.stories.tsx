@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { FooterPageOrganism } from './FooterPageOrganism';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof FooterPageOrganism> = {
   title: 'Organisms/FooterPageOrganism',
@@ -20,7 +20,7 @@ export const Default: Story = {
 
 export const WithSlots: Story = {
   args: {
-    left:   <TextAtom as="span" className="font-bold">JONA UI</TextAtom>,
+    left:   <JLabel as="span" className="font-bold">JONA UI</JLabel>,
     center: (
       <nav style={{ display: 'flex', gap: '16px' }}>
         <a href="#">Términos</a>
@@ -28,7 +28,7 @@ export const WithSlots: Story = {
         <a href="#">Contacto</a>
       </nav>
     ),
-    right: <TextAtom as="span">v1.2.5</TextAtom>,
+    right: <JLabel as="span">v1.2.5</JLabel>,
   },
 };
 
@@ -46,7 +46,7 @@ export const Interactive: Story = {
           Contenido de la aplicación
         </JPanel>
         <FooterPageOrganism
-          left={<TextAtom as="span" className="font-bold">JONA UI</TextAtom>}
+          left={<JLabel as="span" className="font-bold">JONA UI</JLabel>}
           center={
             <nav style={{ display: 'flex', gap: '16px', fontSize: '14px' }}>
               <a href="#">{t.terms}</a>

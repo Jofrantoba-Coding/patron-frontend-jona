@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import React, { useState } from 'react';
 import { DataTableMolecule } from './DataTableMolecule';
 import type { DataTableColumn, InterDataTableMolecule } from './InterDataTableMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 // Non-generic wrapper for Storybook type inference
 const DataTableStory = (props: InterDataTableMolecule<Record<string, unknown>>) => (
@@ -108,9 +108,9 @@ export const Interactive: Story = {
           onRowClick={(row, index) => { args.onRowClick?.(row, index); setSelected(String(row.name)); }}
         />
         {selected && (
-          <TextAtom size="sm" color="muted">
+          <JLabel size="sm" color="muted">
             Fila seleccionada: <strong>{selected}</strong>
-          </TextAtom>
+          </JLabel>
         )}
       </JPanel>
     );

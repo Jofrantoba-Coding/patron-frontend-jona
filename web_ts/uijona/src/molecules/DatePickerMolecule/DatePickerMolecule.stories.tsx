@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DatePickerMolecule } from './DatePickerMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof DatePickerMolecule> = {
   title: 'Molecules/DatePickerMolecule',
@@ -94,9 +94,9 @@ export const Interactive: Story = {
           placeholder="dd/mm/aaaa hh:mm:ss timezone"
           onChange={(v) => { args.onChange?.(v); setDate(v); }}
         />
-        <TextAtom size="sm" color="muted">
+        <JLabel size="sm" color="muted">
           {date ? `Valor: ${date}` : 'Sin fecha seleccionada'}
-        </TextAtom>
+        </JLabel>
       </JPanel>
     );
   },

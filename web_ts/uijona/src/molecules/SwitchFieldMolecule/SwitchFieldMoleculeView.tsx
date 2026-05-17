@@ -1,9 +1,8 @@
-// SwitchFieldMoleculeView.tsx — JONA View (render puro)
+﻿// SwitchFieldMoleculeView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { SwitchAtom } from '../../atoms/SwitchAtom';
-import { LabelAtom } from '../../atoms/LabelAtom';
-import { ErrorMessageAtom } from '../../atoms/ErrorMessageAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterSwitchFieldMolecule } from './InterSwitchFieldMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -14,9 +13,9 @@ export const SwitchFieldMoleculeView: React.FC<InterSwitchFieldMolecule> = ({
   const inner = (
     <JPanel variant="ghost" padding="none" radius="none" className="flex items-center justify-between gap-4">
       <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col gap-0.5 min-w-0">
-        <LabelAtom htmlFor={id} className={cn('cursor-pointer', disabled && 'opacity-50')}>{label}</LabelAtom>
-        {description && !hasError && <ErrorMessageAtom message={description} type="description" />}
-        {hasError && <ErrorMessageAtom message={errorMessage} type="error" />}
+        <JLabel variant="label" htmlFor={id} className={cn('cursor-pointer', disabled && 'opacity-50')}>{label}</JLabel>
+        {description && !hasError && <JLabel message={description} variant="description" />}
+        {hasError && <JLabel message={errorMessage} variant="error" />}
       </JPanel>
       <SwitchAtom id={id} checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} hasError={hasError} size={size} aria-labelledby={`${id}-label`} />
     </JPanel>

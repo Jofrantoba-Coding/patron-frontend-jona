@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { PopoverMolecule } from './PopoverMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JButton } from '../../atoms/JButton/JButton';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof PopoverMolecule> = {
   title: 'Molecules/PopoverMolecule',
@@ -16,8 +16,8 @@ const meta: Meta<typeof PopoverMolecule> = {
     trigger: <JButton variant="outline" size="sm">Abrir popover</JButton>,
     children: (
       <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 text-sm">
-        <TextAtom className="font-medium text-neutral-800">Información</TextAtom>
-        <TextAtom className="text-neutral-500">Contenido del popover con detalles adicionales.</TextAtom>
+        <JLabel className="font-medium text-neutral-800">Información</JLabel>
+        <JLabel className="text-neutral-500">Contenido del popover con detalles adicionales.</JLabel>
       </JPanel>
     ),
   },
@@ -75,7 +75,7 @@ export const Interactive: Story = {
           align="start"
         >
           <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 min-w-[120px]">
-            <TextAtom size="xs" className="font-semibold text-neutral-400 uppercase px-2 pb-1">Roles</TextAtom>
+            <JLabel size="xs" className="font-semibold text-neutral-400 uppercase px-2 pb-1">Roles</JLabel>
             {roles.map((r) => (
               <JButton
                 key={r}
@@ -90,9 +90,9 @@ export const Interactive: Story = {
           </JPanel>
         </PopoverMolecule>
         {selectedRole && (
-          <TextAtom size="sm" color="muted" className="self-center">
+          <JLabel size="sm" color="muted" className="self-center">
             Filtrando por: <strong>{selectedRole}</strong>
-          </TextAtom>
+          </JLabel>
         )}
       </JPanel>
     );

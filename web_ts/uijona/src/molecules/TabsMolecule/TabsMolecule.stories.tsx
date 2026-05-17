@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { TabsMolecule, TabsList, TabsTrigger, TabsContent } from './TabsMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof TabsMolecule> = {
   title: 'Molecules/TabsMolecule',
@@ -98,17 +98,17 @@ export const Interactive: Story = {
           </TabsList>
           <TabsContent value="perfil">
             <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
-              {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
+              {current.content.split('\n').map((line, i) => <JLabel key={i}>{line}</JLabel>)}
             </JPanel>
           </TabsContent>
           <TabsContent value="seguridad">
             <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
-              {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
+              {current.content.split('\n').map((line, i) => <JLabel key={i}>{line}</JLabel>)}
             </JPanel>
           </TabsContent>
           <TabsContent value="notificaciones">
             <JPanel variant="ghost" padding="none" className="flex flex-col gap-1 text-sm text-neutral-600 mt-2">
-              {current.content.split('\n').map((line, i) => <TextAtom key={i}>{line}</TextAtom>)}
+              {current.content.split('\n').map((line, i) => <JLabel key={i}>{line}</JLabel>)}
             </JPanel>
           </TabsContent>
         </TabsMolecule>

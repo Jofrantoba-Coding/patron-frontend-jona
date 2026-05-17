@@ -35,7 +35,7 @@ export const Outline: Story = {
 export const AllVariants: Story = {
   render: () => (
     <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-      <BadgeAtom variant="link">Default</BadgeAtom>
+      <BadgeAtom variant="default">Default</BadgeAtom>
       <BadgeAtom variant="secondary">Secondary</BadgeAtom>
       <BadgeAtom variant="destructive">Destructive</BadgeAtom>
       <BadgeAtom variant="outline">Outline</BadgeAtom>

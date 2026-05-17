@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { ComboboxMolecule } from './ComboboxMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const COUNTRIES = [
   { value: 'pe', label: 'Perú' },
@@ -86,9 +86,9 @@ const [value, setValue] = useState('');
           placeholder="Seleccionar país..."
           onChange={(v, option) => { args.onChange?.(v, option); setValue(v); }}
         />
-        <TextAtom size="sm" color="muted">
+        <JLabel size="sm" color="muted">
           {selected ? `Seleccionado: ${selected.label}` : 'Ninguno seleccionado'}
-        </TextAtom>
+        </JLabel>
       </JPanel>
     );
   },

@@ -1,8 +1,8 @@
-// ErrorPageOrganismView.tsx — JONA Layer: View (pure render)
+﻿// ErrorPageOrganismView.tsx — JONA Layer: View (pure render)
 import React from 'react';
 import { InterErrorPageOrganism } from './InterErrorPageOrganism';
 import { JButton } from '../../atoms/JButton';
-import { TextAtom } from '../../atoms/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 export const ErrorPageOrganismView: React.FC<InterErrorPageOrganism> = ({
@@ -17,23 +17,23 @@ export const ErrorPageOrganismView: React.FC<InterErrorPageOrganism> = ({
   <JPanel variant="ghost" padding="none" radius="none" className="flex w-full flex-col items-center justify-center px-4 py-8 text-center sm:py-12">
     <JPanel variant="ghost" padding="none" radius="none" className="flex w-full max-w-sm flex-col items-center sm:max-w-md">
       {errorCode && (
-        <TextAtom
+        <JLabel
           as="p"
           size="2xl"
           className="font-extrabold text-blue-600 text-8xl leading-none mb-4 select-none"
         >
           {errorCode}
-        </TextAtom>
+        </JLabel>
       )}
-      <TextAtom as="h1" size="2xl" className="font-bold text-gray-900 mb-2">
+      <JLabel as="h1" size="2xl" className="font-bold text-gray-900 mb-2">
         {title}
-      </TextAtom>
-      <TextAtom as="p" size="base" color="muted" className="mb-8 break-words">
+      </JLabel>
+      <JLabel as="p" size="base" color="muted" className="mb-8 break-words">
         {message}
-      </TextAtom>
+      </JLabel>
       <JPanel variant="ghost" padding="none" radius="none" className="flex flex-wrap gap-3 justify-center">
         {onGoHome && (
-          <JButton variant="default" onClick={onGoHome}>
+          <JButton variant="link" onClick={onGoHome}>
             {primaryLabel}
           </JButton>
         )}

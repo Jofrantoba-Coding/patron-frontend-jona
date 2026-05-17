@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { DrawerMolecule } from './DrawerMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JButton } from '../../atoms/JButton/JButton';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof DrawerMolecule> = {
   title: 'Molecules/DrawerMolecule',
@@ -15,7 +15,7 @@ const meta: Meta<typeof DrawerMolecule> = {
     onClose: fn(),
     title: 'Panel lateral',
     description: 'Contenido del drawer.',
-    children: <TextAtom size="sm" className="text-neutral-600">Contenido del panel deslizante.</TextAtom>,
+    children: <JLabel size="sm" className="text-neutral-600">Contenido del panel deslizante.</JLabel>,
   },
   argTypes: {
     side:            { control: 'select', options: ['left', 'right', 'top', 'bottom'] },
@@ -80,7 +80,7 @@ export const Interactive: Story = {
           title="Editar perfil"
           description="Actualiza los datos de tu cuenta."
         >
-          <TextAtom size="sm" className="text-neutral-600">Aquí irían los campos del formulario.</TextAtom>
+          <JLabel size="sm" className="text-neutral-600">Aquí irían los campos del formulario.</JLabel>
         </DrawerMolecule>
       </JPanel>
     );

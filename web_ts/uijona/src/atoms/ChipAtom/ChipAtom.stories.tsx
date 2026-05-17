@@ -37,7 +37,7 @@ export const AllVariants: Story = {
       <ChipAtom variant="primary">Primary</ChipAtom>
       <ChipAtom variant="success">Success</ChipAtom>
       <ChipAtom variant="warning">Warning</ChipAtom>
-      <ChipAtom variant="link-danger">Danger</ChipAtom>
+      <ChipAtom variant="danger">Danger</ChipAtom>
       <ChipAtom removable onRemove={fn()}>Removable</ChipAtom>
     </JPanel>
   ),

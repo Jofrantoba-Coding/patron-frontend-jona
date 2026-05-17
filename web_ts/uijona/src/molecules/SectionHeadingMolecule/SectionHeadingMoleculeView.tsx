@@ -1,8 +1,8 @@
-// SectionHeadingMoleculeView.tsx — JONA View
+﻿// SectionHeadingMoleculeView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterSectionHeadingMolecule } from './InterSectionHeadingMolecule';
 
 export const SectionHeadingMoleculeView: React.FC<InterSectionHeadingMolecule> = ({
@@ -13,11 +13,11 @@ export const SectionHeadingMoleculeView: React.FC<InterSectionHeadingMolecule> =
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('section-heading', className)}>
     {eyebrow && (
-      <TextAtom as="span" className="eyebrow">{eyebrow}</TextAtom>
+      <JLabel as="span" className="eyebrow">{eyebrow}</JLabel>
     )}
-    <TextAtom as="h2" className="section-title">{heading}</TextAtom>
+    <JLabel as="h2" className="section-title">{heading}</JLabel>
     {description && (
-      <TextAtom className="section-copy">{description}</TextAtom>
+      <JLabel className="section-copy">{description}</JLabel>
     )}
   </JPanel>
 );

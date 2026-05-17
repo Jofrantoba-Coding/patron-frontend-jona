@@ -1,9 +1,8 @@
-// DetailHeroOrganismView.tsx — JONA View
+﻿// DetailHeroOrganismView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
-import { LinkAtom } from '../../atoms/LinkAtom/LinkAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterDetailHeroOrganism } from './InterDetailHeroOrganism';
 
 export const DetailHeroOrganismView: React.FC<InterDetailHeroOrganism> = ({
@@ -27,23 +26,23 @@ export const DetailHeroOrganismView: React.FC<InterDetailHeroOrganism> = ({
     className={cn('detail-hero', className)}
   >
     <JPanel variant="ghost" padding="none" radius="none" className="detail-hero-inner">
-      <LinkAtom href={backHref} className="detail-back">{backLabel}</LinkAtom>
+      <JLabel variant="link" href={backHref} className="detail-back">{backLabel}</JLabel>
       <JPanel variant="ghost" padding="none" radius="none" className="detail-hero-copy">
         {eyebrow && (
           typeof eyebrow === 'string'
-            ? <TextAtom as="span" className="eyebrow">{eyebrow}</TextAtom>
+            ? <JLabel as="span" className="eyebrow">{eyebrow}</JLabel>
             : <>{eyebrow}</>
         )}
-        <TextAtom as="h1" className="detail-title">{title}</TextAtom>
-        <TextAtom className="detail-outcome">{outcome}</TextAtom>
+        <JLabel as="h1" className="detail-title">{title}</JLabel>
+        <JLabel className="detail-outcome">{outcome}</JLabel>
         <JPanel variant="ghost" padding="none" radius="none" className="detail-hero-actions">
-          <LinkAtom href={primaryHref} variant="button" className="detail-cta-primary">
+          <JLabel variant="link-button" href={primaryHref} className="detail-cta-primary">
             {primaryLabel}
-          </LinkAtom>
+          </JLabel>
           {secondaryHref && secondaryLabel && (
-            <LinkAtom href={secondaryHref} className="detail-cta-secondary">
+            <JLabel variant="link" href={secondaryHref} className="detail-cta-secondary">
               {secondaryLabel}
-            </LinkAtom>
+            </JLabel>
           )}
         </JPanel>
       </JPanel>

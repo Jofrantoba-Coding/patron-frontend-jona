@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import React, { type FormEvent, useState } from 'react';
 import { LoginOrganism } from './LoginOrganism';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JButton } from '../../atoms/JButton/JButton';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof LoginOrganism> = {
   title: 'Organisms/LoginOrganism',
@@ -101,7 +101,7 @@ export const Interactive: Story = {
     if (status === 'success') {
       return (
         <JPanel variant="ghost" padding="none" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '16px' }}>
-          <TextAtom size="xl" color="success" className="font-bold">¡Bienvenido, {email}!</TextAtom>
+          <JLabel size="xl" color="success" className="font-bold">¡Bienvenido, {email}!</JLabel>
           <JButton variant="link" size="sm" onClick={() => { setStatus('idle'); setEmail(''); setPassword(''); setAlertMessage(''); }}>Cerrar sesión</JButton>
         </JPanel>
       );

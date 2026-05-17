@@ -1,9 +1,8 @@
-// CheckboxFieldMoleculeView.tsx — JONA View (render puro)
+﻿// CheckboxFieldMoleculeView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { CheckboxAtom } from '../../atoms/CheckboxAtom';
-import { LabelAtom } from '../../atoms/LabelAtom';
-import { ErrorMessageAtom } from '../../atoms/ErrorMessageAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterCheckboxFieldMolecule } from './InterCheckboxFieldMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -16,11 +15,11 @@ export const CheckboxFieldMoleculeView: React.FC<InterCheckboxFieldMolecule> = (
       <JPanel variant="ghost" padding="none" radius="none" className="flex items-start gap-2">
         <CheckboxAtom id={id} checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} hasError={hasError} aria-label={label} />
         <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col gap-0.5">
-          <LabelAtom htmlFor={id} className="cursor-pointer leading-tight">{label}</LabelAtom>
-          {description && !hasError && <ErrorMessageAtom message={description} type="description" />}
+          <JLabel variant="label" htmlFor={id} className="cursor-pointer leading-tight">{label}</JLabel>
+          {description && !hasError && <JLabel message={description} variant="description" />}
         </JPanel>
       </JPanel>
-      {hasError && <ErrorMessageAtom message={errorMessage} type="error" />}
+      {hasError && <JLabel message={errorMessage} variant="error" />}
     </JPanel>
   );
 };

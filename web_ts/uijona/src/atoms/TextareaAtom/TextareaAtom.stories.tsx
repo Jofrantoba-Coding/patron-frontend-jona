@@ -3,7 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { TextareaAtom } from './TextareaAtom';
 import { JPanel } from '../JPanel/JPanel';
-import { TextAtom } from '../TextAtom/TextAtom';
+import { JLabel } from '../JLabel';
 
 const meta: Meta<typeof TextareaAtom> = {
   title: 'Atoms/TextareaAtom',
@@ -101,10 +101,10 @@ const max = 200;
           onBlur={args.onBlur}
           onFocus={args.onFocus}
         />
-        <TextAtom size="xs" className={`text-right ${over ? 'text-red-500' : 'text-neutral-400'}`}>
+        <JLabel size="xs" className={`text-right ${over ? 'text-red-500' : 'text-neutral-400'}`}>
           {value.length}/{max}
-        </TextAtom>
-        {over && <TextAtom size="xs" className="text-red-500">Has superado el límite de {max} caracteres</TextAtom>}
+        </JLabel>
+        {over && <JLabel size="xs" className="text-red-500">Has superado el límite de {max} caracteres</JLabel>}
       </JPanel>
     );
   },

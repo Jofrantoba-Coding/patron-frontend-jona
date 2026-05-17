@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { SelectFieldMolecule } from './SelectFieldMolecule';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const options = [
   { value: 'mx', label: 'México' },
@@ -91,9 +91,9 @@ const [country, setCountry] = useState('');
           Confirmar
         </JButton>
         {submitted && country && (
-          <TextAtom size="sm" className="text-green-600">
+          <JLabel size="sm" className="text-green-600">
             País guardado: <strong>{options.find((o) => o.value === country)?.label}</strong>
-          </TextAtom>
+          </JLabel>
         )}
       </JPanel>
     );

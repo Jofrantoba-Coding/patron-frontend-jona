@@ -1,9 +1,8 @@
-// MarketingCTAOrganismView.tsx — JONA View
+﻿// MarketingCTAOrganismView.tsx — JONA View
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
-import { LinkAtom } from '../../atoms/LinkAtom/LinkAtom';
+import { JLabel } from '../../atoms/JLabel';
 import { InterMarketingCTAOrganism } from './InterMarketingCTAOrganism';
 
 export const MarketingCTAOrganismView: React.FC<InterMarketingCTAOrganism> = ({
@@ -19,23 +18,23 @@ export const MarketingCTAOrganismView: React.FC<InterMarketingCTAOrganism> = ({
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('sales-cta-shell', className)}>
     <JPanel variant="ghost" padding="none" radius="none">
-      <TextAtom as="h2" className="sales-title">{heading}</TextAtom>
-      {description && <TextAtom className="sales-copy">{description}</TextAtom>}
+      <JLabel as="h2" className="sales-title">{heading}</JLabel>
+      {description && <JLabel className="sales-copy">{description}</JLabel>}
     </JPanel>
     <JPanel variant="ghost" padding="none" radius="none" className="sales-actions">
       {primaryHref ? (
-        <LinkAtom href={primaryHref} variant="button" className="sales-link">
+        <JLabel variant="link-button" href={primaryHref} className="sales-link">
           {primaryLabel}
-        </LinkAtom>
+        </JLabel>
       ) : (
         <button type="button" onClick={onPrimaryClick} className="sales-link">
           {primaryLabel}
         </button>
       )}
       {secondaryLabel && secondaryHref && (
-        <LinkAtom href={secondaryHref} className="sales-link-secondary">
+        <JLabel variant="link" href={secondaryHref} className="sales-link-secondary">
           {secondaryLabel}
-        </LinkAtom>
+        </JLabel>
       )}
     </JPanel>
   </JPanel>

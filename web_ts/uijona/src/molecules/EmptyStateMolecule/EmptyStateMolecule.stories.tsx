@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { EmptyStateMolecule } from './EmptyStateMolecule';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const EmptyIcon = () => (
   <span aria-hidden="true" style={{ fontSize: 24, fontWeight: 700, lineHeight: 1 }}>
@@ -69,7 +69,7 @@ export const Interactive: Story = {
           <JPanel variant="ghost" padding="none" className="flex flex-col gap-2 w-80">
             {projects.map((p) => (
               <JPanel variant="ghost" padding="none" key={p} className="flex justify-between items-center rounded-lg border p-3">
-                <TextAtom size="sm" className="font-medium">{p}</TextAtom>
+                <JLabel size="sm" className="font-medium">{p}</JLabel>
                 <JButton variant="ghost" size="sm" onClick={() => setProjects((prev) => prev.filter((x) => x !== p))} className="text-xs text-red-500 hover:text-red-700">
                   Eliminar
                 </JButton>

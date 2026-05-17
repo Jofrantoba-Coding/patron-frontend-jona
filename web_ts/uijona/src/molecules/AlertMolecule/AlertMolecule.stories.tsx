@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { AlertMolecule } from './AlertMolecule';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { TextAtom } from '../../atoms/TextAtom/TextAtom';
+import { JLabel } from '../../atoms/JLabel';
 
 const meta: Meta<typeof AlertMolecule> = {
   title: 'Molecules/AlertMolecule',
@@ -66,7 +66,7 @@ export const Interactive: Story = {
           </JPanel>
         ))}
         {alerts.length === 0 && (
-          <TextAtom size="sm" className="text-neutral-400">Sin alertas activas.</TextAtom>
+          <JLabel size="sm" className="text-neutral-400">Sin alertas activas.</JLabel>
         )}
         <JButton variant="outline" size="sm" onClick={() => setAlerts(initialAlerts)}>
           Restaurar alertas
