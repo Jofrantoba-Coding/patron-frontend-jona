@@ -773,6 +773,21 @@
   .jcheckbox[data-jcheckbox-indeterminate='true'] {
     accent-color: var(--primary-600, #2563eb);
   }
+
+  /* ── JComboBox ───────────────────────────────────────────────────── */
+  .jcombobox {
+    display: block;
+    box-sizing: border-box;
+    appearance: auto;
+  }
+
+  .jcombobox:focus-visible {
+    outline: none;
+  }
+
+  .jcombobox[data-jcombobox-error='true'] {
+    border-color: var(--danger-500, #ef4444);
+  }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */

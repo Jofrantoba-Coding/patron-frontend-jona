@@ -1,12 +1,12 @@
-// InterSelectFieldMolecule.ts — JONA Interface
+﻿// InterSelectFieldMolecule.ts — JONA Interface
 import React from 'react';
-import { SelectOption, SelectGroup } from '../../atoms/SelectAtom';
+import { JComboBoxOption, JComboBoxGroup } from '../../atoms/JComboBox';
 
 export interface InterSelectFieldMolecule {
   id: string;
   label: string;
-  options?: SelectOption[];
-  groups?: SelectGroup[];
+  options?: JComboBoxOption[];
+  groups?: JComboBoxGroup[];
   placeholder?: string;
   errorMessage?: string;
   description?: string;

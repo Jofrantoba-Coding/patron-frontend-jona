@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JLabel } from '../../atoms/JLabel';
-import { SelectAtom } from '../../atoms/SelectAtom';
+import { JComboBox } from '../../atoms/JComboBox';
 import { InterSelectFieldMolecule } from './InterSelectFieldMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -19,7 +19,7 @@ export const SelectFieldMoleculeView: React.FC<SelectFieldMoleculeViewProps> = (
   return (
     <JPanel variant="ghost" padding="none" radius="none" className={cn('flex flex-col gap-1.5', className)}>
       <JLabel variant="label" htmlFor={id} required={required}>{label}</JLabel>
-      <SelectAtom
+      <JComboBox
         ref={forwardedRef}
         id={id}
         options={options}
