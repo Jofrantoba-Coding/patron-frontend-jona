@@ -741,6 +741,38 @@
     opacity: 0.5;
     cursor: default;
   }
+
+  /* ── JCheckBox ───────────────────────────────────────────────────── */
+  .jcheckbox {
+    display: inline-block;
+    flex-shrink: 0;
+    vertical-align: middle;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    border-width: 1px;
+    border-style: solid;
+    transition: box-shadow 150ms ease, border-color 150ms ease;
+    box-sizing: border-box;
+  }
+
+  .jcheckbox:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary-500, #3b82f6);
+  }
+
+  .jcheckbox:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .jcheckbox[data-jcheckbox-error='true'] {
+    accent-color: var(--danger-500, #ef4444);
+  }
+
+  .jcheckbox[data-jcheckbox-indeterminate='true'] {
+    accent-color: var(--primary-600, #2563eb);
+  }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */

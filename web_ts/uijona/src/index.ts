@@ -6,7 +6,7 @@ export * from './atoms/JTextBox';
 export * from './atoms/TextareaAtom';
 export * from './atoms/BadgeAtom';
 export * from './atoms/SpinnerAtom';
-export * from './atoms/CheckboxAtom';
+export * from './atoms/JCheckBox';
 export * from './atoms/RadioAtom';
 export * from './atoms/AvatarAtom';
 export * from './atoms/ImageAtom';
