@@ -3,7 +3,7 @@
 // Atoms
 export * from './atoms/JButton';
 export * from './atoms/JTextBox';
-export * from './atoms/TextareaAtom';
+export * from './atoms/JTextArea';
 export * from './atoms/BadgeAtom';
 export * from './atoms/SpinnerAtom';
 export * from './atoms/JCheckBox';

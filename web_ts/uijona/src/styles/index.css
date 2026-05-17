@@ -788,6 +788,17 @@
   .jcombobox[data-jcombobox-error='true'] {
     border-color: var(--danger-500, #ef4444);
   }
+
+  /* ── JTextArea ───────────────────────────────────────────────────── */
+  .jtextarea {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .jtextarea[data-jtextarea-autoresize='true'] {
+    overflow: hidden;
+  }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */
