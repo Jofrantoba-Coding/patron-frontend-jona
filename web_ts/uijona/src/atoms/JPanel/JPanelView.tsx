@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { cn } from '../../lib/cn';
 import {
   InterJPanel,
@@ -19,6 +19,11 @@ import {
 } from './InterJPanel';
 
 type JPanelCssVars = React.CSSProperties & Record<`--${string}`, string | number | undefined>;
+
+type JPanelViewProps = InterJPanel &
+  Omit<React.HTMLAttributes<HTMLElement>, 'className' | 'style' | 'children'> & {
+    forwardedRef?: React.Ref<HTMLElement>;
+  };
 
 const variantClasses: Record<JPanelVariant, string> = {
   default: 'bg-white border border-neutral-200',
@@ -239,13 +244,11 @@ const getJPanelDiagnostics = (
 
   if (layouts.has('card') && activeCard !== undefined) {
     let hasActiveCard = false;
-
     React.Children.forEach(children, (child) => {
       if (React.isValidElement<JPanelManagedChildProps>(child) && getCardKey(child) === String(activeCard)) {
         hasActiveCard = true;
       }
     });
-
     if (!hasActiveCard) {
       diagnostics.push(
         `[JPanel] layout="card" recibio activeCard="${String(activeCard)}", pero ningun hijo define card, data-panel-card o key con ese valor.`
@@ -338,177 +341,181 @@ const prepareLayoutChildren = (
       if (cardKey !== undefined) nextProps['data-panel-card'] = cardKey;
     }
 
-    return React.cloneElement(child, {
-      ...nextProps,
-      style: nextStyle,
-    });
+    return React.cloneElement(child, { ...nextProps, style: nextStyle });
   });
 };
 
-export const JPanelView = React.forwardRef<HTMLElement, InterJPanel>(
-  (
-    {
-      variant = JPANEL_DEFAULTS.variant,
-      padding = JPANEL_DEFAULTS.padding,
-      radius = JPANEL_DEFAULTS.radius,
-      as,
-      layout = JPANEL_DEFAULTS.layout,
-      direction = JPANEL_DEFAULTS.direction,
-      gap = JPANEL_DEFAULTS.gap,
-      alignItems = JPANEL_DEFAULTS.alignItems,
-      justifyContent = JPANEL_DEFAULTS.justifyContent,
-      wrap,
-      columns,
-      rows,
-      autoFitMin,
-      placement,
-      dense,
-      mode,
-      minHeight,
-      activeCard,
-      mobileSmall,
-      mobileLarge,
-      tablet,
-      desktop,
-      tv,
-      area,
-      card,
-      gridBagColumn,
-      gridBagRow,
-      gridBagColumnSpan,
-      gridBagRowSpan,
-      gridBagAlign,
-      gridBagJustify,
-      groupSpan,
-      groupAlign,
-      groupJustify,
-      springLeft,
-      springRight,
-      springTop,
-      springBottom,
-      springWidth,
-      springHeight,
-      className,
-      children,
-      style,
-      ...props
-    },
-    ref
-  ) => {
-    const Tag = resolveJPanelTag(as);
-    const baseConfig = {
-      layout,
-      direction,
-      gap,
-      alignItems,
-      justifyContent,
-      wrap,
-      columns,
-      rows,
-      autoFitMin,
-      placement,
-      dense,
-      mode,
-      minHeight,
-    };
-    const mobileSmallConfig = resolveConfig(baseConfig, mobileSmall);
-    const mobileLargeConfig = resolveConfig(mobileSmallConfig, mobileLarge);
-    const tabletConfig = resolveConfig(mobileLargeConfig, tablet);
-    const desktopConfig = resolveConfig(tabletConfig, desktop);
-    const tvConfig = resolveConfig(desktopConfig, tv);
-    const layoutVariants = new Set<JPanelLayout>([
-      mobileSmallConfig.layout,
-      mobileLargeConfig.layout,
-      tabletConfig.layout,
-      desktopConfig.layout,
-      tvConfig.layout,
-    ]);
-    const layoutStyle: JPanelCssVars = { ...style };
+export const JPanelView: React.FC<JPanelViewProps> = ({
+  variant = JPANEL_DEFAULTS.variant,
+  padding = JPANEL_DEFAULTS.padding,
+  radius  = JPANEL_DEFAULTS.radius,
+  as,
+  layout       = JPANEL_DEFAULTS.layout,
+  direction    = JPANEL_DEFAULTS.direction,
+  gap          = JPANEL_DEFAULTS.gap,
+  alignItems   = JPANEL_DEFAULTS.alignItems,
+  justifyContent = JPANEL_DEFAULTS.justifyContent,
+  wrap,
+  columns,
+  rows,
+  autoFitMin,
+  placement,
+  dense,
+  mode,
+  minHeight,
+  activeCard,
+  mobileSmall,
+  mobileLarge,
+  tablet,
+  desktop,
+  tv,
+  area,
+  card,
+  gridBagColumn,
+  gridBagRow,
+  gridBagColumnSpan,
+  gridBagRowSpan,
+  gridBagAlign,
+  gridBagJustify,
+  groupSpan,
+  groupAlign,
+  groupJustify,
+  springLeft,
+  springRight,
+  springTop,
+  springBottom,
+  springWidth,
+  springHeight,
+  'data-panel-area':        dataPanelArea,
+  'data-panel-card':        dataPanelCard,
+  'data-gridbag-column':    dataGridbagColumn,
+  'data-gridbag-col':       dataGridbagCol,
+  'data-gridbag-row':       dataGridbagRow,
+  'data-gridbag-column-span': dataGridbagColumnSpan,
+  'data-gridbag-colspan':   dataGridbagColspan,
+  'data-gridbag-row-span':  dataGridbagRowSpan,
+  'data-gridbag-rowspan':   dataGridbagRowspan,
+  'data-gridbag-align':     dataGridbagAlign,
+  'data-gridbag-justify':   dataGridbagJustify,
+  'data-group-span':        dataGroupSpan,
+  'data-group-align':       dataGroupAlign,
+  'data-group-justify':     dataGroupJustify,
+  'data-spring-left':       dataSpringLeft,
+  'data-spring-right':      dataSpringRight,
+  'data-spring-top':        dataSpringTop,
+  'data-spring-bottom':     dataSpringBottom,
+  'data-spring-width':      dataSpringWidth,
+  'data-spring-height':     dataSpringHeight,
+  className,
+  children,
+  style,
+  forwardedRef,
+  ...htmlProps
+}) => {
+  const Tag = resolveJPanelTag(as);
 
-    setConfigVars(layoutStyle, mobileSmallConfig, '');
-    setConfigVars(layoutStyle, mobileLargeConfig, 'mobile-large');
-    setConfigVars(layoutStyle, tabletConfig, 'tablet');
-    setConfigVars(layoutStyle, desktopConfig, 'desktop');
-    setConfigVars(layoutStyle, tvConfig, 'tv');
+  const baseConfig = {
+    layout, direction, gap, alignItems, justifyContent,
+    wrap, columns, rows, autoFitMin, placement, dense, mode, minHeight,
+  };
+  const mobileSmallConfig  = resolveConfig(baseConfig, mobileSmall);
+  const mobileLargeConfig  = resolveConfig(mobileSmallConfig, mobileLarge);
+  const tabletConfig       = resolveConfig(mobileLargeConfig, tablet);
+  const desktopConfig      = resolveConfig(tabletConfig, desktop);
+  const tvConfig           = resolveConfig(desktopConfig, tv);
 
-    const diagnostics = getJPanelDiagnostics(children, layoutVariants, activeCard);
-    const diagnosticsKey = diagnostics.join('\n');
+  const layoutVariants = new Set<JPanelLayout>([
+    mobileSmallConfig.layout,
+    mobileLargeConfig.layout,
+    tabletConfig.layout,
+    desktopConfig.layout,
+    tvConfig.layout,
+  ]);
 
-    React.useEffect(() => {
-      logJPanelDiagnostics(diagnostics);
-    }, [diagnosticsKey]);
+  const layoutStyle: JPanelCssVars = { ...style };
+  setConfigVars(layoutStyle, mobileSmallConfig, '');
+  setConfigVars(layoutStyle, mobileLargeConfig, 'mobile-large');
+  setConfigVars(layoutStyle, tabletConfig, 'tablet');
+  setConfigVars(layoutStyle, desktopConfig, 'desktop');
+  setConfigVars(layoutStyle, tvConfig, 'tv');
 
-    const resolvedArea = area ?? props['data-panel-area'];
-    const resolvedCard = card ?? props['data-panel-card'];
+  const resolvedArea = area ?? dataPanelArea;
+  const resolvedCard = card ?? dataPanelCard;
 
-    if (gridBagColumn ?? props['data-gridbag-column'] ?? props['data-gridbag-col']) {
-      layoutStyle['--jpanel-gridbag-column'] = resolveCssValue(gridBagColumn ?? props['data-gridbag-column'] ?? props['data-gridbag-col']);
-    }
-    if (gridBagRow ?? props['data-gridbag-row']) {
-      layoutStyle['--jpanel-gridbag-row'] = resolveCssValue(gridBagRow ?? props['data-gridbag-row']);
-    }
-    if (gridBagColumnSpan ?? props['data-gridbag-column-span'] ?? props['data-gridbag-colspan']) {
-      layoutStyle['--jpanel-gridbag-column-span'] = resolveCssValue(gridBagColumnSpan ?? props['data-gridbag-column-span'] ?? props['data-gridbag-colspan']);
-    }
-    if (gridBagRowSpan ?? props['data-gridbag-row-span'] ?? props['data-gridbag-rowspan']) {
-      layoutStyle['--jpanel-gridbag-row-span'] = resolveCssValue(gridBagRowSpan ?? props['data-gridbag-row-span'] ?? props['data-gridbag-rowspan']);
-    }
-    layoutStyle['--jpanel-gridbag-align'] = gridBagAlign ?? props['data-gridbag-align'];
-    layoutStyle['--jpanel-gridbag-justify'] = gridBagJustify ?? props['data-gridbag-justify'];
-    layoutStyle['--jpanel-group-span'] = resolveCssValue(groupSpan ?? props['data-group-span']);
-    layoutStyle['--jpanel-group-align'] = groupAlign ?? props['data-group-align'];
-    layoutStyle['--jpanel-group-justify'] = groupJustify ?? props['data-group-justify'];
-    layoutStyle['--jpanel-spring-left'] = resolveCssValue(springLeft ?? props['data-spring-left']);
-    layoutStyle['--jpanel-spring-right'] = resolveCssValue(springRight ?? props['data-spring-right']);
-    layoutStyle['--jpanel-spring-top'] = resolveCssValue(springTop ?? props['data-spring-top']);
-    layoutStyle['--jpanel-spring-bottom'] = resolveCssValue(springBottom ?? props['data-spring-bottom']);
-    layoutStyle['--jpanel-spring-width'] = resolveCssValue(springWidth ?? props['data-spring-width']);
-    layoutStyle['--jpanel-spring-height'] = resolveCssValue(springHeight ?? props['data-spring-height']);
-
-    const managedChildren = prepareLayoutChildren(children, layoutVariants, activeCard);
-
-    return (
-      <Tag
-        ref={ref}
-        className={cn(
-          'jpanel',
-          variantClasses[variant],
-          paddingClasses[padding],
-          radiusClasses[radius],
-          className
-        )}
-        style={layoutStyle}
-        data-jpanel-layout={mobileSmallConfig.layout}
-        data-jpanel-mobile-small-layout={mobileSmallConfig.layout}
-        data-jpanel-mobile-large-layout={mobileLargeConfig.layout}
-        data-jpanel-tablet-layout={tabletConfig.layout}
-        data-jpanel-desktop-layout={desktopConfig.layout}
-        data-jpanel-tv-layout={tvConfig.layout}
-        data-jpanel-placement={resolvePlacement(mobileSmallConfig.layout, mobileSmallConfig.placement)}
-        data-jpanel-mobile-small-placement={resolvePlacement(mobileSmallConfig.layout, mobileSmallConfig.placement)}
-        data-jpanel-mobile-large-placement={resolvePlacement(mobileLargeConfig.layout, mobileLargeConfig.placement)}
-        data-jpanel-tablet-placement={resolvePlacement(tabletConfig.layout, tabletConfig.placement)}
-        data-jpanel-desktop-placement={resolvePlacement(desktopConfig.layout, desktopConfig.placement)}
-        data-jpanel-tv-placement={resolvePlacement(tvConfig.layout, tvConfig.placement)}
-        data-jpanel-dense={mobileSmallConfig.dense ? 'true' : 'false'}
-        data-jpanel-mobile-small-dense={mobileSmallConfig.dense ? 'true' : 'false'}
-        data-jpanel-mobile-large-dense={mobileLargeConfig.dense ? 'true' : 'false'}
-        data-jpanel-tablet-dense={tabletConfig.dense ? 'true' : 'false'}
-        data-jpanel-desktop-dense={desktopConfig.dense ? 'true' : 'false'}
-        data-jpanel-tv-dense={tvConfig.dense ? 'true' : 'false'}
-        data-jpanel-mode={mobileSmallConfig.mode ?? 'sequential'}
-        data-jpanel-mobile-small-mode={mobileSmallConfig.mode ?? 'sequential'}
-        data-jpanel-mobile-large-mode={mobileLargeConfig.mode ?? 'sequential'}
-        data-jpanel-tablet-mode={tabletConfig.mode ?? 'sequential'}
-        data-jpanel-desktop-mode={desktopConfig.mode ?? 'sequential'}
-        data-jpanel-tv-mode={tvConfig.mode ?? 'sequential'}
-        data-panel-area={resolvedArea}
-        data-panel-card={resolvedCard}
-        {...props}
-      >
-        {managedChildren}
-      </Tag>
-    );
+  if (gridBagColumn ?? dataGridbagColumn ?? dataGridbagCol) {
+    layoutStyle['--jpanel-gridbag-column'] = resolveCssValue(gridBagColumn ?? dataGridbagColumn ?? dataGridbagCol);
   }
-);
+  if (gridBagRow ?? dataGridbagRow) {
+    layoutStyle['--jpanel-gridbag-row'] = resolveCssValue(gridBagRow ?? dataGridbagRow);
+  }
+  if (gridBagColumnSpan ?? dataGridbagColumnSpan ?? dataGridbagColspan) {
+    layoutStyle['--jpanel-gridbag-column-span'] = resolveCssValue(gridBagColumnSpan ?? dataGridbagColumnSpan ?? dataGridbagColspan);
+  }
+  if (gridBagRowSpan ?? dataGridbagRowSpan ?? dataGridbagRowspan) {
+    layoutStyle['--jpanel-gridbag-row-span'] = resolveCssValue(gridBagRowSpan ?? dataGridbagRowSpan ?? dataGridbagRowspan);
+  }
+  layoutStyle['--jpanel-gridbag-align']   = gridBagAlign   ?? dataGridbagAlign;
+  layoutStyle['--jpanel-gridbag-justify'] = gridBagJustify ?? dataGridbagJustify;
+  layoutStyle['--jpanel-group-span']      = resolveCssValue(groupSpan ?? dataGroupSpan);
+  layoutStyle['--jpanel-group-align']     = groupAlign    ?? dataGroupAlign;
+  layoutStyle['--jpanel-group-justify']   = groupJustify  ?? dataGroupJustify;
+  layoutStyle['--jpanel-spring-left']     = resolveCssValue(springLeft   ?? dataSpringLeft);
+  layoutStyle['--jpanel-spring-right']    = resolveCssValue(springRight  ?? dataSpringRight);
+  layoutStyle['--jpanel-spring-top']      = resolveCssValue(springTop    ?? dataSpringTop);
+  layoutStyle['--jpanel-spring-bottom']   = resolveCssValue(springBottom ?? dataSpringBottom);
+  layoutStyle['--jpanel-spring-width']    = resolveCssValue(springWidth  ?? dataSpringWidth);
+  layoutStyle['--jpanel-spring-height']   = resolveCssValue(springHeight ?? dataSpringHeight);
+
+  const diagnostics    = getJPanelDiagnostics(children, layoutVariants, activeCard);
+  const diagnosticsKey = diagnostics.join('\n');
+
+  useEffect(() => {
+    logJPanelDiagnostics(diagnostics);
+  }, [diagnosticsKey]);
+
+  const managedChildren = prepareLayoutChildren(children, layoutVariants, activeCard);
+
+  return (
+    <Tag
+      ref={forwardedRef}
+      {...htmlProps}
+      className={cn(
+        'jpanel',
+        variantClasses[variant],
+        paddingClasses[padding],
+        radiusClasses[radius],
+        className
+      )}
+      style={layoutStyle}
+      data-jpanel-layout={mobileSmallConfig.layout}
+      data-jpanel-mobile-small-layout={mobileSmallConfig.layout}
+      data-jpanel-mobile-large-layout={mobileLargeConfig.layout}
+      data-jpanel-tablet-layout={tabletConfig.layout}
+      data-jpanel-desktop-layout={desktopConfig.layout}
+      data-jpanel-tv-layout={tvConfig.layout}
+      data-jpanel-placement={resolvePlacement(mobileSmallConfig.layout, mobileSmallConfig.placement)}
+      data-jpanel-mobile-small-placement={resolvePlacement(mobileSmallConfig.layout, mobileSmallConfig.placement)}
+      data-jpanel-mobile-large-placement={resolvePlacement(mobileLargeConfig.layout, mobileLargeConfig.placement)}
+      data-jpanel-tablet-placement={resolvePlacement(tabletConfig.layout, tabletConfig.placement)}
+      data-jpanel-desktop-placement={resolvePlacement(desktopConfig.layout, desktopConfig.placement)}
+      data-jpanel-tv-placement={resolvePlacement(tvConfig.layout, tvConfig.placement)}
+      data-jpanel-dense={mobileSmallConfig.dense ? 'true' : 'false'}
+      data-jpanel-mobile-small-dense={mobileSmallConfig.dense ? 'true' : 'false'}
+      data-jpanel-mobile-large-dense={mobileLargeConfig.dense ? 'true' : 'false'}
+      data-jpanel-tablet-dense={tabletConfig.dense ? 'true' : 'false'}
+      data-jpanel-desktop-dense={desktopConfig.dense ? 'true' : 'false'}
+      data-jpanel-tv-dense={tvConfig.dense ? 'true' : 'false'}
+      data-jpanel-mode={mobileSmallConfig.mode ?? 'sequential'}
+      data-jpanel-mobile-small-mode={mobileSmallConfig.mode ?? 'sequential'}
+      data-jpanel-mobile-large-mode={mobileLargeConfig.mode ?? 'sequential'}
+      data-jpanel-tablet-mode={tabletConfig.mode ?? 'sequential'}
+      data-jpanel-desktop-mode={desktopConfig.mode ?? 'sequential'}
+      data-jpanel-tv-mode={tvConfig.mode ?? 'sequential'}
+      data-panel-area={resolvedArea}
+      data-panel-card={resolvedCard}
+    >
+      {managedChildren}
+    </Tag>
+  );
+};
 JPanelView.displayName = 'JPanelView';
