@@ -5,7 +5,7 @@ export * from './atoms/JButton';
 export * from './atoms/JTextBox';
 export * from './atoms/JTextArea';
 export * from './atoms/JBadge';
-export * from './atoms/SpinnerAtom';
+export * from './atoms/JSpinner';
 export * from './atoms/JCheckBox';
 export * from './atoms/JComboBox';
 export * from './atoms/JRadioButton';

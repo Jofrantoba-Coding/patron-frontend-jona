@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { SpinnerAtom } from '../SpinnerAtom';
+import { JSpinner } from '../JSpinner';
 import type { InterJButton, JButtonVariant, JButtonSize } from './InterJButton';
 
 const variantClasses: Record<JButtonVariant, string> = {
@@ -46,7 +46,7 @@ export const JButtonView: React.FC<JButtonViewProps> = ({
   forwardedRef,
   ...rest
 }) => {
-  const activeIcon = loading ? <SpinnerAtom size="sm" /> : icon;
+  const activeIcon = loading ? <JSpinner size="sm" /> : icon;
   const hasIcon = Boolean(activeIcon);
   const isIconOnly = hasIcon && !children;
 

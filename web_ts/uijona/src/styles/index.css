@@ -849,6 +849,12 @@
     accent-color: var(--color-primary-600, #2563eb);
   }
 
+  /* ── JSpinner ────────────────────────────────────────────────────── */
+  .jspinner {
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
   /* ── JSeparator ─────────────────────────────────────────────────── */
   .jseparator {
     box-sizing: border-box;
