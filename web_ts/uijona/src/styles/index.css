@@ -849,6 +849,23 @@
     accent-color: var(--color-primary-600, #2563eb);
   }
 
+  /* ── JSkeleton ───────────────────────────────────────────────────── */
+  .jskeleton {
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  .jskeleton-wave {
+    background: linear-gradient(
+      90deg,
+      #e5e7eb 0%,
+      #f9fafb 40%,
+      #e5e7eb 80%
+    );
+    background-size: 200% 100%;
+    animation: jskeleton-wave 1.5s ease-in-out infinite;
+  }
+
   /* ── JSpinner ────────────────────────────────────────────────────── */
   .jspinner {
     box-sizing: border-box;
@@ -888,6 +905,11 @@
 
 @keyframes jprogress-shimmer {
   to { transform: translateX(200%); }
+}
+
+@keyframes jskeleton-wave {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */

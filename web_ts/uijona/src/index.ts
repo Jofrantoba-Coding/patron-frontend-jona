@@ -18,7 +18,7 @@ export * from './atoms/JIcon';
 export * from './atoms/JChip';
 export * from './atoms/JSeparator';
 export * from './atoms/JProgress';
-export * from './atoms/SkeletonAtom';
+export * from './atoms/JSkeleton';
 // Molecules
 export * from './molecules/SectionHeadingMolecule';
 export * from './molecules/ContactMethodCardMolecule';
