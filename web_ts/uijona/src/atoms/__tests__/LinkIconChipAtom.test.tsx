@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { JLabel } from '../JLabel';
-import { IconButtonAtom } from '../IconButtonAtom';
+import { JIcon } from '../JIcon';
 import { ChipAtom } from '../ChipAtom';
 
 describe('LinkAtom', () => {
@@ -15,9 +15,9 @@ describe('LinkAtom', () => {
   });
 });
 
-describe('IconButtonAtom', () => {
+describe('JIcon', () => {
   it('renders an accessible icon-only button', () => {
-    render(<IconButtonAtom icon={<span aria-hidden="true">+</span>} label="Add item" />);
+    render(<JIcon icon={<span aria-hidden="true">+</span>} label="Add item" />);
     expect(screen.getByRole('button', { name: 'Add item' })).toBeInTheDocument();
   });
 });

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
-import { IconButtonAtom } from './IconButtonAtom';
+import { JIcon } from './JIcon';
 import { JPanel } from '../JPanel/JPanel';
 import { JLabel } from '../JLabel';
 
@@ -11,9 +11,9 @@ const SearchIcon = () => (
   </span>
 );
 
-const meta: Meta<typeof IconButtonAtom> = {
-  title: 'Atoms/IconButtonAtom',
-  component: IconButtonAtom,
+const meta: Meta<typeof JIcon> = {
+  title: 'Atoms/JIcon',
+  component: JIcon,
   tags: ['autodocs'],
   args: { icon: <SearchIcon />, label: 'Buscar', onClick: fn() },
   argTypes: {
@@ -24,7 +24,7 @@ const meta: Meta<typeof IconButtonAtom> = {
   },
 };
 export default meta;
-type Story = StoryObj<typeof IconButtonAtom>;
+type Story = StoryObj<typeof JIcon>;
 
 export const Default: Story = {};
 
@@ -44,10 +44,18 @@ export const Disabled: Story = {
   args: { disabled: true, label: 'No disponible' },
 };
 
+export const AllVariants: Story = {
+  render: () => (
+    <JPanel variant="ghost" padding="none" className="flex gap-2 flex-wrap items-center">
+      {(['default', 'outline', 'ghost', 'destructive', 'secondary'] as const).map((v) => (
+        <JIcon key={v} icon={<span aria-hidden="true" style={{ fontSize: 14, fontWeight: 700 }}>S</span>} label={v} variant={v} />
+      ))}
+    </JPanel>
+  ),
+};
+
 export const Interactive: Story = {
-  args: {
-    onClick: fn(),
-  },
+  args: { onClick: fn() },
   render: (args) => {
     const [saved, setSaved] = useState(false);
     const HeartIcon = () => (
@@ -55,7 +63,7 @@ export const Interactive: Story = {
     );
     return (
       <JPanel variant="ghost" padding="none" className="flex flex-col items-center gap-2">
-        <IconButtonAtom
+        <JIcon
           icon={<HeartIcon />}
           label={saved ? 'Quitar de favoritos' : 'Añadir a favoritos'}
           variant={saved ? 'destructive' : 'outline'}
