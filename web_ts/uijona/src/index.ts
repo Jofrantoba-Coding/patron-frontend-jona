@@ -15,7 +15,7 @@ export * from './atoms/JPanel';
 export * from './atoms/SwitchAtom';
 export * from './atoms/JLabel';
 export * from './atoms/JIcon';
-export * from './atoms/ChipAtom';
+export * from './atoms/JChip';
 export * from './atoms/SeparatorAtom';
 export * from './atoms/ProgressAtom';
 export * from './atoms/SkeletonAtom';

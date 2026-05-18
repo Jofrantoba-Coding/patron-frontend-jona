@@ -1,25 +1,24 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
-import { ChipAtom } from './ChipAtom';
+import { JChip } from './JChip';
 import { JPanel } from '../JPanel/JPanel';
 import { JLabel } from '../JLabel';
 
-const meta: Meta<typeof ChipAtom> = {
-  title: 'Atoms/ChipAtom',
-  component: ChipAtom,
+const meta: Meta<typeof JChip> = {
+  title: 'Atoms/JChip',
+  component: JChip,
   tags: ['autodocs'],
   args: { children: 'Activo', onRemove: fn() },
   argTypes: {
     variant:  { control: 'select', options: ['default', 'primary', 'success', 'warning', 'danger'] },
-    selected: { control: 'boolean' },
+    selected:  { control: 'boolean' },
     removable: { control: 'boolean' },
   },
 };
 export default meta;
-type Story = StoryObj<typeof ChipAtom>;
+type Story = StoryObj<typeof JChip>;
 
-// Clicar el chip alterna el estado selected (uncontrolled)
 export const Default: Story = {};
 
 export const Selected: Story = {
@@ -33,12 +32,12 @@ export const Removable: Story = {
 export const AllVariants: Story = {
   render: () => (
     <JPanel variant="ghost" padding="none" className="flex flex-wrap gap-2">
-      <ChipAtom>Default</ChipAtom>
-      <ChipAtom variant="primary">Primary</ChipAtom>
-      <ChipAtom variant="success">Success</ChipAtom>
-      <ChipAtom variant="warning">Warning</ChipAtom>
-      <ChipAtom variant="danger">Danger</ChipAtom>
-      <ChipAtom removable onRemove={fn()}>Removable</ChipAtom>
+      <JChip>Default</JChip>
+      <JChip variant="primary">Primary</JChip>
+      <JChip variant="success">Success</JChip>
+      <JChip variant="warning">Warning</JChip>
+      <JChip variant="danger">Danger</JChip>
+      <JChip removable onRemove={fn()}>Removable</JChip>
     </JPanel>
   ),
 };
@@ -53,14 +52,14 @@ export const FilterChips: Story = {
       <JPanel variant="ghost" padding="none" className="flex flex-col gap-3">
         <JPanel variant="ghost" padding="none" className="flex flex-wrap gap-2">
           {options.map((opt) => (
-            <ChipAtom
+            <JChip
               key={opt}
               variant="primary"
               selected={selected.includes(opt)}
               onClick={() => toggle(opt)}
             >
               {opt}
-            </ChipAtom>
+            </JChip>
           ))}
         </JPanel>
         <JLabel size="xs" color="muted">
@@ -77,16 +76,34 @@ export const RemovableChips: Story = {
     return (
       <JPanel variant="ghost" padding="none" className="flex flex-wrap gap-2">
         {chips.map((chip) => (
-          <ChipAtom
+          <JChip
             key={chip}
             variant="primary"
             removable
             onRemove={() => setChips((prev) => prev.filter((c) => c !== chip))}
           >
             {chip}
-          </ChipAtom>
+          </JChip>
         ))}
         {chips.length === 0 && <JLabel size="sm" className="text-neutral-400">Sin chips</JLabel>}
+      </JPanel>
+    );
+  },
+};
+
+export const Interactive: Story = {
+  render: () => {
+    const [saved, setSaved] = useState(false);
+    return (
+      <JPanel variant="ghost" padding="none" className="flex flex-col items-start gap-2">
+        <JChip
+          variant={saved ? 'success' : 'default'}
+          selected={saved}
+          onClick={() => setSaved((s) => !s)}
+        >
+          {saved ? '✓ Guardado' : 'Guardar'}
+        </JChip>
+        <JLabel size="xs" color="muted">{saved ? 'Click para deseleccionar' : 'Click para seleccionar'}</JLabel>
       </JPanel>
     );
   },

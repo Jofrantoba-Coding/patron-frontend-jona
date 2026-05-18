@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { JLabel } from '../JLabel';
 import { JIcon } from '../JIcon';
-import { ChipAtom } from '../ChipAtom';
+import { JChip } from '../JChip';
 
 describe('LinkAtom', () => {
   it('prevents click when disabled', () => {
@@ -22,10 +22,10 @@ describe('JIcon', () => {
   });
 });
 
-describe('ChipAtom', () => {
+describe('JChip', () => {
   it('calls onRemove when removable action is clicked', () => {
     const onRemove = vi.fn();
-    render(<ChipAtom removable onRemove={onRemove}>Active</ChipAtom>);
+    render(<JChip removable onRemove={onRemove}>Active</JChip>);
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
 
