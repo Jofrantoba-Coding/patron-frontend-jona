@@ -848,6 +848,34 @@
     flex-shrink: 0;
     accent-color: var(--color-primary-600, #2563eb);
   }
+
+  /* ── JProgress ───────────────────────────────────────────────────── */
+  .jprogress {
+    box-sizing: border-box;
+  }
+
+  .jprogress-bar-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .jprogress-bar-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.38) 50%,
+      transparent 100%
+    );
+    animation: jprogress-shimmer 1.4s ease-in-out infinite;
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes jprogress-shimmer {
+  to { transform: translateX(200%); }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */
