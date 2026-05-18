@@ -9,7 +9,7 @@ export * from './atoms/SpinnerAtom';
 export * from './atoms/JCheckBox';
 export * from './atoms/JComboBox';
 export * from './atoms/RadioAtom';
-export * from './atoms/AvatarAtom';
+export * from './atoms/JAvatar';
 export * from './atoms/ImageAtom';
 export * from './atoms/JPanel';
 export * from './atoms/SwitchAtom';
