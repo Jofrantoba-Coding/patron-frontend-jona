@@ -8,7 +8,7 @@ export * from './atoms/JBadge';
 export * from './atoms/SpinnerAtom';
 export * from './atoms/JCheckBox';
 export * from './atoms/JComboBox';
-export * from './atoms/RadioAtom';
+export * from './atoms/JRadioButton';
 export * from './atoms/JAvatar';
 export * from './atoms/JImagen';
 export * from './atoms/JPanel';

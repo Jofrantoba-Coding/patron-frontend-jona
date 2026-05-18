@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JLabel } from '../../atoms/JLabel';
-import { RadioAtom } from '../../atoms/RadioAtom';
+import { JRadioButton } from '../../atoms/JRadioButton';
 import { InterRadioGroupMolecule, RadioGroupOption } from './InterRadioGroupMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -38,7 +38,7 @@ export const RadioGroupMoleculeView: React.FC<RadioGroupMoleculeViewProps> = ({
               isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
             )}
           >
-            <RadioAtom
+            <JRadioButton
               id={optionId}
               name={name}
               value={option.value}

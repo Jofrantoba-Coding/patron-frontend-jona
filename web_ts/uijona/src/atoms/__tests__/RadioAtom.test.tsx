@@ -1,10 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { RadioAtom } from '../RadioAtom';
+import { JRadioButton } from '../JRadioButton';
 
-describe('RadioAtom', () => {
+describe('JRadioButton', () => {
   it('emits checked value and option value', () => {
     const onCheckedChange = vi.fn();
-    render(<RadioAtom aria-label="Monthly" value="monthly" onCheckedChange={onCheckedChange} />);
+    render(<JRadioButton aria-label="Monthly" value="monthly" onCheckedChange={onCheckedChange} />);
 
     fireEvent.click(screen.getByLabelText('Monthly'));
 
@@ -13,7 +13,7 @@ describe('RadioAtom', () => {
 
   it('does not emit when disabled', () => {
     const onCheckedChange = vi.fn();
-    render(<RadioAtom aria-label="Monthly" value="monthly" disabled onCheckedChange={onCheckedChange} />);
+    render(<JRadioButton aria-label="Monthly" value="monthly" disabled onCheckedChange={onCheckedChange} />);
 
     fireEvent.click(screen.getByLabelText('Monthly'));
 
