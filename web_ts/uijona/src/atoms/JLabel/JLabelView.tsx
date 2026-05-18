@@ -32,7 +32,6 @@ const variantDefaultAs: Record<JLabelVariant, JLabelAs> = {
 
 const variantDefaultSize: Partial<Record<JLabelVariant, JLabelSize>> = {
   'body':        'base',
-  'heading':     '2xl',
   'label':       'sm',
   'error':       'xs',
   'description': 'xs',
