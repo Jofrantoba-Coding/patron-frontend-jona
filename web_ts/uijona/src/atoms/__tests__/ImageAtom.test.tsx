@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ImageAtom } from '../ImageAtom';
+import { JImagen } from '../JImagen';
 
-describe('ImageAtom', () => {
+describe('JImagen', () => {
   it('renders an accessible image with default loading behavior', () => {
-    render(<ImageAtom src="/logo.svg" alt="Develtrex logo" />);
+    render(<JImagen src="/logo.svg" alt="Develtrex logo" />);
 
     const image = screen.getByAltText('Develtrex logo');
 
@@ -13,7 +13,7 @@ describe('ImageAtom', () => {
   });
 
   it('switches to fallbackSrc when the image fails', () => {
-    render(<ImageAtom src="/missing.svg" fallbackSrc="/fallback.svg" alt="Fallback logo" />);
+    render(<JImagen src="/missing.svg" fallbackSrc="/fallback.svg" alt="Fallback logo" />);
 
     const image = screen.getByAltText('Fallback logo');
     fireEvent.error(image);

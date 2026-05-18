@@ -10,7 +10,7 @@ export * from './atoms/JCheckBox';
 export * from './atoms/JComboBox';
 export * from './atoms/RadioAtom';
 export * from './atoms/JAvatar';
-export * from './atoms/ImageAtom';
+export * from './atoms/JImagen';
 export * from './atoms/JPanel';
 export * from './atoms/SwitchAtom';
 export * from './atoms/JLabel';
