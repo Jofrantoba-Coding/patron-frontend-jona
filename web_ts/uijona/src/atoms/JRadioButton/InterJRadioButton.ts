@@ -1,5 +1,7 @@
 import React from 'react';
 
+export type JRadioButtonLabelPosition = 'right' | 'left' | 'top' | 'bottom';
+
 export interface InterJRadioButton {
   checked?: boolean;
   hasError?: boolean;
@@ -7,6 +9,9 @@ export interface InterJRadioButton {
   id?: string;
   name?: string;
   value?: string;
+  label?: string;
+  labelPosition?: JRadioButtonLabelPosition;
+  labelClassName?: string;
   className?: string;
   style?: React.CSSProperties;
   onCheckedChange?: (checked: boolean, value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -15,6 +20,7 @@ export interface InterJRadioButton {
 }
 
 export const JRADIOBUTTON_DEFAULTS = {
-  hasError: false,
-  disabled: false,
+  hasError:      false,
+  disabled:      false,
+  labelPosition: 'right',
 } as const satisfies Partial<InterJRadioButton>;

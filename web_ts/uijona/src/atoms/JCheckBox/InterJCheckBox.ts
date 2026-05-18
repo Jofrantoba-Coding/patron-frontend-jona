@@ -1,6 +1,7 @@
 import React from 'react';
 
-export type JCheckBoxSize = 'sm' | 'md' | 'lg';
+export type JCheckBoxSize          = 'sm' | 'md' | 'lg';
+export type JCheckBoxLabelPosition = 'right' | 'left' | 'top' | 'bottom';
 
 export interface InterJCheckBox {
   // Estado
@@ -12,6 +13,11 @@ export interface InterJCheckBox {
 
   // Visual
   size?: JCheckBoxSize;
+
+  // Label integrado
+  label?: string;
+  labelPosition?: JCheckBoxLabelPosition;
+  labelClassName?: string;
 
   // Formulario
   id?: string;
@@ -29,14 +35,9 @@ export interface InterJCheckBox {
 }
 
 export const JCHECKBOX_DEFAULTS = {
-  hasError:      false,
-  disabled:      false,
-  indeterminate: false,
-  size:          'md',
-} as const satisfies Required<Pick<InterJCheckBox, 'hasError' | 'disabled' | 'indeterminate' | 'size'>>;
-
-export const JCHECKBOX_SIZES: Record<JCheckBoxSize, string> = {
-  sm: 'h-3 w-3 — 12px',
-  md: 'h-4 w-4 — 16px (default)',
-  lg: 'h-5 w-5 — 20px',
-};
+  hasError:       false,
+  disabled:       false,
+  indeterminate:  false,
+  size:           'md',
+  labelPosition:  'right',
+} as const satisfies Partial<InterJCheckBox>;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { JRADIOBUTTON_DEFAULTS, InterJRadioButton } from './InterJRadioButton';
+import { JRADIOBUTTON_DEFAULTS, InterJRadioButton, JRadioButtonLabelPosition } from './InterJRadioButton';
 
 type JRadioButtonViewProps = InterJRadioButton &
   Omit<React.InputHTMLAttributes<HTMLInputElement>,
@@ -9,13 +9,23 @@ type JRadioButtonViewProps = InterJRadioButton &
     forwardedRef?: React.Ref<HTMLInputElement>;
   };
 
+const wrapperClasses: Record<JRadioButtonLabelPosition, string> = {
+  right:  'flex flex-row items-center gap-2',
+  left:   'flex flex-row-reverse items-center gap-2',
+  top:    'flex flex-col-reverse items-start gap-1',
+  bottom: 'flex flex-col items-start gap-1',
+};
+
 export const JRadioButtonView: React.FC<JRadioButtonViewProps> = ({
   checked,
-  hasError  = JRADIOBUTTON_DEFAULTS.hasError,
-  disabled  = JRADIOBUTTON_DEFAULTS.disabled,
+  hasError       = JRADIOBUTTON_DEFAULTS.hasError,
+  disabled       = JRADIOBUTTON_DEFAULTS.disabled,
   id,
   name,
   value,
+  label,
+  labelPosition  = JRADIOBUTTON_DEFAULTS.labelPosition,
+  labelClassName,
   className,
   style,
   onCheckedChange,
@@ -29,7 +39,7 @@ export const JRadioButtonView: React.FC<JRadioButtonViewProps> = ({
     onCheckedChange?.(event.target.checked, event.target.value, event);
   };
 
-  return (
+  const input = (
     <input
       ref={forwardedRef}
       type="radio"
@@ -54,6 +64,25 @@ export const JRadioButtonView: React.FC<JRadioButtonViewProps> = ({
       )}
       {...htmlProps}
     />
+  );
+
+  if (!label) return input;
+
+  return (
+    <label className={cn(
+      'inline-flex',
+      wrapperClasses[labelPosition],
+      disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+    )}>
+      {input}
+      <span className={cn(
+        'text-sm text-neutral-700 select-none leading-none',
+        disabled && 'opacity-50',
+        labelClassName,
+      )}>
+        {label}
+      </span>
+    </label>
   );
 };
 

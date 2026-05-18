@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '../../lib/cn';
-import { InterJCheckBox, JCheckBoxSize } from './InterJCheckBox';
+import { InterJCheckBox, JCheckBoxSize, JCheckBoxLabelPosition } from './InterJCheckBox';
 
 interface JCheckBoxViewProps extends InterJCheckBox {
   forwardedRef?: React.Ref<HTMLInputElement>;
@@ -12,13 +12,23 @@ const sizeClasses: Record<JCheckBoxSize, string> = {
   lg: 'h-5 w-5',
 };
 
+const wrapperClasses: Record<JCheckBoxLabelPosition, string> = {
+  right:  'flex flex-row items-center gap-2',
+  left:   'flex flex-row-reverse items-center gap-2',
+  top:    'flex flex-col-reverse items-start gap-1',
+  bottom: 'flex flex-col items-start gap-1',
+};
+
 export const JCheckBoxView: React.FC<JCheckBoxViewProps> = ({
   checked,
   defaultChecked,
-  indeterminate = false,
-  hasError = false,
-  disabled = false,
-  size = 'md',
+  indeterminate  = false,
+  hasError       = false,
+  disabled       = false,
+  size           = 'md',
+  label,
+  labelPosition  = 'right',
+  labelClassName,
   className,
   style,
   onCheckedChange,
@@ -52,7 +62,7 @@ export const JCheckBoxView: React.FC<JCheckBoxViewProps> = ({
     onCheckedChange?.(e.target.checked, e);
   };
 
-  return (
+  const input = (
     <input
       ref={assignRef}
       type="checkbox"
@@ -73,5 +83,24 @@ export const JCheckBoxView: React.FC<JCheckBoxViewProps> = ({
       onBlur={onBlur}
       {...rest}
     />
+  );
+
+  if (!label) return input;
+
+  return (
+    <label className={cn(
+      'inline-flex',
+      wrapperClasses[labelPosition],
+      disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+    )}>
+      {input}
+      <span className={cn(
+        'text-sm text-neutral-700 select-none leading-none',
+        disabled && 'opacity-50',
+        labelClassName,
+      )}>
+        {label}
+      </span>
+    </label>
   );
 };

@@ -11,9 +11,11 @@ const meta: Meta<typeof JRadioButton> = {
   tags: ['autodocs'],
   args: { onCheckedChange: fn(), onFocus: fn(), onBlur: fn() },
   argTypes: {
-    checked:  { control: 'boolean' },
-    hasError: { control: 'boolean' },
-    disabled: { control: 'boolean' },
+    checked:       { control: 'boolean' },
+    hasError:      { control: 'boolean' },
+    disabled:      { control: 'boolean' },
+    label:         { control: 'text' },
+    labelPosition: { control: 'select', options: ['right', 'left', 'top', 'bottom'] },
   },
 };
 export default meta;
@@ -27,12 +29,51 @@ export const Checked: Story = {
   args: { name: 'radio-checked', value: 'checked', checked: true },
 };
 
+export const WithLabelRight: Story = {
+  args: { name: 'r1', value: 'a', label: 'Opción A', labelPosition: 'right' },
+};
+
+export const WithLabelLeft: Story = {
+  args: { name: 'r2', value: 'b', label: 'Opción B', labelPosition: 'left' },
+};
+
+export const WithLabelTop: Story = {
+  args: { name: 'r3', value: 'c', label: 'Arriba', labelPosition: 'top' },
+};
+
+export const WithLabelBottom: Story = {
+  args: { name: 'r4', value: 'd', label: 'Abajo', labelPosition: 'bottom' },
+};
+
+export const LabelPositions: Story = {
+  render: () => (
+    <JPanel variant="ghost" padding="none" className="grid grid-cols-2 gap-8 p-4">
+      <JPanel variant="ghost" padding="none" className="flex flex-col items-center gap-1">
+        <JLabel size="xs" color="muted">right (default)</JLabel>
+        <JRadioButton name="pos" value="right" label="Opción A" labelPosition="right" />
+      </JPanel>
+      <JPanel variant="ghost" padding="none" className="flex flex-col items-center gap-1">
+        <JLabel size="xs" color="muted">left</JLabel>
+        <JRadioButton name="pos" value="left" label="Opción B" labelPosition="left" />
+      </JPanel>
+      <JPanel variant="ghost" padding="none" className="flex flex-col items-center gap-1">
+        <JLabel size="xs" color="muted">top</JLabel>
+        <JRadioButton name="pos" value="top" label="Opción C" labelPosition="top" />
+      </JPanel>
+      <JPanel variant="ghost" padding="none" className="flex flex-col items-center gap-1">
+        <JLabel size="xs" color="muted">bottom</JLabel>
+        <JRadioButton name="pos" value="bottom" label="Opción D" labelPosition="bottom" />
+      </JPanel>
+    </JPanel>
+  ),
+};
+
 export const WithError: Story = {
-  args: { name: 'radio-error', value: 'error', hasError: true },
+  args: { name: 'radio-error', value: 'error', hasError: true, label: 'Campo requerido' },
 };
 
 export const Disabled: Story = {
-  args: { name: 'radio-disabled', value: 'disabled', disabled: true },
+  args: { name: 'radio-disabled', value: 'disabled', disabled: true, label: 'No disponible' },
 };
 
 export const Interactive: Story = {
@@ -48,19 +89,19 @@ export const Interactive: Story = {
       <JPanel variant="ghost" padding="none" className="flex flex-col gap-3">
         <JLabel size="sm" className="font-medium text-neutral-700">Método de pago</JLabel>
         {methods.map((m) => (
-          <JLabel variant="label" key={m.value} className="flex items-center gap-2 cursor-pointer">
-            <JRadioButton
-              name="payment"
-              value={m.value}
-              checked={selected === m.value}
-              onCheckedChange={(checked, value, e) => { args.onCheckedChange?.(checked, value, e); setSelected(m.value); }}
-            />
-            <JLabel as="span" size="sm">{m.label}</JLabel>
-          </JLabel>
+          <JRadioButton
+            key={m.value}
+            name="payment"
+            value={m.value}
+            label={m.label}
+            labelPosition="right"
+            checked={selected === m.value}
+            onCheckedChange={(checked, value, e) => { args.onCheckedChange?.(checked, value, e); setSelected(m.value); }}
+          />
         ))}
         {selected && (
           <JLabel size="xs" color="muted" className="mt-1">
-            Método elegido: <strong>{methods.find((m) => m.value === selected)?.label}</strong>
+            Elegido: <strong>{methods.find((m) => m.value === selected)?.label}</strong>
           </JLabel>
         )}
       </JPanel>
