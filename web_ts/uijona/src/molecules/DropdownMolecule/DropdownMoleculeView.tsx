@@ -2,7 +2,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
-import { SeparatorAtom } from '../../atoms/SeparatorAtom';
+import { JSeparator } from '../../atoms/JSeparator';
 import { InterDropdownMolecule, DropdownGroup } from './InterDropdownMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JButton } from '../../atoms/JButton/JButton';
@@ -25,7 +25,7 @@ export const DropdownMoleculeView: React.FC<DropdownMoleculeViewProps> = ({
       <JPanel variant="ghost" padding="none" radius="none" ref={menuRef} role="menu" style={menuStyle} className={cn('max-w-[calc(100vw-1rem)] overflow-hidden rounded-md border border-neutral-200 bg-white py-1 shadow-lg', className)}>
         {groups.map((group, gi) => (
           <React.Fragment key={gi}>
-            {gi > 0 && <SeparatorAtom className="my-1" />}
+            {gi > 0 && <JSeparator className="my-1" />}
             {group.label && <p className="px-3 py-1 text-xs font-semibold text-neutral-500 uppercase tracking-wide">{group.label}</p>}
             {group.items.map((item, ii) => (
               <JButton variant="ghost" key={ii} role="menuitem" type="button" aria-disabled={item.disabled || undefined}

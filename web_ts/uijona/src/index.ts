@@ -16,7 +16,7 @@ export * from './atoms/JSwitch';
 export * from './atoms/JLabel';
 export * from './atoms/JIcon';
 export * from './atoms/JChip';
-export * from './atoms/SeparatorAtom';
+export * from './atoms/JSeparator';
 export * from './atoms/JProgress';
 export * from './atoms/SkeletonAtom';
 // Molecules
