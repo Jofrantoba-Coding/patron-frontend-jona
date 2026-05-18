@@ -12,7 +12,7 @@ import {
   type TableColumnsConfig,
   type TableColumnDef,
 } from './TableMolecule';
-import { BadgeAtom } from '../../atoms/BadgeAtom/BadgeAtom';
+import { JBadge, type JBadgeVariant } from '../../atoms/JBadge';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof TableMolecule> = {
@@ -44,30 +44,30 @@ type Story = StoryObj<typeof TableMolecule>;
 type BadgeVariant = 'default' | 'secondary' | 'destructive';
 
 const allUsers = [
-  { name: 'Jonathan Franck',  email: 'jofrantoba@gmail.com',                role: 'Admin',           status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 912 345 678', lastAccess: 'Hoy 09:30'    },
-  { name: 'Ana Garcia',       email: 'ana.garcia@empresa.example.com',       role: 'Operaciones',     status: 'Inactivo',  variant: 'secondary'   as BadgeVariant, phone: '+51 923 456 789', lastAccess: 'Ayer 15:20'   },
-  { name: 'Carlos Perez',     email: 'carlos.perez@empresa.example.com',     role: 'Soporte tecnico', status: 'Bloqueado', variant: 'destructive' as BadgeVariant, phone: '+51 934 567 890', lastAccess: '2026-04-28'   },
-  { name: 'Maria Torres',     email: 'maria.torres@empresa.example.com',     role: 'Producto',        status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 945 678 901', lastAccess: 'Hoy 11:45'    },
-  { name: 'Luis Mendez',      email: 'luis.mendez@empresa.example.com',      role: 'Ventas',          status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 956 789 012', lastAccess: 'Ayer 08:00'   },
-  { name: 'Sofia Ramirez',    email: 'sofia.ramirez@empresa.example.com',    role: 'Diseno',          status: 'Inactivo',  variant: 'secondary'   as BadgeVariant, phone: '+51 967 890 123', lastAccess: '2026-05-01'   },
-  { name: 'Diego Vargas',     email: 'diego.vargas@empresa.example.com',     role: 'Ingenieria',      status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 978 901 234', lastAccess: 'Hoy 14:10'    },
-  { name: 'Valentina Cruz',   email: 'valentina.cruz@empresa.example.com',   role: 'RR.HH.',          status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 989 012 345', lastAccess: 'Ayer 17:30'   },
-  { name: 'Andres Molina',    email: 'andres.molina@empresa.example.com',    role: 'Legal',           status: 'Bloqueado', variant: 'destructive' as BadgeVariant, phone: '+51 990 123 456', lastAccess: '2026-04-15'   },
-  { name: 'Camila Ortega',    email: 'camila.ortega@empresa.example.com',    role: 'Finanzas',        status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 901 234 567', lastAccess: 'Hoy 10:00'    },
-  { name: 'Sebastian Rojas',  email: 'sebastian.rojas@empresa.example.com',  role: 'Producto',        status: 'Inactivo',  variant: 'secondary'   as BadgeVariant, phone: '+51 912 345 001', lastAccess: '2026-05-03'   },
-  { name: 'Isabella Morales', email: 'isabella.morales@empresa.example.com', role: 'Operaciones',     status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 923 456 002', lastAccess: 'Ayer 12:15'   },
-  { name: 'Mateo Herrera',    email: 'mateo.herrera@empresa.example.com',    role: 'Ingenieria',      status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 934 567 003', lastAccess: 'Hoy 08:45'    },
-  { name: 'Luciana Castro',   email: 'luciana.castro@empresa.example.com',   role: 'Ventas',          status: 'Inactivo',  variant: 'secondary'   as BadgeVariant, phone: '+51 945 678 004', lastAccess: '2026-04-30'   },
-  { name: 'Nicolas Soto',     email: 'nicolas.soto@empresa.example.com',     role: 'Diseno',          status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 956 789 005', lastAccess: 'Ayer 09:20'   },
-  { name: 'Mariana Diaz',     email: 'mariana.diaz@empresa.example.com',     role: 'Marketing',       status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 967 890 006', lastAccess: 'Hoy 16:00'    },
-  { name: 'Emilio Reyes',     email: 'emilio.reyes@empresa.example.com',     role: 'Admin',           status: 'Bloqueado', variant: 'destructive' as BadgeVariant, phone: '+51 978 901 007', lastAccess: '2026-04-20'   },
-  { name: 'Adriana Flores',   email: 'adriana.flores@empresa.example.com',   role: 'Finanzas',        status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 989 012 008', lastAccess: 'Ayer 14:50'   },
-  { name: 'Roberto Jimenez',  email: 'roberto.jimenez@empresa.example.com',  role: 'Soporte tecnico', status: 'Inactivo',  variant: 'secondary'   as BadgeVariant, phone: '+51 990 123 009', lastAccess: '2026-05-05'   },
-  { name: 'Patricia Nunez',   email: 'patricia.nunez@empresa.example.com',   role: 'RR.HH.',          status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 901 234 010', lastAccess: 'Hoy 07:30'    },
-  { name: 'Fernando Ruiz',    email: 'fernando.ruiz@empresa.example.com',    role: 'Ingenieria',      status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 912 345 011', lastAccess: 'Ayer 11:00'   },
-  { name: 'Gabriela Pena',    email: 'gabriela.pena@empresa.example.com',    role: 'Legal',           status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 923 456 012', lastAccess: 'Hoy 13:25'    },
-  { name: 'Ricardo Vega',     email: 'ricardo.vega@empresa.example.com',     role: 'Marketing',       status: 'Inactivo',  variant: 'secondary'   as BadgeVariant, phone: '+51 934 567 013', lastAccess: '2026-05-02'   },
-  { name: 'Elena Medina',     email: 'elena.medina@empresa.example.com',     role: 'Producto',        status: 'Activo',    variant: 'default'     as BadgeVariant, phone: '+51 945 678 014', lastAccess: 'Ayer 16:40'   },
+  { name: 'Jonathan Franck',  email: 'jofrantoba@gmail.com',                role: 'Admin',           status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 912 345 678', lastAccess: 'Hoy 09:30'    },
+  { name: 'Ana Garcia',       email: 'ana.garcia@empresa.example.com',       role: 'Operaciones',     status: 'Inactivo',  variant: 'secondary'   as JBadgeVariant, phone: '+51 923 456 789', lastAccess: 'Ayer 15:20'   },
+  { name: 'Carlos Perez',     email: 'carlos.perez@empresa.example.com',     role: 'Soporte tecnico', status: 'Bloqueado', variant: 'destructive' as JBadgeVariant, phone: '+51 934 567 890', lastAccess: '2026-04-28'   },
+  { name: 'Maria Torres',     email: 'maria.torres@empresa.example.com',     role: 'Producto',        status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 945 678 901', lastAccess: 'Hoy 11:45'    },
+  { name: 'Luis Mendez',      email: 'luis.mendez@empresa.example.com',      role: 'Ventas',          status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 956 789 012', lastAccess: 'Ayer 08:00'   },
+  { name: 'Sofia Ramirez',    email: 'sofia.ramirez@empresa.example.com',    role: 'Diseno',          status: 'Inactivo',  variant: 'secondary'   as JBadgeVariant, phone: '+51 967 890 123', lastAccess: '2026-05-01'   },
+  { name: 'Diego Vargas',     email: 'diego.vargas@empresa.example.com',     role: 'Ingenieria',      status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 978 901 234', lastAccess: 'Hoy 14:10'    },
+  { name: 'Valentina Cruz',   email: 'valentina.cruz@empresa.example.com',   role: 'RR.HH.',          status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 989 012 345', lastAccess: 'Ayer 17:30'   },
+  { name: 'Andres Molina',    email: 'andres.molina@empresa.example.com',    role: 'Legal',           status: 'Bloqueado', variant: 'destructive' as JBadgeVariant, phone: '+51 990 123 456', lastAccess: '2026-04-15'   },
+  { name: 'Camila Ortega',    email: 'camila.ortega@empresa.example.com',    role: 'Finanzas',        status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 901 234 567', lastAccess: 'Hoy 10:00'    },
+  { name: 'Sebastian Rojas',  email: 'sebastian.rojas@empresa.example.com',  role: 'Producto',        status: 'Inactivo',  variant: 'secondary'   as JBadgeVariant, phone: '+51 912 345 001', lastAccess: '2026-05-03'   },
+  { name: 'Isabella Morales', email: 'isabella.morales@empresa.example.com', role: 'Operaciones',     status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 923 456 002', lastAccess: 'Ayer 12:15'   },
+  { name: 'Mateo Herrera',    email: 'mateo.herrera@empresa.example.com',    role: 'Ingenieria',      status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 934 567 003', lastAccess: 'Hoy 08:45'    },
+  { name: 'Luciana Castro',   email: 'luciana.castro@empresa.example.com',   role: 'Ventas',          status: 'Inactivo',  variant: 'secondary'   as JBadgeVariant, phone: '+51 945 678 004', lastAccess: '2026-04-30'   },
+  { name: 'Nicolas Soto',     email: 'nicolas.soto@empresa.example.com',     role: 'Diseno',          status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 956 789 005', lastAccess: 'Ayer 09:20'   },
+  { name: 'Mariana Diaz',     email: 'mariana.diaz@empresa.example.com',     role: 'Marketing',       status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 967 890 006', lastAccess: 'Hoy 16:00'    },
+  { name: 'Emilio Reyes',     email: 'emilio.reyes@empresa.example.com',     role: 'Admin',           status: 'Bloqueado', variant: 'destructive' as JBadgeVariant, phone: '+51 978 901 007', lastAccess: '2026-04-20'   },
+  { name: 'Adriana Flores',   email: 'adriana.flores@empresa.example.com',   role: 'Finanzas',        status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 989 012 008', lastAccess: 'Ayer 14:50'   },
+  { name: 'Roberto Jimenez',  email: 'roberto.jimenez@empresa.example.com',  role: 'Soporte tecnico', status: 'Inactivo',  variant: 'secondary'   as JBadgeVariant, phone: '+51 990 123 009', lastAccess: '2026-05-05'   },
+  { name: 'Patricia Nunez',   email: 'patricia.nunez@empresa.example.com',   role: 'RR.HH.',          status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 901 234 010', lastAccess: 'Hoy 07:30'    },
+  { name: 'Fernando Ruiz',    email: 'fernando.ruiz@empresa.example.com',    role: 'Ingenieria',      status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 912 345 011', lastAccess: 'Ayer 11:00'   },
+  { name: 'Gabriela Pena',    email: 'gabriela.pena@empresa.example.com',    role: 'Legal',           status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 923 456 012', lastAccess: 'Hoy 13:25'    },
+  { name: 'Ricardo Vega',     email: 'ricardo.vega@empresa.example.com',     role: 'Marketing',       status: 'Inactivo',  variant: 'secondary'   as JBadgeVariant, phone: '+51 934 567 013', lastAccess: '2026-05-02'   },
+  { name: 'Elena Medina',     email: 'elena.medina@empresa.example.com',     role: 'Producto',        status: 'Activo',    variant: 'default'     as JBadgeVariant, phone: '+51 945 678 014', lastAccess: 'Ayer 16:40'   },
 ];
 
 const users = allUsers.slice(0, 4);
@@ -76,15 +76,15 @@ type UserRow = typeof allUsers[0];
 type UserKey = keyof UserRow;
 
 const orders = [
-  { id: '#ORD-2026-0001', client: 'Acme Corporation International', description: 'Solicitud con texto largo que debe mantenerse legible sin romper el layout mobile.', total: '$12,450.00', status: 'Pagada',    statusVariant: 'default'     as BadgeVariant },
-  { id: '#ORD-2026-0002', client: 'Global Tech Solutions S.A.',      description: 'Renovacion anual de licencias de software y soporte premium extendido.',             total: '$8,200.00',  status: 'Pendiente', statusVariant: 'secondary'   as BadgeVariant },
-  { id: '#ORD-2026-0003', client: 'Inversiones Norte Ltda.',         description: 'Implementacion de modulo de reportes con exportacion a PDF y Excel.',                total: '$3,750.00',  status: 'Vencida',   statusVariant: 'destructive' as BadgeVariant },
+  { id: '#ORD-2026-0001', client: 'Acme Corporation International', description: 'Solicitud con texto largo que debe mantenerse legible sin romper el layout mobile.', total: '$12,450.00', status: 'Pagada',    statusVariant: 'default'     as JBadgeVariant },
+  { id: '#ORD-2026-0002', client: 'Global Tech Solutions S.A.',      description: 'Renovacion anual de licencias de software y soporte premium extendido.',             total: '$8,200.00',  status: 'Pendiente', statusVariant: 'secondary'   as JBadgeVariant },
+  { id: '#ORD-2026-0003', client: 'Inversiones Norte Ltda.',         description: 'Implementacion de modulo de reportes con exportacion a PDF y Excel.',                total: '$3,750.00',  status: 'Vencida',   statusVariant: 'destructive' as JBadgeVariant },
 ];
 
 // ─── Column definitions ───────────────────────────────────────────────────────
 
 const statusRender: TableColumnDef['render'] = (v, row) => (
-  <BadgeAtom variant={row['variant'] as BadgeVariant}>{String(v)}</BadgeAtom>
+  <JBadge variant={row['variant'] as JBadgeVariant}>{String(v)}</JBadge>
 );
 
 const userColumns: TableColumnDef[] = [
@@ -124,7 +124,7 @@ const orderColumns: TableColumnDef[] = [
   { key: 'total',       header: 'Total',   align: 'right', resizable: true, filterable: true, filterPlaceholder: 'Filtrar total', minWidth: 100 },
   {
     key: 'status', header: 'Estado', resizable: true, filterable: true, filterPlaceholder: 'Filtrar estado', minWidth: 100,
-    render: (v, row) => <BadgeAtom variant={row['statusVariant'] as BadgeVariant}>{String(v)}</BadgeAtom>,
+    render: (v, row) => <JBadge variant={row['statusVariant'] as JBadgeVariant}>{String(v)}</JBadge>,
   },
 ];
 

@@ -789,6 +789,12 @@
     border-color: var(--danger-500, #ef4444);
   }
 
+  /* ── JBadge ─────────────────────────────────────────────────────── */
+  .jbadge {
+    box-sizing: border-box;
+    user-select: none;
+  }
+
   /* ── JImagen ────────────────────────────────────────────────────── */
   .jimagen {
     box-sizing: border-box;
