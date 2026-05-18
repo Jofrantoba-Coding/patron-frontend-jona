@@ -835,6 +835,12 @@
     box-sizing: border-box;
     user-select: none;
   }
+
+  /* ── JSwitch ─────────────────────────────────────────────────────── */
+  .jswitch {
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
 }
 
 /* ── MetricsBandOrganism ────────────────────────────────────────────────────── */

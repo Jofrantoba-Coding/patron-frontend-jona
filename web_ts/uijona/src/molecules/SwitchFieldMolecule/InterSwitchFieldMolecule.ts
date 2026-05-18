@@ -1,5 +1,5 @@
 // InterSwitchFieldMolecule.ts — JONA Interface
-import { SwitchSize } from '../../atoms/SwitchAtom';
+import { JSwitchSize } from '../../atoms/JSwitch';
 
 export interface InterSwitchFieldMolecule {
   id: string;
@@ -8,7 +8,7 @@ export interface InterSwitchFieldMolecule {
   description?: string;
   errorMessage?: string;
   disabled?: boolean;
-  size?: SwitchSize;
+  size?: JSwitchSize;
   card?: boolean;
   className?: string;
   // Observer events

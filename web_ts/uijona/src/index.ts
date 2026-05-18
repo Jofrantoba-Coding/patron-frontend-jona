@@ -12,7 +12,7 @@ export * from './atoms/RadioAtom';
 export * from './atoms/JAvatar';
 export * from './atoms/JImagen';
 export * from './atoms/JPanel';
-export * from './atoms/SwitchAtom';
+export * from './atoms/JSwitch';
 export * from './atoms/JLabel';
 export * from './atoms/JIcon';
 export * from './atoms/JChip';

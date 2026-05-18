@@ -1,7 +1,7 @@
 ﻿// SwitchFieldMoleculeView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { SwitchAtom } from '../../atoms/SwitchAtom';
+import { JSwitch } from '../../atoms/JSwitch';
 import { JLabel } from '../../atoms/JLabel';
 import { InterSwitchFieldMolecule } from './InterSwitchFieldMolecule';
 import { JPanel } from '../../atoms/JPanel/JPanel';
@@ -17,7 +17,7 @@ export const SwitchFieldMoleculeView: React.FC<InterSwitchFieldMolecule> = ({
         {description && !hasError && <JLabel message={description} variant="description" />}
         {hasError && <JLabel message={errorMessage} variant="error" />}
       </JPanel>
-      <SwitchAtom id={id} checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} hasError={hasError} size={size} aria-labelledby={`${id}-label`} />
+      <JSwitch id={id} checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} hasError={hasError} size={size} aria-labelledby={`${id}-label`} />
     </JPanel>
   );
 
