@@ -21,7 +21,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
   onItemClick: (item: SidebarNavItem) => void;
 }) {
   return (
-    <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col gap-0.5">
+    <JPanel>
       {group.label && !collapsed && (
         <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">{group.label}</p>
       )}
@@ -64,40 +64,61 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
   const effectiveWidth = collapsed ? '3.5rem' : sidebarWidth;
 
   return (
-    <JPanel variant="ghost" padding="none" radius="none" className={cn('flex min-h-screen min-w-0 bg-neutral-50', className)}>
-      {/* Mobile overlay */}
+    <JPanel
+      layout="box"
+      direction="row"
+      className={cn('min-h-screen bg-neutral-50', className)}
+    >
       {mobileOpen && (
-        <JPanel variant="ghost" padding="none" radius="none" className="fixed inset-0 z-30 bg-black/40 lg:hidden" aria-hidden="true" onClick={onCloseMobile} />
+        <JPanel
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          aria-hidden="true"
+          onClick={onCloseMobile}
+        />
       )}
 
-      {/* Sidebar */}
-      <aside
+      {/* Sidebar — fixed on mobile (overlay), static on desktop (in-flow) */}
+      <JPanel
+        as="aside"
+        layout="box"
         style={{ width: effectiveWidth }}
         className={cn(
-          'fixed inset-y-0 left-0 z-40 flex shrink-0 flex-col border-r border-neutral-200 bg-white transition-all duration-300 ease-in-out',
+          'fixed inset-y-0 left-0 z-40 shrink-0 border-r border-neutral-200 bg-white transition-all duration-300 ease-in-out',
           'lg:static lg:z-auto',
           mobileOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full lg:translate-x-0',
           sidebarClassName
         )}
       >
-        {/* Sidebar header slot */}
         {header && (
-          <JPanel variant="ghost" padding="none" radius="none" className={cn('flex shrink-0 items-center border-b border-neutral-100 px-3 py-3', collapsed && 'justify-center')}>
+          <JPanel
+            layout="box"
+            direction="row"
+            alignItems="center"
+            justifyContent={collapsed ? 'center' : 'start'}
+            className="shrink-0 border-b border-neutral-100 px-3 py-3"
+          >
             {header}
           </JPanel>
         )}
 
-        {/* Nav */}
-        <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2">
+        <JPanel
+          as="nav"
+          layout="box"
+          gap="xs"
+          className="min-h-0 flex-1 overflow-y-auto p-2"
+        >
           {nav.map((group, i) => (
             <NavGroup key={i} group={group} activeKey={activeKey} collapsed={collapsed} onItemClick={onItemClick} />
           ))}
-        </nav>
+        </JPanel>
 
-        {/* Footer slot + collapse toggle */}
-        <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 flex-col border-t border-neutral-100 p-2 gap-1">
+        <JPanel
+          layout="box"
+          gap="xs"
+          className="shrink-0 border-t border-neutral-100 p-2"
+        >
           {footer && !collapsed && (
-            <JPanel variant="ghost" padding="none" radius="none" className="min-w-0 px-1 py-1">{footer}</JPanel>
+            <JPanel className="min-w-0 px-1 py-1">{footer}</JPanel>
           )}
           {collapsible && (
             <button
@@ -117,12 +138,20 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
             </button>
           )}
         </JPanel>
-      </aside>
+      </JPanel>
 
-      {/* Main content */}
-      <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Mobile top bar with hamburger */}
-        <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center border-b border-neutral-200 bg-white px-4 py-3 lg:hidden">
+      {/* Main content — takes remaining space next to sidebar on desktop */}
+      <JPanel
+        layout="box"
+        className="min-w-0 flex-1 overflow-hidden"
+      >
+        {/* Mobile hamburger bar */}
+        <JPanel
+          layout="box"
+          direction="row"
+          alignItems="center"
+          className="shrink-0 border-b border-neutral-200 bg-white px-4 py-3 lg:hidden"
+        >
           <button
             type="button"
             onClick={onToggleMobile}
@@ -136,10 +165,13 @@ export const SidebarLayoutView: React.FC<SidebarLayoutViewProps> = ({
           </button>
         </JPanel>
 
-        {/* Page content */}
-        <main className="min-h-0 flex-1 overflow-auto p-4 sm:p-6">
+        <JPanel
+          as="main"
+          layout="box"
+          className="min-h-0 flex-1 overflow-auto p-4 sm:p-6"
+        >
           {children}
-        </main>
+        </JPanel>
       </JPanel>
     </JPanel>
   );
