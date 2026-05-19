@@ -877,6 +877,32 @@
     flex-shrink: 0;
   }
 
+  /* ── JBorderLayout ──────────────────────────────────────────────── */
+  .jborderlayout {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .jborderlayout {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        "north north north"
+        "west  center east"
+        "south south south";
+    }
+
+    .jborderlayout > [data-slot='north']  { grid-area: north; }
+    .jborderlayout > [data-slot='west']   { grid-area: west;   width: auto; }
+    .jborderlayout > [data-slot='center'] { grid-area: center; min-width: 0; }
+    .jborderlayout > [data-slot='east']   { grid-area: east;   width: auto; }
+    .jborderlayout > [data-slot='south']  { grid-area: south; }
+  }
+
   /* ── JSeparator ─────────────────────────────────────────────────── */
   .jseparator {
     box-sizing: border-box;

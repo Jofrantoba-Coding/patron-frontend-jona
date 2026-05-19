@@ -15,29 +15,35 @@ export const BorderLayoutView: React.FC<BorderLayoutViewProps> = ({
   style,
   forwardedRef,
 }) => (
-  <JPanel ref={forwardedRef} variant="ghost" padding="none" radius="none" style={style} className={cn('flex min-h-screen w-full max-w-full min-w-0 flex-col overflow-hidden bg-neutral-50', className)}>
+  <JPanel
+    ref={forwardedRef}
+    layout="none"
+    variant="ghost"
+    padding="none"
+    radius="none"
+    style={style}
+    className={cn('jborderlayout bg-neutral-50', className)}
+  >
     {north && (
-      <JPanel as="header" variant="ghost" padding="none" radius="none" className={cn('flex-none w-full', northClassName)}>
+      <JPanel as="header" variant="ghost" padding="none" radius="none" data-slot="north" className={northClassName}>
         {north}
       </JPanel>
     )}
-    <JPanel variant="ghost" padding="none" radius="none" className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden md:flex-row">
-      {west && (
-        <JPanel as="aside" variant="ghost" padding="none" radius="none" className={cn('flex-none', westClassName)}>
-          {west}
-        </JPanel>
-      )}
-      <JPanel as="main" variant="ghost" padding="none" radius="none" className={cn('flex-1 min-w-0 overflow-auto', centerClassName)}>
-        {center ?? <JPanel variant="ghost" padding="none" radius="none" className="text-neutral-300 text-sm">No content</JPanel>}
+    {west && (
+      <JPanel as="aside" variant="ghost" padding="none" radius="none" data-slot="west" className={westClassName}>
+        {west}
       </JPanel>
-      {east && (
-        <JPanel as="aside" variant="ghost" padding="none" radius="none" className={cn('flex-none', eastClassName)}>
-          {east}
-        </JPanel>
-      )}
+    )}
+    <JPanel as="main" variant="ghost" padding="none" radius="none" data-slot="center" className={cn('overflow-auto', centerClassName)}>
+      {center}
     </JPanel>
+    {east && (
+      <JPanel as="aside" variant="ghost" padding="none" radius="none" data-slot="east" className={eastClassName}>
+        {east}
+      </JPanel>
+    )}
     {south && (
-      <JPanel as="footer" variant="ghost" padding="none" radius="none" className={cn('flex-none w-full', southClassName)}>
+      <JPanel as="footer" variant="ghost" padding="none" radius="none" data-slot="south" className={southClassName}>
         {south}
       </JPanel>
     )}

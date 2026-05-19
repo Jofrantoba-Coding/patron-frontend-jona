@@ -18,9 +18,9 @@ export interface InterBorderLayout {
 }
 
 export const BORDER_LAYOUT_DEFAULTS = {
-  northClassName:  'px-4 py-3 sm:px-6',
-  southClassName:  'px-4 py-3 text-xs sm:px-6',
-  westClassName:   'w-full border-b border-neutral-200 p-4 md:w-56 md:border-b-0 md:border-r',
-  eastClassName:   'w-full border-t border-neutral-200 p-4 md:w-56 md:border-l md:border-t-0',
+  northClassName:  'px-4 py-3',
+  southClassName:  'px-4 py-3 text-xs',
+  westClassName:   'border-b border-neutral-200 p-4 sm:border-b-0 sm:border-r',
+  eastClassName:   'border-t border-neutral-200 p-4 sm:border-t-0 sm:border-l',
   centerClassName: 'p-4 sm:p-6',
 } as const satisfies Partial<InterBorderLayout>;
