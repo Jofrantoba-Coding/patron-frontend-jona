@@ -1,8 +1,8 @@
 ﻿import { render, screen } from '@testing-library/react';
 import { JPanel } from '../../atoms/JPanel';
-import { JBoxLayout } from '../BoxLayout';
-import { JCardLayout } from '../CardLayout';
-import { JFlowLayout } from '../FlowLayout';
+import { JBoxLayout } from '../JBoxLayout';
+import { JCardLayout } from '../JCardLayout';
+import { JFlowLayout } from '../JFlowLayout';
 import { JGridBagLayout } from '../JGridBagLayout';
 import { JGridLayout } from '../JGridLayout';
 import { JGroupLayout } from '../JGroupLayout';

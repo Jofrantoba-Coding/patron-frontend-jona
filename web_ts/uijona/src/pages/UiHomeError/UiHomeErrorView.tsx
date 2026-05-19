@@ -1,7 +1,7 @@
-// UiHomeErrorView.tsx — JONA Layer: View (pure render)
+﻿// UiHomeErrorView.tsx — JONA Layer: View (pure render)
 import React from 'react';
 import { InterUiHomeError } from './InterUiHomeError';
-import { BorderLayoutView } from '../../layouts/BorderLayout';
+import { BorderLayoutView } from '../../layouts/JBorderLayout';
 import { ErrorPageOrganismView } from '../../organisms/ErrorPageOrganism';
 import { HeaderPageOrganismView } from '../../organisms/HeaderPageOrganism';
 import { FooterPageOrganismView } from '../../organisms/FooterPageOrganism';

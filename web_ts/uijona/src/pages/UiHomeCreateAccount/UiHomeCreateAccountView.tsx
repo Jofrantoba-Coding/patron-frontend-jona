@@ -1,7 +1,7 @@
-// UiHomeCreateAccountView.tsx — JONA Layer: View (pure render)
+﻿// UiHomeCreateAccountView.tsx — JONA Layer: View (pure render)
 import React from 'react';
 import { InterUiHomeCreateAccount } from './InterUiHomeCreateAccount';
-import { BorderLayoutView } from '../../layouts/BorderLayout';
+import { BorderLayoutView } from '../../layouts/JBorderLayout';
 import { CreateAccountOrganismView } from '../../organisms/CreateAccountOrganism';
 import { HeaderPageOrganismView } from '../../organisms/HeaderPageOrganism';
 import { FooterPageOrganismView } from '../../organisms/FooterPageOrganism';

@@ -63,11 +63,11 @@ export * from './molecules/ToastMolecule';
 export * from './molecules/RatingMolecule';
 
 // Layouts
-export * from './layouts/BorderLayout';
-export * from './layouts/FlowLayout';
-export * from './layouts/BoxLayout';
+export * from './layouts/JBorderLayout';
+export * from './layouts/JFlowLayout';
+export * from './layouts/JBoxLayout';
 export * from './layouts/JGridLayout';
-export * from './layouts/CardLayout';
+export * from './layouts/JCardLayout';
 export * from './layouts/JGridBagLayout';
 export * from './layouts/JGroupLayout';
 export * from './layouts/JSpringLayout';

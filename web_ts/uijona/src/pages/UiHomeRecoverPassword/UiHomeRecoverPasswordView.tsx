@@ -1,7 +1,7 @@
-// UiHomeRecoverPasswordView.tsx — JONA Layer: View (pure render)
+﻿// UiHomeRecoverPasswordView.tsx — JONA Layer: View (pure render)
 import React from 'react';
 import { InterUiHomeRecoverPassword } from './InterUiHomeRecoverPassword';
-import { BorderLayoutView } from '../../layouts/BorderLayout';
+import { BorderLayoutView } from '../../layouts/JBorderLayout';
 import { RecoverPasswordOrganismView } from '../../organisms/RecoverPasswordOrganism';
 import { HeaderPageOrganismView } from '../../organisms/HeaderPageOrganism';
 import { FooterPageOrganismView } from '../../organisms/FooterPageOrganism';

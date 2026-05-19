@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { JCardLayout } from './CardLayout';
-import { JFlowLayout } from '../FlowLayout/FlowLayout';
-import { JBoxLayout } from '../BoxLayout/BoxLayout';
+import { JFlowLayout } from '../JFlowLayout/FlowLayout';
+import { JBoxLayout } from '../JBoxLayout/BoxLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
 import { JButton } from '../../atoms/JButton/JButton';

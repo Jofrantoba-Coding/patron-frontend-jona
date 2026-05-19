@@ -1,7 +1,7 @@
-// UiHomeLoginView.tsx — JONA Layer: View (pure render)
+﻿// UiHomeLoginView.tsx — JONA Layer: View (pure render)
 import React from 'react';
 import { InterUiHomeLogin } from './InterUiHomeLogin';
-import { BorderLayoutView } from '../../layouts/BorderLayout';
+import { BorderLayoutView } from '../../layouts/JBorderLayout';
 import { LoginOrganismView } from '../../organisms/LoginOrganism';
 import { HeaderPageOrganismView } from '../../organisms/HeaderPageOrganism';
 import { FooterPageOrganismView } from '../../organisms/FooterPageOrganism';
