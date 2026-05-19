@@ -45,6 +45,11 @@
     flex-wrap: var(--jpanel-wrap, wrap);
   }
 
+  /* Children of flow layout must size to content, not fill the row */
+  .jpanel[data-jpanel-layout='flow'] > .jpanel {
+    width: auto;
+  }
+
   .jpanel[data-jpanel-layout='box'] {
     flex-direction: var(--jpanel-direction, column);
     flex-wrap: var(--jpanel-wrap, nowrap);
