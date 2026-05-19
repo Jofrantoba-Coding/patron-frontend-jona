@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { CardLayout } from './CardLayout';
 import { JFlowLayout } from '../FlowLayout/FlowLayout';
-import { BoxLayout } from '../BoxLayout/BoxLayout';
+import { JBoxLayout } from '../BoxLayout/BoxLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
 import { JButton } from '../../atoms/JButton/JButton';
@@ -41,7 +41,7 @@ export const Interactive: Story = {
     const [activeCard, setActiveCard] = useState(cards[0]);
 
     return (
-      <BoxLayout direction="column" gap="sm" className="w-full max-w-lg">
+      <JBoxLayout direction="column" gap="sm" className="w-full max-w-lg">
         <JFlowLayout gap="sm" className="w-full">
           {cards.map((card) => (
             <JButton
@@ -66,7 +66,7 @@ export const Interactive: Story = {
             <JLabel size="sm">Informacion de pagos y suscripciones.</JLabel>
           </JPanel>
         </CardLayout>
-      </BoxLayout>
+      </JBoxLayout>
     );
   },
 };

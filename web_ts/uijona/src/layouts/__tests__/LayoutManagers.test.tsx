@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { JPanel } from '../../atoms/JPanel';
-import { BoxLayout } from '../BoxLayout';
+import { JBoxLayout } from '../BoxLayout';
 import { CardLayout } from '../CardLayout';
 import { JFlowLayout } from '../FlowLayout';
 import { GridBagLayout } from '../GridBagLayout';
@@ -25,11 +25,11 @@ describe('layout manager components', () => {
     expect(flow.style.getPropertyValue('--jpanel-gap')).toBe('0.5rem');
   });
 
-  it('renders BoxLayout with configurable direction', () => {
+  it('renders JBoxLayout with configurable direction', () => {
     render(
-      <BoxLayout direction="column" gap="xs" data-testid="box">
+      <JBoxLayout direction="column" gap="xs" data-testid="box">
         <span>One</span>
-      </BoxLayout>
+      </JBoxLayout>
     );
 
     const box = screen.getByTestId('box');
@@ -41,12 +41,12 @@ describe('layout manager components', () => {
     expect(box.style.getPropertyValue('--jpanel-gap')).toBe('0.25rem');
   });
 
-  it('wraps BoxLayout rows by default for narrow containers', () => {
+  it('wraps JBoxLayout rows by default for narrow containers', () => {
     render(
-      <BoxLayout data-testid="box-row">
+      <JBoxLayout data-testid="box-row">
         <span>One</span>
         <span>Two</span>
-      </BoxLayout>
+      </JBoxLayout>
     );
 
     const box = screen.getByTestId('box-row');

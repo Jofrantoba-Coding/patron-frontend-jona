@@ -19,4 +19,4 @@ export const BoxLayoutImpl = React.forwardRef<HTMLDivElement, InterBoxLayout>(
   }
 );
 
-BoxLayoutImpl.displayName = 'BoxLayout';
+BoxLayoutImpl.displayName = 'JBoxLayout';

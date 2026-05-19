@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BoxLayout } from './BoxLayout';
+import { JBoxLayout } from './BoxLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
-const meta: Meta<typeof BoxLayout> = {
-  title: 'Layouts/BoxLayout',
-  component: BoxLayout,
+const meta: Meta<typeof JBoxLayout> = {
+  title: 'Layouts/JBoxLayout',
+  component: JBoxLayout,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
   argTypes: {
@@ -32,7 +32,7 @@ const meta: Meta<typeof BoxLayout> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof BoxLayout>;
+type Story = StoryObj<typeof JBoxLayout>;
 
 const DemoItem = ({ label }: { label: string }) => (
   <JPanel variant="outlined" padding="sm" className="min-w-24 text-center text-sm text-neutral-700">
@@ -49,21 +49,21 @@ export const Row: Story = {
     wrap: 'wrap',
   },
   render: (args) => (
-    <BoxLayout {...args} className="min-h-24 w-full">
+    <JBoxLayout {...args} className="min-h-24 w-full">
       <DemoItem label="Inicio" />
       <DemoItem label="Centro" />
       <DemoItem label="Fin" />
-    </BoxLayout>
+    </JBoxLayout>
   ),
 };
 
 export const Column: Story = {
   args: { direction: 'column', gap: 'sm' },
   render: (args) => (
-    <BoxLayout {...args} className="w-full max-w-xs">
+    <JBoxLayout {...args} className="w-full max-w-xs">
       <DemoItem label="Header" />
       <DemoItem label="Contenido" />
       <DemoItem label="Footer" />
-    </BoxLayout>
+    </JBoxLayout>
   ),
 };
