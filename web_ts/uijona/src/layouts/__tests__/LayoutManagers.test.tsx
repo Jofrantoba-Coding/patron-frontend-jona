@@ -41,19 +41,19 @@ describe('layout manager components', () => {
     expect(box.style.getPropertyValue('--jpanel-gap')).toBe('0.25rem');
   });
 
-  it('wraps JBoxLayout rows by default for narrow containers', () => {
+  it('renders JBoxLayout with column nowrap by default', () => {
     render(
-      <JBoxLayout data-testid="box-row">
+      <JBoxLayout data-testid="box-default">
         <span>One</span>
         <span>Two</span>
       </JBoxLayout>
     );
 
-    const box = screen.getByTestId('box-row');
+    const box = screen.getByTestId('box-default');
 
     expect(box).toHaveAttribute('data-jpanel-layout', 'box');
-    expect(box.style.getPropertyValue('--jpanel-direction')).toBe('row');
-    expect(box.style.getPropertyValue('--jpanel-wrap')).toBe('wrap');
+    expect(box.style.getPropertyValue('--jpanel-direction')).toBe('column');
+    expect(box.style.getPropertyValue('--jpanel-wrap')).toBe('nowrap');
   });
 
   it('renders GridLayout with column templates', () => {

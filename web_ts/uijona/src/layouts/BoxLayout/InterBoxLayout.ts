@@ -12,9 +12,9 @@ export const BOX_LAYOUT_DEFAULTS: Required<Pick<
   variant: 'ghost',
   padding: 'none',
   radius: 'none',
-  direction: 'row',
+  direction: 'column',
   gap: 'md',
   alignItems: 'stretch',
   justifyContent: 'start',
-  wrap: 'wrap',
+  wrap: 'nowrap',
 };
