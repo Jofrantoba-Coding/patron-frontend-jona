@@ -328,7 +328,7 @@ El contenedor necesita altura definida para que center se expanda (usa min-h-* o
   ),
 };
 
-export const CardLayout: Story = {
+export const JCardLayout: Story = {
   argTypes: {
     variant: { control: false },
     padding: { control: false },

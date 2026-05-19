@@ -6,4 +6,4 @@ export const CardLayoutImpl = React.forwardRef<HTMLDivElement, InterCardLayout>(
   (props, ref) => <CardLayoutView ref={ref} {...CARD_LAYOUT_DEFAULTS} {...props} />
 );
 
-CardLayoutImpl.displayName = 'CardLayout';
+CardLayoutImpl.displayName = 'JCardLayout';

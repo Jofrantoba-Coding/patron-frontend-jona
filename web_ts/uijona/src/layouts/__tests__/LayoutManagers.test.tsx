@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { JPanel } from '../../atoms/JPanel';
 import { JBoxLayout } from '../BoxLayout';
-import { CardLayout } from '../CardLayout';
+import { JCardLayout } from '../CardLayout';
 import { JFlowLayout } from '../FlowLayout';
 import { GridBagLayout } from '../GridBagLayout';
 import { GridLayout } from '../GridLayout';
@@ -85,16 +85,16 @@ describe('layout manager components', () => {
     expect(screen.getByTestId('responsive-grid').style.getPropertyValue('--jpanel-columns')).toBe('');
   });
 
-  it('renders CardLayout showing only the active card', () => {
+  it('renders JCardLayout showing only the active card', () => {
     render(
-      <CardLayout activeCard="second" data-testid="cards">
+      <JCardLayout activeCard="second" data-testid="cards">
         <JPanel data-testid="first" data-panel-card="first">
           First
         </JPanel>
         <JPanel data-testid="second" data-panel-card="second">
           Second
         </JPanel>
-      </CardLayout>
+      </JCardLayout>
     );
 
     expect(screen.getByTestId('cards')).toHaveClass('w-full', 'max-w-full', 'min-w-0');

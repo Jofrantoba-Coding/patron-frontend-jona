@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { CardLayout } from './CardLayout';
+import { JCardLayout } from './CardLayout';
 import { JFlowLayout } from '../FlowLayout/FlowLayout';
 import { JBoxLayout } from '../BoxLayout/BoxLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
 import { JButton } from '../../atoms/JButton/JButton';
 
-const meta: Meta<typeof CardLayout> = {
-  title: 'Layouts/CardLayout',
-  component: CardLayout,
+const meta: Meta<typeof JCardLayout> = {
+  title: 'Layouts/JCardLayout',
+  component: JCardLayout,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
   argTypes: {
@@ -20,18 +20,18 @@ const meta: Meta<typeof CardLayout> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof CardLayout>;
+type Story = StoryObj<typeof JCardLayout>;
 
 export const FirstCardByDefault: Story = {
   render: (args) => (
-    <CardLayout {...args} className="w-full max-w-md">
+    <JCardLayout {...args} className="w-full max-w-md">
       <JPanel data-panel-card="profile" variant="outlined" padding="lg">
         <JLabel size="sm">Perfil visible por defecto.</JLabel>
       </JPanel>
       <JPanel data-panel-card="security" variant="outlined" padding="lg">
         <JLabel size="sm">Seguridad.</JLabel>
       </JPanel>
-    </CardLayout>
+    </JCardLayout>
   ),
 };
 
@@ -55,7 +55,7 @@ export const Interactive: Story = {
           ))}
         </JFlowLayout>
 
-        <CardLayout activeCard={activeCard}>
+        <JCardLayout activeCard={activeCard}>
           <JPanel data-panel-card="perfil" variant="outlined" padding="lg">
             <JLabel size="sm">Datos generales del perfil.</JLabel>
           </JPanel>
@@ -65,7 +65,7 @@ export const Interactive: Story = {
           <JPanel data-panel-card="facturacion" variant="outlined" padding="lg">
             <JLabel size="sm">Informacion de pagos y suscripciones.</JLabel>
           </JPanel>
-        </CardLayout>
+        </JCardLayout>
       </JBoxLayout>
     );
   },
