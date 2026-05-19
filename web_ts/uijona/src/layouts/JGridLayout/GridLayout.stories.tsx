@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { GridLayout } from './GridLayout';
+﻿import type { Meta, StoryObj } from '@storybook/react';
+import { JGridLayout } from './GridLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
-const meta: Meta<typeof GridLayout> = {
-  title: 'Layouts/GridLayout',
-  component: GridLayout,
+const meta: Meta<typeof JGridLayout> = {
+  title: 'Layouts/JGridLayout',
+  component: JGridLayout,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
   argTypes: {
@@ -29,7 +29,7 @@ const meta: Meta<typeof GridLayout> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof GridLayout>;
+type Story = StoryObj<typeof JGridLayout>;
 
 const DemoItem = ({ label }: { label: string }) => (
   <JPanel variant="flat" padding="md" className="text-center text-sm font-medium text-neutral-700">
@@ -40,21 +40,21 @@ const DemoItem = ({ label }: { label: string }) => (
 export const FixedColumns: Story = {
   args: { columns: 3, gap: 'sm', placement: 'responsive' },
   render: (args) => (
-    <GridLayout {...args} className="w-full max-w-xl">
+    <JGridLayout {...args} className="w-full max-w-xl">
       {['A1', 'A2', 'A3', 'B1', 'B2', 'B3'].map((item) => (
         <DemoItem key={item} label={item} />
       ))}
-    </GridLayout>
+    </JGridLayout>
   ),
 };
 
 export const ResponsiveAutoFit: Story = {
   args: { autoFitMin: '9rem', gap: 'md' },
   render: (args) => (
-    <GridLayout {...args} className="w-full max-w-2xl">
+    <JGridLayout {...args} className="w-full max-w-2xl">
       {['Usuarios', 'Ventas', 'Tickets', 'Riesgos', 'Alertas', 'Tareas'].map((item) => (
         <DemoItem key={item} label={item} />
       ))}
-    </GridLayout>
+    </JGridLayout>
   ),
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { GRID_BAG_LAYOUT_DEFAULTS, type InterGridBagLayout } from './InterGridBagLayout';
 import { GridBagLayoutView } from './GridBagLayoutView';
 
@@ -8,4 +8,4 @@ export const GridBagLayoutImpl = React.forwardRef<HTMLDivElement, InterGridBagLa
   )
 );
 
-GridBagLayoutImpl.displayName = 'GridBagLayout';
+GridBagLayoutImpl.displayName = 'JGridBagLayout';

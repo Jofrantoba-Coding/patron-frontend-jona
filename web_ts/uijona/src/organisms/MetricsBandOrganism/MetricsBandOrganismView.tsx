@@ -3,7 +3,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
-import { GridLayout } from '../../layouts/GridLayout';
+import { JGridLayout } from '../../layouts/JGridLayout';
 import { InterMetricsBandOrganism } from './InterMetricsBandOrganism';
 
 export const MetricsBandOrganismView: React.FC<InterMetricsBandOrganism> = ({
@@ -21,14 +21,14 @@ export const MetricsBandOrganismView: React.FC<InterMetricsBandOrganism> = ({
     className={cn('metrics-section', className)}
   >
     <JPanel variant="ghost" padding="none" radius="none" className="section-shell">
-      <GridLayout autoFitMin="260px" className="metrics-grid">
+      <JGridLayout autoFitMin="260px" className="metrics-grid">
         {metrics.map((m) => (
           <JPanel key={m.label} variant="ghost" padding="none" radius="none" className="metric-item">
             <JLabel as="strong">{m.value}</JLabel>
             <JLabel as="span">{m.label}</JLabel>
           </JPanel>
         ))}
-      </GridLayout>
+      </JGridLayout>
     </JPanel>
   </JPanel>
 );

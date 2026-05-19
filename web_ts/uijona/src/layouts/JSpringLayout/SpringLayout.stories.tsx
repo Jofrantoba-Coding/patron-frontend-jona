@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { JPanel } from '../../atoms/JPanel';
 import { JLabel } from '../../atoms/JLabel';
-import { SpringLayout } from './SpringLayout';
+import { JSpringLayout } from './SpringLayout';
 
-const meta: Meta<typeof SpringLayout> = {
-  title: 'Layouts/SpringLayout',
-  component: SpringLayout,
+const meta: Meta<typeof JSpringLayout> = {
+  title: 'Layouts/JSpringLayout',
+  component: JSpringLayout,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
   argTypes: {
@@ -23,7 +23,7 @@ const meta: Meta<typeof SpringLayout> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof SpringLayout>;
+type Story = StoryObj<typeof JSpringLayout>;
 
 const SpringNode = ({ label }: { label: string }) => (
   <JPanel variant="outlined" padding="md" radius="sm">
@@ -38,7 +38,7 @@ export const ResponsiveConstraints: Story = {
     gap: 'sm',
   },
   render: (args) => (
-    <SpringLayout {...args} className="w-full max-w-3xl">
+    <JSpringLayout {...args} className="w-full max-w-3xl">
       <JPanel data-spring-left="0" data-spring-top="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
         <JLabel as="span" size="sm" className="font-medium text-neutral-700">Left anchored</JLabel>
       </JPanel>
@@ -48,7 +48,7 @@ export const ResponsiveConstraints: Story = {
       <JPanel data-spring-right="0" data-spring-bottom="0" data-spring-width="12rem" variant="outlined" padding="md" radius="sm">
         <JLabel as="span" size="sm" className="font-medium text-neutral-700">Bottom end</JLabel>
       </JPanel>
-    </SpringLayout>
+    </JSpringLayout>
   ),
 };
 
@@ -58,10 +58,10 @@ export const MobileAutoFit: Story = {
     gap: 'md',
   },
   render: (args) => (
-    <SpringLayout {...args} className="w-full max-w-3xl">
+    <JSpringLayout {...args} className="w-full max-w-3xl">
       {['Inicio', 'Proceso', 'Revision', 'Cierre'].map((item) => (
         <SpringNode key={item} label={item} />
       ))}
-    </SpringLayout>
+    </JSpringLayout>
   ),
 };

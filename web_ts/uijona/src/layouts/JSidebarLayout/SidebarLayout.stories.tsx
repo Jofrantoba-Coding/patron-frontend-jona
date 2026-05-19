@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
-import { SidebarLayout } from './SidebarLayout';
+import { JSidebarLayout } from './SidebarLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
 
@@ -41,9 +41,9 @@ const NAV = [
   },
 ];
 
-const meta: Meta<typeof SidebarLayout> = {
-  title: 'Layouts/SidebarLayout',
-  component: SidebarLayout,
+const meta: Meta<typeof JSidebarLayout> = {
+  title: 'Layouts/JSidebarLayout',
+  component: JSidebarLayout,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
   args: {
@@ -59,7 +59,7 @@ const meta: Meta<typeof SidebarLayout> = {
   },
 };
 export default meta;
-type Story = StoryObj<typeof SidebarLayout>;
+type Story = StoryObj<typeof JSidebarLayout>;
 
 export const Default: Story = {};
 
@@ -89,7 +89,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [activeKey, setActiveKey] = useState('home');
     return (
-      <SidebarLayout
+      <JSidebarLayout
         nav={NAV}
         activeKey={activeKey}
         onNavItemClick={(item) => { args.onNavItemClick?.(item); setActiveKey(item.key); }}
@@ -104,7 +104,7 @@ export const Interactive: Story = {
           <JLabel as="h1" size="xl" className="font-semibold text-neutral-800">Sección: {activeKey}</JLabel>
           <JLabel size="sm" color="muted" className="mt-2">Haz clic en un ítem de la barra lateral para navegar.</JLabel>
         </JPanel>
-      </SidebarLayout>
+      </JSidebarLayout>
     );
   },
 };

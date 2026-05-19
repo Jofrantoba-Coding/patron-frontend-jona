@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { GROUP_LAYOUT_DEFAULTS, type InterGroupLayout } from './InterGroupLayout';
 import { GroupLayoutView } from './GroupLayoutView';
 
@@ -8,4 +8,4 @@ export const GroupLayoutImpl = React.forwardRef<HTMLDivElement, InterGroupLayout
   )
 );
 
-GroupLayoutImpl.displayName = 'GroupLayout';
+GroupLayoutImpl.displayName = 'JGroupLayout';

@@ -1,12 +1,12 @@
-import { render, screen } from '@testing-library/react';
+﻿import { render, screen } from '@testing-library/react';
 import { JPanel } from '../../atoms/JPanel';
 import { JBoxLayout } from '../BoxLayout';
 import { JCardLayout } from '../CardLayout';
 import { JFlowLayout } from '../FlowLayout';
-import { GridBagLayout } from '../GridBagLayout';
-import { GridLayout } from '../GridLayout';
-import { GroupLayout } from '../GroupLayout';
-import { SpringLayout } from '../SpringLayout';
+import { JGridBagLayout } from '../JGridBagLayout';
+import { JGridLayout } from '../JGridLayout';
+import { JGroupLayout } from '../JGroupLayout';
+import { JSpringLayout } from '../JSpringLayout';
 
 describe('layout manager components', () => {
   it('renders JFlowLayout with wrapping flow behavior', () => {
@@ -56,11 +56,11 @@ describe('layout manager components', () => {
     expect(box.style.getPropertyValue('--jpanel-wrap')).toBe('nowrap');
   });
 
-  it('renders GridLayout with column templates', () => {
+  it('renders JGridLayout with column templates', () => {
     render(
-      <GridLayout columns={2} data-testid="grid">
+      <JGridLayout columns={2} data-testid="grid">
         <span>One</span>
-      </GridLayout>
+      </JGridLayout>
     );
 
     expect(screen.getByTestId('grid')).toHaveClass('jpanel', 'w-full', 'max-w-full', 'min-w-0');
@@ -70,11 +70,11 @@ describe('layout manager components', () => {
     expect(screen.getByTestId('grid').style.getPropertyValue('--jpanel-columns')).toBe('repeat(2, minmax(0, 1fr))');
   });
 
-  it('uses responsive auto-fit columns by default in GridLayout', () => {
+  it('uses responsive auto-fit columns by default in JGridLayout', () => {
     render(
-      <GridLayout data-testid="responsive-grid">
+      <JGridLayout data-testid="responsive-grid">
         <span>One</span>
-      </GridLayout>
+      </JGridLayout>
     );
 
     expect(screen.getByTestId('responsive-grid')).toHaveClass('jpanel');
@@ -103,9 +103,9 @@ describe('layout manager components', () => {
     expect(screen.getByTestId('second')).toHaveAttribute('data-jpanel-card-state', 'active');
   });
 
-  it('keeps GridBagLayout mobile-first while exposing desktop constraints', () => {
+  it('keeps JGridBagLayout mobile-first while exposing desktop constraints', () => {
     render(
-      <GridBagLayout columns={3} data-testid="gridbag">
+      <JGridBagLayout columns={3} data-testid="gridbag">
         <JPanel
           data-testid="gridbag-item"
           data-gridbag-column="1"
@@ -114,7 +114,7 @@ describe('layout manager components', () => {
         >
           Item
         </JPanel>
-      </GridBagLayout>
+      </JGridBagLayout>
     );
 
     const gridbag = screen.getByTestId('gridbag');
@@ -131,13 +131,13 @@ describe('layout manager components', () => {
     expect(item.style.getPropertyValue('--jpanel-gridbag-column-span')).toBe('2');
   });
 
-  it('renders GroupLayout with responsive group spans', () => {
+  it('renders JGroupLayout with responsive group spans', () => {
     render(
-      <GroupLayout columns={2} data-testid="group">
+      <JGroupLayout columns={2} data-testid="group">
         <JPanel data-testid="group-item" data-group-span="2">
           Grouped
         </JPanel>
-      </GroupLayout>
+      </JGroupLayout>
     );
 
     const group = screen.getByTestId('group');
@@ -152,9 +152,9 @@ describe('layout manager components', () => {
     expect(item.style.getPropertyValue('--jpanel-group-span')).toBe('2');
   });
 
-  it('renders SpringLayout as a mobile grid before constraints are applied', () => {
+  it('renders JSpringLayout as a mobile grid before constraints are applied', () => {
     render(
-      <SpringLayout data-testid="spring">
+      <JSpringLayout data-testid="spring">
         <JPanel
           data-testid="spring-item"
           data-spring-left="1rem"
@@ -163,7 +163,7 @@ describe('layout manager components', () => {
         >
           Spring
         </JPanel>
-      </SpringLayout>
+      </JSpringLayout>
     );
 
     const spring = screen.getByTestId('spring');

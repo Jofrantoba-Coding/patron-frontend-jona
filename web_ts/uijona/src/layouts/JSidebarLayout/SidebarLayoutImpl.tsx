@@ -1,4 +1,4 @@
-// SidebarLayoutImpl.tsx — JONA Implementation
+﻿// SidebarLayoutImpl.tsx — JONA Implementation
 import React, { useEffect, useState } from 'react';
 import { InterSidebarLayout, SIDEBAR_LAYOUT_DEFAULTS, SidebarNavItem } from './InterSidebarLayout';
 import { SidebarLayoutView } from './SidebarLayoutView';
@@ -43,4 +43,4 @@ export const SidebarLayoutImpl: React.FC<InterSidebarLayout> = (props) => {
   );
 };
 
-SidebarLayoutImpl.displayName = 'SidebarLayout';
+SidebarLayoutImpl.displayName = 'JSidebarLayout';

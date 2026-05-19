@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { JPanel } from '../../atoms/JPanel';
 import { JLabel } from '../../atoms/JLabel';
-import { GroupLayout } from './GroupLayout';
+import { JGroupLayout } from './GroupLayout';
 
-const meta: Meta<typeof GroupLayout> = {
-  title: 'Layouts/GroupLayout',
-  component: GroupLayout,
+const meta: Meta<typeof JGroupLayout> = {
+  title: 'Layouts/JGroupLayout',
+  component: JGroupLayout,
   tags: ['autodocs'],
   parameters: { layout: 'padded' },
   argTypes: {
@@ -27,7 +27,7 @@ const meta: Meta<typeof GroupLayout> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof GroupLayout>;
+type Story = StoryObj<typeof JGroupLayout>;
 
 const FieldPanel = ({ title, body }: { title: string; body: string }) => (
   <JPanel variant="outlined" padding="md" radius="sm" className="min-h-20">
@@ -44,7 +44,7 @@ export const SequentialGroups: Story = {
     gap: 'md',
   },
   render: (args) => (
-    <GroupLayout {...args} className="w-full max-w-4xl">
+    <JGroupLayout {...args} className="w-full max-w-4xl">
       <FieldPanel title="Nombre" body="Campo principal" />
       <FieldPanel title="Correo" body="Validacion de contacto" />
       <FieldPanel title="Telefono" body="Dato opcional" />
@@ -53,7 +53,7 @@ export const SequentialGroups: Story = {
         <JLabel size="xs" color="muted" className="mt-1">Esta seccion puede ocupar dos columnas desde desktop.</JLabel>
       </JPanel>
       <FieldPanel title="Estado" body="Activo o inactivo" />
-    </GroupLayout>
+    </JGroupLayout>
   ),
 };
 
@@ -65,11 +65,11 @@ export const ParallelGroups: Story = {
     gap: 'sm',
   },
   render: (args) => (
-    <GroupLayout {...args} className="w-full max-w-3xl">
+    <JGroupLayout {...args} className="w-full max-w-3xl">
       <FieldPanel title="Entrada" body="Grupo paralelo A" />
       <FieldPanel title="Revision" body="Grupo paralelo B" />
       <FieldPanel title="Salida" body="Grupo paralelo C" />
       <FieldPanel title="Auditoria" body="Grupo paralelo D" />
-    </GroupLayout>
+    </JGroupLayout>
   ),
 };

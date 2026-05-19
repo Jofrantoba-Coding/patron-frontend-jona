@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { SPRING_LAYOUT_DEFAULTS, type InterSpringLayout } from './InterSpringLayout';
 import { SpringLayoutView } from './SpringLayoutView';
 
@@ -8,4 +8,4 @@ export const SpringLayoutImpl = React.forwardRef<HTMLDivElement, InterSpringLayo
   )
 );
 
-SpringLayoutImpl.displayName = 'SpringLayout';
+SpringLayoutImpl.displayName = 'JSpringLayout';
