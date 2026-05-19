@@ -17,33 +17,33 @@ export const BorderLayoutView: React.FC<BorderLayoutViewProps> = ({
 }) => (
   <JPanel
     ref={forwardedRef}
-    layout="none"
+    layout="border"
     variant="ghost"
     padding="none"
     radius="none"
     style={style}
-    className={cn('jborderlayout bg-neutral-50', className)}
+    className={cn('bg-neutral-50', className)}
   >
     {north && (
-      <JPanel as="header" variant="ghost" padding="none" radius="none" data-slot="north" className={northClassName}>
+      <JPanel as="header" area="top" variant="ghost" padding="none" radius="none" className={northClassName}>
         {north}
       </JPanel>
     )}
     {west && (
-      <JPanel as="aside" variant="ghost" padding="none" radius="none" data-slot="west" className={westClassName}>
+      <JPanel as="aside" area="left" variant="ghost" padding="none" radius="none" className={westClassName}>
         {west}
       </JPanel>
     )}
-    <JPanel as="main" variant="ghost" padding="none" radius="none" data-slot="center" className={cn('overflow-auto', centerClassName)}>
+    <JPanel as="main" area="center" variant="ghost" padding="none" radius="none" className={cn('overflow-auto', centerClassName)}>
       {center}
     </JPanel>
     {east && (
-      <JPanel as="aside" variant="ghost" padding="none" radius="none" data-slot="east" className={eastClassName}>
+      <JPanel as="aside" area="right" variant="ghost" padding="none" radius="none" className={eastClassName}>
         {east}
       </JPanel>
     )}
     {south && (
-      <JPanel as="footer" variant="ghost" padding="none" radius="none" data-slot="south" className={southClassName}>
+      <JPanel as="footer" area="bottom" variant="ghost" padding="none" radius="none" className={southClassName}>
         {south}
       </JPanel>
     )}
