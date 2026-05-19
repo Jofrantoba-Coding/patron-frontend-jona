@@ -269,7 +269,7 @@ export const GridResponsive: Story = {
   ),
 };
 
-export const BorderLayout: Story = {
+export const JBorderLayout: Story = {
   argTypes: {
     variant: { control: false },
     padding: { control: false },

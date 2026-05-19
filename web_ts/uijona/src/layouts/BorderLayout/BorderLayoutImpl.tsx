@@ -8,4 +8,4 @@ export const BorderLayoutImpl = React.forwardRef<HTMLDivElement, InterBorderLayo
   return <BorderLayoutView {...resolved} forwardedRef={ref} />;
 });
 
-BorderLayoutImpl.displayName = 'BorderLayout';
+BorderLayoutImpl.displayName = 'JBorderLayout';

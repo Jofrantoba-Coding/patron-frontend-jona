@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { BorderLayout } from './BorderLayout';
+import { JBorderLayout } from './BorderLayout';
 import { JButton } from '../../atoms/JButton/JButton';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
 
-const meta: Meta<typeof BorderLayout> = {
-  title: 'Layouts/BorderLayout',
-  component: BorderLayout,
+const meta: Meta<typeof JBorderLayout> = {
+  title: 'Layouts/JBorderLayout',
+  component: JBorderLayout,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
 };
 export default meta;
-type Story = StoryObj<typeof BorderLayout>;
+type Story = StoryObj<typeof JBorderLayout>;
 
 const Box = ({ label, color }: { label: string; color: string }) => (
   <JPanel variant="ghost" padding="none" style={{ background: color, padding: '12px 16px', color: '#fff', fontWeight: 'bold', fontSize: '14px' }}>
@@ -23,7 +23,7 @@ const Box = ({ label, color }: { label: string; color: string }) => (
 export const AllZones: Story = {
   render: () => (
     <JPanel variant="ghost" padding="none" style={{ height: '400px' }}>
-      <BorderLayout
+      <JBorderLayout
         north={<Box label="North (Header)" color="#2563eb" />}
         south={<Box label="South (Footer)" color="#374151" />}
         west={<Box label="West (Sidebar)" color="#6b7280" />}
@@ -37,7 +37,7 @@ export const AllZones: Story = {
 export const WithoutSidebars: Story = {
   render: () => (
     <JPanel variant="ghost" padding="none" style={{ height: '400px' }}>
-      <BorderLayout
+      <JBorderLayout
         north={<Box label="Header" color="#2563eb" />}
         south={<Box label="Footer" color="#374151" />}
         center={<Box label="Contenido principal" color="#10b981" />}
@@ -49,7 +49,7 @@ export const WithoutSidebars: Story = {
 export const CenterOnly: Story = {
   render: () => (
     <JPanel variant="ghost" padding="none" style={{ height: '300px' }}>
-      <BorderLayout
+      <JBorderLayout
         center={<Box label="Solo contenido central" color="#8b5cf6" />}
       />
     </JPanel>
@@ -59,7 +59,7 @@ export const CenterOnly: Story = {
 export const WithWestSidebar: Story = {
   render: () => (
     <JPanel variant="ghost" padding="none" style={{ height: '400px' }}>
-      <BorderLayout
+      <JBorderLayout
         north={<Box label="Header" color="#2563eb" />}
         west={<Box label="Menú lateral" color="#6b7280" />}
         center={<Box label="Contenido" color="#10b981" />}
@@ -76,7 +76,7 @@ export const Interactive: Story = {
     const pages = ['Dashboard', 'Usuarios', 'Reportes', 'Configuración'];
     return (
       <JPanel variant="ghost" padding="none" style={{ height: '420px' }}>
-        <BorderLayout
+        <JBorderLayout
           north={
             <JPanel variant="ghost" padding="none" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#1e40af', color: '#fff' }}>
               <JLabel as="span" className="font-bold text-neutral-950">JONA UI</JLabel>
