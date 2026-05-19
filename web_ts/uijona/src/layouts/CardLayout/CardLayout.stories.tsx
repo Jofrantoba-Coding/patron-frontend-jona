@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { CardLayout } from './CardLayout';
-import { FlowLayout } from '../FlowLayout/FlowLayout';
+import { JFlowLayout } from '../FlowLayout/FlowLayout';
 import { BoxLayout } from '../BoxLayout/BoxLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
@@ -42,7 +42,7 @@ export const Interactive: Story = {
 
     return (
       <BoxLayout direction="column" gap="sm" className="w-full max-w-lg">
-        <FlowLayout gap="sm" className="w-full">
+        <JFlowLayout gap="sm" className="w-full">
           {cards.map((card) => (
             <JButton
               key={card}
@@ -53,7 +53,7 @@ export const Interactive: Story = {
               {card}
             </JButton>
           ))}
-        </FlowLayout>
+        </JFlowLayout>
 
         <CardLayout activeCard={activeCard}>
           <JPanel data-panel-card="perfil" variant="outlined" padding="lg">

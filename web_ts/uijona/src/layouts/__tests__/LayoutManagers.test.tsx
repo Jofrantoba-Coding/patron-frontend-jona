@@ -2,18 +2,18 @@ import { render, screen } from '@testing-library/react';
 import { JPanel } from '../../atoms/JPanel';
 import { BoxLayout } from '../BoxLayout';
 import { CardLayout } from '../CardLayout';
-import { FlowLayout } from '../FlowLayout';
+import { JFlowLayout } from '../FlowLayout';
 import { GridBagLayout } from '../GridBagLayout';
 import { GridLayout } from '../GridLayout';
 import { GroupLayout } from '../GroupLayout';
 import { SpringLayout } from '../SpringLayout';
 
 describe('layout manager components', () => {
-  it('renders FlowLayout with wrapping flow behavior', () => {
+  it('renders JFlowLayout with wrapping flow behavior', () => {
     render(
-      <FlowLayout gap="sm" data-testid="flow">
+      <JFlowLayout gap="sm" data-testid="flow">
         <span>One</span>
-      </FlowLayout>
+      </JFlowLayout>
     );
 
     const flow = screen.getByTestId('flow');

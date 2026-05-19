@@ -6,4 +6,4 @@ export const FlowLayoutImpl = React.forwardRef<HTMLDivElement, InterFlowLayout>(
   (props, ref) => <FlowLayoutView ref={ref} {...FLOW_LAYOUT_DEFAULTS} {...props} />
 );
 
-FlowLayoutImpl.displayName = 'FlowLayout';
+FlowLayoutImpl.displayName = 'JFlowLayout';
