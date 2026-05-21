@@ -21,35 +21,87 @@ const meta: Meta<typeof JTextBox> = {
     docs: {
       description: {
         component:
-          'JTextBox es el atom de entrada de texto de JONA. Soporta icono izquierdo y derecho, 3 variantes visuales y 3 tamaños. Los eventos siguen el patrón JONA: value-first.',
+          'JTextBox es el atom de entrada de texto de JONA. Envuelve `<input>` con soporte para iconos izquierdo y derecho, 3 variantes visuales y 3 tamaños. Los eventos siguen el patrón JONA: `onChange(value, event)` y `onBlur(value, event)` con el valor primero.',
       },
     },
   },
   argTypes: {
     variant: {
+      description: 'Estilo visual del campo. `default` fondo blanco con borde, `filled` fondo neutro sin borde visible, `ghost` transparente para usar sobre fondos con textura.',
       control: 'select',
       options: Object.keys(JTEXTBOX_VARIANTS) as JTextBoxVariant[],
-      table: { defaultValue: { summary: JTEXTBOX_DEFAULTS.variant } },
+      table: {
+        type: { summary: 'JTextBoxVariant' },
+        defaultValue: { summary: JTEXTBOX_DEFAULTS.variant },
+      },
     },
     size: {
+      description: 'Altura del campo. `sm`=28px para tablas y filtros compactos, `md`=36px (default), `lg`=44px para formularios destacados.',
       control: 'select',
       options: Object.keys(JTEXTBOX_SIZES) as JTextBoxSize[],
-      table: { defaultValue: { summary: JTEXTBOX_DEFAULTS.size } },
+      table: {
+        type: { summary: 'JTextBoxSize' },
+        defaultValue: { summary: JTEXTBOX_DEFAULTS.size },
+      },
     },
     type: {
+      description: 'Tipo HTML del input. Acepta todos los valores nativos de `<input type>`. Afecta teclado en móvil y validación del navegador.',
       control: 'select',
       options: ['text', 'email', 'password', 'number', 'tel', 'url', 'search'],
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: JTEXTBOX_DEFAULTS.type },
+      },
     },
-    hasError:  { control: 'boolean' },
-    disabled:  { control: 'boolean' },
-    readOnly:  { control: 'boolean' },
+    hasError: {
+      description: 'Estado de error. Cambia el color del borde y del icono a rojo. Combinar con un `JLabel variant="error"` debajo para el mensaje.',
+      control: 'boolean',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: String(JTEXTBOX_DEFAULTS.hasError) },
+      },
+    },
+    disabled: {
+      description: 'Bloquea toda edición y aplica estilos deshabilitados. El campo no recibe foco ni eventos de teclado.',
+      control: 'boolean',
+      table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
+    },
+    readOnly: {
+      description: 'Permite ver el valor pero no editarlo. El campo sí recibe foco y puede ser copiado.',
+      control: 'boolean',
+      table: { type: { summary: 'boolean' }, defaultValue: { summary: 'false' } },
+    },
+    placeholder: {
+      description: 'Texto de ayuda mostrado cuando el campo está vacío.',
+      control: 'text',
+      table: { type: { summary: 'string' } },
+    },
+    iconLeft: {
+      description: 'Icono renderizado dentro del campo a la izquierda. El padding del input se ajusta automáticamente para no solapar el texto.',
+      table: { type: { summary: 'ReactNode' } },
+    },
+    iconRight: {
+      description: 'Icono renderizado dentro del campo a la derecha. Útil para mostrar/ocultar contraseña o indicar el tipo de dato.',
+      table: { type: { summary: 'ReactNode' } },
+    },
+    onChange: {
+      description: 'Callback al cambiar el valor. Patrón JONA: el primer argumento es el `value` (string), el segundo es el evento nativo.',
+      table: { type: { summary: '(value: string, event: ChangeEvent) => void' } },
+    },
+    onBlur: {
+      description: 'Callback al perder el foco. Patrón JONA: el primer argumento es el `value` actual, el segundo es el evento nativo.',
+      table: { type: { summary: '(value: string, event: FocusEvent) => void' } },
+    },
+    onEnterPress: {
+      description: 'Callback al presionar Enter. Útil para búsquedas o formularios de una línea.',
+      table: { type: { summary: '(value: string, event: KeyboardEvent) => void' } },
+    },
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof JTextBox>;
 
-// Iconos SVG inline para demos
 const SearchIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -94,7 +146,7 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Playground interactivo. Modificá cualquier prop desde los controles.',
+        story: 'Playground interactivo. Modificá cualquier prop desde los controles para explorar el comportamiento.',
       },
     },
   },
@@ -103,7 +155,9 @@ export const Default: Story = {
 export const Variants: Story = {
   parameters: {
     docs: {
-      description: { story: 'Las 3 variantes visuales de JTextBox.' },
+      description: {
+        story: 'Las 3 variantes visuales. `default` para formularios estándar, `filled` sobre fondos blancos, `ghost` sobre fondos con textura o en barras de búsqueda inline.',
+      },
     },
   },
   render: () => (
@@ -127,7 +181,9 @@ export const Variants: Story = {
 export const Sizes: Story = {
   parameters: {
     docs: {
-      description: { story: 'Tres tamaños disponibles. md es el default.' },
+      description: {
+        story: 'Tres tamaños de altura. `md` es el default (36px). `sm` para campos dentro de tablas o filtros. `lg` para formularios de registro o campos principales.',
+      },
     },
   },
   render: () => (
@@ -143,7 +199,7 @@ export const WithIcons: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'iconLeft e iconRight posicionan el ícono dentro del campo. El padding del input se ajusta automáticamente.',
+        story: '`iconLeft` e `iconRight` posicionan iconos dentro del campo. El padding del input se ajusta automáticamente para que el texto no solape el icono.',
       },
       source: {
         code: `<JTextBox iconLeft={<SearchIcon />} placeholder="Buscar..." />
@@ -165,7 +221,9 @@ export const WithIcons: Story = {
 export const ErrorState: Story = {
   parameters: {
     docs: {
-      description: { story: 'hasError cambia el color del borde y del icono. Combinable con iconLeft.' },
+      description: {
+        story: '`hasError=true` cambia el borde a rojo. Combinar con un `JLabel variant="error"` debajo del campo para el mensaje descriptivo.',
+      },
     },
   },
   render: () => (
@@ -179,7 +237,9 @@ export const ErrorState: Story = {
 export const States: Story = {
   parameters: {
     docs: {
-      description: { story: 'Disabled y readOnly bloquean la edición con estilos distintos.' },
+      description: {
+        story: '`disabled` bloquea completamente la interacción. `readOnly` permite ver y copiar el valor pero no editarlo. Ambos tienen estilos visuales distintos.',
+      },
     },
   },
   render: () => (
@@ -194,7 +254,9 @@ export const States: Story = {
 export const Types: Story = {
   parameters: {
     docs: {
-      description: { story: 'JTextBox soporta todos los tipos de input de HTML.' },
+      description: {
+        story: 'JTextBox acepta todos los tipos HTML de `<input>`. El `type` afecta el teclado en móvil, la validación nativa del navegador y el comportamiento (e.g., `password` oculta el texto).',
+      },
     },
   },
   render: () => (
@@ -213,7 +275,7 @@ export const Interactive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Validación en tiempo real. onChange recibe el value primero (patrón JONA).',
+        story: 'Validación en tiempo real. `onChange` recibe el `value` primero (patrón JONA). El estado de error se calcula en el padre y se pasa como prop.',
       },
       source: {
         code: `const [value, setValue] = useState('');

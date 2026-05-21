@@ -1,24 +1,56 @@
-﻿import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { JPanel } from '../../atoms/JPanel';
 import { JLabel } from '../../atoms/JLabel';
-import { JSpringLayout } from './SpringLayout';
+import { JSpringLayout, SPRING_LAYOUT_DEFAULTS } from './SpringLayout';
 
 const meta: Meta<typeof JSpringLayout> = {
   title: 'Layouts/JSpringLayout',
   component: JSpringLayout,
   tags: ['autodocs'],
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'JSpringLayout es el layout de posicionamiento por resorte de JONA. En modo `fixed` (desktop) posiciona elementos de forma absoluta mediante atributos de datos en los hijos: `data-spring-left`, `data-spring-top`, `data-spring-right`, `data-spring-bottom`, `data-spring-width`. En modo `responsive` (móvil) cae a un grid auto-fit como JGridLayout. Útil para dashboards con widgets arrastrables o layouts tipo canvas.',
+      },
+    },
+  },
   argTypes: {
     gap: {
+      description: 'Espacio entre elementos en modo `responsive`. En modo `fixed` los elementos se posicionan absolutamente y no tienen gap entre ellos. `md` (default).',
       control: 'select',
       options: ['none', 'xs', 'sm', 'md', 'lg', 'xl'],
+      table: {
+        type: { summary: 'JPanelGap' },
+        defaultValue: { summary: SPRING_LAYOUT_DEFAULTS.gap },
+      },
     },
     placement: {
+      description: '`responsive` (default) usa grid auto-fit en pantallas pequeñas. `fixed` activa el posicionamiento absoluto con `data-spring-*` en todos los tamaños.',
       control: 'select',
       options: ['responsive', 'fixed'],
+      table: {
+        type: { summary: '"responsive" | "fixed"' },
+        defaultValue: { summary: SPRING_LAYOUT_DEFAULTS.placement },
+      },
     },
-    autoFitMin: { control: 'text' },
-    minHeight: { control: 'text' },
+    autoFitMin: {
+      description: 'Ancho mínimo de columna en modo `responsive`. Default `12rem`.',
+      control: 'text',
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: SPRING_LAYOUT_DEFAULTS.autoFitMin },
+      },
+    },
+    minHeight: {
+      description: 'Altura mínima del contenedor. Necesario en modo `fixed` porque los elementos absolutos no expanden el contenedor. Default `16rem`.',
+      control: 'text',
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: SPRING_LAYOUT_DEFAULTS.minHeight },
+      },
+    },
   },
 };
 
@@ -32,6 +64,12 @@ const SpringNode = ({ label }: { label: string }) => (
 );
 
 export const ResponsiveConstraints: Story = {
+  name: 'Posicionamiento absoluto',
+  parameters: {
+    docs: {
+      description: { story: 'Los elementos se posicionan con `data-spring-*`. `data-spring-left`/`top` desde la esquina, `data-spring-right`/`bottom` desde el borde opuesto. `minHeight` es necesario para que el contenedor tenga altura visible.' },
+    },
+  },
   args: {
     placement: 'responsive',
     minHeight: '18rem',
@@ -53,13 +91,19 @@ export const ResponsiveConstraints: Story = {
 };
 
 export const MobileAutoFit: Story = {
+  name: 'Fallback responsivo (auto-fit)',
+  parameters: {
+    docs: {
+      description: { story: 'En pantallas pequeñas, `placement="responsive"` activa el modo grid con `autoFitMin`. Los datos `data-spring-*` se ignoran en este modo para respetar el flujo documental.' },
+    },
+  },
   args: {
     autoFitMin: '10rem',
     gap: 'md',
   },
   render: (args) => (
     <JSpringLayout {...args} className="w-full max-w-3xl">
-      {['Inicio', 'Proceso', 'Revision', 'Cierre'].map((item) => (
+      {['Inicio', 'Proceso', 'Revisión', 'Cierre'].map((item) => (
         <SpringNode key={item} label={item} />
       ))}
     </JSpringLayout>

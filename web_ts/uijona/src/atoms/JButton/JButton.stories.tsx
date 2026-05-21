@@ -28,30 +28,78 @@ const meta: Meta<typeof JButton> = {
   },
   argTypes: {
     variant: {
+      description: 'Estilo visual del botón. `default` filled primario, `outline` borde sin relleno, `ghost` sin borde ni relleno, `destructive` rojo para acciones peligrosas, `secondary` neutro, `link` texto subrayado.',
       control: 'select',
       options: Object.keys(JBUTTON_VARIANTS) as JButtonVariant[],
-      table: { defaultValue: { summary: JBUTTON_DEFAULTS.variant } },
+      table: {
+        type: { summary: 'JButtonVariant' },
+        defaultValue: { summary: JBUTTON_DEFAULTS.variant },
+      },
     },
     size: {
+      description: 'Tamaño del botón. Determina la altura mínima y el padding horizontal. `icon` produce un botón cuadrado sin texto.',
       control: 'select',
       options: (Object.keys(JBUTTON_SIZES) as JButtonSize[]).filter((s) => s !== 'default'),
-      table: { defaultValue: { summary: JBUTTON_DEFAULTS.size } },
+      table: {
+        type: { summary: 'JButtonSize' },
+        defaultValue: { summary: JBUTTON_DEFAULTS.size },
+      },
     },
     iconPosition: {
+      description: 'Posición del icono relativa al texto. `left`/`right` usa flex-row, `top`/`bottom` usa flex-column. El texto siempre queda centrado respecto al par icono+texto.',
       control: 'radio',
       options: Object.keys(JBUTTON_ICON_POSITIONS) as JButtonIconPosition[],
-      table: { defaultValue: { summary: JBUTTON_DEFAULTS.iconPosition } },
+      table: {
+        type: { summary: 'JButtonIconPosition' },
+        defaultValue: { summary: JBUTTON_DEFAULTS.iconPosition },
+      },
     },
-    loading:   { control: 'boolean' },
-    fullWidth: { control: 'boolean' },
-    disabled:  { control: 'boolean' },
+    loading: {
+      description: 'Muestra un spinner y deshabilita el botón durante una operación async. Reemplaza el icono si hay uno.',
+      control: 'boolean',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: String(JBUTTON_DEFAULTS.loading) },
+      },
+    },
+    fullWidth: {
+      description: 'Estira el botón al 100% del ancho del contenedor padre. Útil en formularios móviles o CTAs.',
+      control: 'boolean',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: String(JBUTTON_DEFAULTS.fullWidth) },
+      },
+    },
+    disabled: {
+      description: 'Bloquea toda interacción y aplica estilos de deshabilitado. Diferente a `loading`: el usuario ve que no puede interactuar.',
+      control: 'boolean',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
+    icon: {
+      description: 'Nodo React a renderizar como icono. Posicionado según `iconPosition`. SVGs inline o componentes icon recomendados.',
+      table: { type: { summary: 'ReactNode' } },
+    },
+    type: {
+      description: 'Tipo HTML del botón. `button` por defecto. Usar `submit` dentro de formularios.',
+      control: false,
+      table: {
+        type: { summary: '"button" | "submit" | "reset"' },
+        defaultValue: { summary: JBUTTON_DEFAULTS.type },
+      },
+    },
+    onClick: {
+      description: 'Callback al hacer click. Recibe el MouseEvent nativo.',
+      table: { type: { summary: '(event: MouseEvent) => void' } },
+    },
   },
 };
 
 export default meta;
 type Story = StoryObj<typeof JButton>;
 
-// Icono de demostración (SVG inline, sin dependencia externa)
 const StarIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -89,7 +137,7 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Playground interactivo. Modificá cualquier prop desde los controles. Agregá un icono desde iconPosition para ver el posicionamiento.',
+        story: 'Playground interactivo. Modificá cualquier prop desde los controles. El icono de estrella se renderiza en la posición seleccionada.',
       },
     },
   },
@@ -99,12 +147,14 @@ export const Default: Story = {
 export const Variants: Story = {
   parameters: {
     docs: {
-      description: { story: 'Las 6 variantes de JButton. El texto siempre va centrado.' },
+      description: {
+        story: 'Las 6 variantes de JButton. Elegir según la jerarquía de la acción: `default` para la acción principal, `outline`/`ghost` para secundarias, `destructive` para acciones irreversibles, `link` para navegación inline.',
+      },
     },
   },
   render: () => (
     <JPanel layout="flow" gap="sm">
-      <JButton variant="link">Default</JButton>
+      <JButton variant="default">Default</JButton>
       <JButton variant="secondary">Secondary</JButton>
       <JButton variant="outline">Outline</JButton>
       <JButton variant="ghost">Ghost</JButton>
@@ -117,7 +167,9 @@ export const Variants: Story = {
 export const Sizes: Story = {
   parameters: {
     docs: {
-      description: { story: 'Todos los tamaños disponibles. md es el default.' },
+      description: {
+        story: 'Cinco tamaños disponibles. `md` es el default (36px). `xs`/`sm` para tablas o espacios comprimidos. `lg`/`xl` para acciones destacadas y CTAs hero.',
+      },
     },
   },
   render: () => (
@@ -135,7 +187,7 @@ export const IconPositions: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'El icono puede ir en left (default), right, top o bottom. El texto siempre queda centrado respecto al par icono+texto.',
+        story: 'El icono puede ir en left (default), right, top o bottom. `left`/`right` mantienen el layout horizontal; `top`/`bottom` cambian a columna. El texto siempre queda centrado respecto al par icono+texto.',
       },
       source: {
         code: `<JButton icon={<StarIcon />} iconPosition="left">Left</JButton>
@@ -158,12 +210,14 @@ export const IconPositions: Story = {
 export const IconOnly: Story = {
   parameters: {
     docs: {
-      description: { story: 'Botones cuadrados con solo icono. Usar size="icon" y aria-label para accesibilidad.' },
+      description: {
+        story: 'Botones cuadrados con solo icono usando `size="icon"`. Siempre incluir `aria-label` para accesibilidad — es lo único que describe la acción al lector de pantalla.',
+      },
     },
   },
   render: () => (
     <JPanel layout="flow" gap="sm" style={{ alignItems: 'center' }}>
-      <JButton size="icon" variant="link" aria-label="Agregar"><PlusIcon /></JButton>
+      <JButton size="icon" variant="default" aria-label="Agregar"><PlusIcon /></JButton>
       <JButton size="icon" variant="outline" aria-label="Descargar"><DownloadIcon /></JButton>
       <JButton size="icon" variant="ghost" aria-label="Ir"><ArrowIcon /></JButton>
     </JPanel>
@@ -173,12 +227,14 @@ export const IconOnly: Story = {
 export const WithIcons: Story = {
   parameters: {
     docs: {
-      description: { story: 'Botones con icono en distintas variantes y tamaños combinados.' },
+      description: {
+        story: 'Botones con icono en distintas variantes y tamaños. El icono hereda el color del botón automáticamente.',
+      },
     },
   },
   render: () => (
     <JPanel layout="flow" gap="sm" style={{ alignItems: 'center' }}>
-      <JButton icon={<PlusIcon />} variant="link">Nuevo</JButton>
+      <JButton icon={<PlusIcon />} variant="default">Nuevo</JButton>
       <JButton icon={<DownloadIcon />} variant="outline">Exportar</JButton>
       <JButton icon={<ArrowIcon />} iconPosition="right" variant="secondary">Continuar</JButton>
       <JButton icon={<StarIcon />} iconPosition="top" variant="ghost" size="lg">Favorito</JButton>
@@ -189,7 +245,9 @@ export const WithIcons: Story = {
 export const States: Story = {
   parameters: {
     docs: {
-      description: { story: 'Loading reemplaza el icono con un spinner. Disabled bloquea toda interacción.' },
+      description: {
+        story: '`loading=true` reemplaza el icono con un spinner y deshabilita el botón durante la operación. `disabled=true` lo bloquea permanentemente. Ambos son visualmente distintos para comunicar intención diferente.',
+      },
     },
   },
   render: () => (
@@ -205,7 +263,9 @@ export const States: Story = {
 export const FullWidth: Story = {
   parameters: {
     docs: {
-      description: { story: 'fullWidth estira el botón al 100% del contenedor padre. Útil en formularios o mobile.' },
+      description: {
+        story: '`fullWidth` estira el botón al 100% del contenedor padre. Patrón común en formularios de login, registro o checkout en mobile.',
+      },
     },
   },
   render: () => (
@@ -219,7 +279,9 @@ export const FullWidth: Story = {
 export const Interactive: Story = {
   parameters: {
     docs: {
-      description: { story: 'Flujo async real: el botón entra en loading durante la operación y confirma el resultado.' },
+      description: {
+        story: 'Flujo async real: el botón entra en `loading` durante la operación y muestra el resultado. Patrón recomendado para submit de formularios, exports y acciones con latencia.',
+      },
       source: {
         code: `const [loading, setLoading] = useState(false);
 const [done, setDone] = useState(false);
