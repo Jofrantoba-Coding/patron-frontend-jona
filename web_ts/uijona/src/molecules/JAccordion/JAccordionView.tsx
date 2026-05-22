@@ -1,4 +1,4 @@
-// JAccordionMoleculeView.tsx — JONA View (render puro)
+// JAccordionView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJAccordion, JAccordionItem, JAccordionSize, JAccordionVariant } from './InterJAccordion';
@@ -32,14 +32,14 @@ const ITEM_VARIANT: Record<JAccordionVariant, string> = {
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-interface JAccordionMoleculeViewProps extends InterJAccordion {
+interface JAccordionViewProps extends InterJAccordion {
   openValues:    string[];
   onItemToggle:  (item: JAccordionItem) => void;
 }
 
 // ── View ──────────────────────────────────────────────────────────────────────
 
-export const JAccordionMoleculeView: React.FC<JAccordionMoleculeViewProps> = ({
+export const JAccordionView: React.FC<JAccordionViewProps> = ({
   items,
   openValues,
   className,

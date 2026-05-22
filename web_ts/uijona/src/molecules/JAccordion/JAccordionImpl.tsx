@@ -1,14 +1,14 @@
-// JAccordionMoleculeImpl.tsx — JONA Implementation
+// JAccordionImpl.tsx — JONA Implementation
 import React, { useState } from 'react';
 import { JACCORDION_DEFAULTS, InterJAccordion, JAccordionItem } from './InterJAccordion';
-import { JAccordionMoleculeView } from './JAccordionMoleculeView';
+import { JAccordionView } from './JAccordionView';
 
 function toArray(value: string | string[] | undefined): string[] {
   if (!value) return [];
   return Array.isArray(value) ? value : [value];
 }
 
-export const JAccordionMoleculeImpl: React.FC<InterJAccordion> = (props) => {
+export const JAccordionImpl: React.FC<InterJAccordion> = (props) => {
   const resolved = { ...JACCORDION_DEFAULTS, ...props };
   const [internalValue, setInternalValue] = useState<string[]>(toArray(resolved.defaultValue));
 
@@ -35,7 +35,7 @@ export const JAccordionMoleculeImpl: React.FC<InterJAccordion> = (props) => {
   };
 
   return (
-    <JAccordionMoleculeView
+    <JAccordionView
       {...resolved}
       openValues={openValues}
       onItemToggle={handleItemToggle}
@@ -43,4 +43,4 @@ export const JAccordionMoleculeImpl: React.FC<InterJAccordion> = (props) => {
   );
 };
 
-JAccordionMoleculeImpl.displayName = 'JAccordionMolecule';
+JAccordionImpl.displayName = 'JAccordion';

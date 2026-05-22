@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
 import { useState } from 'react';
-import { JAccordionMolecule, JACCORDION_DEFAULTS } from './JAccordionMolecule';
+import { JAccordion, JACCORDION_DEFAULTS } from './JAccordion';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
 
@@ -50,15 +50,15 @@ const itemsWithIcons = items.map((item, i) => ({
 
 // ── Meta ──────────────────────────────────────────────────────────────────────
 
-const meta: Meta<typeof JAccordionMolecule> = {
-  title: 'Molecules/JAccordionMolecule',
-  component: JAccordionMolecule,
+const meta: Meta<typeof JAccordion> = {
+  title: 'Molecules/JAccordion',
+  component: JAccordion,
   tags: ['autodocs'],
   parameters: {
     docs: {
       description: {
         component:
-          'JAccordionMolecule es la molécula de acordeón de JONA. Soporta modo controlado y no controlado, apertura múltiple simultánea, 3 variantes visuales, 3 tamaños e íconos por ítem. La animación de apertura usa `grid-template-rows` para transición suave sin dependencias externas. Reemplaza a `AccordionMolecule` con mayor flexibilidad visual y mejor API.',
+          'JAccordion es el componente de acordeón de JONA. Soporta modo controlado y no controlado, apertura múltiple simultánea, 3 variantes visuales, 3 tamaños e íconos por ítem. La animación de apertura usa `grid-template-rows` para transición suave sin dependencias externas. Reemplaza a `AccordionMolecule` con mayor flexibilidad visual y mejor API.',
       },
     },
   },
@@ -111,7 +111,7 @@ const meta: Meta<typeof JAccordionMolecule> = {
   },
 };
 export default meta;
-type Story = StoryObj<typeof JAccordionMolecule>;
+type Story = StoryObj<typeof JAccordion>;
 
 // ── Stories ───────────────────────────────────────────────────────────────────
 
@@ -164,7 +164,7 @@ export const Sizes: Story = {
       {(['sm', 'md', 'lg'] as const).map((size) => (
         <JPanel layout="box" gap="xs" key={size}>
           <JLabel size="xs" color="muted">{size}</JLabel>
-          <JAccordionMolecule items={items.slice(0, 2)} size={size} defaultValue="architecture" />
+          <JAccordion items={items.slice(0, 2)} size={size} defaultValue="architecture" />
         </JPanel>
       ))}
     </JPanel>
@@ -212,7 +212,7 @@ export const AllVariants: Story = {
       {(['default', 'bordered', 'ghost'] as const).map((variant) => (
         <JPanel layout="box" gap="xs" key={variant}>
           <JLabel size="xs" color="muted">{variant}</JLabel>
-          <JAccordionMolecule
+          <JAccordion
             items={items.slice(0, 2)}
             variant={variant}
             defaultValue="architecture"
@@ -240,7 +240,7 @@ export const Interactive: Story = {
     ];
     return (
       <JPanel layout="box" gap="sm" className="w-96">
-        <JAccordionMolecule
+        <JAccordion
           items={faqItems}
           value={current}
           onValueChange={(v) => { args.onValueChange?.(v); setCurrent(String(v)); }}
