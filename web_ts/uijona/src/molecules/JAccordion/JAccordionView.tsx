@@ -45,8 +45,12 @@ export const JAccordionView: React.FC<JAccordionViewProps> = ({
   className,
   style,
   onItemToggle,
-  variant = 'default',
-  size    = 'md',
+  variant          = 'default',
+  size             = 'md',
+  headerClassName,
+  headerStyle,
+  contentClassName,
+  contentStyle,
 }) => (
   <JPanel
     variant="ghost"
@@ -74,12 +78,15 @@ export const JAccordionView: React.FC<JAccordionViewProps> = ({
               aria-controls={panelId}
               disabled={item.disabled}
               onClick={() => onItemToggle(item)}
+              style={{ ...headerStyle, ...item.headerStyle }}
               className={cn(
                 'flex w-full items-center justify-between gap-3 text-left font-medium text-neutral-900',
                 'transition-colors hover:bg-neutral-50',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 TRIGGER_SIZE[size],
+                headerClassName,
+                item.headerClassName,
               )}
             >
               <span className="flex min-w-0 items-center gap-2">
@@ -115,7 +122,10 @@ export const JAccordionView: React.FC<JAccordionViewProps> = ({
             }}
           >
             <div className="overflow-hidden">
-              <div className={cn('text-neutral-600', CONTENT_SIZE[size])}>
+              <div
+                style={{ ...contentStyle, ...item.contentStyle }}
+                className={cn('text-neutral-600', CONTENT_SIZE[size], contentClassName, item.contentClassName)}
+              >
                 {item.content}
               </div>
             </div>

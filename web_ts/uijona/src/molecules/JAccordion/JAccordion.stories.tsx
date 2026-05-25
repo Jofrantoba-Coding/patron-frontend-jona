@@ -108,6 +108,24 @@ const meta: Meta<typeof JAccordion> = {
       description: 'Callback al cambiar el ítem abierto. Recibe `string` en modo `single` (value del ítem o vacío al cerrar) o `string[]` en modo `multiple`.',
       table: { type: { summary: '(value: string | string[]) => void' } },
     },
+    headerClassName: {
+      description: 'Clase CSS aplicada al botón de título de todos los ítems. Se combina con `item.headerClassName` que toma precedencia. Útil para personalizar colores de fondo, texto o bordes del encabezado.',
+      control: 'text',
+      table: { type: { summary: 'string' } },
+    },
+    headerStyle: {
+      description: 'Estilos inline aplicados al botón de título de todos los ítems. `item.headerStyle` toma precedencia. Útil para colores que no están en Tailwind.',
+      table: { type: { summary: 'React.CSSProperties' } },
+    },
+    contentClassName: {
+      description: 'Clase CSS aplicada al panel de contenido de todos los ítems. Se combina con `item.contentClassName` que toma precedencia.',
+      control: 'text',
+      table: { type: { summary: 'string' } },
+    },
+    contentStyle: {
+      description: 'Estilos inline aplicados al panel de contenido de todos los ítems. `item.contentStyle` toma precedencia.',
+      table: { type: { summary: 'React.CSSProperties' } },
+    },
   },
 };
 export default meta;
@@ -219,6 +237,72 @@ export const AllVariants: Story = {
           />
         </JPanel>
       ))}
+    </JPanel>
+  ),
+};
+
+export const CustomColors: Story = {
+  name: 'Colores personalizados',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`headerClassName` / `headerStyle` colorean el encabezado de todos los ítems. `contentClassName` / `contentStyle` colorean el panel de contenido. A nivel de ítem, las mismas props sobrescriben las globales.',
+      },
+    },
+  },
+  render: () => (
+    <JPanel layout="box" gap="lg" className="w-96">
+      <JPanel layout="box" gap="xs">
+        <JLabel size="xs" color="muted">Global — headerStyle + contentStyle</JLabel>
+        <JAccordion
+          items={items}
+          defaultValue="architecture"
+          headerStyle={{ backgroundColor: '#eff6ff', color: '#1d4ed8' }}
+          contentStyle={{ backgroundColor: '#f0fdf4', color: '#166534' }}
+        />
+      </JPanel>
+
+      <JPanel layout="box" gap="xs">
+        <JLabel size="xs" color="muted">Global — headerClassName + contentClassName (Tailwind)</JLabel>
+        <JAccordion
+          items={items}
+          defaultValue="events"
+          headerClassName="bg-violet-50 text-violet-800 hover:bg-violet-100"
+          contentClassName="bg-violet-50/50 text-violet-700"
+        />
+      </JPanel>
+
+      <JPanel layout="box" gap="xs">
+        <JLabel size="xs" color="muted">Por ítem — cada ítem con colores distintos</JLabel>
+        <JAccordion
+          multiple
+          defaultValue={['architecture', 'events', 'delivery']}
+          items={[
+            {
+              value: 'architecture',
+              title: 'Arquitectura JONA',
+              content: 'Separa contrato, implementación, vista y template.',
+              headerStyle: { backgroundColor: '#fef3c7', color: '#92400e' },
+              contentStyle: { backgroundColor: '#fffbeb', color: '#78350f' },
+            },
+            {
+              value: 'events',
+              title: 'Eventos Observer',
+              content: 'Callbacks normalizados value-first hacia el padre.',
+              headerStyle: { backgroundColor: '#dcfce7', color: '#166534' },
+              contentStyle: { backgroundColor: '#f0fdf4', color: '#14532d' },
+            },
+            {
+              value: 'delivery',
+              title: 'Entrega app-ready',
+              content: 'Exports públicos, stories, tests y build verificable.',
+              headerStyle: { backgroundColor: '#ede9fe', color: '#5b21b6' },
+              contentStyle: { backgroundColor: '#f5f3ff', color: '#4c1d95' },
+            },
+          ]}
+        />
+      </JPanel>
     </JPanel>
   ),
 };
