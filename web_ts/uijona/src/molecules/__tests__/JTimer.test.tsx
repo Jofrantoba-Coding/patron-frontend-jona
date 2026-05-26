@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { TimerMolecule } from '../TimerMolecule';
+import { JTimer } from '../JTimer';
 
-describe('TimerMolecule', () => {
+describe('JTimer', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -12,10 +12,10 @@ describe('TimerMolecule', () => {
 
   it('renders a configurable countdown and completes at zero', () => {
     const onComplete = vi.fn();
-    const onChange = vi.fn();
+    const onChange   = vi.fn();
 
     render(
-      <TimerMolecule
+      <JTimer
         durationMs={2000}
         tickIntervalMs={1000}
         onComplete={onComplete}
@@ -27,9 +27,7 @@ describe('TimerMolecule', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
 
-    act(() => {
-      vi.advanceTimersByTime(2000);
-    });
+    act(() => { vi.advanceTimersByTime(2000); });
 
     expect(screen.getByLabelText('Timer')).toHaveTextContent('00:00:00');
     expect(onComplete).toHaveBeenCalledTimes(1);
@@ -38,7 +36,7 @@ describe('TimerMolecule', () => {
 
   it('can run as a stopwatch with milliseconds', () => {
     render(
-      <TimerMolecule
+      <JTimer
         mode="stopwatch"
         tickIntervalMs={100}
         showHours={false}
@@ -48,20 +46,18 @@ describe('TimerMolecule', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
 
-    act(() => {
-      vi.advanceTimersByTime(350);
-    });
+    act(() => { vi.advanceTimersByTime(350); });
 
     expect(screen.getByLabelText('Timer').textContent).toMatch(/^00:00\.[3-4]\d{2}$/);
   });
 
   it('supports pause, resume and reset callbacks', () => {
-    const onPause = vi.fn();
+    const onPause  = vi.fn();
     const onResume = vi.fn();
-    const onReset = vi.fn();
+    const onReset  = vi.fn();
 
     render(
-      <TimerMolecule
+      <JTimer
         mode="stopwatch"
         defaultValueMs={1000}
         onPause={onPause}

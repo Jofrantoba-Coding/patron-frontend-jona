@@ -58,7 +58,7 @@ export * from './molecules/ComboboxMolecule';
 export * from './molecules/MultiSelectMolecule';
 export * from './molecules/DatePickerMolecule';
 export * from './molecules/DataTableMolecule';
-export * from './molecules/TimerMolecule';
+export * from './molecules/JTimer';
 export * from './molecules/ToastMolecule';
 export * from './molecules/RatingMolecule';
 
