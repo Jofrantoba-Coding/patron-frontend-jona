@@ -4,7 +4,7 @@ import { InterLoginOrganism } from './InterLoginOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
 import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
 import { JButton } from '../../atoms/JButton';
-import { AlertMolecule } from '../../molecules/AlertMolecule';
+import { JAlert } from '../../molecules/JAlert';
 
 export const LoginOrganismView: React.FC<InterLoginOrganism> = ({
   email,
@@ -27,9 +27,9 @@ export const LoginOrganismView: React.FC<InterLoginOrganism> = ({
 
       <CardContent>
         {alertMessage && (
-          <AlertMolecule variant="destructive" title="Error" className="mb-4">
+          <JAlert variant="danger" title="Error" className="mb-4">
             {alertMessage}
-          </AlertMolecule>
+          </JAlert>
         )}
         <form className="space-y-4" onSubmit={onSubmit} noValidate>
           <FormFieldMolecule

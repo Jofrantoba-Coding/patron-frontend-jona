@@ -4,7 +4,7 @@ import { InterRecoverPasswordOrganism } from './InterRecoverPasswordOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
 import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
 import { JButton } from '../../atoms/JButton';
-import { AlertMolecule } from '../../molecules/AlertMolecule';
+import { JAlert } from '../../molecules/JAlert';
 
 export const RecoverPasswordOrganismView: React.FC<InterRecoverPasswordOrganism> = ({
   email,
@@ -24,14 +24,14 @@ export const RecoverPasswordOrganismView: React.FC<InterRecoverPasswordOrganism>
 
     <CardContent>
       {alertMessage && (
-        <AlertMolecule variant="destructive" title="Error" className="mb-4">
+        <JAlert variant="danger" title="Error" className="mb-4">
           {alertMessage}
-        </AlertMolecule>
+        </JAlert>
       )}
       {successMessage && (
-        <AlertMolecule variant="default" title="Email sent" className="mb-4">
+        <JAlert variant="success" title="Email sent" className="mb-4">
           {successMessage}
-        </AlertMolecule>
+        </JAlert>
       )}
       <form className="space-y-4" onSubmit={onSubmit} noValidate>
         <FormFieldMolecule

@@ -4,7 +4,7 @@ import { InterCreateAccountOrganism } from './InterCreateAccountOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
 import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
 import { JButton } from '../../atoms/JButton';
-import { AlertMolecule } from '../../molecules/AlertMolecule';
+import { JAlert } from '../../molecules/JAlert';
 
 export const CreateAccountOrganismView: React.FC<InterCreateAccountOrganism> = ({
   name,
@@ -32,9 +32,9 @@ export const CreateAccountOrganismView: React.FC<InterCreateAccountOrganism> = (
 
     <CardContent>
       {alertMessage && (
-        <AlertMolecule variant="destructive" title="Error" className="mb-4">
+        <JAlert variant="danger" title="Error" className="mb-4">
           {alertMessage}
-        </AlertMolecule>
+        </JAlert>
       )}
       <form className="space-y-4" onSubmit={onSubmit} noValidate>
         <FormFieldMolecule

@@ -29,7 +29,6 @@ export * from './molecules/RelatedItemMolecule';
 export * from './molecules/MetricCardMolecule';
 export * from './molecules/ServiceCardMolecule';
 export * from './molecules/CardMolecule';
-export * from './molecules/AlertMolecule';
 export * from './molecules/JAlert';
 export * from './molecules/FormFieldMolecule';
 export * from './molecules/CheckboxFieldMolecule';
