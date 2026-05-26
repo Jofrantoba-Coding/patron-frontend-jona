@@ -1,10 +1,10 @@
-// ConfirmDialogMoleculeImpl.tsx — JONA Implementation
+// JOptionPaneImpl.tsx — JONA Implementation
 import React, { useEffect } from 'react';
-import { InterConfirmDialogMolecule, CONFIRM_DIALOG_MOLECULE_DEFAULTS } from './InterConfirmDialogMolecule';
-import { ConfirmDialogMoleculeView } from './ConfirmDialogMoleculeView';
+import { InterJOptionPane, JOPTIONPANE_DEFAULTS } from './InterJOptionPane';
+import { JOptionPaneView } from './JOptionPaneView';
 
-export const ConfirmDialogMoleculeImpl: React.FC<InterConfirmDialogMolecule> = (props) => {
-  const merged = { ...CONFIRM_DIALOG_MOLECULE_DEFAULTS, ...props };
+export const JOptionPaneImpl: React.FC<InterJOptionPane> = (props) => {
+  const merged = { ...JOPTIONPANE_DEFAULTS, ...props };
 
   useEffect(() => {
     if (!props.open) return;
@@ -14,7 +14,7 @@ export const ConfirmDialogMoleculeImpl: React.FC<InterConfirmDialogMolecule> = (
   }, [props.open, props.onCancel]);
 
   return (
-    <ConfirmDialogMoleculeView
+    <JOptionPaneView
       open={props.open}
       title={props.title}
       description={props.description}
@@ -28,4 +28,4 @@ export const ConfirmDialogMoleculeImpl: React.FC<InterConfirmDialogMolecule> = (
   );
 };
 
-ConfirmDialogMoleculeImpl.displayName = 'ConfirmDialogMolecule';
+JOptionPaneImpl.displayName = 'JOptionPane';

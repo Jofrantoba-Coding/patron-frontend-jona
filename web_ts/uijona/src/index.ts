@@ -53,7 +53,7 @@ export * from './molecules/StatCardMolecule';
 export * from './molecules/StepperMolecule';
 export * from './molecules/DrawerMolecule';
 export * from './molecules/PopoverMolecule';
-export * from './molecules/ConfirmDialogMolecule';
+export * from './molecules/JOptionPane';
 export * from './molecules/ComboboxMolecule';
 export * from './molecules/MultiSelectMolecule';
 export * from './molecules/DatePickerMolecule';
