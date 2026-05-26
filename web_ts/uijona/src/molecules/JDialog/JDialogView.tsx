@@ -30,6 +30,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
   open,
   title,
   description,
+  titleIcon,
   showCloseButton = true,
   size            = 'md',
   className,
@@ -64,7 +65,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         onClick={onOverlayClick}
       />
 
-      {/* Dialog window — BorderLayout */}
+      {/* Dialog window — BorderLayout principal */}
       <JPanel
         layout="border"
         variant="ghost"
@@ -84,19 +85,42 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
           className,
         )}
       >
-        {/* ── North: Title bar ───────────────────────────────────────────── */}
+        {/* ── North: Barra de título (BorderLayout interno) ────────────── */}
         <JPanel
           area="top"
+          layout="border"
           variant="ghost"
           padding="none"
           radius="none"
           className={cn(
-            'flex items-center justify-between gap-3',
-            'px-4 py-3 bg-neutral-50 border-b border-neutral-200',
+            'bg-neutral-50 border-b border-neutral-200',
             titleBarClassName,
           )}
         >
-          <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-0.5">
+          {/* West: ícono opcional de la ventana */}
+          {titleIcon && (
+            <JPanel
+              area="left"
+              variant="ghost"
+              padding="none"
+              radius="none"
+              className="flex items-center pl-3 pr-1 py-3 shrink-0 text-neutral-500"
+            >
+              {titleIcon}
+            </JPanel>
+          )}
+
+          {/* Center: título + descripción */}
+          <JPanel
+            area="center"
+            variant="ghost"
+            padding="none"
+            radius="none"
+            className={cn(
+              'flex min-w-0 flex-col justify-center gap-0.5 py-3',
+              titleIcon ? 'pl-1 pr-3' : 'px-4',
+            )}
+          >
             {title && (
               <h2
                 id="jdialog-title"
@@ -106,29 +130,41 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
               </h2>
             )}
             {description && (
-              <p id="jdialog-desc" className="break-words text-xs text-neutral-500 leading-snug">
+              <p
+                id="jdialog-desc"
+                className="break-words text-xs text-neutral-500 leading-snug"
+              >
                 {description}
               </p>
             )}
           </JPanel>
 
+          {/* East: botón cerrar */}
           {showCloseButton && (
-            <JButton
+            <JPanel
+              area="right"
               variant="ghost"
-              size="icon"
-              onClick={onCloseClick}
-              aria-label="Close dialog"
-              className="shrink-0 h-7 w-7 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-200"
+              padding="none"
+              radius="none"
+              className="flex items-center px-2 py-3"
             >
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </JButton>
+              <JButton
+                variant="ghost"
+                size="icon"
+                onClick={onCloseClick}
+                aria-label="Close dialog"
+                className="h-7 w-7 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-200"
+              >
+                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </JButton>
+            </JPanel>
           )}
         </JPanel>
 
-        {/* ── Center: Content area ───────────────────────────────────────── */}
+        {/* ── Center: Área de controles ────────────────────────────────── */}
         <JPanel
           area="center"
           variant="ghost"
@@ -139,15 +175,17 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
           {children}
         </JPanel>
 
-        {/* ── South: Button bar ──────────────────────────────────────────── */}
+        {/* ── South: Barra de botones (FlowLayout) ─────────────────────── */}
         {footer && (
           <JPanel
             area="bottom"
+            layout="flow"
             variant="ghost"
             padding="none"
             radius="none"
+            justifyContent="end"
+            gap="sm"
             className={cn(
-              'flex items-center justify-end gap-2',
               'px-4 py-3 bg-neutral-50 border-t border-neutral-200',
               footerClassName,
             )}

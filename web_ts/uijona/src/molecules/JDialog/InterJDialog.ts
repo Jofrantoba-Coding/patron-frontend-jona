@@ -7,6 +7,7 @@ export interface InterJDialog {
   open:              boolean;
   title?:            string;
   description?:      string;
+  titleIcon?:        React.ReactNode;
   showCloseButton?:  boolean;
   size?:             JDialogSize;
   className?:        string;
