@@ -20,7 +20,7 @@ const meta: Meta<typeof JDialog> = {
       },
     },
   },
-  args: { onClose: fn(), onConfirm: fn(), onCancel: fn() },
+  args: { onClose: fn(), onConfirm: fn(), onCancel: fn(), onOpened: fn(), onClosed: fn() },
   argTypes: {
     open: {
       description: 'Controla la visibilidad del diálogo. `true` lo muestra, `false` lo oculta sin desmontar el árbol padre.',
