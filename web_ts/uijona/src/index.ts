@@ -38,7 +38,7 @@ export * from './molecules/SwitchFieldMolecule';
 export * from './molecules/UserAvatarMolecule';
 export * from './molecules/JAccordion';
 export * from './molecules/EmptyStateMolecule';
-export * from './molecules/DialogMolecule';
+export * from './molecules/JDialog';
 export * from './molecules/TabsMolecule';
 export * from './molecules/DropdownMolecule';
 export * from './molecules/PaginationMolecule';

@@ -1,14 +1,14 @@
-// DialogMoleculeImpl.tsx — JONA Implementation (gestiona efectos y refs)
+// JDialogImpl.tsx — JONA Implementation
 import React, { useEffect, useRef } from 'react';
-import { InterDialogMolecule, DIALOG_MOLECULE_DEFAULTS } from './InterDialogMolecule';
-import { DialogMoleculeView } from './DialogMoleculeView';
+import { InterJDialog, JDIALOG_DEFAULTS } from './InterJDialog';
+import { JDialogView } from './JDialogView';
 
-export const DialogMoleculeImpl: React.FC<InterDialogMolecule> = ({
+export const JDialogImpl: React.FC<InterJDialog> = ({
   open, onClose, onOpened, onClosed, onCancel, ...props
 }) => {
-  const resolved = { ...DIALOG_MOLECULE_DEFAULTS, ...props };
+  const resolved   = { ...JDIALOG_DEFAULTS, ...props };
   const overlayRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
-  const dialogRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
+  const dialogRef  = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const wasOpenRef = useRef(false);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export const DialogMoleculeImpl: React.FC<InterDialogMolecule> = ({
   useEffect(() => { if (open) dialogRef.current?.focus(); }, [open]);
 
   return (
-    <DialogMoleculeView
+    <JDialogView
       {...resolved}
       open={open}
       onClose={onClose}
@@ -52,4 +52,4 @@ export const DialogMoleculeImpl: React.FC<InterDialogMolecule> = ({
   );
 };
 
-DialogMoleculeImpl.displayName = 'DialogMolecule';
+JDialogImpl.displayName = 'JDialog';
