@@ -103,15 +103,27 @@ type Story = StoryObj<typeof JDialog>;
 // ── Stories ───────────────────────────────────────────────────────────────────
 
 export const Default: Story = {
-  args: {
-    open:        true,
-    title:       'Ventana de diálogo',
-    description: 'Barra de título con descripción opcional.',
-  },
   parameters: {
     docs: {
       description: { story: 'Ventana básica sin footer. La barra de título (`top`) tiene el título, la descripción y el botón ×. El área central (`center`) está vacía.' },
     },
+  },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <JButton onClick={() => setOpen(true)}>Abrir diálogo</JButton>
+        <JDialog
+          {...args}
+          open={open}
+          title="Ventana de diálogo"
+          description="Barra de título con descripción opcional."
+          onClose={() => { args.onClose?.(); setOpen(false); }}
+          onOpened={args.onOpened}
+          onClosed={args.onClosed}
+        />
+      </>
+    );
   },
 };
 
