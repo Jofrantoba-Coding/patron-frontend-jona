@@ -85,25 +85,23 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
           className,
         )}
       >
-        {/* ── North: Barra de título (flex row siempre horizontal) ───────── */}
-        <JPanel
-          area="top"
-          variant="ghost"
-          padding="none"
-          radius="none"
+        {/* ── North: Barra de título ───────────────────────────────────── */}
+        {/* div nativo con data-panel-area para que el BorderLayout padre lo posicione */}
+        <div
+          data-panel-area="top"
           className={cn(
-            'flex items-center bg-neutral-50 border-b border-neutral-200',
+            'flex flex-row items-center bg-neutral-50 border-b border-neutral-200',
             titleBarClassName,
           )}
         >
-          {/* West: ícono opcional de la ventana */}
+          {/* West: ícono opcional */}
           {titleIcon && (
             <span className="flex items-center pl-3 pr-1 py-3 shrink-0 text-neutral-500">
               {titleIcon}
             </span>
           )}
 
-          {/* Center: título + descripción — flex-1 para ocupar el espacio restante */}
+          {/* Center: título + descripción */}
           <div
             className={cn(
               'flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-3',
@@ -131,7 +129,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
 
           {/* East: botón cerrar */}
           {showCloseButton && (
-            <span className="flex items-center px-2 py-2 shrink-0">
+            <span className="flex shrink-0 items-center px-2 py-2">
               <JButton
                 variant="ghost"
                 size="icon"
@@ -146,7 +144,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
               </JButton>
             </span>
           )}
-        </JPanel>
+        </div>
 
         {/* ── Center: Área de controles ────────────────────────────────── */}
         <JPanel
