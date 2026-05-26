@@ -48,7 +48,7 @@ export * from './molecules/BreadcrumbMolecule';
 export * from './molecules/SkeletonPresets';
 export * from './molecules/SearchInputMolecule';
 export * from './molecules/NumberInputMolecule';
-export * from './molecules/FileUploadMolecule';
+export * from './molecules/JFileUpload';
 export * from './molecules/StatCardMolecule';
 export * from './molecules/StepperMolecule';
 export * from './molecules/DrawerMolecule';

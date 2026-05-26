@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { SearchInputMolecule } from '../SearchInputMolecule';
 import { NumberInputMolecule } from '../NumberInputMolecule';
-import { FileUploadMolecule } from '../FileUploadMolecule';
+import { JFileUpload } from '../JFileUpload';
 import { StatCardMolecule } from '../StatCardMolecule';
 import { StepperMolecule } from '../StepperMolecule';
 
@@ -29,10 +29,10 @@ describe('Priority 4 app molecules', () => {
     expect(onValueChange).toHaveBeenCalledWith(1, expect.any(Object));
   });
 
-  it('FileUploadMolecule reports selected files and supports removal', () => {
+  it('JFileUpload reports selected files and supports removal', () => {
     const onFilesChange = vi.fn();
     const file = new File(['hello'], 'hello.txt', { type: 'text/plain' });
-    render(<FileUploadMolecule label="Upload" onFilesChange={onFilesChange} />);
+    render(<JFileUpload label="Upload" onFilesChange={onFilesChange} />);
 
     const input = screen.getByLabelText('Upload') as HTMLInputElement;
     fireEvent.change(input, { target: { files: [file] } });

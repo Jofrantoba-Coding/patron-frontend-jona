@@ -1,20 +1,25 @@
-﻿import React from 'react';
+// JFileUploadView.tsx — JONA View (render puro)
+import React from 'react';
 import { cn } from '../../lib/cn';
-import { InterFileUploadMolecule } from './InterFileUploadMolecule';
+import { InterJFileUpload } from './InterJFileUpload';
 import { JTextBox } from '../../atoms/JTextBox';
 import { JLabel } from '../../atoms/JLabel';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
-type FileUploadMoleculeViewProps = Omit<InterFileUploadMolecule, 'files' | 'defaultFiles' | 'onFilesChange' | 'onReject' | 'onRemoveFile'> & {
-  selectedFiles: File[];
-  inputId: string;
-  isDragging: boolean;
-  onInputChange: React.ChangeEventHandler<HTMLInputElement>;
-  onDropZoneDragOver: React.DragEventHandler<HTMLLabelElement>;
+// ── Internal types ────────────────────────────────────────────────────────────
+
+type JFileUploadViewProps = Omit<InterJFileUpload, 'files' | 'defaultFiles' | 'onFilesChange' | 'onReject' | 'onRemoveFile'> & {
+  selectedFiles:       File[];
+  inputId:             string;
+  isDragging:          boolean;
+  onInputChange:       React.ChangeEventHandler<HTMLInputElement>;
+  onDropZoneDragOver:  React.DragEventHandler<HTMLLabelElement>;
   onDropZoneDragLeave: React.DragEventHandler<HTMLLabelElement>;
-  onDropZoneDrop: React.DragEventHandler<HTMLLabelElement>;
-  onRemoveClick: (file: File) => void;
+  onDropZoneDrop:      React.DragEventHandler<HTMLLabelElement>;
+  onRemoveClick:       (file: File) => void;
 };
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const UploadIcon = () => (
   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -25,12 +30,14 @@ const UploadIcon = () => (
 );
 
 const formatBytes = (bytes: number) => {
-  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024)        return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 };
 
-export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
+// ── View ──────────────────────────────────────────────────────────────────────
+
+export const JFileUploadView: React.FC<JFileUploadViewProps> = ({
   selectedFiles,
   inputId,
   isDragging,
@@ -51,24 +58,33 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
   ...inputProps
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
-    <JLabel variant="label"
+    <JLabel
+      variant="label"
       htmlFor={inputId}
       onDragOver={onDropZoneDragOver}
       onDragLeave={onDropZoneDragLeave}
       onDrop={onDropZoneDrop}
       className={cn(
         'flex min-h-36 w-full min-w-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-white px-4 py-6 text-center transition-colors',
-        isDragging ? 'border-primary-500 bg-primary-50' : 'border-neutral-300 hover:border-primary-400 hover:bg-neutral-50',
+        isDragging
+          ? 'border-primary-500 bg-primary-50'
+          : 'border-neutral-300 hover:border-primary-400 hover:bg-neutral-50',
         disabled && 'pointer-events-none opacity-50',
-        dropzoneClassName
+        dropzoneClassName,
       )}
     >
       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100 text-neutral-600">
         <UploadIcon />
       </span>
       <span className="break-words text-sm font-medium text-neutral-900">{label}</span>
-      {description && <span className="max-w-sm break-words text-sm text-neutral-500">{description}</span>}
-      {maxFiles && <span className="text-xs text-neutral-400">Max {maxFiles} file{maxFiles === 1 ? '' : 's'}</span>}
+      {description && (
+        <span className="max-w-sm break-words text-sm text-neutral-500">{description}</span>
+      )}
+      {maxFiles && (
+        <span className="text-xs text-neutral-400">
+          Max {maxFiles} file{maxFiles === 1 ? '' : 's'}
+        </span>
+      )}
       <JTextBox
         {...inputProps}
         id={inputId}
@@ -81,12 +97,17 @@ export const FileUploadMoleculeView: React.FC<FileUploadMoleculeViewProps> = ({
       />
     </JLabel>
 
-    {helperText && <p className="break-words text-xs text-neutral-500">{helperText}</p>}
+    {helperText && (
+      <p className="break-words text-xs text-neutral-500">{helperText}</p>
+    )}
 
     {selectedFiles.length > 0 && (
       <ul className={cn('flex min-w-0 flex-col gap-2', fileListClassName)}>
         {selectedFiles.map((file) => (
-          <li key={`${file.name}-${file.size}-${file.lastModified}`} className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2">
+          <li
+            key={`${file.name}-${file.size}-${file.lastModified}`}
+            className="flex min-w-0 items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2"
+          >
             <JPanel variant="ghost" padding="none" radius="none" className="min-w-0">
               <p className="truncate text-sm font-medium text-neutral-900">{file.name}</p>
               <p className="text-xs text-neutral-500">{formatBytes(file.size)}</p>
