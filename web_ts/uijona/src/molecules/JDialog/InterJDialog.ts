@@ -1,14 +1,20 @@
 // InterJDialog.ts — JONA Interface
 import React from 'react';
 
+export type JDialogSize = 'sm' | 'md' | 'lg' | 'xl';
+
 export interface InterJDialog {
-  open:             boolean;
-  title?:           string;
-  description?:     string;
-  showCloseButton?: boolean;
-  className?:       string;
-  children?:        React.ReactNode;
-  footer?:          React.ReactNode;
+  open:              boolean;
+  title?:            string;
+  description?:      string;
+  showCloseButton?:  boolean;
+  size?:             JDialogSize;
+  className?:        string;
+  titleBarClassName?: string;
+  contentClassName?: string;
+  footerClassName?:  string;
+  children?:         React.ReactNode;
+  footer?:           React.ReactNode;
   // Observer events
   onClose?:   () => void;
   onOpened?:  () => void;
@@ -17,6 +23,7 @@ export interface InterJDialog {
   onCancel?:  () => void;
 }
 
-export const JDIALOG_DEFAULTS: Required<Pick<InterJDialog, 'showCloseButton'>> = {
+export const JDIALOG_DEFAULTS: Required<Pick<InterJDialog, 'showCloseButton' | 'size'>> = {
   showCloseButton: true,
+  size:            'md',
 };

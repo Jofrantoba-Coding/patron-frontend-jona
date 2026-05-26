@@ -16,61 +16,83 @@ const meta: Meta<typeof JDialog> = {
     docs: {
       description: {
         component:
-          'JDialog es el componente de diálogo modal de JONA. Se renderiza en un portal sobre `document.body`, bloquea el scroll del body mientras está abierto, cierra con ESC y al hacer clic en el overlay. Soporta título, descripción, botón de cierre opcional, contenido libre (`children`) y pie de página (`footer`) para acciones. Reemplaza a `DialogMolecule`.',
+          'JDialog es la ventana de diálogo flotante de JONA. Usa `JPanel layout="border"` internamente: la **barra de título** (`top`) contiene el título, descripción opcional y el botón cerrar; el **área central** (`center`) aloja los controles con scroll automático; la **barra de botones** (`bottom`) alinea las acciones a la derecha. Se renderiza en portal, bloquea el scroll del body, cierra con ESC y con clic fuera de la ventana.',
       },
     },
   },
-  args: { onClose: fn(), onConfirm: fn(), onCancel: fn(), onOpened: fn(), onClosed: fn() },
+  args: {
+    onClose:   fn(),
+    onConfirm: fn(),
+    onCancel:  fn(),
+    onOpened:  fn(),
+    onClosed:  fn(),
+  },
   argTypes: {
     open: {
-      description: 'Controla la visibilidad del diálogo. `true` lo muestra, `false` lo oculta sin desmontar el árbol padre.',
+      description: 'Controla la visibilidad de la ventana.',
       control: 'boolean',
       table: { type: { summary: 'boolean' } },
     },
     title: {
-      description: 'Encabezado del diálogo. Se asocia al `role="dialog"` vía `aria-labelledby`.',
+      description: 'Texto de la barra de título. Se muestra truncado si es largo.',
       control: 'text',
       table: { type: { summary: 'string' } },
     },
     description: {
-      description: 'Subtexto descriptivo bajo el título. Se asocia vía `aria-describedby`.',
+      description: 'Subtítulo opcional bajo el título en la barra de título.',
       control: 'text',
       table: { type: { summary: 'string' } },
     },
     showCloseButton: {
-      description: 'Muestra el botón × en la esquina superior derecha. Al pulsarlo llama a `onCancel` y luego a `onClose`.',
+      description: 'Muestra el botón × en la barra de título.',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: String(JDIALOG_DEFAULTS.showCloseButton) },
       },
     },
+    size: {
+      description: 'Ancho máximo de la ventana.',
+      control: 'select',
+      options: ['sm', 'md', 'lg', 'xl'],
+      table: {
+        type: { summary: 'JDialogSize' },
+        defaultValue: { summary: JDIALOG_DEFAULTS.size },
+      },
+    },
     children: {
-      description: 'Contenido del cuerpo del diálogo. Acepta cualquier ReactNode.',
+      description: 'Controles del área central. Ocupa el espacio disponible y hace scroll si el contenido desborda.',
       table: { type: { summary: 'ReactNode' } },
     },
     footer: {
-      description: 'Pie del diálogo para colocar botones de acción. Se alinea a la derecha en pantallas ≥ sm.',
+      description: 'Botones de la barra inferior. Se alinean a la derecha automáticamente.',
       table: { type: { summary: 'ReactNode' } },
+    },
+    titleBarClassName: {
+      description: 'Clases extra para la barra de título (`area="top"`).',
+      control: 'text',
+      table: { type: { summary: 'string' } },
+    },
+    contentClassName: {
+      description: 'Clases extra para el área central (`area="center"`).',
+      control: 'text',
+      table: { type: { summary: 'string' } },
+    },
+    footerClassName: {
+      description: 'Clases extra para la barra de botones (`area="bottom"`).',
+      control: 'text',
+      table: { type: { summary: 'string' } },
     },
     onClose: {
       description: 'Callback al cerrar: clic en overlay, clic en botón × o tecla ESC.',
       table: { type: { summary: '() => void' } },
     },
     onOpened: {
-      description: 'Callback al abrirse por primera vez (transición `false → true`).',
+      description: 'Callback al abrirse por primera vez.',
       table: { type: { summary: '() => void' } },
     },
     onClosed: {
-      description: 'Callback tras cerrarse (transición `true → false`), ejecutado en el siguiente frame de animación.',
-      table: { type: { summary: '() => void' } },
-    },
-    onConfirm: {
-      description: 'Callback de confirmación. El padre decide cuándo llamarlo desde el `footer`.',
-      table: { type: { summary: '() => void' } },
-    },
-    onCancel: {
-      description: 'Callback de cancelación. Se llama al pulsar el botón ×.',
+      description: 'Callback tras cerrarse, ejecutado en el siguiente frame.',
       table: { type: { summary: '() => void' } },
     },
   },
@@ -80,25 +102,24 @@ type Story = StoryObj<typeof JDialog>;
 
 // ── Stories ───────────────────────────────────────────────────────────────────
 
-export const Open: Story = {
+export const Default: Story = {
   args: {
-    open:            true,
-    title:           'Confirmar acción',
-    description:     '¿Estás seguro de que deseas continuar? Esta acción no se puede deshacer.',
-    showCloseButton: true,
+    open:        true,
+    title:       'Ventana de diálogo',
+    description: 'Barra de título con descripción opcional.',
   },
   parameters: {
     docs: {
-      description: { story: 'Diálogo simple sin footer. El botón × y el overlay llaman a `onClose`. Pulsa ESC para cerrar.' },
+      description: { story: 'Ventana básica sin footer. La barra de título (`top`) tiene el título, la descripción y el botón ×. El área central (`center`) está vacía.' },
     },
   },
 };
 
 export const WithFooter: Story = {
-  name: 'Con footer',
+  name: 'Con barra de botones',
   parameters: {
     docs: {
-      description: { story: '`footer` con botones Cancelar y Eliminar alineados a la derecha. Ambos cierran el diálogo.' },
+      description: { story: 'La barra de botones (`bottom`) aparece solo cuando se provee `footer`. Los botones se alinean a la derecha automáticamente.' },
     },
   },
   render: () => {
@@ -109,13 +130,13 @@ export const WithFooter: Story = {
         <JDialog
           open={open}
           title="Eliminar cuenta"
-          description="Esta acción eliminará tu cuenta permanentemente."
+          description="Esta acción no se puede deshacer."
           onClose={() => setOpen(false)}
           footer={
-            <JPanel variant="ghost" padding="none" className="flex gap-2 justify-end">
+            <>
               <JButton variant="outline" onClick={() => setOpen(false)}>Cancelar</JButton>
               <JButton variant="destructive" onClick={() => setOpen(false)}>Eliminar</JButton>
-            </JPanel>
+            </>
           }
         />
       </>
@@ -123,34 +144,86 @@ export const WithFooter: Story = {
   },
 };
 
-export const Trigger: Story = {
-  name: 'Abierto por botón',
+export const WithControls: Story = {
+  name: 'Con controles en el centro',
   parameters: {
     docs: {
-      description: { story: 'Patrón más habitual: botón externo controla `open`. El diálogo se oculta sin desmontarse.' },
+      description: { story: 'El área central acepta cualquier control. Aquí un formulario con campos de texto. La barra de botones contiene las acciones del formulario.' },
     },
   },
   render: () => {
-    const [open, setOpen] = useState(false);
+    const [open,  setOpen]  = useState(true);
+    const [name,  setName]  = useState('');
+    const [email, setEmail] = useState('');
     return (
       <>
-        <JButton onClick={() => setOpen(true)}>Abrir diálogo</JButton>
+        <JButton onClick={() => setOpen(true)}>Abrir formulario</JButton>
         <JDialog
           open={open}
-          title="Diálogo de ejemplo"
-          description="Este diálogo fue abierto al hacer clic en el botón."
+          title="Nuevo usuario"
+          description="Completa los datos para crear la cuenta."
           onClose={() => setOpen(false)}
-        />
+          footer={
+            <>
+              <JButton variant="outline" onClick={() => setOpen(false)}>Cancelar</JButton>
+              <JButton onClick={() => setOpen(false)}>Crear usuario</JButton>
+            </>
+          }
+        >
+          <JPanel layout="box" gap="sm">
+            <JPanel layout="box" gap="xs">
+              <JLabel size="sm">Nombre completo</JLabel>
+              <JTextBox value={name} onChange={setName} placeholder="Jonathan Franck" />
+            </JPanel>
+            <JPanel layout="box" gap="xs">
+              <JLabel size="sm">Correo electrónico</JLabel>
+              <JTextBox value={email} onChange={setEmail} placeholder="jona@example.com" type="email" />
+            </JPanel>
+          </JPanel>
+        </JDialog>
       </>
     );
   },
 };
 
-export const WithoutCloseButton: Story = {
-  name: 'Sin botón de cierre',
+export const Sizes: Story = {
   parameters: {
     docs: {
-      description: { story: '`showCloseButton=false` fuerza al usuario a usar los botones del footer. Útil para flujos donde no se debe cancelar fácilmente.' },
+      description: { story: 'Los 4 tamaños de ventana: `sm` (384px), `md` (448px), `lg` (512px), `xl` (576px).' },
+    },
+  },
+  render: () => {
+    const [openSize, setOpenSize] = useState<string | null>(null);
+    return (
+      <JPanel layout="flow" gap="sm">
+        {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
+          <JButton key={size} variant="outline" size="sm" onClick={() => setOpenSize(size)}>
+            size="{size}"
+          </JButton>
+        ))}
+        {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
+          <JDialog
+            key={size}
+            open={openSize === size}
+            size={size}
+            title={`Diálogo size="${size}"`}
+            description="Ajusta el ancho con la prop size."
+            onClose={() => setOpenSize(null)}
+            footer={<JButton onClick={() => setOpenSize(null)}>Cerrar</JButton>}
+          >
+            <JLabel size="sm" color="muted">Contenido del área central.</JLabel>
+          </JDialog>
+        ))}
+      </JPanel>
+    );
+  },
+};
+
+export const WithoutCloseButton: Story = {
+  name: 'Sin botón cerrar',
+  parameters: {
+    docs: {
+      description: { story: '`showCloseButton=false` oculta el botón × de la barra de título. El cierre solo es posible mediante los botones del footer o ESC.' },
     },
   },
   render: () => {
@@ -161,16 +234,53 @@ export const WithoutCloseButton: Story = {
         <JDialog
           open={open}
           title="Acción requerida"
-          description="Debes tomar una decisión antes de continuar."
+          description="Debes aceptar o rechazar antes de continuar."
           showCloseButton={false}
           onClose={() => setOpen(false)}
           footer={
-            <JPanel variant="ghost" padding="none" className="flex gap-2 justify-end">
+            <>
               <JButton variant="outline" onClick={() => setOpen(false)}>Rechazar</JButton>
               <JButton onClick={() => setOpen(false)}>Aceptar</JButton>
-            </JPanel>
+            </>
           }
         />
+      </>
+    );
+  },
+};
+
+export const ScrollableContent: Story = {
+  name: 'Contenido con scroll',
+  parameters: {
+    docs: {
+      description: { story: 'Si el contenido del área central supera la altura disponible, hace scroll automáticamente. La barra de título y la barra de botones permanecen fijas.' },
+    },
+  },
+  render: () => {
+    const [open, setOpen] = useState(true);
+    return (
+      <>
+        <JButton variant="outline" onClick={() => setOpen(true)}>Abrir diálogo</JButton>
+        <JDialog
+          open={open}
+          title="Términos y condiciones"
+          description="Lee el documento completo antes de aceptar."
+          onClose={() => setOpen(false)}
+          footer={
+            <>
+              <JButton variant="outline" onClick={() => setOpen(false)}>Rechazar</JButton>
+              <JButton onClick={() => setOpen(false)}>Aceptar</JButton>
+            </>
+          }
+        >
+          <JPanel layout="box" gap="sm">
+            {Array.from({ length: 12 }, (_, i) => (
+              <JLabel key={i} size="sm" color="muted">
+                {i + 1}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              </JLabel>
+            ))}
+          </JPanel>
+        </JDialog>
       </>
     );
   },
@@ -179,10 +289,10 @@ export const WithoutCloseButton: Story = {
 export const Interactive: Story = {
   parameters: {
     docs: {
-      description: { story: 'Edición de perfil con campo controlado. El diálogo preserva el draft interno; solo actualiza el nombre al guardar.' },
+      description: { story: 'Edición de perfil con campo controlado. El draft se inicializa con el valor actual al abrir; solo actualiza el nombre al pulsar Guardar.' },
     },
   },
-  args: { onClose: fn() },
+  args: { onClose: fn(), onOpened: fn(), onClosed: fn() },
   render: (args) => {
     const [open,  setOpen]  = useState(false);
     const [name,  setName]  = useState('Jonathan Franck');
@@ -196,17 +306,22 @@ export const Interactive: Story = {
         <JDialog
           open={open}
           title="Editar perfil"
-          description="Modifica tu nombre de usuario y guarda los cambios."
+          description="Modifica tu nombre de usuario."
           showCloseButton
           onClose={() => { args.onClose?.(); setOpen(false); }}
+          onOpened={args.onOpened}
+          onClosed={args.onClosed}
           footer={
-            <JPanel variant="ghost" padding="none" className="flex gap-2 justify-end">
+            <>
               <JButton variant="outline" onClick={() => { args.onClose?.(); setOpen(false); }}>Cancelar</JButton>
               <JButton onClick={() => { setName(draft); setOpen(false); }}>Guardar</JButton>
-            </JPanel>
+            </>
           }
         >
-          <JTextBox value={draft} onChange={setDraft} />
+          <JPanel layout="box" gap="xs">
+            <JLabel size="sm">Nombre completo</JLabel>
+            <JTextBox value={draft} onChange={setDraft} />
+          </JPanel>
         </JDialog>
       </JPanel>
     );

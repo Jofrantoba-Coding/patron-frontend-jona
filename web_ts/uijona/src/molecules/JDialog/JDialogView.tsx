@@ -3,8 +3,17 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { JButton } from '../../atoms/JButton';
-import { InterJDialog } from './InterJDialog';
+import { InterJDialog, JDialogSize } from './InterJDialog';
 import { JPanel } from '../../atoms/JPanel/JPanel';
+
+// ── Style maps ────────────────────────────────────────────────────────────────
+
+const SIZE_CLASS: Record<JDialogSize, string> = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+};
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -22,7 +31,11 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
   title,
   description,
   showCloseButton = true,
+  size            = 'md',
   className,
+  titleBarClassName,
+  contentClassName,
+  footerClassName,
   children,
   footer,
   overlayRef,
@@ -39,8 +52,9 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
       radius="none"
       ref={overlayRef}
       role="presentation"
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:items-center"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
     >
+      {/* Backdrop */}
       <JPanel
         variant="ghost"
         padding="none"
@@ -50,7 +64,9 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         onClick={onOverlayClick}
       />
 
+      {/* Dialog window — BorderLayout */}
       <JPanel
+        layout="border"
         variant="ghost"
         padding="none"
         radius="none"
@@ -60,51 +76,82 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         aria-labelledby={title ? 'jdialog-title' : undefined}
         aria-describedby={description ? 'jdialog-desc' : undefined}
         tabIndex={-1}
-        onClick={(event) => event.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         className={cn(
-          'relative z-10 my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col gap-4 overflow-y-auto rounded-lg bg-white p-4 shadow-xl focus:outline-none sm:p-6',
+          'relative z-10 w-full rounded-lg bg-white shadow-xl focus:outline-none overflow-hidden',
+          'max-h-[calc(100dvh-4rem)]',
+          SIZE_CLASS[size],
           className,
         )}
       >
-        {(title || showCloseButton) && (
-          <JPanel variant="ghost" padding="none" radius="none" className="flex items-start justify-between gap-4">
-            <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-1">
-              {title && (
-                <h2 id="jdialog-title" className="break-words text-lg font-semibold leading-tight text-neutral-900">
-                  {title}
-                </h2>
-              )}
-              {description && (
-                <p id="jdialog-desc" className="break-words text-sm text-neutral-500">
-                  {description}
-                </p>
-              )}
-            </JPanel>
-            {showCloseButton && (
-              <JButton
-                variant="ghost"
-                size="icon"
-                onClick={onCloseClick}
-                aria-label="Close dialog"
-                className="-mr-1 -mt-1 shrink-0"
+        {/* ── North: Title bar ───────────────────────────────────────────── */}
+        <JPanel
+          area="top"
+          variant="ghost"
+          padding="none"
+          radius="none"
+          className={cn(
+            'flex items-center justify-between gap-3',
+            'px-4 py-3 bg-neutral-50 border-b border-neutral-200',
+            titleBarClassName,
+          )}
+        >
+          <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-0.5">
+            {title && (
+              <h2
+                id="jdialog-title"
+                className="truncate text-sm font-semibold text-neutral-900 leading-tight"
               >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </JButton>
+                {title}
+              </h2>
+            )}
+            {description && (
+              <p id="jdialog-desc" className="break-words text-xs text-neutral-500 leading-snug">
+                {description}
+              </p>
             )}
           </JPanel>
-        )}
 
-        {children && (
-          <JPanel variant="ghost" padding="none" radius="none" className="min-w-0 text-sm text-neutral-700">
-            {children}
-          </JPanel>
-        )}
+          {showCloseButton && (
+            <JButton
+              variant="ghost"
+              size="icon"
+              onClick={onCloseClick}
+              aria-label="Close dialog"
+              className="shrink-0 h-7 w-7 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-200"
+            >
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </JButton>
+          )}
+        </JPanel>
 
+        {/* ── Center: Content area ───────────────────────────────────────── */}
+        <JPanel
+          area="center"
+          variant="ghost"
+          padding="none"
+          radius="none"
+          className={cn('overflow-auto p-4 text-sm text-neutral-700', contentClassName)}
+        >
+          {children}
+        </JPanel>
+
+        {/* ── South: Button bar ──────────────────────────────────────────── */}
         {footer && (
-          <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+          <JPanel
+            area="bottom"
+            variant="ghost"
+            padding="none"
+            radius="none"
+            className={cn(
+              'flex items-center justify-end gap-2',
+              'px-4 py-3 bg-neutral-50 border-t border-neutral-200',
+              footerClassName,
+            )}
+          >
             {footer}
           </JPanel>
         )}
