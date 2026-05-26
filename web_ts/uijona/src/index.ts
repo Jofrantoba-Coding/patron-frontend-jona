@@ -23,7 +23,7 @@ export * from './atoms/JSkeleton';
 export * from './molecules/SectionHeadingMolecule';
 export * from './molecules/ContactMethodCardMolecule';
 export * from './molecules/NumberedStepMolecule';
-export * from './molecules/BenefitItemMolecule';
+export * from './molecules/JProgressItem';
 export * from './molecules/FaqItemMolecule';
 export * from './molecules/RelatedItemMolecule';
 export * from './molecules/MetricCardMolecule';

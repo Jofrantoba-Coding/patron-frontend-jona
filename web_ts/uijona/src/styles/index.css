@@ -1253,32 +1253,6 @@
   flex-wrap: wrap;
 }
 
-/* ── BenefitItemMolecule ────────────────────────────────────────────────────── */
-.detail-benefit-card {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 16px;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 10px;
-  background: var(--white, #ffffff);
-}
-
-.detail-benefit-dot {
-  width: 8px;
-  height: 8px;
-  flex-shrink: 0;
-  margin-top: 6px;
-  border-radius: 999px;
-  background: var(--teal, #00c4a0);
-}
-
-.detail-benefit-text {
-  font-size: 0.9rem;
-  color: var(--text, #111827);
-  line-height: 1.55;
-  font-weight: 500;
-}
 
 /* ── FaqItemMolecule ────────────────────────────────────────────────────────── */
 .detail-faq-item {
