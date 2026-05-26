@@ -135,7 +135,7 @@ export const WithFooter: Story = {
     },
   },
   render: () => {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     return (
       <>
         <JButton variant="outline" onClick={() => setOpen(true)}>Abrir diálogo</JButton>
@@ -164,7 +164,7 @@ export const WithControls: Story = {
     },
   },
   render: () => {
-    const [open,  setOpen]  = useState(true);
+    const [open,  setOpen]  = useState(false);
     const [name,  setName]  = useState('');
     const [email, setEmail] = useState('');
     return (
@@ -239,7 +239,7 @@ export const WithoutCloseButton: Story = {
     },
   },
   render: () => {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     return (
       <>
         <JButton variant="outline" onClick={() => setOpen(true)}>Abrir diálogo</JButton>
@@ -269,7 +269,7 @@ export const ScrollableContent: Story = {
     },
   },
   render: () => {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     return (
       <>
         <JButton variant="outline" onClick={() => setOpen(true)}>Abrir diálogo</JButton>

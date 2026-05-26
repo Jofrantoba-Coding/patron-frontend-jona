@@ -85,40 +85,30 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
           className,
         )}
       >
-        {/* ── North: Barra de título (BorderLayout interno) ────────────── */}
+        {/* ── North: Barra de título (flex row siempre horizontal) ───────── */}
         <JPanel
           area="top"
-          layout="border"
           variant="ghost"
           padding="none"
           radius="none"
           className={cn(
-            'bg-neutral-50 border-b border-neutral-200',
+            'flex items-center bg-neutral-50 border-b border-neutral-200',
             titleBarClassName,
           )}
         >
           {/* West: ícono opcional de la ventana */}
           {titleIcon && (
-            <JPanel
-              area="left"
-              variant="ghost"
-              padding="none"
-              radius="none"
-              className="flex items-center pl-3 pr-1 py-3 shrink-0 text-neutral-500"
-            >
+            <span className="flex items-center pl-3 pr-1 py-3 shrink-0 text-neutral-500">
               {titleIcon}
-            </JPanel>
+            </span>
           )}
 
-          {/* Center: título + descripción */}
-          <JPanel
-            area="center"
-            variant="ghost"
-            padding="none"
-            radius="none"
+          {/* Center: título + descripción — flex-1 para ocupar el espacio restante */}
+          <div
             className={cn(
-              'flex min-w-0 flex-col justify-center gap-0.5 py-3',
-              titleIcon ? 'pl-1 pr-3' : 'px-4',
+              'flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-3',
+              titleIcon ? 'pl-1' : 'pl-4',
+              showCloseButton ? 'pr-1' : 'pr-4',
             )}
           >
             {title && (
@@ -137,17 +127,11 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
                 {description}
               </p>
             )}
-          </JPanel>
+          </div>
 
           {/* East: botón cerrar */}
           {showCloseButton && (
-            <JPanel
-              area="right"
-              variant="ghost"
-              padding="none"
-              radius="none"
-              className="flex items-center px-2 py-3"
-            >
+            <span className="flex items-center px-2 py-2 shrink-0">
               <JButton
                 variant="ghost"
                 size="icon"
@@ -160,7 +144,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </JButton>
-            </JPanel>
+            </span>
           )}
         </JPanel>
 
