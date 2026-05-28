@@ -91,75 +91,136 @@ type Story = StoryObj<typeof JOptionPane>;
 // ── Stories ───────────────────────────────────────────────────────────────────
 
 export const Danger: Story = {
-  args: {
-    open:        true,
-    variant:     'danger',
-    title:       'Eliminar registro',
-    description: 'Esta acción eliminará el registro permanentemente y no se puede deshacer.',
-  },
   parameters: {
     docs: {
       description: { story: '`variant="danger"` con ícono rojo y botón destructivo. Usar para acciones irreversibles como eliminar datos.' },
     },
   },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <JButton variant="destructive" onClick={() => setOpen(true)}>Eliminar registro</JButton>
+        <JOptionPane
+          {...args}
+          open={open}
+          variant="danger"
+          title="Eliminar registro"
+          description="Esta acción eliminará el registro permanentemente y no se puede deshacer."
+          onConfirm={() => { args.onConfirm?.(); setOpen(false); }}
+          onCancel={() => { args.onCancel?.(); setOpen(false); }}
+        />
+      </>
+    );
+  },
 };
 
 export const Warning: Story = {
-  args: {
-    open:        true,
-    variant:     'warning',
-    title:       'Cambios sin guardar',
-    description: '¿Deseas continuar sin guardar los cambios realizados?',
-  },
   parameters: {
     docs: {
       description: { story: '`variant="warning"` con ícono amarillo y botón default. Usar para acciones que tienen consecuencias pero no son destructivas.' },
     },
   },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <JButton variant="outline" onClick={() => setOpen(true)}>Salir sin guardar</JButton>
+        <JOptionPane
+          {...args}
+          open={open}
+          variant="warning"
+          title="Cambios sin guardar"
+          description="¿Deseas continuar sin guardar los cambios realizados?"
+          onConfirm={() => { args.onConfirm?.(); setOpen(false); }}
+          onCancel={() => { args.onCancel?.(); setOpen(false); }}
+        />
+      </>
+    );
+  },
 };
 
 export const Info: Story = {
-  args: {
-    open:        true,
-    variant:     'info',
-    title:       'Publicar contenido',
-    description: '¿Estás seguro de que deseas publicar este contenido ahora?',
-  },
   parameters: {
     docs: {
       description: { story: '`variant="info"` con ícono azul y botón default. Usar para confirmaciones neutras que no implican riesgo.' },
     },
   },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <JButton onClick={() => setOpen(true)}>Publicar contenido</JButton>
+        <JOptionPane
+          {...args}
+          open={open}
+          variant="info"
+          title="Publicar contenido"
+          description="¿Estás seguro de que deseas publicar este contenido ahora?"
+          onConfirm={() => { args.onConfirm?.(); setOpen(false); }}
+          onCancel={() => { args.onCancel?.(); setOpen(false); }}
+        />
+      </>
+    );
+  },
 };
 
 export const Loading: Story = {
-  args: {
-    open:      true,
-    variant:   'danger',
-    title:     'Eliminando…',
-    isLoading: true,
-  },
   parameters: {
     docs: {
       description: { story: '`isLoading=true` muestra spinner en el botón de confirmación y deshabilita cancelar. Activar mientras se procesa la petición al servidor.' },
     },
   },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const handleConfirm = () => {
+      args.onConfirm?.();
+      setLoading(true);
+      setTimeout(() => { setLoading(false); setOpen(false); }, 2000);
+    };
+    return (
+      <>
+        <JButton variant="destructive" onClick={() => setOpen(true)}>Eliminar (simula carga)</JButton>
+        <JOptionPane
+          {...args}
+          open={open}
+          variant="danger"
+          title="Eliminando…"
+          isLoading={loading}
+          onConfirm={handleConfirm}
+          onCancel={() => { args.onCancel?.(); setOpen(false); }}
+        />
+      </>
+    );
+  },
 };
 
 export const CustomLabels: Story = {
   name: 'Labels personalizados',
-  args: {
-    open:         true,
-    variant:      'danger',
-    title:        'Dar de baja suscripción',
-    description:  'Perderás el acceso a todas las funcionalidades premium al finalizar el período actual.',
-    confirmLabel: 'Sí, dar de baja',
-    cancelLabel:  'Mantener suscripción',
-  },
   parameters: {
     docs: {
       description: { story: '`confirmLabel` y `cancelLabel` permiten adaptar el texto de los botones al contexto específico de la acción.' },
     },
+  },
+  render: (args) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <JButton variant="destructive" onClick={() => setOpen(true)}>Dar de baja suscripción</JButton>
+        <JOptionPane
+          {...args}
+          open={open}
+          variant="danger"
+          title="Dar de baja suscripción"
+          description="Perderás el acceso a todas las funcionalidades premium al finalizar el período actual."
+          confirmLabel="Sí, dar de baja"
+          cancelLabel="Mantener suscripción"
+          onConfirm={() => { args.onConfirm?.(); setOpen(false); }}
+          onCancel={() => { args.onCancel?.(); setOpen(false); }}
+        />
+      </>
+    );
   },
 };
 
