@@ -68,7 +68,13 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
   if (!open) return null;
 
   return createPortal(
-    <JPanel variant="ghost" padding="none" radius="none" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <JPanel
+      variant="ghost"
+      padding="none"
+      radius="none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      {/* Backdrop */}
       <JPanel
         variant="ghost"
         padding="none"
@@ -78,44 +84,63 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
         onClick={onCancel}
       />
 
+      {/* Dialog window — BorderLayout: west=icon, center=texto, south=botones */}
       <JPanel
+        layout="border"
         variant="ghost"
         padding="none"
         radius="none"
+        alignItems="start"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="joptionpane-title"
         aria-describedby={description ? 'joptionpane-desc' : undefined}
-        className="relative z-10 flex w-full max-w-sm flex-col gap-4 rounded-lg bg-white p-5 shadow-xl sm:max-w-md"
+        className="relative z-10 w-full max-w-sm rounded-lg bg-white shadow-xl sm:max-w-md"
       >
-        <JPanel variant="ghost" padding="none" radius="none" className="flex items-start gap-3">
-          <JPanel
-            variant="ghost"
-            padding="none"
-            radius="none"
-            className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', iconBg[variant])}
-          >
+        {/* West: ícono con fondo semántico */}
+        <JPanel
+          area="left"
+          variant="ghost"
+          padding="none"
+          radius="none"
+          className="pl-5 pt-5 pr-3"
+        >
+          <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', iconBg[variant])}>
             {iconByVariant[variant]}
-          </JPanel>
-
-          <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-1">
-            <h2 id="joptionpane-title" className="break-words text-base font-semibold text-neutral-900">
-              {title}
-            </h2>
-            {description && (
-              <p id="joptionpane-desc" className="break-words text-sm text-neutral-500">
-                {description}
-              </p>
-            )}
-          </JPanel>
+          </div>
         </JPanel>
 
-        <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <JButton variant="outline" onClick={onCancel} disabled={isLoading}>
-            {cancelLabel}
-          </JButton>
+        {/* Center: título + descripción — div nativo para flex-col sin interferencia de JPanel */}
+        <div
+          data-panel-area="center"
+          className="flex min-w-0 flex-col gap-1 pb-4 pr-5 pt-5"
+        >
+          <h2 id="joptionpane-title" className="break-words text-base font-semibold text-neutral-900">
+            {title}
+          </h2>
+          {description && (
+            <p id="joptionpane-desc" className="break-words text-sm text-neutral-500">
+              {description}
+            </p>
+          )}
+        </div>
+
+        {/* South: botones — FlowLayout alineado izquierda, una sola línea */}
+        <JPanel
+          area="bottom"
+          layout="flow"
+          variant="ghost"
+          padding="none"
+          radius="none"
+          justifyContent="start"
+          gap="sm"
+          className="px-5 pb-5"
+        >
           <JButton variant={confirmVariant[variant]} onClick={onConfirm} loading={isLoading}>
             {confirmLabel}
+          </JButton>
+          <JButton variant="outline" onClick={onCancel} disabled={isLoading}>
+            {cancelLabel}
           </JButton>
         </JPanel>
       </JPanel>
