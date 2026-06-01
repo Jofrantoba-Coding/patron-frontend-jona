@@ -97,23 +97,23 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
         aria-describedby={description ? 'joptionpane-desc' : undefined}
         className="relative z-10 w-full max-w-sm rounded-lg bg-white shadow-xl sm:max-w-md"
       >
-        {/* West: ícono con fondo semántico */}
+        {/* West: ícono con fondo semántico — mobile: centrado / tablet+: izquierda */}
         <JPanel
           area="left"
           variant="ghost"
           padding="none"
           radius="none"
-          className="pl-5 pt-5 pr-3"
+          className="flex justify-center pt-5 pb-3 sm:justify-start sm:pl-5 sm:pr-3 sm:pb-0"
         >
           <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', iconBg[variant])}>
             {iconByVariant[variant]}
           </div>
         </JPanel>
 
-        {/* Center: título + descripción — div nativo para flex-col sin interferencia de JPanel */}
+        {/* Center: título + descripción — mobile: centrado / tablet+: izquierda */}
         <div
           data-panel-area="center"
-          className="flex min-w-0 flex-col gap-1 pb-4 pr-5 pt-5"
+          className="flex min-w-0 flex-col gap-1 px-5 pb-4 text-center sm:px-0 sm:pt-5 sm:pr-5 sm:text-left"
         >
           <h2 id="joptionpane-title" className="break-words text-base font-semibold text-neutral-900">
             {title}
@@ -125,14 +125,15 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
           )}
         </div>
 
-        {/* South: botones — FlowLayout alineado izquierda, una sola línea */}
+        {/* South: botones — mobile: centrado / tablet+: derecha */}
         <JPanel
           area="bottom"
           layout="flow"
           variant="ghost"
           padding="none"
           radius="none"
-          justifyContent="end"
+          justifyContent="center"
+          tablet={{ justifyContent: 'end' }}
           gap="sm"
           className="px-5 pb-5"
         >
