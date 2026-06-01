@@ -221,8 +221,8 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
   useEffect(() => { setInputValue(effectiveValue); }, [effectiveValue]);
 
   const selectedParts   = useMemo(
-    () => parseWithMask(effectiveValue, mask, props.timezone),
-    [effectiveValue, mask, props.timezone],
+    () => parseWithMask(inputValue, mask, props.timezone),
+    [inputValue, mask, props.timezone],
   );
   const effectiveSelected = partsToDate(selectedParts);
   const initial = effectiveSelected ?? today;
