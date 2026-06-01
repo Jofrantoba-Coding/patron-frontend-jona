@@ -132,7 +132,7 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
           variant="ghost"
           padding="none"
           radius="none"
-          justifyContent="start"
+          justifyContent="end"
           gap="sm"
           className="px-5 pb-5"
         >
