@@ -56,7 +56,7 @@ export * from './molecules/PopoverMolecule';
 export * from './molecules/JOptionPane';
 export * from './molecules/ComboboxMolecule';
 export * from './molecules/MultiSelectMolecule';
-export * from './molecules/DatePickerMolecule';
+export * from './molecules/JDatePicker';
 export * from './molecules/DataTableMolecule';
 export * from './molecules/JTimer';
 export * from './molecules/ToastMolecule';

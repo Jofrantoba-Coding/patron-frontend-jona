@@ -23,7 +23,10 @@
       "Bash(Select-String -Path \"d:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\uijona\\\\src\\\\styles\\\\index.css\" -Pattern \"^\\\\}\")",
       "Bash(Select-Object -Last 5)",
       "Bash(Format-Table LineNumber, Line)",
-      "PowerShell(Set-Location \"D:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\uijona\"; npx tsc --noEmit --project tsconfig.json; if \\($LASTEXITCODE -eq 0\\) { Write-Host \"TSC: OK \\(0 errors\\)\" } else { Write-Host \"TSC: FAILED \\(exit $LASTEXITCODE\\)\" })"
+      "PowerShell(Set-Location \"D:\\\\Kiro Projects\\\\patron-frontend-jona\\\\web_ts\\\\uijona\"; npx tsc --noEmit --project tsconfig.json; if \\($LASTEXITCODE -eq 0\\) { Write-Host \"TSC: OK \\(0 errors\\)\" } else { Write-Host \"TSC: FAILED \\(exit $LASTEXITCODE\\)\" })",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

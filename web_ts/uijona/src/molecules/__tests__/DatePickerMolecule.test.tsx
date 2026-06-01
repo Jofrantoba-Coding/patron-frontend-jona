@@ -1,10 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { DatePickerMolecule } from '../DatePickerMolecule';
+import { JDatePicker } from '../JDatePicker';
 
-describe('DatePickerMolecule', () => {
+describe('JDatePicker', () => {
   it('keeps the default yyyy-MM-dd behavior while allowing text input', () => {
     const onChange = vi.fn();
-    render(<DatePickerMolecule onChange={onChange} />);
+    render(<JDatePicker onChange={onChange} />);
 
     const input = screen.getByRole('textbox', { name: 'Seleccionar fecha' }) as HTMLInputElement;
     fireEvent.change(input, { target: { value: '20260509' } });
@@ -16,7 +16,7 @@ describe('DatePickerMolecule', () => {
   it('accepts a custom date-time mask with seconds and timezone', () => {
     const onChange = vi.fn();
     render(
-      <DatePickerMolecule
+      <JDatePicker
         mask="dd/MM/yyyy HH:mm:ss z"
         showTime
         showSeconds
@@ -35,7 +35,7 @@ describe('DatePickerMolecule', () => {
   it('formats calendar selections with the configured mask', () => {
     const onChange = vi.fn();
     render(
-      <DatePickerMolecule
+      <JDatePicker
         value="09/05/2026 14:30:45 America/Lima"
         mask="dd/MM/yyyy HH:mm:ss z"
         showTime
