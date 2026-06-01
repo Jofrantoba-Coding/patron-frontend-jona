@@ -3,11 +3,10 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { JTextBox } from '../../atoms/JTextBox';
-import { JLabel } from '../../atoms/JLabel';
-import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const DAYS   = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
-const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
 interface JDatePickerTimeParts {
   hour:      number;
@@ -17,34 +16,34 @@ interface JDatePickerTimeParts {
 }
 
 export interface JDatePickerViewProps {
-  inputValue:      string;
-  open:            boolean;
-  viewYear:        number;
-  viewMonth:       number;
-  selectedDate:    Date | null;
-  today:           Date;
-  min?:            Date;
-  max?:            Date;
-  disabled:        boolean;
-  placeholder:     string;
-  mask:            string;
-  showTime:        boolean;
-  showSeconds:     boolean;
-  showTimezone:    boolean;
+  inputValue:       string;
+  open:             boolean;
+  viewYear:         number;
+  viewMonth:        number;
+  selectedDate:     Date | null;
+  today:            Date;
+  min?:             Date;
+  max?:             Date;
+  disabled:         boolean;
+  placeholder:      string;
+  mask:             string;
+  showTime:         boolean;
+  showSeconds:      boolean;
+  showTimezone:     boolean;
   timezoneOptions?: string[];
-  timeParts:       JDatePickerTimeParts;
-  className?:      string;
-  panelStyle:      React.CSSProperties;
-  triggerRef:      React.RefObject<HTMLDivElement>;
-  panelRef:        React.RefObject<HTMLDivElement>;
-  inputRef:        React.RefObject<HTMLInputElement>;
-  onInputChange:   (value: string) => void;
-  onTriggerClick:  () => void;
-  onPrevMonth:     () => void;
-  onNextMonth:     () => void;
-  onSelectDay:     (date: Date) => void;
-  onTimeChange:    (part: 'hour' | 'minute' | 'second', value: string) => void;
-  onTimezoneChange:(value: string) => void;
+  timeParts:        JDatePickerTimeParts;
+  className?:       string;
+  panelStyle:       React.CSSProperties;
+  triggerRef:       React.RefObject<HTMLDivElement>;
+  panelRef:         React.RefObject<HTMLDivElement>;
+  inputRef:         React.RefObject<HTMLInputElement>;
+  onInputChange:    (value: string) => void;
+  onTriggerClick:   () => void;
+  onPrevMonth:      () => void;
+  onNextMonth:      () => void;
+  onSelectDay:      (date: Date) => void;
+  onTimeChange:     (part: 'hour' | 'minute' | 'second', value: string) => void;
+  onTimezoneChange: (value: string) => void;
 }
 
 function buildCalendarDays(year: number, month: number): (Date | null)[] {
@@ -66,6 +65,10 @@ function pad(value: number): string {
   return String(value).padStart(2, '0');
 }
 
+const inputClass =
+  'h-8 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm text-neutral-900 ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500';
+
 export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
   inputValue, open, viewYear, viewMonth, selectedDate, today,
   min, max, disabled, placeholder, showTime, showSeconds, showTimezone,
@@ -79,15 +82,13 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
   const canNext = !max || new Date(viewYear, viewMonth + 1, 1) <= max;
 
   return (
-    <JPanel variant="ghost" padding="none" radius="none" className={cn('relative inline-block w-full', className)}>
+    <div className={cn('relative w-full', className)}>
+
       {/* ── Trigger: input + botón calendario ─────────────────────────── */}
-      <JPanel
-        variant="ghost"
-        padding="none"
-        radius="none"
+      <div
         ref={triggerRef}
         className={cn(
-          'flex h-9 w-full items-center rounded-md border border-neutral-300 bg-neutral-50 text-sm transition-colors',
+          'flex h-9 w-full flex-row items-center rounded-md border border-neutral-300 bg-neutral-50 text-sm transition-colors',
           'focus-within:ring-2 focus-within:ring-primary-500',
           disabled && 'cursor-not-allowed opacity-50',
           open      && 'ring-2 ring-primary-500',
@@ -126,14 +127,11 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
             <line x1="3"  y1="10" x2="21" y2="10" />
           </svg>
         </button>
-      </JPanel>
+      </div>
 
       {/* ── Panel calendario (portal) ──────────────────────────────────── */}
       {open && createPortal(
-        <JPanel
-          variant="ghost"
-          padding="none"
-          radius="none"
+        <div
           ref={panelRef}
           role="dialog"
           aria-label="Calendario"
@@ -141,7 +139,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           className="z-50 w-80 max-w-[calc(100vw-16px)] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl"
         >
           {/* Navegación mes/año */}
-          <JPanel variant="ghost" padding="none" radius="none" className="mb-2 flex items-center justify-between gap-2">
+          <div className="mb-2 flex flex-row items-center justify-between gap-2">
             <button
               type="button"
               onClick={onPrevMonth}
@@ -153,7 +151,9 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                 <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
-            <span className="text-sm font-semibold text-neutral-900">{MONTHS[viewMonth]} {viewYear}</span>
+            <span className="text-sm font-semibold text-neutral-900">
+              {MONTHS[viewMonth]} {viewYear}
+            </span>
             <button
               type="button"
               onClick={onNextMonth}
@@ -165,29 +165,31 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </button>
-          </JPanel>
+          </div>
 
-          {/* Cabecera días */}
-          <JPanel variant="ghost" padding="none" radius="none" className="mb-1 grid grid-cols-7 text-center">
+          {/* Cabecera días de la semana */}
+          <div className="mb-1 grid grid-cols-7 text-center">
             {DAYS.map((d) => (
               <span key={d} className="text-xs font-medium text-neutral-400">{d}</span>
             ))}
-          </JPanel>
+          </div>
 
           {/* Celdas del mes */}
-          <JPanel variant="ghost" padding="none" radius="none" className="grid grid-cols-7 gap-y-0.5">
+          <div className="grid grid-cols-7 gap-y-0.5">
             {cells.map((date, i) => {
               if (!date) return <span key={i} />;
-              const isSelected  = selectedDate ? isSameDay(date, selectedDate) : false;
-              const isToday     = isSameDay(date, today);
-              const isDisabled  = (min && date < min) || (max && date > max);
+              const isSelected = selectedDate ? isSameDay(date, selectedDate) : false;
+              const isToday    = isSameDay(date, today);
+              const isDisabled = (min && date < min) || (max && date > max);
               return (
                 <button
                   key={i}
                   type="button"
                   onClick={() => !isDisabled && onSelectDay(date)}
                   disabled={!!isDisabled}
-                  aria-label={date.toLocaleDateString('es', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  aria-label={date.toLocaleDateString('es', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                  })}
                   aria-pressed={isSelected}
                   className={cn(
                     'mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors',
@@ -203,14 +205,15 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                 </button>
               );
             })}
-          </JPanel>
+          </div>
 
           {/* Hora y timezone */}
           {(showTime || showTimezone) && (
-            <JPanel variant="ghost" padding="none" radius="none" className="mt-3 border-t border-neutral-200 pt-3">
+            <div className="mt-3 border-t border-neutral-200 pt-3 flex flex-col gap-2">
+
               {showTime && (
-                <JPanel variant="ghost" padding="none" radius="none" className="grid grid-cols-3 gap-2">
-                  <JLabel variant="label" className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                <div className="grid grid-cols-3 gap-2">
+                  <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     HH
                     <JTextBox
                       type="number"
@@ -218,10 +221,10 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                       max={23}
                       value={pad(timeParts.hour)}
                       onChange={(v) => onTimeChange('hour', v)}
-                      className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      className={inputClass}
                     />
-                  </JLabel>
-                  <JLabel variant="label" className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                  </label>
+                  <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                     mm
                     <JTextBox
                       type="number"
@@ -229,11 +232,11 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                       max={59}
                       value={pad(timeParts.minute)}
                       onChange={(v) => onTimeChange('minute', v)}
-                      className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      className={inputClass}
                     />
-                  </JLabel>
+                  </label>
                   {showSeconds && (
-                    <JLabel variant="label" className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                    <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                       ss
                       <JTextBox
                         type="number"
@@ -241,23 +244,25 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                         max={59}
                         value={pad(timeParts.second)}
                         onChange={(v) => onTimeChange('second', v)}
-                        className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        className={inputClass}
                       />
-                    </JLabel>
+                    </label>
                   )}
-                </JPanel>
+                </div>
               )}
 
               {showTimezone && (
-                <JLabel variant="label" className="mt-2 flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
                   Timezone
                   {timezoneOptions?.length ? (
                     <select
                       value={timeParts.timezone ?? ''}
                       onChange={(e) => onTimezoneChange(e.target.value)}
-                      className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      className={inputClass}
                     >
-                      {!timeParts.timezone && <option value="">Seleccionar timezone</option>}
+                      {!timeParts.timezone && (
+                        <option value="">Seleccionar timezone</option>
+                      )}
                       {timezoneOptions.map((tz) => (
                         <option key={tz} value={tz}>{tz}</option>
                       ))}
@@ -268,16 +273,16 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                       value={timeParts.timezone ?? ''}
                       onChange={onTimezoneChange}
                       placeholder="America/Lima"
-                      className="h-8 rounded-md border border-neutral-300 px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      className={inputClass}
                     />
                   )}
-                </JLabel>
+                </label>
               )}
-            </JPanel>
+            </div>
           )}
-        </JPanel>,
+        </div>,
         document.body,
       )}
-    </JPanel>
+    </div>
   );
 };
