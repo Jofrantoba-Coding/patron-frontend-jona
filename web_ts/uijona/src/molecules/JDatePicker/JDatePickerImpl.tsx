@@ -6,6 +6,11 @@ import { JDatePickerView } from './JDatePickerView';
 type MaskToken   = 'yyyy' | 'MM' | 'dd' | 'HH' | 'mm' | 'ss' | 'XXX' | 'z';
 type MaskSegment = { type: 'token'; value: MaskToken } | { type: 'literal'; value: string };
 
+function getAllTimezones(): string[] {
+  try { return (Intl as unknown as { supportedValuesOf(k: string): string[] }).supportedValuesOf('timeZone'); } catch { return []; }
+}
+const ALL_TIMEZONES = getAllTimezones();
+
 interface DateParts {
   year:      number;
   month:     number;
@@ -201,12 +206,13 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
   today.setHours(0, 0, 0, 0);
 
   const mask              = merged.mask;
-  const hasTimeInMask     = /HH|mm|ss/.test(mask);
-  const hasSecondsInMask  = mask.includes('ss');
-  const hasTimezoneInMask = /XXX|z/.test(mask);
-  const showTime          = merged.showTime    || hasTimeInMask;
-  const showSeconds       = merged.showSeconds || hasSecondsInMask;
-  const showTimezone      = hasTimezoneInMask  || !!props.timezoneOptions?.length;
+  const hasTimeInMask       = /HH|mm|ss/.test(mask);
+  const hasSecondsInMask    = mask.includes('ss');
+  const hasTimezoneInMask   = /XXX|z/.test(mask);
+  const showTime            = merged.showTime    || hasTimeInMask;
+  const showSeconds         = merged.showSeconds || hasSecondsInMask;
+  const showTimezone        = hasTimezoneInMask  || !!props.timezoneOptions?.length;
+  const effectiveTimezoneOptions = props.timezoneOptions ?? (showTimezone ? ALL_TIMEZONES : undefined);
 
   const [internalValue, setInternalValue] = useState('');
   const effectiveValue = props.value ?? internalValue;
@@ -322,7 +328,7 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
       showTime={showTime}
       showSeconds={showSeconds}
       showTimezone={showTimezone}
-      timezoneOptions={props.timezoneOptions}
+      timezoneOptions={effectiveTimezoneOptions}
       timeParts={selectedParts ?? partsFromDate(effectiveSelected ?? today, null, props.timezone)}
       className={props.className}
       panelStyle={panelStyle}
