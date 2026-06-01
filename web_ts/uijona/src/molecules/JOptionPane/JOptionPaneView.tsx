@@ -103,7 +103,9 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
           variant="ghost"
           padding="none"
           radius="none"
-          className="flex justify-center pt-5 pb-3 sm:justify-start sm:pl-5 sm:pr-3 sm:pb-0"
+          alignItems="center"
+          tablet={{ alignItems: 'start' }}
+          className="pt-5 pb-3 sm:pl-5 sm:pr-3 sm:pb-0"
         >
           <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', iconBg[variant])}>
             {iconByVariant[variant]}
