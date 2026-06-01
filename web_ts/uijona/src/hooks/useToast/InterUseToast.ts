@@ -1,11 +1,11 @@
 // InterUseToast.ts — JONA Interface
-import { ToastVariant } from '../../molecules/ToastMolecule';
+import { JToastVariant } from '../../molecules/JToast';
 
 export interface ToastData {
   id: string;
   message: string;
   title?: string;
-  variant?: ToastVariant;
+  variant?: JToastVariant;
   duration?: number;
 }
 

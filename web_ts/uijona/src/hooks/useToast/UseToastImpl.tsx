@@ -1,8 +1,7 @@
 // UseToastImpl.tsx — JONA Implementation
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { ToastMolecule } from '../../molecules/ToastMolecule';
+import { JToast } from '../../molecules/JToast';
 import { ToastData, InterUseToast } from './InterUseToast';
-import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const ToastContext = createContext<InterUseToast | null>(null);
 
@@ -21,16 +20,16 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ toast, dismiss }}>
       {children}
-      <JPanel variant="ghost" padding="none" radius="none"
+      <div
         aria-label="Notifications"
-        className="fixed inset-x-4 bottom-4 z-[100] flex flex-col gap-2 pointer-events-none sm:inset-x-auto sm:right-4 sm:w-auto"
+        className="pointer-events-none fixed inset-x-4 bottom-4 z-[100] flex flex-col gap-2 sm:inset-x-auto sm:right-4 sm:w-auto"
       >
         {toasts.map((t) => (
-          <JPanel variant="ghost" padding="none" radius="none" key={t.id} className="pointer-events-auto w-full sm:w-auto">
-            <ToastMolecule {...t} onDismiss={dismiss} />
-          </JPanel>
+          <div key={t.id} className="pointer-events-auto w-full sm:w-auto">
+            <JToast {...t} onDismiss={dismiss} />
+          </div>
         ))}
-      </JPanel>
+      </div>
     </ToastContext.Provider>
   );
 };

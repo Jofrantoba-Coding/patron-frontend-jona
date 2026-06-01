@@ -59,7 +59,7 @@ export * from './molecules/MultiSelectMolecule';
 export * from './molecules/JDatePicker';
 export * from './molecules/DataTableMolecule';
 export * from './molecules/JTimer';
-export * from './molecules/ToastMolecule';
+export * from './molecules/JToast';
 export * from './molecules/RatingMolecule';
 
 // Layouts
