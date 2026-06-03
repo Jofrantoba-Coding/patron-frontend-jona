@@ -1,11 +1,29 @@
 // UseToastImpl.tsx — JONA Implementation
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { JToast } from '../../molecules/JToast';
+import { JToast, JToastPosition, JTOAST_POSITION_DEFAULT } from '../../molecules/JToast';
 import { ToastData, InterUseToast } from './InterUseToast';
+import { cn } from '../../lib/cn';
+
+const POSITION_CLASSES: Record<JToastPosition, string> = {
+  'top-left':      'top-4 left-4',
+  'top-center':    'top-4 left-1/2 -translate-x-1/2',
+  'top-right':     'top-4 right-4',
+  'center-left':   'top-1/2 -translate-y-1/2 left-4',
+  'center':        'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+  'center-right':  'top-1/2 -translate-y-1/2 right-4',
+  'bottom-left':   'bottom-4 left-4',
+  'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
+  'bottom-right':  'bottom-4 right-4',
+};
 
 const ToastContext = createContext<InterUseToast | null>(null);
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface ToastProviderProps {
+  children: React.ReactNode;
+  position?: JToastPosition;
+}
+
+export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position = JTOAST_POSITION_DEFAULT }) => {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const dismiss = useCallback((id: string) => {
@@ -22,10 +40,13 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
       <div
         aria-label="Notifications"
-        className="pointer-events-none fixed inset-x-4 bottom-4 z-[100] flex flex-col gap-2 sm:inset-x-auto sm:right-4 sm:w-auto"
+        className={cn(
+          'pointer-events-none fixed z-[100] flex w-80 flex-col gap-2',
+          POSITION_CLASSES[position],
+        )}
       >
         {toasts.map((t) => (
-          <div key={t.id} className="pointer-events-auto w-full sm:w-auto">
+          <div key={t.id} className="pointer-events-auto">
             <JToast {...t} onDismiss={dismiss} />
           </div>
         ))}
