@@ -1,19 +1,23 @@
-// RatingMoleculeImpl.tsx — JONA Implementation
+// JRatingImpl.tsx — JONA Implementation
 import React, { useState } from 'react';
-import { InterRatingMolecule, RATING_MOLECULE_DEFAULTS } from './InterRatingMolecule';
-import { RatingMoleculeView } from './RatingMoleculeView';
+import { InterJRating, JRATING_DEFAULTS } from './InterJRating';
+import { JRatingView } from './JRatingView';
 
-export const RatingMoleculeImpl: React.FC<InterRatingMolecule> = (props) => {
-  const merged = { ...RATING_MOLECULE_DEFAULTS, ...props };
-  const [internalValue, setInternalValue] = useState(RATING_MOLECULE_DEFAULTS.value);
+export const JRatingImpl: React.FC<InterJRating> = (props) => {
+  const merged = { ...JRATING_DEFAULTS, ...props };
+
+  const [internalValue, setInternalValue] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
 
+  // Si props.value está definido → controlado; si no → uncontrolled con internalValue
   const effectiveValue = props.value ?? internalValue;
 
   const handleClick = (star: number) => {
     if (merged.readOnly) return;
-    setInternalValue(star);
-    props.onChange?.(star);
+    // Toggle: clic en la estrella activa reinicia a 0
+    const next = star === effectiveValue ? 0 : star;
+    setInternalValue(next);
+    props.onChange?.(next);
   };
 
   const handleEnter = (star: number) => {
@@ -29,7 +33,7 @@ export const RatingMoleculeImpl: React.FC<InterRatingMolecule> = (props) => {
   };
 
   return (
-    <RatingMoleculeView
+    <JRatingView
       value={effectiveValue}
       max={merged.max}
       readOnly={merged.readOnly}
@@ -43,4 +47,4 @@ export const RatingMoleculeImpl: React.FC<InterRatingMolecule> = (props) => {
   );
 };
 
-RatingMoleculeImpl.displayName = 'RatingMolecule';
+JRatingImpl.displayName = 'JRating';

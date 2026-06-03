@@ -60,7 +60,7 @@ export * from './molecules/JDatePicker';
 export * from './molecules/DataTableMolecule';
 export * from './molecules/JTimer';
 export * from './molecules/JToast';
-export * from './molecules/RatingMolecule';
+export * from './molecules/JRating';
 
 // Layouts
 export * from './layouts/JBorderLayout';
