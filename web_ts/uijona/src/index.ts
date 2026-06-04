@@ -42,7 +42,7 @@ export * from './molecules/JDialog';
 export * from './molecules/TabsMolecule';
 export * from './molecules/DropdownMolecule';
 export * from './molecules/PaginationMolecule';
-export * from './molecules/TooltipMolecule';
+export * from './molecules/JTooltip';
 export * from './molecules/TableMolecule';
 export * from './molecules/BreadcrumbMolecule';
 export * from './molecules/SkeletonPresets';
