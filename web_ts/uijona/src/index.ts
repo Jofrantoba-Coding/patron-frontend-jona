@@ -30,7 +30,7 @@ export * from './molecules/MetricCardMolecule';
 export * from './molecules/ServiceCardMolecule';
 export * from './molecules/CardMolecule';
 export * from './molecules/JAlert';
-export * from './molecules/FormFieldMolecule';
+export * from './molecules/JFormField';
 export * from './molecules/CheckboxFieldMolecule';
 export * from './molecules/RadioGroupMolecule';
 export * from './molecules/SelectFieldMolecule';
