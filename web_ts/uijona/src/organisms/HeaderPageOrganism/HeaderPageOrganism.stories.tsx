@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { HeaderPageOrganism } from './HeaderPageOrganism';
 import { JButton } from '../../atoms/JButton/JButton';
-import { UserAvatarMolecule } from '../../molecules/UserAvatarMolecule/UserAvatarMolecule';
+import { JUserAvatar } from '../../molecules/JUserAvatar';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const meta: Meta<typeof HeaderPageOrganism> = {
@@ -43,7 +43,7 @@ export const WithActions: Story = {
     actions: (
       <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <JButton variant="ghost" size="sm">Ayuda</JButton>
-        <UserAvatarMolecule name="Jonathan Franck" size="sm" />
+        <JUserAvatar name="Jonathan Franck" size="sm" />
       </JPanel>
     ),
   },
@@ -75,7 +75,7 @@ export const Interactive: Story = {
           actions={
             <JPanel variant="ghost" padding="none" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <JButton variant="ghost" size="sm">Ayuda</JButton>
-              <UserAvatarMolecule name="Jonathan Franck" size="sm" />
+              <JUserAvatar name="Jonathan Franck" size="sm" />
             </JPanel>
           }
         />
