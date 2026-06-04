@@ -1,14 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { DropdownMolecule } from '../DropdownMolecule';
+import { JDropdown } from '../JDropdown';
 
-describe('DropdownMolecule', () => {
+describe('JDropdown', () => {
   it('notifies when a disabled item is clicked without selecting it', () => {
     const onDisabledItemClick = vi.fn();
     const onItemSelect = vi.fn();
     const itemClick = vi.fn();
 
     render(
-      <DropdownMolecule
+      <JDropdown
         trigger={<button type="button">Open</button>}
         groups={[{ items: [{ label: 'Archived', disabled: true, onClick: itemClick }] }]}
         onDisabledItemClick={onDisabledItemClick}
@@ -29,7 +29,7 @@ describe('DropdownMolecule', () => {
     const itemClick = vi.fn();
 
     render(
-      <DropdownMolecule
+      <JDropdown
         trigger={<button type="button">Open</button>}
         groups={[{ items: [{ label: 'Profile', onClick: itemClick }] }]}
         onItemSelect={onItemSelect}
