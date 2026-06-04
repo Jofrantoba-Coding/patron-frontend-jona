@@ -2,7 +2,7 @@
 import React from 'react';
 import { InterLoginOrganism } from './InterLoginOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
-import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
+import { JFormField } from '../../molecules/JFormField';
 import { JButton } from '../../atoms/JButton';
 import { JAlert } from '../../molecules/JAlert';
 
@@ -32,7 +32,7 @@ export const LoginOrganismView: React.FC<InterLoginOrganism> = ({
           </JAlert>
         )}
         <form className="space-y-4" onSubmit={onSubmit} noValidate>
-          <FormFieldMolecule
+          <JFormField
             id="txtEmail"
             label="Email"
             type="email"
@@ -42,7 +42,7 @@ export const LoginOrganismView: React.FC<InterLoginOrganism> = ({
             errorMessage={emailError}
             required
           />
-          <FormFieldMolecule
+          <JFormField
             id="txtPassword"
             label="Password"
             type="password"

@@ -2,7 +2,7 @@
 import React from 'react';
 import { InterCreateAccountOrganism } from './InterCreateAccountOrganism';
 import { CardMolecule, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../molecules/CardMolecule';
-import { FormFieldMolecule } from '../../molecules/FormFieldMolecule';
+import { JFormField } from '../../molecules/JFormField';
 import { JButton } from '../../atoms/JButton';
 import { JAlert } from '../../molecules/JAlert';
 
@@ -37,7 +37,7 @@ export const CreateAccountOrganismView: React.FC<InterCreateAccountOrganism> = (
         </JAlert>
       )}
       <form className="space-y-4" onSubmit={onSubmit} noValidate>
-        <FormFieldMolecule
+        <JFormField
           id="txtName"
           label="Full name"
           type="text"
@@ -47,7 +47,7 @@ export const CreateAccountOrganismView: React.FC<InterCreateAccountOrganism> = (
           errorMessage={nameError}
           required
         />
-        <FormFieldMolecule
+        <JFormField
           id="txtCreateEmail"
           label="Email"
           type="email"
@@ -57,7 +57,7 @@ export const CreateAccountOrganismView: React.FC<InterCreateAccountOrganism> = (
           errorMessage={emailError}
           required
         />
-        <FormFieldMolecule
+        <JFormField
           id="txtCreatePassword"
           label="Password"
           type="password"
@@ -67,7 +67,7 @@ export const CreateAccountOrganismView: React.FC<InterCreateAccountOrganism> = (
           errorMessage={passwordError}
           required
         />
-        <FormFieldMolecule
+        <JFormField
           id="txtConfirmPassword"
           label="Confirm password"
           type="password"
