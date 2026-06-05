@@ -34,7 +34,7 @@ export * from './molecules/JFormField';
 export * from './molecules/CheckboxFieldMolecule';
 export * from './molecules/RadioGroupMolecule';
 export * from './molecules/SelectFieldMolecule';
-export * from './molecules/SwitchFieldMolecule';
+export * from './molecules/JSwitchField';
 export * from './molecules/JUserAvatar';
 export * from './molecules/JAccordion';
 export * from './molecules/EmptyStateMolecule';
