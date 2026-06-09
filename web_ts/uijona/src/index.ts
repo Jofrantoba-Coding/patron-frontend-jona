@@ -50,7 +50,7 @@ export * from './molecules/SearchInputMolecule';
 export * from './molecules/NumberInputMolecule';
 export * from './molecules/JFileUpload';
 export * from './molecules/StatCardMolecule';
-export * from './molecules/StepperMolecule';
+export * from './molecules/JStepper';
 export * from './molecules/DrawerMolecule';
 export * from './molecules/PopoverMolecule';
 export * from './molecules/JOptionPane';

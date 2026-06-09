@@ -3,7 +3,7 @@ import { SearchInputMolecule } from '../SearchInputMolecule';
 import { NumberInputMolecule } from '../NumberInputMolecule';
 import { JFileUpload } from '../JFileUpload';
 import { StatCardMolecule } from '../StatCardMolecule';
-import { StepperMolecule } from '../StepperMolecule';
+import { JStepper } from '../JStepper';
 
 describe('Priority 4 app molecules', () => {
   it('SearchInputMolecule emits search and clear events', () => {
@@ -50,10 +50,10 @@ describe('Priority 4 app molecules', () => {
     expect(screen.getByText('+4%')).toBeInTheDocument();
   });
 
-  it('StepperMolecule emits step changes when clickable', () => {
+  it('JStepper emits step changes when clickable', () => {
     const onStepChange = vi.fn();
     render(
-      <StepperMolecule
+      <JStepper
         steps={[
           { id: 'one', label: 'One' },
           { id: 'two', label: 'Two' },
