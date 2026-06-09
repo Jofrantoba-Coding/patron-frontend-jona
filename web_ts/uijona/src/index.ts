@@ -39,7 +39,7 @@ export * from './molecules/JUserAvatar';
 export * from './molecules/JAccordion';
 export * from './molecules/EmptyStateMolecule';
 export * from './molecules/JDialog';
-export * from './molecules/TabsMolecule';
+export * from './molecules/JTabs';
 export * from './molecules/JDropdown';
 export * from './molecules/PaginationMolecule';
 export * from './molecules/JTooltip';

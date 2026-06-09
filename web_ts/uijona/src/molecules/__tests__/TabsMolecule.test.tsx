@@ -1,21 +1,21 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { TabsMolecule, TabsList, TabsTrigger, TabsContent } from '../TabsMolecule';
+import { JTabs, JTabsList, JTabsTrigger, JTabsContent } from '../JTabs';
 
 function TestTabs({ onChange }: { onChange?: (v: string) => void }) {
   return (
-    <TabsMolecule value="tab1" onChange={onChange}>
-      <TabsList>
-        <TabsTrigger value="tab1">Tab 1</TabsTrigger>
-        <TabsTrigger value="tab2">Tab 2</TabsTrigger>
-        <TabsTrigger value="tab3" disabled>Tab 3</TabsTrigger>
-      </TabsList>
-      <TabsContent value="tab1">Content 1</TabsContent>
-      <TabsContent value="tab2">Content 2</TabsContent>
-    </TabsMolecule>
+    <JTabs value="tab1" onChange={onChange}>
+      <JTabsList>
+        <JTabsTrigger value="tab1">Tab 1</JTabsTrigger>
+        <JTabsTrigger value="tab2">Tab 2</JTabsTrigger>
+        <JTabsTrigger value="tab3" disabled>Tab 3</JTabsTrigger>
+      </JTabsList>
+      <JTabsContent value="tab1">Content 1</JTabsContent>
+      <JTabsContent value="tab2">Content 2</JTabsContent>
+    </JTabs>
   );
 }
 
-describe('TabsMolecule', () => {
+describe('JTabs', () => {
   it('renders tab triggers', () => {
     render(<TestTabs />);
     expect(screen.getByRole('tab', { name: 'Tab 1' })).toBeInTheDocument();
