@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e={hasError:!1,disabled:!1,size:"md",variant:"default"},t={sm:"h-7 text-xs px-2 py-0.5 — pequeño",md:"h-9 text-sm px-3 py-1  — mediano (default)",lg:"h-11 text-base px-4 py-2 — grande"},o={default:"Fondo blanco, borde neutral.",filled:"Fondo neutro claro, borde suave."};exports.JCOMBOBOX_DEFAULTS=e;exports.JCOMBOBOX_SIZES=t;exports.JCOMBOBOX_VARIANTS=o;
+//# sourceMappingURL=InterJComboBox.cjs.map

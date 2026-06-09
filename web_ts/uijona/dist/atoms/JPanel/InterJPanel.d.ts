@@ -33,7 +33,7 @@ export interface JPanelResponsiveConfig {
     mode?: JPanelGroupMode;
     minHeight?: string;
 }
-export interface InterJPanel extends React.HTMLAttributes<HTMLElement> {
+export interface InterJPanel {
     variant?: JPanelVariant;
     padding?: JPanelPadding;
     radius?: JPanelRadius;
@@ -94,6 +94,9 @@ export interface InterJPanel extends React.HTMLAttributes<HTMLElement> {
     'data-spring-bottom'?: number | string;
     'data-spring-width'?: number | string;
     'data-spring-height'?: number | string;
+    className?: string;
+    style?: React.CSSProperties;
+    children?: React.ReactNode;
 }
 export declare const JPANEL_DEFAULTS: Required<Pick<InterJPanel, 'variant' | 'padding' | 'radius' | 'layout' | 'direction' | 'gap' | 'alignItems' | 'justifyContent'>>;
 export declare const JPANEL_LAYOUT_DEFAULTS: Record<JPanelLayout, JPanelLayoutDefaultDoc>;

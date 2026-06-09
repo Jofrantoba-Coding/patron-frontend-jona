@@ -84,7 +84,7 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
         onClick={onCancel}
       />
 
-      {/* Dialog window — BorderLayout: west=icon, center=texto, south=botones */}
+      {/* Dialog window — JBorderLayout: west=icon, center=texto, south=botones */}
       <JPanel
         layout="border"
         variant="ghost"

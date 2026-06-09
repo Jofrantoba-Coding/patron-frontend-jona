@@ -12,7 +12,7 @@ const meta: Meta<typeof JTimer> = {
     docs: {
       description: {
         component:
-          'JTimer es el componente de temporizador de JONA. Soporta modo `countdown` (cuenta regresiva) y `stopwatch` (cronómetro), control total vía props o estado interno, botones opcionales de inicio/pausa/reinicio, formatter personalizable y 3 variantes de presentación. Reemplaza a `TimerMolecule`.',
+          'JTimer es el componente de temporizador de JONA. Soporta modo `countdown` (cuenta regresiva) y `stopwatch` (cronómetro), control total vía props o estado interno, botones opcionales de inicio/pausa/reinicio, formatter personalizable y 3 variantes de presentación. Reemplaza a `JTimer`.',
       },
     },
   },

@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("react/jsx-runtime"),u=require("react"),i=require("../../lib/cn.cjs"),n=require("../../atoms/JPanel/JPanelImpl.cjs"),e=u.forwardRef(({children:l,className:o,...t},a)=>r.jsx(n.JPanelImpl,{ref:a,layout:"flow",className:i.cn("w-full max-w-full min-w-0",o),...t,children:l}));e.displayName="FlowLayoutView";exports.FlowLayoutView=e;
-//# sourceMappingURL=FlowLayoutView.cjs.map

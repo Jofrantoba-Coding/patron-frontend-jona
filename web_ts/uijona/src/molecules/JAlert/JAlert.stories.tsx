@@ -40,7 +40,7 @@ const meta: Meta<typeof JAlert> = {
     docs: {
       description: {
         component:
-          'JAlert es el componente de alerta de JONA. Comunica mensajes informativos, de estado o de error al usuario. Soporta 5 variantes semánticas de color, título opcional, ícono personalizable y botón de cierre integrado (`dismissible`). El callback `onDismiss` delega al padre la decisión de eliminar la alerta del DOM. Reemplaza a `AlertMolecule` con más variantes y soporte de dismiss.',
+          'JAlert es el componente de alerta de JONA. Comunica mensajes informativos, de estado o de error al usuario. Soporta 5 variantes semánticas de color, título opcional, ícono personalizable y botón de cierre integrado (`dismissible`). El callback `onDismiss` delega al padre la decisión de eliminar la alerta del DOM. Reemplaza a `JAlert` con más variantes y soporte de dismiss.',
       },
     },
   },

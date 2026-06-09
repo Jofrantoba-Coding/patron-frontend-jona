@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const l=require("react/jsx-runtime"),a=require("./InterStatCardMolecule.cjs"),o=require("./StatCardMoleculeView.cjs"),e=t=>{const r={...a.STAT_CARD_MOLECULE_DEFAULTS,...t};return l.jsx(o.StatCardMoleculeView,{...r})};e.displayName="StatCardMolecule";exports.StatCardMoleculeImpl=e;
-//# sourceMappingURL=StatCardMoleculeImpl.cjs.map

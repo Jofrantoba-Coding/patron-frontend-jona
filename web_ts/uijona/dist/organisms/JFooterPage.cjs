@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("./JFooterPage/JFooterPage.cjs"),o=require("./JFooterPage/JFooterPageImpl.cjs"),r=require("./JFooterPage/JFooterPageView.cjs"),t=require("./JFooterPage/InterJFooterPage.cjs");exports.JFooterPage=e.JFooterPage;exports.JFooterPageImpl=o.JFooterPageImpl;exports.JFooterPageView=r.JFooterPageView;exports.JFOOTER_PAGE_DEFAULTS=t.JFOOTER_PAGE_DEFAULTS;
+//# sourceMappingURL=JFooterPage.cjs.map

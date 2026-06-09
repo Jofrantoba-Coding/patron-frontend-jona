@@ -65,7 +65,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         onClick={onOverlayClick}
       />
 
-      {/* Dialog window — BorderLayout principal */}
+      {/* Dialog window — JBorderLayout principal */}
       <JPanel
         layout="border"
         variant="ghost"
@@ -86,7 +86,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         )}
       >
         {/* ── North: Barra de título ───────────────────────────────────── */}
-        {/* div nativo con data-panel-area para que el BorderLayout padre lo posicione */}
+        {/* div nativo con data-panel-area para que el JBorderLayout padre lo posicione */}
         <div
           data-panel-area="top"
           className={cn(
@@ -157,7 +157,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
           {children}
         </JPanel>
 
-        {/* ── South: Barra de botones (FlowLayout) ─────────────────────── */}
+        {/* ── South: Barra de botones (JFlowLayout) ─────────────────────── */}
         {footer && (
           <JPanel
             area="bottom"

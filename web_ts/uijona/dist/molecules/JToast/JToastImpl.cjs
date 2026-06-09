@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const a=require("react/jsx-runtime"),l=require("react"),o=require("./InterJToast.cjs"),J=require("./JToastView.cjs"),u=({id:t,duration:r=o.JTOAST_DEFAULTS.duration,onDismiss:e,...c})=>(l.useEffect(()=>{if(!r)return;const T=setTimeout(()=>e==null?void 0:e(t),r);return()=>clearTimeout(T)},[t,r,e]),a.jsx(J.JToastView,{id:t,...c,onDismissClick:()=>e==null?void 0:e(t)}));u.displayName="JToast";exports.JToastImpl=u;
+//# sourceMappingURL=JToastImpl.cjs.map

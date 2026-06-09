@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const a=require("react/jsx-runtime"),u=require("react"),e=require("./InterBoxLayout.cjs"),c=require("./BoxLayoutView.cjs"),r=u.forwardRef((o,i)=>{const t=o.direction??e.BOX_LAYOUT_DEFAULTS.direction,n=o.wrap??(t==="column"?"nowrap":e.BOX_LAYOUT_DEFAULTS.wrap);return a.jsx(c.BoxLayoutView,{ref:i,...e.BOX_LAYOUT_DEFAULTS,...o,direction:t,wrap:n})});r.displayName="BoxLayout";exports.BoxLayoutImpl=r;
-//# sourceMappingURL=BoxLayoutImpl.cjs.map

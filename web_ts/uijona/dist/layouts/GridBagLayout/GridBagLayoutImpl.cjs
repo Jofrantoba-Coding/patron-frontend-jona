@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const a=require("react/jsx-runtime"),i=require("react"),o=require("./InterGridBagLayout.cjs"),u=require("./GridBagLayoutView.cjs"),e=i.forwardRef((r,t)=>a.jsx(u.GridBagLayoutView,{ref:t,...o.GRID_BAG_LAYOUT_DEFAULTS,...r}));e.displayName="GridBagLayout";exports.GridBagLayoutImpl=e;
-//# sourceMappingURL=GridBagLayoutImpl.cjs.map

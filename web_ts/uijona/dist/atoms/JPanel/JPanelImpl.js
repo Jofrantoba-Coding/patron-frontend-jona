@@ -1,12 +1,12 @@
-import { jsx as m } from "react/jsx-runtime";
-import e from "react";
+import { jsx as e } from "react/jsx-runtime";
+import m from "react";
 import { JPANEL_DEFAULTS as a } from "./InterJPanel.js";
-import { JPanelView as p } from "./JPanelView.js";
-const t = e.forwardRef(
-  (o, r) => /* @__PURE__ */ m(p, { ref: r, ...a, ...o })
+import { JPanelView as f } from "./JPanelView.js";
+const p = m.forwardRef(
+  (r, o) => /* @__PURE__ */ e(f, { ...a, ...r, forwardedRef: o })
 );
-t.displayName = "JPanel";
+p.displayName = "JPanel";
 export {
-  t as JPanelImpl
+  p as JPanelImpl
 };
 //# sourceMappingURL=JPanelImpl.js.map

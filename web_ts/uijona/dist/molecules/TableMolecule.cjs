@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("./TableMolecule/TableMoleculeImpl.cjs");exports.TableBody=e.TableBodyImpl;exports.TableCaption=e.TableCaptionImpl;exports.TableCell=e.TableCellImpl;exports.TableFooter=e.TableFooterImpl;exports.TableHead=e.TableHeadImpl;exports.TableHeader=e.TableHeaderImpl;exports.TableMolecule=e.TableMoleculeImpl;exports.TableRow=e.TableRowImpl;
-//# sourceMappingURL=TableMolecule.cjs.map

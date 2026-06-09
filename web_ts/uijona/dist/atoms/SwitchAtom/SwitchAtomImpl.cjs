@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const n=require("react/jsx-runtime"),m=require("react"),u=require("./InterSwitchAtom.cjs"),S=require("./SwitchAtomView.cjs"),r=({onCheckedChange:t,...i})=>{const e={...u.SWITCH_ATOM_DEFAULTS,...i},[s,o]=m.useState(e.checked),c=i.checked??s,l=()=>{e.disabled||(o(!c),t==null||t(!c))};return n.jsx(S.SwitchAtomView,{...e,checked:c,onClick:l})};r.displayName="SwitchAtom";exports.SwitchAtomImpl=r;
-//# sourceMappingURL=SwitchAtomImpl.cjs.map

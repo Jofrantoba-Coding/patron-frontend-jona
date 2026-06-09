@@ -36,35 +36,35 @@ import 'jona-ui/theme/tokens.css';
 Import directo recomendado para favorecer tree-shaking:
 
 ```tsx
-import { ButtonAtom } from 'jona-ui/atoms/ButtonAtom';
-import { InputAtom } from 'jona-ui/atoms/InputAtom';
-import { FormFieldMolecule } from 'jona-ui/molecules/FormFieldMolecule';
+import { JButton } from 'jona-ui/atoms/JButton';
+import { JTextBox } from 'jona-ui/atoms/JTextBox';
+import { JFormField } from 'jona-ui/molecules/JFormField';
 ```
 
 Tambien puedes importar desde el barrel principal:
 
 ```tsx
-import { ButtonAtom, InputAtom, FormFieldMolecule, useToast } from 'jona-ui';
+import { JButton, JTextBox, JFormField, useToast } from 'jona-ui';
 ```
 
 Ejemplo minimo:
 
 ```tsx
 import 'jona-ui/index.css';
-import { ButtonAtom } from 'jona-ui/atoms/ButtonAtom';
-import { InputAtom } from 'jona-ui/atoms/InputAtom';
+import { JButton } from 'jona-ui/atoms/JButton';
+import { JTextBox } from 'jona-ui/atoms/JTextBox';
 
 export function LoginForm() {
   return (
     <form>
-      <InputAtom
+      <JTextBox
         placeholder="usuario@dominio.com"
         onChange={(value) => console.log(value)}
       />
 
-      <ButtonAtom type="submit">
+      <JButton type="submit">
         Ingresar
-      </ButtonAtom>
+      </JButton>
     </form>
   );
 }
@@ -74,15 +74,15 @@ Ejemplo con toast:
 
 ```tsx
 import { ToastProvider, useToastHelpers } from 'jona-ui/hooks/useToast';
-import { ButtonAtom } from 'jona-ui/atoms/ButtonAtom';
+import { JButton } from 'jona-ui/atoms/JButton';
 
 function SaveButton() {
   const toast = useToastHelpers();
 
   return (
-    <ButtonAtom onClick={() => toast.success('Cambios guardados')}>
+    <JButton onClick={() => toast.success('Cambios guardados')}>
       Guardar
-    </ButtonAtom>
+    </JButton>
   );
 }
 
@@ -117,12 +117,12 @@ dist/
 `package.json` expone subpaths para importar piezas puntuales:
 
 ```tsx
-import { TextareaAtom } from 'jona-ui/atoms/TextareaAtom';
-import { RadioGroupMolecule } from 'jona-ui/molecules/RadioGroupMolecule';
-import { DataTableMolecule } from 'jona-ui/molecules/DataTableMolecule';
-import { BorderLayout } from 'jona-ui/layouts/BorderLayout';
-import { LoginOrganism } from 'jona-ui/organisms/LoginOrganism';
-import { UiHomeLogin } from 'jona-ui/pages/UiHomeLogin';
+import { JTextArea } from 'jona-ui/atoms/JTextArea';
+import { JRadioGroup } from 'jona-ui/molecules/JRadioGroup';
+import { JDataTable } from 'jona-ui/molecules/JDataTable';
+import { JBorderLayout } from 'jona-ui/layouts/JBorderLayout';
+import { JLogin } from 'jona-ui/organisms/JLogin';
+import { JHomeLogin } from 'jona-ui/pages/JHomeLogin';
 ```
 
 ## Catalogo De Componentes
@@ -131,72 +131,80 @@ import { UiHomeLogin } from 'jona-ui/pages/UiHomeLogin';
 
 | Componente | Uso |
 | --- | --- |
-| `AvatarAtom` | Avatar con imagen, fallback e iniciales |
-| `BadgeAtom` | Indicadores de estado |
-| `ButtonAtom` | Botones con variantes, tamanos y loading |
-| `CheckboxAtom` | Checkbox accesible |
-| `ChipAtom` | Chip seleccionable o removible |
-| `ErrorMessageAtom` | Mensaje de error o ayuda |
-| `IconButtonAtom` | Boton solo icono con label accesible |
-| `InputAtom` | Input de texto con eventos normalizados |
-| `LabelAtom` | Label de formulario |
-| `LinkAtom` | Enlace con variantes visuales |
-| `PanelAtom` | Panel estructural para superficies y contenedores |
-| `ProgressAtom` | Barra de progreso |
-| `RadioAtom` | Radio input base |
-| `RatingAtom` | Selector o indicador de calificacion |
-| `SelectAtom` | Select nativo |
-| `SeparatorAtom` | Separador horizontal o vertical |
-| `SkeletonAtom` | Placeholder de carga |
-| `SpinnerAtom` | Indicador de carga |
-| `SwitchAtom` | Toggle booleano |
-| `TextareaAtom` | Campo multilinea |
-| `TextAtom` | Texto polimorfico |
-| `ToastAtom` | Unidad visual de notificacion |
+| `JAvatar` | Avatar con imagen, fallback e iniciales |
+| `JBadge` | Indicadores de estado |
+| `JButton` | Botones con variantes, tamanos y loading |
+| `JCheckBox` | Checkbox accesible |
+| `JChip` | Chip seleccionable o removible |
+| `JLabel` | Mensaje de error o ayuda |
+| `JIcon` | Boton solo icono con label accesible |
+| `JTextBox` | Input de texto con eventos normalizados |
+| `JLabel` | Label de formulario |
+| `JLabel` | Enlace con variantes visuales |
+| `JPanel` | Panel estructural para superficies y contenedores |
+| `JProgress` | Barra de progreso |
+| `JRadioButton` | Radio input base |
+| `JComboBox` | Select nativo |
+| `JSeparator` | Separador horizontal o vertical |
+| `JSkeleton` | Placeholder de carga |
+| `JSpinner` | Indicador de carga |
+| `JSwitch` | Toggle booleano |
+| `JTextArea` | Campo multilinea |
+| `JLabel` | Texto polimorfico |
 
 ### Molecules
 
 | Componente | Uso |
 | --- | --- |
-| `AccordionMolecule` | Secciones expandibles |
-| `AlertMolecule` | Mensajes contextuales |
-| `BreadcrumbMolecule` | Navegacion jerarquica |
-| `CardMolecule` | Contenedor con header, content y footer |
-| `CheckboxFieldMolecule` | Checkbox con label y descripcion |
-| `ComboboxMolecule` | Combobox con busqueda y seleccion |
-| `ConfirmDialogMolecule` | Dialogo de confirmacion |
-| `DataTableMolecule` | Tabla de datos con columnas configurables |
-| `DatePickerMolecule` | Selector de fecha |
-| `DialogMolecule` | Modal con portal |
-| `DrawerMolecule` | Panel lateral con portal |
-| `DropdownMolecule` | Menu desplegable |
-| `EmptyStateMolecule` | Estado vacio con acciones |
-| `FileUploadMolecule` | Dropzone/input de archivos con lista seleccionada |
-| `FormFieldMolecule` | Campo con label, ayuda y error |
-| `MultiSelectMolecule` | Selector multiple con busqueda |
-| `NumberInputMolecule` | Entrada numerica con stepper, min y max |
-| `PaginationMolecule` | Navegacion paginada |
-| `PopoverMolecule` | Contenido flotante anclado a un trigger |
-| `RadioGroupMolecule` | Grupo de opciones radio |
-| `SearchInputMolecule` | Busqueda con clear, loading y submit por Enter |
-| `SelectFieldMolecule` | Select con label, ayuda y error |
-| `SkeletonPresets` | Presets de skeleton |
-| `StatCardMolecule` | Metrica compacta para dashboards |
-| `StepperMolecule` | Indicador de progreso por pasos |
-| `SwitchFieldMolecule` | Switch con label y descripcion |
-| `TableMolecule` | Tabla componible |
-| `TabsMolecule` | Navegacion por tabs |
-| `TimerMolecule` | Temporizador visual |
-| `TooltipMolecule` | Tooltip con portal |
-| `UserAvatarMolecule` | Avatar con metadata de usuario |
+| `JAccordion` | Secciones expandibles |
+| `JAlert` | Mensajes contextuales |
+| `JBreadcrumb` | Navegacion jerarquica |
+| `JCard` | Contenedor con header, content y footer |
+| `JCheckBoxField` | Checkbox con label y descripcion |
+| `JCombobox` | JCombobox con busqueda y seleccion |
+| `JContactMethodCard` | Medio de contacto con icono, texto y accion |
+| `JOptionPane` | Dialogo de confirmacion |
+| `JDataTable` | Tabla de datos con columnas configurables |
+| `JDatePicker` | Selector de fecha |
+| `JDialog` | Modal con portal |
+| `JDrawer` | Panel lateral con portal |
+| `JDropdown` | Menu desplegable |
+| `JEmptyState` | Estado vacio con acciones |
+| `JFaqItem` | Pregunta frecuente expandible |
+| `JFileUpload` | Dropzone/input de archivos con lista seleccionada |
+| `JFormField` | Campo con label, ayuda y error |
+| `JMetricCard` | Metrica destacada para landing o reportes |
+| `JMultiSelect` | Selector multiple con busqueda |
+| `JNumberedStep` | Paso numerado con titulo y descripcion |
+| `JNumberInput` | Entrada numerica con stepper, min y max |
+| `JPagination` | Navegacion paginada |
+| `JPopover` | Contenido flotante anclado a un trigger |
+| `JProgressItem` | Metrica con porcentaje y barra de progreso |
+| `JRadioGroup` | Grupo de opciones radio |
+| `JRating` | Selector o indicador de calificacion |
+| `JRelatedItem` | Enlace relacionado con descripcion |
+| `JSearchInput` | Busqueda con clear, loading y submit por Enter |
+| `JSectionHeading` | Encabezado de seccion con eyebrow y descripcion |
+| `JSelectField` | Select con label, ayuda y error |
+| `JServiceCard` | Tarjeta de servicio con icono y accion |
+| `JSkeletonPresets` | Presets de skeleton |
+| `JStatCard` | Metrica compacta para dashboards |
+| `JStepper` | Indicador de progreso por pasos |
+| `JSwitchField` | Switch con label y descripcion |
+| `JTable` | Tabla componible |
+| `JTabs` | Navegacion por tabs |
+| `JTimer` | Temporizador visual |
+| `JToast` | Unidad visual de notificacion |
+| `JTooltip` | Tooltip con portal |
+| `JUserAvatar` | Avatar con metadata de usuario |
 
 ### Layouts, Organisms Y Pages
 
 | Tipo | Exports |
 | --- | --- |
-| Layouts | `BorderLayout`, `FlowLayout`, `BoxLayout`, `GridLayout`, `CardLayout`, `GridBagLayout`, `GroupLayout`, `SpringLayout`, `SidebarLayout` |
-| Organisms | `LoginOrganism`, `RecoverPasswordOrganism`, `CreateAccountOrganism`, `ErrorPageOrganism`, `HeaderPageOrganism`, `FooterPageOrganism` |
-| Pages | `UiHomeLogin`, `UiHomeRecoverPassword`, `UiHomeCreateAccount`, `UiHomeError` |
+| Layouts | `JBorderLayout`, `JFlowLayout`, `JBoxLayout`, `JGridLayout`, `JCardLayout`, `JGridBagLayout`, `JGroupLayout`, `JSpringLayout`, `JSidebarLayout` |
+| Organisms | `JMarketingHero`, `JMetricsBand`, `JContactMethods`, `JContactSteps`, `JDetailHero`, `JDetailCTA`, `JSiteFooter`, `JMarketingCTA`, `JLogin`, `JRecoverPassword`, `JCreateAccount`, `JErrorPage`, `JHeaderPage`, `JFooterPage` |
+| Pages | `JHomeLogin`, `JHomeRecoverPassword`, `JHomeCreateAccount`, `JHomeError` |
 
 ### Hooks Y Tema
 
@@ -227,7 +235,7 @@ La idea es separar el contrato de uso, la logica de adaptacion y la vista. Esto 
 Los eventos siguen una variante Observer: el componente entrega el valor ya normalizado y, cuando aplica, el evento original.
 
 ```tsx
-<InputAtom
+<JTextBox
   value={email}
   onChange={(value, event) => setEmail(value)}
   onEnterPress={(value) => submit(value)}

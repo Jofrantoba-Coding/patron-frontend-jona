@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime"),t=require("../../lib/cn.cjs"),a=require("../../atoms/JPanel/JPanelImpl.cjs"),n=require("../../atoms/JLabel/JLabelImpl.cjs"),l=({value:r,label:i,className:s})=>e.jsxs(a.JPanelImpl,{variant:"ghost",padding:"none",radius:"none",className:t.cn("metric-item",s),children:[e.jsx(n.JLabelImpl,{as:"strong",children:r}),e.jsx(n.JLabelImpl,{as:"span",children:i})]});exports.JMetricCardView=l;
+//# sourceMappingURL=JMetricCardView.cjs.map

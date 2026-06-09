@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const p=require("react/jsx-runtime"),u=require("react"),r=require("./InterChipAtom.cjs"),A=require("./ChipAtomView.cjs"),s=({selected:t,onClick:e,...n})=>{const[o,c]=u.useState(t??r.CHIP_ATOM_DEFAULTS.selected),i=t??o,l=m=>{c(!i),e==null||e(m)};return p.jsx(A.ChipAtomView,{...r.CHIP_ATOM_DEFAULTS,...n,selected:i,onClick:l})};s.displayName="ChipAtom";exports.ChipAtomImpl=s;
-//# sourceMappingURL=ChipAtomImpl.cjs.map

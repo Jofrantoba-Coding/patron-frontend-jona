@@ -1,14 +1,14 @@
 import React from 'react';
 
 export type JLabelVariant =
-  | 'body'          // texto de cuerpo (TextAtom default)
+  | 'body'          // texto de cuerpo (JLabel default)
   | 'heading'       // título, usa con as="h1-h6"
-  | 'label'         // etiqueta de formulario (LabelAtom)
-  | 'link'          // enlace primario (LinkAtom default)
+  | 'label'         // etiqueta de formulario (JLabel)
+  | 'link'          // enlace primario (JLabel default)
   | 'link-muted'    // enlace neutro
   | 'link-button'   // enlace con apariencia de botón
   | 'link-danger'   // enlace de peligro
-  | 'error'         // mensaje de error, role="alert" (ErrorMessageAtom)
+  | 'error'         // mensaje de error, role="alert" (JLabel)
   | 'description';  // texto descriptivo auxiliar
 
 export type JLabelSize = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl';
@@ -41,7 +41,7 @@ export interface InterJLabel extends Omit<React.HTMLAttributes<HTMLElement>, 'co
   target?: string;
   rel?: string;
 
-  // Compatibilidad ErrorMessageAtom — se usa como children si no hay children
+  // Compatibilidad JLabel — se usa como children si no hay children
   message?: string;
 
   // Estado

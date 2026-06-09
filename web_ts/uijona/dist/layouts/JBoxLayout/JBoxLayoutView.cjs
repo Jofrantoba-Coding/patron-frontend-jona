@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("react/jsx-runtime"),u=require("react"),i=require("../../lib/cn.cjs"),n=require("../../atoms/JPanel/JPanelImpl.cjs"),e=u.forwardRef(({children:o,className:t,...a},l)=>r.jsx(n.JPanelImpl,{ref:l,layout:"box",className:i.cn("w-full max-w-full min-w-0",t),...a,children:o}));e.displayName="JBoxLayoutView";exports.JBoxLayoutView=e;
+//# sourceMappingURL=JBoxLayoutView.cjs.map

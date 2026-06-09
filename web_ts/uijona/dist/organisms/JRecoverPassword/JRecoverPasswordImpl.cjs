@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const a=require("react/jsx-runtime"),n=require("react"),c=require("./InterJRecoverPassword.cjs"),l=require("./JRecoverPasswordView.cjs"),m=e=>{const t={...c.JRECOVER_PASSWORD_DEFAULTS,...e},[r,s]=n.useState(""),o=e.email!==void 0?e.email:r,i=e.setEmail??s;return a.jsx(l.JRecoverPasswordView,{...t,email:o,setEmail:i})};exports.JRecoverPasswordImpl=m;
+//# sourceMappingURL=JRecoverPasswordImpl.cjs.map

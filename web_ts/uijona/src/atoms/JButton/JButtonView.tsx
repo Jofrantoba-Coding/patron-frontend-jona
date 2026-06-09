@@ -71,12 +71,13 @@ export const JButtonView: React.FC<JButtonViewProps> = ({
         variantClasses[variant],
         sizeClasses[size],
         isIconOnly && 'gap-0',
+        fullWidth && 'w-full',
         className
       )}
       {...rest}
     >
       {hasIcon && (
-        <span className="jbutton-icon" aria-hidden="true">
+        <span className="jbutton-icon" aria-hidden={loading ? undefined : true}>
           {activeIcon}
         </span>
       )}

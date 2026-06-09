@@ -103,9 +103,9 @@ export const JLabelView: React.FC<JLabelViewProps> = ({
         rel: target === '_blank' ? (rel ?? 'noopener noreferrer') : rel,
         'aria-disabled': disabled || undefined,
         tabIndex: disabled ? -1 : undefined,
-        onClick: disabled
-          ? (e: React.MouseEvent) => e.preventDefault()
-          : undefined,
+        ...(disabled
+          ? { onClick: (e: React.MouseEvent) => e.preventDefault() }
+          : {}),
       }
     : {};
 
@@ -121,10 +121,10 @@ export const JLabelView: React.FC<JLabelViewProps> = ({
       className={classes}
       style={style}
       data-jlabel-variant={variant}
+      {...rest}
       {...alertProps}
       {...labelProps}
       {...linkProps}
-      {...rest}
     >
       {content}
       {(isLabel || variant === 'label') && required && (

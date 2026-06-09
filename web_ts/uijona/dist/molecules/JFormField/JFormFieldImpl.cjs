@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const u=require("react/jsx-runtime"),R=require("react"),p=require("./InterJFormField.cjs"),q=require("./JFormFieldView.cjs"),c=R.forwardRef(({onBlur:r,onInvalid:t,onValid:e,errorMessage:F,...m},i)=>{const o={...p.JFORMFIELD_DEFAULTS,...m},J=!!F,f=(s,d)=>{r==null||r(s,d),J?t==null||t(s,F??""):e==null||e(s)};return u.jsx(q.JFormFieldView,{...o,errorMessage:F,onBlur:f,onValid:e,forwardedRef:i})});c.displayName="JFormField";exports.JFormFieldImpl=c;
+//# sourceMappingURL=JFormFieldImpl.cjs.map

@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const o=require("react/jsx-runtime"),u=require("react"),i=require("../../lib/cn.cjs"),n=require("../../atoms/JPanel/JPanelImpl.cjs"),e=u.forwardRef(({children:a,className:r,...t},l)=>o.jsx(n.JPanelImpl,{ref:l,layout:"card",className:i.cn("w-full max-w-full min-w-0",r),...t,children:a}));e.displayName="CardLayoutView";exports.CardLayoutView=e;
-//# sourceMappingURL=CardLayoutView.cjs.map

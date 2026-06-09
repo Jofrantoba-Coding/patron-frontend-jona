@@ -1,3 +1,7 @@
 import React from 'react';
 import { InterJPanel } from './InterJPanel';
-export declare const JPanelView: React.ForwardRefExoticComponent<InterJPanel & React.RefAttributes<HTMLElement>>;
+type JPanelViewProps = InterJPanel & Omit<React.HTMLAttributes<HTMLElement>, 'className' | 'style' | 'children'> & {
+    forwardedRef?: React.Ref<HTMLElement>;
+};
+export declare const JPanelView: React.FC<JPanelViewProps>;
+export {};

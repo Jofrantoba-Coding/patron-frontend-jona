@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const a=require("react/jsx-runtime"),l=require("react"),o=require("../../lib/cn.cjs"),u=require("../../atoms/JPanel/JPanelImpl.cjs"),e=l.forwardRef(({children:r,className:i,...n},t)=>a.jsx(u.JPanelImpl,{ref:t,layout:"spring",className:o.cn("w-full max-w-full min-w-0",i),...n,children:r}));e.displayName="SpringLayoutView";exports.SpringLayoutView=e;
-//# sourceMappingURL=SpringLayoutView.cjs.map

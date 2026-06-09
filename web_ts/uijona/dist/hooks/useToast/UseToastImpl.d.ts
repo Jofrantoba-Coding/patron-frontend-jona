@@ -1,8 +1,11 @@
 import React from 'react';
+import { JToastPosition } from '../../molecules/JToast';
 import { InterUseToast } from './InterUseToast';
-export declare const ToastProvider: React.FC<{
+interface ToastProviderProps {
     children: React.ReactNode;
-}>;
+    position?: JToastPosition;
+}
+export declare const ToastProvider: React.FC<ToastProviderProps>;
 export declare function useToast(): InterUseToast;
 export declare function useToastHelpers(): {
     success: (message: string, title?: string) => void;
@@ -10,3 +13,4 @@ export declare function useToastHelpers(): {
     warning: (message: string, title?: string) => void;
     info: (message: string, title?: string) => void;
 };
+export {};

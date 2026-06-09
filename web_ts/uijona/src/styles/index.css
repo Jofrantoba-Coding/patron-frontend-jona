@@ -917,7 +917,7 @@
   100% { background-position: -200% 0; }
 }
 
-/* ── MetricsBandOrganism ────────────────────────────────────────────────────── */
+/* ── JMetricsBand ────────────────────────────────────────────────────── */
 .metrics-section {
   background: var(--dk, #0a0f1e);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -954,7 +954,7 @@
   line-height: 1.5;
 }
 
-/* ── ContactMethodCardMolecule ──────────────────────────────────────────────── */
+/* ── JContactMethodCard ──────────────────────────────────────────────── */
 .contact-methods-section {
   padding: 72px 0;
   background: var(--white, #ffffff);
@@ -1028,7 +1028,7 @@
   text-decoration: none;
 }
 
-/* ── ContactStepsOrganism ───────────────────────────────────────────────────── */
+/* ── JContactSteps ───────────────────────────────────────────────────── */
 .contact-steps-section {
   padding: 72px 0;
   background: var(--surface, #f9fafb);
@@ -1042,7 +1042,7 @@
   max-width: 720px;
 }
 
-/* ── NumberedStepMolecule ───────────────────────────────────────────────────── */
+/* ── JNumberedStep ───────────────────────────────────────────────────── */
 .contact-step {
   display: flex;
   gap: 20px;
@@ -1087,7 +1087,7 @@
   line-height: 1.65;
 }
 
-/* ── SiteFooterOrganism ─────────────────────────────────────────────────────── */
+/* ── JSiteFooter ─────────────────────────────────────────────────────── */
 .site-footer {
   display: flex;
   align-items: center;
@@ -1122,7 +1122,7 @@
   text-decoration: none;
 }
 
-/* ── DetailHeroOrganism ─────────────────────────────────────────────────────── */
+/* ── JDetailHero ─────────────────────────────────────────────────────── */
 .detail-hero {
   background: var(--dk, #0a0f1e);
   padding: 60px 0 64px;
@@ -1209,7 +1209,7 @@
   text-decoration: none;
 }
 
-/* ── DetailCTAOrganism ──────────────────────────────────────────────────────── */
+/* ── JDetailCTA ──────────────────────────────────────────────────────── */
 .detail-cta-section {
   background: var(--dk, #0a0f1e);
   padding: 72px 0;
@@ -1254,7 +1254,7 @@
 }
 
 
-/* ── FaqItemMolecule ────────────────────────────────────────────────────────── */
+/* ── JFaqItem ────────────────────────────────────────────────────────── */
 .detail-faq-item {
   padding: 20px 24px;
   border: 1px solid var(--border, #e5e7eb);
@@ -1277,7 +1277,7 @@
   line-height: 1.7;
 }
 
-/* ── RelatedItemMolecule ────────────────────────────────────────────────────── */
+/* ── JRelatedItem ────────────────────────────────────────────────────── */
 .detail-related-card {
   display: flex;
   flex-direction: column;

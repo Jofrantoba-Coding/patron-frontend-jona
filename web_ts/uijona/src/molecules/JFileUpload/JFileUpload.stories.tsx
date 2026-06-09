@@ -14,7 +14,7 @@ const meta: Meta<typeof JFileUpload> = {
     docs: {
       description: {
         component:
-          'JFileUpload es el componente de carga de archivos de JONA. Soporta arrastrar y soltar (drag & drop), selección múltiple, filtros por tipo de archivo (`accept`), límite de archivos (`maxFiles`) y modo controlado/no controlado. Los archivos rechazados se notifican vía `onReject`. Reemplaza a `FileUploadMolecule`.',
+          'JFileUpload es el componente de carga de archivos de JONA. Soporta arrastrar y soltar (drag & drop), selección múltiple, filtros por tipo de archivo (`accept`), límite de archivos (`maxFiles`) y modo controlado/no controlado. Los archivos rechazados se notifican vía `onReject`. Reemplaza a `JFileUpload`.',
       },
     },
   },

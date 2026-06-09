@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const s=require("react/jsx-runtime"),c=require("react"),d=require("./InterJRadioGroup.cjs"),p=require("./JRadioGroupView.cjs"),u=o=>{const e={...d.JRADIO_GROUP_DEFAULTS,...o},[n,r]=c.useState(e.defaultValue),i=e.value??n,l=a=>{var t;e.value===void 0&&r(a.value),(t=e.onValueChange)==null||t.call(e,a.value,a)};return s.jsx(p.JRadioGroupView,{...e,selectedValue:i,onOptionChange:l})};u.displayName="JRadioGroup";exports.JRadioGroupImpl=u;
+//# sourceMappingURL=JRadioGroupImpl.cjs.map

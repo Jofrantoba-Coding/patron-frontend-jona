@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./SpringLayout/InterSpringLayout.cjs"),e=require("./SpringLayout/SpringLayoutImpl.cjs"),t=require("./SpringLayout/SpringLayoutView.cjs");exports.SPRING_LAYOUT_DEFAULTS=r.SPRING_LAYOUT_DEFAULTS;exports.SpringLayout=e.SpringLayoutImpl;exports.SpringLayoutView=t.SpringLayoutView;
-//# sourceMappingURL=SpringLayout.cjs.map

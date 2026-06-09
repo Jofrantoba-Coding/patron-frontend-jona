@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const c=require("react/jsx-runtime"),s=require("react"),a=require("../JButton/JButtonImpl.cjs"),e=s.forwardRef(({icon:o,label:n,variant:i="ghost",loading:t,...r},u)=>c.jsx(a.JButtonImpl,{ref:u,type:"button",size:"icon",variant:i,loading:t,"aria-label":n,...r,children:!t&&o}));e.displayName="IconButtonAtomView";exports.IconButtonAtomView=e;
-//# sourceMappingURL=IconButtonAtomView.cjs.map

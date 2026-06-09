@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const A=require("./JTextArea/InterJTextArea.cjs"),T=require("./JTextArea/JTextAreaImpl.cjs");exports.JTEXTAREA_DEFAULTS=A.JTEXTAREA_DEFAULTS;exports.JTEXTAREA_RESIZES=A.JTEXTAREA_RESIZES;exports.JTEXTAREA_SIZES=A.JTEXTAREA_SIZES;exports.JTEXTAREA_VARIANTS=A.JTEXTAREA_VARIANTS;exports.JTextArea=T.JTextAreaImpl;
+//# sourceMappingURL=JTextArea.cjs.map

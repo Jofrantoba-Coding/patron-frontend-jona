@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const n=require("react/jsx-runtime"),r=require("react"),c=require("./InterIconButtonAtom.cjs"),u=require("./IconButtonAtomView.cjs"),t=r.forwardRef((o,e)=>n.jsx(u.IconButtonAtomView,{...c.ICON_BUTTON_ATOM_DEFAULTS,...o,ref:e}));t.displayName="IconButtonAtom";exports.IconButtonAtomImpl=t;
-//# sourceMappingURL=IconButtonAtomImpl.cjs.map

@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const I=require("./JImagen/InterJImagen.cjs"),e=require("./JImagen/JImagenImpl.cjs");exports.JIMAGEN_ASPECT_RATIOS=I.JIMAGEN_ASPECT_RATIOS;exports.JIMAGEN_DEFAULTS=I.JIMAGEN_DEFAULTS;exports.JIMAGEN_FITS=I.JIMAGEN_FITS;exports.JIMAGEN_RADII=I.JIMAGEN_RADII;exports.JImagen=e.JImagenImpl;
+//# sourceMappingURL=JImagen.cjs.map

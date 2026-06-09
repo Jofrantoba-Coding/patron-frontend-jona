@@ -1,0 +1,27 @@
+const e = {
+  hasError: !1,
+  autoResize: !1,
+  resize: "both",
+  disabled: !1,
+  size: "md",
+  variant: "default"
+}, o = {
+  none: "resize-none",
+  vertical: "resize-y",
+  horizontal: "resize-x",
+  both: "resize"
+}, t = {
+  sm: "min-h-[60px]  text-xs  px-2 py-1.5 — pequeño",
+  md: "min-h-[80px]  text-sm  px-3 py-2   — mediano (default)",
+  lg: "min-h-[100px] text-base px-4 py-2.5 — grande"
+}, s = {
+  default: "Fondo blanco, borde neutral.",
+  filled: "Fondo neutro claro, borde suave."
+};
+export {
+  e as JTEXTAREA_DEFAULTS,
+  o as JTEXTAREA_RESIZES,
+  t as JTEXTAREA_SIZES,
+  s as JTEXTAREA_VARIANTS
+};
+//# sourceMappingURL=InterJTextArea.js.map

@@ -115,20 +115,23 @@ export const JAccordionView: React.FC<JAccordionViewProps> = ({
             id={panelId}
             role="region"
             aria-labelledby={buttonId}
+            aria-hidden={!open}
             style={{
               display: 'grid',
               gridTemplateRows: open ? '1fr' : '0fr',
               transition: 'grid-template-rows 200ms ease',
             }}
           >
-            <div className="overflow-hidden">
-              <div
-                style={{ ...contentStyle, ...item.contentStyle }}
-                className={cn('text-neutral-600', CONTENT_SIZE[size], contentClassName, item.contentClassName)}
-              >
-                {item.content}
+            {open && (
+              <div className="overflow-hidden">
+                <div
+                  style={{ ...contentStyle, ...item.contentStyle }}
+                  className={cn('text-neutral-600', CONTENT_SIZE[size], contentClassName, item.contentClassName)}
+                >
+                  {item.content}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </JPanel>
       );

@@ -15,7 +15,7 @@ const meta: Meta<typeof JOptionPane> = {
     docs: {
       description: {
         component:
-          'JOptionPane es el diálogo de confirmación de JONA, inspirado en `javax.swing.JOptionPane`. Presenta al usuario una pregunta con un ícono semántico (`danger`, `warning`, `info`) y dos acciones: confirmar o cancelar. Se renderiza en portal sobre `document.body`, cierra con ESC o clic en overlay (ambos disparan `onCancel`). Soporta estado de carga mientras se procesa la acción. Reemplaza a `ConfirmDialogMolecule`.',
+          'JOptionPane es el diálogo de confirmación de JONA, inspirado en `javax.swing.JOptionPane`. Presenta al usuario una pregunta con un ícono semántico (`danger`, `warning`, `info`) y dos acciones: confirmar o cancelar. Se renderiza en portal sobre `document.body`, cierra con ESC o clic en overlay (ambos disparan `onCancel`). Soporta estado de carga mientras se procesa la acción. Reemplaza a `JOptionPane`.',
       },
     },
   },

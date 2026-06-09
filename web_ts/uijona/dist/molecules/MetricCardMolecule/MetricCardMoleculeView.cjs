@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime"),s=require("../../lib/cn.cjs"),c=require("../../atoms/JPanel/JPanelImpl.cjs"),t=require("../../atoms/TextAtom/TextAtomImpl.cjs"),l=({value:n,label:r,className:i})=>e.jsxs(c.JPanelImpl,{variant:"ghost",padding:"none",radius:"none",className:s.cn("metric-item",i),children:[e.jsx(t.TextAtomImpl,{as:"strong",children:n}),e.jsx(t.TextAtomImpl,{as:"span",children:r})]});exports.MetricCardMoleculeView=l;
-//# sourceMappingURL=MetricCardMoleculeView.cjs.map

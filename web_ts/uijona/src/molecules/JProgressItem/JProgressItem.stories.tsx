@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { JProgressItem, JPROGRESS_ITEM_DEFAULTS } from './JProgressItem';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 import { JLabel } from '../../atoms/JLabel';
@@ -12,7 +12,7 @@ const meta: Meta<typeof JProgressItem> = {
     docs: {
       description: {
         component:
-          'JProgressItem muestra un ítem de beneficio o métrica con etiqueta descriptiva, porcentaje textual y barra de progreso coherentes entre sí. El valor numérico (`value`) determina tanto el texto porcentual como el llenado de la barra, eliminando la desincronía de escribir el porcentaje en el texto. Reemplaza a `BenefitItemMolecule`.',
+          'JProgressItem muestra un ítem de beneficio o métrica con etiqueta descriptiva, porcentaje textual y barra de progreso coherentes entre sí. El valor numérico (`value`) determina tanto el texto porcentual como el llenado de la barra, eliminando la desincronía de escribir el porcentaje en el texto. Reemplaza a `JProgressItem`.',
       },
     },
   },
@@ -125,7 +125,7 @@ export const BenefitList: Story = {
   name: 'Lista de beneficios',
   parameters: {
     docs: {
-      description: { story: 'Caso de uso principal: lista de métricas de beneficio con valores coherentes entre texto y barra. Reemplaza el patrón de viñeta de `BenefitItemMolecule`.' },
+      description: { story: 'Caso de uso principal: lista de métricas de beneficio con valores coherentes entre texto y barra. Reemplaza el patrón de viñeta de `JProgressItem`.' },
     },
   },
   render: () => (

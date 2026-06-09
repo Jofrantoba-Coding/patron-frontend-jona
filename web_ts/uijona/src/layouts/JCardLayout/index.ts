@@ -1,1 +1,1 @@
-export * from './CardLayout';
+﻿export * from './JCardLayout';

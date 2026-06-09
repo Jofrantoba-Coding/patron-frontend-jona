@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("react/jsx-runtime"),u=require("react"),a=require("./InterGridLayout.cjs"),d=require("./GridLayoutView.cjs"),i=u.forwardRef((t,o)=>{const e={...a.GRID_LAYOUT_DEFAULTS,...t};return t.columns!==void 0&&t.autoFitMin===void 0&&(e.autoFitMin=void 0),r.jsx(d.GridLayoutView,{ref:o,...e})});i.displayName="GridLayout";exports.GridLayoutImpl=i;
-//# sourceMappingURL=GridLayoutImpl.cjs.map

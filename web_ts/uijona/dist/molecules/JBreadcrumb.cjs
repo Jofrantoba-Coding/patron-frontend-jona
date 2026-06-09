@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./JBreadcrumb/JBreadcrumbImpl.cjs");exports.JBreadcrumb=r.JBreadcrumbImpl;exports.JBreadcrumbEllipsis=r.BreadcrumbEllipsisImpl;exports.JBreadcrumbItem=r.BreadcrumbItemImpl;exports.JBreadcrumbLink=r.BreadcrumbLinkImpl;exports.JBreadcrumbList=r.BreadcrumbListImpl;exports.JBreadcrumbPage=r.BreadcrumbPageImpl;exports.JBreadcrumbSeparator=r.BreadcrumbSeparatorImpl;
+//# sourceMappingURL=JBreadcrumb.cjs.map

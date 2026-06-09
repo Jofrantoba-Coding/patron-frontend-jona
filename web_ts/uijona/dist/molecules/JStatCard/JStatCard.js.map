@@ -1,0 +1,1 @@
+{"version":3,"file":"JStatCard.js","sources":["../../../src/molecules/JStatCard/JStatCard.tsx"],"sourcesContent":["import { JStatCardImpl } from './JStatCardImpl';\n\nexport const JStatCard = JStatCardImpl;\n"],"names":["JStatCard","JStatCardImpl"],"mappings":";AAEO,MAAMA,IAAYC;"}

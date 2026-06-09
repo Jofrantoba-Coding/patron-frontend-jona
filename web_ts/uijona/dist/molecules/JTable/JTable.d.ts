@@ -1,0 +1,2 @@
+export { JTableImpl as JTable, TableCaptionImpl as JTableCaption, TableHeaderImpl as JTableHeader, TableBodyImpl as JTableBody, TableFooterImpl as JTableFooter, TableRowImpl as JTableRow, TableHeadImpl as JTableHead, TableCellImpl as JTableCell, } from './JTableImpl';
+export type { InterTableHeadProps, InterJTable, JTablePaginationConfig, JTableResponsiveMode, JTableSortDirection, JTableColumnDef, JTableColumnGroup, JTableColumnsConfig, } from './InterJTable';

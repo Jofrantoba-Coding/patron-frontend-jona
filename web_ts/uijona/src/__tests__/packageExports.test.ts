@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+﻿import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as {
@@ -17,9 +17,25 @@ describe('package exports', () => {
   });
 
   it('does not expose component names removed from the atom layer', () => {
-    expect(packageJson.exports).not.toHaveProperty('./atoms/EyebrowAtom');
-    expect(packageJson.exports).not.toHaveProperty('./atoms/SectionShellAtom');
-    expect(packageJson.exports).not.toHaveProperty('./atoms/RatingAtom');
-    expect(packageJson.exports).not.toHaveProperty('./atoms/ToastAtom');
+    expect(packageJson.exports).not.toHaveProperty('./atoms/JEyebrow');
+    expect(packageJson.exports).not.toHaveProperty('./atoms/JSectionShell');
+    expect(packageJson.exports).not.toHaveProperty('./atoms/JRating');
+    expect(packageJson.exports).not.toHaveProperty('./atoms/JToast');
+  });
+
+  it('does not expose legacy component subpaths without the J prefix', () => {
+    const exportSubpaths = Object.keys(packageJson.exports);
+    const legacyLayerNames = exportSubpaths.filter((subpath) =>
+      /(?:Atom|Molecule|Organism|UiHome)/.test(subpath),
+    );
+    const publicComponentSubpaths = exportSubpaths.filter((subpath) =>
+      /^\.\/(?:atoms|molecules|layouts|organisms|pages)\//.test(subpath),
+    );
+    const unprefixedComponents = publicComponentSubpaths.filter((subpath) =>
+      !/^\.\/(?:atoms|molecules|layouts|organisms|pages)\/J[A-Z]/.test(subpath),
+    );
+
+    expect(legacyLayerNames).toEqual([]);
+    expect(unprefixedComponents).toEqual([]);
   });
 });

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+﻿import type { Meta, StoryObj } from '@storybook/react';
 import { JLabel } from './JLabel';
 import { JLABEL_DEFAULTS, JLABEL_VARIANTS, JLABEL_SIZES, JLABEL_COLORS } from './InterJLabel';
 
@@ -11,7 +11,7 @@ const meta: Meta<typeof JLabel> = {
     docs: {
       description: {
         component:
-          'JLabel es el atom de texto unificado de JONA. Reemplaza TextAtom, LabelAtom, LinkAtom, ErrorMessageAtom y DescriptionAtom en una sola interfaz. El elemento HTML se infiere del `variant` salvo que se pase `as` explícitamente. Los variantes `error` y `description` no renderizan nada si no tienen contenido.',
+          'JLabel es el atom de texto unificado de JONA. Reemplaza JLabel, JLabel, JLabel, JLabel y JDescription en una sola interfaz. El elemento HTML se infiere del `variant` salvo que se pase `as` explícitamente. Los variantes `error` y `description` no renderizan nada si no tienen contenido.',
       },
     },
   },

@@ -58,7 +58,7 @@ const meta: Meta<typeof JAccordion> = {
     docs: {
       description: {
         component:
-          'JAccordion es el componente de acordeón de JONA. Soporta modo controlado y no controlado, apertura múltiple simultánea, 3 variantes visuales, 3 tamaños e íconos por ítem. La animación de apertura usa `grid-template-rows` para transición suave sin dependencias externas. Reemplaza a `AccordionMolecule` con mayor flexibilidad visual y mejor API.',
+          'JAccordion es el componente de acordeón de JONA. Soporta modo controlado y no controlado, apertura múltiple simultánea, 3 variantes visuales, 3 tamaños e íconos por ítem. La animación de apertura usa `grid-template-rows` para transición suave sin dependencias externas. Reemplaza a `JAccordion` con mayor flexibilidad visual y mejor API.',
       },
     },
   },

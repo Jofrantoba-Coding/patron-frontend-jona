@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const m=require("react/jsx-runtime"),t=require("react"),u=require("./InterJLogin.cjs"),w=require("./JLoginView.cjs"),g=e=>{const s={...u.JLOGIN_DEFAULTS,...e},[n,i]=t.useState(""),[o,a]=t.useState(""),r=e.email!==void 0?e.email:n,l=e.password!==void 0?e.password:o,c=e.setEmail??i,d=e.setPassword??a;return m.jsx(w.JLoginView,{...s,email:r,password:l,setEmail:c,setPassword:d})};exports.JLoginImpl=g;
+//# sourceMappingURL=JLoginImpl.cjs.map

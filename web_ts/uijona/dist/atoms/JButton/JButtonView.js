@@ -1,6 +1,6 @@
-import { jsxs as j, jsx as n } from "react/jsx-runtime";
+import { jsxs as j, jsx as r } from "react/jsx-runtime";
 import { cn as w } from "../../lib/cn.js";
-import { SpinnerAtomImpl as I } from "../SpinnerAtom/SpinnerAtomImpl.js";
+import { JSpinnerImpl as I } from "../JSpinner/JSpinnerImpl.js";
 const N = {
   default: "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500",
   outline: "border border-neutral-300 bg-transparent text-neutral-900 hover:bg-neutral-100 focus-visible:ring-neutral-400",
@@ -16,38 +16,38 @@ const N = {
   lg: "min-h-11 px-6 py-2 text-base rounded-md",
   xl: "min-h-14 px-8 py-3 text-lg rounded-lg",
   icon: "h-9 w-9 p-0 rounded-md"
-}, A = ({
-  variant: o = "default",
-  size: s = "md",
-  iconPosition: a = "left",
-  loading: r = !1,
-  fullWidth: u = !1,
+}, k = ({
+  variant: s = "default",
+  size: a = "md",
+  iconPosition: u = "left",
+  loading: e = !1,
+  fullWidth: i = !1,
   disabled: l,
   type: d = "button",
   className: m,
   style: p,
-  children: e,
+  children: t,
   icon: b,
   onClick: c,
   onFocus: f,
-  onBlur: g,
-  onKeyDown: x,
+  onBlur: x,
+  onKeyDown: g,
   forwardedRef: v,
   ...h
 }) => {
-  const i = r ? /* @__PURE__ */ n(I, { size: "sm" }) : b, t = !!i, y = t && !e;
+  const o = e ? /* @__PURE__ */ r(I, { size: "sm" }) : b, n = !!o, y = n && !t;
   return /* @__PURE__ */ j(
     "button",
     {
       ref: v,
       type: d,
-      disabled: l || r,
+      disabled: l || e,
       onClick: c,
       onFocus: f,
-      onBlur: g,
-      onKeyDown: x,
-      "data-jbutton-icon-position": t ? a : void 0,
-      "data-jbutton-full-width": u ? "true" : void 0,
+      onBlur: x,
+      onKeyDown: g,
+      "data-jbutton-icon-position": n ? u : void 0,
+      "data-jbutton-full-width": i ? "true" : void 0,
       style: p,
       className: w(
         "jbutton",
@@ -55,20 +55,21 @@ const N = {
         "font-medium transition-colors duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         "disabled:pointer-events-none disabled:opacity-50",
-        N[o],
-        z[s],
+        N[s],
+        z[a],
         y && "gap-0",
+        i && "w-full",
         m
       ),
       ...h,
       children: [
-        t && /* @__PURE__ */ n("span", { className: "jbutton-icon", "aria-hidden": "true", children: i }),
-        e && /* @__PURE__ */ n("span", { className: "jbutton-text", children: e })
+        n && /* @__PURE__ */ r("span", { className: "jbutton-icon", "aria-hidden": e ? void 0 : !0, children: o }),
+        t && /* @__PURE__ */ r("span", { className: "jbutton-text", children: t })
       ]
     }
   );
 };
 export {
-  A as JButtonView
+  k as JButtonView
 };
 //# sourceMappingURL=JButtonView.js.map

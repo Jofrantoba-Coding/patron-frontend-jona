@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./BreadcrumbMolecule/BreadcrumbMoleculeImpl.cjs");exports.BreadcrumbEllipsis=r.BreadcrumbEllipsisImpl;exports.BreadcrumbItem=r.BreadcrumbItemImpl;exports.BreadcrumbLink=r.BreadcrumbLinkImpl;exports.BreadcrumbList=r.BreadcrumbListImpl;exports.BreadcrumbMolecule=r.BreadcrumbMoleculeImpl;exports.BreadcrumbPage=r.BreadcrumbPageImpl;exports.BreadcrumbSeparator=r.BreadcrumbSeparatorImpl;
-//# sourceMappingURL=BreadcrumbMolecule.cjs.map

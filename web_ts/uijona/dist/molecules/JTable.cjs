@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("./JTable/JTableImpl.cjs");exports.JTable=e.JTableImpl;exports.JTableBody=e.TableBodyImpl;exports.JTableCaption=e.TableCaptionImpl;exports.JTableCell=e.TableCellImpl;exports.JTableFooter=e.TableFooterImpl;exports.JTableHead=e.TableHeadImpl;exports.JTableHeader=e.TableHeaderImpl;exports.JTableRow=e.TableRowImpl;
+//# sourceMappingURL=JTable.cjs.map

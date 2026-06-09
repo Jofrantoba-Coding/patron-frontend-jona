@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react"),o=require("./InterTableMolecule.cjs"),t=e.createContext({responsiveMode:o.TABLE_MOLECULE_DEFAULTS.responsiveMode,labelsRef:{current:[]},columnFilters:{},setColumnFilter:()=>{}}),n=()=>e.useContext(t);exports.TableContext=t;exports.useTableContext=n;
-//# sourceMappingURL=TableMoleculeContext.cjs.map

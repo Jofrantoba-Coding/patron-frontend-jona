@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const l=require("react/jsx-runtime"),o=require("react"),u=require("../../lib/cn.cjs"),n=require("../../atoms/JPanel/JPanelImpl.cjs"),e=o.forwardRef(({children:r,className:i,...t},a)=>l.jsx(n.JPanelImpl,{ref:a,layout:"grid",className:u.cn("w-full max-w-full min-w-0",i),...t,children:r}));e.displayName="JGridLayoutView";exports.JGridLayoutView=e;
+//# sourceMappingURL=JGridLayoutView.cjs.map

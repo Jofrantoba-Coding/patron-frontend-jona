@@ -89,7 +89,10 @@ const wrapValues: Record<JPanelWrap, string> = {
 
 const responsiveLayouts = new Set<JPanelLayout>(['grid', 'gridbag', 'group', 'spring']);
 
-const resolveJPanelTag = (as?: React.ElementType): React.ElementType => as ?? 'div';
+const resolveJPanelTag = (as?: React.ElementType): React.ElementType => {
+  if (typeof as === 'string' && as.trim() === '') return 'div';
+  return as ?? 'div';
+};
 
 const resolveWrap = (
   wrap: boolean | JPanelWrap | undefined,
@@ -116,21 +119,25 @@ const resolveConfig = (
   base: Required<Pick<InterJPanel, 'layout' | 'direction' | 'gap' | 'alignItems' | 'justifyContent'>> &
     Pick<InterJPanel, 'wrap' | 'columns' | 'rows' | 'autoFitMin' | 'placement' | 'dense' | 'mode' | 'minHeight'>,
   override?: JPanelResponsiveConfig
-) => ({
-  layout: override?.layout ?? base.layout,
-  direction: override?.direction ?? base.direction,
-  gap: override?.gap ?? base.gap,
-  alignItems: override?.alignItems ?? base.alignItems,
-  justifyContent: override?.justifyContent ?? base.justifyContent,
-  wrap: override?.wrap ?? base.wrap,
-  columns: override?.columns ?? base.columns,
-  rows: override?.rows ?? base.rows,
-  autoFitMin: override?.autoFitMin ?? base.autoFitMin,
-  placement: override?.placement ?? base.placement,
-  dense: override?.dense ?? base.dense,
-  mode: override?.mode ?? base.mode,
-  minHeight: override?.minHeight ?? base.minHeight,
-});
+) => {
+  const layout = override?.layout ?? base.layout;
+
+  return {
+    layout,
+    direction: override?.direction ?? base.direction,
+    gap: override?.gap ?? base.gap,
+    alignItems: override?.alignItems ?? base.alignItems,
+    justifyContent: override?.justifyContent ?? base.justifyContent,
+    wrap: override?.wrap ?? base.wrap,
+    columns: override?.columns ?? base.columns,
+    rows: override?.rows ?? base.rows,
+    autoFitMin: override?.autoFitMin ?? base.autoFitMin,
+    placement: override?.placement ?? base.placement,
+    dense: override?.dense ?? base.dense ?? (layout === 'gridbag' ? true : undefined),
+    mode: override?.mode ?? base.mode,
+    minHeight: override?.minHeight ?? base.minHeight,
+  };
+};
 
 const setConfigVars = (
   style: JPanelCssVars,

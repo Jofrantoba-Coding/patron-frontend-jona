@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const i=require("react/jsx-runtime"),n=require("../../lib/cn.cjs"),s=require("./InterJSeparator.cjs"),e=({orientation:r=s.JSEPARATOR_DEFAULTS.orientation,className:a,style:t,forwardedRef:o})=>i.jsx("div",{ref:o,role:"separator","aria-orientation":r,"data-jseparator-orientation":r,style:t,className:n.cn("jseparator","bg-neutral-200 shrink-0",r==="horizontal"?"h-px w-full":"w-px h-full",a)});e.displayName="JSeparatorView";exports.JSeparatorView=e;
+//# sourceMappingURL=JSeparatorView.cjs.map
