@@ -1,8 +1,6 @@
-﻿// JMetricCardView.tsx — JONA View
+// JMetricCardView.tsx — JONA View (render puro, Tailwind autocontenido)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { JPanel } from '../../atoms/JPanel/JPanel';
-import { JLabel } from '../../atoms/JLabel';
 import { InterJMetricCard } from './InterJMetricCard';
 
 export const JMetricCardView: React.FC<InterJMetricCard> = ({
@@ -10,8 +8,15 @@ export const JMetricCardView: React.FC<InterJMetricCard> = ({
   label,
   className,
 }) => (
-  <JPanel variant="ghost" padding="none" radius="none" className={cn('metric-item', className)}>
-    <JLabel as="strong">{value}</JLabel>
-    <JLabel as="span">{label}</JLabel>
-  </JPanel>
+  <div
+    className={cn(
+      'flex min-w-0 flex-col gap-1.5 rounded-xl border border-neutral-200 bg-white p-5',
+      className,
+    )}
+  >
+    <strong className="text-2xl font-black leading-none text-neutral-900 sm:text-3xl">
+      {value}
+    </strong>
+    <span className="text-sm leading-relaxed text-neutral-500">{label}</span>
+  </div>
 );

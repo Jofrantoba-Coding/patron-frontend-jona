@@ -3,7 +3,7 @@ import { createPortal as v } from "react-dom";
 import { cn as o } from "../../lib/cn.js";
 import { JPanelImpl as a } from "../../atoms/JPanel/JPanelImpl.js";
 import { JButtonImpl as k } from "../../atoms/JButton/JButtonImpl.js";
-const m = {
+const h = {
   right: { panel: "inset-y-0 right-0 h-full flex-col", open: "translate-x-0" },
   left: { panel: "inset-y-0 left-0 h-full flex-col", open: "translate-x-0" },
   top: { panel: "inset-x-0 top-0 w-full flex-col", open: "translate-y-0" },
@@ -26,12 +26,12 @@ const m = {
   title: n,
   description: r,
   className: c,
-  children: h,
+  children: p,
   footer: d,
-  onOverlayClick: p,
-  onClose: u
+  onOverlayClick: u,
+  onClose: x
 }) => {
-  const { panel: x } = m[t], g = N[t], b = z[f][t], w = t === "left" || t === "right";
+  const { panel: g } = h[t], w = N[t], b = z[f][t], m = t === "left" || t === "right";
   return v(
     /* @__PURE__ */ l(y, { children: [
       /* @__PURE__ */ e(
@@ -41,7 +41,7 @@ const m = {
           padding: "none",
           radius: "none",
           "aria-hidden": "true",
-          onClick: p,
+          onClick: u,
           className: o(
             "fixed inset-0 z-40 bg-black/50 transition-opacity duration-300",
             i ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -60,9 +60,11 @@ const m = {
           "aria-describedby": r ? "drawer-desc" : void 0,
           className: o(
             "fixed z-50 flex bg-white shadow-xl transition-transform duration-300 ease-in-out",
-            x,
+            g,
             b,
-            i ? m[t].open : g,
+            // Nunca exceder el viewport en pantallas más estrechas/bajas que el panel
+            m ? "max-w-[85vw]" : "max-h-[85vh]",
+            i ? h[t].open : w,
             c
           ),
           children: [
@@ -71,12 +73,12 @@ const m = {
                 n && /* @__PURE__ */ e("h2", { id: "drawer-title", className: "break-words text-base font-semibold text-neutral-900", children: n }),
                 r && /* @__PURE__ */ e("p", { id: "drawer-desc", className: "break-words text-sm text-neutral-500", children: r })
               ] }),
-              s && /* @__PURE__ */ e(k, { variant: "ghost", size: "icon", onClick: u, "aria-label": "Cerrar panel", className: "shrink-0", children: /* @__PURE__ */ l("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
+              s && /* @__PURE__ */ e(k, { variant: "ghost", size: "icon", onClick: x, "aria-label": "Cerrar panel", className: "shrink-0", children: /* @__PURE__ */ l("svg", { className: "h-4 w-4", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", "aria-hidden": "true", children: [
                 /* @__PURE__ */ e("line", { x1: "18", y1: "6", x2: "6", y2: "18" }),
                 /* @__PURE__ */ e("line", { x1: "6", y1: "6", x2: "18", y2: "18" })
               ] }) })
             ] }),
-            /* @__PURE__ */ e(a, { variant: "ghost", padding: "none", radius: "none", className: o("min-h-0 flex-1 overflow-y-auto p-4 sm:p-5", !w && "overflow-x-auto"), children: h }),
+            /* @__PURE__ */ e(a, { variant: "ghost", padding: "none", radius: "none", className: o("min-h-0 flex-1 overflow-y-auto p-4 sm:p-5", !m && "overflow-x-auto"), children: p }),
             d && /* @__PURE__ */ e(a, { variant: "ghost", padding: "none", radius: "none", className: "flex shrink-0 flex-col-reverse gap-2 border-t border-neutral-200 p-4 sm:flex-row sm:justify-end sm:p-5", children: d })
           ]
         }

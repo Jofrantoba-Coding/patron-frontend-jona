@@ -24,6 +24,10 @@ export interface InterJLabel extends Omit<React.HTMLAttributes<HTMLElement>, 'co
   // Elemento HTML a renderizar (se infiere del variant si no se pasa)
   as?: JLabelAs;
 
+  // Fusiona el estilo sobre el ÚNICO hijo en vez de renderizar su propio elemento
+  // (patrón asChild). Útil para envolver <Link> de un router conservando su tipado.
+  asChild?: boolean;
+
   // Estilo semántico
   variant?: JLabelVariant;
 

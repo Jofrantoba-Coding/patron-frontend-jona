@@ -17,8 +17,8 @@ export const SkeletonUserRowView: React.FC = () => (
 export const SkeletonCardView: React.FC = () => (
   <JPanel variant="ghost" padding="none" radius="none" className="rounded-lg border border-neutral-200 p-6 space-y-4">
     <JPanel variant="ghost" padding="none" radius="none" className="space-y-2">
-      <JSkeleton className="h-4 w-40" />
-      <JSkeleton className="h-3 w-64" />
+      <JSkeleton className="h-4 w-40 max-w-full" />
+      <JSkeleton className="h-3 w-64 max-w-full" />
     </JPanel>
     <JPanel variant="ghost" padding="none" radius="none" className="space-y-2">
       <JSkeleton className="h-3 w-full" />

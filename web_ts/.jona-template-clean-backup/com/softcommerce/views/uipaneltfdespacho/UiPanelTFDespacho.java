@@ -1,0 +1,686 @@
+package com.softcommerce.views.uipaneltfdespacho;
+
+
+import com.softcommerce.formularios.*;
+import com.softcommerce.accesoDatos.DAOGeneral;
+import com.softcommerce.beans.BeanEstadoDocumento;
+import com.softcommerce.beans.ContaCab;
+import com.softcommerce.beans.Usuario;
+import com.toedter.calendar.JDateChooser;
+import javax.swing.RowFilter.ComparisonType;
+import com.toedter.calendar.JTextFieldDateEditor;
+import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import com.softcommerce.general.controles.CTable;
+import java.awt.BorderLayout;
+import javax.swing.JScrollPane;
+import javax.swing.table.TableRowSorter;
+import com.softcommerce.reglasnegocio.RnRegContaCab;
+import com.softcommerce.general.controles.PopupMenuView;
+import javax.swing.event.ListSelectionListener;
+import com.softcommerce.general.controles.JHInternalFrame;
+import com.softcommerce.general.herramientas.DateTime;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import javax.swing.JDesktopPane;
+import javax.swing.JFrame;
+import com.softcommerce.general.controles.UpperCaseNumberDocument;
+import com.softcommerce.general.controles.Register;
+import com.softcommerce.general.controles.IntegerDocument;
+import com.softcommerce.iconos.Gif;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
+import javax.swing.event.InternalFrameEvent;
+import com.softcommerce.reglasnegocio.RnEstadoDocumento;
+import com.softcommerce.general.tablas.DespachoTableModel;
+import com.softcommerce.reglasnegocio.RnMovInventarioCab;
+import com.softcommerce.util.ExportExcel;
+import com.softcommerce.util.Exportar;
+import com.softcommerce.util.FormatObject;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
+
+public class UiPanelTFDespacho 
+        extends JHInternalFrame 
+        implements InterUiPanelTFDespacho, ListSelectionListener, FocusListener, KeyListener, ActionListener, PropertyChangeListener {
+
+    private static final long serialVersionUID = 1L;
+    public CTable table;
+    public DespachoTableModel modeltable;
+    public TableRowSorter<DespachoTableModel> modeloOrdenado;
+    public JScrollPane scroll;
+    protected List<BeanEstadoDocumento> xestadoDocumento;
+    protected JComboBox cbo_idestado;
+    protected JTextField txt_despachoserie;
+    protected JTextField txt_despachopreimpreso;
+    protected JTextField txt_idmovimiento;
+    protected JTextField txt_tmpanexo;
+    protected JTextField txt_tmpruc;
+    protected JButton btn_actualizar;
+    protected JButton btn_buscar;
+    protected RegisterDespacho registeri;
+    protected JDesktopPane jdp;
+    protected Usuario usuario;
+    protected JFrame frame;
+    protected Date fechaInicio;
+    protected Date fechaFin;
+    protected JDateChooser dc_fechainicio;
+    protected JDateChooser dc_fechafin;
+    protected Gif gif;
+
+    public UiPanelTFDespacho(String title, JFrame frame, JDesktopPane jdp, Usuario usuario) {
+        super(title + " - UiPanelTFDespacho");
+        this.usuario = usuario;
+        this.frame = frame;
+        this.jdp = jdp;
+        inicialize();
+    }
+    public UiPanelTFDespacho(String title, JFrame frame, JDesktopPane jdp, Usuario usuario, List<Boolean> vPermiso) {
+        super(title, vPermiso.get(0), vPermiso.get(1), vPermiso.get(2), vPermiso.get(3), vPermiso.get(4), vPermiso.get(5), vPermiso.get(6), vPermiso.get(7), vPermiso.get(8), vPermiso.get(9), vPermiso.get(10), vPermiso.get(11), vPermiso.get(12));
+        this.usuario = usuario;
+        this.frame = frame;
+        this.jdp = jdp;
+        inicialize();
+    }
+
+    public UiPanelTFDespacho(String title, JFrame frame, JDesktopPane jdp, Usuario usuario, boolean vendedor) {
+        super(title + " - UiPanelTFDespacho", true, false, false, true, false, true, true, true, true, true, true, true, true);
+        this.usuario = usuario;
+        this.frame = frame;
+        this.jdp = jdp;
+        inicialize();
+    }
+
+    protected void inicialize() {
+        modeltable = new DespachoTableModel();
+        modeloOrdenado = new TableRowSorter(modeltable);
+        table = new CTable();
+        table.setRowSorter(modeloOrdenado);
+        table.setModel(modeltable);
+        table.setAllTableNoEditable();
+        table.setAllColumnNoResizable();
+        table.setRendererColumnZero();
+        table.setAllColumnPreferredWidth();
+        PopupMenuView popupmenu = new PopupMenuView();
+        popupmenu.setControl(this);
+        table.setComponentPopupMenu(popupmenu);
+        table.getSelectionModel().addListSelectionListener(this);
+        scroll = new JScrollPane(table);
+
+        table.setNoVisibleColumn(7);
+        table.setNoVisibleColumn(8);
+        table.setNoVisibleColumn(9);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    controlDetails();
+                }
+            }
+        });
+
+        JPanel pnlaux = new JPanel();
+        pnlaux.setLayout(new BorderLayout());
+
+        JPanel panel = getPanelFilter();
+        pnlaux.add(panel, BorderLayout.PAGE_START);
+        pnlaux.add(scroll, BorderLayout.CENTER);
+
+        setTable(pnlaux);
+    }
+
+    public JPanel getPanelFilter() {
+        gif = new Gif();
+
+        addKeyListener(this);
+
+        JPanel pnlp = new JPanel();
+        pnlp.setBorder(new LineBorder(new Color(130, 135, 144)));
+        pnlp.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        JLabel lblCodigoDespacho = new JLabel("Código");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(lblCodigoDespacho, gbc);
+
+        txt_idmovimiento = new JTextField();
+        txt_idmovimiento.addKeyListener(this);
+        txt_idmovimiento.addFocusListener(this);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        txt_idmovimiento.setColumns(8);
+        pnlp.add(txt_idmovimiento, gbc);
+
+        JLabel lblSerie = new JLabel("N° Despacho");
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(lblSerie, gbc);
+
+        txt_despachoserie = new JTextField();
+        txt_despachoserie.addKeyListener(this);
+        txt_despachoserie.setFont(new Font(Font.SANS_SERIF, 0, 11));
+        txt_despachoserie.addFocusListener(this);
+        FormatObject.formatJTextFieldSerie(txt_despachoserie);
+        txt_despachoserie.setForeground(Color.BLACK);
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        txt_despachoserie.setColumns(3);
+        pnlp.add(txt_despachoserie, gbc);
+
+        txt_despachopreimpreso = new JTextField();
+        txt_despachopreimpreso.addKeyListener(this);
+        txt_despachopreimpreso.setFont(new Font(Font.SANS_SERIF, 0, 11));
+        txt_despachopreimpreso.addFocusListener(this);
+        txt_despachopreimpreso.setDocument(new IntegerDocument(10));
+        txt_despachopreimpreso.setForeground(Color.BLACK);
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        txt_despachopreimpreso.setColumns(10);
+        pnlp.add(txt_despachopreimpreso, gbc);
+
+        btn_buscar = new JButton("F5", gif.SEARCH16);
+        btn_buscar.setMnemonic('B');
+        btn_buscar.setIconTextGap(10);
+        btn_buscar.setToolTipText("Buscar");
+        btn_buscar.setHorizontalAlignment(SwingConstants.LEFT);
+        btn_buscar.setContentAreaFilled(true);
+        btn_buscar.setBorderPainted(true);
+        btn_buscar.setFocusable(true);
+        btn_buscar.setFocusPainted(false);
+        btn_buscar.addFocusListener(this);
+        btn_buscar.addActionListener(this);
+        btn_buscar.addKeyListener(this);
+        btn_buscar.registerKeyboardAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), JComponent.WHEN_FOCUSED);
+        gbc.gridx = 5;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(this.btn_buscar);
+
+        JLabel lbl_familia = new JLabel("Estado");
+        gbc.gridx = 6;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(lbl_familia, gbc);
+
+        cbo_idestado = new JComboBox();
+        cbo_idestado.addActionListener(this);
+        cbo_idestado.addKeyListener(this);
+        gbc.gridx = 7;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(cbo_idestado, gbc);
+
+        btn_actualizar = new JButton("Actualizar Doc Venta", gif.MODIFY16);
+        btn_actualizar.setOpaque(false);
+        btn_actualizar.setIconTextGap(10);
+        btn_actualizar.setToolTipText("MODIFICAR ALMACENES DE LOS DOCUMENTOS DE VENTA");
+        btn_actualizar.setHorizontalAlignment(SwingConstants.LEFT);
+        btn_actualizar.setContentAreaFilled(true);
+        btn_actualizar.setBorderPainted(true);
+
+        JLabel lblRazonSocial = new JLabel("R Social");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(lblRazonSocial, gbc);
+
+        txt_tmpanexo = new JTextField();
+        txt_tmpanexo.addKeyListener(this);
+        txt_tmpanexo.setDocument(new UpperCaseNumberDocument(250));
+        txt_tmpanexo.addFocusListener(this);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 4;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(txt_tmpanexo, gbc);
+
+        JLabel lbl_RucCliente = new JLabel("RUC/DNI");
+        gbc.gridx = 5;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(lbl_RucCliente, gbc);
+
+        txt_tmpruc = new JTextField();
+        txt_tmpruc.addFocusListener(this);
+        txt_tmpruc.addKeyListener(this);
+        gbc.gridx = 6;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(txt_tmpruc, gbc);
+        JPanel panelFlow = new JPanel();
+        FlowLayout flow = new FlowLayout(FlowLayout.LEFT);
+        panelFlow.setLayout(flow);
+        JLabel lblFechaInicio = new JLabel("Fec Inicio");
+        lblFechaInicio.setDisplayedMnemonic('c');
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 8;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlp.add(panelFlow, gbc);
+        panelFlow.add(lblFechaInicio);
+        dc_fechainicio = new JDateChooser("dd/MM/yyyy", "##/##/####", '_');
+        dc_fechainicio.getJCalendar().addFocusListener(this);
+        dc_fechainicio.getJCalendar().addKeyListener(this);
+        dc_fechainicio.getCalendarButton().addActionListener(this);
+        dc_fechainicio.addPropertyChangeListener(this);
+        dc_fechainicio.addKeyListener(this);
+        dc_fechainicio.addFocusListener(this);
+        ((JTextField) dc_fechainicio.getDateEditor()).registerKeyboardAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((JTextFieldDateEditor) dc_fechafin.getDateEditor()).requestFocus();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), JComponent.WHEN_FOCUSED);
+        ((JTextField) dc_fechainicio.getDateEditor()).registerKeyboardAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dc_fechainicio.getCalendarButton().doClick();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), JComponent.WHEN_FOCUSED);
+        panelFlow.add(dc_fechainicio);
+
+        JLabel lblFechaFin = new JLabel("Fec Fin");
+        lblFechaFin.setDisplayedMnemonic('a');
+        panelFlow.add(lblFechaFin);
+
+        dc_fechafin = new JDateChooser("dd/MM/yyyy", "##/##/####", '_');
+        dc_fechafin.getJCalendar().addFocusListener(this);
+        dc_fechafin.getJCalendar().addKeyListener(this);
+        dc_fechafin.getCalendarButton().addActionListener(this);
+        dc_fechafin.addPropertyChangeListener(this);
+        dc_fechafin.addKeyListener(this);
+        dc_fechafin.addFocusListener(this);
+        ((JTextField) dc_fechafin.getDateEditor()).registerKeyboardAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dc_fechafin.getCalendarButton().doClick();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false), JComponent.WHEN_FOCUSED);
+        panelFlow.add(dc_fechafin);
+        return pnlp;
+    }
+    
+    @Override
+    public void controlReport(boolean export) {
+    }
+
+    public void filtrar() {
+    }
+
+    @Override
+    public void setFecha(Date fechaInicio, Date fechaFin) {
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        dc_fechainicio.setSelectableDateRange(fechaInicio, fechaFin);
+        dc_fechafin.setSelectableDateRange(fechaInicio, fechaFin);
+        dc_fechainicio.setDate(fechaInicio);
+        dc_fechafin.setDate(fechaFin);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if (e.getKeyChar() != '\n') {
+            if ((e.getSource() == txt_idmovimiento)
+                    || (e.getSource() == txt_tmpanexo)
+                    || (e.getSource() == txt_tmpruc)
+                    || (e.getSource() == txt_despachoserie)
+                    || (e.getSource() == txt_despachopreimpreso)) {
+                filtrar();
+            }
+        }
+    }
+
+    public RowFilter<Object, Object> getFilter() {
+        return null;
+    }
+
+    @Override
+    public void cargarFiltro() {
+    }
+
+    public void loadEstadoDocumento() {
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+        if (e.getSource() == txt_idmovimiento) {
+            txt_idmovimiento.selectAll();
+        }
+
+        if (e.getSource() == txt_tmpanexo) {
+            txt_tmpanexo.selectAll();
+        }
+
+        if (e.getSource() == txt_tmpruc) {
+            txt_tmpruc.selectAll();
+        }
+
+        if (e.getSource() == txt_despachoserie) {
+            txt_despachoserie.selectAll();
+        }
+
+        if (e.getSource() == txt_despachopreimpreso) {
+            txt_despachopreimpreso.selectAll();
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btn_buscar) {
+            BuscarSalidasEntradas b = new BuscarSalidasEntradas(frame, this, usuario, path);
+            b.mostrar();
+        }
+
+        if (e.getSource() == btn_actualizar) {
+            ActualizarAlmacenes b = new ActualizarAlmacenes(frame, this, usuario, path);
+            b.mostrar();
+        }
+
+        if (e.getSource() == dc_fechainicio.getCalendarButton()) {
+            dc_fechainicio.setSelectableDateRange(fechaInicio, dc_fechafin.getDate());
+        }
+
+        if (e.getSource() == dc_fechafin.getCalendarButton()) {
+            dc_fechafin.setSelectableDateRange(dc_fechainicio.getDate(), fechaFin);
+        }
+
+        if (e.getSource() == cbo_idestado) {
+            if (cbo_idestado.getItemCount() > 0) {
+                if (cbo_idestado.getSelectedIndex() >= 0) {
+                    filtrar();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void controlPrint(boolean view) {
+    }
+
+    @Override
+    public void controlAdd() {
+    }
+
+    @Override
+    public void controlModify() {
+    }
+
+    @Override
+    public void controlNullify() {
+    }
+
+    @Override
+    public void controlEliminate() {
+    }
+
+    @Override
+    public void controlDetails() {
+    }
+
+    @Override
+    public void controlClone() {
+    }
+
+    @Override
+    public void controlClose() {
+    }
+
+    @Override
+    public void controlRefresh() {
+    }
+
+    @Override
+    public Object getSelectedValue(int column) {
+        return null;
+    }
+
+    @Override
+    public void setSelectedRow(int row) {
+        if (row >= 0) {
+            table.setRowSelectionInterval(row, row);
+            setScrollValueView(row);
+        }
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+            refresh();
+        }
+    }
+
+    @Override
+    public int getSelectedRow() {
+        return table.getSelectedRow();
+    }
+
+    @Override
+    public void selectNextRow() {
+        if (table.getRowCount() > 0) {
+            if (table.getSelectedRow() < table.getRowCount() - 1) {
+                int row = table.getSelectedRow() + 1;
+                table.setRowSelectionInterval(row, row);
+                setScrollValueView(row);
+            }
+        }
+    }
+
+    @Override
+    public void selectPreviusRow() {
+        if (table.getRowCount() > 0) {
+            if (table.getSelectedRow() > 0) {
+                int row = table.getSelectedRow() - 1;
+                table.setRowSelectionInterval(row, row);
+                setScrollValueView(row);
+            }
+        }
+    }
+
+    @Override
+    public void selectLastRow() {
+        if (table.getRowCount() > 0) {
+            int rowCount = table.getRowCount() - 1;
+            table.setRowSelectionInterval(rowCount, rowCount);
+            setScrollValueView(rowCount);
+        }
+    }
+
+    @Override
+    public void selectFirstRow() {
+        if (table.getRowCount() > 0) {
+            table.setRowSelectionInterval(0, 0);
+            setScrollValueView(0);
+        }
+    }
+
+    public void setScrollValueView(int row) {
+        scroll.getVerticalScrollBar().setValue(table.getRowHeight() * row);
+    }
+
+    @Override
+    public int getRowCount() {
+        return table.getRowCount();
+    }
+
+    @Override
+    public void cargarTabla() {
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
+        if (e.getSource() == txt_idmovimiento && txt_idmovimiento.getText().trim().length() > 0) {
+            String serie = "0000000000" + txt_idmovimiento.getText().trim();
+            String nuevaserie = serie.substring(serie.length() - 10, serie.length());
+
+            txt_idmovimiento.setText(nuevaserie);
+
+            filtrar();
+        }
+        if (e.getSource().equals(txt_despachoserie)) {
+            FormatObject.formatSerie((JTextField) e.getSource());
+            filtrar();
+        }
+        if (e.getSource() == txt_despachopreimpreso && txt_despachopreimpreso.getText().trim().length() > 0) {
+            String serie = "0000000000" + txt_despachopreimpreso.getText().trim();
+            String nuevaserie = serie.substring(serie.length() - 10, serie.length());
+
+            txt_despachopreimpreso.setText(nuevaserie);
+
+            filtrar();
+        }
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyChar() == '\n') {
+            if (e.getSource() == txt_idmovimiento) {
+                txt_despachoserie.requestFocus();
+            }
+
+            if (e.getSource() == txt_despachoserie) {
+                txt_despachopreimpreso.requestFocus();
+            }
+
+            if (e.getSource() == txt_despachopreimpreso) {
+                cbo_idestado.requestFocus();
+            }
+
+            if (e.getSource() == cbo_idestado) {
+                txt_tmpanexo.requestFocus();
+            }
+
+            if (e.getSource() == txt_tmpanexo) {
+                txt_tmpruc.requestFocus();
+            }
+
+            if (e.getSource() == txt_tmpruc) {
+                ((JTextFieldDateEditor) dc_fechainicio.getDateEditor()).requestFocus();
+            }
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ((evt.getSource() == dc_fechainicio)
+                || (evt.getSource() == dc_fechafin)) {
+            filtrar();
+        }
+    }
+
+    @Override
+    public void internalFrameClosing(InternalFrameEvent e) {
+        jdp.updateUI();
+
+        if (registeri == e.getSource()) {
+            registeri.dispose();
+            registeri = null;
+        }
+
+        jdp.updateUI();
+
+        System.gc();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void refreshTitleName() {
+    }
+
+    @Override
+    public void setSelectedRow(String clave, int column) {
+    }
+
+    @Override
+    public Object getSelectedValue(String column) {
+        return null;
+    }
+
+    @Override
+    public void controlSearch() {
+    }
+
+    @Override
+    public void setValueSearch(Object valor, Component comp) {
+    }
+
+    @Override
+    public void selectFirstPage() {
+    }
+
+    @Override
+    public void selectPreviusPage() {
+    }
+
+    @Override
+    public void selectNextPage() {
+    }
+
+    @Override
+    public void selectLastPage() {
+    }
+
+    @Override
+    public int getSelectedPage() {
+        return 0;
+    }
+
+    @Override
+    public int getPageCount() {
+        return 0;
+    }
+}

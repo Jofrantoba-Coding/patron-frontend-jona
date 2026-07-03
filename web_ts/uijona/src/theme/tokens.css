@@ -25,6 +25,18 @@
   --jona-primary-800: 30  64  175;
   --jona-primary-900: 30  58  138;
 
+  /* ── Accent (secundario de marca, por defecto violeta) ─ */
+  --jona-accent-50:  245 243 255;
+  --jona-accent-100: 237 233 254;
+  --jona-accent-200: 221 214 254;
+  --jona-accent-300: 196 181 253;
+  --jona-accent-400: 167 139 250;
+  --jona-accent-500: 139 92  246;
+  --jona-accent-600: 124 58  237;
+  --jona-accent-700: 109 40  217;
+  --jona-accent-800: 91  33  182;
+  --jona-accent-900: 76  29  149;
+
   /* ── Neutral ─────────────────────────────────────────── */
   --jona-neutral-50:  248 250 252;
   --jona-neutral-100: 241 245 249;

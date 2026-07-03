@@ -1,18 +1,16 @@
-import { jsxs as c, jsx as e } from "react/jsx-runtime";
-import { cn as m } from "../../lib/cn.js";
-import { JPanelImpl as r } from "../../atoms/JPanel/JPanelImpl.js";
-import { JLabelImpl as a } from "../../atoms/JLabel/JLabelImpl.js";
-const h = ({
-  eyebrow: n,
-  heading: i,
-  description: s,
-  className: o
-}) => /* @__PURE__ */ c(r, { variant: "ghost", padding: "none", radius: "none", className: m("section-heading", o), children: [
-  n && /* @__PURE__ */ e(a, { as: "span", className: "eyebrow", children: n }),
-  /* @__PURE__ */ e(a, { as: "h2", className: "section-title", children: i }),
-  s && /* @__PURE__ */ e(a, { className: "section-copy", children: s })
+import { jsxs as x, jsx as e } from "react/jsx-runtime";
+import { cn as i } from "../../lib/cn.js";
+const c = ({
+  eyebrow: t,
+  heading: l,
+  description: a,
+  className: s
+}) => /* @__PURE__ */ x("div", { className: i("flex min-w-0 flex-col gap-2", s), children: [
+  t && /* @__PURE__ */ e("span", { className: "text-xs font-semibold uppercase tracking-wide text-primary-600", children: t }),
+  /* @__PURE__ */ e("h2", { className: "text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl", children: l }),
+  a && /* @__PURE__ */ e("p", { className: "max-w-prose text-base leading-relaxed text-neutral-600", children: a })
 ] });
 export {
-  h as JSectionHeadingView
+  c as JSectionHeadingView
 };
 //# sourceMappingURL=JSectionHeadingView.js.map

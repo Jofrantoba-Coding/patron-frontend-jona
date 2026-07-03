@@ -277,7 +277,9 @@ const getJPanelDiagnostics = (
 };
 
 const logJPanelDiagnostics = (diagnostics: string[]) => {
-  if (import.meta.env.PROD || diagnostics.length === 0) return;
+  // Acceso tolerante a import.meta.env para no acoplar el tipado del consumidor a Vite
+  const isProd = Boolean((import.meta as { env?: { PROD?: boolean } }).env?.PROD);
+  if (isProd || diagnostics.length === 0) return;
   diagnostics.forEach((message) => console.log(message));
 };
 

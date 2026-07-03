@@ -1,37 +1,26 @@
-import { jsx as o, jsxs as r } from "react/jsx-runtime";
-import { cn as c } from "../../lib/cn.js";
-import { JPanelImpl as t } from "../../atoms/JPanel/JPanelImpl.js";
-import { JSectionHeadingImpl as d } from "../../molecules/JSectionHeading/JSectionHeadingImpl.js";
-import { JNumberedStepImpl as l } from "../../molecules/JNumberedStep/JNumberedStepImpl.js";
-const N = ({
-  eyebrow: e,
-  heading: a,
-  steps: i,
-  as: s = "section",
-  className: m
-}) => /* @__PURE__ */ o(
-  t,
-  {
-    as: s,
-    variant: "ghost",
-    padding: "none",
-    radius: "none",
-    className: c("contact-steps-section", m),
-    children: /* @__PURE__ */ r(t, { variant: "ghost", padding: "none", radius: "none", className: "section-shell", children: [
-      /* @__PURE__ */ o(d, { eyebrow: e, heading: a, className: "mb-10" }),
-      /* @__PURE__ */ o(t, { variant: "ghost", padding: "none", radius: "none", className: "contact-steps-list", children: i.map((n) => /* @__PURE__ */ o(
-        l,
-        {
-          num: n.num,
-          title: n.title,
-          body: n.body
-        },
-        n.num
-      )) })
-    ] })
-  }
-);
+import { jsx as e, jsxs as n } from "react/jsx-runtime";
+import { cn as i } from "../../lib/cn.js";
+import { JSectionHeadingImpl as c } from "../../molecules/JSectionHeading/JSectionHeadingImpl.js";
+import { JNumberedStepImpl as s } from "../../molecules/JNumberedStep/JNumberedStepImpl.js";
+const b = ({
+  eyebrow: l,
+  heading: r,
+  steps: o,
+  as: t = "section",
+  className: a
+}) => /* @__PURE__ */ e(t, { className: i("w-full border-t border-neutral-200 bg-neutral-50 py-16 sm:py-20", a), children: /* @__PURE__ */ n("div", { className: "mx-auto w-full max-w-3xl px-4 sm:px-6", children: [
+  /* @__PURE__ */ e(c, { eyebrow: l, heading: r, className: "mb-10" }),
+  /* @__PURE__ */ e("div", { className: "flex flex-col gap-4", children: o.map((m) => /* @__PURE__ */ e(
+    s,
+    {
+      num: m.num,
+      title: m.title,
+      body: m.body
+    },
+    m.num
+  )) })
+] }) });
 export {
-  N as JContactStepsView
+  b as JContactStepsView
 };
 //# sourceMappingURL=JContactStepsView.js.map

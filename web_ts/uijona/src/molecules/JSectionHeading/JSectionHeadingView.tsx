@@ -1,8 +1,6 @@
-﻿// JSectionHeadingView.tsx — JONA View
+// JSectionHeadingView.tsx — JONA View (render puro, Tailwind autocontenido)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { JPanel } from '../../atoms/JPanel/JPanel';
-import { JLabel } from '../../atoms/JLabel';
 import { InterJSectionHeading } from './InterJSectionHeading';
 
 export const JSectionHeadingView: React.FC<InterJSectionHeading> = ({
@@ -11,13 +9,19 @@ export const JSectionHeadingView: React.FC<InterJSectionHeading> = ({
   description,
   className,
 }) => (
-  <JPanel variant="ghost" padding="none" radius="none" className={cn('section-heading', className)}>
+  <div className={cn('flex min-w-0 flex-col gap-2', className)}>
     {eyebrow && (
-      <JLabel as="span" className="eyebrow">{eyebrow}</JLabel>
+      <span className="text-xs font-semibold uppercase tracking-wide text-primary-600">
+        {eyebrow}
+      </span>
     )}
-    <JLabel as="h2" className="section-title">{heading}</JLabel>
+    <h2 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
+      {heading}
+    </h2>
     {description && (
-      <JLabel className="section-copy">{description}</JLabel>
+      <p className="max-w-prose text-base leading-relaxed text-neutral-600">
+        {description}
+      </p>
     )}
-  </JPanel>
+  </div>
 );

@@ -1,0 +1,85 @@
+package com.softcommerce.views.uipnlcancclientegroup;
+
+import com.softcommerce.beans.BeanAnexo;
+import com.softcommerce.beans.BeanBanco;
+import com.softcommerce.beans.BeanClasifBanco;
+import com.softcommerce.beans.BeanCxPGroup;
+import com.softcommerce.beans.BeanEmpresaCuenta;
+import com.softcommerce.beans.BeanMedioPago;
+import com.softcommerce.beans.BeanMoneda;
+import com.softcommerce.beans.BeanTipoDocVenta;
+import com.softcommerce.beans.Usuario;
+import com.softcommerce.conta.formularios.FormBuscarAnexo;
+import com.softcommerce.conta.formularios.FormBuscarTipoDocVenta;
+import com.softcommerce.enums.TipoAnexoEnum;
+import com.softcommerce.formularios.*;
+import com.softcommerce.general.controles.ComponentTitledBorder;
+import com.softcommerce.general.controles.CTableGui;
+import com.softcommerce.general.controles.IntegerDocument;
+import com.softcommerce.general.controles.UpperCaseNumberDocument;
+import com.softcommerce.general.herramientas.DateTime;
+import com.softcommerce.general.tablas.TableModelCxPGroup;
+import com.softcommerce.iconos.Gif;
+import com.softcommerce.reglasnegocio.RnAnexo;
+import com.softcommerce.reglasnegocio.RnBanco;
+import com.softcommerce.reglasnegocio.RnClasifBanco;
+import com.softcommerce.reglasnegocio.RnCliente;
+import com.softcommerce.reglasnegocio.RnConsultas;
+import com.softcommerce.reglasnegocio.RnEmpresaCuenta;
+import com.softcommerce.reglasnegocio.RnMedioPago;
+import com.softcommerce.reglasnegocio.RnMoneda;
+import com.softcommerce.reglasnegocio.RnTipoDocVenta;
+import com.softcommerce.util.ExceptionHandler;
+import com.softcommerce.util.FormatObject;
+import com.toedter.calendar.JDateChooser;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.net.URL;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import javax.swing.BorderFactory;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import org.apache.log4j.Logger;
+
+public class UiPnlCancClienteGroupImpl extends UiPnlCancClienteGroup {
+
+    public UiPnlCancClienteGroupImpl(String title, java.net.URL path, Main frm, Usuario usuario) {
+        super(title, path, frm, usuario);
+    }
+}

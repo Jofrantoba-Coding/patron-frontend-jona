@@ -1,8 +1,6 @@
-﻿// JSiteFooterView.tsx — JONA View
+// JSiteFooterView.tsx — JONA View (render puro, Tailwind autocontenido + responsive)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { JPanel } from '../../atoms/JPanel/JPanel';
-import { JLabel } from '../../atoms/JLabel';
 import { InterJSiteFooter } from './InterJSiteFooter';
 
 export const JSiteFooterView: React.FC<InterJSiteFooter> = ({
@@ -10,20 +8,23 @@ export const JSiteFooterView: React.FC<InterJSiteFooter> = ({
   links,
   className,
 }) => (
-  <JPanel
-    as="footer"
-    variant="ghost"
-    padding="none"
-    radius="none"
-    className={cn('site-footer', className)}
+  <footer
+    className={cn(
+      'mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 border-t border-neutral-200 px-4 py-7 text-sm text-neutral-500',
+      className,
+    )}
   >
-    <JLabel as="span">{copyright}</JLabel>
-    <JPanel variant="ghost" padding="none" radius="none" className="site-footer-links">
+    <span>{copyright}</span>
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
       {links.map((link) => (
-        <JLabel variant="link" key={link.href} href={link.href} className="footer-link">
+        <a
+          key={link.href}
+          href={link.href}
+          className="font-medium text-neutral-500 no-underline transition-colors hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        >
           {link.label}
-        </JLabel>
+        </a>
       ))}
-    </JPanel>
-  </JPanel>
+    </div>
+  </footer>
 );

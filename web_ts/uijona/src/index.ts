@@ -17,6 +17,8 @@ export * from './atoms/JLabel';
 export * from './atoms/JIcon';
 export * from './atoms/JChip';
 export * from './atoms/JSeparator';
+export * from './atoms/JDot';
+export * from './atoms/JGlyph';
 export * from './atoms/JProgress';
 export * from './atoms/JSkeleton';
 // Molecules
@@ -61,6 +63,7 @@ export * from './molecules/JDataTable';
 export * from './molecules/JTimer';
 export * from './molecules/JToast';
 export * from './molecules/JRating';
+export * from './molecules/JLanguageSwitcher';
 
 // Layouts
 export * from './layouts/JBorderLayout';
@@ -74,6 +77,11 @@ export * from './layouts/JSpringLayout';
 export * from './layouts/JSidebarLayout';
 
 // Organisms
+export * from './organisms/JHeroDynamic';
+export * from './organisms/JCaseStudies';
+export * from './organisms/JDashboardPreview';
+export * from './organisms/JNavbar';
+export * from './organisms/JLogoMarquee';
 export * from './organisms/JMarketingHero';
 export * from './organisms/JMetricsBand';
 export * from './organisms/JContactMethods';

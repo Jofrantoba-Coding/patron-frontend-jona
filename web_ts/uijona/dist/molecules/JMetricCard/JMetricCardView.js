@@ -1,16 +1,23 @@
-import { jsxs as m, jsx as r } from "react/jsx-runtime";
+import { jsxs as n, jsx as e } from "react/jsx-runtime";
 import { cn as a } from "../../lib/cn.js";
-import { JPanelImpl as s } from "../../atoms/JPanel/JPanelImpl.js";
-import { JLabelImpl as i } from "../../atoms/JLabel/JLabelImpl.js";
-const d = ({
-  value: n,
-  label: o,
-  className: e
-}) => /* @__PURE__ */ m(s, { variant: "ghost", padding: "none", radius: "none", className: a("metric-item", e), children: [
-  /* @__PURE__ */ r(i, { as: "strong", children: n }),
-  /* @__PURE__ */ r(i, { as: "span", children: o })
-] });
+const o = ({
+  value: t,
+  label: r,
+  className: l
+}) => /* @__PURE__ */ n(
+  "div",
+  {
+    className: a(
+      "flex min-w-0 flex-col gap-1.5 rounded-xl border border-neutral-200 bg-white p-5",
+      l
+    ),
+    children: [
+      /* @__PURE__ */ e("strong", { className: "text-2xl font-black leading-none text-neutral-900 sm:text-3xl", children: t }),
+      /* @__PURE__ */ e("span", { className: "text-sm leading-relaxed text-neutral-500", children: r })
+    ]
+  }
+);
 export {
-  d as JMetricCardView
+  o as JMetricCardView
 };
 //# sourceMappingURL=JMetricCardView.js.map

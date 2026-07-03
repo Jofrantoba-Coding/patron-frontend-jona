@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type JButtonVariant = 'default' | 'outline' | 'ghost' | 'destructive' | 'secondary' | 'link';
+export type JButtonVariant = 'default' | 'outline' | 'ghost' | 'destructive' | 'secondary' | 'link' | 'accent';
 export type JButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon' | 'default';
 export type JButtonIconPosition = 'left' | 'right' | 'top' | 'bottom';
 
@@ -14,6 +14,13 @@ export interface InterJButton {
   disabled?: boolean;
   loading?: boolean;
   type?: 'button' | 'submit' | 'reset';
+  // Cuando se define href, el botón se renderiza como <a> (link con estilo de botón)
+  href?: string;
+  target?: string;
+  rel?: string;
+  // Fusiona el estilo de botón sobre el ÚNICO hijo (patrón asChild).
+  // Útil para envolver <Link> de un router conservando su tipado y la navegación SPA.
+  asChild?: boolean;
   className?: string;
   style?: React.CSSProperties;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -38,6 +45,7 @@ export const JBUTTON_VARIANTS: Record<JButtonVariant, string> = {
   destructive: 'Rojo. Acciones destructivas.',
   secondary:   'Neutral. Acciones complementarias.',
   link:        'Solo texto subrayado. Navegación inline.',
+  accent:      'Filled. Color de acento (secundario de marca).',
 };
 
 export const JBUTTON_SIZES: Record<JButtonSize, string> = {

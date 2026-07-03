@@ -1,16 +1,23 @@
-import { jsxs as o, jsx as a } from "react/jsx-runtime";
-import { cn as s } from "../../lib/cn.js";
-import { JPanelImpl as t } from "../../atoms/JPanel/JPanelImpl.js";
-import { JLabelImpl as e } from "../../atoms/JLabel/JLabelImpl.js";
-const p = ({
-  question: i,
-  answer: m,
-  className: r
-}) => /* @__PURE__ */ o(t, { variant: "ghost", padding: "none", radius: "none", className: s("detail-faq-item", r), children: [
-  /* @__PURE__ */ a(e, { as: "strong", className: "detail-faq-q", children: i }),
-  /* @__PURE__ */ a(e, { className: "detail-faq-a", children: m })
-] });
+import { jsxs as a, jsx as e } from "react/jsx-runtime";
+import { cn as n } from "../../lib/cn.js";
+const d = ({
+  question: r,
+  answer: t,
+  className: l
+}) => /* @__PURE__ */ a(
+  "div",
+  {
+    className: n(
+      "rounded-xl border border-neutral-200 bg-neutral-50 p-6",
+      l
+    ),
+    children: [
+      /* @__PURE__ */ e("strong", { className: "mb-2 block text-base font-bold text-neutral-900", children: r }),
+      /* @__PURE__ */ e("p", { className: "text-sm leading-relaxed text-neutral-600", children: t })
+    ]
+  }
+);
 export {
-  p as JFaqItemView
+  d as JFaqItemView
 };
 //# sourceMappingURL=JFaqItemView.js.map

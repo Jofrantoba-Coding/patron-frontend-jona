@@ -1,35 +1,23 @@
-import { jsx as a } from "react/jsx-runtime";
-import { cn as e } from "../../lib/cn.js";
-import { JPanelImpl as n } from "../../atoms/JPanel/JPanelImpl.js";
-import { JContactMethodCardImpl as c } from "../../molecules/JContactMethodCard/JContactMethodCardImpl.js";
-import { JGridLayoutImpl as s } from "../../layouts/JGridLayout/JGridLayoutImpl.js";
-const h = ({
-  methods: o,
-  as: r = "section",
-  className: t
-}) => /* @__PURE__ */ a(
+import { jsx as i } from "react/jsx-runtime";
+import { cn as c } from "../../lib/cn.js";
+import { JContactMethodCardImpl as n } from "../../molecules/JContactMethodCard/JContactMethodCardImpl.js";
+const p = ({
+  methods: r,
+  as: l = "section",
+  className: e
+}) => /* @__PURE__ */ i(l, { className: c("w-full bg-white py-16 sm:py-20", e), children: /* @__PURE__ */ i("div", { className: "mx-auto w-full max-w-6xl px-4 sm:px-6", children: /* @__PURE__ */ i("div", { className: "grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))]", children: r.map((a) => /* @__PURE__ */ i(
   n,
   {
-    as: r,
-    variant: "ghost",
-    padding: "none",
-    radius: "none",
-    className: e("contact-methods-section", t),
-    children: /* @__PURE__ */ a(n, { variant: "ghost", padding: "none", radius: "none", className: "section-shell", children: /* @__PURE__ */ a(s, { autoFitMin: "260px", className: "contact-methods-grid", children: o.map((i) => /* @__PURE__ */ a(
-      c,
-      {
-        icon: i.icon,
-        label: i.label,
-        description: i.description,
-        href: i.href,
-        actionLabel: i.actionLabel,
-        isPrimary: i.isPrimary
-      },
-      i.label
-    )) }) })
-  }
-);
+    icon: a.icon,
+    label: a.label,
+    description: a.description,
+    href: a.href,
+    actionLabel: a.actionLabel,
+    isPrimary: a.isPrimary
+  },
+  a.label
+)) }) }) });
 export {
-  h as JContactMethodsView
+  p as JContactMethodsView
 };
 //# sourceMappingURL=JContactMethodsView.js.map

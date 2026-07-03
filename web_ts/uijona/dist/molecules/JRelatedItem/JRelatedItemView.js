@@ -1,18 +1,28 @@
-import { jsxs as d, jsx as a } from "react/jsx-runtime";
-import { cn as m } from "../../lib/cn.js";
-import { JLabelImpl as e } from "../../atoms/JLabel/JLabelImpl.js";
-const p = ({
-  name: l,
-  outcome: r,
-  href: t,
-  linkLabel: s,
-  className: i
-}) => /* @__PURE__ */ d(e, { variant: "link", href: t, className: m("detail-related-card", i), children: [
-  /* @__PURE__ */ a(e, { as: "strong", className: "detail-related-name", children: l }),
-  /* @__PURE__ */ a(e, { className: "detail-related-outcome", children: r }),
-  /* @__PURE__ */ a(e, { as: "span", className: "detail-related-link", children: s })
-] });
+import { jsxs as o, jsx as e } from "react/jsx-runtime";
+import { cn as l } from "../../lib/cn.js";
+const m = ({
+  name: s,
+  outcome: t,
+  href: r,
+  linkLabel: i,
+  className: n
+}) => /* @__PURE__ */ o(
+  "a",
+  {
+    href: r,
+    className: l(
+      "flex min-w-0 flex-col gap-1.5 rounded-xl border border-neutral-200 bg-white p-5 no-underline transition-shadow duration-200 hover:shadow-md",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500",
+      n
+    ),
+    children: [
+      /* @__PURE__ */ e("strong", { className: "text-base font-bold text-neutral-900", children: s }),
+      /* @__PURE__ */ e("span", { className: "text-sm leading-relaxed text-neutral-500", children: t }),
+      /* @__PURE__ */ e("span", { className: "mt-1 text-sm font-semibold text-primary-600", children: i })
+    ]
+  }
+);
 export {
-  p as JRelatedItemView
+  m as JRelatedItemView
 };
 //# sourceMappingURL=JRelatedItemView.js.map

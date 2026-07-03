@@ -16,6 +16,18 @@ export default {
           800: 'rgb(var(--jona-primary-800) / <alpha-value>)',
           900: 'rgb(var(--jona-primary-900) / <alpha-value>)',
         },
+        accent: {
+          50:  'rgb(var(--jona-accent-50) / <alpha-value>)',
+          100: 'rgb(var(--jona-accent-100) / <alpha-value>)',
+          200: 'rgb(var(--jona-accent-200) / <alpha-value>)',
+          300: 'rgb(var(--jona-accent-300) / <alpha-value>)',
+          400: 'rgb(var(--jona-accent-400) / <alpha-value>)',
+          500: 'rgb(var(--jona-accent-500) / <alpha-value>)',
+          600: 'rgb(var(--jona-accent-600) / <alpha-value>)',
+          700: 'rgb(var(--jona-accent-700) / <alpha-value>)',
+          800: 'rgb(var(--jona-accent-800) / <alpha-value>)',
+          900: 'rgb(var(--jona-accent-900) / <alpha-value>)',
+        },
         neutral: {
           50:  'rgb(var(--jona-neutral-50) / <alpha-value>)',
           100: 'rgb(var(--jona-neutral-100) / <alpha-value>)',
@@ -50,6 +62,12 @@ export default {
         md:      'var(--jona-radius-md)',
         lg:      'var(--jona-radius-lg)',
         full:    'var(--jona-radius-full)',
+      },
+      keyframes: {
+        marquee: {
+          from: { transform: 'translateX(0)' },
+          to:   { transform: 'translateX(-50%)' },
+        },
       },
     },
   },

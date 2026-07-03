@@ -1,0 +1,110 @@
+package com.softcommerce.views.uiregisteritem;
+
+import com.softcommerce.beans.BeanColor;
+import com.softcommerce.beans.BeanFamilia;
+import com.softcommerce.beans.BeanItem;
+import com.softcommerce.beans.BeanMarca;
+import com.softcommerce.beans.BeanPrecioItem;
+import com.softcommerce.beans.BeanSubFamilia;
+import com.softcommerce.beans.BeanTamano;
+import com.softcommerce.beans.BeanUnidadMedida;
+import com.softcommerce.beans.CaracteristicaItemDetalle;
+import com.softcommerce.beans.ConfigItem;
+import com.softcommerce.beans.ConfigItemAlmacen;
+import com.softcommerce.beans.ConfigItemCuenta;
+import com.softcommerce.beans.ConfigItemDscto;
+import com.softcommerce.beans.ItemItem;
+import com.softcommerce.beans.ItemPercepcion;
+import com.softcommerce.beans.ItemPromocion;
+import com.softcommerce.beans.Promocion;
+import com.softcommerce.beans.Usuario;
+import com.softcommerce.entity.ClaseSunat;
+import com.softcommerce.enums.OperacionBDEnum;
+import com.softcommerce.formularios.*;
+import com.softcommerce.general.controles.CCheckBox;
+import com.softcommerce.general.controles.ComponentToolKit;
+import com.softcommerce.general.controles.CTable;
+import com.softcommerce.general.controles.DigitTextFieldCellEditor;
+import com.softcommerce.general.controles.DoubleDocument;
+import com.softcommerce.general.controles.EnumClass;
+import com.softcommerce.general.controles.IntegerDocument;
+import com.softcommerce.general.controles.JHDialog;
+import com.softcommerce.general.controles.ObjectItem;
+import com.softcommerce.general.controles.UpperCaseNumberDocument;
+import com.softcommerce.general.tablas.CaracteristicaItemDetalleTableModel;
+import com.softcommerce.general.tablas.ConfigItemAlmacenTableModel;
+import com.softcommerce.general.tablas.ConfigItemCuentaTableModel;
+import com.softcommerce.general.tablas.ConfigItemDsctoTableModel;
+import com.softcommerce.general.tablas.ConfigItemTableModel;
+import com.softcommerce.general.tablas.ItemItemTableModel;
+import com.softcommerce.general.tablas.ItemPercepcionTableModel;
+import com.softcommerce.general.tablas.ItemPromocionTableModel;
+import com.softcommerce.iconos.Gif;
+import com.softcommerce.logic.LogicParametro;
+import com.softcommerce.reglasnegocio.RnItem;
+import com.softcommerce.reglasnegocio.RnMarca;
+import com.softcommerce.reglasnegocio.RnPreciosCab;
+import com.softcommerce.reglasnegocio.RnPromocion;
+import com.softcommerce.reglasnegocio.RnTamano;
+import com.softcommerce.reglasnegocio.RnUnidadMedida;
+import com.softcommerce.util.combo.LoadCombo;
+import com.softcommerce.util.combo.LoadComboItem;
+import com.softcommerce.util.Constans;
+import com.softcommerce.util.ExceptionHandler;
+import com.softcommerce.util.LayoutUtil;
+import com.softcommerce.util.LoadDataGenerica;
+import com.softcommerce.util.render.CellRendererImageEstado;
+import com.softcommerce.util.Util;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import org.apache.log4j.Logger;
+
+public class UiRegisterItemImpl extends UiRegisterItem {
+
+    public UiRegisterItemImpl(Main frm, Usuario usuario) {
+        super(frm, usuario);
+    }
+
+    public UiRegisterItemImpl(Dialog arg0, Usuario usuario) {
+        super(arg0, usuario);
+    }
+}

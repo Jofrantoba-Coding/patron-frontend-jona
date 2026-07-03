@@ -1,6 +1,6 @@
 {
   "name": "jona-ui",
-  "version": "1.2.9",
+  "version": "1.3.0",
   "description": "JONA Design System - Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
@@ -95,6 +95,16 @@
       "import": "./dist/atoms/JSeparator.js",
       "require": "./dist/atoms/JSeparator.cjs",
       "types": "./dist/atoms/JSeparator.d.ts"
+    },
+    "./atoms/JDot": {
+      "import": "./dist/atoms/JDot.js",
+      "require": "./dist/atoms/JDot.cjs",
+      "types": "./dist/atoms/JDot.d.ts"
+    },
+    "./atoms/JGlyph": {
+      "import": "./dist/atoms/JGlyph.js",
+      "require": "./dist/atoms/JGlyph.cjs",
+      "types": "./dist/atoms/JGlyph.d.ts"
     },
     "./atoms/JProgress": {
       "import": "./dist/atoms/JProgress.js",
@@ -311,6 +321,11 @@
       "require": "./dist/molecules/JRating.cjs",
       "types": "./dist/molecules/JRating.d.ts"
     },
+    "./molecules/JLanguageSwitcher": {
+      "import": "./dist/molecules/JLanguageSwitcher.js",
+      "require": "./dist/molecules/JLanguageSwitcher.cjs",
+      "types": "./dist/molecules/JLanguageSwitcher.d.ts"
+    },
     "./layouts/JBorderLayout": {
       "import": "./dist/layouts/JBorderLayout.js",
       "require": "./dist/layouts/JBorderLayout.cjs",
@@ -355,6 +370,31 @@
       "import": "./dist/layouts/JSidebarLayout.js",
       "require": "./dist/layouts/JSidebarLayout.cjs",
       "types": "./dist/layouts/JSidebarLayout.d.ts"
+    },
+    "./organisms/JHeroDynamic": {
+      "import": "./dist/organisms/JHeroDynamic.js",
+      "require": "./dist/organisms/JHeroDynamic.cjs",
+      "types": "./dist/organisms/JHeroDynamic.d.ts"
+    },
+    "./organisms/JDashboardPreview": {
+      "import": "./dist/organisms/JDashboardPreview.js",
+      "require": "./dist/organisms/JDashboardPreview.cjs",
+      "types": "./dist/organisms/JDashboardPreview.d.ts"
+    },
+    "./organisms/JNavbar": {
+      "import": "./dist/organisms/JNavbar.js",
+      "require": "./dist/organisms/JNavbar.cjs",
+      "types": "./dist/organisms/JNavbar.d.ts"
+    },
+    "./organisms/JLogoMarquee": {
+      "import": "./dist/organisms/JLogoMarquee.js",
+      "require": "./dist/organisms/JLogoMarquee.cjs",
+      "types": "./dist/organisms/JLogoMarquee.d.ts"
+    },
+    "./organisms/JCaseStudies": {
+      "import": "./dist/organisms/JCaseStudies.js",
+      "require": "./dist/organisms/JCaseStudies.cjs",
+      "types": "./dist/organisms/JCaseStudies.d.ts"
     },
     "./organisms/JMarketingHero": {
       "import": "./dist/organisms/JMarketingHero.js",

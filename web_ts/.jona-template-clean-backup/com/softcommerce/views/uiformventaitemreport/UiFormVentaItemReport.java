@@ -1,0 +1,281 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.softcommerce.views.uiformventaitemreport;
+
+
+import com.softcommerce.gui.*;
+import com.softcommerce.comboboxmodel.ComboModelFamilia;
+import com.softcommerce.comboboxmodel.ComboModelItem;
+import com.softcommerce.comboboxmodel.ComboModelMarca;
+import com.softcommerce.entity.BeanVentaXItem;
+import com.softcommerce.entity.Item;
+import com.softcommerce.logic.LogicFamilia;
+import com.softcommerce.logic.LogicItem;
+import com.softcommerce.logic.LogicMarca;
+import com.softcommerce.logic.LogicReporte;
+import com.softcommerce.tablemodel.TableModelItem;
+import com.softcommerce.util.ExportarToExcel;
+import com.toedter.calendar.JDateChooser;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.JTextComponent;
+
+/**
+ *
+ * @author Administrador
+ */
+public class UiFormVentaItemReport extends javax.swing.JDialog  implements InterUiFormVentaItemReport {
+
+    protected JLabel lblFechaInicio;
+    protected JDateChooser dc_fechainicio;
+    protected JLabel lblFechaFin;
+    protected JDateChooser dc_fechafin;
+    protected JLabel lblFamilia;
+    protected JComboBox cboFamilia;
+    protected JLabel lblMarca;
+    protected JComboBox cboMarca;
+    protected ComboModelFamilia cboModelFamilia;
+    protected ComboModelMarca cboModelMarca;
+    protected java.net.URL path;
+    protected ComboModelItem cboModelItem;
+    protected TableModelItem modelItem;
+    protected String seleccionado = "N";
+
+    /**
+     * Creates new form UiFormVentaItemReport
+     */
+    public UiFormVentaItemReport(java.net.URL ruta) {
+        try {
+            path = ruta;
+            initComponents();
+            init();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(UiFormVentaItemReport.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+
+        } catch (InstantiationException ex) {
+            Logger.getLogger(UiFormVentaItemReport.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(UiFormVentaItemReport.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        } catch (Exception ex) {
+            Logger.getLogger(UiFormVentaItemReport.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+    }
+
+    protected void init() throws ClassNotFoundException, InstantiationException, InstantiationException, IllegalAccessException, Exception {
+    }
+    ActionListener actionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (chkSeleccionar.equals(e.getSource())) {
+                if (chkSeleccionar.isSelected()) {
+                    ArrayList<Item> array = modelItem.getData();
+                    int numeroFilas = tableData.getRowCount();
+                    for (int rownum = 0; rownum < numeroFilas; rownum++) {
+                        int modelrow = tableData.convertRowIndexToModel(rownum);
+                        array.get(modelrow).setIsSelected(true);
+                    }
+
+                    modelItem.setEditable(false);
+                    modelItem.fireTableDataChanged();
+
+                    for (int i = 0; i < array.size(); i++) {
+                        if (array.get(i).isIsSelected()) {
+                            seleccionado = "T";
+                        } else {
+                            seleccionado = "N";
+                            break;
+                        }
+                    }
+
+                } else {
+                    ArrayList<Item> array = modelItem.getData();
+                    for (int i = 0; i < array.size(); i++) {
+                        array.get(i).setIsSelected(false);
+                    }
+                    modelItem.setEditable(true);
+                    modelItem.fireTableDataChanged();
+                    seleccionado = "N";
+                }
+            }
+        }
+    };
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    protected void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableData = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
+        tlbFechas = new javax.swing.JToolBar();
+        tlbProducto = new javax.swing.JToolBar();
+        jLabel1 = new javax.swing.JLabel();
+        cboProducto = new javax.swing.JComboBox();
+        jToolBar1 = new javax.swing.JToolBar();
+        chkSeleccionar = new javax.swing.JCheckBox();
+        jPanel3 = new javax.swing.JPanel();
+        btnGenerarReporte = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        tableData.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane1.setViewportView(tableData);
+
+        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        tlbFechas.setRollover(true);
+        jPanel2.add(tlbFechas, java.awt.BorderLayout.PAGE_START);
+
+        tlbProducto.setRollover(true);
+
+        jLabel1.setText("PRODUCTO");
+        tlbProducto.add(jLabel1);
+
+        cboProducto.setEditable(true);
+        tlbProducto.add(cboProducto);
+
+        jPanel2.add(tlbProducto, java.awt.BorderLayout.CENTER);
+
+        jToolBar1.setRollover(true);
+
+        chkSeleccionar.setText("Seleccionar Todo");
+        chkSeleccionar.setFocusable(false);
+        chkSeleccionar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        chkSeleccionar.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(chkSeleccionar);
+
+        jPanel2.add(jToolBar1, java.awt.BorderLayout.PAGE_END);
+
+        getContentPane().add(jPanel2, java.awt.BorderLayout.PAGE_START);
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel3.setLayout(new java.awt.BorderLayout());
+
+        btnGenerarReporte.setText("Generar Reporte");
+        btnGenerarReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGenerarReporteActionPerformed(evt);
+            }
+        });
+        jPanel3.add(btnGenerarReporte, java.awt.BorderLayout.CENTER);
+
+        getContentPane().add(jPanel3, java.awt.BorderLayout.PAGE_END);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    protected String retornaListaSeleccionados() {
+        String dataItem = "";
+        ArrayList<Item> array = modelItem.getData();
+        for (int i = 0; i < array.size(); i++) {
+            if (array.get(i).isIsSelected()) {
+                dataItem = dataItem + array.get(i).getIdItem() + ",";
+            }
+        }
+        dataItem = dataItem.substring(0, dataItem.length() - 1);
+        System.out.println(dataItem);
+        return dataItem;
+    }
+
+    protected void btnGenerarReporteActionPerformed(java.awt.event.ActionEvent evt) {
+    }//GEN-LAST:event_btnGenerarReporteActionPerformed
+    /**
+     * @param args the command line arguments
+     */
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    protected javax.swing.JButton btnGenerarReporte;
+    protected javax.swing.JComboBox cboProducto;
+    protected javax.swing.JCheckBox chkSeleccionar;
+    protected javax.swing.JLabel jLabel1;
+    protected javax.swing.JPanel jPanel1;
+    protected javax.swing.JPanel jPanel2;
+    protected javax.swing.JPanel jPanel3;
+    protected javax.swing.JScrollPane jScrollPane1;
+    protected javax.swing.JToolBar jToolBar1;
+    protected javax.swing.JTable tableData;
+    protected javax.swing.JToolBar tlbFechas;
+    protected javax.swing.JToolBar tlbProducto;
+    // End of variables declaration//GEN-END:variables
+
+    protected void filtrarTabla(JTable tabla, TableModelItem model) {
+    }
+    KeyListener keyListener = new KeyListener() {
+        @Override
+        public void keyTyped(KeyEvent e) {
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            if (e.getSource().equals((JTextComponent) cboFamilia.getEditor().getEditorComponent())) {
+                filtrarTabla(tableData, modelItem);
+            } else if (e.getSource().equals((JTextComponent) cboMarca.getEditor().getEditorComponent())) {
+                filtrarTabla(tableData, modelItem);
+            } else if (e.getSource().equals((JTextComponent) cboProducto.getEditor().getEditorComponent())) {
+                filtrarTabla(tableData, modelItem);
+            }
+        }
+    };
+    ItemListener itemListener = new ItemListener() {
+        public void itemStateChanged(ItemEvent e) {
+            if (e.getSource().equals(cboFamilia)) {
+                cboFamilia.getEditor().setItem(cboFamilia.getSelectedItem());
+                filtrarTabla(tableData, modelItem);
+            } else if (e.getSource().equals(cboMarca)) {
+                cboMarca.getEditor().setItem(cboMarca.getSelectedItem());
+                filtrarTabla(tableData, modelItem);
+            } else if (e.getSource().equals(cboProducto)) {
+                cboProducto.getEditor().setItem(cboProducto.getSelectedItem());
+                filtrarTabla(tableData, modelItem);
+            }
+        }
+    };
+}

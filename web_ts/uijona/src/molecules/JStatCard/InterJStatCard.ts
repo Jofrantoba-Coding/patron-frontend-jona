@@ -11,6 +11,8 @@ export interface InterJStatCard extends React.HTMLAttributes<HTMLDivElement> {
   tone?: StatCardTone;
   trend?: StatCardTrend;
   trendLabel?: React.ReactNode;
+  /** Muestra el valor grande arriba y la etiqueta debajo (estilo métrica de marketing). */
+  valueFirst?: boolean;
 }
 
 export const JSTAT_CARD_DEFAULTS: Required<Pick<InterJStatCard, 'tone' | 'trend'>> = {

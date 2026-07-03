@@ -1,26 +1,31 @@
-import { jsxs as t, jsx as o } from "react/jsx-runtime";
-import { cn as l } from "../../lib/cn.js";
-import { JPanelImpl as r } from "../../atoms/JPanel/JPanelImpl.js";
-import { JLabelImpl as a } from "../../atoms/JLabel/JLabelImpl.js";
-const c = ({
-  copyright: n,
+import { jsxs as o, jsx as r } from "react/jsx-runtime";
+import { cn as a } from "../../lib/cn.js";
+const f = ({
+  copyright: t,
   links: i,
-  className: s
-}) => /* @__PURE__ */ t(
-  r,
+  className: l
+}) => /* @__PURE__ */ o(
+  "footer",
   {
-    as: "footer",
-    variant: "ghost",
-    padding: "none",
-    radius: "none",
-    className: l("site-footer", s),
+    className: a(
+      "mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 border-t border-neutral-200 px-4 py-7 text-sm text-neutral-500",
+      l
+    ),
     children: [
-      /* @__PURE__ */ o(a, { as: "span", children: n }),
-      /* @__PURE__ */ o(r, { variant: "ghost", padding: "none", radius: "none", className: "site-footer-links", children: i.map((e) => /* @__PURE__ */ o(a, { variant: "link", href: e.href, className: "footer-link", children: e.label }, e.href)) })
+      /* @__PURE__ */ r("span", { children: t }),
+      /* @__PURE__ */ r("div", { className: "flex flex-wrap items-center gap-x-4 gap-y-2", children: i.map((e) => /* @__PURE__ */ r(
+        "a",
+        {
+          href: e.href,
+          className: "font-medium text-neutral-500 no-underline transition-colors hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500",
+          children: e.label
+        },
+        e.href
+      )) })
     ]
   }
 );
 export {
-  c as JSiteFooterView
+  f as JSiteFooterView
 };
 //# sourceMappingURL=JSiteFooterView.js.map

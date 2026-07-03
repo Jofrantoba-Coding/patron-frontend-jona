@@ -1,0 +1,83 @@
+package com.softcommerce.views.uipnlconsultaproddespachar;
+
+import com.softcommerce.beans.Almacen;
+import com.softcommerce.beans.BeanAnexo;
+import com.softcommerce.beans.BeanFamilia;
+import com.softcommerce.beans.BeanMarca;
+import com.softcommerce.beans.BeanSubFamilia;
+import com.softcommerce.beans.BeanTamano;
+import com.softcommerce.beans.BeanTipoDocVenta;
+import com.softcommerce.beans.BeanUnidadMedida;
+import com.softcommerce.beans.MovProducto;
+import com.softcommerce.beans.PuntoVenta;
+import com.softcommerce.beans.Usuario;
+import com.softcommerce.conta.formularios.FormBuscarAnexo;
+import com.softcommerce.conta.formularios.FormBuscarTipoDocVenta;
+import com.softcommerce.formularios.*;
+import com.softcommerce.general.controles.CTable;
+import com.softcommerce.general.controles.IntegerDocument;
+import com.softcommerce.general.controles.UpperCaseNumberDocument;
+import com.softcommerce.general.tablas.MovProductoTableModel;
+import com.softcommerce.iconos.Gif;
+import com.softcommerce.reglasnegocio.RnAlmacen;
+import com.softcommerce.reglasnegocio.RnAnexo;
+import com.softcommerce.reglasnegocio.RnConsultas;
+import com.softcommerce.reglasnegocio.RnFamilia;
+import com.softcommerce.reglasnegocio.RnMarca;
+import com.softcommerce.reglasnegocio.RnPuntoVenta;
+import com.softcommerce.reglasnegocio.RnSubFamilia;
+import com.softcommerce.reglasnegocio.RnTamano;
+import com.softcommerce.reglasnegocio.RnTipoDocVenta;
+import com.softcommerce.reglasnegocio.RnUnidadMedida;
+import com.softcommerce.util.Constans;
+import com.softcommerce.util.ExportarToExcel;
+import com.softcommerce.util.FormatObject;
+import com.toedter.calendar.JDateChooser;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
+import javax.swing.table.TableRowSorter;
+
+public class UiPnlConsultaProdDespacharImpl extends UiPnlConsultaProdDespachar {
+
+    public UiPnlConsultaProdDespacharImpl(String title, java.net.URL path, Main frm, Usuario usuario) {
+        super(title, path, frm, usuario);
+    }
+}

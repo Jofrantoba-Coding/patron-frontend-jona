@@ -10,6 +10,15 @@ const variantClasses: Record<JButtonVariant, string> = {
   destructive: 'bg-danger-500 text-white hover:bg-danger-600 focus-visible:ring-danger-500',
   secondary:   'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 focus-visible:ring-neutral-400',
   link:        'bg-transparent text-primary-600 underline-offset-4 hover:underline p-0 h-auto focus-visible:ring-primary-500',
+  accent:      'bg-accent-600 text-white hover:bg-accent-700 focus-visible:ring-accent-500',
+};
+
+// Posición del icono vía Tailwind (no depende del CSS embarcado)
+const iconPositionClasses: Record<'left' | 'right' | 'top' | 'bottom', string> = {
+  left:   'flex-row',
+  right:  'flex-row-reverse',
+  top:    'flex-col',
+  bottom: 'flex-col-reverse',
 };
 
 const sizeClasses: Record<JButtonSize, string> = {
@@ -43,12 +52,73 @@ export const JButtonView: React.FC<JButtonViewProps> = ({
   onFocus,
   onBlur,
   onKeyDown,
+  href,
+  target,
+  rel,
+  asChild = false,
   forwardedRef,
   ...rest
 }) => {
   const activeIcon = loading ? <JSpinner size="sm" /> : icon;
   const hasIcon = Boolean(activeIcon);
   const isIconOnly = hasIcon && !children;
+
+  const classes = cn(
+    'jbutton',
+    'inline-flex items-center justify-center gap-2',
+    'font-medium transition-colors duration-200',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+    'disabled:pointer-events-none disabled:opacity-50',
+    variantClasses[variant],
+    sizeClasses[size],
+    hasIcon && iconPositionClasses[iconPosition],
+    isIconOnly && 'gap-0',
+    fullWidth && 'w-full',
+    href && (disabled || loading) && 'pointer-events-none opacity-50',
+    className
+  );
+
+  const inner = (
+    <>
+      {hasIcon && (
+        <span className="jbutton-icon" aria-hidden={loading ? undefined : true}>
+          {activeIcon}
+        </span>
+      )}
+      {children && <span className="jbutton-text">{children}</span>}
+    </>
+  );
+
+  // asChild: fusiona el estilo de botón sobre el único hijo (p.ej. <Link> de un router)
+  if (asChild && React.isValidElement(children)) {
+    const child = children as React.ReactElement<{ className?: string }>;
+    return React.cloneElement(child, {
+      className: cn(classes, child.props.className),
+      'data-jbutton-full-width': fullWidth ? 'true' : undefined,
+      ...rest,
+    } as Record<string, unknown>);
+  }
+
+  // Con href se renderiza como <a> (link con estilo de botón)
+  if (href) {
+    return (
+      <a
+        ref={forwardedRef as unknown as React.Ref<HTMLAnchorElement>}
+        href={href}
+        target={target}
+        rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
+        aria-disabled={disabled || loading || undefined}
+        data-jbutton-icon-position={hasIcon ? iconPosition : undefined}
+        data-jbutton-full-width={fullWidth ? 'true' : undefined}
+        style={style}
+        className={classes}
+        onClick={onClick as unknown as React.MouseEventHandler<HTMLAnchorElement>}
+        {...rest}
+      >
+        {inner}
+      </a>
+    );
+  }
 
   return (
     <button
@@ -62,26 +132,10 @@ export const JButtonView: React.FC<JButtonViewProps> = ({
       data-jbutton-icon-position={hasIcon ? iconPosition : undefined}
       data-jbutton-full-width={fullWidth ? 'true' : undefined}
       style={style}
-      className={cn(
-        'jbutton',
-        'inline-flex items-center justify-center gap-2',
-        'font-medium transition-colors duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'disabled:pointer-events-none disabled:opacity-50',
-        variantClasses[variant],
-        sizeClasses[size],
-        isIconOnly && 'gap-0',
-        fullWidth && 'w-full',
-        className
-      )}
+      className={classes}
       {...rest}
     >
-      {hasIcon && (
-        <span className="jbutton-icon" aria-hidden={loading ? undefined : true}>
-          {activeIcon}
-        </span>
-      )}
-      {children && <span className="jbutton-text">{children}</span>}
+      {inner}
     </button>
   );
 };

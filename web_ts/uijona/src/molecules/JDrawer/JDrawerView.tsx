@@ -66,6 +66,8 @@ export const JDrawerView: React.FC<JDrawerViewProps> = ({
           'fixed z-50 flex bg-white shadow-xl transition-transform duration-300 ease-in-out',
           panel,
           sizeClass,
+          // Nunca exceder el viewport en pantallas más estrechas/bajas que el panel
+          isHorizontal ? 'max-w-[85vw]' : 'max-h-[85vh]',
           open ? sideStyles[side].open : hiddenClass,
           className
         )}

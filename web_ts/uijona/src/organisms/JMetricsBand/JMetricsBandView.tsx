@@ -1,9 +1,6 @@
-﻿// JMetricsBandView.tsx — JONA View
+// JMetricsBandView.tsx — JONA View (render puro, Tailwind autocontenido + responsive)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { JPanel } from '../../atoms/JPanel/JPanel';
-import { JLabel } from '../../atoms/JLabel';
-import { JGridLayout } from '../../layouts/JGridLayout';
 import { InterJMetricsBand } from './InterJMetricsBand';
 
 export const JMetricsBandView: React.FC<InterJMetricsBand> = ({
@@ -11,24 +8,25 @@ export const JMetricsBandView: React.FC<InterJMetricsBand> = ({
   as = 'section',
   id,
   className,
-}) => (
-  <JPanel
-    as={as}
-    id={id}
-    variant="ghost"
-    padding="none"
-    radius="none"
-    className={cn('metrics-section', className)}
-  >
-    <JPanel variant="ghost" padding="none" radius="none" className="section-shell">
-      <JGridLayout autoFitMin="260px" className="metrics-grid">
-        {metrics.map((m) => (
-          <JPanel key={m.label} variant="ghost" padding="none" radius="none" className="metric-item">
-            <JLabel as="strong">{m.value}</JLabel>
-            <JLabel as="span">{m.label}</JLabel>
-          </JPanel>
-        ))}
-      </JGridLayout>
-    </JPanel>
-  </JPanel>
-);
+}) => {
+  const Tag = as;
+  return (
+    <Tag id={id} className={cn('w-full border-t border-neutral-800 bg-neutral-900 py-12', className)}>
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+          {metrics.map((m) => (
+            <div
+              key={m.label}
+              className="flex flex-col gap-1.5 rounded-xl border border-white/10 bg-white/5 px-6 py-5"
+            >
+              <strong className="text-2xl font-black leading-none text-primary-400 sm:text-3xl">
+                {m.value}
+              </strong>
+              <span className="text-sm leading-relaxed text-neutral-400">{m.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Tag>
+  );
+};

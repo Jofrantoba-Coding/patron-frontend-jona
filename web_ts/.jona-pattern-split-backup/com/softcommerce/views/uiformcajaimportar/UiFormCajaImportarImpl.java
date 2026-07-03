@@ -1,0 +1,83 @@
+package com.softcommerce.views.uiformcajaimportar;
+
+import com.softcommerce.beans.BeanAnexo;
+import com.softcommerce.beans.BeanEmpresaCuenta;
+import com.softcommerce.beans.BeanMedioPago;
+import com.softcommerce.beans.BeanMoneda;
+import com.softcommerce.beans.BeanRptaRcc;
+import com.softcommerce.beans.BeanTipoOperacion;
+import com.softcommerce.beans.importar.BeanImpCaja;
+import com.softcommerce.beans.importar.BeanImpOP;
+import com.softcommerce.beans.importar.BeanImportar;
+import com.softcommerce.beans.importar.BeanImpTransBanc;
+import com.softcommerce.beans.Usuario;
+import com.softcommerce.beans.UsuarioCorrelativo;
+import com.softcommerce.enums.AuxiliarEnum;
+import com.softcommerce.enums.TipoAnexoEnum;
+import com.softcommerce.enums.TipoDocVentaEnum;
+import com.softcommerce.enums.TipoImpCajaEnum;
+import com.softcommerce.formularios.*;
+import com.softcommerce.formularios.importar.*;
+import com.softcommerce.formularios.Main;
+import com.softcommerce.general.controles.ObjectItem;
+import com.softcommerce.general.controles.UpperCaseNumberDocument;
+import com.softcommerce.general.herramientas.CTableFx;
+import com.softcommerce.general.tablas.importar.ImpAnticipoProvTableModel;
+import com.softcommerce.general.tablas.importar.ImpCajaTableModel;
+import com.softcommerce.general.tablas.importar.ImpTransfBancTableModel;
+import com.softcommerce.iconos.Gif;
+import com.softcommerce.reglasnegocio.RnCorrelativo;
+import com.softcommerce.reglasnegocio.RnRegconta;
+import com.softcommerce.util.combo.LoadComboItem;
+import com.softcommerce.util.ExceptionHandler;
+import com.softcommerce.util.FxTipoDocVenta;
+import com.softcommerce.util.LayoutUtil;
+import com.softcommerce.util.UtilDate;
+import com.softcommerce.util.UtilExcel;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.io.File;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.AbstractTableModel;
+import jxl.read.biff.BiffException;
+import jxl.Sheet;
+import org.apache.log4j.Logger;
+
+public class UiFormCajaImportarImpl extends UiFormCajaImportar {
+
+    public UiFormCajaImportarImpl(Main frame, Usuario usuario, URL ruta) {
+        super(frame, usuario, ruta);
+    }
+}

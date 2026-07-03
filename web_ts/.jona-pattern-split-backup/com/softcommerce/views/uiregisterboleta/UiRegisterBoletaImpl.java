@@ -1,0 +1,84 @@
+package com.softcommerce.views.uiregisterboleta;
+
+import com.softcommerce.beans.BeanCondicionPago;
+import com.softcommerce.beans.BeanMoneda;
+import com.softcommerce.beans.BeanParametro;
+import com.softcommerce.beans.BeanTipoDocVenta;
+import com.softcommerce.beans.BeanTipoPago;
+import com.softcommerce.beans.ContaCab;
+import com.softcommerce.beans.ContaItem;
+import com.softcommerce.beans.Usuario;
+import com.softcommerce.enums.AuxiliarEnum;
+import com.softcommerce.enums.TipoMovInventarioEnum;
+import com.softcommerce.formularios.*;
+import com.softcommerce.general.controles.CComboBox;
+import com.softcommerce.general.controles.CLabel;
+import com.softcommerce.general.controles.CTable;
+import com.softcommerce.general.controles.DigitTextFieldCellEditor;
+import com.softcommerce.general.controles.EnumClass;
+import com.softcommerce.general.controles.IntegerDocument;
+import com.softcommerce.general.controles.JHInternal;
+import com.softcommerce.general.controles.RowSelection;
+import com.softcommerce.general.controles.View;
+import com.softcommerce.general.herramientas.CFunciones;
+import com.softcommerce.general.herramientas.DateTime;
+import com.softcommerce.general.sunat.ConvertDataSunat;
+import com.softcommerce.general.tablas.TableModelRegisterBoletaDetalleVenta;
+import com.softcommerce.logic.LogicRegContaCab;
+import com.softcommerce.reglasnegocio.rn_CondicionPago;
+import com.softcommerce.reglasnegocio.RnConsultas;
+import com.softcommerce.reglasnegocio.RnCorrelativo;
+import com.softcommerce.reglasnegocio.RnMovInventarioCab;
+import com.softcommerce.reglasnegocio.RnParametro;
+import com.softcommerce.reglasnegocio.RnRegContaCab;
+import com.softcommerce.reglasnegocio.RnTipoDocVenta;
+import com.softcommerce.reglasnegocio.RnTipoPago;
+import com.softcommerce.util.combo.LoadCombo;
+import com.softcommerce.util.Constans;
+import com.softcommerce.util.ExceptionHandler;
+import com.softcommerce.util.FormatObject;
+import com.softcommerce.util.render.CellRendererDetalleDocumento;
+import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import org.apache.log4j.Logger;
+
+public class UiRegisterBoletaImpl extends UiRegisterBoleta {
+
+    public UiRegisterBoletaImpl(String title, Usuario usuario, JFrame frame) {
+        super(title, usuario, frame);
+    }
+}

@@ -1,43 +1,61 @@
-import { jsx as a, jsxs as r, Fragment as N } from "react/jsx-runtime";
-import { cn as f } from "../../lib/cn.js";
-import { JPanelImpl as i } from "../../atoms/JPanel/JPanelImpl.js";
-import { JLabelImpl as n } from "../../atoms/JLabel/JLabelImpl.js";
-const J = ({
-  backHref: s,
-  backLabel: d,
-  eyebrow: e,
+import { jsx as e, jsxs as s } from "react/jsx-runtime";
+import { cn as i } from "../../lib/cn.js";
+const a = "inline-flex min-h-11 items-center justify-center rounded-md px-6 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500", g = ({
+  backHref: m,
+  backLabel: c,
+  eyebrow: t,
   title: o,
-  outcome: c,
-  primaryHref: h,
-  primaryLabel: m,
-  secondaryHref: t,
-  secondaryLabel: l,
-  visual: p,
-  className: g
-}) => /* @__PURE__ */ a(
-  i,
+  outcome: x,
+  primaryHref: f,
+  primaryLabel: d,
+  secondaryHref: r,
+  secondaryLabel: n,
+  visual: l,
+  className: h
+}) => /* @__PURE__ */ e("section", { className: i("w-full bg-neutral-900 py-14 sm:py-16", h), children: /* @__PURE__ */ s(
+  "div",
   {
-    as: "section",
-    variant: "ghost",
-    padding: "none",
-    radius: "none",
-    className: f("detail-hero", g),
-    children: /* @__PURE__ */ r(i, { variant: "ghost", padding: "none", radius: "none", className: "detail-hero-inner", children: [
-      /* @__PURE__ */ a(n, { variant: "link", href: s, className: "detail-back", children: d }),
-      /* @__PURE__ */ r(i, { variant: "ghost", padding: "none", radius: "none", className: "detail-hero-copy", children: [
-        e && (typeof e == "string" ? /* @__PURE__ */ a(n, { as: "span", className: "eyebrow", children: e }) : /* @__PURE__ */ a(N, { children: e })),
-        /* @__PURE__ */ a(n, { as: "h1", className: "detail-title", children: o }),
-        /* @__PURE__ */ a(n, { className: "detail-outcome", children: c }),
-        /* @__PURE__ */ r(i, { variant: "ghost", padding: "none", radius: "none", className: "detail-hero-actions", children: [
-          /* @__PURE__ */ a(n, { variant: "link-button", href: h, className: "detail-cta-primary", children: m }),
-          t && l && /* @__PURE__ */ a(n, { variant: "link", href: t, className: "detail-cta-secondary", children: l })
+    className: i(
+      "mx-auto grid w-full max-w-6xl gap-8 px-4 sm:px-6",
+      l && "md:grid-cols-[1fr_auto] md:items-center md:gap-12"
+    ),
+    children: [
+      /* @__PURE__ */ e(
+        "a",
+        {
+          href: m,
+          className: "inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-neutral-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 md:col-span-full",
+          children: c
+        }
+      ),
+      /* @__PURE__ */ s("div", { className: "min-w-0 max-w-2xl", children: [
+        t != null && (typeof t == "string" ? /* @__PURE__ */ e("span", { className: "text-xs font-semibold uppercase tracking-wide text-primary-400", children: t }) : t),
+        /* @__PURE__ */ e("h1", { className: "mt-2 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl", children: o }),
+        /* @__PURE__ */ e("p", { className: "mt-4 max-w-xl text-base leading-relaxed text-neutral-400", children: x }),
+        /* @__PURE__ */ s("div", { className: "mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center", children: [
+          /* @__PURE__ */ e(
+            "a",
+            {
+              href: f,
+              className: i(a, "bg-primary-600 text-white hover:bg-primary-700", "w-full sm:w-auto"),
+              children: d
+            }
+          ),
+          r && n && /* @__PURE__ */ e(
+            "a",
+            {
+              href: r,
+              className: i(a, "border border-white/20 text-neutral-200 hover:bg-white/10", "w-full sm:w-auto"),
+              children: n
+            }
+          )
         ] })
       ] }),
-      p
-    ] })
+      l && /* @__PURE__ */ e("div", { className: "min-w-0", children: l })
+    ]
   }
-);
+) });
 export {
-  J as JDetailHeroView
+  g as JDetailHeroView
 };
 //# sourceMappingURL=JDetailHeroView.js.map

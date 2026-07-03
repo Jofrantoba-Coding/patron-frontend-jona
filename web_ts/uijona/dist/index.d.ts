@@ -66,6 +66,8 @@ export * from './layouts/JGridBagLayout';
 export * from './layouts/JGroupLayout';
 export * from './layouts/JSpringLayout';
 export * from './layouts/JSidebarLayout';
+export * from './organisms/JHeroDynamic';
+export * from './organisms/JCaseStudies';
 export * from './organisms/JMarketingHero';
 export * from './organisms/JMetricsBand';
 export * from './organisms/JContactMethods';

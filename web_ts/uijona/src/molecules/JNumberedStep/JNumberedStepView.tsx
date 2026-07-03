@@ -1,8 +1,6 @@
-﻿// JNumberedStepView.tsx — JONA View
+// JNumberedStepView.tsx — JONA View (render puro, Tailwind autocontenido)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { JPanel } from '../../atoms/JPanel/JPanel';
-import { JLabel } from '../../atoms/JLabel';
 import { InterJNumberedStep } from './InterJNumberedStep';
 
 export const JNumberedStepView: React.FC<InterJNumberedStep> = ({
@@ -11,11 +9,18 @@ export const JNumberedStepView: React.FC<InterJNumberedStep> = ({
   body,
   className,
 }) => (
-  <JPanel variant="ghost" padding="none" radius="none" className={cn('contact-step', className)}>
-    <JLabel as="span" className="contact-step-num">{num}</JLabel>
-    <JPanel variant="ghost" padding="none" radius="none" className="contact-step-body">
-      <JLabel as="strong" className="contact-step-title">{title}</JLabel>
-      <JLabel className="contact-step-desc">{body}</JLabel>
-    </JPanel>
-  </JPanel>
+  <div
+    className={cn(
+      'flex items-start gap-5 rounded-xl border border-neutral-200 bg-white p-6',
+      className,
+    )}
+  >
+    <span className="inline-grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-primary-200 bg-primary-50 text-sm font-black text-primary-700">
+      {num}
+    </span>
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <strong className="text-base font-bold text-neutral-900">{title}</strong>
+      <p className="text-sm leading-relaxed text-neutral-500">{body}</p>
+    </div>
+  </div>
 );

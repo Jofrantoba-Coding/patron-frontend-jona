@@ -57,6 +57,7 @@ const colorClasses: Record<JLabelColor, string> = {
 
 export const JLabelView: React.FC<JLabelViewProps> = ({
   as,
+  asChild = false,
   variant = 'body',
   size,
   color = 'default',
@@ -95,6 +96,16 @@ export const JLabelView: React.FC<JLabelViewProps> = ({
     isLink && disabled && 'pointer-events-none',
     className,
   );
+
+  // asChild: fusiona el estilo sobre el único hijo (p.ej. <Link> de un router)
+  if (asChild && React.isValidElement(content)) {
+    const child = content as React.ReactElement<{ className?: string }>;
+    return React.cloneElement(child, {
+      className: cn(classes, child.props.className),
+      'data-jlabel-variant': variant,
+      ...rest,
+    } as Record<string, unknown>);
+  }
 
   const linkProps = isLink
     ? {

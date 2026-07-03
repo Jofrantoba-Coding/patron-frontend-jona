@@ -9,8 +9,8 @@ const p = () => /* @__PURE__ */ s(n, { variant: "ghost", padding: "none", radius
   ] })
 ] }), g = () => /* @__PURE__ */ s(n, { variant: "ghost", padding: "none", radius: "none", className: "rounded-lg border border-neutral-200 p-6 space-y-4", children: [
   /* @__PURE__ */ s(n, { variant: "ghost", padding: "none", radius: "none", className: "space-y-2", children: [
-    /* @__PURE__ */ a(e, { className: "h-4 w-40" }),
-    /* @__PURE__ */ a(e, { className: "h-3 w-64" })
+    /* @__PURE__ */ a(e, { className: "h-4 w-40 max-w-full" }),
+    /* @__PURE__ */ a(e, { className: "h-3 w-64 max-w-full" })
   ] }),
   /* @__PURE__ */ s(n, { variant: "ghost", padding: "none", radius: "none", className: "space-y-2", children: [
     /* @__PURE__ */ a(e, { className: "h-3 w-full" }),

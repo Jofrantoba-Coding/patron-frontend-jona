@@ -1,8 +1,6 @@
-﻿// JFaqItemView.tsx — JONA View
+// JFaqItemView.tsx — JONA View (render puro, Tailwind autocontenido)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { JPanel } from '../../atoms/JPanel/JPanel';
-import { JLabel } from '../../atoms/JLabel';
 import { InterJFaqItem } from './InterJFaqItem';
 
 export const JFaqItemView: React.FC<InterJFaqItem> = ({
@@ -10,8 +8,13 @@ export const JFaqItemView: React.FC<InterJFaqItem> = ({
   answer,
   className,
 }) => (
-  <JPanel variant="ghost" padding="none" radius="none" className={cn('detail-faq-item', className)}>
-    <JLabel as="strong" className="detail-faq-q">{question}</JLabel>
-    <JLabel className="detail-faq-a">{answer}</JLabel>
-  </JPanel>
+  <div
+    className={cn(
+      'rounded-xl border border-neutral-200 bg-neutral-50 p-6',
+      className,
+    )}
+  >
+    <strong className="mb-2 block text-base font-bold text-neutral-900">{question}</strong>
+    <p className="text-sm leading-relaxed text-neutral-600">{answer}</p>
+  </div>
 );
