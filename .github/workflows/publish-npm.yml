@@ -1,0 +1,51 @@
+name: Publish uijona to npm
+
+# Publica el paquete jona-ui (web_ts/uijona) en el registro npm cuando se
+# empuja un tag de version (ej: v1.3.1, que crea `npm version`).
+#
+# Requiere el secret NPM_TOKEN (Automation/Publish token de npm) configurado en:
+#   Settings > Secrets and variables > Actions > New repository secret
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+          cache-dependency-path: web_ts/uijona/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: web_ts/uijona
+
+      - name: Typecheck
+        run: npm run lint
+        working-directory: web_ts/uijona
+
+      - name: Test
+        run: npm test
+        working-directory: web_ts/uijona
+
+      # `npm publish` dispara el script prepublishOnly -> npm run build,
+      # asi que el tarball siempre lleva un dist/ fresco (ESM, CJS, tipos y CSS).
+      - name: Publish to npm
+        run: npm publish --access public
+        working-directory: web_ts/uijona
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -29,7 +29,7 @@ jobs:
           cache-dependency-path: web_ts/uijona/package-lock.json
 
       - name: Install uijona dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
         working-directory: web_ts/uijona
 
       - name: Build Storybook

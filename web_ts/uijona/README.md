@@ -359,6 +359,22 @@ Notas:
 - Tras publicar, empuja el commit y el tag de version: `git push && git push --tags`.
 - Los consumidores por `file:../uijona` **no** necesitan la version publicada; usan el `dist/` local. La publicacion en npm es para consumo externo.
 
+### Publicacion automatica por CI (recomendada)
+
+El workflow [`.github/workflows/publish-npm.yml`](../../.github/workflows/publish-npm.yml) publica en npm automaticamente al empujar un **tag de version** (`v*`). Flujo tipico:
+
+```bash
+cd web_ts/uijona
+npm version patch          # actualiza package.json y crea el tag vX.Y.Z
+git push && git push --tags   # el push del tag dispara el workflow -> npm publish
+```
+
+El workflow corre `npm ci`, `npm run lint`, `npm test` y `npm publish --access public` (que via `prepublishOnly` construye el `dist/`).
+
+**Requisito unico:** configurar el secret `NPM_TOKEN` en el repo (Settings > Secrets and variables > Actions) con un *Automation token* de npm con permiso de publicacion. Sin ese secret, el paso de publish falla.
+
+> Nota: el Storybook se publica por otra via independiente (GitHub Pages) en cada push a `main` via `deploy.yml`; no forma parte del paquete npm.
+
 ## Licencia
 
 MIT
