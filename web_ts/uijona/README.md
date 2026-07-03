@@ -359,9 +359,9 @@ Notas:
 - Tras publicar, empuja el commit y el tag de version: `git push && git push --tags`.
 - Los consumidores por `file:../uijona` **no** necesitan la version publicada; usan el `dist/` local. La publicacion en npm es para consumo externo.
 
-### Publicacion automatica por CI (recomendada)
+### Publicacion via GitHub Release (unico metodo)
 
-El workflow [`.github/workflows/publish-npm.yml`](../../.github/workflows/publish-npm.yml) publica en npm al empujar un **tag de version** (`v*`). Corre `npm ci`, `npm run lint`, `npm test` y `npm publish --access public` (que via `prepublishOnly` construye el `dist/`).
+La publicacion a npm **siempre se maneja con un GitHub Release**, no por push de tag suelto ni `npm publish` manual. El workflow [`.github/workflows/publish-npm.yml`](../../.github/workflows/publish-npm.yml) se dispara con el evento `release: published` y corre `npm ci`, `npm run lint`, `npm test` y `npm publish --access public` (que via `prepublishOnly` construye el `dist/`).
 
 #### Paso 0 — Configurar `NPM_TOKEN` (una sola vez)
 
@@ -372,33 +372,39 @@ El workflow [`.github/workflows/publish-npm.yml`](../../.github/workflows/publis
 
    Sin este secret, el paso de publish falla con error de autenticacion.
 
-#### Paso 1 — Subir la version y crear el tag
+#### Paso 1 — Subir la version y commitear
 
-> Importante: como `uijona` es una subcarpeta (el `.git` esta en la raiz del repo), `npm version` **solo** actualiza `package.json`/`package-lock.json`; **no** crea el commit ni el tag. Hay que crearlos manualmente desde la raiz.
+> Importante: como `uijona` es una subcarpeta (el `.git` esta en la raiz del repo), `npm version` **solo** actualiza `package.json`/`package-lock.json`; **no** crea el commit ni el tag. Se commitea manualmente desde la raiz y el tag lo crea el Release.
 
 ```bash
 # Desde web_ts/uijona: subir el numero de version
 npm version patch --no-git-tag-version   # patch | minor | major
 
-# Desde la raiz del repo: commit + tag anotado (usa la nueva version, ej. 1.3.1)
+# Desde la raiz del repo: commit del bump y push a main
 cd ../..
 git add web_ts/uijona/package.json web_ts/uijona/package-lock.json
 git commit -m "release(uijona): jona-ui v1.3.1"
-git tag -a v1.3.1 -m "jona-ui v1.3.1"
+git push
 ```
 
-#### Paso 2 — Publicar (empuja commit + tag)
+#### Paso 2 — Crear el GitHub Release (dispara el publish)
+
+Con el CLI de GitHub (crea el tag `vX.Y.Z` sobre el ultimo commit y publica el release):
 
 ```bash
-git push --follow-tags   # el push del tag vX.Y.Z dispara publish-npm.yml -> npm publish
+gh release create v1.3.1 --title "jona-ui v1.3.1" --generate-notes
 ```
+
+O por la UI: **Releases > Draft a new release** > Tag `v1.3.1` (target `main`) > **Publish release**.
+
+Publicar el release dispara `publish-npm.yml` -> `npm publish`.
 
 #### Paso 3 — Verificar
 
 - GitHub > pestaña **Actions** > run *"Publish uijona to npm"* debe quedar verde.
 - `npm view jona-ui version` debe mostrar la nueva version.
 
-> Usa `git push --follow-tags`, no `workflow_dispatch`: el publish depende del tag; dispararlo a mano sobre `main` intentaria publicar la version que este en `main` en ese momento (puede fallar por "version ya publicada").
+> El numero de version del tag/release debe coincidir con el `version` de `package.json`; si ya esta publicado en npm, el paso de publish falla por "version ya publicada".
 
 > Nota: el Storybook se publica por otra via independiente (GitHub Pages) en cada push a `main` via `deploy.yml`; no forma parte del paquete npm.
 

@@ -1,15 +1,15 @@
 name: Publish uijona to npm
 
 # Publica el paquete jona-ui (web_ts/uijona) en el registro npm cuando se
-# empuja un tag de version (ej: v1.3.1, que crea `npm version`).
+# PUBLICA UN GITHUB RELEASE. Siempre se maneja con release (no por tag suelto
+# ni npm publish manual): crea un Release para el tag vX.Y.Z y eso dispara el publish.
 #
 # Requiere el secret NPM_TOKEN (Automation/Publish token de npm) configurado en:
 #   Settings > Secrets and variables > Actions > New repository secret
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
