@@ -1,6 +1,7 @@
-import { develtrexContent } from '../../shared/content/develtrexContent';
+import { useContent } from '../../i18n';
 import { ContactPageFeatureView } from './ContactPageFeatureView';
 
 export function ContactPageFeature() {
-  return <ContactPageFeatureView content={develtrexContent} />;
+  const content = useContent();
+  return <ContactPageFeatureView content={content} />;
 }

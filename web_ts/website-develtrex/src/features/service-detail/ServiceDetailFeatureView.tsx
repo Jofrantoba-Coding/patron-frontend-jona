@@ -1,142 +1,98 @@
 import { Link } from 'react-router-dom';
-import { GridLayout, LinkAtom, JPanel, TextAtom } from 'jona-ui';
-import {
-  BenefitItemMolecule,
-  DetailCTAOrganism,
-  DetailHeroOrganism,
-  FaqItemMolecule,
-  RelatedItemMolecule,
-} from 'jona-ui';
-import { ContactFeature } from '../contact/ContactFeature';
+import { JAccordion, JButton, JGlyph, JLabel, JPanel, JSectionHeading, JServiceCard } from 'jona-ui';
 import { NavigationFeature } from '../navigation/NavigationFeature';
+import { ContactFeature } from '../contact/ContactFeature';
+import { useUi } from '../../i18n';
 import type { InterServiceDetailFeatureView } from './InterServiceDetailFeature';
 
+const Check = () => (
+  <JGlyph size="md" tone="primary" strokeWidth={2.5} className="mt-0.5"><path d="M20 6 9 17l-5-5" /></JGlyph>
+);
+
 export function ServiceDetailFeatureView({ content, service, detail }: InterServiceDetailFeatureView) {
-  const relatedServices = content.services
+  const ui = useUi();
+  const categoryLabel = ui.categoryLabels[service.category] ?? service.category;
+  const related = content.services
     .filter((s) => s.category === service.category && s.slug !== service.slug)
     .slice(0, 3);
-
-  const visual = (
-    <JPanel
-      className={`detail-hero-asset service-visual-asset icon-${service.visual}`}
-      variant="ghost"
-      padding="none"
-      radius="none"
-      aria-hidden="true"
-    />
-  );
+  const faqItems = detail.faqs.map((f) => ({ value: f.q, title: f.q, content: f.a }));
 
   return (
     <>
-      <NavigationFeature
-        content={content.navigation}
-        contact={content.contact}
-        products={content.products}
-        services={content.services}
-      />
+      <NavigationFeature content={content.navigation} contact={content.contact} products={content.products} services={content.services} />
 
       <JPanel as="main" variant="ghost" padding="none" radius="none">
-        <DetailHeroOrganism
-          className="service-hero"
-          backHref="/"
-          backLabel="← Todos los servicios"
-          eyebrow={service.category}
-          title={service.name}
-          outcome={service.promise}
-          primaryHref={content.contact.whatsappHref}
-          primaryLabel="Solicitar información"
-          secondaryHref={content.contact.emailHref}
-          secondaryLabel="Escribirnos"
-          visual={visual}
-        />
-
-        <JPanel as="section" className="detail-section detail-overview" variant="ghost" padding="none" radius="none">
-          <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
-            <GridLayout columns="repeat(2, minmax(0, 1fr))" placement="fixed" className="detail-two-column">
-              <JPanel className="detail-copy-block" variant="ghost" padding="none" radius="none">
-                <TextAtom as="span" className="eyebrow">Descripción</TextAtom>
-                <TextAtom as="h2" className="detail-h2">¿De qué se trata?</TextAtom>
-                <TextAtom className="detail-body">{detail.intro}</TextAtom>
+        {/* Hero */}
+        <JPanel as="section" variant="ghost" padding="none" radius="none" className="relative overflow-hidden border-b border-neutral-200 bg-neutral-50/60">
+          <JPanel variant="ghost" padding="none" radius="none" className="container-page py-14 sm:py-20">
+            <JLabel asChild className="text-sm font-semibold text-neutral-500 no-underline transition-colors hover:text-neutral-900"><Link to="/#servicios">{ui.detail.backServices}</Link></JLabel>
+            <JPanel variant="ghost" padding="none" radius="none" className="mt-6 max-w-3xl">
+              <JLabel as="span" className="eyebrow">{categoryLabel}</JLabel>
+              <JLabel as="h1" className="mt-3 text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">{service.name}</JLabel>
+              <JLabel as="p" className="mt-4 text-lg leading-relaxed text-neutral-600">{service.promise}</JLabel>
+              <JPanel variant="ghost" padding="none" radius="none" className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <JButton href={content.contact.whatsappHref} fullWidth className="sm:w-auto">{ui.detail.primaryCta}</JButton>
+                <JButton href={content.contact.emailHref} variant="outline" fullWidth className="sm:w-auto">{ui.detail.secondaryCta}</JButton>
               </JPanel>
-              <JPanel className="detail-copy-block" variant="ghost" padding="none" radius="none">
-                <TextAtom as="span" className="eyebrow">Para quién</TextAtom>
-                <TextAtom as="h2" className="detail-h2">¿A quién le sirve?</TextAtom>
-                <TextAtom className="detail-body">{detail.forWho}</TextAtom>
-                <JPanel className="service-proof-box" variant="ghost" padding="none" radius="none">
-                  <TextAtom className="service-proof-text">{service.proof}</TextAtom>
-                </JPanel>
-              </JPanel>
-            </GridLayout>
+            </JPanel>
           </JPanel>
         </JPanel>
 
-        <JPanel as="section" className="detail-section detail-benefits" variant="ghost" padding="none" radius="none">
-          <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
-            <TextAtom as="span" className="eyebrow">Beneficios</TextAtom>
-            <TextAtom as="h2" className="detail-h2">¿Qué obtienes?</TextAtom>
-            <GridLayout autoFitMin="280px" className="detail-benefits-grid">
-              {detail.benefits.map((benefit) => (
-                <BenefitItemMolecule key={benefit} text={benefit} />
-              ))}
-            </GridLayout>
+        {/* Overview */}
+        <JPanel as="section" variant="ghost" padding="none" radius="none" className="container-page grid gap-10 py-16 sm:py-20 md:grid-cols-2">
+          <JSectionHeading eyebrow={ui.detail.descripcion} heading={ui.detail.deQueSeTrata} description={detail.intro} />
+          <JPanel variant="ghost" padding="none" radius="none">
+            <JSectionHeading eyebrow={ui.detail.paraQuien} heading={ui.detail.aQuienLeSirve} description={detail.forWho} />
+            <JPanel variant="ghost" padding="none" radius="none" className="mt-5 rounded-xl border-l-4 border-primary-500 bg-primary-50/60 p-4 text-sm italic leading-relaxed text-neutral-700">
+              {service.proof}
+            </JPanel>
           </JPanel>
         </JPanel>
 
-        <JPanel as="section" className="detail-section detail-process-section" variant="ghost" padding="none" radius="none">
-          <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
-            <TextAtom as="span" className="eyebrow">Metodología</TextAtom>
-            <TextAtom as="h2" className="detail-h2">¿Cómo lo hacemos?</TextAtom>
-            <JPanel className="detail-process-list" variant="ghost" padding="none" radius="none">
-              {detail.approach.map((step, index) => (
-                <JPanel key={step} className="detail-process-item" variant="ghost" padding="none" radius="none">
-                  <TextAtom as="span" className="detail-step-num">{String(index + 1).padStart(2, '0')}</TextAtom>
-                  <TextAtom className="detail-step-title">{step}</TextAtom>
-                </JPanel>
+        {/* Benefits */}
+        <JPanel as="section" variant="ghost" padding="none" radius="none" className="border-y border-neutral-200 bg-neutral-50/60">
+          <JPanel variant="ghost" padding="none" radius="none" className="container-page py-16 sm:py-20">
+            <JSectionHeading eyebrow={ui.detail.beneficios} heading={ui.detail.queObtienes} className="mb-8" />
+            <JPanel variant="ghost" padding="none" radius="none" className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))]">
+              {detail.benefits.map((b) => (
+                <JPanel key={b} variant="ghost" padding="none" radius="none" className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-white p-4 text-sm leading-relaxed text-neutral-700"><Check /><JLabel as="span">{b}</JLabel></JPanel>
               ))}
             </JPanel>
           </JPanel>
         </JPanel>
 
-        <JPanel as="section" className="detail-section detail-faq" variant="ghost" padding="none" radius="none">
-          <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
-            <TextAtom as="span" className="eyebrow">FAQ</TextAtom>
-            <TextAtom as="h2" className="detail-h2">Preguntas frecuentes</TextAtom>
-            <JPanel className="detail-faq-list" variant="ghost" padding="none" radius="none">
-              {detail.faqs.map((faq) => (
-                <FaqItemMolecule key={faq.q} question={faq.q} answer={faq.a} />
-              ))}
-            </JPanel>
+        {/* Approach */}
+        <JPanel as="section" variant="ghost" padding="none" radius="none" className="container-page py-16 sm:py-20">
+          <JSectionHeading eyebrow={ui.detail.metodologia} heading={ui.detail.comoLoHacemos} className="mb-8" />
+          <JPanel variant="ghost" padding="none" radius="none" className="grid gap-4 sm:grid-cols-2">
+            {detail.approach.map((step, i) => (
+              <JPanel key={step} variant="ghost" padding="none" radius="none" className="flex items-start gap-4 rounded-2xl border border-neutral-200 bg-white p-5">
+                <JLabel as="span" className="inline-grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary-50 text-sm font-black text-primary-700">{String(i + 1).padStart(2, '0')}</JLabel>
+                <JLabel as="p" className="text-sm font-medium leading-relaxed text-neutral-700">{step}</JLabel>
+              </JPanel>
+            ))}
           </JPanel>
         </JPanel>
 
-        {relatedServices.length > 0 && (
-          <JPanel as="section" className="detail-section detail-related" variant="ghost" padding="none" radius="none">
-            <JPanel className="detail-shell" variant="ghost" padding="none" radius="none">
-              <TextAtom as="span" className="eyebrow">También en {service.category}</TextAtom>
-              <TextAtom as="h2" className="detail-h2">Servicios relacionados que podrían interesarte</TextAtom>
-              <GridLayout autoFitMin="280px" className="detail-related-grid">
-                {relatedServices.map((s) => (
-                  <RelatedItemMolecule
-                    key={s.slug}
-                    name={s.name}
-                    outcome={s.promise}
-                    href={`/servicios/${s.slug}`}
-                    linkLabel="Ver servicio →"
-                  />
-                ))}
-              </GridLayout>
+        {/* FAQ */}
+        <JPanel as="section" variant="ghost" padding="none" radius="none" className="border-t border-neutral-200 bg-neutral-50/60">
+          <JPanel variant="ghost" padding="none" radius="none" className="container-page py-16 sm:py-20">
+            <JSectionHeading eyebrow={ui.detail.faq} heading={ui.detail.preguntasFrecuentes} className="mb-8" />
+            <JAccordion items={faqItems} variant="bordered" />
+          </JPanel>
+        </JPanel>
+
+        {/* Related */}
+        {related.length > 0 && (
+          <JPanel as="section" variant="ghost" padding="none" radius="none" className="container-page py-16 sm:py-20">
+            <JSectionHeading eyebrow={`${ui.detail.relacionadosEyebrow} ${categoryLabel}`} heading={ui.detail.relacionadosHeading} className="mb-8" />
+            <JPanel variant="ghost" padding="none" radius="none" className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))]">
+              {related.map((s) => (
+                <JServiceCard key={s.slug} title={s.name} description={s.promise} href={`/servicios/${s.slug}`} />
+              ))}
             </JPanel>
           </JPanel>
         )}
-
-        <DetailCTAOrganism
-          title="¿Te interesa este servicio?"
-          body="Conversemos sobre tu caso específico. Una sesión de 30 minutos es suficiente para saber si podemos ayudarte y cómo."
-          primaryHref={content.contact.whatsappHref}
-          primaryLabel="Agendar por WhatsApp"
-          secondaryHref={content.contact.emailHref}
-          secondaryLabel={content.contact.email}
-        />
 
         <ContactFeature content={content.contact} />
       </JPanel>

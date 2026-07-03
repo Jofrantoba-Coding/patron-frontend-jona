@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { develtrexContent } from '../../shared/content/develtrexContent';
-import { productDetails } from '../../shared/content/develtrexDetailContent';
+import { useContent, useProductDetails } from '../../i18n';
 import { ProductDetailFeatureView } from './ProductDetailFeatureView';
 
 export function ProductDetailFeatureImpl() {
   const { slug } = useParams<{ slug: string }>();
+  const develtrexContent = useContent();
+  const productDetails = useProductDetails();
   const product = develtrexContent.products.find((item) => item.slug === slug);
   const detail = productDetails.find((item) => item.slug === slug);
 
