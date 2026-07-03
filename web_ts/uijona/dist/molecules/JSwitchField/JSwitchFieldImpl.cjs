@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const o=require("react/jsx-runtime"),r=require("react"),s=require("./InterJSwitchField.cjs"),S=require("./JSwitchFieldView.cjs"),n=e=>{const t=e.checked!==void 0,[d,l]=r.useState(!1),h=t?e.checked:d,a=i=>{var c;t||l(i),(c=e.onCheckedChange)==null||c.call(e,i)};return o.jsx(S.JSwitchFieldView,{...s.JSWITCHFIELD_DEFAULTS,...e,checked:h,onCheckedChange:a})};n.displayName="JSwitchField";exports.JSwitchFieldImpl=n;
-//# sourceMappingURL=JSwitchFieldImpl.cjs.map

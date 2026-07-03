@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const o=["contain","cover","fill","none","scale-down"],e=["none","sm","md","lg","xl","full"],n=["auto","square","video","wide","portrait"],t={fit:"cover",radius:"none",aspectRatio:"auto",block:!1,loading:"lazy",decoding:"async"};exports.JIMAGEN_ASPECT_RATIOS=n;exports.JIMAGEN_DEFAULTS=t;exports.JIMAGEN_FITS=o;exports.JIMAGEN_RADII=e;
-//# sourceMappingURL=InterJImagen.cjs.map

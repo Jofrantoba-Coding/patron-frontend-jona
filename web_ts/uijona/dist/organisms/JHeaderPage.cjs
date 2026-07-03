@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("./JHeaderPage/JHeaderPage.cjs"),r=require("./JHeaderPage/JHeaderPageImpl.cjs"),a=require("./JHeaderPage/JHeaderPageView.cjs"),P=require("./JHeaderPage/InterJHeaderPage.cjs");exports.JHeaderPage=e.JHeaderPage;exports.JHeaderPageImpl=r.JHeaderPageImpl;exports.JHeaderPageView=a.JHeaderPageView;exports.JHEADER_PAGE_DEFAULTS=P.JHEADER_PAGE_DEFAULTS;
-//# sourceMappingURL=JHeaderPage.cjs.map

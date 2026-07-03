@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const l=require("react/jsx-runtime"),o=require("react"),n=require("./InterJCheckBoxField.cjs"),a=require("./JCheckBoxFieldView.cjs"),d=e=>{const[h,i]=o.useState(e.checked??n.JCHECKBOX_FIELD_DEFAULTS.checked),C=e.checked??h,k=c=>{var t;i(c),(t=e.onCheckedChange)==null||t.call(e,c)};return l.jsx(a.JCheckBoxFieldView,{...n.JCHECKBOX_FIELD_DEFAULTS,...e,checked:C,onCheckedChange:k})};d.displayName="JCheckBoxField";exports.JCheckBoxFieldImpl=d;
-//# sourceMappingURL=JCheckBoxFieldImpl.cjs.map

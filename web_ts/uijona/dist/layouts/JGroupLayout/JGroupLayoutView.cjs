@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const a=require("react/jsx-runtime"),l=require("react"),i=require("../../lib/cn.cjs"),n=require("../../atoms/JPanel/JPanelImpl.cjs"),e=l.forwardRef(({children:o,className:r,...u},t)=>a.jsx(n.JPanelImpl,{ref:t,layout:"group",className:i.cn("w-full max-w-full min-w-0",r),...u,children:o}));e.displayName="JGroupLayoutView";exports.JGroupLayoutView=e;
-//# sourceMappingURL=JGroupLayoutView.cjs.map

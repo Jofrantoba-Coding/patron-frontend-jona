@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./JSpringLayout/InterJSpringLayout.cjs"),e=require("./JSpringLayout/JSpringLayoutImpl.cjs"),t=require("./JSpringLayout/JSpringLayoutView.cjs");exports.JSPRING_LAYOUT_DEFAULTS=r.JSPRING_LAYOUT_DEFAULTS;exports.JSpringLayout=e.JSpringLayoutImpl;exports.JSpringLayoutView=t.JSpringLayoutView;
-//# sourceMappingURL=JSpringLayout.cjs.map

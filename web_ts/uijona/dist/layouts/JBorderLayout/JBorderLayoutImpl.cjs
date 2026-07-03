@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const u=require("react/jsx-runtime"),a=require("react"),d=require("./InterJBorderLayout.cjs"),s=require("./JBorderLayoutView.cjs"),e=a.forwardRef((r,o)=>{const t={...d.JBORDER_LAYOUT_DEFAULTS,...r};return u.jsx(s.JBorderLayoutView,{...t,forwardedRef:o})});e.displayName="JBorderLayout";exports.JBorderLayoutImpl=e;
-//# sourceMappingURL=JBorderLayoutImpl.cjs.map

@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const i=require("react/jsx-runtime"),r=require("react"),n=require("./InterJRadioButton.cjs"),u=require("./JRadioButtonView.cjs"),t=r.forwardRef((e,o)=>i.jsx(u.JRadioButtonView,{...n.JRADIOBUTTON_DEFAULTS,...e,forwardedRef:o}));t.displayName="JRadioButton";exports.JRadioButtonImpl=t;
-//# sourceMappingURL=JRadioButtonImpl.cjs.map

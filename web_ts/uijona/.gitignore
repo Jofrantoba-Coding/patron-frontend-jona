@@ -1,1 +1,15 @@
+# Dependencias
+node_modules/
+
+# Salida de build (se genera con `npm run build`; se incluye en el tarball npm via package.json "files")
+dist/
+
+# Storybook
 storybook-static/
+
+# Coverage de tests
+coverage/
+
+# Logs
+*.log
+debug-storybook.log

@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("./JErrorPage/InterJErrorPage.cjs"),o=require("./JErrorPage/JErrorPageView.cjs"),r=require("./JErrorPage/JErrorPageImpl.cjs");exports.JERROR_PAGE_DEFAULTS=e.JERROR_PAGE_DEFAULTS;exports.JErrorPageView=o.JErrorPageView;exports.JErrorPage=r.JErrorPageImpl;exports.JErrorPageImpl=r.JErrorPageImpl;
-//# sourceMappingURL=JErrorPage.cjs.map

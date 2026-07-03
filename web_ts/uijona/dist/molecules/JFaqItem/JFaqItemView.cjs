@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime"),s=require("../../lib/cn.cjs"),l=({question:t,answer:r,className:n})=>e.jsxs("div",{className:s.cn("rounded-xl border border-neutral-200 bg-neutral-50 p-6",n),children:[e.jsx("strong",{className:"mb-2 block text-base font-bold text-neutral-900",children:t}),e.jsx("p",{className:"text-sm leading-relaxed text-neutral-600",children:r})]});exports.JFaqItemView=l;
-//# sourceMappingURL=JFaqItemView.cjs.map

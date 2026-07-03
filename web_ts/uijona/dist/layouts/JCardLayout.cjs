@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./JCardLayout/InterJCardLayout.cjs"),e=require("./JCardLayout/JCardLayoutImpl.cjs"),t=require("./JCardLayout/JCardLayoutView.cjs");exports.JCARD_LAYOUT_DEFAULTS=r.JCARD_LAYOUT_DEFAULTS;exports.JCardLayout=e.JCardLayoutImpl;exports.JCardLayoutView=t.JCardLayoutView;
-//# sourceMappingURL=JCardLayout.cjs.map

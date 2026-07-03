@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./JBorderLayout/InterJBorderLayout.cjs"),e=require("./JBorderLayout/JBorderLayoutImpl.cjs"),o=require("./JBorderLayout/JBorderLayoutView.cjs");exports.JBORDER_LAYOUT_DEFAULTS=r.JBORDER_LAYOUT_DEFAULTS;exports.JBorderLayout=e.JBorderLayoutImpl;exports.JBorderLayoutView=o.JBorderLayoutView;
-//# sourceMappingURL=JBorderLayout.cjs.map

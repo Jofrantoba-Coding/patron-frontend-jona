@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const o=require("./JGroupLayout/InterJGroupLayout.cjs"),u=require("./JGroupLayout/JGroupLayoutImpl.cjs"),r=require("./JGroupLayout/JGroupLayoutView.cjs");exports.JGROUP_LAYOUT_DEFAULTS=o.JGROUP_LAYOUT_DEFAULTS;exports.JGroupLayout=u.JGroupLayoutImpl;exports.JGroupLayoutView=r.JGroupLayoutView;
-//# sourceMappingURL=JGroupLayout.cjs.map

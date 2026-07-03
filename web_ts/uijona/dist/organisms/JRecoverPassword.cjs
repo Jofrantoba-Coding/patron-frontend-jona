@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("./JRecoverPassword/InterJRecoverPassword.cjs"),o=require("./JRecoverPassword/JRecoverPasswordView.cjs"),e=require("./JRecoverPassword/JRecoverPasswordImpl.cjs");exports.JRECOVER_PASSWORD_DEFAULTS=r.JRECOVER_PASSWORD_DEFAULTS;exports.JRecoverPasswordView=o.JRecoverPasswordView;exports.JRecoverPassword=e.JRecoverPasswordImpl;exports.JRecoverPasswordImpl=e.JRecoverPasswordImpl;
-//# sourceMappingURL=JRecoverPassword.cjs.map

@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("react/jsx-runtime"),l=require("../../lib/cn.cjs"),s=({value:t,label:r,className:n})=>e.jsxs("div",{className:l.cn("flex min-w-0 flex-col gap-1.5 rounded-xl border border-neutral-200 bg-white p-5",n),children:[e.jsx("strong",{className:"text-2xl font-black leading-none text-neutral-900 sm:text-3xl",children:t}),e.jsx("span",{className:"text-sm leading-relaxed text-neutral-500",children:r})]});exports.JMetricCardView=s;
-//# sourceMappingURL=JMetricCardView.cjs.map

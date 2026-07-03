@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const r=require("react/jsx-runtime"),u=require("react"),a=require("./InterJGridLayout.cjs"),d=require("./JGridLayoutView.cjs"),i=u.forwardRef((t,o)=>{const e={...a.JGRID_LAYOUT_DEFAULTS,...t};return t.columns!==void 0&&t.autoFitMin===void 0&&(e.autoFitMin=void 0),r.jsx(d.JGridLayoutView,{ref:o,...e})});i.displayName="JGridLayout";exports.JGridLayoutImpl=i;
-//# sourceMappingURL=JGridLayoutImpl.cjs.map

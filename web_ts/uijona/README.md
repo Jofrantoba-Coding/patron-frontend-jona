@@ -267,13 +267,46 @@ El Storybook cubre los componentes visuales exportados por categoria:
 
 ## Scripts
 
+| Script | Que hace |
+| --- | --- |
+| `npm install` | Instala dependencias. Ya no requiere `--legacy-peer-deps` (React fijado a 18 en devDependencies). |
+| `npm run build` | Compila la libreria a `dist/`: bundle ESM+CJS (Vite), tipos `.d.ts` (tsc) y CSS (Tailwind). |
+| `npm run lint` | Chequeo de tipos con `tsc --noEmit`. |
+| `npm test` | Ejecuta la suite con Vitest. |
+| `npm run storybook` | Levanta Storybook en `http://localhost:6006`. |
+| `npm run build-storybook` | Build estatico de Storybook. |
+
+## Compilar La Libreria
+
+`dist/` **no** esta versionado (esta en `.gitignore`); se genera al compilar y se incluye en el paquete npm via `"files": ["dist"]`. Tras clonar el repo:
+
 ```bash
-npm run lint
-npm test
+cd web_ts/uijona
+npm install
 npm run build
-npm run storybook
-npm run build-storybook
 ```
+
+Esto deja `dist/` listo con ESM, CJS, tipos y CSS.
+
+## Desarrollo Local (Monorepo)
+
+Los proyectos hermanos (por ejemplo `website-develtrex`) consumen esta libreria por ruta local:
+
+```jsonc
+// package.json del consumidor
+"dependencies": {
+  "jona-ui": "file:../uijona"
+}
+```
+
+`npm install` en el consumidor crea un **symlink** a esta carpeta, por lo que lee `uijona/dist` directamente. Por eso, tras clonar en limpio **hay que compilar `uijona` antes** de levantar o construir el consumidor:
+
+```bash
+cd web_ts/uijona && npm install && npm run build
+cd ../website-develtrex && npm install && npm run dev
+```
+
+Si cambias codigo de la libreria, recompila (`npm run build` en `uijona`) para que el consumidor vea los cambios. Para iteracion rapida puedes usar `npm run build -- --watch` de Vite o trabajar contra Storybook.
 
 ## Desarrollo De Componentes
 
@@ -288,19 +321,43 @@ Antes de publicar una nueva tanda de componentes:
 7. Crea stories con estados principales.
 8. Ejecuta `npm run lint`, `npm test`, `npm run build` y `npm run build-storybook`.
 
-## Publicacion
+## Publicacion En npm
 
-Checklist usado para publicar:
+El paquete se publica como `jona-ui` (publico). El script `prepublishOnly` corre `npm run build` automaticamente antes de publicar, asi que el tarball siempre lleva un `dist/` fresco.
 
-```bash
-npm run lint
-npm test
-npm run build
-npm pack --dry-run
-npm publish --access public
-```
+1. Autenticarse (una sola vez por maquina):
 
-Si la cuenta npm tiene 2FA, `npm publish` requiere OTP o un granular access token con permisos de publicacion.
+   ```bash
+   npm login
+   ```
+
+2. Subir la version segun el tipo de cambio (actualiza `package.json` y crea el tag git):
+
+   ```bash
+   npm version patch   # fix        -> 1.3.0 -> 1.3.1
+   npm version minor   # feature    -> 1.3.0 -> 1.4.0
+   npm version major   # breaking   -> 1.3.0 -> 2.0.0
+   ```
+
+3. Verificar el contenido exacto del tarball antes de publicar:
+
+   ```bash
+   npm run lint
+   npm test
+   npm pack --dry-run   # lista los archivos que se subiran (solo dist/ y README.md)
+   ```
+
+4. Publicar:
+
+   ```bash
+   npm publish --access public
+   ```
+
+Notas:
+
+- Si la cuenta npm tiene 2FA, `npm publish` pide un OTP, o usa un granular access token con permiso de publicacion (`NPM_TOKEN`).
+- Tras publicar, empuja el commit y el tag de version: `git push && git push --tags`.
+- Los consumidores por `file:../uijona` **no** necesitan la version publicada; usan el `dist/` local. La publicacion en npm es para consumo externo.
 
 ## Licencia
 

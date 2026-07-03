@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const t=require("react/jsx-runtime"),u=require("react"),a=require("./InterJGroupLayout.cjs"),i=require("./JGroupLayoutView.cjs"),e=u.forwardRef((o,r)=>t.jsx(i.JGroupLayoutView,{ref:r,...a.JGROUP_LAYOUT_DEFAULTS,...o}));e.displayName="JGroupLayout";exports.JGroupLayoutImpl=e;
-//# sourceMappingURL=JGroupLayoutImpl.cjs.map

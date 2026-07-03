@@ -1,2 +1,0 @@
-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const t=require("./JCreateAccount/InterJCreateAccount.cjs"),c=require("./JCreateAccount/JCreateAccountView.cjs"),e=require("./JCreateAccount/JCreateAccountImpl.cjs");exports.JCREATE_ACCOUNT_DEFAULTS=t.JCREATE_ACCOUNT_DEFAULTS;exports.JCreateAccountView=c.JCreateAccountView;exports.JCreateAccount=e.JCreateAccountImpl;exports.JCreateAccountImpl=e.JCreateAccountImpl;
-//# sourceMappingURL=JCreateAccount.cjs.map
