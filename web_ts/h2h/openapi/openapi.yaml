@@ -1,0 +1,944 @@
+openapi: 3.1.0
+info:
+  title: Consola H2H · API (BCP Host-to-Host multi-tenant)
+  version: 1.0.0
+  description: >
+    Contrato de la Consola Host-to-Host de Jofrantoba Consulting TI (tenant demo: Develtrex).
+    Fuente de verdad para el mock-server (`web_ts/h2h/mock-server`) y la consola Angular.
+    Modela el flujo BCP H2H: operaciones → planillas (TXT/XML) → cifrado (OpenSSL/PGP) →
+    envío SFTP → respuestas (-RES/-VAL/-RES2/-PAR) → certificados/RBAC, con una bandeja
+    global de documentos. Los nombres de campos siguen el DDL real (sch_h2h, sch_maestra,
+    sch_operaciones, sch_bucket, sch_logs).
+servers:
+  - url: http://localhost:4010
+    description: Mock server local
+
+tags:
+  - name: Auth
+  - name: Tenants
+  - name: Dashboard
+  - name: Monitoring
+  - name: Catálogos
+  - name: Estructuras
+  - name: Beneficiarios
+  - name: Operaciones
+  - name: Planillas
+  - name: Respuestas
+  - name: Documentos
+  - name: Certificados
+  - name: Identity/RBAC
+  - name: Auditoría
+
+security:
+  - bearerAuth: []
+
+paths:
+  /mock/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login (mock) y obtención de contexto de tenant
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                password: { type: string }
+                tenantSubdomain: { type: string }
+      responses:
+        '200':
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+
+  /v1/me/context:
+    get:
+      tags: [Auth]
+      summary: Contexto del usuario autenticado (tenant + permisos efectivos)
+      parameters: [ { $ref: '#/components/parameters/OrgId' }, { $ref: '#/components/parameters/CorrId' } ]
+      responses:
+        '200':
+          description: Contexto
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TenantContext' }
+
+  /v1/tenants/current:
+    get:
+      tags: [Tenants]
+      summary: Tenant actual
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Tenant' } } } }
+  /v1/tenants:
+    get:
+      tags: [Tenants]
+      summary: Lista de tenants (backoffice)
+      parameters: [ { $ref: '#/components/parameters/Page' }, { $ref: '#/components/parameters/PageSize' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PaginatedTenant' } } } }
+    post:
+      tags: [Tenants]
+      summary: Alta de tenant (backoffice)
+      parameters: [ { $ref: '#/components/parameters/IdemKey' } ]
+      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
+      responses:
+        '201': { description: Creado, content: { application/json: { schema: { $ref: '#/components/schemas/Tenant' } } } }
+
+  /v1/dashboard/summary:
+    get:
+      tags: [Dashboard]
+      summary: Resumen operativo del día (KPIs + pipeline + alertas)
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/DashboardSummary' } } } }
+
+  /v1/monitoring/health:
+    get:
+      tags: [Monitoring]
+      summary: Salud de servicios dependientes
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
+
+  /v1/catalogs:
+    get:
+      tags: [Catálogos]
+      summary: Todos los catálogos (parametría)
+      responses:
+        '200':
+          description: Mapa código→valores
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: { type: array, items: { type: string } }
+  /v1/catalogs/{code}:
+    get:
+      tags: [Catálogos]
+      summary: Un catálogo por código
+      parameters:
+        - { name: code, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  catalogo: { type: string }
+                  items: { type: array, items: { type: string } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/estructuras:
+    get:
+      tags: [Estructuras]
+      summary: Estructuras de archivo (sch_h2h.tm_ear_estructura_archivo)
+      parameters:
+        - { name: producto, in: query, schema: { $ref: '#/components/schemas/ProductoGrupo' } }
+        - { name: formato, in: query, schema: { $ref: '#/components/schemas/FormatoArchivo' } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/EstructuraArchivo' } }
+
+  /v1/beneficiarios:
+    get:
+      tags: [Beneficiarios]
+      summary: Maestro de beneficiarios
+      parameters: [ { $ref: '#/components/parameters/Page' }, { $ref: '#/components/parameters/PageSize' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PaginatedBeneficiario' } } } }
+  /v1/beneficiarios/{id}:
+    get:
+      tags: [Beneficiarios]
+      summary: Beneficiario por id
+      parameters: [ { name: id, in: path, required: true, schema: { type: string, format: uuid } } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Beneficiario' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v1/beneficiarios/{id}/cuentas:
+    get:
+      tags: [Beneficiarios]
+      summary: Cuentas bancarias del beneficiario
+      parameters: [ { name: id, in: path, required: true, schema: { type: string, format: uuid } } ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/CuentaBancaria' } }
+
+  /v1/operaciones:
+    get:
+      tags: [Operaciones]
+      summary: Lista de operaciones (filtrable por producto/subtipo)
+      parameters:
+        - { name: producto, in: query, schema: { $ref: '#/components/schemas/ProductoGrupo' } }
+        - { name: subtipo, in: query, schema: { type: string } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PaginatedOperacion' } } } }
+  /v1/operaciones/manual:
+    post:
+      tags: [Operaciones]
+      summary: Alta manual de operación
+      parameters: [ { $ref: '#/components/parameters/IdemKey' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/OperacionManualInput' } } } }
+      responses:
+        '201': { description: Creada, content: { application/json: { schema: { $ref: '#/components/schemas/Operacion' } } } }
+  /v1/operaciones/carga:
+    post:
+      tags: [Operaciones]
+      summary: Carga masiva de operaciones (archivo/lote)
+      parameters: [ { $ref: '#/components/parameters/IdemKey' } ]
+      requestBody: { content: { application/json: { schema: { type: object } } } }
+      responses:
+        '202':
+          description: Aceptada para validación
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CargaResultado' }
+  /v1/operaciones/{id}:
+    get:
+      tags: [Operaciones]
+      summary: Operación por id
+      parameters: [ { name: id, in: path, required: true, schema: { type: string, format: uuid } } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Operacion' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v1/operaciones/{id}/anular:
+    patch:
+      tags: [Operaciones]
+      summary: Anular operación
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: '#/components/parameters/IdemKey' }
+      requestBody: { content: { application/json: { schema: { type: object, properties: { motivo: { type: string } } } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Operacion' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/planillas:
+    get:
+      tags: [Planillas]
+      summary: Lista de planillas (filtrable por producto/subtipo)
+      parameters:
+        - { name: producto, in: query, schema: { $ref: '#/components/schemas/ProductoGrupo' } }
+        - { name: subtipo, in: query, schema: { type: string } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PaginatedPlanilla' } } } }
+  /v1/planillas/generar:
+    post:
+      tags: [Planillas]
+      summary: Generar planilla desde operaciones seleccionadas
+      parameters: [ { $ref: '#/components/parameters/IdemKey' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PlanillaGenerarInput' } } } }
+      responses:
+        '201': { description: Generada, content: { application/json: { schema: { $ref: '#/components/schemas/Planilla' } } } }
+  /v1/planillas/{id}:
+    get:
+      tags: [Planillas]
+      summary: Planilla por id
+      parameters: [ { name: id, in: path, required: true, schema: { type: string, format: uuid } } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Planilla' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v1/planillas/{id}/preview:
+    get:
+      tags: [Planillas]
+      summary: Vista previa del contenido claro (TXT/XML)
+      parameters: [ { name: id, in: path, required: true, schema: { type: string, format: uuid } } ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanillaPreview' }
+  /v1/planillas/{id}/detalles:
+    get:
+      tags: [Planillas]
+      summary: Detalles (operaciones) de la planilla
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/PlanillaDetalle' } }
+                  pagination: { $ref: '#/components/schemas/Pagination' }
+  /v1/planillas/{id}/{accion}:
+    post:
+      tags: [Planillas]
+      summary: Ejecutar acción del ciclo de vida de la planilla
+      description: 'accion ∈ validar | cifrar | enviar | reintentar-envio | cancelar'
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: accion, in: path, required: true, schema: { type: string, enum: [validar, cifrar, enviar, reintentar-envio, cancelar] } }
+        - { $ref: '#/components/parameters/IdemKey' }
+      requestBody: { content: { application/json: { schema: { type: object, properties: { motivo: { type: string } } } } } }
+      responses:
+        '202':
+          description: Acción aceptada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PlanillaAction' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/respuestas:
+    get:
+      tags: [Respuestas]
+      summary: Respuestas BCP (opcionalmente por planilla)
+      parameters:
+        - { name: planillaId, in: query, schema: { type: string, format: uuid } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PaginatedRespuesta' } } } }
+  /v1/respuestas/cargar-manual:
+    post:
+      tags: [Respuestas]
+      summary: Cargar respuesta manualmente
+      parameters: [ { $ref: '#/components/parameters/IdemKey' } ]
+      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
+      responses:
+        '201': { description: Creada, content: { application/json: { schema: { $ref: '#/components/schemas/RespuestaBCP' } } } }
+  /v1/respuestas/{id}/procesar:
+    post:
+      tags: [Respuestas]
+      summary: Procesar respuesta (aplica estados a la planilla/operaciones)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: '#/components/parameters/IdemKey' }
+      requestBody: { content: { application/json: { schema: { type: object, properties: { dryRun: { type: boolean } } } } } }
+      responses:
+        '202':
+          description: Procesada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RespuestaProcesada' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/documentos:
+    get:
+      tags: [Documentos]
+      summary: Bandeja global de documentos (planillas + respuestas, claro y cifrado)
+      description: >
+        Vista unificada de todos los archivos del flujo H2H con filtros. Une planillas
+        enviadas y respuestas BCP en una fila común `Documento`.
+      parameters:
+        - { name: producto, in: query, schema: { $ref: '#/components/schemas/ProductoGrupo' } }
+        - { name: subtipo, in: query, schema: { type: string } }
+        - { name: tipoDocumento, in: query, schema: { type: string, enum: [PLANILLA, RESPUESTA] } }
+        - { name: estado, in: query, schema: { type: string } }
+        - { name: formato, in: query, schema: { $ref: '#/components/schemas/FormatoArchivo' } }
+        - { name: modalidad, in: query, schema: { type: string, enum: [H2H, H2W] } }
+        - { name: cifrado, in: query, schema: { type: boolean } }
+        - { name: fechaDesde, in: query, schema: { type: string, format: date } }
+        - { name: fechaHasta, in: query, schema: { type: string, format: date } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PageSize' }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PaginatedDocumento' } } } }
+  /v1/documentos/{id}:
+    get:
+      tags: [Documentos]
+      summary: Documento por id
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Documento' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v1/documentos/{id}/preview:
+    get:
+      tags: [Documentos]
+      summary: Vista previa del contenido del documento (planilla o respuesta)
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/DocumentoPreview' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /v1/documentos/{id}/download:
+    get:
+      tags: [Documentos]
+      summary: Referencia de descarga del documento (variante claro o cifrado)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: variante, in: query, schema: { type: string, enum: [claro, cifrado], default: claro } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documentoId: { type: string }
+                  variante: { type: string, enum: [claro, cifrado] }
+                  url: { type: string }
+                  nombre: { type: string }
+                  contentType: { type: string }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/certificados:
+    get:
+      tags: [Certificados]
+      summary: Certificados de cifrado (tenant + BCP)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Certificado' } }
+    post:
+      tags: [Certificados]
+      summary: Registrar/generar certificado
+      parameters: [ { $ref: '#/components/parameters/IdemKey' } ]
+      requestBody: { content: { application/json: { schema: { type: object, properties: { alias: { type: string } } } } } }
+      responses:
+        '201': { description: Creado, content: { application/json: { schema: { $ref: '#/components/schemas/Certificado' } } } }
+  /v1/certificados/{id}/rotar:
+    patch:
+      tags: [Certificados]
+      summary: Rotar certificado
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { $ref: '#/components/parameters/IdemKey' }
+      requestBody: { content: { application/json: { schema: { type: object, properties: { nuevoAlias: { type: string } } } } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Certificado' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/identity/users:
+    get:
+      tags: [Identity/RBAC]
+      summary: Usuarios del tenant
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/IdentityUser' } }
+  /v1/identity/roles:
+    get:
+      tags: [Identity/RBAC]
+      summary: Roles disponibles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Role' } }
+  /v1/rbac/effective-permissions:
+    get:
+      tags: [Identity/RBAC]
+      summary: Roles y permisos efectivos del usuario actual
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roles: { type: array, items: { type: string } }
+                  permissions: { type: array, items: { type: string } }
+
+  /v1/audit/events:
+    get:
+      tags: [Auditoría]
+      summary: Eventos de auditoría (DML / acciones)
+      parameters: [ { $ref: '#/components/parameters/Page' }, { $ref: '#/components/parameters/PageSize' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/PaginatedAudit' } } } }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    OrgId:
+      name: X-Organizacion-Id
+      in: header
+      schema: { type: string, format: uuid }
+      description: Identificador de la organización (tenant).
+    CorrId:
+      name: X-Correlation-Id
+      in: header
+      schema: { type: string }
+    IdemKey:
+      name: X-Idempotency-Key
+      in: header
+      schema: { type: string }
+      description: Clave de idempotencia para mutaciones.
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, default: 1, minimum: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      schema: { type: integer, default: 20, minimum: 1 }
+
+  responses:
+    NotFound:
+      description: No encontrado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: {}
+        traceId: { type: string }
+
+    Pagination:
+      type: object
+      properties:
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+
+    ProductoGrupo:
+      type: string
+      description: Agrupación de producto para menú/RBAC.
+      enum: [pagos_masivos, transferencias, factoring]
+
+    FormatoArchivo:
+      type: string
+      enum: [TXT, XML]
+
+    Tenant:
+      type: object
+      x-db-table: sch_maestra.tm_org_organizacion
+      properties:
+        org_u_id: { type: string, format: uuid, x-db: sch_maestra.tm_org_organizacion.org_u_id }
+        org_v_codigo: { type: string, x-db: sch_maestra.tm_org_organizacion.org_v_codigo }
+        org_v_abreviatura: { type: string, x-db: sch_maestra.tm_org_organizacion.org_v_abreviatura }
+        org_v_razonsocial: { type: string, x-db: sch_maestra.tm_org_organizacion.org_v_razonsocial }
+        org_v_nombrecomercial: { type: string, x-db: sch_maestra.tm_org_organizacion.org_v_nombrecomercial }
+        org_v_ambiente: { type: string, enum: [PRODUCCION, CERTIFICACION], x-db: sch_maestra.tm_org_organizacion.org_v_ambiente }
+        subdominio: { type: string, x-db: 'sch_maestra.tm_org_organizacion.org_jb_atributos->>subdominio (derivado de atributos JSONB)' }
+        keycloak:
+          type: object
+          properties:
+            org_b_usa_keycloak: { type: boolean, x-db: sch_maestra.tm_org_organizacion.org_b_usa_keycloak }
+            org_v_keycloak_realm: { type: string, x-db: sch_maestra.tm_org_organizacion.org_v_keycloak_realm }
+            org_v_keycloak_client: { type: string, x-db: sch_maestra.tm_org_organizacion.org_v_keycloak_client }
+            org_v_claim_orgid: { type: string, x-db: sch_maestra.tm_org_organizacion.org_v_claim_orgid }
+
+    AppUser:
+      type: object
+      x-db-source: 'Keycloak / IAM (no persiste en el DDL H2H). org del usuario referencia sch_maestra.tm_org_organizacion.org_u_id'
+      properties:
+        id: { type: string, x-db: 'Keycloak sub' }
+        username: { type: string, x-db: 'Keycloak preferred_username' }
+        name: { type: string, x-db: 'Keycloak name' }
+        email: { type: string, x-db: 'Keycloak email' }
+        roles: { type: array, items: { type: string }, x-db: 'Keycloak realm/client roles' }
+        permissions: { type: array, items: { type: string }, x-db: 'RBAC efectivo (roles → permisos). Catálogo en sch_maestra.tm_para_parametria (clase CODIGO/CONFIG)' }
+
+    TenantContext:
+      type: object
+      properties:
+        tenant: { $ref: '#/components/schemas/Tenant' }
+        user: { $ref: '#/components/schemas/AppUser' }
+
+    LoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/TenantContext'
+        - type: object
+          properties:
+            accessToken: { type: string }
+            refreshToken: { type: string }
+            expiresIn: { type: integer }
+
+    DashboardSummary:
+      type: object
+      x-db-derived: 'Agregados calculados sobre sch_h2h.tt_pla_planilla, sch_h2h.tt_prb_respuesta y sch_operaciones.tt_ope_operacion (conteos/sumas por fecha y estado). No es una tabla.'
+      properties:
+        fechaOperacion: { type: string, format: date }
+        kpis:
+          type: object
+          properties:
+            planillasHoy: { type: integer }
+            montoEnviadoHoy: { type: number }
+            operacionesAprobadas: { type: integer }
+            operacionesRechazadas: { type: integer }
+            certificadosPorVencer: { type: integer }
+        pipeline:
+          type: array
+          items:
+            type: object
+            properties:
+              estado: { type: string }
+              label: { type: string }
+              cantidad: { type: integer }
+              statusUi: { type: string, enum: [done, active, warning, error, pending] }
+        alertas:
+          type: array
+          items:
+            type: object
+            properties:
+              severity: { type: string, enum: [ERROR, WARN, INFO] }
+              title: { type: string }
+              message: { type: string }
+              createdAt: { type: string, format: date-time }
+
+    Health:
+      type: object
+      x-db-derived: 'Estado en vivo de servicios dependientes (Keycloak, generador, cifrado, SFTP, parser). No persiste en BD.'
+      properties:
+        status: { type: string, enum: [UP, DEGRADED, DOWN] }
+        checkedAt: { type: string, format: date-time }
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              status: { type: string, enum: [UP, DEGRADED, DOWN] }
+              latencyMs: { type: integer }
+              message: { type: string }
+
+    Beneficiario:
+      type: object
+      x-db-table: sch_maestra.tm_ben_beneficiario
+      properties:
+        ben_u_id: { type: string, format: uuid, x-db: sch_maestra.tm_ben_beneficiario.ben_u_id }
+        ben_n_id_tipodocumento_code: { type: string, x-db: 'sch_maestra.tm_ben_beneficiario.ben_n_id_tipodocumento (FK → sch_maestra.tm_para_parametria, se expone el código)' }
+        ben_v_numerodocumento: { type: string, x-db: sch_maestra.tm_ben_beneficiario.ben_v_numerodocumento }
+        ben_v_nombre: { type: string, x-db: sch_maestra.tm_ben_beneficiario.ben_v_nombre }
+        ben_v_apellido_paterno: { type: string, x-db: sch_maestra.tm_ben_beneficiario.ben_v_apellido_paterno }
+        ben_v_apellido_materno: { type: string, x-db: sch_maestra.tm_ben_beneficiario.ben_v_apellido_materno }
+        ben_v_email: { type: string, x-db: sch_maestra.tm_ben_beneficiario.ben_v_email }
+
+    CuentaBancaria:
+      type: object
+      x-db-table: sch_maestra.tm_bec_beneficiario_cuenta
+      properties:
+        entidadFinanciera: { type: string, x-db: 'sch_maestra.tm_bec_beneficiario_cuenta.bec_n_id_entidadfin (FK → sch_maestra.tm_para_parametria, código)' }
+        tipoCuenta: { type: string, enum: [AHORROS, CORRIENTE, MAESTRA, INTERBANCARIA], x-db: 'sch_maestra.tm_bec_beneficiario_cuenta.bec_n_id_tipocuenta (FK → tm_para_parametria, código)' }
+        numeroCuenta: { type: [string, 'null'], x-db: sch_maestra.tm_bec_beneficiario_cuenta.bec_v_numerocuenta }
+        cuentaInterbancaria: { type: [string, 'null'], x-db: sch_maestra.tm_bec_beneficiario_cuenta.bec_v_cuentainterbancaria }
+        moneda: { type: string, enum: [PEN, USD], x-db: 'sch_maestra.tm_bec_beneficiario_cuenta.bec_n_id_moneda (FK → tm_para_parametria, código)' }
+
+    EstructuraArchivo:
+      type: object
+      x-db-table: sch_h2h.tm_ear_estructura_archivo
+      properties:
+        ear_v_codigo: { type: string, x-db: sch_h2h.tm_ear_estructura_archivo.ear_v_codigo }
+        ear_v_descripcion: { type: string, x-db: sch_h2h.tm_ear_estructura_archivo.ear_v_descripcion }
+        ear_v_clase: { type: string, x-db: sch_h2h.tm_ear_estructura_archivo.ear_v_clase }
+        producto: { $ref: '#/components/schemas/ProductoGrupo', x-db: 'derivado de sch_h2h.tm_ear_estructura_archivo.ear_v_codigo / ear_jb_valor' }
+        formato: { $ref: '#/components/schemas/FormatoArchivo', x-db: 'derivado de sch_h2h.tm_ear_estructura_archivo.ear_v_codigo (segmento FORMATO)' }
+        version: { type: string, x-db: 'derivado de sch_h2h.tm_ear_estructura_archivo.ear_v_codigo (segmento VERSION)' }
+
+    OperacionItem:
+      type: object
+      x-db-table: sch_operaciones.tt_opi_operacion_item
+      properties:
+        opi_n_secuencial: { type: integer, x-db: sch_operaciones.tt_opi_operacion_item.opi_n_secuencial }
+        opi_n_id_tipoitem_code: { type: string, x-db: 'sch_operaciones.tt_opi_operacion_item.opi_n_id_tipoitem (FK → tm_para_parametria, código)' }
+        opi_v_descripcion: { type: string, x-db: sch_operaciones.tt_opi_operacion_item.opi_v_descripcion }
+        opi_dec_importe: { type: number, x-db: sch_operaciones.tt_opi_operacion_item.opi_dec_importe }
+
+    Operacion:
+      type: object
+      x-db-table: sch_operaciones.tt_ope_operacion
+      properties:
+        ope_u_id: { type: string, format: uuid, x-db: sch_operaciones.tt_ope_operacion.ope_u_id }
+        ope_v_codigo_operacion: { type: string, x-db: sch_operaciones.tt_ope_operacion.ope_v_codigo_operacion }
+        ope_v_idempotency_key: { type: string, x-db: sch_operaciones.tt_ope_operacion.ope_v_idempotency_key }
+        ope_v_sistema_origen: { type: string, x-db: sch_operaciones.tt_ope_operacion.ope_v_sistema_origen }
+        ope_v_referencia_origen: { type: string, x-db: sch_operaciones.tt_ope_operacion.ope_v_referencia_origen }
+        ope_v_codigo_externo: { type: string, x-db: sch_operaciones.tt_ope_operacion.ope_v_codigo_externo }
+        ope_n_id_tipooperacion_code: { type: string, x-db: 'sch_operaciones.tt_ope_operacion.ope_n_id_tipooperacion (FK → tm_para_parametria, código)' }
+        ope_n_id_estadooperacion_code: { type: string, x-db: 'sch_operaciones.tt_ope_operacion.ope_n_id_estadooperacion (FK → tm_para_parametria, código)' }
+        ope_n_id_moneda_code: { type: string, enum: [PEN, USD], x-db: 'sch_operaciones.tt_ope_operacion.ope_n_id_moneda (FK → tm_para_parametria, código)' }
+        ope_dec_montototal: { type: number, x-db: sch_operaciones.tt_ope_operacion.ope_dec_montototal }
+        ope_d_fecha_operacion: { type: string, format: date-time, x-db: sch_operaciones.tt_ope_operacion.ope_d_fecha_operacion }
+        ope_d_fecha_proceso: { type: string, format: date, x-db: sch_operaciones.tt_ope_operacion.ope_d_fecha_proceso }
+        ope_v_glosa: { type: string, x-db: sch_operaciones.tt_ope_operacion.ope_v_glosa }
+        beneficiario: { $ref: '#/components/schemas/Beneficiario', x-db: 'snapshot en sch_operaciones.tt_ope_operacion.ope_jb_valor_beneficiario (JSONB); maestro sch_maestra.tm_ben_beneficiario vía ope_u_id_beneficiario' }
+        cuenta: { $ref: '#/components/schemas/CuentaBancaria', x-db: 'snapshot en sch_operaciones.tt_ope_operacion.ope_jb_valor_cuenta (JSONB); maestro sch_maestra.tm_bec_beneficiario_cuenta vía ope_u_id_beneficiario_cuenta' }
+        items: { type: array, items: { $ref: '#/components/schemas/OperacionItem' }, x-db: 'sch_operaciones.tt_opi_operacion_item (FK opi_u_id_operacion = ope_u_id)' }
+        ope_u_id_planilla_vigente: { type: [string, 'null'], x-db: 'sch_operaciones.tt_ope_operacion.ope_u_id_planilla_vigente (FK → sch_h2h.tt_pla_planilla.pla_u_id)' }
+        ope_n_intentos_envio: { type: integer, x-db: sch_operaciones.tt_ope_operacion.ope_n_intentos_envio }
+
+    OperacionManualInput:
+      type: object
+      properties:
+        idempotencyKey: { type: string }
+        sistemaOrigen: { type: string }
+        referenciaOrigen: { type: string }
+        tipoOperacion: { type: string }
+        moneda: { type: string, enum: [PEN, USD] }
+        montoTotal: { type: number }
+        glosa: { type: string }
+        beneficiario:
+          type: object
+          properties:
+            tipoDocumento: { type: string }
+            numeroDocumento: { type: string }
+            nombre: { type: string }
+        cuenta:
+          type: object
+          properties:
+            entidadFinanciera: { type: string }
+            tipoCuenta: { type: string }
+            numeroCuenta: { type: [string, 'null'] }
+            cuentaInterbancaria: { type: [string, 'null'] }
+            moneda: { type: string }
+
+    CargaResultado:
+      type: object
+      properties:
+        cargaId: { type: string, format: uuid }
+        estado: { type: string }
+        totalFilas: { type: integer }
+        filasValidas: { type: integer }
+        filasError: { type: integer }
+        errores:
+          type: array
+          items:
+            type: object
+            properties:
+              fila: { type: integer }
+              campo: { type: string }
+              message: { type: string }
+
+    Planilla:
+      type: object
+      x-db-table: sch_h2h.tt_pla_planilla
+      properties:
+        pla_u_id: { type: string, format: uuid, x-db: sch_h2h.tt_pla_planilla.pla_u_id }
+        pla_n_id_entidadfin_code: { type: string, x-db: 'sch_h2h.tt_pla_planilla.pla_n_id_entidadfin (FK → tm_para_parametria, código)' }
+        pla_v_nombre_archivo: { type: string, x-db: sch_h2h.tt_pla_planilla.pla_v_nombre_archivo }
+        pla_n_id_producto_code: { type: string, description: 'H|C|P|CG|T|FA', x-db: 'sch_h2h.tt_pla_planilla.pla_n_id_producto (FK → tm_para_parametria, código)' }
+        pla_n_id_tipoproducto_code: { type: string, x-db: 'sch_h2h.tt_pla_planilla.pla_n_id_tipoproducto (FK → tm_para_parametria, código)' }
+        pla_n_id_formato_code: { $ref: '#/components/schemas/FormatoArchivo', x-db: 'sch_h2h.tt_pla_planilla.pla_n_id_formato (FK → tm_para_parametria, código)' }
+        pla_n_id_modalidad_valid_code: { type: string, enum: [H2H, H2W], x-db: 'sch_h2h.tt_pla_planilla.pla_n_id_modalidad_valid (FK → tm_para_parametria, código)' }
+        pla_n_id_estadoplanilla_code: { type: string, x-db: 'sch_h2h.tt_pla_planilla.pla_n_id_estadoplanilla (FK → tm_para_parametria, código)' }
+        pla_v_secuencial: { type: string, x-db: sch_h2h.tt_pla_planilla.pla_v_secuencial }
+        pla_d_fecha_archivo: { type: string, format: date, x-db: sch_h2h.tt_pla_planilla.pla_d_fecha_archivo }
+        pla_v_cuenta_cargo: { type: string, x-db: sch_h2h.tt_pla_planilla.pla_v_cuenta_cargo }
+        pla_n_id_moneda_code: { type: string, enum: [PEN, USD], x-db: 'sch_h2h.tt_pla_planilla.pla_n_id_moneda (FK → tm_para_parametria, código)' }
+        pla_dec_montototal: { type: number, x-db: sch_h2h.tt_pla_planilla.pla_dec_montototal }
+        pla_n_checksum: { type: string, x-db: sch_h2h.tt_pla_planilla.pla_n_checksum }
+        pla_n_total_operaciones: { type: integer, x-db: sch_h2h.tt_pla_planilla.pla_n_total_operaciones }
+        pla_v_ruta_in: { type: string, x-db: sch_h2h.tt_pla_planilla.pla_v_ruta_in }
+        pla_v_ruta_out: { type: string, x-db: sch_h2h.tt_pla_planilla.pla_v_ruta_out }
+        pla_b_flujo_par: { type: boolean, x-db: sch_h2h.tt_pla_planilla.pla_b_flujo_par }
+        pla_d_fecha_envio: { type: [string, 'null'], format: date-time, x-db: sch_h2h.tt_pla_planilla.pla_d_fecha_envio }
+        pla_n_reintentos: { type: integer, x-db: sch_h2h.tt_pla_planilla.pla_n_reintentos }
+        pla_v_url_claro: { type: string, x-db: 'sch_h2h.tt_pla_planilla.pla_v_url_claro (fuente en pla_n_id_fuente_claro; contenido opcional en pla_v_contenido_txt / pla_x_contenido_xml)' }
+        pla_v_url_cifrado: { type: string, x-db: 'sch_h2h.tt_pla_planilla.pla_v_url_cifrado (fuente en pla_n_id_fuente_cifrado)' }
+
+    PlanillaGenerarInput:
+      type: object
+      properties:
+        producto: { type: string }
+        formato: { $ref: '#/components/schemas/FormatoArchivo' }
+        cuentaCargo: { type: string }
+        moneda: { type: string }
+        operacionIds: { type: array, items: { type: string, format: uuid } }
+
+    PlanillaPreview:
+      type: object
+      x-db-derived: 'Render del contenido claro de la planilla desde sch_h2h.tt_pla_planilla.pla_v_contenido_txt / pla_x_contenido_xml (o la fuente pla_v_url_claro).'
+      properties:
+        planillaId: { type: string, format: uuid }
+        formato: { $ref: '#/components/schemas/FormatoArchivo' }
+        contentType: { type: string }
+        contenido: { type: string }
+        checksum: { type: string }
+
+    PlanillaDetalle:
+      type: object
+      x-db-table: sch_h2h.tt_pld_planilla_detalle
+      properties:
+        pld_u_id: { type: string, format: uuid, x-db: sch_h2h.tt_pld_planilla_detalle.pld_u_id }
+        pld_u_id_planilla: { type: string, format: uuid, x-db: 'sch_h2h.tt_pld_planilla_detalle.pld_u_id_planilla (FK → sch_h2h.tt_pla_planilla.pla_u_id)' }
+        pld_u_id_operacion: { type: string, format: uuid, x-db: 'sch_h2h.tt_pld_planilla_detalle.pld_u_id_operacion (FK → sch_operaciones.tt_ope_operacion.ope_u_id)' }
+        pld_n_secuencial: { type: integer, x-db: sch_h2h.tt_pld_planilla_detalle.pld_n_secuencial }
+        pld_n_id_estadodetalle_code: { type: string, x-db: 'sch_h2h.tt_pld_planilla_detalle.pld_n_id_estadodetalle (FK → tm_para_parametria, código)' }
+        pld_n_id_estado_banco_code: { type: string, x-db: 'sch_h2h.tt_pld_planilla_detalle.pld_n_id_estado_banco (FK → tm_para_parametria, código)' }
+        pld_n_id_codigo_devolucion_code: { type: string, x-db: 'sch_h2h.tt_pld_planilla_detalle.pld_n_id_codigo_devolucion (FK → tm_para_parametria, código)' }
+        pld_v_codigo_operacion_banco: { type: string, x-db: sch_h2h.tt_pld_planilla_detalle.pld_v_codigo_operacion_banco }
+        pld_jb_resultado_banco: { type: object, additionalProperties: true, x-db: sch_h2h.tt_pld_planilla_detalle.pld_jb_resultado_banco }
+
+    PlanillaAction:
+      type: object
+      properties:
+        planillaId: { type: string, format: uuid }
+        estadoAnterior: { type: string }
+        estadoActual: { type: string }
+        message: { type: string }
+        traceId: { type: string }
+
+    RespuestaBCP:
+      type: object
+      x-db-table: sch_h2h.tt_prb_respuesta
+      properties:
+        prb_u_id: { type: string, format: uuid, x-db: sch_h2h.tt_prb_respuesta.prb_u_id }
+        prb_u_id_planilla: { type: string, format: uuid, x-db: 'sch_h2h.tt_prb_respuesta.prb_u_id_planilla (FK → sch_h2h.tt_pla_planilla.pla_u_id)' }
+        prb_n_id_tiporespuesta_code: { type: string, enum: [VAL, RES, RES2, PAR], x-db: 'sch_h2h.tt_prb_respuesta.prb_n_id_tiporespuesta (FK → tm_para_parametria, código)' }
+        prb_v_nombre_archivo: { type: string, x-db: sch_h2h.tt_prb_respuesta.prb_v_nombre_archivo }
+        prb_d_fecha_recepcion: { type: string, format: date-time, x-db: sch_h2h.tt_prb_respuesta.prb_d_fecha_recepcion }
+        prb_n_total_operaciones: { type: integer, x-db: sch_h2h.tt_prb_respuesta.prb_n_total_operaciones }
+        prb_n_operaciones_ok: { type: integer, x-db: sch_h2h.tt_prb_respuesta.prb_n_operaciones_ok }
+        prb_n_operaciones_error: { type: integer, x-db: sch_h2h.tt_prb_respuesta.prb_n_operaciones_error }
+        prb_v_archivo_generado: { type: string, x-db: sch_h2h.tt_prb_respuesta.prb_v_archivo_generado }
+        prb_n_id_formato_code: { $ref: '#/components/schemas/FormatoArchivo', x-db: 'sch_h2h.tt_prb_respuesta.prb_n_id_formato (FK → tm_para_parametria, código)' }
+        prb_v_url_claro: { type: string, x-db: 'sch_h2h.tt_prb_respuesta.prb_v_url_claro (fuente en prb_n_id_fuente_claro; contenido opcional en prb_v_contenido_txt / prb_x_contenido_xml)' }
+        prb_v_url_cifrado: { type: string, x-db: 'sch_h2h.tt_prb_respuesta.prb_v_url_cifrado (fuente en prb_n_id_fuente_cifrado)' }
+
+    RespuestaProcesada:
+      type: object
+      properties:
+        respuestaId: { type: string, format: uuid }
+        planillaId: { type: string, format: uuid }
+        estadoPlanilla: { type: string }
+        operacionesActualizadas: { type: integer }
+        ok: { type: integer }
+        error: { type: integer }
+        traceId: { type: string }
+
+    Documento:
+      type: object
+      description: Fila unificada de la bandeja global (planilla o respuesta).
+      x-db-derived: 'UNION de sch_h2h.tt_pla_planilla (PLANILLA) y sch_h2h.tt_prb_respuesta (RESPUESTA). No es una tabla; se compone en consulta.'
+      properties:
+        id: { type: string, x-db: "prefijo 'PLA-' + tt_pla_planilla.pla_u_id  |  'RES-' + tt_prb_respuesta.prb_u_id" }
+        tipoDocumento: { type: string, enum: [PLANILLA, RESPUESTA], x-db: 'literal según tabla origen (planilla | respuesta)' }
+        producto: { $ref: '#/components/schemas/ProductoGrupo', x-db: 'derivado de tt_pla_planilla.pla_n_id_producto (mapa H,C,P,CG→pagos_masivos; T→transferencias; FA→factoring)' }
+        productoCode: { type: string, description: 'H|C|P|CG|T|FA', x-db: 'tt_pla_planilla.pla_n_id_producto (código)' }
+        subtipo: { type: string, x-db: 'tt_pla_planilla.pla_n_id_tipoproducto (código)' }
+        nombre: { type: string, x-db: 'tt_pla_planilla.pla_v_nombre_archivo | tt_prb_respuesta.prb_v_nombre_archivo' }
+        formato: { $ref: '#/components/schemas/FormatoArchivo', x-db: 'tt_pla_planilla.pla_n_id_formato | tt_prb_respuesta.prb_n_id_formato (código)' }
+        modalidad: { type: string, enum: [H2H, H2W], x-db: 'tt_pla_planilla.pla_n_id_modalidad_valid (código)' }
+        estado: { type: string, x-db: 'tt_pla_planilla.pla_n_id_estadoplanilla (código) | tt_prb_respuesta.prb_n_id_tiporespuesta (código)' }
+        tipoRespuesta: { type: [string, 'null'], enum: [VAL, RES, RES2, PAR, null], x-db: 'tt_prb_respuesta.prb_n_id_tiporespuesta (código); null en planillas' }
+        cifrado: { type: boolean, x-db: 'derivado: url_cifrado no nulo (pla_v_url_cifrado / prb_v_url_cifrado)' }
+        fecha: { type: string, format: date-time, x-db: 'tt_pla_planilla.pla_d_fecha_envio ?? pla_d_fecha_archivo | tt_prb_respuesta.prb_d_fecha_recepcion' }
+        montoTotal: { type: [number, 'null'], x-db: 'tt_pla_planilla.pla_dec_montototal; null en respuestas' }
+        totalOperaciones: { type: [integer, 'null'], x-db: 'tt_pla_planilla.pla_n_total_operaciones | tt_prb_respuesta.prb_n_total_operaciones' }
+        urlClaro: { type: [string, 'null'], x-db: 'tt_pla_planilla.pla_v_url_claro | tt_prb_respuesta.prb_v_url_claro' }
+        urlCifrado: { type: [string, 'null'], x-db: 'tt_pla_planilla.pla_v_url_cifrado | tt_prb_respuesta.prb_v_url_cifrado' }
+        planillaId: { type: [string, 'null'], format: uuid, x-db: 'tt_pla_planilla.pla_u_id | tt_prb_respuesta.prb_u_id_planilla' }
+
+    DocumentoPreview:
+      type: object
+      x-db-derived: 'Render del contenido claro: planilla (tt_pla_planilla.pla_v_contenido_txt / pla_x_contenido_xml) o respuesta (tt_prb_respuesta.prb_v_contenido_txt / prb_x_contenido_xml).'
+      properties:
+        documentoId: { type: string }
+        tipoDocumento: { type: string, enum: [PLANILLA, RESPUESTA] }
+        nombre: { type: string }
+        formato: { $ref: '#/components/schemas/FormatoArchivo' }
+        contentType: { type: string }
+        contenido: { type: string }
+
+    Certificado:
+      type: object
+      x-db-source: 'Servicio de certificados / KMS (no modelado en el DDL provisto). El material privado se custodia fuera de BD; los metadatos podrían persistirse como parametría sch_maestra.tm_para_parametria clase SECRETO_REF.'
+      properties:
+        certificadoId: { type: string, format: uuid }
+        scope: { type: string, enum: [TENANT, BCP], x-db: 'TENANT → org_u_id; BCP → llave pública del banco' }
+        tipo: { type: string, enum: [PGP_GPG, OPENSSL] }
+        alias: { type: string }
+        uso: { type: string }
+        estado: { type: string }
+        algoritmo: { type: string }
+        longitud: { type: integer }
+        fingerprint: { type: string }
+        fechaEmision: { type: string, format: date }
+        fechaVencimiento: { type: string, format: date }
+        diasParaVencer: { type: integer }
+        custodiaPrivada: { type: string }
+        publicKeyUrl: { type: string }
+        bcpPublicKeyLoaded: { type: boolean }
+
+    IdentityUser:
+      type: object
+      properties:
+        id: { type: string }
+        username: { type: string }
+        name: { type: string }
+        email: { type: string }
+        roles: { type: array, items: { type: string } }
+        enabled: { type: boolean }
+
+    Role:
+      type: object
+      properties:
+        role: { type: string }
+        description: { type: string }
+
+    AuditEvent:
+      type: object
+      x-db-table: sch_logs.ta_logoper_logs_operacion
+      properties:
+        eventId: { type: string, x-db: sch_logs.ta_logoper_logs_operacion.logoper_u_id }
+        actor: { type: string, x-db: sch_logs.ta_logoper_logs_operacion.logoper_v_usuario }
+        action: { type: string, x-db: sch_logs.ta_logoper_logs_operacion.logoper_v_tipooperacion }
+        entity: { type: string, x-db: 'sch_logs.ta_logoper_logs_operacion.logoper_v_tabla (o logoper_v_clase)' }
+        entityId: { type: string, x-db: sch_logs.ta_logoper_logs_operacion.logoper_v_identidad }
+        result: { type: string, x-db: 'derivado del snapshot sch_logs.ta_logoper_logs_operacion.logoper_jb_entidad' }
+        traceId: { type: string, x-db: 'correlación de request (no persistida como columna; puede ir en logoper_jb_entidad)' }
+        createdAt: { type: string, format: date-time, x-db: sch_logs.ta_logoper_logs_operacion.logoper_dt_fecha }
+
+    PaginatedTenant:
+      type: object
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/Tenant' } }, pagination: { $ref: '#/components/schemas/Pagination' } }
+    PaginatedOperacion:
+      type: object
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/Operacion' } }, pagination: { $ref: '#/components/schemas/Pagination' } }
+    PaginatedPlanilla:
+      type: object
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/Planilla' } }, pagination: { $ref: '#/components/schemas/Pagination' } }
+    PaginatedRespuesta:
+      type: object
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/RespuestaBCP' } }, pagination: { $ref: '#/components/schemas/Pagination' } }
+    PaginatedDocumento:
+      type: object
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/Documento' } }, pagination: { $ref: '#/components/schemas/Pagination' } }
+    PaginatedBeneficiario:
+      type: object
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/Beneficiario' } }, pagination: { $ref: '#/components/schemas/Pagination' } }
+    PaginatedAudit:
+      type: object
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/AuditEvent' } }, pagination: { $ref: '#/components/schemas/Pagination' } }

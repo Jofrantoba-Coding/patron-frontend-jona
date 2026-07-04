@@ -1,0 +1,666 @@
+{
+    "pipes": [],
+    "interfaces": [],
+    "injectables": [],
+    "guards": [],
+    "interceptors": [],
+    "classes": [],
+    "directives": [],
+    "components": [],
+    "modules": [],
+    "miscellaneous": {
+        "variables": [
+            {
+                "name": "Accent",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: { variant: 'accent' } }"
+            },
+            {
+                "name": "Avatars",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:.75rem; align-items:center\">\n        <j-avatar initials=\"JD\" size=\"xs\" />\n        <j-avatar initials=\"JD\" size=\"sm\" />\n        <j-avatar initials=\"JD\" size=\"md\" />\n        <j-avatar initials=\"AB\" size=\"lg\" shape=\"square\" />\n        <j-avatar initials=\"XY\" size=\"xl\" />\n      </div>`,\n  }),\n}"
+            },
+            {
+                "name": "Badges",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:.5rem; flex-wrap:wrap\">\n        <j-badge>Default</j-badge>\n        <j-badge variant=\"secondary\">Secondary</j-badge>\n        <j-badge variant=\"destructive\">Destructive</j-badge>\n        <j-badge variant=\"outline\">Outline</j-badge>\n        <j-badge variant=\"ghost\">Ghost</j-badge>\n      </div>`,\n  }),\n}"
+            },
+            {
+                "name": "Chips",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:.5rem; flex-wrap:wrap\">\n        <j-chip>Default</j-chip>\n        <j-chip variant=\"primary\">Primary</j-chip>\n        <j-chip variant=\"success\">Success</j-chip>\n        <j-chip variant=\"warning\" [removable]=\"true\">Removible</j-chip>\n        <j-chip variant=\"danger\">Danger</j-chip>\n      </div>`,\n  }),\n}"
+            },
+            {
+                "name": "Default",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "Destructive",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: { variant: 'destructive' } }"
+            },
+            {
+                "name": "Labels",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; flex-direction:column; gap:.5rem\">\n        <j-label variant=\"heading\" as=\"h3\">Encabezado</j-label>\n        <j-label>Texto de cuerpo por defecto.</j-label>\n        <j-label variant=\"description\">Descripción auxiliar neutra.</j-label>\n        <j-label variant=\"error\">Campo requerido.</j-label>\n        <j-label variant=\"link\" href=\"#\">Enlace primario</j-label>\n      </div>`,\n  }),\n}"
+            },
+            {
+                "name": "Loading",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: { loading: true } }"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta",
+                "defaultValue": "{\n  title: 'Atoms/Galería',\n  decorators: [\n    moduleMetadata({\n      imports: [JBadge, JLabel, JProgress, JAvatar, JSpinner, JChip, JDot, JSkeleton],\n    }),\n  ],\n}",
+                "rawdescription": "Galería de atoms de presentación de uijona-4ngular.",
+                "description": "<p>Galería de atoms de presentación de uijona-4ngular.</p>\n"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<JButton>",
+                "defaultValue": "{\n  title: 'Atoms/JButton',\n  component: JButton,\n  tags: ['autodocs'],\n  argTypes: {\n    variant: {\n      control: 'select',\n      options: ['default', 'outline', 'ghost', 'destructive', 'secondary', 'link', 'accent'],\n    },\n    size: { control: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl', 'icon'] },\n    disabled: { control: 'boolean' },\n    loading: { control: 'boolean' },\n    fullWidth: { control: 'boolean' },\n  },\n  args: { variant: 'default', size: 'md', disabled: false, loading: false, fullWidth: false },\n  render: (args) => ({\n    props: args,\n    template: `<j-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\"\n      [loading]=\"loading\" [fullWidth]=\"fullWidth\">Guardar cambios</j-button>`,\n  }),\n}"
+            },
+            {
+                "name": "Outline",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{ args: { variant: 'outline' } }"
+            },
+            {
+                "name": "preview",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/.storybook/preview.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Preview",
+                "defaultValue": "{\n  parameters: {\n    controls: {\n      matchers: {\n       color: /(background|color)$/i,\n       date: /Date$/i,\n      },\n    },\n  },\n}"
+            },
+            {
+                "name": "Progress",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; flex-direction:column; gap:1rem; max-width:320px\">\n        <j-progress [value]=\"35\" [showLabel]=\"true\" />\n        <j-progress [value]=\"70\" variant=\"success\" [showLabel]=\"true\" [animated]=\"true\" />\n        <div style=\"display:flex; gap:1rem\">\n          <j-progress type=\"circle\" [value]=\"25\" [showLabel]=\"true\" />\n          <j-progress type=\"circle\" [value]=\"60\" variant=\"warning\" [showLabel]=\"true\" />\n          <j-progress type=\"circle\" [value]=\"90\" variant=\"danger\" size=\"lg\" [showLabel]=\"true\" />\n        </div>\n      </div>`,\n  }),\n}"
+            },
+            {
+                "name": "Skeletons",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; flex-direction:column; gap:.5rem; max-width:280px\">\n        <j-skeleton className=\"h-4 w-1/2\" />\n        <j-skeleton className=\"h-4 w-full\" />\n        <j-skeleton className=\"h-4 w-3/4\" variant=\"wave\" />\n        <j-skeleton [circle]=\"true\" className=\"h-12 w-12\" />\n      </div>`,\n  }),\n}"
+            },
+            {
+                "name": "SpinnersAndDots",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:1rem; align-items:center\">\n        <j-spinner size=\"sm\" color=\"primary\" />\n        <j-spinner size=\"md\" color=\"primary\" />\n        <j-spinner size=\"lg\" color=\"primary\" />\n        <j-dot tone=\"success\" [pulse]=\"true\" ariaLabel=\"online\" />\n        <j-dot tone=\"warning\" />\n        <j-dot tone=\"danger\" />\n      </div>`,\n  }),\n}"
+            },
+            {
+                "name": "Variants",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:.5rem; flex-wrap:wrap; align-items:center\">\n        <j-button variant=\"default\">Default</j-button>\n        <j-button variant=\"accent\">Accent</j-button>\n        <j-button variant=\"outline\">Outline</j-button>\n        <j-button variant=\"ghost\">Ghost</j-button>\n        <j-button variant=\"secondary\">Secondary</j-button>\n        <j-button variant=\"destructive\">Destructive</j-button>\n        <j-button variant=\"link\">Link</j-button>\n      </div>`,\n  }),\n}"
+            },
+            {
+                "name": "WithIcon",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "coverageIgnore": false,
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  render: () => ({\n    template: `\n      <j-button variant=\"accent\">\n        <svg jIcon viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\">\n          <path d=\"M5 12h14M12 5v14\" />\n        </svg>\n        Nuevo\n      </j-button>`,\n  }),\n}"
+            }
+        ],
+        "functions": [],
+        "typealiases": [
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "StoryObj",
+                "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "coverageIgnore": false,
+                "rawtype": "StoryObj<JButton>",
+                "file": "projects/uijona/src/stories/j-button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "rawdescription": "",
+                "description": "",
+                "kind": 184
+            }
+        ],
+        "enumerations": [],
+        "groupedVariables": {
+            "projects/uijona/src/stories/j-button.stories.ts": [
+                {
+                    "name": "Accent",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: { variant: 'accent' } }"
+                },
+                {
+                    "name": "Default",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "Destructive",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: { variant: 'destructive' } }"
+                },
+                {
+                    "name": "Loading",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: { loading: true } }"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<JButton>",
+                    "defaultValue": "{\n  title: 'Atoms/JButton',\n  component: JButton,\n  tags: ['autodocs'],\n  argTypes: {\n    variant: {\n      control: 'select',\n      options: ['default', 'outline', 'ghost', 'destructive', 'secondary', 'link', 'accent'],\n    },\n    size: { control: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl', 'icon'] },\n    disabled: { control: 'boolean' },\n    loading: { control: 'boolean' },\n    fullWidth: { control: 'boolean' },\n  },\n  args: { variant: 'default', size: 'md', disabled: false, loading: false, fullWidth: false },\n  render: (args) => ({\n    props: args,\n    template: `<j-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\"\n      [loading]=\"loading\" [fullWidth]=\"fullWidth\">Guardar cambios</j-button>`,\n  }),\n}"
+                },
+                {
+                    "name": "Outline",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{ args: { variant: 'outline' } }"
+                },
+                {
+                    "name": "Variants",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:.5rem; flex-wrap:wrap; align-items:center\">\n        <j-button variant=\"default\">Default</j-button>\n        <j-button variant=\"accent\">Accent</j-button>\n        <j-button variant=\"outline\">Outline</j-button>\n        <j-button variant=\"ghost\">Ghost</j-button>\n        <j-button variant=\"secondary\">Secondary</j-button>\n        <j-button variant=\"destructive\">Destructive</j-button>\n        <j-button variant=\"link\">Link</j-button>\n      </div>`,\n  }),\n}"
+                },
+                {
+                    "name": "WithIcon",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <j-button variant=\"accent\">\n        <svg jIcon viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\">\n          <path d=\"M5 12h14M12 5v14\" />\n        </svg>\n        Nuevo\n      </j-button>`,\n  }),\n}"
+                }
+            ],
+            "projects/uijona/src/stories/j-atoms.stories.ts": [
+                {
+                    "name": "Avatars",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:.75rem; align-items:center\">\n        <j-avatar initials=\"JD\" size=\"xs\" />\n        <j-avatar initials=\"JD\" size=\"sm\" />\n        <j-avatar initials=\"JD\" size=\"md\" />\n        <j-avatar initials=\"AB\" size=\"lg\" shape=\"square\" />\n        <j-avatar initials=\"XY\" size=\"xl\" />\n      </div>`,\n  }),\n}"
+                },
+                {
+                    "name": "Badges",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:.5rem; flex-wrap:wrap\">\n        <j-badge>Default</j-badge>\n        <j-badge variant=\"secondary\">Secondary</j-badge>\n        <j-badge variant=\"destructive\">Destructive</j-badge>\n        <j-badge variant=\"outline\">Outline</j-badge>\n        <j-badge variant=\"ghost\">Ghost</j-badge>\n      </div>`,\n  }),\n}"
+                },
+                {
+                    "name": "Chips",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:.5rem; flex-wrap:wrap\">\n        <j-chip>Default</j-chip>\n        <j-chip variant=\"primary\">Primary</j-chip>\n        <j-chip variant=\"success\">Success</j-chip>\n        <j-chip variant=\"warning\" [removable]=\"true\">Removible</j-chip>\n        <j-chip variant=\"danger\">Danger</j-chip>\n      </div>`,\n  }),\n}"
+                },
+                {
+                    "name": "Labels",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; flex-direction:column; gap:.5rem\">\n        <j-label variant=\"heading\" as=\"h3\">Encabezado</j-label>\n        <j-label>Texto de cuerpo por defecto.</j-label>\n        <j-label variant=\"description\">Descripción auxiliar neutra.</j-label>\n        <j-label variant=\"error\">Campo requerido.</j-label>\n        <j-label variant=\"link\" href=\"#\">Enlace primario</j-label>\n      </div>`,\n  }),\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta",
+                    "defaultValue": "{\n  title: 'Atoms/Galería',\n  decorators: [\n    moduleMetadata({\n      imports: [JBadge, JLabel, JProgress, JAvatar, JSpinner, JChip, JDot, JSkeleton],\n    }),\n  ],\n}",
+                    "rawdescription": "Galería de atoms de presentación de uijona-4ngular.",
+                    "description": "<p>Galería de atoms de presentación de uijona-4ngular.</p>\n"
+                },
+                {
+                    "name": "Progress",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; flex-direction:column; gap:1rem; max-width:320px\">\n        <j-progress [value]=\"35\" [showLabel]=\"true\" />\n        <j-progress [value]=\"70\" variant=\"success\" [showLabel]=\"true\" [animated]=\"true\" />\n        <div style=\"display:flex; gap:1rem\">\n          <j-progress type=\"circle\" [value]=\"25\" [showLabel]=\"true\" />\n          <j-progress type=\"circle\" [value]=\"60\" variant=\"warning\" [showLabel]=\"true\" />\n          <j-progress type=\"circle\" [value]=\"90\" variant=\"danger\" size=\"lg\" [showLabel]=\"true\" />\n        </div>\n      </div>`,\n  }),\n}"
+                },
+                {
+                    "name": "Skeletons",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; flex-direction:column; gap:.5rem; max-width:280px\">\n        <j-skeleton className=\"h-4 w-1/2\" />\n        <j-skeleton className=\"h-4 w-full\" />\n        <j-skeleton className=\"h-4 w-3/4\" variant=\"wave\" />\n        <j-skeleton [circle]=\"true\" className=\"h-12 w-12\" />\n      </div>`,\n  }),\n}"
+                },
+                {
+                    "name": "SpinnersAndDots",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  render: () => ({\n    template: `\n      <div style=\"display:flex; gap:1rem; align-items:center\">\n        <j-spinner size=\"sm\" color=\"primary\" />\n        <j-spinner size=\"md\" color=\"primary\" />\n        <j-spinner size=\"lg\" color=\"primary\" />\n        <j-dot tone=\"success\" [pulse]=\"true\" ariaLabel=\"online\" />\n        <j-dot tone=\"warning\" />\n        <j-dot tone=\"danger\" />\n      </div>`,\n  }),\n}"
+                }
+            ],
+            "projects/uijona/.storybook/preview.ts": [
+                {
+                    "name": "preview",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/uijona/.storybook/preview.ts",
+                    "coverageIgnore": false,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Preview",
+                    "defaultValue": "{\n  parameters: {\n    controls: {\n      matchers: {\n       color: /(background|color)$/i,\n       date: /Date$/i,\n      },\n    },\n  },\n}"
+                }
+            ]
+        },
+        "groupedFunctions": {},
+        "groupedEnumerations": {},
+        "groupedTypeAliases": {
+            "projects/uijona/src/stories/j-atoms.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj",
+                    "file": "projects/uijona/src/stories/j-atoms.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/uijona/src/stories/j-button.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "coverageIgnore": false,
+                    "rawtype": "StoryObj<JButton>",
+                    "file": "projects/uijona/src/stories/j-button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ]
+        }
+    },
+    "routes": {
+        "name": "<root>",
+        "kind": "module",
+        "children": []
+    },
+    "coverage": {
+        "count": 5,
+        "status": "low",
+        "files": [
+            {
+                "filePath": "projects/uijona/.storybook/preview.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "preview",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Avatars",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Badges",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Chips",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Labels",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 100,
+                "coverageCount": "1/1",
+                "status": "very-good"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Progress",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Skeletons",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "SpinnersAndDots",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-atoms.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Accent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Default",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Destructive",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Loading",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Outline",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Variants",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "WithIcon",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "projects/uijona/src/stories/j-button.stories.ts",
+                "type": "type alias",
+                "linktype": "miscellaneous",
+                "linksubtype": "typealias",
+                "name": "Story",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            }
+        ]
+    }
+}

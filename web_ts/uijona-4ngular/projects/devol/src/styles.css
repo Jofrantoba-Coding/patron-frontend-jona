@@ -1,0 +1,11 @@
+@import '../../../dist/uijona/styles/uijona.css';
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}

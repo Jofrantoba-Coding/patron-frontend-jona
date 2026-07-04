@@ -1,0 +1,536 @@
+{
+  "tenantContext": {
+    "tenant": {
+      "org_u_id": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90",
+      "org_v_codigo": "DEVELTREX",
+      "org_v_abreviatura": "DVTX",
+      "org_v_razonsocial": "Develtrex Perú S.A.C.",
+      "org_v_nombrecomercial": "Develtrex",
+      "org_v_ambiente": "PRODUCCION",
+      "subdominio": "develtrex.jofrantoba.pe",
+      "keycloak": {
+        "org_b_usa_keycloak": true,
+        "org_v_keycloak_realm": "develtrex",
+        "org_v_keycloak_client": "develtrex-h2h-console",
+        "org_v_claim_orgid": "organizacion_id"
+      }
+    },
+    "user": {
+      "id": "kc-user-1001",
+      "username": "m.torres",
+      "name": "Marcela Torres",
+      "email": "m.torres@develtrex.pe",
+      "roles": ["H2H_SUPERVISOR"],
+      "permissions": [
+        "dashboard:read",
+        "documentos:read",
+        "documentos:download",
+        "documentos:download_cifrado",
+        "operaciones.pagos_masivos:read",
+        "operaciones.pagos_masivos:crear",
+        "operaciones.pagos_masivos:anular",
+        "operaciones.transferencias:read",
+        "operaciones.transferencias:crear",
+        "operaciones.transferencias:anular",
+        "operaciones.factoring:read",
+        "operaciones.factoring:crear",
+        "operaciones.factoring:anular",
+        "planillas:read",
+        "planillas:generar",
+        "planillas:cifrar",
+        "planillas:enviar",
+        "respuestas:read",
+        "respuestas:procesar",
+        "respuestas:cargar",
+        "beneficiarios:read",
+        "certificados:read",
+        "certificados:rotar",
+        "catalogos:read",
+        "auditoria:read",
+        "rbac:read"
+      ]
+    }
+  },
+  "dashboardSummary": {
+    "fechaOperacion": "2026-06-30",
+    "kpis": {
+      "planillasHoy": 7,
+      "montoEnviadoHoy": 1284500.0,
+      "operacionesAprobadas": 1842,
+      "operacionesRechazadas": 31,
+      "certificadosPorVencer": 1
+    },
+    "pipeline": [
+      { "estado": "OPERACION_CARGADA", "label": "Operación cargada", "cantidad": 1873, "statusUi": "done" },
+      { "estado": "VALIDADA", "label": "Validada", "cantidad": 1873, "statusUi": "done" },
+      { "estado": "GENERADA", "label": "Planilla generada", "cantidad": 7, "statusUi": "done" },
+      { "estado": "CIFRADA", "label": "Cifrada / firmada", "cantidad": 7, "statusUi": "active" },
+      { "estado": "ENVIADA", "label": "Enviada SFTP", "cantidad": 6, "statusUi": "active" },
+      { "estado": "RESPUESTA_RECIBIDA", "label": "Respuesta banco", "cantidad": 5, "statusUi": "error" }
+    ],
+    "alertas": [
+      {
+        "severity": "ERROR",
+        "title": "31 operaciones rechazadas por BCP",
+        "message": "HAB-20260630-004 · código CUENTA_INVALIDA",
+        "createdAt": "2026-06-30T10:31:00-05:00"
+      },
+      {
+        "severity": "WARN",
+        "title": "Certificado PGP vence pronto",
+        "message": "Llave pública BCP vence en 42 días",
+        "createdAt": "2026-06-30T08:00:00-05:00"
+      }
+    ]
+  },
+  "catalogs": {
+    "ESTADO_PLANILLA": ["GENERADA", "VALIDADA", "PENDIENTE_CIFRADO", "CIFRADA", "ERROR_CIFRADO", "PENDIENTE_ENVIO", "ENVIADA", "RESPUESTA_RECIBIDA", "PROCESADA", "PROCESADA_PARCIAL", "RECHAZADA", "ERROR"],
+    "ESTADO_OPERACION": ["REGISTRADA", "VALIDADA", "EN_PROCESO_PAGO", "PAGO_CONFIRMADO", "PAGO_RECHAZADO", "CONTABILIZADA", "ANULADA", "ERROR"],
+    "ESTADO_DETALLE_PLANILLA": ["ASOCIADO", "GENERADO", "VALIDADO", "ENVIADO", "PROCESADO", "RECHAZADO", "OBSERVADO", "REINTENTAR", "ANULADO"],
+    "TIPO_OPERACION": ["RETIRO_INVITADO", "PAGO_PROVEEDOR", "PAGO_HABER", "PAGO_CTS", "PAGO_TRANSFERENCIA", "PAGO_FACTORING", "PAGO_CHEQUE_GERENCIA"],
+    "TIPO_PRODUCTO_BCP": ["H", "C", "P", "CG", "T", "FA"],
+    "FORMATO_ARCHIVO": ["TXT", "XML"],
+    "VERSION_FORMATO": ["TXT_2025_CLOUD", "PAIN_001_001_09", "PAIN_001_001_03", "PAIN_002_001_09", "PAIN_002_001_03"],
+    "TIPO_RESPUESTA": ["VAL", "RES", "RES2", "PAR"],
+    "MONEDA": ["PEN", "USD"],
+    "TIPO_CUENTA_BANCARIA": ["AHORROS", "CORRIENTE", "MAESTRA", "INTERBANCARIA"],
+    "CODIGO_DEVOLUCION": ["SIN_ERROR", "ERROR_ESTRUCTURA", "CUENTA_INVALIDA", "MONEDA_ERRADA", "DOCUMENTO_INVALIDO", "SALDO_INSUFICIENTE", "RECHAZO_BANCO", "ERROR_TECNICO"]
+  },
+  "operaciones": [
+    {
+      "ope_u_id": "8de7f8d3-7ffb-4cbe-bef2-4a130f0bf901",
+      "ope_v_idempotency_key": "niubiz:withdrawal:WDL-20260630-00001234",
+      "ope_v_sistema_origen": "niubiz",
+      "ope_v_referencia_origen": "WDL-20260630-00001234",
+      "ope_v_codigo_externo": "INV-901244",
+      "ope_v_codigo_operacion": "OP-3202375901",
+      "ope_n_id_tipooperacion_code": "RETIRO_INVITADO",
+      "ope_n_id_estadooperacion_code": "REGISTRADA",
+      "ope_n_id_moneda_code": "PEN",
+      "ope_dec_montototal": 1450.0,
+      "ope_d_fecha_operacion": "2026-06-30T10:12:00-05:00",
+      "ope_d_fecha_proceso": "2026-06-30",
+      "ope_v_glosa": "Retiro invitado Develtrex",
+      "beneficiario": {
+        "ben_n_id_tipodocumento_code": "DNI",
+        "ben_v_numerodocumento": "41209875",
+        "ben_v_nombre": "Juan",
+        "ben_v_apellido_paterno": "Ramirez",
+        "ben_v_apellido_materno": "Soto",
+        "ben_v_email": "juan.ramirez@example.com"
+      },
+      "cuenta": {
+        "entidadFinanciera": "BCP",
+        "tipoCuenta": "AHORROS",
+        "numeroCuenta": "19128470001234",
+        "cuentaInterbancaria": null,
+        "moneda": "PEN"
+      },
+      "items": [
+        { "opi_n_secuencial": 1, "opi_n_id_tipoitem_code": "CAPITAL", "opi_v_descripcion": "Importe principal", "opi_dec_importe": 1450.0 }
+      ],
+      "ope_jb_atributos": { "canal": "WEB", "ipOrigen": "190.234.12.8", "riesgo": "BAJO" },
+      "ope_u_id_planilla_vigente": null,
+      "ope_n_intentos_envio": 0,
+      "ope_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    },
+    {
+      "ope_u_id": "aab7c103-3fa5-44e4-9e3b-020e3156c90a",
+      "ope_v_idempotency_key": "erp-prov:invoice:INV-20260630-8801",
+      "ope_v_sistema_origen": "erp-prov",
+      "ope_v_referencia_origen": "INV-20260630-8801",
+      "ope_v_codigo_externo": "INV-901245",
+      "ope_v_codigo_operacion": "OP-3202375902",
+      "ope_n_id_tipooperacion_code": "PAGO_PROVEEDOR",
+      "ope_n_id_estadooperacion_code": "REGISTRADA",
+      "ope_n_id_moneda_code": "PEN",
+      "ope_dec_montototal": 12900.0,
+      "ope_d_fecha_operacion": "2026-06-30T10:14:00-05:00",
+      "ope_d_fecha_proceso": "2026-06-30",
+      "ope_v_glosa": "Pago proveedor Develtrex",
+      "beneficiario": {
+        "ben_n_id_tipodocumento_code": "RUC",
+        "ben_v_numerodocumento": "20512349981",
+        "ben_v_nombre": "Comercial Delta SAC"
+      },
+      "cuenta": {
+        "entidadFinanciera": "BCP",
+        "tipoCuenta": "INTERBANCARIA",
+        "numeroCuenta": null,
+        "cuentaInterbancaria": "002193000000000008",
+        "moneda": "PEN"
+      },
+      "items": [
+        { "opi_n_secuencial": 1, "opi_n_id_tipoitem_code": "CAPITAL", "opi_v_descripcion": "Importe principal", "opi_dec_importe": 12900.0 }
+      ],
+      "ope_jb_atributos": { "canal": "WEB", "ipOrigen": "190.234.12.8", "riesgo": "BAJO" },
+      "ope_u_id_planilla_vigente": null,
+      "ope_n_intentos_envio": 0,
+      "ope_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    },
+    {
+      "ope_u_id": "c1d9a6b2-7e04-4a11-9f2c-3b8ad04e7712",
+      "ope_v_idempotency_key": "tesoreria:transfer:TRF-20260630-5501",
+      "ope_v_sistema_origen": "tesoreria",
+      "ope_v_referencia_origen": "TRF-20260630-5501",
+      "ope_v_codigo_externo": "TRF-901301",
+      "ope_v_codigo_operacion": "OP-3202376010",
+      "ope_n_id_tipooperacion_code": "PAGO_TRANSFERENCIA",
+      "ope_n_id_estadooperacion_code": "REGISTRADA",
+      "ope_n_id_moneda_code": "USD",
+      "ope_dec_montototal": 48200.0,
+      "ope_d_fecha_operacion": "2026-06-30T09:40:00-05:00",
+      "ope_d_fecha_proceso": "2026-06-30",
+      "ope_v_glosa": "Transferencia interbancaria a proveedor",
+      "beneficiario": {
+        "ben_n_id_tipodocumento_code": "RUC",
+        "ben_v_numerodocumento": "20481234567",
+        "ben_v_nombre": "Importaciones Andinas SAC"
+      },
+      "cuenta": {
+        "entidadFinanciera": "INTERBANK",
+        "tipoCuenta": "INTERBANCARIA",
+        "numeroCuenta": null,
+        "cuentaInterbancaria": "003193000000005512",
+        "moneda": "USD"
+      },
+      "items": [
+        { "opi_n_secuencial": 1, "opi_n_id_tipoitem_code": "CAPITAL", "opi_v_descripcion": "Importe principal", "opi_dec_importe": 48200.0 }
+      ],
+      "ope_jb_atributos": { "canal": "ERP", "viaProceso": "BCR", "subtipo": "INTERBANCARIA" },
+      "ope_u_id_planilla_vigente": null,
+      "ope_n_intentos_envio": 0,
+      "ope_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    },
+    {
+      "ope_u_id": "d5e2b8c4-1a37-4c90-8e6d-9f0a2b3c4d5e",
+      "ope_v_idempotency_key": "erp-fact:confirming:FAC-20260630-7701",
+      "ope_v_sistema_origen": "erp-fact",
+      "ope_v_referencia_origen": "FAC-20260630-7701",
+      "ope_v_codigo_externo": "FAC-901402",
+      "ope_v_codigo_operacion": "OP-3202376020",
+      "ope_n_id_tipooperacion_code": "PAGO_FACTORING",
+      "ope_n_id_estadooperacion_code": "VALIDADA",
+      "ope_n_id_moneda_code": "PEN",
+      "ope_dec_montototal": 96540.5,
+      "ope_d_fecha_operacion": "2026-06-30T08:55:00-05:00",
+      "ope_d_fecha_proceso": "2026-06-30",
+      "ope_v_glosa": "Confirming bloque proveedor B",
+      "beneficiario": {
+        "ben_n_id_tipodocumento_code": "RUC",
+        "ben_v_numerodocumento": "20600011223",
+        "ben_v_nombre": "Textiles del Sur SAC"
+      },
+      "cuenta": {
+        "entidadFinanciera": "BCP",
+        "tipoCuenta": "CORRIENTE",
+        "numeroCuenta": "19300055512345",
+        "cuentaInterbancaria": null,
+        "moneda": "PEN"
+      },
+      "items": [
+        { "opi_n_secuencial": 1, "opi_n_id_tipoitem_code": "FACTURA_PROVEEDOR", "opi_v_descripcion": "Factura FA F001-1200", "opi_dec_importe": 100000.0 },
+        { "opi_n_secuencial": 2, "opi_n_id_tipoitem_code": "NOTA_CREDITO", "opi_v_descripcion": "Nota crédito CP F001-0007", "opi_dec_importe": -3459.5 }
+      ],
+      "ope_jb_atributos": { "canal": "ERP", "modalidad": "E_FACTORING", "bloque": 2 },
+      "ope_u_id_planilla_vigente": null,
+      "ope_n_intentos_envio": 0,
+      "ope_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    }
+  ],
+  "planillas": [
+    {
+      "pla_u_id": "8fd2b79e-cc64-4f0d-b220-0c3ae63f1d14",
+      "pla_n_id_entidadfin_code": "BCP",
+      "pla_v_nombre_archivo": "HAB-20260630-004.xml",
+      "pla_n_id_producto_code": "H",
+      "pla_n_id_tipoproducto_code": "SALA",
+      "pla_n_id_formato_code": "XML",
+      "pla_n_id_modalidad_valid_code": "H2H",
+      "pla_n_id_estadoplanilla_code": "ENVIADA",
+      "pla_v_secuencial": "004521",
+      "pla_d_fecha_archivo": "2026-06-30",
+      "pla_v_cuenta_cargo": "19100012345678",
+      "pla_n_id_moneda_code": "PEN",
+      "pla_dec_montototal": 418200.0,
+      "pla_n_checksum": "a3f24c9d18f0",
+      "pla_n_total_operaciones": 842,
+      "pla_v_ruta_in": "/bcp/outbox/HAB-20260630-004.xml.pgp",
+      "pla_v_ruta_out": "/bcp/inbox/",
+      "pla_b_flujo_par": true,
+      "pla_d_fecha_envio": "2026-06-30T10:24:00-05:00",
+      "pla_n_reintentos": 0,
+      "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/HAB-20260630-004.xml",
+      "pla_v_url_cifrado": "s3://develtrexpay-h2h-prod/encrypted/HAB-20260630-004.xml.pgp",
+      "pla_jb_atributos": { "versionFormato": "PAIN_001_001_09", "tipoPlanillaXml": "SALA" },
+      "pla_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    },
+    {
+      "pla_u_id": "365b79e5-0fe5-42aa-8736-7b4de1d8a34a",
+      "pla_n_id_entidadfin_code": "BCP",
+      "pla_v_nombre_archivo": "PRV-20260630-003.txt",
+      "pla_n_id_producto_code": "P",
+      "pla_n_id_tipoproducto_code": "SALA",
+      "pla_n_id_formato_code": "TXT",
+      "pla_n_id_modalidad_valid_code": "H2H",
+      "pla_n_id_estadoplanilla_code": "PROCESADA",
+      "pla_v_secuencial": "004522",
+      "pla_d_fecha_archivo": "2026-06-30",
+      "pla_v_cuenta_cargo": "19100012345678",
+      "pla_n_id_moneda_code": "PEN",
+      "pla_dec_montototal": 521940.0,
+      "pla_n_checksum": "b7e18d0c92a1",
+      "pla_n_total_operaciones": 318,
+      "pla_v_ruta_in": "/bcp/outbox/PRV-20260630-003.txt.pgp",
+      "pla_v_ruta_out": "/bcp/inbox/",
+      "pla_b_flujo_par": false,
+      "pla_d_fecha_envio": "2026-06-30T09:58:00-05:00",
+      "pla_n_reintentos": 0,
+      "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/PRV-20260630-003.txt",
+      "pla_v_url_cifrado": "s3://develtrexpay-h2h-prod/encrypted/PRV-20260630-003.txt.pgp",
+      "pla_jb_atributos": { "versionFormato": "TXT_2025_CLOUD", "tipoPlanillaXml": "SALA" },
+      "pla_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    },
+    {
+      "pla_u_id": "a2c46f81-9b3d-4e57-8c12-6d0f9a1b2c30",
+      "pla_n_id_entidadfin_code": "BCP",
+      "pla_v_nombre_archivo": "T20260630000012P.txt",
+      "pla_n_id_producto_code": "T",
+      "pla_n_id_tipoproducto_code": "INTERBANCARIA",
+      "pla_n_id_formato_code": "TXT",
+      "pla_n_id_modalidad_valid_code": "H2H",
+      "pla_n_id_estadoplanilla_code": "CIFRADA",
+      "pla_v_secuencial": "000012",
+      "pla_d_fecha_archivo": "2026-06-30",
+      "pla_v_cuenta_cargo": "19300055512345",
+      "pla_n_id_moneda_code": "USD",
+      "pla_dec_montototal": 48200.0,
+      "pla_n_checksum": "c91d0a7f31b8",
+      "pla_n_total_operaciones": 1,
+      "pla_v_ruta_in": "/bcp/outbox/T20260630000012P.txt.pgp",
+      "pla_v_ruta_out": "/bcp/inbox/",
+      "pla_b_flujo_par": false,
+      "pla_d_fecha_envio": null,
+      "pla_n_reintentos": 0,
+      "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/T20260630000012P.txt",
+      "pla_v_url_cifrado": "s3://develtrexpay-h2h-prod/encrypted/T20260630000012P.txt.pgp",
+      "pla_jb_atributos": { "versionFormato": "TXT_2025_CLOUD", "subtipo": "INTERBANCARIA" },
+      "pla_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    },
+    {
+      "pla_u_id": "b7e15c02-3d84-4a19-9f6b-1c2d3e4f5a60",
+      "pla_n_id_entidadfin_code": "BCP",
+      "pla_v_nombre_archivo": "FAC-20260630-021.txt",
+      "pla_n_id_producto_code": "FA",
+      "pla_n_id_tipoproducto_code": "CONFIRMING",
+      "pla_n_id_formato_code": "TXT",
+      "pla_n_id_modalidad_valid_code": "H2W",
+      "pla_n_id_estadoplanilla_code": "GENERADA",
+      "pla_v_secuencial": "000021",
+      "pla_d_fecha_archivo": "2026-06-30",
+      "pla_v_cuenta_cargo": "19300055512345",
+      "pla_n_id_moneda_code": "PEN",
+      "pla_dec_montototal": 96540.5,
+      "pla_n_checksum": "d1a2b3c4e5f6",
+      "pla_n_total_operaciones": 1,
+      "pla_v_ruta_in": "/bcp/outbox/FAC-20260630-021.txt.pgp",
+      "pla_v_ruta_out": "/bcp/inbox/",
+      "pla_b_flujo_par": false,
+      "pla_d_fecha_envio": null,
+      "pla_n_reintentos": 0,
+      "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/FAC-20260630-021.txt",
+      "pla_v_url_cifrado": "",
+      "pla_jb_atributos": { "versionFormato": "TXT_2025_CLOUD", "modalidad": "E_FACTORING" },
+      "pla_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    },
+    {
+      "pla_u_id": "e3f60d19-5a72-4b83-9c04-7d8e9f0a1b23",
+      "pla_n_id_entidadfin_code": "BCP",
+      "pla_v_nombre_archivo": "CTS-20260628-011.txt",
+      "pla_n_id_producto_code": "C",
+      "pla_n_id_tipoproducto_code": "CTS",
+      "pla_n_id_formato_code": "TXT",
+      "pla_n_id_modalidad_valid_code": "H2H",
+      "pla_n_id_estadoplanilla_code": "RECHAZADA",
+      "pla_v_secuencial": "000011",
+      "pla_d_fecha_archivo": "2026-06-28",
+      "pla_v_cuenta_cargo": "19100012345678",
+      "pla_n_id_moneda_code": "PEN",
+      "pla_dec_montototal": 88200.0,
+      "pla_n_checksum": "f0e1d2c3b4a5",
+      "pla_n_total_operaciones": 120,
+      "pla_v_ruta_in": "/bcp/outbox/CTS-20260628-011.txt.pgp",
+      "pla_v_ruta_out": "/bcp/inbox/",
+      "pla_b_flujo_par": false,
+      "pla_d_fecha_envio": "2026-06-28T15:10:00-05:00",
+      "pla_n_reintentos": 1,
+      "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/CTS-20260628-011.txt",
+      "pla_v_url_cifrado": "s3://develtrexpay-h2h-prod/encrypted/CTS-20260628-011.txt.pgp",
+      "pla_jb_atributos": { "versionFormato": "TXT_2025_CLOUD" },
+      "pla_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    }
+  ],
+  "planillaDetalles": [
+    {
+      "pld_u_id": "87f47f00-8823-4f02-b59f-b48a1b349e13",
+      "pld_u_id_planilla": "8fd2b79e-cc64-4f0d-b220-0c3ae63f1d14",
+      "pld_u_id_operacion": "8de7f8d3-7ffb-4cbe-bef2-4a130f0bf901",
+      "pld_n_secuencial": 1,
+      "pld_n_id_estadodetalle_code": "PROCESADO",
+      "pld_n_id_estado_banco_code": "OK",
+      "pld_n_id_codigo_devolucion_code": "SIN_ERROR",
+      "pld_v_codigo_operacion_banco": "BCP-99881231",
+      "pld_jb_resultado_banco": { "TxSts": "ACCP" }
+    }
+  ],
+  "respuestas": [
+    {
+      "prb_u_id": "3c5312ed-d9b5-42b5-a5d1-487b2fb79377",
+      "prb_u_id_planilla": "8fd2b79e-cc64-4f0d-b220-0c3ae63f1d14",
+      "prb_n_id_tiporespuesta_code": "RES",
+      "prb_v_nombre_archivo": "HAB-20260630-004.RES.xml",
+      "prb_d_fecha_recepcion": "2026-06-30T10:31:00-05:00",
+      "prb_n_total_operaciones": 842,
+      "prb_n_operaciones_ok": 811,
+      "prb_n_operaciones_error": 31,
+      "prb_v_archivo_generado": "HAB-20260630-004.RES.normalizado.json",
+      "prb_n_id_formato_code": "XML",
+      "prb_v_url_claro": "s3://develtrexpay-h2h-prod/responses/HAB-20260630-004.RES.xml",
+      "prb_v_url_cifrado": "s3://develtrexpay-h2h-prod/responses/HAB-20260630-004.RES.xml.pgp",
+      "prb_jb_atributos": { "banco": "BCP", "parserVersion": "1.0.0" },
+      "prb_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    },
+    {
+      "prb_u_id": "8b1c4d2e-6f70-4a83-9b5c-2d3e4f5a6b71",
+      "prb_u_id_planilla": "e3f60d19-5a72-4b83-9c04-7d8e9f0a1b23",
+      "prb_n_id_tiporespuesta_code": "VAL",
+      "prb_v_nombre_archivo": "CTS-20260628-011-VAL.txt",
+      "prb_d_fecha_recepcion": "2026-06-28T15:18:00-05:00",
+      "prb_n_total_operaciones": 120,
+      "prb_n_operaciones_ok": 0,
+      "prb_n_operaciones_error": 120,
+      "prb_v_archivo_generado": "CTS-20260628-011-VAL.normalizado.json",
+      "prb_n_id_formato_code": "TXT",
+      "prb_v_url_claro": "s3://develtrexpay-h2h-prod/responses/CTS-20260628-011-VAL.txt",
+      "prb_v_url_cifrado": "s3://develtrexpay-h2h-prod/responses/CTS-20260628-011-VAL.txt.pgp",
+      "prb_jb_atributos": { "banco": "BCP", "motivo": "ERROR_ESTRUCTURA", "linea": 2 },
+      "prb_u_id_organizacion": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90"
+    }
+  ],
+  "beneficiarios": [
+    {
+      "ben_u_id": "f1a2b3c4-d5e6-4f70-8192-a3b4c5d6e7f8",
+      "ben_n_id_tipodocumento_code": "DNI",
+      "ben_v_numerodocumento": "41209875",
+      "ben_v_nombre": "Juan Ramirez Soto",
+      "ben_v_apellido_paterno": "Ramirez",
+      "ben_v_apellido_materno": "Soto",
+      "ben_v_email": "juan.ramirez@example.com"
+    },
+    {
+      "ben_u_id": "0a9b8c7d-6e5f-4a30-9182-b7c6d5e4f3a2",
+      "ben_n_id_tipodocumento_code": "RUC",
+      "ben_v_numerodocumento": "20512349981",
+      "ben_v_nombre": "Comercial Delta SAC",
+      "ben_v_email": "pagos@delta.pe"
+    },
+    {
+      "ben_u_id": "3c2b1a09-8f7e-4d60-9c51-e4f3a2b1c0d9",
+      "ben_n_id_tipodocumento_code": "RUC",
+      "ben_v_numerodocumento": "20481234567",
+      "ben_v_nombre": "Importaciones Andinas SAC",
+      "ben_v_email": "tesoreria@andinas.pe"
+    }
+  ],
+  "estructuras": [
+    { "ear_v_codigo": "BCP#H2H#PAGOS_MASIVOS#HABERES#TXT#V2025", "ear_v_descripcion": "Estructura Haberes TXT 2025 Cloud", "ear_v_clase": "ESTRUCTURA", "producto": "pagos_masivos", "formato": "TXT", "version": "TXT_2025_CLOUD" },
+    { "ear_v_codigo": "BCP#H2H#PAGOS_MASIVOS#PROVEEDORES#TXT#V2025", "ear_v_descripcion": "Estructura Proveedores TXT 2025 Cloud", "ear_v_clase": "ESTRUCTURA", "producto": "pagos_masivos", "formato": "TXT", "version": "TXT_2025_CLOUD" },
+    { "ear_v_codigo": "BCP#H2H#PAGOS_MASIVOS#HABERES#XML#PAIN00100109", "ear_v_descripcion": "Estructura Pagos Masivos XML pain.001.001.09", "ear_v_clase": "ESTRUCTURA", "producto": "pagos_masivos", "formato": "XML", "version": "PAIN_001_001_09" },
+    { "ear_v_codigo": "BCP#H2H#TRANSFERENCIAS#TXT#V2025", "ear_v_descripcion": "Estructura Transferencias TXT 2025 Cloud", "ear_v_clase": "ESTRUCTURA", "producto": "transferencias", "formato": "TXT", "version": "TXT_2025_CLOUD" },
+    { "ear_v_codigo": "BCP#H2H#FACTORING#TXT#V2025", "ear_v_descripcion": "Estructura Factoring Electrónico TXT 2025 Cloud", "ear_v_clase": "ESTRUCTURA", "producto": "factoring", "formato": "TXT", "version": "TXT_2025_CLOUD" }
+  ],
+  "certificados": [
+    {
+      "certificadoId": "7f6df6e3-0f89-4960-9e1d-6f21e31b0b66",
+      "scope": "TENANT",
+      "tenantId": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90",
+      "tipo": "PGP_GPG",
+      "alias": "develtrex-pgp-prod-2026",
+      "uso": "ENCRYPT_DECRYPT_FILES",
+      "estado": "ACTIVO",
+      "algoritmo": "RSA",
+      "longitud": 4096,
+      "fingerprint": "3A8F C9E4 D221 8A09 2FBC 7A45 D55D BCP0 DVTX 2026",
+      "fechaEmision": "2026-06-30",
+      "fechaVencimiento": "2028-06-30",
+      "diasParaVencer": 726,
+      "custodiaPrivada": "AWS_KMS_VAULT",
+      "publicKeyUrl": "s3://develtrexpay-h2h-prod/certs/develtrex_public.asc",
+      "bcpPublicKeyLoaded": true
+    },
+    {
+      "certificadoId": "1a221d3e-6e4a-4f1c-8803-78f5cc2189a9",
+      "scope": "BCP",
+      "tenantId": "e7a1f7d9-30b4-4c3a-a5c5-2c6e3c0f4b90",
+      "tipo": "PGP_GPG",
+      "alias": "bcp-public-pgp-prod",
+      "uso": "ENCRYPT_DECRYPT_FILES",
+      "estado": "ACTIVO",
+      "algoritmo": "RSA",
+      "longitud": 4096,
+      "fingerprint": "9C21 44AD 77E1 33B8 0AF2 91CD 5521 BCP1 PUBL 2026",
+      "fechaEmision": "2026-05-01",
+      "fechaVencimiento": "2026-08-11",
+      "diasParaVencer": 42,
+      "custodiaPrivada": "N/A",
+      "publicKeyUrl": "s3://develtrexpay-h2h-prod/certs/bcp_public.asc",
+      "bcpPublicKeyLoaded": true
+    }
+  ],
+  "health": {
+    "status": "DEGRADED",
+    "checkedAt": "2026-06-30T10:32:00-05:00",
+    "services": [
+      { "name": "keycloak", "status": "UP", "latencyMs": 42 },
+      { "name": "generator-txt-xml", "status": "UP", "latencyMs": 65 },
+      { "name": "pgp-openssl-service", "status": "UP", "latencyMs": 80 },
+      { "name": "sftp-sterling-bcp", "status": "DEGRADED", "latencyMs": 450, "message": "Última respuesta RES con errores de negocio" },
+      { "name": "response-parser", "status": "UP", "latencyMs": 38 }
+    ]
+  },
+  "identity": {
+    "users": [
+      { "id": "kc-user-1001", "username": "m.torres", "name": "Marcela Torres", "email": "m.torres@develtrex.pe", "roles": ["H2H_SUPERVISOR"], "enabled": true },
+      { "id": "kc-user-1002", "username": "d.salas", "name": "Diego Salas", "email": "d.salas@develtrex.pe", "roles": ["H2H_ADMIN_TENANT"], "enabled": true }
+    ],
+    "roles": [
+      { "role": "H2H_OPERADOR", "description": "Operación diaria" },
+      { "role": "H2H_SUPERVISOR", "description": "Control y envío" },
+      { "role": "H2H_AUDITOR", "description": "Solo lectura" },
+      { "role": "H2H_ADMIN_TENANT", "description": "Administración tenant" },
+      { "role": "JOFRANTOBA_ADMIN", "description": "Backoffice Jofrantoba Consulting TI" }
+    ]
+  },
+  "audit": [
+    {
+      "eventId": "evt-1001",
+      "actor": "m.torres",
+      "action": "PLANILLA_SEND",
+      "entity": "tt_pla_planilla",
+      "entityId": "8fd2b79e-cc64-4f0d-b220-0c3ae63f1d14",
+      "result": "SUCCESS",
+      "traceId": "trc-001",
+      "createdAt": "2026-06-30T10:24:00-05:00"
+    },
+    {
+      "eventId": "evt-1002",
+      "actor": "develtrex-h2h-m2m",
+      "action": "OPERACION_CREATE",
+      "entity": "tt_ope_operacion",
+      "entityId": "8de7f8d3-7ffb-4cbe-bef2-4a130f0bf901",
+      "result": "SUCCESS",
+      "traceId": "trc-002",
+      "createdAt": "2026-06-30T10:12:00-05:00"
+    }
+  ]
+}

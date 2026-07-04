@@ -1,0 +1,156 @@
+<main class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">D</div>
+      <div>
+        <h1>Devol</h1>
+        <p>Control de prestamos</p>
+      </div>
+    </div>
+
+    <div class="session-box">
+      <label>
+        <span>Correo</span>
+        <input [value]="correo()" (input)="setCorreo($event)" autocomplete="username" />
+      </label>
+      <label>
+        <span>Clave</span>
+        <input [value]="clave()" (input)="setClave($event)" type="password" autocomplete="current-password" />
+      </label>
+      <j-button size="sm" [loading]="loading()" (clicked)="login()">Conectar</j-button>
+    </div>
+  </header>
+
+  <section class="status-row" aria-live="polite">
+    <div class="session-state">
+      <j-badge [variant]="user() ? 'default' : 'secondary'">
+        {{ user() ? 'Sesion activa' : 'Sin sesion' }}
+      </j-badge>
+      <span>{{ user()?.nombres || '-' }} {{ user()?.apellidos || '' }}</span>
+      <span>{{ roleText(user()) }}</span>
+    </div>
+
+    <div class="actions">
+      <j-button variant="outline" size="sm" [loading]="busyAction()" (clicked)="resetMock()">Restaurar mock</j-button>
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="message message-error">{{ error() }}</div>
+  }
+
+  @if (notice()) {
+    <div class="message message-ok">{{ notice() }}</div>
+  }
+
+  <section class="metrics-grid">
+    <j-metric-card [value]="(summary()?.clientes?.total ?? 0).toString()" label="Clientes" />
+    <j-metric-card [value]="(summary()?.prestamos?.vigentes ?? 0).toString()" label="Prestamos vigentes" />
+    <j-metric-card [value]="formatMoney(summary()?.prestamos?.saldoPendiente ?? 0)" label="Saldo pendiente" />
+    <j-metric-card [value]="formatMoney(recaudado()?.totalAmortizado ?? 0)" label="Recaudado" />
+  </section>
+
+  <section class="work-grid">
+    <div class="panel panel-wide">
+      <div class="panel-head">
+        <div>
+          <h2>Prestamos vigentes</h2>
+          <p>{{ prestamos().length }} registros</p>
+        </div>
+        <j-badge variant="outline">Mock REST</j-badge>
+      </div>
+      <j-data-table
+        [columns]="prestamoColumns"
+        [data]="prestamoRows()"
+        [rowKey]="rowKey"
+        [loading]="loading()"
+        emptyTitle="Sin prestamos"
+        emptyDescription="No hay prestamos vigentes para el usuario actual."
+        [showFilter]="true"
+        filterPlaceholder="Buscar prestamo"
+        (rowClick)="selectPrestamo($event.row)"
+      />
+    </div>
+
+    <aside class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Amortizacion</h2>
+          <p>{{ selectedPrestamo()?.nombre || 'Sin prestamo' }} {{ selectedPrestamo()?.apellido || '' }}</p>
+        </div>
+      </div>
+
+      <dl class="loan-detail">
+        <div>
+          <dt>A devolver</dt>
+          <dd>{{ formatMoney(selectedPrestamo()?.aDevolver ?? 0) }}</dd>
+        </div>
+        <div>
+          <dt>Devuelto</dt>
+          <dd>{{ formatMoney(selectedPrestamo()?.devuelto ?? 0) }}</dd>
+        </div>
+        <div>
+          <dt>Saldo</dt>
+          <dd>{{ formatMoney(selectedPrestamoSaldo()) }}</dd>
+        </div>
+      </dl>
+
+      <div class="quick-form">
+        <label>
+          <span>Fecha</span>
+          <input [value]="fechaRecaudado()" (input)="setFechaRecaudado($event)" type="date" />
+        </label>
+        <label>
+          <span>Monto</span>
+          <input [value]="amortizacionMonto()" (input)="setAmortizacionMonto($event)" type="number" min="1" step="1" />
+        </label>
+        <j-button
+          [fullWidth]="true"
+          [disabled]="!selectedPrestamo()"
+          [loading]="busyAction()"
+          (clicked)="registrarAmortizacion()"
+        >
+          Registrar pago
+        </j-button>
+      </div>
+    </aside>
+  </section>
+
+  <section class="work-grid bottom-grid">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Clientes</h2>
+          <p>{{ clientes().length }} registros</p>
+        </div>
+      </div>
+      <j-data-table
+        [columns]="clienteColumns"
+        [data]="clienteRows()"
+        [rowKey]="rowKey"
+        [loading]="loading()"
+        emptyTitle="Sin clientes"
+        emptyDescription="No hay clientes para el usuario actual."
+        [showFilter]="true"
+        filterPlaceholder="Buscar cliente"
+      />
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Recaudado</h2>
+          <p>{{ fechaRecaudado() }}</p>
+        </div>
+      </div>
+      <j-data-table
+        [columns]="recaudadoColumns"
+        [data]="recaudadoRows()"
+        [rowKey]="rowKey"
+        [loading]="loading()"
+        emptyTitle="Sin pagos"
+        emptyDescription="No hay amortizaciones registradas para la fecha."
+      />
+    </div>
+  </section>
+</main>

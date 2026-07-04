@@ -1,0 +1,52 @@
+{
+  "name": "uijona-4ngular",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "start:devol": "ng serve devol --host 0.0.0.0 --port 4201",
+    "build": "ng build uijona && npm run build:css",
+    "build:devol": "ng build devol",
+    "build:lib": "ng build uijona",
+    "build:css": "tailwindcss -i ./projects/uijona/src/styles/uijona.css -o ./dist/uijona/styles/uijona.css --minify",
+    "watch": "ng build uijona --watch --configuration development",
+    "test": "ng test",
+    "storybook": "ng run uijona:storybook",
+    "build-storybook": "ng run uijona:build-storybook"
+  },
+  "private": true,
+  "packageManager": "npm@10.9.0",
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "clsx": "^2.1.1",
+    "rxjs": "~7.8.0",
+    "tailwind-merge": "^3.6.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.18",
+    "@angular/cli": "^21.2.18",
+    "@angular/compiler-cli": "^21.2.0",
+    "jsdom": "^28.0.0",
+    "ng-packagr": "^21.2.0",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8",
+    "storybook": "^10.4.6",
+    "@storybook/angular": "^10.4.6",
+    "@storybook/addon-a11y": "^10.4.6",
+    "@storybook/addon-docs": "^10.4.6",
+    "@storybook/addon-onboarding": "^10.4.6",
+    "@angular-devkit/build-angular": "^21.2.0",
+    "@angular-devkit/architect": "^0.2102.0",
+    "@angular-devkit/core": "^21.2.0",
+    "@angular/platform-browser-dynamic": "^21.2.0",
+    "@compodoc/compodoc": "^2.0.0"
+  }
+}

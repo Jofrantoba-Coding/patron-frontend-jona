@@ -1,0 +1,11 @@
+{
+  "name": "h2h-mock-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mock server de la consola H2H (Jofrantoba Consulting TI · tenant demo Develtrex). Sin dependencias: Node nativo.",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  }
+}

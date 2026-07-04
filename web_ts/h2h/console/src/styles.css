@@ -1,0 +1,16 @@
+/* Estilos base de uijona-4ngular (tokens + reset + CSS de componentes) */
+@import 'uijona-4ngular/styles/uijona.css';
+
+/* Utilidades Tailwind propias de la app (escanea ./src) */
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: rgb(var(--jona-neutral-100));
+  color: rgb(var(--jona-neutral-900));
+  font-family: var(--jona-font-sans);
+}

@@ -18,6 +18,26 @@ En ambos casos:
   cada unidad se implementa internamente con JONA.
 ```
 
+## Framework: detectalo antes de generar
+
+El patron JONA es agnostico de framework. Hoy el monorepo tiene dos implementaciones
+de la misma libreria:
+
+| Framework | Paquete | Ubicacion |
+|---|---|---|
+| **React** | `jona-ui` | `web_ts/uijona` |
+| **Angular 21** | `uijona-4ngular` | `web_ts/uijona-4ngular` (lib en `projects/uijona`) |
+
+**Antes de crear nada, detecta el framework del destino** leyendo su `package.json`
+(`react`/`react-dom` vs `@angular/core`) o su `angular.json`. Aplica las plantillas y
+convenciones de la seccion correspondiente:
+
+- React -> [Plantillas JONA (React)](#plantillas-jona-react).
+- Angular -> [Patron JONA en Angular 21](#patron-jona-en-angular-21).
+
+El **contrato conceptual es el mismo** (Inter / View / Impl / entry); solo cambia como se
+materializa cada capa. Ver la tabla de equivalencias en la seccion de Angular.
+
 ---
 
 ## Argumentos
@@ -142,22 +162,26 @@ index.ts               barrel local
 - **Template/public entry**: exporta el componente final y sus tipos publicos.
 - **index**: re-export local.
 
+> Los nombres de archivo de arriba son la materializacion en **React**. En **Angular 21** las
+> mismas responsabilidades se reparten distinto (View = template del `@Component`,
+> Impl = clase con signals): ver [Patron JONA en Angular 21](#patron-jona-en-angular-21).
+
 ---
 
 ## Modo design-system
 
 ### Directorio destino
 
-| Tipo | Directorio |
-|------|------------|
-| atom | `uijona/src/atoms/<Nombre>/` |
-| molecule | `uijona/src/molecules/<Nombre>/` |
-| organism | `uijona/src/organisms/<Nombre>/` |
-| page | `uijona/src/pages/<Nombre>/` |
+| Tipo | React (`uijona/src`) | Angular (`uijona-4ngular/projects/uijona/src`) |
+|------|------------|------------|
+| atom | `atoms/<Nombre>/` | `lib/atoms/j-<nombre>/` |
+| molecule | `molecules/<Nombre>/` | `lib/molecules/j-<nombre>/` |
+| organism | `organisms/<Nombre>/` | `lib/organisms/j-<nombre>/` |
+| page | `pages/<Nombre>/` | `lib/pages/j-<nombre>/` |
 
 ### Archivos base
 
-Siempre crea la unidad JONA base:
+React — siempre crea la unidad JONA base:
 
 ```txt
 <Nombre>/
@@ -165,6 +189,15 @@ Siempre crea la unidad JONA base:
   <Nombre>View.tsx
   <Nombre>Impl.tsx
   <Nombre>.tsx
+  index.ts
+```
+
+Angular — unidad JONA base (ver [Patron JONA en Angular 21](#patron-jona-en-angular-21)):
+
+```txt
+j-<nombre>/
+  inter-j-<nombre>.ts
+  j-<nombre>.ts
   index.ts
 ```
 
@@ -251,7 +284,7 @@ Evita exports globales innecesarios desde la raiz de la aplicacion.
 
 ---
 
-## Plantillas JONA
+## Plantillas JONA (React)
 
 ### Inter
 
@@ -329,16 +362,254 @@ export * from './<Nombre>';
 
 ---
 
+## Patron JONA en Angular 21
+
+`uijona-4ngular` es el port de `jona-ui` a Angular 21 (standalone + signals). El contrato
+JONA es identico; cambia la materializacion de cada capa.
+
+### Equivalencia de capas React -> Angular
+
+| Capa JONA (React) | En Angular 21 |
+|---|---|
+| `Inter<Nombre>.ts` (tipos, DEFAULTS, mapas de clases) | `inter-j-<nombre>.ts` — **TS puro, sin `@angular/*`**: tipos, `DEFAULTS`, `*_CLASSES` (mapas variant/size/etc.) |
+| `<Nombre>View.tsx` (render puro) | **El template del `@Component`** (inline o `.html`) — la "vista pura" |
+| `<Nombre>Impl.tsx` (defaults, estado, forwardRef) | **La clase `@Component`** con `input()/output()/model()` + `computed()` |
+| `<Nombre>.tsx` (entry) + `index.ts` | `index.ts` (barrel) |
+| `cn()` (clsx + tailwind-merge) | `cn()` idéntico en `lib/core/cn.ts` |
+| Evento Observer `onChange(value, event)` | `output<T>()` value-first **+** `ControlValueAccessor` |
+| `asChild` (`cloneElement`) | **No se porta** — usa anchor `href` o `routerLink` |
+
+### Estructura y nombres (Angular)
+
+- Carpetas y archivos en **kebab-case**; clases en **PascalCase con prefijo `J`**.
+- Selector de elemento `j-<nombre>` (prefijo `j`).
+
+```txt
+lib/atoms/j-button/
+  inter-j-button.ts      contrato: tipos + JBUTTON_DEFAULTS + JBUTTON_*_CLASSES
+  j-button.ts            @Component standalone (clase = Impl, template = View)
+  index.ts               barrel
+```
+
+Capas: `lib/atoms`, `lib/molecules`, `lib/layouts`, `lib/organisms`, `lib/pages`,
+`lib/core` (cn, types, slots), `lib/theme`. Export global en `projects/uijona/src/public-api.ts`.
+
+### Convenciones Angular obligatorias
+
+- **Standalone** siempre; `changeDetection: ChangeDetectionStrategy.OnPush`.
+- `host: { class: 'contents' }` para que el wrapper `<j-x>` **no afecte el layout**
+  (excepcion: contenedores que SON el layout, p.ej. JPanel, que renderiza su `.jpanel`).
+- Entradas con `input<T>()` / `input.required<T>()`; salidas `output<T>()`; two-way `model<T>()`.
+- **NO uses `implements Inter<Nombre>`**: los signal inputs son `InputSignal<T>`, no el valor
+  crudo, y el compilador falla. El `Inter*` es **solo contrato de documentacion**.
+- Los mapas de clases del View se calculan con `computed()` que llama a `cn(...)`.
+- `className` como `input<string>('')` (paridad con React) que se fusiona en `[class]`.
+- `style` como `input<JStyle>(null)` (`JStyle = string | Record<string, ...> | null`).
+
+### Slots (contenido proyectado)
+
+Las props `ReactNode` se convierten en **proyeccion de contenido**:
+
+- Slot por defecto: `<ng-content />`.
+- Slots nombrados con atributo marcador: `<ng-content select="[jIcon]" />`.
+- **Detectar presencia** de un slot (para padding/layout condicional): directiva marcador
+  standalone + `contentChild()`:
+
+```ts
+@Directive({ selector: '[jIcon]', standalone: true })
+export class JIconSlot {}
+// en el componente:
+private readonly iconRef = contentChild(JIconSlot);
+protected readonly hasIcon = computed(() => !!this.iconRef());
+```
+
+  El consumidor debe **importar la directiva** para que `contentChild` la detecte.
+- Colapsar slots vacios: `styles: ['.mi-slot:empty { display: none; }']`.
+- Marcadores usados en la lib: `[jIcon]`, `[jIconLeft]`/`[jIconRight]`, `[jTitleIcon]`,
+  `[jFooter]`, `[jTrigger]`, `[jVisual]`, `[jMetrics]`, `[jNorth]`/`[jSouth]`/`[jEast]`/`[jWest]`,
+  `[jHeader]`, `[jBrand]`, `[jActions]`, `[jDrawer]`.
+
+### Formularios: `model()` + ControlValueAccessor
+
+Todo control de formulario expone `value = model<T>()` (soporta `[(value)]`) **y** implementa
+`ControlValueAccessor` (funciona con `[(ngModel)]` y `formControl`):
+
+```ts
+providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JTextBox), multi: true }],
+// ...
+readonly value = model<string>('');
+readonly disabledInput = input<boolean>(false, { alias: 'disabled' });
+private cvaDisabled = signal(false);
+protected readonly disabled = computed(() => this.disabledInput() || this.cvaDisabled());
+writeValue(v: string | null) { this.value.set(v ?? ''); }
+registerOnChange(fn: (v: string) => void) { this.onChange = fn; }
+registerOnTouched(fn: () => void) { this.onTouched = fn; }
+setDisabledState(d: boolean) { this.cvaDisabled.set(d); }  // cvaDisabled DEBE ser signal para reaccionar
+```
+
+Al escribir en el input, llamar `this.value.set(v)` **y** `this.onChange(v)`. Al blur, `onTouched()`.
+Para componer sub-controles, bind `[value]="value()" (valueChange)="onValueChange($event)"`
+(evita el feedback de un `[(value)]` con el CVA).
+
+### Overlays sin `@angular/cdk`
+
+Dialog/Drawer/Tooltip/Popover/Dropdown/Combobox se hacen con `position: fixed` inline y
+listeners de host — sin dependencia de CDK:
+
+```ts
+host: {
+  '(document:keydown.escape)': 'close()',
+  '(document:mousedown)': 'onDocMouseDown($event)',   // click-outside via ElementRef.contains
+  '(window:resize)': 'reposition()',
+  '(window:scroll)': 'reposition()',
+},
+```
+
+- Posicion anclada: `computed`/`signal<Record<string,string>>` a partir de
+  `trigger.getBoundingClientRect()`; bind `[style]="panelStyle()"`.
+- Bloqueo de scroll del body: `effect(() => document.body.style.overflow = open() ? 'hidden' : '')`
+  con `DOCUMENT` inyectado.
+- Modales: `@if (open())`, `role="dialog"`/`aria-modal="true"`, z-index con los tokens `--jona-z-*`.
+
+### Otros patrones aprendidos
+
+- **Polimorfismo de elemento** (JLabel `as`): `@switch (resolvedAs())` con un `<ng-template>`
+  compartido para el cuerpo, proyectado via `[ngTemplateOutlet]` en cada rama (solo una se
+  instancia, asi que reutilizar `<ng-content>`/template es seguro).
+- **Timers/intervals**: `signal()` + `setInterval`, limpieza con `inject(DestroyRef).onDestroy(...)`.
+- **Fallback de imagen**: guardar el `src` fallido en un `signal` y comparar en un `computed`
+  (no hace falta `effect`; se resetea solo al cambiar `src`).
+- **SVG inline** en templates: prefijo `svg:` para hijos (`<svg:path>`, `<svg:circle>`).
+- **Componentes-familia** (JCard, JTabs, JTable, JBreadcrumb): varios `@Component` en un archivo;
+  el estado compartido se pasa por **DI** (`inject(JTabs)` desde los hijos), no por Context.
+
+### Plantillas JONA (Angular)
+
+#### inter-j-<nombre>.ts
+
+```ts
+// inter-j-<nombre>.ts — contrato JONA (TS puro)
+export type J<Nombre>Variant = 'default' | 'primary';
+
+/** Contrato publico de J<Nombre>. */
+export interface InterJ<Nombre> {
+  variant?: J<Nombre>Variant;
+  disabled?: boolean;
+}
+
+export const J<NOMBRE>_DEFAULTS = {
+  variant: 'default',
+  disabled: false,
+} as const satisfies Required<Pick<InterJ<Nombre>, 'variant' | 'disabled'>>;
+
+export const J<NOMBRE>_VARIANT_CLASSES: Record<J<Nombre>Variant, string> = {
+  default: 'bg-neutral-200 text-neutral-800',
+  primary: 'bg-primary-600 text-white',
+};
+```
+
+#### j-<nombre>.ts
+
+```ts
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { cn } from '../../core/cn';
+import type { JStyle } from '../../core/types';
+import { J<NOMBRE>_DEFAULTS, J<NOMBRE>_VARIANT_CLASSES, type J<Nombre>Variant } from './inter-j-<nombre>';
+
+/** J<Nombre> — <descripcion>. Contenido por proyeccion. */
+@Component({
+  selector: 'j-<nombre>',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'contents' },
+  template: `
+    <button
+      [disabled]="disabled()"
+      [class]="classes()"
+      [style]="style()"
+      (click)="clicked.emit($event)"
+    >
+      <ng-content />
+    </button>
+  `,
+})
+export class J<Nombre> {
+  readonly variant = input<J<Nombre>Variant>(J<NOMBRE>_DEFAULTS.variant);
+  readonly disabled = input<boolean>(J<NOMBRE>_DEFAULTS.disabled);
+  readonly className = input<string>('');
+  readonly style = input<JStyle>(null);
+
+  readonly clicked = output<MouseEvent>();
+
+  protected readonly classes = computed(() =>
+    cn('inline-flex items-center rounded-md px-3 py-2 text-sm',
+       J<NOMBRE>_VARIANT_CLASSES[this.variant()], this.className())
+  );
+}
+```
+
+#### index.ts
+
+```ts
+export { J<Nombre> } from './j-<nombre>';
+export { J<NOMBRE>_DEFAULTS, J<NOMBRE>_VARIANT_CLASSES } from './inter-j-<nombre>';
+export type { InterJ<Nombre>, J<Nombre>Variant } from './inter-j-<nombre>';
+```
+
+### Export publico (Angular)
+
+Agregar la barra en `projects/uijona/src/public-api.ts` en la seccion de la capa:
+
+```ts
+export * from './lib/atoms/j-<nombre>';
+```
+
+Para subpaths de estilos/preset, `exports` se declara **a mano** en el `package.json` de la lib
+(ng-packagr lo mergea con el `.` y `./package.json` que genera).
+
+### Tooling y build (Angular) — gotchas
+
+- **Node**: Angular CLI 21 exige **Node >= 22.12**. Si el global es menor, usar `fnm`
+  (`fnm use` lee el `.node-version` = `22.12.0`) y prefijar el PATH antes de `npx ng ...`.
+- **Workspace**: `ng new <nombre> --create-application=false` + `ng generate library uijona`.
+- **ng-packagr** (`projects/uijona/ng-package.json`): `allowedNonPeerDependencies`
+  (`clsx`, `tailwind-merge`) y `assets` para `tokens.css` + `tailwind-preset.js`.
+- **Tailwind**: las clases viven como strings en templates. Se compila una hoja distribuible
+  con la CLI de Tailwind escaneando `projects/uijona/src/**/*.{html,ts}`
+  (`npm run build` = `ng build uijona && npm run build:css`). El CSS de componentes
+  (motor de JPanel, slots de JButton, keyframes) se porta **verbatim** desde
+  `uijona/src/styles/index.css` a `projects/uijona/src/styles/uijona.css`.
+- **Storybook**: `@storybook/angular`; para que Tailwind cargue en el preview, agregar
+  `styles: ['projects/uijona/src/styles/uijona.css']` a los targets `storybook` y
+  `build-storybook` en `angular.json`.
+- **Validaciones**: `ng build uijona`, `ng test uijona --no-watch` (Vitest + TestBed;
+  ojo: `ngModel` aplica su valor inicial de forma **asincrona** — usa
+  `await fixture.whenStable()` antes de assertions).
+
+---
+
 ## Convenciones obligatorias
+
+Estas convenciones aplican a **ambos** frameworks salvo donde se indique.
 
 ### Eventos Observer
 
-Los eventos reciben primero el valor de negocio y despues el evento DOM:
+Los eventos reciben primero el valor de negocio y despues el evento DOM.
+
+React:
 
 ```ts
 onChange?: (value: string, event: React.ChangeEvent<HTMLInputElement>) => void;
 onBlur?: (value: string, event: React.FocusEvent<HTMLInputElement>) => void;
 onEnterPress?: (value: string, event: React.KeyboardEvent<HTMLInputElement>) => void;
+```
+
+Angular (value-first via `output()`; el `{ value, event }` empaqueta ambos):
+
+```ts
+readonly valueChange = output<string>();                       // o model() para two-way
+readonly blurred = output<{ value: string; event: FocusEvent }>();
+readonly enterPress = output<{ value: string; event: KeyboardEvent }>();
 ```
 
 ### Tailwind responsive
@@ -375,21 +646,38 @@ import { ButtonAtom, FormFieldMolecule } from 'jona-ui';
 import 'jona-ui/index.css';
 ```
 
+En Angular (`uijona-4ngular`), imports relativos por capa dentro de la lib:
+
+```ts
+import { cn } from '../../core/cn';
+import { JButton } from '../j-button';
+```
+
+Y en la app consumidora, componentes standalone + hoja compilada:
+
+```ts
+import { JButton, JFormField } from 'uijona-4ngular';   // en imports del @Component
+// styles.css / angular.json:  @import 'uijona-4ngular/styles/uijona.css';
+```
+
 ---
 
 ## Pasos de ejecucion
 
-1. Detecta el modo: `design-system` o `feature`.
-2. Lee el codigo existente del destino para copiar convenciones reales.
+1. Detecta el modo (`design-system` o `feature`) **y el framework** (React o Angular) leyendo
+   el `package.json`/`angular.json` del destino.
+2. Lee el codigo existente del destino para copiar convenciones reales (nombres, imports,
+   como se resuelven slots/estado en ese framework).
 3. Si el componente ya existe, avisa antes de sobreescribir.
-4. Crea los archivos JONA base.
-5. En design-system, agrega stories, tests y exports cuando corresponda.
+4. Crea los archivos JONA base del framework correcto.
+5. En design-system, agrega stories, tests y exports (`src/index.ts` en React;
+   `public-api.ts` en Angular) cuando corresponda.
 6. En feature, no agregues exports globales salvo que la app ya use ese patron.
 7. Ejecuta validaciones razonables:
-   - `npm run lint`
-   - `npm test`
-   - `npm run build`
-   - `npm run build-storybook` si cambia Storybook o design system
+   - **React**: `npm run lint`, `npm test`, `npm run build`, `npm run build-storybook`
+     si cambia Storybook o el design system.
+   - **Angular**: con Node >= 22.12 en PATH (`fnm use`) — `npx ng build uijona`,
+     `npx ng test uijona --no-watch`, y `npm run build` (lib + CSS) antes de publicar.
 8. Informa rutas creadas, API publica y validaciones ejecutadas.
 
 ---
@@ -398,10 +686,13 @@ import 'jona-ui/index.css';
 
 El trabajo se considera terminado cuando:
 
-- La separacion JONA esta clara.
+- La separacion JONA esta clara y usa la materializacion del framework correcto
+  (React: Inter/View/Impl/entry; Angular: inter + `@Component` con signals + barrel).
 - El modo arquitectonico es correcto:
   - Design system -> Atomic Design + JONA.
   - Aplicacion -> Feature-Based + JONA.
-- El componente o feature compila.
-- La API publica esta exportada donde corresponde.
+- El componente o feature compila (React `npm run build`; Angular `ng build uijona` con Node >= 22.12).
+- La API publica esta exportada donde corresponde (`src/index.ts` en React; `public-api.ts` en Angular).
 - Hay stories/tests cuando el alcance lo justifica.
+- En Angular: sin `implements Inter*`; controles de formulario con `model()` + `ControlValueAccessor`;
+  slots `ReactNode` resueltos por proyeccion; `host: { class: 'contents' }` salvo contenedores de layout.
