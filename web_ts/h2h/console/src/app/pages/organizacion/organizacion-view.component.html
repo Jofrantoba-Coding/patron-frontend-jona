@@ -1,0 +1,130 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <j-section-heading eyebrow="Administracion" heading="Organizacion" description="Datos del tenant y configuraciones vigentes usadas por los procesos H2H." />
+
+  @if (loading() && !detalle()) {
+    <div class="rounded-md border border-neutral-200 bg-white p-6 text-sm text-neutral-500">Cargando organizacion...</div>
+  }
+
+  @if (detalle(); as d) {
+    <section class="rounded-xl border border-neutral-200 bg-white">
+      <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="truncate text-lg font-semibold text-neutral-900">{{ detailValue(d.organizacion, 'razonSocial') }}</p>
+            <p class="mt-1 text-sm text-neutral-500">{{ detailValue(d.organizacion, 'codigo') }} - {{ detailValue(d.organizacion, 'nombreComercial') }}</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <j-badge variant="secondary">{{ detailValue(d.organizacion, 'ambiente') }}</j-badge>
+            <j-badge [variant]="detailValue(d.organizacion, 'isActivo') === 'Si' ? 'default' : 'destructive'">{{ detailValue(d.organizacion, 'isActivo') }}</j-badge>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-3 p-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+        <div class="rounded-md bg-neutral-50 p-3">
+          <p class="text-[11px] font-medium uppercase text-neutral-500">Documento</p>
+          <p class="mt-1 font-mono text-sm text-neutral-900">{{ detailValue(d.organizacion, 'tipoDocumentoCodigo') }} {{ detailValue(d.organizacion, 'numeroDocumento') }}</p>
+        </div>
+        <div class="rounded-md bg-neutral-50 p-3">
+          <p class="text-[11px] font-medium uppercase text-neutral-500">Abreviatura</p>
+          <p class="mt-1 text-sm text-neutral-900">{{ detailValue(d.organizacion, 'abreviatura') }}</p>
+        </div>
+        <div class="rounded-md bg-neutral-50 p-3">
+          <p class="text-[11px] font-medium uppercase text-neutral-500">Keycloak</p>
+          <p class="mt-1 text-sm text-neutral-900">{{ detailValue(d.organizacion, 'isUsaKeycloak') }} - {{ detailValue(d.organizacion, 'keycloakRealm') }}</p>
+        </div>
+        <div class="rounded-md bg-neutral-50 p-3">
+          <p class="text-[11px] font-medium uppercase text-neutral-500">Claim organizacion</p>
+          <p class="mt-1 font-mono text-sm text-neutral-900">{{ detailValue(d.organizacion, 'claimOrgid') }}</p>
+        </div>
+        <div class="rounded-md bg-neutral-50 p-3">
+          <p class="text-[11px] font-medium uppercase text-neutral-500">Algoritmo secreto</p>
+          <p class="mt-1 text-sm text-neutral-900">{{ detailValue(d.organizacion, 'secretoAlgoritmo') }}</p>
+        </div>
+        <div class="rounded-md bg-neutral-50 p-3">
+          <p class="text-[11px] font-medium uppercase text-neutral-500">Rotacion secreto</p>
+          <p class="mt-1 text-sm text-neutral-900">{{ detailValue(d.organizacion, 'secretoRotado') }}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 class="text-sm font-semibold text-neutral-700">Configuraciones</h3>
+          <p class="text-xs text-neutral-500">{{ configuracionesFiltradas().length }} de {{ configuraciones().length }} registros.</p>
+        </div>
+        <input
+          type="text"
+          class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm md:w-80"
+          [value]="filtroConfiguracion()"
+          (input)="onFiltroConfiguracion($event)"
+          placeholder="Buscar por codigo, PK, SK o descripcion"
+        />
+      </div>
+
+      <j-data-table
+        [columns]="columns"
+        [data]="configuracionesPaginadas()"
+        [rowKey]="rowKey"
+        [showFilter]="false"
+        (rowClick)="onRowClick($event)"
+        emptyTitle="Sin configuraciones"
+        emptyDescription="No hay configuraciones para la organizacion actual."
+      />
+
+      <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-neutral-500">
+        <p>
+          Mostrando {{ configuracionesPaginadas().length }} de {{ total() }} configuraciones. Pagina {{ page() }} de {{ totalPages() }}. Tamano de pagina:
+          {{ pageSize() }}.
+        </p>
+        <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+      </div>
+    </section>
+  }
+</div>
+
+<j-dialog
+  [open]="configSeleccionada() !== null"
+  size="xl"
+  [title]="configSeleccionada()?.codigo ?? 'Configuracion'"
+  [description]="configSeleccionada()?.descripcion ?? ''"
+  contentClassName="p-0"
+  (closed)="closeConfig()"
+  (cancel)="closeConfig()"
+>
+  @if (configSeleccionada(); as config) {
+    <j-tabs [value]="configTab()" variant="line" (changed)="onConfigTab($event)">
+      <j-tabs-list className="border-b border-neutral-200 bg-white px-3">
+        <j-tabs-trigger value="datos">Datos</j-tabs-trigger>
+        <j-tabs-trigger value="json">JSON</j-tabs-trigger>
+      </j-tabs-list>
+
+      <div class="p-4">
+        <j-tabs-content value="datos">
+          <div class="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+            @for (field of scalarEntries(configRecord(config)); track field.key) {
+              <div class="min-w-0 rounded-md bg-neutral-50 p-2">
+                <p class="text-[11px] font-medium uppercase text-neutral-500">{{ field.label }}</p>
+                <p class="mt-1 break-words text-sm text-neutral-900">{{ field.value }}</p>
+              </div>
+            }
+          </div>
+        </j-tabs-content>
+
+        <j-tabs-content value="json">
+          <div class="grid gap-3">
+            @for (field of jsonEntries(configRecord(config)); track field.key) {
+              <div>
+                <p class="mb-1 text-xs font-medium text-neutral-500">{{ field.label }}</p>
+                <pre class="max-h-72 overflow-auto rounded-md bg-neutral-950 p-3 text-xs leading-relaxed text-neutral-100">{{ field.value }}</pre>
+              </div>
+            } @empty {
+              <p class="text-sm text-neutral-400">Sin valores JSON.</p>
+            }
+          </div>
+        </j-tabs-content>
+      </div>
+    </j-tabs>
+  }
+</j-dialog>

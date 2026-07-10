@@ -1,4 +1,4 @@
-export type JDialogSize = 'sm' | 'md' | 'lg' | 'xl';
+export type JDialogSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
 /** Contrato publico de JDialog. */
 export interface InterJDialog {

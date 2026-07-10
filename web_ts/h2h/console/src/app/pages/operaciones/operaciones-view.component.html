@@ -1,0 +1,119 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <j-section-heading [eyebrow]="meta().eyebrow" [heading]="meta().heading" [description]="meta().description" />
+
+  @if (esTodas()) {
+    <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-sm font-semibold text-neutral-700">Filtros avanzados</p>
+          <p class="text-xs text-neutral-500">Ajusta la consulta con los campos disponibles en la API H2H.</p>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100" (click)="onResetFiltros()">
+            Limpiar
+          </button>
+          <button type="button" class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700" (click)="onAplicarFiltros()">
+            Aplicar
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-producto">Producto</label>
+          <select id="f-producto" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroProducto()" (change)="onProducto($event)">
+            <option value="">Todos</option>
+            <option value="pagos_masivos">Pagos Masivos</option>
+            <option value="transferencias">Transferencias</option>
+            <option value="factoring">Factoring Electrónico</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-id">ID</label>
+          <input id="f-id" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroId()" (input)="onId($event)" placeholder="ID de operación" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-id-carga">ID Carga</label>
+          <input id="f-id-carga" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroIdCarga()" (input)="onIdCarga($event)" placeholder="ID carga" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-id-planilla">ID Planilla</label>
+          <input id="f-id-planilla" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroIdPlanilla()" (input)="onIdPlanilla($event)" placeholder="ID planilla" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-id-beneficiario">ID Beneficiario</label>
+          <input id="f-id-beneficiario" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroIdBeneficiario()" (input)="onIdBeneficiario($event)" placeholder="ID beneficiario" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-codigo">Código de operación</label>
+          <input id="f-codigo" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroCodigoOperacion()" (input)="onCodigoOperacion($event)" placeholder="Código" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-referencia">Referencia origen</label>
+          <input id="f-referencia" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroReferenciaOrigen()" (input)="onReferenciaOrigen($event)" placeholder="Referencia" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-sistema">Sistema origen</label>
+          <input id="f-sistema" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroSistemaOrigen()" (input)="onSistemaOrigen($event)" placeholder="Sistema" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-tipo-op">Tipo de operación</label>
+          <input id="f-tipo-op" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroTipoOperacion()" (input)="onTipoOperacion($event)" placeholder="Ej. PAGOMASIVO_HABERES" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-estado">Estado</label>
+          <select id="f-estado" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroEstado()" (change)="onEstado($event)">
+            <option value="">Todos</option>
+            @for (estado of estados(); track estado) {
+              <option [value]="estado">{{ estado }}</option>
+            }
+          </select>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-moneda">Moneda</label>
+          <input id="f-moneda" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroMoneda()" (input)="onMoneda($event)" placeholder="Ej. PEN" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="f-sin-planilla">Sin planilla vigente</label>
+          <select id="f-sin-planilla" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroSinPlanillaVigente()" (change)="onSinPlanilla($event)">
+            <option value="">Todos</option>
+            <option value="true">Sí</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  } @else if (meta().subtipos.length > 1) {
+    <div class="flex items-center gap-2">
+      <label class="text-sm font-medium text-neutral-600" for="subtipo">Subtipo</label>
+      <select
+        id="subtipo"
+        class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        [value]="subtipo()"
+        (change)="onSubtipo($event)"
+      >
+        @for (subtipo of meta().subtipos; track subtipo.code) {
+          <option [value]="subtipo.code">{{ subtipo.label }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  <j-data-table
+    [columns]="columns"
+    [data]="rows()"
+    [rowKey]="rowKey"
+    [showFilter]="false"
+    filterPlaceholder="Buscar por código, beneficiario, cuenta…"
+    emptyTitle="Sin operaciones"
+    emptyDescription="No hay operaciones para el filtro actual."
+  />
+
+  <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-neutral-500">
+    <p>
+      Mostrando {{ rows().length }} de {{ total() }} operaciones. Pagina {{ page() }} de {{ totalPages() }}. Tamano de pagina: {{ pageSize() }}.
+    </p>
+    <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+  </div>
+</div>

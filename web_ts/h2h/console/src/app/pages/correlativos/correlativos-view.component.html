@@ -1,0 +1,151 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <j-section-heading
+    eyebrow="Administracion"
+    heading="Correlativos"
+    description="Secuencias de numeracion de documentos por organizacion (planillas, archivos H2H). Formato configurable y reinicio periodico."
+  />
+
+  <section class="flex flex-col gap-3">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div class="flex flex-wrap items-end gap-2">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-neutral-500">Tipo documento</label>
+          <select class="w-64 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroTipo()" (change)="onFiltroTipo($event)">
+            <option value="">(todos)</option>
+            @for (t of tiposDocumento(); track t.id) {
+              <option [value]="t.id">{{ t.abreviatura ?? t.codigo }} - {{ t.descripcion }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-neutral-500">Formato</label>
+          <select class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroFormato()" (change)="onFiltroFormato($event)">
+            <option value="">(todos)</option>
+            @for (f of formatos; track f) { <option [value]="f">{{ f }}</option> }
+          </select>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-neutral-500">Periodicidad</label>
+          <select class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroPeriodicidad()" (change)="onFiltroPeriodicidad($event)">
+            <option value="">(todas)</option>
+            @for (p of periodicidades; track p) { <option [value]="p">{{ p }}</option> }
+          </select>
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-neutral-500">Estado</label>
+          <select class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroActivo()" (change)="onFiltroActivo($event)">
+            <option value="">(todos)</option>
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
+        </div>
+        <j-button size="sm" variant="outline" (clicked)="onResetFiltros()">Limpiar</j-button>
+      </div>
+      <j-button size="sm" (clicked)="nuevo()">+ Nuevo correlativo</j-button>
+    </div>
+
+    <j-data-table
+      [columns]="columns"
+      [data]="rowsPaginadas()"
+      [rowKey]="rowKey"
+      [showFilter]="false"
+      (rowClick)="onRowClick($event)"
+      emptyTitle="Sin correlativos"
+      emptyDescription="No hay correlativos para el filtro actual. Crea uno con + Nuevo correlativo."
+    />
+
+    <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-neutral-500">
+      <p>Mostrando {{ rowsPaginadas().length }} de {{ total() }} correlativos. Pagina {{ page() }} de {{ totalPages() }}.</p>
+      <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+    </div>
+  </section>
+</div>
+
+<j-dialog
+  [open]="formOpen()"
+  size="xl"
+  [title]="formTitle()"
+  description="Configura la secuencia. En CADENA_CEROS la longitud rellena con ceros a la izquierda."
+  (closed)="cerrarForm()"
+  (cancel)="cerrarForm()"
+>
+  <div class="grid gap-3 p-1 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">ID Organizacion (UUID) *</label>
+      <input class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fIdOrganizacion()" (input)="set('idOrg', $event)" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Tipo documento *</label>
+      <select class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fIdTipoDocumento()" (change)="set('idTipo', $event)">
+        <option value="">(seleccione)</option>
+        @for (t of tiposDocumento(); track t.id) {
+          <option [value]="t.id">{{ t.abreviatura ?? t.codigo }} - {{ t.descripcion }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Formato *</label>
+      <select class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fFormato()" (change)="set('formato', $event)">
+        @for (f of formatos; track f) { <option [value]="f">{{ f }}</option> }
+      </select>
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Longitud (ceros)</label>
+      <input type="number" min="1" class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fLongitud()" (input)="set('longitud', $event)" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Valor inicial</label>
+      <input type="number" class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fValorInicial()" (input)="set('ini', $event)" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Valor actual</label>
+      <input type="number" class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fValorActual()" (input)="set('act', $event)" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Incremento</label>
+      <input type="number" class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fIncremento()" (input)="set('inc', $event)" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Valor maximo (opcional)</label>
+      <input type="number" class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fValorMaximo()" (input)="set('max', $event)" placeholder="sin tope" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Prefijo (opcional)</label>
+      <input class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fPrefijo()" (input)="set('pre', $event)" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Sufijo (opcional)</label>
+      <input class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fSufijo()" (input)="set('suf', $event)" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Periodicidad</label>
+      <select class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fPeriodicidad()" (change)="set('period', $event)">
+        @for (p of periodicidades; track p) { <option [value]="p">{{ p }}</option> }
+      </select>
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Estado</label>
+      <select class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="fIsActivo()" (change)="set('activo', $event)">
+        <option value="true">Activo</option>
+        <option value="false">Inactivo</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="mt-4 rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-3">
+    <p class="text-[11px] font-medium uppercase text-neutral-500">Vista previa del siguiente valor</p>
+    <p class="mt-1 font-mono text-base text-neutral-900">{{ preview() }}</p>
+  </div>
+
+  <div class="mt-4 flex items-center justify-between gap-2">
+    <div>
+      @if (editId()) {
+        <j-button size="sm" variant="destructive" (clicked)="eliminar()">Eliminar</j-button>
+      }
+    </div>
+    <div class="flex gap-2">
+      <j-button size="sm" variant="outline" (clicked)="cerrarForm()">Cancelar</j-button>
+      <j-button size="sm" (clicked)="guardar()">Guardar</j-button>
+    </div>
+  </div>
+</j-dialog>

@@ -1,0 +1,229 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <j-section-heading eyebrow="Maestros" heading="Beneficiarios" description="Beneficiarios, cuentas bancarias y operaciones H2H asociadas." />
+
+  <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-sm font-semibold text-neutral-700">Filtros</p>
+        <p class="text-xs text-neutral-500">Consulta por documento, titular y estado.</p>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100" (click)="onResetFiltros()">
+          Limpiar
+        </button>
+        <button type="button" class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700" (click)="onAplicarFiltros()">
+          Aplicar
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="ben-documento">Documento</label>
+        <input id="ben-documento" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroDocumento()" (input)="onDocumento($event)" placeholder="Numero de documento" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="ben-titular">Titular</label>
+        <input id="ben-titular" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroTitular()" (input)="onTitular($event)" placeholder="Nombre o razon social" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="ben-activo">Estado</label>
+        <select id="ben-activo" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroActivo()" (change)="onActivo($event)">
+          <option value="">Todos</option>
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <j-data-table
+    [columns]="columns"
+    [data]="rows()"
+    [rowKey]="rowKey"
+    [showFilter]="false"
+    (rowClick)="onRowClick($event)"
+    emptyTitle="Sin beneficiarios"
+    emptyDescription="No hay beneficiarios para el filtro actual."
+  />
+
+  <div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 pt-4">
+    <p class="text-sm text-neutral-500">
+      Mostrando {{ rows().length }} de {{ total() }} beneficiarios. Pagina {{ page() }} de {{ totalPages() }}. Tamano de pagina: {{ pageSize() }}.
+    </p>
+    <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+  </div>
+</div>
+
+<j-dialog
+  [open]="detalleLoading() !== null || detalle() !== null"
+  size="2xl"
+  [title]="detalleTitle()"
+  [description]="detalleDescription()"
+  contentClassName="p-0"
+  (closed)="closeDetalle()"
+  (cancel)="closeDetalle()"
+>
+  @if (detalleLoading() !== null && detalle() === null) {
+    <div class="flex min-h-48 items-center justify-center text-sm text-neutral-500">
+      Cargando detalle...
+    </div>
+  }
+
+  @if (detalle(); as d) {
+    <div class="flex min-h-[68vh] flex-col bg-white">
+      <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-3">
+        <div class="grid gap-3 md:grid-cols-3">
+          <div class="min-w-0">
+            <p class="text-[11px] font-medium uppercase text-neutral-500">Documento</p>
+            <p class="truncate font-mono text-sm font-semibold text-neutral-900">
+              {{ detailValue(d.beneficiario, 'tipoDocumentoCodigo') }} {{ detailValue(d.beneficiario, 'numeroDocumento') }}
+            </p>
+          </div>
+          <div class="min-w-0">
+            <p class="text-[11px] font-medium uppercase text-neutral-500">Cuentas</p>
+            <p class="truncate text-lg font-semibold tabular-nums text-neutral-900">{{ d.cuentas.length }}</p>
+          </div>
+          <div class="min-w-0">
+            <p class="text-[11px] font-medium uppercase text-neutral-500">Operaciones</p>
+            <p class="truncate text-lg font-semibold tabular-nums text-neutral-900">{{ d.operaciones.length }}</p>
+          </div>
+        </div>
+      </div>
+
+      <j-tabs [value]="detalleTab()" variant="line" className="flex-1" (changed)="onDetalleTab($event)">
+        <j-tabs-list className="border-b border-neutral-200 bg-white px-3">
+          <j-tabs-trigger value="datos">Datos</j-tabs-trigger>
+          <j-tabs-trigger value="cuentas">Cuentas ({{ d.cuentas.length }})</j-tabs-trigger>
+          <j-tabs-trigger value="operaciones">Operaciones ({{ d.operaciones.length }})</j-tabs-trigger>
+          <j-tabs-trigger value="json">JSON</j-tabs-trigger>
+        </j-tabs-list>
+
+        <div class="p-4">
+          <j-tabs-content value="datos">
+            <section class="rounded-md border border-neutral-200 bg-white">
+              <div class="border-b border-neutral-200 px-3 py-2">
+                <h3 class="text-sm font-semibold text-neutral-800">Datos del beneficiario</h3>
+              </div>
+              <div class="grid gap-2 p-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+                @for (field of scalarEntries(d.beneficiario); track field.key) {
+                  <div class="min-w-0 rounded-md bg-neutral-50 p-2">
+                    <p class="text-[11px] font-medium uppercase text-neutral-500">{{ field.label }}</p>
+                    <p class="mt-1 break-words text-sm text-neutral-900">{{ field.value }}</p>
+                  </div>
+                }
+              </div>
+            </section>
+          </j-tabs-content>
+
+          <j-tabs-content value="cuentas">
+            <section class="rounded-md border border-neutral-200 bg-white">
+              <div class="border-b border-neutral-200 px-3 py-2">
+                <h3 class="text-sm font-semibold text-neutral-800">Cuentas bancarias</h3>
+              </div>
+              <div class="flex flex-col gap-2 p-3">
+                @for (cuenta of cuentas(d); track detailValue(cuenta, 'id') + '-' + $index) {
+                  <details class="rounded-md border border-neutral-200 bg-white" [open]="$first">
+                    <summary class="grid cursor-pointer gap-2 px-3 py-2 text-sm text-neutral-700 md:grid-cols-[minmax(180px,0.9fr)_minmax(180px,1fr)_100px_100px]">
+                      <span class="font-medium">{{ cuentaLabel(cuenta) }}</span>
+                      <span class="font-mono">{{ cuentaNumero(cuenta) }}</span>
+                      <span>{{ detailValue(cuenta, 'isPrincipal') }}</span>
+                      <span>{{ detailValue(cuenta, 'isActivo') }}</span>
+                    </summary>
+                    <div class="grid gap-2 border-t border-neutral-100 bg-neutral-50 p-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+                      @for (field of scalarEntries(cuenta); track field.key) {
+                        <div class="min-w-0 rounded-md bg-white p-2">
+                          <p class="text-[11px] font-medium uppercase text-neutral-500">{{ field.label }}</p>
+                          <p class="mt-1 break-words text-sm text-neutral-900">{{ field.value }}</p>
+                        </div>
+                      }
+                    </div>
+                  </details>
+                } @empty {
+                  <p class="text-sm text-neutral-400">Sin cuentas registradas.</p>
+                }
+              </div>
+            </section>
+          </j-tabs-content>
+
+          <j-tabs-content value="operaciones">
+            <section class="rounded-md border border-neutral-200 bg-white">
+              <div class="border-b border-neutral-200 px-3 py-2">
+                <h3 class="text-sm font-semibold text-neutral-800">Operaciones del beneficiario</h3>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full min-w-[760px] text-left text-sm">
+                  <thead class="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
+                    <tr>
+                      <th class="px-3 py-2 font-medium">Codigo</th>
+                      <th class="px-3 py-2 font-medium">Tipo</th>
+                      <th class="px-3 py-2 font-medium">Cuenta</th>
+                      <th class="px-3 py-2 text-right font-medium">Monto</th>
+                      <th class="px-3 py-2 font-medium">Estado</th>
+                      <th class="px-3 py-2 font-medium">Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-neutral-100">
+                    @for (operacion of operaciones(d); track operacion.id) {
+                      <tr class="hover:bg-neutral-50">
+                        <td class="px-3 py-2 font-mono text-xs text-neutral-800">{{ operacion.codigoOperacion }}</td>
+                        <td class="px-3 py-2 text-neutral-700">{{ operacion.tipoOperacionCodigo }}</td>
+                        <td class="px-3 py-2 font-mono text-xs text-neutral-700">{{ operacionCuenta(operacion) }}</td>
+                        <td class="px-3 py-2 text-right font-mono text-neutral-900">{{ montoOperacion(operacion) }}</td>
+                        <td class="px-3 py-2 text-neutral-700">{{ operacion.estadoOperacionCodigo }}</td>
+                        <td class="px-3 py-2 text-neutral-700">{{ operacion.fechaOperacion }}</td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td class="px-3 py-6 text-center text-sm text-neutral-400" colspan="6">Sin operaciones registradas.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </j-tabs-content>
+
+          <j-tabs-content value="json">
+            <div class="grid gap-4">
+              <section class="rounded-md border border-neutral-200 bg-white">
+                <div class="flex items-center justify-between gap-3 border-b border-neutral-200 px-3 py-2">
+                  <h3 class="text-sm font-semibold text-neutral-800">JSON de beneficiario</h3>
+                  <span class="text-xs font-medium text-neutral-500">{{ hasJson(d) ? 'Disponible' : 'Sin JSON' }}</span>
+                </div>
+                <div class="grid gap-3 p-3">
+                  @for (field of jsonEntries(d.beneficiario); track field.key) {
+                    <div>
+                      <p class="mb-1 text-xs font-medium text-neutral-500">{{ field.label }}</p>
+                      <pre class="max-h-64 overflow-auto rounded-md bg-neutral-950 p-3 text-xs leading-relaxed text-neutral-100">{{ field.value }}</pre>
+                    </div>
+                  } @empty {
+                    <p class="text-sm text-neutral-400">Sin JSON de beneficiario.</p>
+                  }
+                </div>
+              </section>
+
+              <section class="rounded-md border border-neutral-200 bg-white">
+                <div class="border-b border-neutral-200 px-3 py-2">
+                  <h3 class="text-sm font-semibold text-neutral-800">JSON de cuentas</h3>
+                </div>
+                <div class="grid gap-3 p-3">
+                  @for (cuenta of cuentas(d); track detailValue(cuenta, 'id') + '-json-' + $index) {
+                    @for (field of jsonEntries(cuenta); track field.key) {
+                      <details class="rounded-md border border-neutral-200">
+                        <summary class="cursor-pointer px-3 py-2 text-sm font-medium text-neutral-700">{{ cuentaNumero(cuenta) }} - {{ field.label }}</summary>
+                        <pre class="max-h-56 overflow-auto border-t border-neutral-100 bg-neutral-950 p-3 text-xs leading-relaxed text-neutral-100">{{ field.value }}</pre>
+                      </details>
+                    }
+                  } @empty {
+                    <p class="text-sm text-neutral-400">Sin JSON de cuentas.</p>
+                  }
+                </div>
+              </section>
+            </div>
+          </j-tabs-content>
+        </div>
+      </j-tabs>
+    </div>
+  }
+</j-dialog>

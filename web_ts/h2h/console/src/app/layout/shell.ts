@@ -74,6 +74,7 @@ export class Shell {
 
     const canAlgunaOperacion =
       can('operaciones.pagos_masivos:read') || can('operaciones.transferencias:read') || can('operaciones.factoring:read');
+    const canOrganizacion = can('organizacion:read') || can('catalogos:read') || can('rbac:read');
 
     const operacion: SidebarNavItem[] = [
       { key: 'dashboard', label: 'Dashboard', icon: '▤' },
@@ -86,9 +87,11 @@ export class Shell {
       ...gate('respuestas:read', { key: 'respuestas', label: 'Respuestas BCP', icon: '↩' }),
     ];
     const admin: SidebarNavItem[] = [
+      ...(canOrganizacion ? [{ key: 'organizacion', label: 'Organizacion', icon: 'ORG' } as SidebarNavItem] : []),
       ...gate('beneficiarios:read', { key: 'beneficiarios', label: 'Beneficiarios', icon: '☺' }),
       ...gate('certificados:read', { key: 'certificados', label: 'Certificados', icon: '⚿' }),
       ...gate('catalogos:read', { key: 'catalogos', label: 'Catálogos', icon: '≣' }),
+      ...gate('catalogos:read', { key: 'correlativos', label: 'Correlativos', icon: '№' }),
       ...gate('auditoria:read', { key: 'auditoria', label: 'Auditoría', icon: '◷' }),
       ...gate('rbac:read', { key: 'rbac', label: 'Usuarios y RBAC', icon: '⚙' }),
     ];

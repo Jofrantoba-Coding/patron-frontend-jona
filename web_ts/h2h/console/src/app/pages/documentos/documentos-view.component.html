@@ -1,0 +1,101 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <j-section-heading
+    eyebrow="Gestión documental"
+    heading="Documentos"
+    description="Todos los archivos del flujo H2H: planillas enviadas y respuestas BCP, en claro y cifrado."
+  />
+
+  <div class="flex flex-wrap items-end gap-3">
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-neutral-500" for="f-producto">Producto</label>
+      <select id="f-producto" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtro().producto ?? ''" (change)="set('producto', $event)">
+        <option value="">Todos</option>
+        <option value="pagos_masivos">Pagos Masivos</option>
+        <option value="transferencias">Transferencias</option>
+        <option value="factoring">Factoring Electrónico</option>
+      </select>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-neutral-500" for="f-tipo">Tipo</label>
+      <select id="f-tipo" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtro().tipoDocumento ?? ''" (change)="set('tipoDocumento', $event)">
+        <option value="">Todos</option>
+        <option value="PLANILLA">Planillas (envío)</option>
+        <option value="RESPUESTA">Respuestas BCP</option>
+      </select>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-neutral-500" for="f-formato">Formato</label>
+      <select id="f-formato" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtro().formato ?? ''" (change)="set('formato', $event)">
+        <option value="">Todos</option>
+        <option value="TXT">TXT</option>
+        <option value="XML">XML</option>
+      </select>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-neutral-500" for="f-cifrado">Cifrado</label>
+      <select id="f-cifrado" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="cifradoValue()" (change)="set('cifrado', $event)">
+        <option value="">Todos</option>
+        <option value="true">Cifrado</option>
+        <option value="false">Solo claro</option>
+      </select>
+    </div>
+  </div>
+
+  <j-table responsiveMode="scroll">
+    <j-table-header>
+      <j-table-row>
+        <j-table-head>Archivo</j-table-head>
+        <j-table-head>Tipo</j-table-head>
+        <j-table-head>Producto</j-table-head>
+        <j-table-head>Formato</j-table-head>
+        <j-table-head>Modalidad</j-table-head>
+        <j-table-head>Estado</j-table-head>
+        <j-table-head>Cifrado</j-table-head>
+        <j-table-head className="text-right">Ops.</j-table-head>
+        <j-table-head>Fecha</j-table-head>
+        <j-table-head>Acciones</j-table-head>
+      </j-table-row>
+    </j-table-header>
+    <j-table-body>
+      @for (d of rows(); track d.id) {
+        <j-table-row>
+          <j-table-cell><span class="font-mono text-xs">{{ d.nombre }}</span></j-table-cell>
+          <j-table-cell><j-badge [variant]="d.tipoDocumento === 'PLANILLA' ? 'secondary' : 'outline'">{{ d.tipoDocumento }}</j-badge></j-table-cell>
+          <j-table-cell>{{ productoLabel(d.producto) }}</j-table-cell>
+          <j-table-cell>{{ d.formato }}</j-table-cell>
+          <j-table-cell>{{ d.modalidad ?? '—' }}</j-table-cell>
+          <j-table-cell><j-badge [variant]="badge(d.estado)">{{ d.estado }}</j-badge></j-table-cell>
+          <j-table-cell><j-badge [variant]="d.cifrado ? 'default' : 'ghost'">{{ d.cifrado ? 'Sí' : 'No' }}</j-badge></j-table-cell>
+          <j-table-cell className="text-right tabular-nums">{{ d.totalOperaciones ?? '—' }}</j-table-cell>
+          <j-table-cell>{{ fecha(d.fecha) }}</j-table-cell>
+          <j-table-cell>
+            <div class="flex flex-wrap gap-1.5">
+              <j-button size="sm" variant="ghost" (clicked)="preview(d)">Ver</j-button>
+              @if (canDownload() && d.urlClaro) {
+                <j-button size="sm" variant="outline" (clicked)="descargar(d, 'claro')">Claro</j-button>
+              }
+              @if (canDownloadCifrado() && d.cifrado) {
+                <j-button size="sm" variant="outline" (clicked)="descargar(d, 'cifrado')">Cifrado</j-button>
+              }
+            </div>
+          </j-table-cell>
+        </j-table-row>
+      } @empty {
+        <j-table-row>
+          <j-table-cell [attr.colspan]="10"><span class="text-sm text-neutral-400">Sin documentos para el filtro actual.</span></j-table-cell>
+        </j-table-row>
+      }
+    </j-table-body>
+  </j-table>
+</div>
+
+<j-dialog
+  [open]="preview_() !== null"
+  size="lg"
+  [title]="preview_()?.nombre ?? ''"
+  [description]="preview_() ? preview_()!.tipoDocumento + ' · ' + preview_()!.formato : ''"
+  (closed)="preview_.set(null)"
+  (cancel)="preview_.set(null)"
+>
+  <pre class="max-h-[60vh] overflow-auto rounded-md bg-neutral-900 p-4 font-mono text-xs leading-relaxed text-neutral-100">{{ preview_()?.contenido }}</pre>
+</j-dialog>

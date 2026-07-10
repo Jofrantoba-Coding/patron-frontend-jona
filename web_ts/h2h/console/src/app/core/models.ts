@@ -84,13 +84,53 @@ export interface Health {
 export type ProductoGrupo = 'pagos_masivos' | 'transferencias' | 'factoring';
 
 export interface Beneficiario {
-  ben_u_id?: string;
-  ben_n_id_tipodocumento_code: string;
-  ben_v_numerodocumento: string;
-  ben_v_nombre: string;
-  ben_v_apellido_paterno?: string;
-  ben_v_apellido_materno?: string;
-  ben_v_email?: string;
+  id: string;
+  idTipoBeneficiario?: number;
+  tipoBeneficiarioFullCode?: string;
+  tipoBeneficiarioCodigo?: string;
+  idTipoDocumento?: number;
+  tipoDocumentoFullCode?: string;
+  tipoDocumentoCodigo: string;
+  numeroDocumento: string;
+  correlativoDoc?: string | null;
+  titular: string;
+  email?: string | null;
+  telefono?: string | null;
+  codigoExterno?: string | null;
+  isActivo?: boolean;
+  idOrganizacion?: string;
+  totalCuentas?: number;
+  totalOperaciones?: number;
+  atributos?: unknown;
+  schemaJson?: unknown;
+}
+export interface BeneficiarioCuenta {
+  id: string;
+  idBeneficiario: string;
+  idEntidadFin?: number | null;
+  entidadFinFullCode?: string | null;
+  entidadFinCodigo?: string | null;
+  idTipoCuenta?: number;
+  tipoCuentaFullCode?: string;
+  tipoCuentaCodigo: string;
+  idMoneda?: number;
+  monedaFullCode?: string;
+  monedaCodigo: string;
+  numeroCuenta?: string | null;
+  cuentaInterbancaria?: string | null;
+  isCuentaPropia?: boolean;
+  isPrincipal?: boolean;
+  isActivo?: boolean;
+  idOrganizacion?: string;
+  atributos?: unknown;
+  schemaJson?: unknown;
+}
+export interface BeneficiarioFiltro {
+  tipoDocumento?: string;
+  numeroDocumento?: string;
+  titular?: string;
+  codigoExterno?: string;
+  isActivo?: boolean;
 }
 export interface CuentaBancaria {
   entidadFinanciera: string;
@@ -99,23 +139,113 @@ export interface CuentaBancaria {
   cuentaInterbancaria: string | null;
   moneda: string;
 }
+export interface OperacionBeneficiario {
+  id?: string | null;
+  tipoDocumentoCodigo: string;
+  numeroDocumento: string;
+  titular: string;
+  email?: string | null;
+}
+export interface OperacionBeneficiarioCuenta {
+  id?: string | null;
+  entidadFinCodigo: string;
+  tipoCuentaCodigo: string;
+  numeroCuenta: string | null;
+  cuentaInterbancaria: string | null;
+  monedaCodigo: string;
+}
 export interface Operacion {
-  ope_u_id: string;
-  ope_v_codigo_operacion: string;
-  ope_v_idempotency_key: string;
-  ope_v_sistema_origen: string;
-  ope_v_referencia_origen: string;
-  ope_n_id_tipooperacion_code: string;
-  ope_n_id_estadooperacion_code: string;
-  ope_n_id_moneda_code: string;
-  ope_dec_montototal: number;
-  ope_d_fecha_operacion: string;
-  ope_d_fecha_proceso: string;
-  ope_v_glosa: string;
-  beneficiario: Beneficiario;
-  cuenta: CuentaBancaria;
-  ope_u_id_planilla_vigente: string | null;
-  ope_n_intentos_envio: number;
+  id: string;
+  codigoOperacion: string;
+  idempotencyKey: string;
+  sistemaOrigen: string;
+  referenciaOrigen: string;
+  codigoExterno?: string | null;
+  idTipoOperacion: number;
+  tipoOperacionFullCode: string;
+  tipoOperacionCodigo: string;
+  idEstadoOperacion: number;
+  estadoOperacionFullCode: string;
+  estadoOperacionCodigo: string;
+  idMoneda: number;
+  monedaFullCode: string;
+  monedaCodigo: string;
+  idBeneficiario?: string | null;
+  idBeneficiarioCuenta?: string | null;
+  montoTotal: number;
+  fechaOperacion: string;
+  fechaProceso: string | null;
+  glosa: string | null;
+  beneficiario: OperacionBeneficiario;
+  beneficiarioCuenta: OperacionBeneficiarioCuenta;
+  idPlanillaVigente: string | null;
+  intentosEnvio: number;
+  idCarga?: string | null;
+  fechaCarga?: string | null;
+  idOrganizacion?: string;
+  atributos?: unknown;
+}
+
+export type OperacionDetalleRegistro = Record<string, unknown>;
+
+export interface OperacionDetalle {
+  operacion: OperacionDetalleRegistro;
+  beneficiario: OperacionDetalleRegistro;
+  beneficiarioCuenta: OperacionDetalleRegistro;
+  operacionItems: OperacionDetalleRegistro[];
+  operacionContables: OperacionDetalleRegistro[];
+}
+
+export interface BeneficiarioDetalle {
+  beneficiario: OperacionDetalleRegistro;
+  cuentas: BeneficiarioCuenta[];
+  operaciones: Operacion[];
+}
+
+export interface Organizacion {
+  id: string;
+  codigo: string;
+  abreviatura: string;
+  razonSocial: string;
+  nombreComercial?: string | null;
+  idTipoDocumento?: number | null;
+  tipoDocumentoFullCode?: string | null;
+  tipoDocumentoCodigo?: string | null;
+  numeroDocumento?: string | null;
+  ambiente: string;
+  secretoAlgoritmo?: string | null;
+  secretoRotado?: string | null;
+  isUsaKeycloak?: boolean;
+  keycloakRealm?: string | null;
+  keycloakClient?: string | null;
+  claimOrgid?: string | null;
+  isActivo?: boolean;
+  atributos?: unknown;
+  schemaJson?: unknown;
+}
+
+export interface OrganizacionConfiguracion {
+  id: number;
+  idOrganizacion: string;
+  pk: string;
+  sk?: string | null;
+  codigo: string;
+  codigoPadre?: string | null;
+  descripcion: string;
+  abreviatura?: string | null;
+  valor?: unknown;
+  typeValor?: string | null;
+  schemaJson?: unknown;
+  orden?: number | null;
+  version?: number | null;
+  isPersistente?: boolean;
+  clase?: string | null;
+  marcaTiempo?: string | null;
+}
+
+export interface OrganizacionDetalle {
+  organizacion: OperacionDetalleRegistro;
+  configuraciones: OrganizacionConfiguracion[];
 }
 
 export interface Planilla {
@@ -216,6 +346,46 @@ export interface DocumentoFiltro {
   fechaHasta?: string;
 }
 
+export interface OperacionFiltro {
+  id?: string;
+  idCarga?: string;
+  idPlanillaVigente?: string;
+  idBeneficiario?: string;
+  codigoOperacion?: string;
+  referenciaOrigen?: string;
+  sistemaOrigen?: string;
+  tipoOperacion?: string;
+  tipoOperaciones?: string[];
+  estadoOperacion?: string;
+  moneda?: string;
+  sinPlanillaVigente?: boolean;
+}
+
+export interface Parametria {
+  id: number;
+  pk?: string | null;
+  sk?: string | null;
+  codigo: string;
+  codigoPadre?: string | null;
+  descripcion?: string | null;
+  abreviatura?: string | null;
+  valor?: unknown;
+  typeValor?: string | null;
+  schemaJson?: unknown;
+  orden?: number | null;
+  version?: number | null;
+  isPersistente?: boolean;
+  clase?: string | null;
+}
+
+export interface ParametriaFiltro {
+  codigo?: string;
+  codigoPadre?: string;
+  persistente?: boolean;
+  soloPadres?: boolean;
+  soloHijos?: boolean;
+}
+
 export interface DocumentoDescarga {
   documentoId: string;
   variante: 'claro' | 'cifrado';
@@ -240,4 +410,33 @@ export interface EstructuraArchivo {
   producto: ProductoGrupo;
   formato: string;
   version: string;
+}
+
+export interface Correlativo {
+  id: string;
+  idOrganizacion: string;
+  idTipoDocumento: number;
+  tipoCodigo: string | null;
+  tipoDescripcion: string | null;
+  formato: string;
+  longitud: number | null;
+  valorInicial: number | null;
+  valorActual: number | null;
+  incremento: number | null;
+  valorMaximo: number | null;
+  prefijo: string | null;
+  sufijo: string | null;
+  periodicidad: string;
+  periodoActual: string | null;
+  isActivo: boolean;
+  version: number | null;
+  marcaTiempo: string | null;
+}
+
+export interface CorrelativoFiltro {
+  idOrganizacion?: string;
+  idTipoDocumento?: number;
+  formato?: string;
+  periodicidad?: string;
+  isActivo?: boolean;
 }

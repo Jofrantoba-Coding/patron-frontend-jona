@@ -1,20 +1,31 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import type { Observable } from 'rxjs';
-import { API_BASE } from './config';
+import { forkJoin, map, type Observable } from 'rxjs';
+import { API_BASE, H2H_BACKEND_BASE } from './config';
 import type {
   AuditEvent,
   Beneficiario,
+  BeneficiarioCuenta,
+  BeneficiarioDetalle,
+  BeneficiarioFiltro,
   Certificado,
+  Correlativo,
+  CorrelativoFiltro,
   DashboardSummary,
   Documento,
   DocumentoDescarga,
   DocumentoFiltro,
   DocumentoPreview,
+  OperacionFiltro,
   EstructuraArchivo,
   Health,
   LoginResponse,
   Operacion,
+  OperacionDetalle,
+  Parametria,
+  ParametriaFiltro,
+  OrganizacionConfiguracion,
+  OrganizacionDetalle,
   Paginated,
   Planilla,
   ProductoGrupo,
@@ -37,10 +48,225 @@ export interface PlanillaAction {
   traceId: string;
 }
 
+const TIPOOP_GRUPO: Record<string, ProductoGrupo> = {
+  PAGOMASIVO_ABONO_PROVEEDOR: 'pagos_masivos',
+  PAGOMASIVO_CHEQUE_GERENCIA: 'pagos_masivos',
+  PAGOMASIVO_CTS_TRABAJADOR: 'pagos_masivos',
+  PAGOMASIVO_HABERES_TRABAJADOR: 'pagos_masivos',
+  TRANSFERENCIA_CUENTA_PROPIA: 'transferencias',
+  TRANSFERENCIA_TERCEROS: 'transferencias',
+  TRANSFERENCIA_INTERBANCARIA: 'transferencias',
+  FACTORING_E: 'factoring',
+  FACTORING_TOTAL: 'factoring',
+  FACTORING_PAGO_VENCIMIENTO: 'factoring',
+  PAGO_HABER: 'pagos_masivos',
+  PAGO_CTS: 'pagos_masivos',
+  PAGO_PROVEEDOR: 'pagos_masivos',
+  PAGO_CHEQUE_GERENCIA: 'pagos_masivos',
+  RETIRO_INVITADO: 'pagos_masivos',
+  PAGO_TRANSFERENCIA: 'transferencias',
+  PAGO_FACTORING: 'factoring',
+};
+
+const tiposPorProducto = (producto: ProductoGrupo): string[] =>
+  Object.entries(TIPOOP_GRUPO)
+    .filter(([, grupo]) => grupo === producto)
+    .map(([codigo]) => codigo);
+
+type OperacionBackendRow = Record<string, unknown>;
+type OperacionDetalleBackend = Partial<OperacionDetalle>;
+type ParametriaBackendRow = Record<string, unknown>;
+type BeneficiarioBackendRow = Record<string, unknown>;
+type OrganizacionBackendRow = Record<string, unknown>;
+type BeneficiarioDetalleBackend = {
+  beneficiario?: Record<string, unknown>;
+  cuentas?: BeneficiarioBackendRow[];
+  operaciones?: OperacionBackendRow[];
+};
+type OrganizacionDetalleBackend = {
+  organizacion?: Record<string, unknown>;
+  configuraciones?: OrganizacionBackendRow[];
+};
+
+const pickOperacion = <T>(row: OperacionBackendRow, key: string): T =>
+  (row[key] ?? row[key.toLowerCase()]) as T;
+
+const pickParametria = <T>(row: ParametriaBackendRow, key: string): T =>
+  (row[key] ?? row[key.toLowerCase()]) as T;
+
+const pickBeneficiario = <T>(row: BeneficiarioBackendRow, key: string): T =>
+  (row[key] ?? row[key.toLowerCase()]) as T;
+
+const pickOrganizacion = <T>(row: OrganizacionBackendRow, key: string): T =>
+  (row[key] ?? row[key.toLowerCase()]) as T;
+
+const toNumber = (value: unknown, fallback = 0): number => {
+  const parsed = Number(value ?? fallback);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const normalizeOperacion = (row: OperacionBackendRow): Operacion => ({
+  id: pickOperacion<string>(row, 'id'),
+  codigoOperacion: pickOperacion<string>(row, 'codigoOperacion'),
+  idempotencyKey: pickOperacion<string>(row, 'idempotencyKey'),
+  sistemaOrigen: pickOperacion<string>(row, 'sistemaOrigen'),
+  referenciaOrigen: pickOperacion<string>(row, 'referenciaOrigen'),
+  codigoExterno: pickOperacion<string | null>(row, 'codigoExterno'),
+  idTipoOperacion: pickOperacion<number>(row, 'idTipoOperacion'),
+  tipoOperacionFullCode: pickOperacion<string>(row, 'tipoOperacionFullCode'),
+  tipoOperacionCodigo: pickOperacion<string>(row, 'tipoOperacionCodigo'),
+  idEstadoOperacion: pickOperacion<number>(row, 'idEstadoOperacion'),
+  estadoOperacionFullCode: pickOperacion<string>(row, 'estadoOperacionFullCode'),
+  estadoOperacionCodigo: pickOperacion<string>(row, 'estadoOperacionCodigo'),
+  idMoneda: pickOperacion<number>(row, 'idMoneda'),
+  monedaFullCode: pickOperacion<string>(row, 'monedaFullCode'),
+  monedaCodigo: pickOperacion<string>(row, 'monedaCodigo'),
+  idBeneficiario: pickOperacion<string | null>(row, 'idBeneficiario'),
+  idBeneficiarioCuenta: pickOperacion<string | null>(row, 'idBeneficiarioCuenta'),
+  montoTotal: pickOperacion<number>(row, 'montoTotal'),
+  fechaOperacion: pickOperacion<string>(row, 'fechaOperacion'),
+  fechaProceso: pickOperacion<string | null>(row, 'fechaProceso'),
+  glosa: pickOperacion<string | null>(row, 'glosa'),
+  beneficiario: pickOperacion<Operacion['beneficiario']>(row, 'beneficiario'),
+  beneficiarioCuenta: pickOperacion<Operacion['beneficiarioCuenta']>(row, 'beneficiarioCuenta'),
+  idPlanillaVigente: pickOperacion<string | null>(row, 'idPlanillaVigente'),
+  intentosEnvio: pickOperacion<number>(row, 'intentosEnvio'),
+  idCarga: pickOperacion<string | null>(row, 'idCarga'),
+  fechaCarga: pickOperacion<string | null>(row, 'fechaCarga'),
+  idOrganizacion: pickOperacion<string>(row, 'idOrganizacion'),
+  atributos: pickOperacion<unknown>(row, 'atributos'),
+});
+
+const normalizeParametria = (row: ParametriaBackendRow): Parametria => ({
+  id: pickParametria<number>(row, 'id'),
+  pk: pickParametria<string | null>(row, 'pk'),
+  sk: pickParametria<string | null>(row, 'sk'),
+  codigo: pickParametria<string>(row, 'codigo'),
+  codigoPadre: pickParametria<string | null>(row, 'codigoPadre'),
+  descripcion: pickParametria<string | null>(row, 'descripcion'),
+  abreviatura: pickParametria<string | null>(row, 'abreviatura'),
+  valor: pickParametria<unknown>(row, 'valor'),
+  typeValor: pickParametria<string | null>(row, 'typeValor'),
+  schemaJson: pickParametria<unknown>(row, 'schemaJson'),
+  orden: pickParametria<number | null>(row, 'orden'),
+  version: pickParametria<number | null>(row, 'version'),
+  isPersistente: pickParametria<boolean>(row, 'isPersistente'),
+  clase: pickParametria<string | null>(row, 'clase'),
+});
+
+const normalizeBeneficiario = (row: BeneficiarioBackendRow): Beneficiario => ({
+  id: pickBeneficiario<string>(row, 'id'),
+  idTipoBeneficiario: pickBeneficiario<number>(row, 'idTipoBeneficiario'),
+  tipoBeneficiarioFullCode: pickBeneficiario<string>(row, 'tipoBeneficiarioFullCode'),
+  tipoBeneficiarioCodigo: pickBeneficiario<string>(row, 'tipoBeneficiarioCodigo'),
+  idTipoDocumento: pickBeneficiario<number>(row, 'idTipoDocumento'),
+  tipoDocumentoFullCode: pickBeneficiario<string>(row, 'tipoDocumentoFullCode'),
+  tipoDocumentoCodigo: pickBeneficiario<string>(row, 'tipoDocumentoCodigo'),
+  numeroDocumento: pickBeneficiario<string>(row, 'numeroDocumento'),
+  correlativoDoc: pickBeneficiario<string | null>(row, 'correlativoDoc'),
+  titular: pickBeneficiario<string>(row, 'titular'),
+  email: pickBeneficiario<string | null>(row, 'email'),
+  telefono: pickBeneficiario<string | null>(row, 'telefono'),
+  codigoExterno: pickBeneficiario<string | null>(row, 'codigoExterno'),
+  isActivo: pickBeneficiario<boolean>(row, 'isActivo'),
+  idOrganizacion: pickBeneficiario<string>(row, 'idOrganizacion'),
+  totalCuentas: toNumber(pickBeneficiario<unknown>(row, 'totalCuentas')),
+  totalOperaciones: toNumber(pickBeneficiario<unknown>(row, 'totalOperaciones')),
+  atributos: pickBeneficiario<unknown>(row, 'atributos'),
+  schemaJson: pickBeneficiario<unknown>(row, 'schemaJson'),
+});
+
+const normalizeBeneficiarioCuenta = (row: BeneficiarioBackendRow): BeneficiarioCuenta => ({
+  id: pickBeneficiario<string>(row, 'id'),
+  idBeneficiario: pickBeneficiario<string>(row, 'idBeneficiario'),
+  idEntidadFin: pickBeneficiario<number | null>(row, 'idEntidadFin'),
+  entidadFinFullCode: pickBeneficiario<string | null>(row, 'entidadFinFullCode'),
+  entidadFinCodigo: pickBeneficiario<string | null>(row, 'entidadFinCodigo'),
+  idTipoCuenta: pickBeneficiario<number>(row, 'idTipoCuenta'),
+  tipoCuentaFullCode: pickBeneficiario<string>(row, 'tipoCuentaFullCode'),
+  tipoCuentaCodigo: pickBeneficiario<string>(row, 'tipoCuentaCodigo'),
+  idMoneda: pickBeneficiario<number>(row, 'idMoneda'),
+  monedaFullCode: pickBeneficiario<string>(row, 'monedaFullCode'),
+  monedaCodigo: pickBeneficiario<string>(row, 'monedaCodigo'),
+  numeroCuenta: pickBeneficiario<string | null>(row, 'numeroCuenta'),
+  cuentaInterbancaria: pickBeneficiario<string | null>(row, 'cuentaInterbancaria'),
+  isCuentaPropia: pickBeneficiario<boolean>(row, 'isCuentaPropia'),
+  isPrincipal: pickBeneficiario<boolean>(row, 'isPrincipal'),
+  isActivo: pickBeneficiario<boolean>(row, 'isActivo'),
+  idOrganizacion: pickBeneficiario<string>(row, 'idOrganizacion'),
+  atributos: pickBeneficiario<unknown>(row, 'atributos'),
+  schemaJson: pickBeneficiario<unknown>(row, 'schemaJson'),
+});
+
+const normalizeOperacionDetalle = (detalle: OperacionDetalleBackend): OperacionDetalle => ({
+  operacion: detalle.operacion ?? {},
+  beneficiario: detalle.beneficiario ?? {},
+  beneficiarioCuenta: detalle.beneficiarioCuenta ?? {},
+  operacionItems: detalle.operacionItems ?? [],
+  operacionContables: detalle.operacionContables ?? [],
+});
+
+const normalizeBeneficiarioDetalle = (detalle: BeneficiarioDetalleBackend): BeneficiarioDetalle => ({
+  beneficiario: detalle.beneficiario ?? {},
+  cuentas: (detalle.cuentas ?? []).map(normalizeBeneficiarioCuenta),
+  operaciones: (detalle.operaciones ?? []).map(normalizeOperacion),
+});
+
+const normalizeOrganizacionConfiguracion = (row: OrganizacionBackendRow): OrganizacionConfiguracion => ({
+  id: pickOrganizacion<number>(row, 'id'),
+  idOrganizacion: pickOrganizacion<string>(row, 'idOrganizacion'),
+  pk: pickOrganizacion<string>(row, 'pk'),
+  sk: pickOrganizacion<string | null>(row, 'sk'),
+  codigo: pickOrganizacion<string>(row, 'codigo'),
+  codigoPadre: pickOrganizacion<string | null>(row, 'codigoPadre'),
+  descripcion: pickOrganizacion<string>(row, 'descripcion'),
+  abreviatura: pickOrganizacion<string | null>(row, 'abreviatura'),
+  valor: pickOrganizacion<unknown>(row, 'valor'),
+  typeValor: pickOrganizacion<string | null>(row, 'typeValor'),
+  schemaJson: pickOrganizacion<unknown>(row, 'schemaJson'),
+  orden: pickOrganizacion<number | null>(row, 'orden'),
+  version: pickOrganizacion<number | null>(row, 'version'),
+  isPersistente: pickOrganizacion<boolean>(row, 'isPersistente'),
+  clase: pickOrganizacion<string | null>(row, 'clase'),
+  marcaTiempo: pickOrganizacion<string | null>(row, 'marcaTiempo'),
+});
+
+const normalizeOrganizacionDetalle = (detalle: OrganizacionDetalleBackend): OrganizacionDetalle => ({
+  organizacion: detalle.organizacion ?? {},
+  configuraciones: (detalle.configuraciones ?? []).map(normalizeOrganizacionConfiguracion),
+});
+
+type CorrelativoBackendRow = Record<string, unknown>;
+const pickCorrelativo = <T>(row: CorrelativoBackendRow, key: string): T =>
+  (row[key] ?? row[key.toLowerCase()]) as T;
+
+const normalizeCorrelativo = (row: CorrelativoBackendRow): Correlativo => ({
+  id: pickCorrelativo<string>(row, 'id'),
+  idOrganizacion: pickCorrelativo<string>(row, 'idOrganizacion'),
+  idTipoDocumento: toNumber(pickCorrelativo<unknown>(row, 'idTipoDocumento')),
+  tipoCodigo: pickCorrelativo<string | null>(row, 'tipoCodigo'),
+  tipoDescripcion: pickCorrelativo<string | null>(row, 'tipoDescripcion'),
+  formato: pickCorrelativo<string>(row, 'formato'),
+  longitud: pickCorrelativo<number | null>(row, 'longitud'),
+  valorInicial: pickCorrelativo<number | null>(row, 'valorInicial'),
+  valorActual: pickCorrelativo<number | null>(row, 'valorActual'),
+  incremento: pickCorrelativo<number | null>(row, 'incremento'),
+  valorMaximo: pickCorrelativo<number | null>(row, 'valorMaximo'),
+  prefijo: pickCorrelativo<string | null>(row, 'prefijo'),
+  sufijo: pickCorrelativo<string | null>(row, 'sufijo'),
+  periodicidad: pickCorrelativo<string>(row, 'periodicidad'),
+  periodoActual: pickCorrelativo<string | null>(row, 'periodoActual'),
+  isActivo: Boolean(pickCorrelativo<unknown>(row, 'isActivo')),
+  version: pickCorrelativo<number | null>(row, 'version'),
+  marcaTiempo: pickCorrelativo<string | null>(row, 'marcaTiempo'),
+});
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly base = inject(API_BASE);
+  private readonly backendBase = inject(H2H_BACKEND_BASE);
+  private readonly mantenimientosBase = this.backendBase.replace(/\/h2h\/v1\/?$/, '');
   private readonly session = inject(SessionService);
 
   private headers(mutating = false): HttpHeaders {
@@ -61,8 +287,26 @@ export class ApiService {
   private post<T>(path: string, body: unknown = {}): Observable<T> {
     return this.http.post<T>(`${this.base}${path}`, body, { headers: this.headers(true) });
   }
+  private postBackend<T>(path: string, body: unknown = {}, params?: Record<string, string | number>): Observable<T> {
+    let p = new HttpParams();
+    for (const [k, v] of Object.entries(params ?? {})) p = p.set(k, String(v));
+    return this.http.post<T>(`${this.backendBase}${path}`, body, { headers: this.headers(true), params: p });
+  }
+  private postMantenimientos<T>(path: string, body: unknown = {}, params?: Record<string, string | number>): Observable<T> {
+    let p = new HttpParams();
+    for (const [k, v] of Object.entries(params ?? {})) p = p.set(k, String(v));
+    return this.http.post<T>(`${this.mantenimientosBase}${path}`, body, { headers: this.headers(), params: p });
+  }
   private patch<T>(path: string, body: unknown = {}): Observable<T> {
     return this.http.patch<T>(`${this.base}${path}`, body, { headers: this.headers(true) });
+  }
+  /** Mutacion (POST/PUT/DELETE) contra api/mantenimientos que devuelve texto plano. */
+  private mutMantenimientos(method: 'POST' | 'PUT' | 'DELETE', path: string, body: unknown = {}): Observable<string> {
+    return this.http.request(method, `${this.mantenimientosBase}${path}`, {
+      headers: this.headers(),
+      body,
+      responseType: 'text',
+    });
   }
 
   // ── Auth / contexto ──────────────────────────────────────────────────
@@ -89,17 +333,59 @@ export class ApiService {
   catalogs() {
     return this.get<Record<string, string[]>>('/v1/catalogs');
   }
+  parametrias(filtro: ParametriaFiltro = {}) {
+    const body: Record<string, string | boolean> = {};
+    if (filtro.codigo) body['codigo'] = filtro.codigo;
+    if (filtro.codigoPadre) body['codigoPadre'] = filtro.codigoPadre;
+    if (typeof filtro.persistente === 'boolean') body['persistente'] = filtro.persistente;
+    if (typeof filtro.soloPadres === 'boolean') body['soloPadres'] = filtro.soloPadres;
+    if (typeof filtro.soloHijos === 'boolean') body['soloHijos'] = filtro.soloHijos;
+    return this.postMantenimientos<ParametriaBackendRow[]>('/parametrias/listar/all', body).pipe(
+      map((items) => items.map(normalizeParametria))
+    );
+  }
 
   // ── Operaciones ──────────────────────────────────────────────────────
-  operaciones(opts: { producto?: ProductoGrupo; subtipo?: string; page?: number; pageSize?: number } = {}) {
-    const { producto, subtipo, page = 1, pageSize = 20 } = opts;
-    const params: Record<string, string | number> = { page, pageSize };
-    if (producto) params['producto'] = producto;
-    if (subtipo) params['subtipo'] = subtipo;
-    return this.get<Paginated<Operacion>>('/v1/operaciones', params);
+  operaciones(opts: { producto?: ProductoGrupo; subtipo?: string; page?: number; pageSize?: number; filters?: OperacionFiltro } = {}) {
+    const { producto, subtipo, page = 1, pageSize = 2, filters } = opts;
+    const body: Record<string, string | boolean | string[]> = {};
+    const org = this.session.tenant()?.org_u_id;
+    if (org) body['idOrganizacion'] = org;
+
+    const filtros = filters ?? {};
+    if (filtros.id) body['id'] = filtros.id;
+    if (filtros.idCarga) body['idCarga'] = filtros.idCarga;
+    if (filtros.idPlanillaVigente) body['idPlanillaVigente'] = filtros.idPlanillaVigente;
+    if (filtros.idBeneficiario) body['idBeneficiario'] = filtros.idBeneficiario;
+    if (filtros.codigoOperacion) body['codigoOperacion'] = filtros.codigoOperacion;
+    if (filtros.referenciaOrigen) body['referenciaOrigen'] = filtros.referenciaOrigen;
+    if (filtros.sistemaOrigen) body['sistemaOrigen'] = filtros.sistemaOrigen;
+    if (filtros.tipoOperacion) body['tipoOperacion'] = filtros.tipoOperacion;
+    else if (subtipo) body['tipoOperacion'] = subtipo;
+    else if (filtros.tipoOperaciones?.length) body['tipoOperaciones'] = filtros.tipoOperaciones;
+    else if (producto) body['tipoOperaciones'] = tiposPorProducto(producto);
+    if (filtros.estadoOperacion) body['estadoOperacion'] = filtros.estadoOperacion;
+    if (filtros.moneda) body['moneda'] = filtros.moneda;
+    if (typeof filtros.sinPlanillaVigente === 'boolean') body['sinPlanillaVigente'] = filtros.sinPlanillaVigente;
+
+    const offSet = (page - 1) * pageSize;
+    return forkJoin({
+      items: this.postBackend<OperacionBackendRow[]>('/operaciones/listar/paginacion', body, { limit: pageSize, offSet }),
+      total: this.postBackend<number>('/operaciones/contar', body),
+    }).pipe(
+      map(({ items, total }) => ({
+        items: items.map(normalizeOperacion),
+        pagination: { page, pageSize, total: Number(total ?? 0) },
+      }))
+    );
   }
   operacion(id: string) {
-    return this.get<Operacion>(`/v1/operaciones/${id}`);
+    return this.postBackend<OperacionBackendRow[]>('/operaciones/listar/all', { id }).pipe(
+      map((items) => (items[0] ? normalizeOperacion(items[0]) : undefined))
+    );
+  }
+  operacionDetalle(id: string) {
+    return this.postBackend<OperacionDetalleBackend>('/operaciones/detalle', { id }).pipe(map(normalizeOperacionDetalle));
   }
   crearOperacionManual(body: unknown) {
     return this.post<Operacion>('/v1/operaciones/manual', body);
@@ -156,8 +442,59 @@ export class ApiService {
   }
 
   // ── Beneficiarios ────────────────────────────────────────────────────
-  beneficiarios(page = 1, pageSize = 50) {
-    return this.get<Paginated<Beneficiario>>('/v1/beneficiarios', { page, pageSize });
+  beneficiarios(opts: { page?: number; pageSize?: number; filters?: BeneficiarioFiltro } = {}) {
+    const { page = 1, pageSize = 5, filters = {} } = opts;
+    const body: Record<string, string | boolean> = {};
+    const org = this.session.tenant()?.org_u_id;
+    if (org) body['idOrganizacion'] = org;
+    if (filters.tipoDocumento) body['tipoDocumento'] = filters.tipoDocumento;
+    if (filters.numeroDocumento) body['numeroDocumento'] = filters.numeroDocumento;
+    if (filters.titular) body['titular'] = filters.titular;
+    if (filters.codigoExterno) body['codigoExterno'] = filters.codigoExterno;
+    if (typeof filters.isActivo === 'boolean') body['isActivo'] = filters.isActivo;
+
+    const offSet = (page - 1) * pageSize;
+    return forkJoin({
+      items: this.postBackend<BeneficiarioBackendRow[]>('/beneficiarios/listar/paginacion', body, { limit: pageSize, offSet }),
+      total: this.postBackend<number>('/beneficiarios/contar', body),
+    }).pipe(
+      map(({ items, total }) => ({
+        items: items.map(normalizeBeneficiario),
+        pagination: { page, pageSize, total: Number(total ?? 0) },
+      }))
+    );
+  }
+  beneficiarioDetalle(id: string) {
+    return this.postBackend<BeneficiarioDetalleBackend>('/beneficiarios/detalle', { id }).pipe(map(normalizeBeneficiarioDetalle));
+  }
+
+  // -- Organizacion ------------------------------------------------------
+  organizacionDetalle() {
+    const idOrganizacion = this.session.tenant()?.org_u_id ?? '';
+    return this.postBackend<OrganizacionDetalleBackend>('/organizacion/detalle', { idOrganizacion }).pipe(map(normalizeOrganizacionDetalle));
+  }
+
+  // -- Correlativos ------------------------------------------------------
+  correlativos(filtro: CorrelativoFiltro = {}) {
+    const body: Record<string, unknown> = {};
+    const org = filtro.idOrganizacion ?? this.session.tenant()?.org_u_id;
+    if (org) body['idOrganizacion'] = org;
+    if (filtro.idTipoDocumento) body['idTipoDocumento'] = filtro.idTipoDocumento;
+    if (filtro.formato) body['formato'] = filtro.formato;
+    if (filtro.periodicidad) body['periodicidad'] = filtro.periodicidad;
+    if (typeof filtro.isActivo === 'boolean') body['isActivo'] = filtro.isActivo;
+    return this.postMantenimientos<CorrelativoBackendRow[]>('/correlativo/listar/all', body).pipe(
+      map((items) => items.map(normalizeCorrelativo))
+    );
+  }
+  correlativoGuardar(body: Partial<Correlativo>) {
+    return this.mutMantenimientos('POST', '/correlativo/save', body);
+  }
+  correlativoActualizar(body: Partial<Correlativo>) {
+    return this.mutMantenimientos('PUT', '/correlativo/update', body);
+  }
+  correlativoEliminar(id: string) {
+    return this.mutMantenimientos('DELETE', '/correlativo/delete', { id });
   }
 
   // ── Estructuras de archivo ───────────────────────────────────────────
