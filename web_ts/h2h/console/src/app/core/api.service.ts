@@ -28,7 +28,14 @@ import type {
   OrganizacionDetalle,
   Paginated,
   Planilla,
+  PlanillaDetalleFull,
+  PlanillaFiltro,
+  PlanillaRow,
   ProductoGrupo,
+  ProgramacionCrear,
+  ProgramacionDetalleFull,
+  ProgramacionFiltro,
+  ProgramacionRow,
   RespuestaBCP,
   TenantContext,
 } from './models';
@@ -261,6 +268,61 @@ const normalizeCorrelativo = (row: CorrelativoBackendRow): Correlativo => ({
   marcaTiempo: pickCorrelativo<string | null>(row, 'marcaTiempo'),
 });
 
+const pickPlanilla = <T>(row: Record<string, unknown>, key: string): T =>
+  (row[key] ?? row[key.toLowerCase()]) as T;
+
+const normalizePlanillaRow = (row: Record<string, unknown>): PlanillaRow => ({
+  id: pickPlanilla<string>(row, 'id'),
+  nombreArchivo: pickPlanilla<string>(row, 'nombreArchivo'),
+  secuencial: pickPlanilla<string>(row, 'secuencial'),
+  fechaArchivo: pickPlanilla<string>(row, 'fechaArchivo'),
+  cuentaCargo: pickPlanilla<string | null>(row, 'cuentaCargo'),
+  montoTotal: toNumber(pickPlanilla<unknown>(row, 'montoTotal')),
+  checksum: pickPlanilla<string | null>(row, 'checksum'),
+  totalOperaciones: toNumber(pickPlanilla<unknown>(row, 'totalOperaciones')),
+  idEntidadFin: pickPlanilla<number>(row, 'idEntidadFin'),
+  entidadFinCodigo: pickPlanilla<string | null>(row, 'entidadFinCodigo'),
+  idProducto: pickPlanilla<number>(row, 'idProducto'),
+  productoCodigo: pickPlanilla<string | null>(row, 'productoCodigo'),
+  productoFullCode: pickPlanilla<string | null>(row, 'productoFullCode'),
+  idEstadoPlanilla: pickPlanilla<number>(row, 'idEstadoPlanilla'),
+  estadoPlanillaCodigo: pickPlanilla<string>(row, 'estadoPlanillaCodigo'),
+  estadoPlanillaFullCode: pickPlanilla<string | null>(row, 'estadoPlanillaFullCode'),
+  idMoneda: pickPlanilla<number | null>(row, 'idMoneda'),
+  monedaCodigo: pickPlanilla<string | null>(row, 'monedaCodigo'),
+  isFlujoPar: pickPlanilla<boolean | null>(row, 'isFlujoPar'),
+  fechaEnvio: pickPlanilla<string | null>(row, 'fechaEnvio'),
+  reintentos: pickPlanilla<number | null>(row, 'reintentos'),
+  idOrganizacion: pickPlanilla<string>(row, 'idOrganizacion'),
+});
+
+const pickProgramacion = <T>(row: Record<string, unknown>, key: string): T =>
+  (row[key] ?? row[key.toLowerCase()]) as T;
+
+const normalizeProgramacionRow = (row: Record<string, unknown>): ProgramacionRow => ({
+  id: pickProgramacion<string>(row, 'id'),
+  codigo: pickProgramacion<string>(row, 'codigo'),
+  idProducto: pickProgramacion<number>(row, 'idProducto'),
+  productoCodigo: pickProgramacion<string | null>(row, 'productoCodigo'),
+  productoFullCode: pickProgramacion<string | null>(row, 'productoFullCode'),
+  idMoneda: pickProgramacion<number>(row, 'idMoneda'),
+  monedaCodigo: pickProgramacion<string | null>(row, 'monedaCodigo'),
+  idEstado: pickProgramacion<number>(row, 'idEstado'),
+  estadoCodigo: pickProgramacion<string>(row, 'estadoCodigo'),
+  estadoFullCode: pickProgramacion<string | null>(row, 'estadoFullCode'),
+  tipoDestino: pickProgramacion<string | null>(row, 'tipoDestino'),
+  canalLiquidacion: pickProgramacion<string | null>(row, 'canalLiquidacion'),
+  modoEnvio: pickProgramacion<string>(row, 'modoEnvio'),
+  fechaProceso: pickProgramacion<string>(row, 'fechaProceso'),
+  fechaProgramado: pickProgramacion<string | null>(row, 'fechaProgramado'),
+  fechaEjecutado: pickProgramacion<string | null>(row, 'fechaEjecutado'),
+  totalOperaciones: toNumber(pickProgramacion<unknown>(row, 'totalOperaciones')),
+  montoTotal: toNumber(pickProgramacion<unknown>(row, 'montoTotal')),
+  reintentos: pickProgramacion<number | null>(row, 'reintentos'),
+  idPlanilla: pickProgramacion<string | null>(row, 'idPlanilla'),
+  idOrganizacion: pickProgramacion<string>(row, 'idOrganizacion'),
+});
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
@@ -405,6 +467,45 @@ export class ApiService {
   planilla(id: string) {
     return this.get<Planilla>(`/v1/planillas/${id}`);
   }
+
+  // ── Planillas (backend real: api/mantenimientos/h2h/v1/planillas) ─────
+  planillasBackend(opts: { page?: number; pageSize?: number; filters?: PlanillaFiltro } = {}) {
+    const { page = 1, pageSize = 10, filters } = opts;
+    const body: Record<string, string | number | boolean> = {};
+    const org = this.session.tenant()?.org_u_id;
+    if (org) body['idOrganizacion'] = org;
+    const f = filters ?? {};
+    if (f.id) body['id'] = f.id;
+    if (f.idEntidadFin) body['idEntidadFin'] = f.idEntidadFin;
+    if (f.idProducto) body['idProducto'] = f.idProducto;
+    if (f.idEstadoPlanilla) body['idEstadoPlanilla'] = f.idEstadoPlanilla;
+    if (f.estadoPlanilla) body['estadoPlanilla'] = f.estadoPlanilla;
+    if (f.idMoneda) body['idMoneda'] = f.idMoneda;
+    if (f.moneda) body['moneda'] = f.moneda;
+    if (f.secuencial) body['secuencial'] = f.secuencial;
+    if (f.nombreArchivo) body['nombreArchivo'] = f.nombreArchivo;
+    if (typeof f.isFlujoPar === 'boolean') body['isFlujoPar'] = f.isFlujoPar;
+
+    const offSet = (page - 1) * pageSize;
+    return forkJoin({
+      items: this.postBackend<Record<string, unknown>[]>('/planillas/listar/paginacion', body, { limit: pageSize, offSet }),
+      total: this.postBackend<number>('/planillas/contar', body),
+    }).pipe(
+      map(({ items, total }) => ({
+        items: (items ?? []).map(normalizePlanillaRow),
+        pagination: { page, pageSize, total: Number(total ?? 0) },
+      }))
+    );
+  }
+  planillaDetalleBackend(id: string) {
+    return this.postBackend<PlanillaDetalleFull>('/planillas/detalle', { id }).pipe(
+      map((d) => ({
+        planilla: d?.planilla ?? {},
+        detalles: d?.detalles ?? [],
+        respuestas: d?.respuestas ?? [],
+      }))
+    );
+  }
   generarPlanilla(body: unknown) {
     return this.post<Planilla>('/v1/planillas/generar', body);
   }
@@ -415,6 +516,60 @@ export class ApiService {
     return this.get<{ planillaId: string; formato: string; contentType: string; contenido: string; checksum: string }>(
       `/v1/planillas/${id}/preview`
     );
+  }
+
+  // ── Programación de envíos ───────────────────────────────────────────
+  programacionesBackend(opts: { page?: number; pageSize?: number; filters?: ProgramacionFiltro } = {}) {
+    const { page = 1, pageSize = 10, filters } = opts;
+    const body: Record<string, string | number | boolean> = {};
+    const org = this.session.tenant()?.org_u_id;
+    if (org) body['idOrganizacion'] = org;
+    const f = filters ?? {};
+    if (f.id) body['id'] = f.id;
+    if (f.idProducto) body['idProducto'] = f.idProducto;
+    if (f.idMoneda) body['idMoneda'] = f.idMoneda;
+    if (f.idEstado) body['idEstado'] = f.idEstado;
+    if (f.estado) body['estado'] = f.estado;
+    if (f.moneda) body['moneda'] = f.moneda;
+    if (f.tipoDestino) body['tipoDestino'] = f.tipoDestino;
+    if (f.canalLiquidacion) body['canalLiquidacion'] = f.canalLiquidacion;
+    if (f.modoEnvio) body['modoEnvio'] = f.modoEnvio;
+    if (f.codigo) body['codigo'] = f.codigo;
+    if (f.fechaProceso) body['fechaProceso'] = f.fechaProceso;
+    const offSet = (page - 1) * pageSize;
+    return forkJoin({
+      items: this.postBackend<Record<string, unknown>[]>('/programaciones/listar/paginacion', body, { limit: pageSize, offSet }),
+      total: this.postBackend<number>('/programaciones/contar', body),
+    }).pipe(
+      map(({ items, total }) => ({
+        items: (items ?? []).map(normalizeProgramacionRow),
+        pagination: { page, pageSize, total: Number(total ?? 0) },
+      }))
+    );
+  }
+  programacionDetalleBackend(id: string) {
+    return this.postBackend<ProgramacionDetalleFull>('/programaciones/detalle', { id }).pipe(
+      map((d) => ({ programacion: d?.programacion ?? {}, detalles: d?.detalles ?? [] }))
+    );
+  }
+  crearProgramacion(payload: ProgramacionCrear) {
+    const org = this.session.tenant()?.org_u_id;
+    return this.postBackend<ProgramacionDetalleFull>('/programaciones/crear', { idOrganizacion: org, ...payload });
+  }
+  agregarOperacionesProgramacion(id: string, operaciones: string[], cargas: string[] = []) {
+    return this.postBackend<ProgramacionDetalleFull>('/programaciones/operaciones/agregar', { id, operaciones, cargas });
+  }
+  quitarOperacionesProgramacion(id: string, operaciones: string[]) {
+    return this.postBackend<ProgramacionDetalleFull>('/programaciones/operaciones/quitar', { id, operaciones });
+  }
+  cambiarEstadoProgramacion(id: string, estado: string) {
+    return this.postBackend<ProgramacionDetalleFull>('/programaciones/estado', { id, estado });
+  }
+  generarProgramacion(id: string) {
+    return this.postBackend<ProgramacionDetalleFull>('/programaciones/generar', { id });
+  }
+  trazabilidadOperacion(idOperacion: string) {
+    return this.postBackend<Record<string, unknown>[]>('/programaciones/trazabilidad', { idOperacion });
   }
 
   // ── Respuestas ───────────────────────────────────────────────────────

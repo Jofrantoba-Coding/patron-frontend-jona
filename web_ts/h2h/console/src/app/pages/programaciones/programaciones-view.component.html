@@ -1,0 +1,258 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+  <j-section-heading eyebrow="Flujo H2H" heading="Programación de envíos" description="Planes que agrupan operaciones o lotes de ingesta que pasarán por el flujo H2H (por producto, destino, canal de cut-off y modo)." />
+
+  <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-sm font-semibold text-neutral-700">Filtros</p>
+        <p class="text-xs text-neutral-500">Código, estado, modo, destino y moneda.</p>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100" (click)="onResetFiltros()">Limpiar</button>
+        <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100" (click)="onAplicarFiltros()">Aplicar</button>
+        <button type="button" class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700" (click)="abrirCrear()">Nuevo plan</button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-5">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="prg-codigo">Código</label>
+        <input id="prg-codigo" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroCodigo()" (input)="onCodigo($event)" placeholder="PRG-..." />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="prg-estado">Estado</label>
+        <select id="prg-estado" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroEstado()" (change)="onEstado($event)">
+          <option value="">Todos</option>
+          @for (e of estados; track e) {<option [value]="e">{{ e }}</option>}
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="prg-modo">Modo</label>
+        <select id="prg-modo" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroModo()" (change)="onModo($event)">
+          <option value="">Todos</option>
+          @for (m of modos; track m) {<option [value]="m">{{ m }}</option>}
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="prg-destino">Destino</label>
+        <select id="prg-destino" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroTipoDestino()" (change)="onTipoDestino($event)">
+          <option value="">Todos</option>
+          @for (t of tiposDestino; track t) {<option [value]="t">{{ t }}</option>}
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="prg-moneda">Moneda</label>
+        <select id="prg-moneda" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroMoneda()" (change)="onMoneda($event)">
+          <option value="">Todas</option>
+          <option value="PEN">PEN</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <j-data-table
+    [columns]="columns"
+    [data]="rows()"
+    [rowKey]="rowKey"
+    [showFilter]="false"
+    (rowClick)="onRowClick($event)"
+    emptyTitle="Sin programaciones"
+    emptyDescription="No hay planes de envío para el filtro actual."
+  />
+
+  <div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 pt-4">
+    <p class="text-sm text-neutral-500">Mostrando {{ rows().length }} de {{ total() }} planes. Página {{ page() }} de {{ totalPages() }}. Tamaño: {{ pageSize() }}.</p>
+    <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+  </div>
+</div>
+
+<!-- Detalle del plan -->
+<j-dialog
+  [open]="detalleLoading() !== null || detalle() !== null"
+  size="2xl"
+  [title]="detalleTitle()"
+  [description]="detalleDescription()"
+  contentClassName="p-0"
+  (closed)="closeDetalle()"
+  (cancel)="closeDetalle()"
+>
+  @if (detalleLoading() !== null && detalle() === null) {
+    <div class="flex min-h-48 items-center justify-center text-sm text-neutral-500">Cargando detalle...</div>
+  }
+
+  @if (detalle(); as d) {
+    <div class="flex min-h-[60vh] flex-col bg-white p-4">
+      <section class="rounded-md border border-neutral-200 bg-white">
+        <div class="flex items-center justify-between gap-3 border-b border-neutral-200 px-3 py-2">
+          <h3 class="text-sm font-semibold text-neutral-800">Cabecera del plan</h3>
+          <div class="flex flex-wrap items-center gap-2">
+            <j-badge [variant]="badge(pv(d.programacion, 'estadoCodigo'))">{{ pv(d.programacion, 'estadoCodigo') }}</j-badge>
+            <button type="button" class="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100" (click)="cambiarEstado('PROGRAMADA')">Programar</button>
+            <button type="button" class="rounded-md bg-primary-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50" [disabled]="pv(d.programacion, 'idPlanilla') !== '-'" (click)="generar()">Generar planilla</button>
+            <button type="button" class="rounded-md border border-red-300 bg-white px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50" (click)="cambiarEstado('CANCELADA')">Cancelar</button>
+          </div>
+        </div>
+        <div class="grid gap-2 p-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))]">
+          @for (campo of resumenCampos(d); track campo.label) {
+            <div class="min-w-0 rounded-md bg-neutral-50 p-2">
+              <p class="text-[11px] font-medium uppercase text-neutral-500">{{ campo.label }}</p>
+              <p class="mt-1 break-words text-sm text-neutral-900">{{ campo.value }}</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="mt-4 rounded-md border border-neutral-200 bg-white">
+        <div class="border-b border-neutral-200 px-3 py-2">
+          <h3 class="text-sm font-semibold text-neutral-800">Operaciones del plan ({{ operaciones(d).length }})</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[880px] text-left text-sm">
+            <thead class="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
+              <tr>
+                <th class="px-3 py-2 font-medium">Sec.</th>
+                <th class="px-3 py-2 font-medium">Operación</th>
+                <th class="px-3 py-2 font-medium">Referencia</th>
+                <th class="px-3 py-2 text-right font-medium">Monto</th>
+                <th class="px-3 py-2 font-medium">Modo</th>
+                <th class="px-3 py-2 font-medium">Estado</th>
+                <th class="px-3 py-2 font-medium">Detalle planilla</th>
+                <th class="px-3 py-2 text-right font-medium">Acción</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100">
+              @for (reg of operaciones(d); track pv(reg, 'id') + '-' + $index) {
+                <tr class="hover:bg-neutral-50">
+                  <td class="px-3 py-2 align-top tabular-nums text-neutral-700">{{ pv(reg, 'secuencial') }}</td>
+                  <td class="px-3 py-2 align-top font-mono text-xs text-neutral-800">{{ pv(reg, 'codigoOperacion') }}</td>
+                  <td class="px-3 py-2 align-top text-neutral-700">{{ pv(reg, 'referenciaOrigen') }}</td>
+                  <td class="px-3 py-2 align-top text-right font-mono text-neutral-900">{{ pnum(reg, 'monto') }}</td>
+                  <td class="px-3 py-2 align-top"><j-badge [variant]="badge(pv(reg, 'modoEnvio'))">{{ pv(reg, 'modoEnvio') }}</j-badge></td>
+                  <td class="px-3 py-2 align-top"><j-badge [variant]="badge(pv(reg, 'estadoDetalleCodigo'))">{{ pv(reg, 'estadoDetalleCodigo') }}</j-badge></td>
+                  <td class="px-3 py-2 align-top font-mono text-[11px] text-neutral-500">{{ pv(reg, 'idPlanillaDetalle') }}</td>
+                  <td class="px-3 py-2 align-top text-right">
+                    <button type="button" class="rounded-md border border-red-300 bg-white px-2 py-1 text-[11px] font-medium text-red-700 hover:bg-red-50" (click)="quitarOperacion(pv(reg, 'idOperacion'))">Quitar</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td class="px-3 py-6 text-center text-sm text-neutral-400" colspan="8">El plan no tiene operaciones.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  }
+</j-dialog>
+
+<!-- Crear plan -->
+<j-dialog
+  [open]="crearOpen()"
+  size="xl"
+  title="Nuevo plan de envío"
+  description="Agrupa operaciones o lotes de ingesta para el flujo H2H."
+  (closed)="cerrarCrear()"
+  (cancel)="cerrarCrear()"
+>
+  <div class="flex flex-col gap-3 p-4">
+    @if (crearError()) {
+      <div class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ crearError() }}</div>
+    }
+    <div class="grid gap-3 md:grid-cols-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="n-producto">Producto *</label>
+        <select id="n-producto" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoIdProducto()" (change)="onNuevoIdProducto($event)">
+          <option value="">Seleccione…</option>
+          @for (p of productosOpc(); track p.id) {<option [value]="p.id">{{ p.label }}</option>}
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="n-moneda">Moneda *</label>
+        <select id="n-moneda" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoIdMoneda()" (change)="onNuevoIdMoneda($event)">
+          <option value="">Seleccione…</option>
+          @for (m of monedasOpc(); track m.id) {<option [value]="m.id">{{ m.label }}</option>}
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="n-fecha">Fecha proceso *</label>
+        <input id="n-fecha" type="date" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoFechaProceso()" (input)="onNuevoFechaProceso($event)" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="n-modo">Modo</label>
+        <select id="n-modo" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoModo()" (change)="onNuevoModo($event)">
+          @for (m of modos; track m) {<option [value]="m">{{ m }}</option>}
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="n-destino">Tipo destino</label>
+        <select id="n-destino" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoTipoDestino()" (change)="onNuevoTipoDestino($event)">
+          <option value="">—</option>
+          @for (t of tiposDestino; track t) {<option [value]="t">{{ t }}</option>}
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="n-canal">Canal liquidación</label>
+        <select id="n-canal" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoCanal()" (change)="onNuevoCanal($event)">
+          <option value="">—</option>
+          @for (c of canales; track c) {<option [value]="c">{{ c }}</option>}
+        </select>
+      </div>
+    </div>
+    <div class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="n-lote">Filtrar por lote de ingesta</label>
+          <select id="n-lote" class="min-w-64 rounded-md border border-neutral-300 bg-white px-3 py-1.5 font-mono text-xs" [value]="loteFiltro()" (change)="onLoteFiltro($event)">
+            <option value="">Todos los lotes</option>
+            @for (l of lotesOpc(); track l.id) {<option [value]="l.id">{{ l.id }} ({{ l.count }})</option>}
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-neutral-500">{{ seleccionCount() }} seleccionada(s)</span>
+          <button type="button" class="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100" (click)="toggleTodas()">Marcar visibles</button>
+          <button type="button" class="rounded-md bg-primary-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50" [disabled]="opsCargando() || !nuevoIdProducto() || !nuevoIdMoneda()" (click)="buscarOperaciones()">
+            {{ opsCargando() ? 'Buscando…' : 'Buscar operaciones' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-3 max-h-72 overflow-auto rounded-md border border-neutral-200 bg-white">
+        <table class="w-full min-w-[720px] text-left text-sm">
+          <thead class="sticky top-0 border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
+            <tr>
+              <th class="px-3 py-2 font-medium"></th>
+              <th class="px-3 py-2 font-medium">Operación</th>
+              <th class="px-3 py-2 font-medium">Referencia</th>
+              <th class="px-3 py-2 text-right font-medium">Monto</th>
+              <th class="px-3 py-2 font-medium">Mon.</th>
+              <th class="px-3 py-2 font-medium">Lote</th>
+              <th class="px-3 py-2 font-medium">Estado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-neutral-100">
+            @for (op of opsFiltradas(); track op.id) {
+              <tr class="cursor-pointer hover:bg-neutral-50" [class.bg-primary-50]="isSel(op.id)" (click)="toggleOp(op.id)">
+                <td class="px-3 py-2"><input type="checkbox" [checked]="isSel(op.id)" (click)="$event.stopPropagation(); toggleOp(op.id)" /></td>
+                <td class="px-3 py-2 font-mono text-xs text-neutral-800">{{ op.codigoOperacion }}</td>
+                <td class="px-3 py-2 text-neutral-700">{{ op.referenciaOrigen }}</td>
+                <td class="px-3 py-2 text-right font-mono text-neutral-900">{{ num(op.montoTotal) }}</td>
+                <td class="px-3 py-2 text-center text-neutral-600">{{ op.monedaCodigo }}</td>
+                <td class="px-3 py-2 font-mono text-[11px] text-neutral-400">{{ op.idCarga ?? '-' }}</td>
+                <td class="px-3 py-2"><j-badge [variant]="badge(op.estadoOperacionCodigo)">{{ op.estadoOperacionCodigo }}</j-badge></td>
+              </tr>
+            } @empty {
+              <tr><td class="px-3 py-6 text-center text-sm text-neutral-400" colspan="7">Seleccione producto y moneda y pulse «Buscar operaciones».</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 pt-1">
+      <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100" (click)="cerrarCrear()">Cancelar</button>
+      <button type="button" class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50" [disabled]="crearGuardando()" (click)="guardarNuevo()">
+        {{ crearGuardando() ? 'Creando...' : 'Crear plan' }}
+      </button>
+    </div>
+  </div>
+</j-dialog>

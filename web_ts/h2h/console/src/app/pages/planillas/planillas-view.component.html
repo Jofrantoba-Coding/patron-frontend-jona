@@ -1,50 +1,270 @@
 <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
-  <j-section-heading eyebrow="Archivos H2H" heading="Planillas" description="Generación, cifrado y envío de planillas a BCP." />
+  <j-section-heading eyebrow="Archivos H2H" heading="Planillas" description="Consulta de archivos generados para BCP: listado, filtros y detalle del TXT con sus etapas." />
 
-  <j-table responsiveMode="scroll">
-    <j-table-header>
-      <j-table-row>
-        <j-table-head>Archivo</j-table-head>
-        <j-table-head>Producto</j-table-head>
-        <j-table-head>Formato</j-table-head>
-        <j-table-head>Estado</j-table-head>
-        <j-table-head className="text-right">Monto</j-table-head>
-        <j-table-head className="text-right">Ops.</j-table-head>
-        <j-table-head>Acciones</j-table-head>
-      </j-table-row>
-    </j-table-header>
-    <j-table-body>
-      @for (p of rows(); track p.pla_u_id) {
-        <j-table-row>
-          <j-table-cell><span class="font-mono text-xs">{{ p.pla_v_nombre_archivo }}</span></j-table-cell>
-          <j-table-cell>{{ p.pla_n_id_producto_code }}</j-table-cell>
-          <j-table-cell>{{ p.pla_n_id_formato_code }}</j-table-cell>
-          <j-table-cell><j-badge [variant]="badge(p.pla_n_id_estadoplanilla_code)">{{ p.pla_n_id_estadoplanilla_code }}</j-badge></j-table-cell>
-          <j-table-cell className="text-right tabular-nums">{{ num(p.pla_dec_montototal) }}</j-table-cell>
-          <j-table-cell className="text-right tabular-nums">{{ p.pla_n_total_operaciones }}</j-table-cell>
-          <j-table-cell>
-            <div class="flex flex-wrap gap-1.5">
-              @for (a of acciones(p.pla_n_id_estadoplanilla_code); track a.accion) {
-                <j-button size="sm" [variant]="a.variant" [disabled]="!canSend()" (clicked)="run(p, a)">{{ a.label }}</j-button>
-              } @empty {
-                <span class="text-xs text-neutral-400">—</span>
-              }
-            </div>
-          </j-table-cell>
-        </j-table-row>
-      }
-    </j-table-body>
-  </j-table>
+  <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-sm font-semibold text-neutral-700">Filtros</p>
+        <p class="text-xs text-neutral-500">Búsqueda por archivo, secuencial, estado y moneda.</p>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100" (click)="onResetFiltros()">
+          Limpiar
+        </button>
+        <button type="button" class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700" (click)="onAplicarFiltros()">
+          Aplicar
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-4">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="pla-nombre">Archivo</label>
+        <input id="pla-nombre" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroNombre()" (input)="onNombre($event)" placeholder="Nombre del archivo" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="pla-secuencial">Secuencial</label>
+        <input id="pla-secuencial" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroSecuencial()" (input)="onSecuencial($event)" placeholder="000001" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="pla-estado">Estado</label>
+        <select id="pla-estado" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroEstado()" (change)="onEstado($event)">
+          <option value="">Todos</option>
+          @for (estado of estadosPlanilla; track estado) {
+            <option [value]="estado">{{ estado }}</option>
+          }
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="pla-moneda">Moneda</label>
+        <select id="pla-moneda" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroMoneda()" (change)="onMoneda($event)">
+          <option value="">Todas</option>
+          <option value="PEN">PEN</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <j-data-table
+    [columns]="columns"
+    [data]="rows()"
+    [rowKey]="rowKey"
+    [showFilter]="false"
+    (rowClick)="onRowClick($event)"
+    emptyTitle="Sin planillas"
+    emptyDescription="No hay planillas para el filtro actual."
+  />
+
+  <div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 pt-4">
+    <p class="text-sm text-neutral-500">
+      Mostrando {{ rows().length }} de {{ total() }} planillas. Página {{ page() }} de {{ totalPages() }}. Tamaño de página: {{ pageSize() }}.
+    </p>
+    <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+  </div>
 </div>
 
-<j-option-pane
-  [open]="confirm() !== null"
-  variant="warning"
-  [title]="confirm()?.title ?? ''"
-  [description]="confirm()?.desc ?? ''"
-  confirmLabel="Sí, continuar"
-  cancelLabel="Cancelar"
-  [isLoading]="loading()"
-  (confirm)="doConfirmed()"
-  (cancel)="confirm.set(null)"
-/>
+<j-dialog
+  [open]="detalleLoading() !== null || detalle() !== null"
+  size="2xl"
+  [title]="detalleTitle()"
+  [description]="detalleDescription()"
+  contentClassName="p-0"
+  (closed)="closeDetalle()"
+  (cancel)="closeDetalle()"
+>
+  @if (detalleLoading() !== null && detalle() === null) {
+    <div class="flex min-h-48 items-center justify-center text-sm text-neutral-500">Cargando detalle...</div>
+  }
+
+  @if (detalle(); as d) {
+    <div class="flex min-h-[68vh] flex-col bg-white">
+      <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-3">
+        <p class="mb-2 text-[11px] font-medium uppercase text-neutral-500">Etapas del archivo</p>
+        <div class="flex flex-wrap items-center gap-1.5">
+          @for (etapa of etapas; track etapa; let i = $index) {
+            <span
+              class="rounded-full border px-2.5 py-1 text-[11px] font-medium"
+              [class.border-primary-600]="i <= etapaActual()"
+              [class.bg-primary-600]="i === etapaActual()"
+              [class.text-white]="i === etapaActual()"
+              [class.text-primary-700]="i < etapaActual()"
+              [class.border-neutral-300]="i > etapaActual()"
+              [class.text-neutral-400]="i > etapaActual()"
+            >{{ etapa }}</span>
+            @if (!$last) {
+              <span class="text-neutral-300">→</span>
+            }
+          }
+        </div>
+      </div>
+
+      <j-tabs [value]="detalleTab()" variant="line" className="flex-1" (changed)="onDetalleTab($event)">
+        <j-tabs-list className="border-b border-neutral-200 bg-white px-3">
+          <j-tabs-trigger value="resumen">Resumen</j-tabs-trigger>
+          <j-tabs-trigger value="archivo">Archivo TXT</j-tabs-trigger>
+          <j-tabs-trigger value="registros">Registros ({{ registros(d).length }})</j-tabs-trigger>
+          <j-tabs-trigger value="respuestas">Respuestas ({{ respuestas(d).length }})</j-tabs-trigger>
+        </j-tabs-list>
+
+        <div class="p-4">
+          <j-tabs-content value="resumen">
+            <div class="grid gap-4">
+              <section class="rounded-md border border-neutral-200 bg-white">
+                <div class="border-b border-neutral-200 px-3 py-2">
+                  <h3 class="text-sm font-semibold text-neutral-800">Cabecera de la planilla</h3>
+                </div>
+                <div class="grid gap-2 p-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+                  @for (campo of resumenCampos(d); track campo.label) {
+                    <div class="min-w-0 rounded-md bg-neutral-50 p-2">
+                      <p class="text-[11px] font-medium uppercase text-neutral-500">{{ campo.label }}</p>
+                      <p class="mt-1 break-words text-sm text-neutral-900">{{ campo.value }}</p>
+                    </div>
+                  }
+                </div>
+              </section>
+
+              <section class="rounded-md border border-neutral-200 bg-white">
+                <div class="border-b border-neutral-200 px-3 py-2">
+                  <h3 class="text-sm font-semibold text-neutral-800">Trazabilidad y archivos</h3>
+                </div>
+                <div class="grid gap-2 p-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+                  <div class="min-w-0 rounded-md bg-neutral-50 p-2">
+                    <p class="text-[11px] font-medium uppercase text-neutral-500">Lote de carga (idCarga)</p>
+                    <p class="mt-1 break-words font-mono text-xs text-neutral-900">{{ atributoPlanilla(d, 'idCarga') }}</p>
+                  </div>
+                  <div class="min-w-0 rounded-md bg-neutral-50 p-2">
+                    <p class="text-[11px] font-medium uppercase text-neutral-500">Cifrado</p>
+                    <p class="mt-1 text-sm text-neutral-900">{{ cifrado(d) ? 'Sí' : 'No' }}</p>
+                  </div>
+                  <div class="min-w-0 rounded-md bg-neutral-50 p-2">
+                    <p class="text-[11px] font-medium uppercase text-neutral-500">Archivo en claro</p>
+                    @if (urlPlanilla(d, 'urlClaro')) {
+                      <a class="mt-1 block truncate text-sm font-medium text-primary-700 hover:underline" [href]="urlPlanilla(d, 'urlClaro')" target="_blank" rel="noopener">Descargar</a>
+                    } @else {
+                      <p class="mt-1 text-sm text-neutral-400">—</p>
+                    }
+                  </div>
+                  <div class="min-w-0 rounded-md bg-neutral-50 p-2">
+                    <p class="text-[11px] font-medium uppercase text-neutral-500">Archivo cifrado</p>
+                    @if (urlPlanilla(d, 'urlCifrado')) {
+                      <a class="mt-1 block truncate text-sm font-medium text-primary-700 hover:underline" [href]="urlPlanilla(d, 'urlCifrado')" target="_blank" rel="noopener">Descargar</a>
+                    } @else {
+                      <p class="mt-1 text-sm text-neutral-400">—</p>
+                    }
+                  </div>
+                </div>
+              </section>
+            </div>
+          </j-tabs-content>
+
+          <j-tabs-content value="archivo">
+            <section class="rounded-md border border-neutral-200 bg-white">
+              <div class="flex items-center justify-between gap-3 border-b border-neutral-200 px-3 py-2">
+                <h3 class="text-sm font-semibold text-neutral-800">Contenido del archivo de texto</h3>
+                <span class="font-mono text-xs text-neutral-500">{{ pv(d.planilla, 'nombreArchivo') }}</span>
+              </div>
+              @if (contenidoTxt(d)) {
+                <pre class="max-h-[52vh] overflow-auto whitespace-pre rounded-b-md bg-neutral-950 p-3 text-xs leading-relaxed text-neutral-100">{{ contenidoTxt(d) }}</pre>
+              } @else {
+                <p class="p-3 text-sm text-neutral-400">La planilla no tiene contenido TXT almacenado.</p>
+              }
+            </section>
+          </j-tabs-content>
+
+          <j-tabs-content value="registros">
+            <section class="rounded-md border border-neutral-200 bg-white">
+              <div class="border-b border-neutral-200 px-3 py-2">
+                <h3 class="text-sm font-semibold text-neutral-800">Registros del archivo (una fila por operación)</h3>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full min-w-[1040px] text-left text-sm">
+                  <thead class="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
+                    <tr>
+                      <th class="px-3 py-2 font-medium">Sec.</th>
+                      <th class="px-3 py-2 font-medium">Operación</th>
+                      <th class="px-3 py-2 font-medium">Beneficiario</th>
+                      <th class="px-3 py-2 font-medium">Cuenta destino</th>
+                      <th class="px-3 py-2 text-right font-medium">Monto</th>
+                      <th class="px-3 py-2 font-medium">Estado</th>
+                      <th class="px-3 py-2 font-medium">Devolución</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-neutral-100">
+                    @for (reg of registros(d); track pv(reg, 'id') + '-' + $index) {
+                      <tr class="hover:bg-neutral-50">
+                        <td class="px-3 py-2 align-top tabular-nums text-neutral-700">{{ pv(reg, 'secuencial') }}</td>
+                        <td class="px-3 py-2 align-top">
+                          <div class="font-mono text-xs text-neutral-800">{{ regCodigo(reg) }}</div>
+                          <div class="text-[11px] text-neutral-400">{{ regReferencia(reg) }}</div>
+                        </td>
+                        <td class="px-3 py-2 align-top">
+                          <div class="text-neutral-800">{{ regBeneficiario(reg) }}</div>
+                          <div class="text-[11px] text-neutral-500">{{ regDocumento(reg) }}<span class="text-neutral-300"> · </span>{{ regEmail(reg) }}</div>
+                        </td>
+                        <td class="px-3 py-2 align-top font-mono text-xs text-neutral-700">{{ regCuenta(reg) }}</td>
+                        <td class="px-3 py-2 align-top text-right font-mono text-neutral-900">{{ regMonto(reg) }}</td>
+                        <td class="px-3 py-2 align-top">
+                          <j-badge [variant]="badge(pv(reg, 'estadoDetalleCodigo'))">{{ pv(reg, 'estadoDetalleCodigo') }}</j-badge>
+                          @if (pv(reg, 'estadoBancoCodigo') !== '-') {
+                            <div class="mt-1 text-[11px] text-neutral-500">Banco: {{ pv(reg, 'estadoBancoCodigo') }}</div>
+                          }
+                          @if (pv(reg, 'codigoOperacionBanco') !== '-') {
+                            <div class="text-[11px] font-mono text-neutral-400">{{ pv(reg, 'codigoOperacionBanco') }}</div>
+                          }
+                        </td>
+                        <td class="px-3 py-2 align-top text-neutral-700">{{ regDevolucion(reg) }}</td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td class="px-3 py-6 text-center text-sm text-neutral-400" colspan="7">Sin registros en la planilla.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </j-tabs-content>
+
+          <j-tabs-content value="respuestas">
+            <section class="rounded-md border border-neutral-200 bg-white">
+              <div class="border-b border-neutral-200 px-3 py-2">
+                <h3 class="text-sm font-semibold text-neutral-800">Respuestas del banco (RES / VAL / RES2 / PAR)</h3>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full min-w-[760px] text-left text-sm">
+                  <thead class="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
+                    <tr>
+                      <th class="px-3 py-2 font-medium">Tipo</th>
+                      <th class="px-3 py-2 font-medium">Archivo</th>
+                      <th class="px-3 py-2 font-medium">Recepción</th>
+                      <th class="px-3 py-2 text-right font-medium">Total</th>
+                      <th class="px-3 py-2 text-right font-medium">OK</th>
+                      <th class="px-3 py-2 text-right font-medium">Error</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-neutral-100">
+                    @for (res of respuestas(d); track pv(res, 'id') + '-' + $index) {
+                      <tr class="hover:bg-neutral-50">
+                        <td class="px-3 py-2"><j-badge [variant]="badge(pv(res, 'tipoRespuestaCodigo'))">{{ pv(res, 'tipoRespuestaCodigo') }}</j-badge></td>
+                        <td class="px-3 py-2 font-mono text-xs text-neutral-800">{{ pv(res, 'nombreArchivo') }}</td>
+                        <td class="px-3 py-2 text-neutral-700">{{ pv(res, 'fechaRecepcion') }}</td>
+                        <td class="px-3 py-2 text-right tabular-nums text-neutral-900">{{ pv(res, 'totalOperaciones') }}</td>
+                        <td class="px-3 py-2 text-right tabular-nums text-emerald-700">{{ pv(res, 'operacionesOk') }}</td>
+                        <td class="px-3 py-2 text-right tabular-nums text-red-700">{{ pv(res, 'operacionesError') }}</td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td class="px-3 py-6 text-center text-sm text-neutral-400" colspan="6">Aún no se han recibido respuestas del banco.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </j-tabs-content>
+        </div>
+      </j-tabs>
+    </div>
+  }
+</j-dialog>

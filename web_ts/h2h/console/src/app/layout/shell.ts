@@ -84,6 +84,7 @@ export class Shell {
       ...gate('operaciones.transferencias:read', { key: 'operaciones/transferencias', label: 'Transferencias', icon: '⇄' }),
       ...gate('operaciones.factoring:read', { key: 'operaciones/factoring', label: 'Factoring Electrónico', icon: '🧾' }),
       ...gate('planillas:read', { key: 'planillas', label: 'Planillas', icon: '▦' }),
+      ...gate('planillas:read', { key: 'programaciones', label: 'Programación de envíos', icon: '🗓' }),
       ...gate('respuestas:read', { key: 'respuestas', label: 'Respuestas BCP', icon: '↩' }),
     ];
     const admin: SidebarNavItem[] = [

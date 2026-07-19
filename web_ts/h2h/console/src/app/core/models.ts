@@ -282,6 +282,52 @@ export interface RespuestaBCP {
   prb_n_id_formato_code: string;
 }
 
+// Backend real (api/mantenimientos/h2h/v1/planillas) — consulta de solo lectura.
+export interface PlanillaRow {
+  id: string;
+  nombreArchivo: string;
+  secuencial: string;
+  fechaArchivo: string;
+  cuentaCargo?: string | null;
+  montoTotal: number;
+  checksum?: string | null;
+  totalOperaciones: number;
+  idEntidadFin?: number;
+  entidadFinCodigo?: string | null;
+  idProducto?: number;
+  productoCodigo?: string | null;
+  productoFullCode?: string | null;
+  idEstadoPlanilla?: number;
+  estadoPlanillaCodigo: string;
+  estadoPlanillaFullCode?: string | null;
+  idMoneda?: number | null;
+  monedaCodigo?: string | null;
+  isFlujoPar?: boolean | null;
+  fechaEnvio?: string | null;
+  reintentos?: number | null;
+  idOrganizacion?: string;
+}
+
+export interface PlanillaFiltro {
+  id?: string;
+  idEntidadFin?: number;
+  idProducto?: number;
+  idEstadoPlanilla?: number;
+  estadoPlanilla?: string;
+  idMoneda?: number;
+  moneda?: string;
+  secuencial?: string;
+  nombreArchivo?: string;
+  isFlujoPar?: boolean;
+}
+
+/** Detalle completo de una planilla: cabecera, registros (etapas por operación) y respuestas del banco. */
+export interface PlanillaDetalleFull {
+  planilla: OperacionDetalleRegistro;
+  detalles: OperacionDetalleRegistro[];
+  respuestas: OperacionDetalleRegistro[];
+}
+
 export interface Certificado {
   certificadoId: string;
   scope: string;
@@ -439,4 +485,64 @@ export interface CorrelativoFiltro {
   formato?: string;
   periodicidad?: string;
   isActivo?: boolean;
+}
+
+// ── Programación de envíos H2H ──────────────────────────────────────────
+export interface ProgramacionRow {
+  id: string;
+  codigo: string;
+  idProducto?: number;
+  productoCodigo?: string | null;
+  productoFullCode?: string | null;
+  idMoneda?: number;
+  monedaCodigo?: string | null;
+  idEstado?: number;
+  estadoCodigo: string;
+  estadoFullCode?: string | null;
+  tipoDestino?: string | null;
+  canalLiquidacion?: string | null;
+  modoEnvio: string;
+  fechaProceso: string;
+  fechaProgramado?: string | null;
+  fechaEjecutado?: string | null;
+  totalOperaciones: number;
+  montoTotal: number;
+  reintentos?: number | null;
+  idPlanilla?: string | null;
+  idOrganizacion?: string;
+}
+
+export interface ProgramacionFiltro {
+  id?: string;
+  idProducto?: number;
+  idMoneda?: number;
+  idEstado?: number;
+  estado?: string;
+  moneda?: string;
+  tipoDestino?: string;
+  canalLiquidacion?: string;
+  modoEnvio?: string;
+  codigo?: string;
+  fechaProceso?: string;
+}
+
+/** Detalle de un plan: cabecera + operaciones planificadas. */
+export interface ProgramacionDetalleFull {
+  programacion: OperacionDetalleRegistro;
+  detalles: OperacionDetalleRegistro[];
+}
+
+/** Payload para crear un plan de envío. */
+export interface ProgramacionCrear {
+  idProducto: number;
+  idMoneda: number;
+  fechaProceso: string;
+  tipoDestino?: string;
+  canalLiquidacion?: string;
+  modoEnvio?: string;
+  fechaProgramado?: string;
+  codigo?: string;
+  operaciones?: string[];
+  cargas?: string[];
+  programacion?: Record<string, unknown>;
 }

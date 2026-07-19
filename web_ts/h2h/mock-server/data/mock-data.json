@@ -1,7 +1,7 @@
 {
   "tenantContext": {
     "tenant": {
-      "org_u_id": "695b3c63-dd1d-4efb-b79d-f12d315c896c",
+      "org_u_id": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a",
       "org_v_codigo": "DEVELTREX",
       "org_v_abreviatura": "DVTX",
       "org_v_razonsocial": "Develtrex Perú S.A.C.",
@@ -133,7 +133,7 @@
       "ope_jb_atributos": { "canal": "WEB", "ipOrigen": "190.234.12.8", "riesgo": "BAJO" },
       "ope_u_id_planilla_vigente": null,
       "ope_n_intentos_envio": 0,
-      "ope_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "ope_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     },
     {
       "ope_u_id": "aab7c103-3fa5-44e4-9e3b-020e3156c90a",
@@ -167,7 +167,7 @@
       "ope_jb_atributos": { "canal": "WEB", "ipOrigen": "190.234.12.8", "riesgo": "BAJO" },
       "ope_u_id_planilla_vigente": null,
       "ope_n_intentos_envio": 0,
-      "ope_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "ope_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     },
     {
       "ope_u_id": "c1d9a6b2-7e04-4a11-9f2c-3b8ad04e7712",
@@ -201,7 +201,7 @@
       "ope_jb_atributos": { "canal": "ERP", "viaProceso": "BCR", "subtipo": "INTERBANCARIA" },
       "ope_u_id_planilla_vigente": null,
       "ope_n_intentos_envio": 0,
-      "ope_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "ope_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     },
     {
       "ope_u_id": "d5e2b8c4-1a37-4c90-8e6d-9f0a2b3c4d5e",
@@ -236,7 +236,7 @@
       "ope_jb_atributos": { "canal": "ERP", "modalidad": "E_FACTORING", "bloque": 2 },
       "ope_u_id_planilla_vigente": null,
       "ope_n_intentos_envio": 0,
-      "ope_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "ope_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     }
   ],
   "planillas": [
@@ -264,7 +264,7 @@
       "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/HAB-20260630-004.xml",
       "pla_v_url_cifrado": "s3://develtrexpay-h2h-prod/encrypted/HAB-20260630-004.xml.pgp",
       "pla_jb_atributos": { "versionFormato": "PAIN_001_001_09", "tipoPlanillaXml": "SALA" },
-      "pla_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "pla_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     },
     {
       "pla_u_id": "365b79e5-0fe5-42aa-8736-7b4de1d8a34a",
@@ -290,7 +290,7 @@
       "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/PRV-20260630-003.txt",
       "pla_v_url_cifrado": "s3://develtrexpay-h2h-prod/encrypted/PRV-20260630-003.txt.pgp",
       "pla_jb_atributos": { "versionFormato": "TXT_2025_CLOUD", "tipoPlanillaXml": "SALA" },
-      "pla_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "pla_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     },
     {
       "pla_u_id": "a2c46f81-9b3d-4e57-8c12-6d0f9a1b2c30",
@@ -316,7 +316,7 @@
       "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/T20260630000012P.txt",
       "pla_v_url_cifrado": "s3://develtrexpay-h2h-prod/encrypted/T20260630000012P.txt.pgp",
       "pla_jb_atributos": { "versionFormato": "TXT_2025_CLOUD", "subtipo": "INTERBANCARIA" },
-      "pla_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "pla_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     },
     {
       "pla_u_id": "b7e15c02-3d84-4a19-9f6b-1c2d3e4f5a60",
@@ -342,7 +342,7 @@
       "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/FAC-20260630-021.txt",
       "pla_v_url_cifrado": "",
       "pla_jb_atributos": { "versionFormato": "TXT_2025_CLOUD", "modalidad": "E_FACTORING" },
-      "pla_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "pla_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     },
     {
       "pla_u_id": "e3f60d19-5a72-4b83-9c04-7d8e9f0a1b23",
@@ -368,7 +368,7 @@
       "pla_v_url_claro": "s3://develtrexpay-h2h-prod/plain/CTS-20260628-011.txt",
       "pla_v_url_cifrado": "s3://develtrexpay-h2h-prod/encrypted/CTS-20260628-011.txt.pgp",
       "pla_jb_atributos": { "versionFormato": "TXT_2025_CLOUD" },
-      "pla_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "pla_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     }
   ],
   "planillaDetalles": [
@@ -399,7 +399,7 @@
       "prb_v_url_claro": "s3://develtrexpay-h2h-prod/responses/HAB-20260630-004.RES.xml",
       "prb_v_url_cifrado": "s3://develtrexpay-h2h-prod/responses/HAB-20260630-004.RES.xml.pgp",
       "prb_jb_atributos": { "banco": "BCP", "parserVersion": "1.0.0" },
-      "prb_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "prb_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     },
     {
       "prb_u_id": "8b1c4d2e-6f70-4a83-9b5c-2d3e4f5a6b71",
@@ -415,7 +415,7 @@
       "prb_v_url_claro": "s3://develtrexpay-h2h-prod/responses/CTS-20260628-011-VAL.txt",
       "prb_v_url_cifrado": "s3://develtrexpay-h2h-prod/responses/CTS-20260628-011-VAL.txt.pgp",
       "prb_jb_atributos": { "banco": "BCP", "motivo": "ERROR_ESTRUCTURA", "linea": 2 },
-      "prb_u_id_organizacion": "695b3c63-dd1d-4efb-b79d-f12d315c896c"
+      "prb_u_id_organizacion": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a"
     }
   ],
   "beneficiarios": [
@@ -454,7 +454,7 @@
     {
       "certificadoId": "7f6df6e3-0f89-4960-9e1d-6f21e31b0b66",
       "scope": "TENANT",
-      "tenantId": "695b3c63-dd1d-4efb-b79d-f12d315c896c",
+      "tenantId": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a",
       "tipo": "PGP_GPG",
       "alias": "develtrex-pgp-prod-2026",
       "uso": "ENCRYPT_DECRYPT_FILES",
@@ -472,7 +472,7 @@
     {
       "certificadoId": "1a221d3e-6e4a-4f1c-8803-78f5cc2189a9",
       "scope": "BCP",
-      "tenantId": "695b3c63-dd1d-4efb-b79d-f12d315c896c",
+      "tenantId": "c3d35eb9-73d2-473d-ba84-5e5c6e57cd1a",
       "tipo": "PGP_GPG",
       "alias": "bcp-public-pgp-prod",
       "uso": "ENCRYPT_DECRYPT_FILES",
