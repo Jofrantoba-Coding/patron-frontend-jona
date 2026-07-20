@@ -106,6 +106,7 @@
     [rowKey]="rowKey"
     [showFilter]="false"
     filterPlaceholder="Buscar por código, beneficiario, cuenta…"
+    (rowClick)="onRowClick($event)"
     emptyTitle="Sin operaciones"
     emptyDescription="No hay operaciones para el filtro actual."
   />
@@ -117,3 +118,6 @@
     <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
   </div>
 </div>
+
+<!-- Detalle de operación (componente compartido) -->
+<app-operacion-detalle-dialog [detalle]="opDetalle()" [loading]="opDetalleLoading()" (closed)="cerrarOpDetalle()" />

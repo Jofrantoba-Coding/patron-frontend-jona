@@ -131,7 +131,8 @@
                   <td class="px-3 py-2 align-top"><j-badge [variant]="badge(pv(reg, 'modoEnvio'))">{{ pv(reg, 'modoEnvio') }}</j-badge></td>
                   <td class="px-3 py-2 align-top"><j-badge [variant]="badge(pv(reg, 'estadoDetalleCodigo'))">{{ pv(reg, 'estadoDetalleCodigo') }}</j-badge></td>
                   <td class="px-3 py-2 align-top font-mono text-[11px] text-neutral-500">{{ pv(reg, 'idPlanillaDetalle') }}</td>
-                  <td class="px-3 py-2 align-top text-right">
+                  <td class="px-3 py-2 align-top text-right whitespace-nowrap">
+                    <button type="button" class="mr-1 rounded-md border border-neutral-300 bg-white px-2 py-1 text-[11px] font-medium text-neutral-700 hover:bg-neutral-100" (click)="abrirOpDetalle(pv(reg, 'idOperacion'))">Ver</button>
                     <button type="button" class="rounded-md border border-red-300 bg-white px-2 py-1 text-[11px] font-medium text-red-700 hover:bg-red-50" (click)="quitarOperacion(pv(reg, 'idOperacion'))">Quitar</button>
                   </td>
                 </tr>
@@ -175,8 +176,12 @@
         </select>
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-medium text-neutral-500" for="n-fecha">Fecha proceso *</label>
+        <label class="text-xs font-medium text-neutral-500" for="n-fecha">Fecha proceso * <span class="font-normal text-neutral-400">(día hábil BCP)</span></label>
         <input id="n-fecha" type="date" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoFechaProceso()" (input)="onNuevoFechaProceso($event)" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="n-programado">Programado <span class="font-normal text-neutral-400">(cuándo gatilla)</span></label>
+        <input id="n-programado" type="datetime-local" step="1" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoFechaProgramado()" (input)="onNuevoFechaProgramado($event)" />
       </div>
       <div class="flex flex-col gap-1">
         <label class="text-xs font-medium text-neutral-500" for="n-modo">Modo</label>
@@ -234,7 +239,10 @@
             @for (op of opsFiltradas(); track op.id) {
               <tr class="cursor-pointer hover:bg-neutral-50" [class.bg-primary-50]="isSel(op.id)" (click)="toggleOp(op.id)">
                 <td class="px-3 py-2"><input type="checkbox" [checked]="isSel(op.id)" (click)="$event.stopPropagation(); toggleOp(op.id)" /></td>
-                <td class="px-3 py-2 font-mono text-xs text-neutral-800">{{ op.codigoOperacion }}</td>
+                <td class="px-3 py-2 font-mono text-xs text-neutral-800">
+                  {{ op.codigoOperacion }}
+                  <button type="button" class="ml-1 text-[11px] font-sans font-medium text-primary-700 hover:underline" (click)="$event.stopPropagation(); abrirOpDetalle(op.id)">ver</button>
+                </td>
                 <td class="px-3 py-2 text-neutral-700">{{ op.referenciaOrigen }}</td>
                 <td class="px-3 py-2 text-right font-mono text-neutral-900">{{ num(op.montoTotal) }}</td>
                 <td class="px-3 py-2 text-center text-neutral-600">{{ op.monedaCodigo }}</td>
@@ -256,3 +264,6 @@
     </div>
   </div>
 </j-dialog>
+
+<!-- Detalle de operación (componente compartido) -->
+<app-operacion-detalle-dialog [detalle]="opDetalle()" [loading]="opDetalleLoading()" (closed)="cerrarOpDetalle()" />

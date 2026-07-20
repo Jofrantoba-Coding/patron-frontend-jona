@@ -332,9 +332,9 @@ export class ApiService {
   private readonly session = inject(SessionService);
 
   private headers(mutating = false): HttpHeaders {
-    let h = new HttpHeaders()
-      .set('Authorization', `Bearer ${this.session.token() ?? 'mock.jwt.token'}`)
-      .set('X-Correlation-Id', guid());
+    // BFF: sin Authorization. La sesión viaja por cookie (withCredentials, via
+    // credentialsInterceptor) y el gateway hace TokenRelay a los backends.
+    let h = new HttpHeaders().set('X-Correlation-Id', guid());
     const org = this.session.tenant()?.org_u_id;
     if (org) h = h.set('X-Organizacion-Id', org);
     if (mutating) h = h.set('X-Idempotency-Key', guid());

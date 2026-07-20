@@ -9,8 +9,10 @@ import {
   type JDataTableColumn,
   type JDataTableRow,
 } from 'uijona-4ngular';
+import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
 import type {
   Operacion,
+  OperacionDetalle,
   OperacionDetalleRegistro,
   Paginated,
   ProductoGrupo,
@@ -21,6 +23,10 @@ import type {
 } from '../../core/models';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
+// timestamptz (prg_dt_programado / prg_dt_ejecutado) -> fecha + hora:min:seg
+const FDT = new Intl.DateTimeFormat('es-PE', { dateStyle: 'short', timeStyle: 'medium', hour12: false });
+// date (prg_d_fecha_proceso) -> solo fecha
+const FD = new Intl.DateTimeFormat('es-PE', { dateStyle: 'short' });
 
 type Registro = OperacionDetalleRegistro;
 
@@ -68,7 +74,7 @@ const BADGE: Record<string, JBadgeVariant> = {
   selector: 'app-programaciones-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, OperacionDetalleDialog],
   templateUrl: './programaciones-view.component.html',
 })
 export class ProgramacionesViewComponent {
@@ -87,6 +93,10 @@ export class ProgramacionesViewComponent {
   protected readonly detalleLoading = signal<string | null>(null);
   protected readonly detalleSeleccionado = signal<ProgramacionRow | null>(null);
 
+  // Detalle de una operación (beneficiario, cuenta, ítems, contabilidad)
+  protected readonly opDetalle = signal<OperacionDetalle | null>(null);
+  protected readonly opDetalleLoading = signal<string | null>(null);
+
   // Diálogo de creación
   protected readonly crearOpen = signal<boolean>(false);
   protected readonly crearGuardando = signal<boolean>(false);
@@ -94,6 +104,7 @@ export class ProgramacionesViewComponent {
   protected readonly nuevoIdProducto = signal<string>('');
   protected readonly nuevoIdMoneda = signal<string>('');
   protected readonly nuevoFechaProceso = signal<string>('');
+  protected readonly nuevoFechaProgramado = signal<string>('');
   protected readonly nuevoModo = signal<string>('MANUAL');
   protected readonly nuevoTipoDestino = signal<string>('');
   protected readonly nuevoCanal = signal<string>('');
@@ -162,8 +173,8 @@ export class ProgramacionesViewComponent {
     { key: 'montoTotal', header: 'Monto', align: 'right', sortable: true, render: (v) => NUM.format(Number(v ?? 0)) },
     { key: 'totalOperaciones', header: 'Ops.', align: 'right', sortable: true, render: (v) => String(v ?? 0) },
     { key: 'estadoCodigo', header: 'Estado', sortable: true },
-    { key: 'fechaProceso', header: 'F. proceso', sortable: true },
-    { key: 'fechaProgramado', header: 'Programado', align: 'center', render: (v) => (v ? String(v) : '-') },
+    { key: 'fechaProceso', header: 'F. proceso', sortable: true, render: (v) => this.fd(v) },
+    { key: 'fechaProgramado', header: 'Programado', align: 'center', render: (v) => this.fdt(v) },
   ];
 
   protected badge(estado: string): JBadgeVariant {
@@ -244,6 +255,9 @@ export class ProgramacionesViewComponent {
   protected onNuevoFechaProceso(e: Event): void {
     this.nuevoFechaProceso.set((e.target as HTMLInputElement).value);
   }
+  protected onNuevoFechaProgramado(e: Event): void {
+    this.nuevoFechaProgramado.set((e.target as HTMLInputElement).value);
+  }
   protected onNuevoModo(e: Event): void {
     this.nuevoModo.set((e.target as HTMLSelectElement).value);
   }
@@ -311,6 +325,12 @@ export class ProgramacionesViewComponent {
     const payload: ProgramacionCrear = { idProducto, idMoneda, fechaProceso, modoEnvio: this.nuevoModo(), operaciones };
     if (this.nuevoTipoDestino()) payload.tipoDestino = this.nuevoTipoDestino();
     if (this.nuevoCanal()) payload.canalLiquidacion = this.nuevoCanal();
+    // datetime-local (hora local, sin zona) -> ISO con offset que acepta OffsetDateTime en el backend
+    const programado = this.nuevoFechaProgramado().trim();
+    if (programado) {
+      const d = new Date(programado);
+      if (!Number.isNaN(d.getTime())) payload.fechaProgramado = d.toISOString();
+    }
     return payload;
   }
 
@@ -338,6 +358,17 @@ export class ProgramacionesViewComponent {
   }
   protected buscarOperaciones(): void {
     return;
+  }
+  protected abrirOpDetalle(_idOperacion: string): void {
+    return;
+  }
+
+  protected cerrarOpDetalle(): void {
+    this.opDetalle.set(null);
+    this.opDetalleLoading.set(null);
+  }
+  protected setOpDetalle(d: OperacionDetalle): void {
+    this.opDetalle.set(d);
   }
 
   protected closeDetalle(): void {
@@ -377,6 +408,28 @@ export class ProgramacionesViewComponent {
     return NUM.format(Number(value));
   }
 
+  /** Formatea un timestamp (con hora:min:seg). Usar para columnas *_dt_ (timestamptz). */
+  protected fdt(value: unknown): string {
+    if (value === null || value === undefined || value === '') return '-';
+    const d = new Date(String(value));
+    return Number.isNaN(d.getTime()) ? String(value) : FDT.format(d);
+  }
+  /** Formatea una fecha (sin hora). Usar para columnas *_d_ tipo date. */
+  protected fd(value: unknown): string {
+    if (value === null || value === undefined || value === '') return '-';
+    const s = String(value);
+    const d = new Date(s.length <= 10 ? `${s}T00:00:00` : s);
+    return Number.isNaN(d.getTime()) ? s : FD.format(d);
+  }
+  /** Lee y formatea un timestamp de un registro. */
+  protected pdt(record: Registro | null | undefined, key: string): string {
+    return this.fdt(this.raw(record, key));
+  }
+  /** Lee y formatea una fecha de un registro. */
+  protected pdate(record: Registro | null | undefined, key: string): string {
+    return this.fd(this.raw(record, key));
+  }
+
   /** Campos de cabecera para la pestaña Resumen del detalle. */
   protected resumenCampos(detalle: ProgramacionDetalleFull | null): { label: string; value: string }[] {
     const p = detalle?.programacion;
@@ -391,9 +444,9 @@ export class ProgramacionesViewComponent {
       { label: 'Moneda', value: this.pv(p, 'monedaCodigo') },
       { label: 'Monto total', value: this.pnum(p, 'montoTotal') },
       { label: 'Total operaciones', value: this.pv(p, 'totalOperaciones') },
-      { label: 'Fecha proceso', value: this.pv(p, 'fechaProceso') },
-      { label: 'Programado', value: this.pv(p, 'fechaProgramado') },
-      { label: 'Ejecutado', value: this.pv(p, 'fechaEjecutado') },
+      { label: 'Fecha proceso', value: this.pdate(p, 'fechaProceso') },
+      { label: 'Programado', value: this.pdt(p, 'fechaProgramado') },
+      { label: 'Ejecutado', value: this.pdt(p, 'fechaEjecutado') },
       { label: 'Planilla generada', value: this.pv(p, 'idPlanilla') },
     ].filter((campo) => campo.value !== '-');
   }

@@ -3,6 +3,7 @@ import { finalize } from 'rxjs';
 import { JBadge, JDataTable, JDialog, JPagination, JSectionHeading } from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
 import type { ProgramacionRow } from '../../core/models';
+import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
 import { ProgramacionesViewComponent } from './programaciones-view.component';
 
 /** Programación de envíos H2H: planes que agrupan operaciones/lotes, con detalle y acciones. */
@@ -10,7 +11,7 @@ import { ProgramacionesViewComponent } from './programaciones-view.component';
   selector: 'app-programaciones',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, OperacionDetalleDialog],
   templateUrl: './programaciones-view.component.html',
 })
 export class ProgramacionesPage extends ProgramacionesViewComponent implements OnInit {
@@ -92,6 +93,22 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
     });
   }
 
+  protected override abrirOpDetalle(idOperacion: string): void {
+    if (!idOperacion || idOperacion === '-') return;
+    this.opDetalle.set(null);
+    this.opDetalleLoading.set(idOperacion);
+    this.api
+      .operacionDetalle(idOperacion)
+      .pipe(
+        finalize(() => {
+          if (this.opDetalleLoading() === idOperacion) {
+            this.opDetalleLoading.set(null);
+          }
+        })
+      )
+      .subscribe((res) => this.setOpDetalle(res));
+  }
+
   protected override quitarOperacion(idOperacion: string): void {
     const id = this.detalleSeleccionado()?.id;
     if (!id || !idOperacion || idOperacion === '-') return;
@@ -144,6 +161,7 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
     this.nuevoIdProducto.set('');
     this.nuevoIdMoneda.set('');
     this.nuevoFechaProceso.set('');
+    this.nuevoFechaProgramado.set('');
     this.nuevoModo.set('MANUAL');
     this.nuevoTipoDestino.set('');
     this.nuevoCanal.set('');

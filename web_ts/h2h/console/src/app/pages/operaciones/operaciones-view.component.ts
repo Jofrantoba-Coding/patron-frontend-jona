@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { JDataTable, JPagination, JSectionHeading, type JDataTableColumn, type JDataTableRow } from 'uijona-4ngular';
-import type { Operacion, OperacionFiltro, Paginated, ProductoGrupo } from '../../core/models';
+import type { Operacion, OperacionDetalle, OperacionFiltro, Paginated, ProductoGrupo } from '../../core/models';
+import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
 import { META, META_TODAS, TIPOOP_GRUPO, type OperacionMeta } from './inter-operaciones';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
@@ -9,7 +10,7 @@ const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
   selector: 'app-operaciones-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination],
+  imports: [JSectionHeading, JDataTable, JPagination, OperacionDetalleDialog],
   templateUrl: './operaciones-view.component.html',
 })
 export class OperacionesViewComponent {
@@ -31,6 +32,10 @@ export class OperacionesViewComponent {
   protected readonly page = signal<number>(1);
   protected readonly pageSize = signal<number>(2);
   protected readonly total = signal<number>(0);
+
+  // Detalle de operación (diálogo compartido)
+  protected readonly opDetalle = signal<OperacionDetalle | null>(null);
+  protected readonly opDetalleLoading = signal<string | null>(null);
 
   protected readonly esTodas = computed(() => this.producto() === null);
   protected readonly meta = computed<OperacionMeta>(() => (this.producto() ? META[this.producto() as ProductoGrupo] : META_TODAS));
@@ -203,6 +208,20 @@ export class OperacionesViewComponent {
     this.page.set(result.pagination.page);
     this.pageSize.set(result.pagination.pageSize);
     this.total.set(result.pagination.total);
+  }
+
+  protected onRowClick(event: { row: JDataTableRow; index: number }): void {
+    this.abrirOpDetalle(String((event.row as unknown as Operacion).id));
+  }
+  protected abrirOpDetalle(_idOperacion: string): void {
+    return;
+  }
+  protected cerrarOpDetalle(): void {
+    this.opDetalle.set(null);
+    this.opDetalleLoading.set(null);
+  }
+  protected setOpDetalle(d: OperacionDetalle): void {
+    this.opDetalle.set(d);
   }
 
   protected setProducto(producto: ProductoGrupo | null): void {

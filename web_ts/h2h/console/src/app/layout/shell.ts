@@ -8,6 +8,7 @@ import {
   type SidebarNavGroup,
   type SidebarNavItem,
 } from 'uijona-4ngular';
+import { environment } from '../../environments/environment';
 import { SessionService } from '../core/session.service';
 
 /** Layout principal de la consola: sidebar navegable + contenido enrutado. */
@@ -114,6 +115,7 @@ export class Shell {
 
   protected logout(): void {
     this.session.clear();
-    this.router.navigate(['/login']);
+    // BFF: el gateway cierra la sesión OIDC y redirige a logout-success-url.
+    window.location.href = `${environment.gatewayBaseUrl}/logout`;
   }
 }
