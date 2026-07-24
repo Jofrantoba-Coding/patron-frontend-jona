@@ -30,7 +30,7 @@ export class OperacionesViewComponent {
   protected readonly filtroSinPlanillaVigente = signal<string>('');
   protected readonly master = signal<Operacion[]>([]);
   protected readonly page = signal<number>(1);
-  protected readonly pageSize = signal<number>(2);
+  protected readonly pageSize = signal<number>(50);
   protected readonly total = signal<number>(0);
 
   // Detalle de operación (diálogo compartido)

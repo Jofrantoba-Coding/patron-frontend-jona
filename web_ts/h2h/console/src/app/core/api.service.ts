@@ -26,6 +26,11 @@ import type {
   ParametriaFiltro,
   OrganizacionConfiguracion,
   OrganizacionDetalle,
+  ApiResponseEnvelope,
+  DtoLlavePublicaBanco,
+  DtoLlavesOrganizacion,
+  DtoGenerarLlavesOrganizacion,
+  LlavePendienteGenerada,
   Paginated,
   Planilla,
   PlanillaDetalleFull,
@@ -624,9 +629,115 @@ export class ApiService {
   }
 
   // -- Organizacion ------------------------------------------------------
-  organizacionDetalle() {
+  /**
+   * Detalle de la organización (endpoint ALMIL `/organizacion/detalle`): el envelope trae
+   * en `data` tanto `{ organizacion, configuraciones }`. Exige tenant.realm no vacío.
+   */
+  organizacionDetalle(): Observable<OrganizacionDetalle> {
     const idOrganizacion = this.session.tenant()?.org_u_id ?? '';
-    return this.postBackend<OrganizacionDetalleBackend>('/organizacion/detalle', { idOrganizacion }).pipe(map(normalizeOrganizacionDetalle));
+    return this.postBackend<ApiResponseEnvelope<OrganizacionDetalleBackend>>(
+      '/organizacion/detalle',
+      this.buildEnvelope({ id: idOrganizacion })
+    ).pipe(map((res) => normalizeOrganizacionDetalle((res?.data ?? {}) as OrganizacionDetalleBackend)));
+  }
+
+  /**
+   * Identidad de la organización (objeto plano de `data.organizacion`:
+   * razonsocial/numerodocumento/codigo…). Se usa para mostrar razón social + RUC de forma
+   * informativa (el backend igual los re-deriva del token).
+   */
+  organizacionIdentidad(): Observable<Record<string, unknown>> {
+    const idOrganizacion = this.session.tenant()?.org_u_id ?? '';
+    return this.postBackend<ApiResponseEnvelope<OrganizacionDetalleBackend>>(
+      '/organizacion/detalle',
+      this.buildEnvelope({ id: idOrganizacion })
+    ).pipe(map((res) => (res?.data?.organizacion ?? {}) as Record<string, unknown>));
+  }
+
+  // -- Llaves de cifrado (envelope ALMIL) --------------------------------
+  /** Envelope estándar ALMIL con tenant/contexto derivados de la sesión. */
+  private buildEnvelope<T>(data: T): Record<string, unknown> {
+    const t = this.session.tenant();
+    const user = this.session.user();
+    return {
+      requestId: guid(),
+      tenant: {
+        organizacionId: t?.org_u_id ?? '',
+        realm: t?.keycloak?.org_v_keycloak_realm || t?.org_v_codigo || '',
+        codigo: t?.org_v_codigo ?? undefined,
+      },
+      contexto: { canal: 'consola', usuario: user?.email ?? '', ipOrigen: '' },
+      data,
+    };
+  }
+
+  /** Lista las configuraciones de la organización y filtra las de encriptación. */
+  encriptacionListar(): Observable<OrganizacionConfiguracion[]> {
+    const idOrganizacion = this.session.tenant()?.org_u_id ?? '';
+    return this.postBackend<ApiResponseEnvelope<OrganizacionDetalleBackend['configuraciones']>>(
+      '/organizacion/encriptacion/listar',
+      this.buildEnvelope({ id: idOrganizacion })
+    ).pipe(
+      map((res) =>
+        (res?.data ?? [])
+          .map((r) => normalizeOrganizacionConfiguracion(r as Record<string, unknown>))
+          .filter((c) => (c.codigo ?? '').includes('ENCRIPTACION'))
+      )
+    );
+  }
+
+  guardarLlavePublicaBanco(data: DtoLlavePublicaBanco): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/encriptacion/banco/llave-publica',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
+  guardarLlavesOrganizacion(data: DtoLlavesOrganizacion): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/encriptacion/organizacion/llaves',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
+  /** Genera automáticamente el par de la organización (llave pendiente). */
+  generarLlavesOrganizacion(data: DtoGenerarLlavesOrganizacion): Observable<LlavePendienteGenerada> {
+    return this.postBackend<ApiResponseEnvelope<LlavePendienteGenerada>>(
+      '/organizacion/encriptacion/organizacion/generar',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
+  /** Activa la llave pendiente de la organización (produce la rotación). */
+  activarLlavesOrganizacion(banco: string): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/encriptacion/organizacion/activar',
+      this.buildEnvelope({ banco })
+    ).pipe(map((r) => r.data));
+  }
+
+  /** Descarta la llave pendiente de la organización. */
+  descartarLlavesOrganizacion(banco: string): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/encriptacion/organizacion/descartar',
+      this.buildEnvelope({ banco })
+    ).pipe(map((r) => r.data));
+  }
+
+  /** Vuelve a una firma anterior de la llave pública del banco (por etiqueta). */
+  revertirLlavePublicaBanco(banco: string, etiqueta: string): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/encriptacion/banco/revertir',
+      this.buildEnvelope({ banco, etiqueta })
+    ).pipe(map((r) => r.data));
+  }
+
+  /** Vuelve a una firma anterior de las llaves de la organización (por etiqueta). */
+  revertirLlavesOrganizacion(banco: string, etiqueta: string): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/encriptacion/organizacion/revertir',
+      this.buildEnvelope({ banco, etiqueta })
+    ).pipe(map((r) => r.data));
   }
 
   // -- Correlativos ------------------------------------------------------

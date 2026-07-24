@@ -248,6 +248,54 @@ export interface OrganizacionDetalle {
   configuraciones: OrganizacionConfiguracion[];
 }
 
+/** Envelope de respuesta estándar ALMIL (status/code/message/data/errors/traceId). */
+export interface ApiResponseEnvelope<T> {
+  status: string;
+  code: string;
+  message: string;
+  data: T;
+  errors?: unknown[];
+  traceId?: string;
+  timestamp?: string;
+}
+
+/** Configuración de la llave pública de un banco (material en base64). Motor único: GPG/PGP. */
+export interface DtoLlavePublicaBanco {
+  banco: string;
+  llavePublicaBase64: string;
+  alertaDias?: number;
+}
+
+/** Configuración de las llaves de la organización frente a un banco (material en base64). Motor único: GPG/PGP. */
+export interface DtoLlavesOrganizacion {
+  banco: string;
+  llavePrivadaBase64: string;
+  llavePublicaBase64: string;
+  frase?: string;
+  alertaDias?: number;
+}
+
+/** Payload para GENERAR automáticamente el par de llaves de la organización (Guía 1 BCP). */
+export interface DtoGenerarLlavesOrganizacion {
+  banco: string;
+  expiraAnios?: number;
+  alertaDias?: number;
+}
+
+/** Respuesta de la generación: metadata de la llave pendiente + pública armored + frase (respaldo). */
+export interface LlavePendienteGenerada {
+  fingerprint?: string | null;
+  fingerprintSubclave?: string | null;
+  algoritmo?: string | null;
+  formato?: string | null;
+  vigencia?: { origen?: string | null; desde?: string | null; hasta?: string | null; finRotacion?: string | null; alertaDias?: number | null };
+  generadaEn?: string | null;
+  sha256Seed?: string | null;
+  llavePublicaArmored?: string;
+  llavePrivadaArmored?: string;
+  frasePlano?: string;
+}
+
 export interface Planilla {
   pla_u_id: string;
   pla_n_id_entidadfin_code: string;

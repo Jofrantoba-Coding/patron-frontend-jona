@@ -19,6 +19,7 @@ const DEFAULT_PERMISSIONS = [
   'organizacion:read',
   'beneficiarios:read',
   'certificados:read',
+  'llaves:read',
   'catalogos:read',
   'auditoria:read',
   'rbac:read',

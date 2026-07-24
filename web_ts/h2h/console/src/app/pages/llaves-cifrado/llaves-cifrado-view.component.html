@@ -1,0 +1,307 @@
+<div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
+  <j-section-heading
+    eyebrow="Seguridad"
+    heading="Llaves de cifrado"
+    description="Llave pública del banco (para cifrar lo que se le envía) y llaves de la organización (pública y privada, para firmar). Motor GPG/PGP; la vigencia se analiza de la propia llave."
+  />
+
+  <!-- Selectores globales -->
+  <div class="flex flex-wrap items-end gap-4">
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Banco</span>
+      <select class="rounded-md border border-neutral-300 px-3 py-2 text-sm" [value]="banco()" (change)="setBanco($event)">
+        <option value="BCP">BCP</option>
+      </select>
+    </label>
+    <span class="pb-2 text-xs text-neutral-500">Cifrado GPG/PGP</span>
+  </div>
+
+  @if (mensaje()) {
+    <div class="rounded-md border px-4 py-3 text-sm"
+         [class]="mensajeOk() ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-red-300 bg-red-50 text-red-800'">
+      {{ mensaje() }}
+    </div>
+  }
+
+  <div class="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))]">
+    <!-- ══ Llave pública del banco ══ -->
+    <j-card>
+      <j-card-header>
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <j-card-title>Llave pública del banco</j-card-title>
+          @if (vencInfo(estadoBanco()); as v) { <j-badge [variant]="v.variant">{{ v.label }}</j-badge> }
+        </div>
+        <p class="text-sm text-neutral-500">La entrega el banco. Cifra los archivos que se le envían.</p>
+      </j-card-header>
+      <j-card-content>
+        @if (estadoBanco()?.fingerprint) {
+          <ng-container [ngTemplateOutlet]="detalle" [ngTemplateOutletContext]="{ e: estadoBanco() }" />
+        } @else {
+          <p class="rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-3 py-4 text-center text-sm text-neutral-500">
+            Aún no hay una llave pública del {{ banco() }} configurada.
+          </p>
+        }
+        <div class="mt-4">
+          <j-button size="sm" (clicked)="abrirBanco()">
+            {{ estadoBanco()?.fingerprint ? 'Rotar / actualizar llave' : 'Configurar llave del banco' }}
+          </j-button>
+        </div>
+      </j-card-content>
+    </j-card>
+
+    <!-- ══ Llaves de la organización ══ -->
+    <j-card>
+      <j-card-header>
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <j-card-title>Llaves de la organización</j-card-title>
+          @if (vencInfo(estadoOrg()); as v) { <j-badge [variant]="v.variant">{{ v.label }}</j-badge> }
+        </div>
+        <p class="text-sm text-neutral-500">Pública y privada (+ frase). La privada firma; nunca sale de Vault.</p>
+      </j-card-header>
+      <j-card-content>
+        @if (estadoOrg()?.fingerprint) {
+          <ng-container [ngTemplateOutlet]="detalle" [ngTemplateOutletContext]="{ e: estadoOrg() }" />
+        } @else {
+          <p class="rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-3 py-4 text-center text-sm text-neutral-500">
+            Aún no hay llaves de la organización configuradas para {{ banco() }}.
+          </p>
+        }
+
+        <!-- Panel de llave pendiente (generada, aún no activada) -->
+        @if (estadoOrg()?.pendiente; as p) {
+          <div class="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3">
+            <div class="flex items-center gap-2">
+              <j-badge variant="outline">Pendiente por activar</j-badge>
+              <span class="text-[11px] text-amber-700">generada {{ p.generadaEn ?? '—' }}</span>
+            </div>
+            <p class="mt-1.5 break-all font-mono text-[11px] text-neutral-600">{{ p.fingerprint ?? '—' }}</p>
+            <p class="text-[11px] text-neutral-500">Vigencia {{ p.desde ?? '—' }} → {{ p.hasta ?? '—' }}. Envía la pública al banco antes de activar.</p>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <j-button size="sm" [loading]="activando()" (clicked)="activarOrg()">Activar (rotar)</j-button>
+              <j-button size="sm" variant="outline" [loading]="descartando()" (clicked)="descartarOrg()">Descartar</j-button>
+            </div>
+          </div>
+        }
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <j-button size="sm" (clicked)="abrirGenerar()">
+            {{ estadoOrg()?.fingerprint ? 'Generar nueva (rotar)' : 'Generar llaves automáticamente' }}
+          </j-button>
+          <j-button size="sm" variant="outline" (clicked)="abrirOrg()">Subir llaves manualmente</j-button>
+        </div>
+      </j-card-content>
+    </j-card>
+  </div>
+</div>
+
+<!-- ══════════════════ Plantilla de detalle de una llave ══════════════════ -->
+<ng-template #detalle let-e="e">
+  <dl class="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-1.5 text-xs">
+    <dt class="text-neutral-400">Fingerprint</dt>
+    <dd class="break-all font-mono text-neutral-700">{{ e.fingerprint ?? '—' }}</dd>
+    <dt class="text-neutral-400">Algoritmo</dt>
+    <dd class="text-neutral-700">{{ e.algoritmo ?? '—' }}<span class="text-neutral-400"> · {{ e.formato ?? '—' }}</span></dd>
+    <dt class="text-neutral-400">Vigencia</dt>
+    <dd class="text-neutral-700">{{ e.desde ?? '—' }} <span class="text-neutral-400">→</span> {{ e.hasta ?? 'sin expiración' }}</dd>
+    <dt class="text-neutral-400">Rotar antes de</dt>
+    <dd class="text-neutral-700">{{ e.finRotacion ?? '—' }} <span class="text-neutral-400">(alerta {{ e.alertaDias ?? '—' }} días)</span></dd>
+    <dt class="text-neutral-400">Origen</dt>
+    <dd class="text-neutral-700">{{ e.origen ?? '—' }}</dd>
+  </dl>
+
+  @if (e.historial.length > 0) {
+    <details class="mt-3">
+      <summary class="cursor-pointer text-xs font-medium text-neutral-600">
+        Histórico de firmas ({{ e.historial.length }})
+      </summary>
+      <ol class="mt-2 flex flex-col gap-2 border-l border-neutral-200 pl-3">
+        @for (r of e.historial; track r.etiqueta ?? $index) {
+          <li class="rounded border border-neutral-100 bg-neutral-50 px-2 py-1.5 text-[11px] text-neutral-600">
+            <div class="flex flex-wrap items-center gap-1.5">
+              @if (r.secuencia !== null) { <span class="font-semibold text-neutral-700">#{{ r.secuencia }}</span> }
+              @if (r.origen) { <j-badge variant="secondary">{{ r.origen }}</j-badge> }
+              @if (r.activa) { <j-badge variant="outline">activa</j-badge> }
+              <span class="text-neutral-500">{{ r.timestamp ?? '—' }}</span>
+              @if (r.usuario) { <span class="text-neutral-400">· {{ r.usuario }}</span> }
+            </div>
+            @if (r.etiqueta) { <div class="mt-0.5 font-mono text-neutral-400">{{ r.etiqueta }}</div> }
+            <div class="mt-0.5 break-all font-mono text-neutral-500">{{ r.fingerprint ?? 'sin fingerprint' }}</div>
+            @if (r.hasta) { <div class="text-neutral-400">vigencia hasta {{ r.hasta }}</div> }
+            @if (r.revertible) {
+              <div class="mt-1">
+                <j-button size="sm" variant="outline" [loading]="revirtiendo()" (clicked)="revertir(e.codigo, r.etiqueta)">
+                  Volver a esta firma
+                </j-button>
+              </div>
+            }
+          </li>
+        }
+      </ol>
+    </details>
+  }
+</ng-template>
+
+<!-- ══════════════════ Modal: llave pública del banco ══════════════════ -->
+<j-dialog
+  [open]="formBancoOpen()"
+  size="lg"
+  title="Configurar llave pública del banco"
+  description="Sube el archivo de la llave pública del banco. La vigencia y el fingerprint se analizan de la propia llave. Subir la misma llave no cuenta como rotación."
+  (closed)="cerrarBanco()"
+  (cancel)="cerrarBanco()"
+>
+  <div class="flex flex-col gap-3 p-1">
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Archivo de la llave pública ({{ banco() }})</span>
+      @for (k of [resetBanco()]; track k) {
+        <input type="file" class="text-sm" (change)="onBancoFile($event)" />
+      }
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Días de alerta de rotación</span>
+      <input type="number" min="1" class="w-32 rounded-md border border-neutral-300 px-3 py-2 text-sm"
+             [value]="alertaBanco()" (change)="setAlertaBanco($event)" />
+    </label>
+  </div>
+  <div class="mt-4 flex justify-end gap-2">
+    <j-button size="sm" variant="outline" (clicked)="cerrarBanco()">Cancelar</j-button>
+    <j-button size="sm" [loading]="guardandoBanco()" [disabled]="!bancoFileB64()" (clicked)="guardarBanco()">
+      Guardar
+    </j-button>
+  </div>
+</j-dialog>
+
+<!-- ══════════════════ Modal: llaves de la organización ══════════════════ -->
+<j-dialog
+  [open]="formOrgOpen()"
+  size="lg"
+  title="Configurar llaves de la organización"
+  description="Sube la llave privada y la pública (+ frase si aplica). La vigencia y el fingerprint se analizan de la llave pública. Subir la misma llave no cuenta como rotación."
+  (closed)="cerrarOrg()"
+  (cancel)="cerrarOrg()"
+>
+  <div class="flex flex-col gap-3 p-1">
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Llave privada</span>
+      @for (k of [resetOrg()]; track k) {
+        <input type="file" class="text-sm" (change)="onOrgPrivFile($event)" />
+      }
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Llave pública</span>
+      @for (k of [resetOrg()]; track k) {
+        <input type="file" class="text-sm" (change)="onOrgPubFile($event)" />
+      }
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Frase (passphrase)</span>
+      <input type="password" autocomplete="new-password" class="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+             [value]="frase()" (input)="setFrase($event)" placeholder="Opcional si la llave no la usa" />
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Días de alerta de rotación</span>
+      <input type="number" min="1" class="w-32 rounded-md border border-neutral-300 px-3 py-2 text-sm"
+             [value]="alertaOrg()" (change)="setAlertaOrg($event)" />
+    </label>
+  </div>
+  <div class="mt-4 flex justify-end gap-2">
+    <j-button size="sm" variant="outline" (clicked)="cerrarOrg()">Cancelar</j-button>
+    <j-button size="sm" [loading]="guardandoOrg()" [disabled]="!orgPrivB64() || !orgPubB64()" (clicked)="guardarOrg()">
+      Guardar
+    </j-button>
+  </div>
+</j-dialog>
+
+<!-- ══════════════════ Modal: generar (rotar) llaves de la organización ══════════════════ -->
+<j-dialog
+  [open]="formGenerarOpen()"
+  size="lg"
+  title="Generar llaves de la organización"
+  description="Revisa y edita los datos. El par (pública + privada) y la frase se generan en el servidor (RSA-4096, Guía 1 BCP). Quedará como pendiente; luego actívala para rotar."
+  (closed)="cerrarGenerar()"
+  (cancel)="cerrarGenerar()"
+>
+  <!-- Identidad (solo lectura): la deriva el backend del token/BD, no es editable. -->
+  <div class="mb-3 rounded-md border border-neutral-200 bg-neutral-50 p-3">
+    <p class="mb-2 text-[11px] font-medium uppercase text-neutral-500">Identidad de la llave (no editable)</p>
+    <div class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))]">
+      <div>
+        <label class="mb-1 block text-xs font-medium text-neutral-500">Tenant</label>
+        <input class="w-full cursor-not-allowed rounded-md border border-neutral-200 bg-neutral-100 px-3 py-1.5 text-sm text-neutral-700" [value]="genTenant()" readonly />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="mb-1 block text-xs font-medium text-neutral-500">Razón social</label>
+        <input class="w-full cursor-not-allowed rounded-md border border-neutral-200 bg-neutral-100 px-3 py-1.5 text-sm text-neutral-700" [value]="genNombre()" readonly />
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-medium text-neutral-500">RUC</label>
+        <input class="w-full cursor-not-allowed rounded-md border border-neutral-200 bg-neutral-100 px-3 py-1.5 font-mono text-sm text-neutral-700" [value]="genRuc()" readonly />
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-3 p-1 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Años de vigencia</label>
+      <input type="number" min="1" max="10" class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="genExpiraAnios()" (input)="setGenExpiraAnios($event)" />
+    </div>
+    <div>
+      <label class="mb-1 block text-xs font-medium text-neutral-500">Días de alerta de rotación</label>
+      <input type="number" min="1" class="w-full rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="genAlertaDias()" (input)="setGenAlertaDias($event)" />
+    </div>
+  </div>
+  <p class="mt-2 px-1 text-[11px] text-neutral-400">La frase (passphrase) se genera de forma segura en el servidor (SHA-256, Guía 1 BCP) y no se edita.</p>
+
+  <div class="mt-4 flex justify-end gap-2">
+    <j-button size="sm" variant="outline" (clicked)="cerrarGenerar()">Cancelar</j-button>
+    <j-button size="sm" [loading]="generando()" (clicked)="generarOrg()">Generar</j-button>
+  </div>
+</j-dialog>
+
+<!-- ══════════════════ Modal: resultado de la generación ══════════════════ -->
+<j-dialog
+  [open]="resultado() !== null"
+  size="lg"
+  title="Llaves generadas (pendientes de activación)"
+  description="Se generó un nuevo par PGP y quedó como pendiente. Descarga la pública y envíala al banco; guarda la frase en un lugar seguro. Al confirmar el banco, activa la rotación."
+  (closed)="cerrarResultado()"
+  (cancel)="cerrarResultado()"
+>
+  @if (resultado(); as r) {
+    <div class="flex flex-col gap-3 p-1 text-sm">
+      <dl class="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-1.5 text-xs">
+        <dt class="text-neutral-400">Fingerprint</dt>
+        <dd class="break-all font-mono text-neutral-700">{{ r.fingerprint ?? '—' }}</dd>
+        <dt class="text-neutral-400">Vigencia</dt>
+        <dd class="text-neutral-700">{{ r.vigencia?.desde ?? '—' }} → {{ r.vigencia?.hasta ?? '—' }}</dd>
+      </dl>
+
+      <div class="rounded-md border border-amber-300 bg-amber-50 p-3">
+        <p class="text-[11px] font-medium uppercase text-amber-700">Frase (passphrase) — guárdala, no se vuelve a mostrar</p>
+        <p class="mt-1 break-all font-mono text-sm text-neutral-800">{{ r.frasePlano }}</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <j-button size="sm" variant="outline" (clicked)="copiarFrase()">Copiar frase</j-button>
+          <j-button size="sm" variant="outline" (clicked)="descargarFrase()">Descargar info (.txt)</j-button>
+        </div>
+        <p class="mt-1 text-[11px] text-neutral-400">El .txt incluye la frase + auditoría (sha256_seed, fingerprints, vigencia) para respaldo.</p>
+      </div>
+
+      <div class="rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-3">
+        <p class="text-[11px] font-medium uppercase text-neutral-500">Material de la llave</p>
+        <p class="mt-1 text-xs text-neutral-500">
+          La <b>pública</b> se envía al banco; la <b>privada</b> se guarda en un repositorio seguro. La activación rota la llave vigente.
+        </p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <j-button size="sm" variant="outline" (clicked)="descargarPublica()">Descargar pública (.asc)</j-button>
+          <j-button size="sm" variant="outline" (clicked)="descargarPrivada()">Descargar privada (.asc)</j-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 flex flex-wrap justify-end gap-2">
+      <j-button size="sm" variant="outline" [loading]="descartando()" (clicked)="descartarOrg()">Descartar</j-button>
+      <j-button size="sm" variant="outline" (clicked)="cerrarResultado()">Cerrar (activar luego)</j-button>
+      <j-button size="sm" [loading]="activando()" (clicked)="activarOrg()">Activar ahora (rotar)</j-button>
+    </div>
+  }
+</j-dialog>

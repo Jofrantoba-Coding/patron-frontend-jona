@@ -92,6 +92,7 @@ export class Shell {
       ...(canOrganizacion ? [{ key: 'organizacion', label: 'Organizacion', icon: 'ORG' } as SidebarNavItem] : []),
       ...gate('beneficiarios:read', { key: 'beneficiarios', label: 'Beneficiarios', icon: '☺' }),
       ...gate('certificados:read', { key: 'certificados', label: 'Certificados', icon: '⚿' }),
+      ...gate('llaves:read', { key: 'llaves-cifrado', label: 'Llaves de cifrado', icon: '🔑' }),
       ...gate('catalogos:read', { key: 'catalogos', label: 'Catálogos', icon: '≣' }),
       ...gate('catalogos:read', { key: 'correlativos', label: 'Correlativos', icon: '№' }),
       ...gate('auditoria:read', { key: 'auditoria', label: 'Auditoría', icon: '◷' }),

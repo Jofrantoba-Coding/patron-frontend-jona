@@ -68,6 +68,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/certificados/certificados').then((m) => m.CertificadosPage),
       },
       {
+        path: 'llaves-cifrado',
+        loadComponent: () => import('./pages/llaves-cifrado/llaves-cifrado').then((m) => m.LlavesCifradoPage),
+      },
+      {
         path: 'catalogos',
         loadComponent: () => import('./pages/catalogos/catalogos').then((m) => m.CatalogosPage),
       },
