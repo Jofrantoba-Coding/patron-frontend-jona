@@ -119,6 +119,61 @@ export class PlanillasViewComponent {
     return idx;
   });
 
+  /** Estado de la acción de validación (etapa VALIDADA). */
+  protected readonly validando = signal<boolean>(false);
+  protected readonly validarMensaje = signal<string | null>(null);
+  protected readonly validarError = signal<boolean>(false);
+  /** Hallazgos estructurados de la validación pre-envío (uno por regla UC que falló). */
+  protected readonly validarHallazgos = signal<{ code?: string; field?: string; message?: string }[]>([]);
+
+  /** Etapas con endpoint de acción implementado (clave = estado destino). */
+  protected readonly etapasAccionables: Record<string, boolean> = { VALIDADA: true };
+
+  /**
+   * La etapa `i` es la SIGUIENTE al estado actual: siempre habilitada para hacer clic. Al pulsarla
+   * dispara la transición desde el estado actual hacia esa etapa (si su endpoint aún no existe,
+   * la Page lo informa; ver {@code onEtapa}).
+   */
+  protected etapaAccionable(i: number): boolean {
+    return i === this.etapaActual() + 1 && !this.validando();
+  }
+
+  /** Hook de acción por etapa (nombre del estado destino), sobrescrito por la Page. */
+  protected onEtapa(_etapa: string): void {
+    return;
+  }
+
+  // ── Descarga y preview de archivos (claro/cifrado) ────────────────────
+  /** Clave del archivo que se está descargando ('urlClaro' | 'urlCifrado'), o null. */
+  protected readonly descargandoArchivo = signal<string | null>(null);
+  /** Estado del modal de vista previa. */
+  protected readonly previewAbierto = signal<boolean>(false);
+  protected readonly previewTitulo = signal<string>('');
+  protected readonly previewContenido = signal<string>('');
+  protected readonly previewCargando = signal<boolean>(false);
+  protected readonly previewError = signal<string | null>(null);
+
+  /** Nombre de descarga sugerido: el de la planilla (+ .gpg para el cifrado). */
+  protected nombreArchivoDescarga(detalle: PlanillaDetalleFull | null, key: string): string {
+    const nombre = this.pv(detalle?.planilla, 'nombreArchivo');
+    const base = nombre && nombre !== '-' ? nombre : 'archivo.txt';
+    return key === 'urlCifrado' ? `${base}.gpg` : base;
+  }
+
+  /** Hook de descarga (sobrescrito por la Page): key = 'urlClaro' | 'urlCifrado'. */
+  protected descargarArchivo(_key: string): void {
+    return;
+  }
+  /** Hook de vista previa (sobrescrito por la Page): key = 'urlClaro' | 'urlCifrado'. */
+  protected previewArchivo(_key: string): void {
+    return;
+  }
+  protected cerrarPreview(): void {
+    this.previewAbierto.set(false);
+    this.previewContenido.set('');
+    this.previewError.set(null);
+  }
+
   protected readonly columns: JDataTableColumn[] = [
     { key: 'nombreArchivo', header: 'Archivo', sortable: true },
     { key: 'secuencial', header: 'Sec.', sortable: true, align: 'center' },

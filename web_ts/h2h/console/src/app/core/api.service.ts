@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { forkJoin, map, type Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { API_BASE, H2H_BACKEND_BASE } from './config';
 import type {
   AuditEvent,
@@ -510,6 +511,39 @@ export class ApiService {
         respuestas: d?.respuestas ?? [],
       }))
     );
+  }
+
+  /**
+   * Etapa de VALIDACIÓN: valida la planilla en el backend, genera el TXT y lo materializa en
+   * files-s1. Devuelve `{ idPlanilla, urlClaro, estado }` de `data`.
+   */
+  planillaValidarBackend(idPlanilla: string): Observable<Record<string, unknown>> {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/validar',
+      this.buildEnvelope({ idPlanilla })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+  /** Etapa CIFRADO: descarga el claro, cifra/firma con las llaves de Vault y avanza a CIFRADA. */
+  planillaCifrarBackend(idPlanilla: string): Observable<Record<string, unknown>> {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/cifrar',
+      this.buildEnvelope({ idPlanilla })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Descarga un archivo invocando DIRECTAMENTE el endpoint de la API de files con el path que la
+   * planilla ya persiste (`urlClaro`/`urlCifrado` = `api/files/s1/download/completefile/<id>`), sin
+   * ningún wrapper ni endpoint intermedio propio.
+   *
+   * files-s1 es un resource server (valida JWT en `api/files/s1/download/**`), por lo que la llamada
+   * pasa por el gateway (única vía con auth: cookie BFF → TokenRelay → Bearer). El `credentialsInterceptor`
+   * añade `withCredentials` porque la URL empieza por el gateway. Devuelve el Blob (descarga o preview).
+   */
+  descargarArchivoFiles(pathFiles: string): Observable<Blob> {
+    const base = environment.gatewayBaseUrl.replace(/\/$/, '');
+    const path = pathFiles.replace(/^\//, '');
+    return this.http.get(`${base}/${path}`, { headers: this.headers(), responseType: 'blob' });
   }
   generarPlanilla(body: unknown) {
     return this.post<Planilla>('/v1/planillas/generar', body);
