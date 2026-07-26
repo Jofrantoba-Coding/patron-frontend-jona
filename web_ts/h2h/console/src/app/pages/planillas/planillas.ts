@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
 import { finalize, type Observable } from 'rxjs';
-import { JBadge, JDataTable, JDialog, JPagination, JSectionHeading, JTabs, JTabsContent, JTabsList, JTabsTrigger } from 'uijona-4ngular';
+import { JBadge, JDataTable, JDialog, JPagination, JProgress, JSectionHeading, JTabs, JTabsContent, JTabsList, JTabsTrigger } from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
 import type { PlanillaRow } from '../../core/models';
 import { PlanillasViewComponent } from './planillas-view.component';
@@ -10,7 +10,7 @@ import { PlanillasViewComponent } from './planillas-view.component';
   selector: 'app-planillas',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JTabs, JTabsList, JTabsTrigger, JTabsContent],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent],
   templateUrl: './planillas-view.component.html',
 })
 export class PlanillasPage extends PlanillasViewComponent implements OnInit {
@@ -59,7 +59,16 @@ export class PlanillasPage extends PlanillasViewComponent implements OnInit {
       case 'CIFRADA':
         this.ejecutarEtapa((id) => this.api.planillaCifrarBackend(id), 'Planilla cifrada y archivo generado.');
         break;
-      // ENVIADA / …: endpoints del flujo aún no implementados.
+      case 'ENVIADA':
+        this.ejecutarEtapa((id) => this.api.planillaEnviarBackend(id), 'Planilla enviada por SFTP a BCP.');
+        break;
+      case 'RESPUESTA_RECIBIDA':
+        this.ejecutarEtapa(
+          (id) => this.api.planillaRecibirRespuestasBackend(id),
+          'Respuestas del banco recogidas del buzón OUT y registradas.'
+        );
+        break;
+      // PROCESADA: endpoint del flujo aún no implementado.
       default:
         this.validarHallazgos.set([]);
         this.validarError.set(true);
@@ -140,6 +149,102 @@ export class PlanillasPage extends PlanillasViewComponent implements OnInit {
         },
         error: () => this.previewError.set('No se pudo obtener el archivo para la vista previa.'),
       });
+  }
+
+  /**
+   * Vista previa del archivo de respuesta del banco (`-VAL`/`-RES`/`-RES2`/`PAR`). El texto ya
+   * viene DESCIFRADO desde el backend (se abrió con la privada de la organización al registrarlo),
+   * así que aquí solo se muestra.
+   */
+  protected override previewRespuesta(respuesta: Record<string, unknown>): void {
+    const id = this.pv(respuesta, 'id');
+    if (id === '-') return;
+    const nombre = this.nombreRespuesta(respuesta);
+    this.previewTitulo.set(nombre);
+    this.previewContenido.set('');
+    this.previewError.set(null);
+    this.previewCargando.set(true);
+    this.previewAbierto.set(true);
+    this.api
+      .respuestaDetalleBackend(id)
+      .pipe(finalize(() => this.previewCargando.set(false)))
+      .subscribe({
+        next: (res) => {
+          const texto = this.contenidoDe(res);
+          if (texto) this.previewContenido.set(texto);
+          else this.previewError.set('La respuesta no tiene contenido almacenado.');
+        },
+        error: () => this.previewError.set('No se pudo obtener el contenido de la respuesta.'),
+      });
+  }
+
+  /** Descarga el contenido de la respuesta como archivo de texto, con su nombre original. */
+  protected override descargarRespuesta(respuesta: Record<string, unknown>): void {
+    const id = this.pv(respuesta, 'id');
+    if (id === '-' || this.descargandoRespuesta()) return;
+    const nombre = this.nombreRespuesta(respuesta);
+    this.descargandoRespuesta.set(id);
+    this.api
+      .respuestaDetalleBackend(id)
+      .pipe(finalize(() => this.descargandoRespuesta.set(null)))
+      .subscribe({
+        next: (res) => {
+          const texto = this.contenidoDe(res);
+          if (!texto) {
+            this.previewTitulo.set(nombre);
+            this.previewContenido.set('');
+            this.previewError.set('La respuesta no tiene contenido almacenado.');
+            this.previewAbierto.set(true);
+            return;
+          }
+          this.guardarBlob(new Blob([texto], { type: 'text/plain;charset=utf-8' }), nombre);
+        },
+        error: () => {
+          this.previewTitulo.set(nombre);
+          this.previewContenido.set('');
+          this.previewError.set('No se pudo descargar la respuesta.');
+          this.previewAbierto.set(true);
+        },
+      });
+  }
+
+  /**
+   * Descarga el archivo materializado de la respuesta desde files-s1: el `.gpg` tal como lo dejó
+   * el banco (`urlCifrado`) o el TXT descifrado (`urlClaro`). Va por el gateway, igual que los
+   * archivos de la planilla.
+   */
+  protected override descargarArchivoRespuesta(respuesta: Record<string, unknown>, key: string): void {
+    const url = this.urlRespuesta(respuesta, key);
+    const id = this.pv(respuesta, 'id');
+    if (!url || this.descargandoRespuesta()) return;
+    const base = this.nombreRespuesta(respuesta);
+    const nombre = key === 'urlCifrado' ? `${base}.gpg` : base;
+    this.descargandoRespuesta.set(`${id}:${key}`);
+    this.api
+      .descargarArchivoFiles(url)
+      .pipe(finalize(() => this.descargandoRespuesta.set(null)))
+      .subscribe({
+        next: (blob) => this.guardarBlob(blob, nombre),
+        error: () => {
+          this.previewTitulo.set(nombre);
+          this.previewContenido.set('');
+          this.previewError.set('No se pudo descargar el archivo de la respuesta.');
+          this.previewAbierto.set(true);
+        },
+      });
+  }
+
+  /** Contenido de la respuesta: TXT o, si el producto llega en XML, el XML. */
+  private contenidoDe(respuesta: Record<string, unknown>): string {
+    const txt = this.pv(respuesta, 'contenidoTxt');
+    if (txt !== '-') return txt;
+    const xml = this.pv(respuesta, 'contenidoXml');
+    return xml !== '-' ? xml : '';
+  }
+
+  private nombreRespuesta(respuesta: Record<string, unknown>): string {
+    const nombre = this.pv(respuesta, 'nombreArchivo');
+    return nombre !== '-' ? nombre : 'respuesta.txt';
   }
 
   /** Dispara la descarga del blob creando un object URL temporal. */

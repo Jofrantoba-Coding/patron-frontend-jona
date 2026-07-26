@@ -4,6 +4,7 @@ import {
   JDataTable,
   JDialog,
   JPagination,
+  JProgress,
   JSectionHeading,
   JTabs,
   JTabsContent,
@@ -79,7 +80,7 @@ const BADGE: Record<string, JBadgeVariant> = {
   selector: 'app-planillas-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JTabs, JTabsList, JTabsTrigger, JTabsContent],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent],
   templateUrl: './planillas-view.component.html',
 })
 export class PlanillasViewComponent {
@@ -172,6 +173,50 @@ export class PlanillasViewComponent {
     this.previewAbierto.set(false);
     this.previewContenido.set('');
     this.previewError.set(null);
+  }
+
+  // ── Respuestas del banco: preview y descarga ──────────────────────────
+  /**
+   * Id de la respuesta que se está descargando, o null. El contenido no viene en el listado
+   * del detalle (proyección base sin `contenidoTxt`), así que se pide por respuesta.
+   */
+  protected readonly descargandoRespuesta = signal<string | null>(null);
+
+  /** Hook de vista previa de una respuesta del banco (sobrescrito por la Page). */
+  protected previewRespuesta(_respuesta: Registro): void {
+    return;
+  }
+  /** Hook de descarga de una respuesta del banco (sobrescrito por la Page). */
+  protected descargarRespuesta(_respuesta: Registro): void {
+    return;
+  }
+
+  /**
+   * Hook de descarga del archivo materializado en files-s1: key = 'urlCifrado' (el `.gpg` original
+   * del banco) o 'urlClaro' (el TXT descifrado). Sobrescrito por la Page.
+   */
+  protected descargarArchivoRespuesta(_respuesta: Registro, _key: string): void {
+    return;
+  }
+
+  /** Path del archivo de la respuesta en files-s1 ('urlClaro' | 'urlCifrado'), o vacío. */
+  protected urlRespuesta(respuesta: Registro, key: string): string {
+    const v = this.pv(respuesta, key);
+    return v === '-' ? '' : v;
+  }
+
+  /** Mensaje resumido que dejó el banco (vive en el jsonb atributos de la respuesta). */
+  protected mensajeRespuesta(respuesta: Registro): string {
+    const a = this.raw(respuesta, 'atributos');
+    const obj = a && typeof a === 'object' ? (a as Registro) : {};
+    return this.pv(obj, 'mensaje');
+  }
+
+  /** ¿La respuesta es un rechazo del banco? (marca `rechazo` de la parametría del tipo). */
+  protected esRechazo(respuesta: Registro): boolean {
+    const a = this.raw(respuesta, 'atributos');
+    const obj = a && typeof a === 'object' ? (a as Registro) : {};
+    return this.pv(obj, 'rechazo') === 'true';
   }
 
   protected readonly columns: JDataTableColumn[] = [

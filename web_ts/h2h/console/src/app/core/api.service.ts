@@ -28,6 +28,8 @@ import type {
   OrganizacionConfiguracion,
   OrganizacionDetalle,
   ApiResponseEnvelope,
+  DtoConexionSftp,
+  DtoDirectoriosSftp,
   DtoLlavePublicaBanco,
   DtoLlavesOrganizacion,
   DtoGenerarLlavesOrganizacion,
@@ -530,6 +532,55 @@ export class ApiService {
       this.buildEnvelope({ idPlanilla })
     ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
   }
+  /** Etapa ENVÍO: descarga el cifrado y lo sube por SFTP al buzón IN/ de BCP; avanza a ENVIADA. */
+  planillaEnviarBackend(idPlanilla: string): Observable<Record<string, unknown>> {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/enviar',
+      this.buildEnvelope({ idPlanilla })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Explorador de buzones SFTP (seguimiento). Sin `ruta` devuelve el mapa de buzones configurados
+   * SIN abrir sesión SFTP; con `ruta` hace el `ls` remoto en un ciclo. El backend acota la ruta al
+   * árbol de la organización.
+   */
+  sftpExplorar(ruta?: string, banco?: string): Observable<Record<string, unknown>> {
+    const data: Record<string, unknown> = {};
+    if (ruta) data['ruta'] = ruta;
+    if (banco) data['banco'] = banco;
+    // postBackend (no postMantenimientos): el controller vive bajo api/mantenimientos/h2h/v1/…,
+    // igual que sftpListar. mantenimientosBase quita el /h2h/v1 y la ruta no existiría.
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/organizacion/sftp/explorar',
+      this.buildEnvelope(data)
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Etapa RESPUESTA_RECIBIDA: recoge del buzón OUT las respuestas de la planilla (`-VAL`, `-RES`,
+   * `-RES2`, `-PAR`) en UN ciclo SFTP, las descifra, las materializa en files-s1, las registra y
+   * avanza el estado. Idempotente: reejecutarla no duplica respuestas.
+   */
+  planillaRecibirRespuestasBackend(idPlanilla: string): Observable<Record<string, unknown>> {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/recibir-respuestas',
+      this.buildEnvelope({ idPlanilla })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Detalle de una respuesta del banco. El listado que viene en el detalle de la planilla usa la
+   * proyección BASE (sin `contenidoTxt` ni `atributos`), así que el contenido del `-VAL`/`-RES` se
+   * pide aquí, bajo demanda, cuando el operador abre la vista previa o descarga.
+   *
+   * Contrato legado (sin envelope): el controller de respuestas devuelve el ObjectNode directo.
+   */
+  respuestaDetalleBackend(idRespuesta: string): Observable<Record<string, unknown>> {
+    return this.postBackend<Record<string, unknown>>('/respuestas/detalle', { id: idRespuesta }).pipe(
+      map((res) => res ?? {})
+    );
+  }
 
   /**
    * Descarga un archivo invocando DIRECTAMENTE el endpoint de la API de files con el path que la
@@ -771,6 +822,38 @@ export class ApiService {
     return this.postBackend<ApiResponseEnvelope<unknown>>(
       '/organizacion/encriptacion/organizacion/revertir',
       this.buildEnvelope({ banco, etiqueta })
+    ).pipe(map((r) => r.data));
+  }
+
+  // -- Configuración SFTP (envelope ALMIL) -------------------------------
+  /** Lista las configuraciones de la organización y filtra las de SFTP (ORG#SFTP#…). */
+  sftpListar(): Observable<OrganizacionConfiguracion[]> {
+    const idOrganizacion = this.session.tenant()?.org_u_id ?? '';
+    return this.postBackend<ApiResponseEnvelope<OrganizacionDetalleBackend['configuraciones']>>(
+      '/organizacion/sftp/listar',
+      this.buildEnvelope({ id: idOrganizacion })
+    ).pipe(
+      map((res) =>
+        (res?.data ?? [])
+          .map((r) => normalizeOrganizacionConfiguracion(r as Record<string, unknown>))
+          .filter((c) => (c.codigo ?? '').toUpperCase().includes('SFTP'))
+      )
+    );
+  }
+
+  /** Configura/actualiza los datos de conexión SFTP del banco (escribe host/puerto/usuario/password en Vault). */
+  guardarSftpConexion(data: DtoConexionSftp): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/sftp/conexion',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
+  /** Configura/actualiza los directorios (buzones IN/OUT) SFTP de una familia de producto. */
+  guardarSftpDirectorios(data: DtoDirectoriosSftp): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/sftp/directorios',
+      this.buildEnvelope(data)
     ).pipe(map((r) => r.data));
   }
 

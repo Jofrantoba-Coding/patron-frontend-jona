@@ -104,6 +104,11 @@
             }
           }
         </div>
+        @if (validando()) {
+          <!-- Indeterminada: la etapa (SFTP/Vault/banco) no reporta avance, solo actividad. -->
+          <j-progress class="mt-2 block" [value]="100" [animated]="true" size="sm" [showLabel]="false" label="Ejecutando etapa…" />
+          <p class="mt-1 text-xs text-neutral-500">Ejecutando la etapa… puede tardar unos segundos.</p>
+        }
         @if (validarMensaje(); as msg) {
           <p class="mt-2 text-xs" [class.text-red-600]="validarError()" [class.text-green-700]="!validarError()">{{ msg }}</p>
         }
@@ -167,6 +172,9 @@
                         <button type="button" class="text-sm font-medium text-primary-700 hover:underline" (click)="previewArchivo('urlClaro')">Vista previa</button>
                         <button type="button" class="text-sm font-medium text-primary-700 hover:underline disabled:opacity-50" [disabled]="descargandoArchivo() === 'urlClaro'" (click)="descargarArchivo('urlClaro')">{{ descargandoArchivo() === 'urlClaro' ? 'Descargando…' : 'Descargar' }}</button>
                       </div>
+                      @if (descargandoArchivo() === 'urlClaro') {
+                        <j-progress class="mt-1 block" [value]="100" [animated]="true" size="sm" [showLabel]="false" label="Descargando…" />
+                      }
                     } @else {
                       <p class="mt-1 text-sm text-neutral-400">—</p>
                     }
@@ -178,6 +186,9 @@
                         <button type="button" class="text-sm font-medium text-primary-700 hover:underline" (click)="previewArchivo('urlCifrado')">Vista previa</button>
                         <button type="button" class="text-sm font-medium text-primary-700 hover:underline disabled:opacity-50" [disabled]="descargandoArchivo() === 'urlCifrado'" (click)="descargarArchivo('urlCifrado')">{{ descargandoArchivo() === 'urlCifrado' ? 'Descargando…' : 'Descargar' }}</button>
                       </div>
+                      @if (descargandoArchivo() === 'urlCifrado') {
+                        <j-progress class="mt-1 block" [value]="100" [animated]="true" size="sm" [showLabel]="false" label="Descargando…" />
+                      }
                     } @else {
                       <p class="mt-1 text-sm text-neutral-400">—</p>
                     }
@@ -270,21 +281,47 @@
                       <th class="px-3 py-2 text-right font-medium">Total</th>
                       <th class="px-3 py-2 text-right font-medium">OK</th>
                       <th class="px-3 py-2 text-right font-medium">Error</th>
+                      <th class="px-3 py-2 font-medium">Acciones</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-neutral-100">
                     @for (res of respuestas(d); track pv(res, 'id') + '-' + $index) {
                       <tr class="hover:bg-neutral-50">
-                        <td class="px-3 py-2"><j-badge [variant]="badge(pv(res, 'tipoRespuestaCodigo'))">{{ pv(res, 'tipoRespuestaCodigo') }}</j-badge></td>
+                        <td class="px-3 py-2">
+                          <j-badge [variant]="esRechazo(res) ? 'destructive' : badge(pv(res, 'tipoRespuestaCodigo'))">{{ pv(res, 'tipoRespuestaCodigo') }}</j-badge>
+                        </td>
                         <td class="px-3 py-2 font-mono text-xs text-neutral-800">{{ pv(res, 'nombreArchivo') }}</td>
                         <td class="px-3 py-2 text-neutral-700">{{ pv(res, 'fechaRecepcion') }}</td>
                         <td class="px-3 py-2 text-right tabular-nums text-neutral-900">{{ pv(res, 'totalOperaciones') }}</td>
                         <td class="px-3 py-2 text-right tabular-nums text-emerald-700">{{ pv(res, 'operacionesOk') }}</td>
                         <td class="px-3 py-2 text-right tabular-nums text-red-700">{{ pv(res, 'operacionesError') }}</td>
+                        <td class="px-3 py-2">
+                          <div class="flex flex-wrap gap-3">
+                            <button type="button" class="text-sm font-medium text-primary-700 hover:underline" (click)="previewRespuesta(res)">Vista previa</button>
+                            @if (urlRespuesta(res, 'urlClaro')) {
+                              <button type="button" class="text-sm font-medium text-primary-700 hover:underline disabled:opacity-50" [disabled]="descargandoRespuesta() === pv(res, 'id') + ':urlClaro'" (click)="descargarArchivoRespuesta(res, 'urlClaro')">{{ descargandoRespuesta() === pv(res, 'id') + ':urlClaro' ? 'Descargando…' : 'TXT' }}</button>
+                            } @else {
+                              <button type="button" class="text-sm font-medium text-primary-700 hover:underline disabled:opacity-50" [disabled]="descargandoRespuesta() === pv(res, 'id')" (click)="descargarRespuesta(res)">{{ descargandoRespuesta() === pv(res, 'id') ? 'Descargando…' : 'TXT' }}</button>
+                            }
+                            @if (urlRespuesta(res, 'urlCifrado')) {
+                              <button type="button" class="text-sm font-medium text-primary-700 hover:underline disabled:opacity-50" [disabled]="descargandoRespuesta() === pv(res, 'id') + ':urlCifrado'" (click)="descargarArchivoRespuesta(res, 'urlCifrado')" title="Archivo original firmado/cifrado por el banco">{{ descargandoRespuesta() === pv(res, 'id') + ':urlCifrado' ? 'Descargando…' : '.gpg original' }}</button>
+                            }
+                          </div>
+                          @if (descargandoRespuesta()?.startsWith(pv(res, 'id'))) {
+                            <j-progress class="mt-1 block" [value]="100" [animated]="true" size="sm" [showLabel]="false" label="Descargando…" />
+                          }
+                        </td>
                       </tr>
+                      @if (mensajeRespuesta(res) !== '-') {
+                        <tr class="bg-neutral-50/60">
+                          <td class="px-3 pb-2 text-xs" [class.text-red-700]="esRechazo(res)" [class.text-neutral-600]="!esRechazo(res)" colspan="7">
+                            {{ mensajeRespuesta(res) }}
+                          </td>
+                        </tr>
+                      }
                     } @empty {
                       <tr>
-                        <td class="px-3 py-6 text-center text-sm text-neutral-400" colspan="6">Aún no se han recibido respuestas del banco.</td>
+                        <td class="px-3 py-6 text-center text-sm text-neutral-400" colspan="7">Aún no se han recibido respuestas del banco.</td>
                       </tr>
                     }
                   </tbody>
@@ -308,7 +345,10 @@
   (cancel)="cerrarPreview()"
 >
   @if (previewCargando()) {
-    <div class="flex min-h-48 items-center justify-center text-sm text-neutral-500">Cargando vista previa…</div>
+    <div class="flex min-h-48 flex-col items-center justify-center gap-3 px-6 text-sm text-neutral-500">
+      <j-progress class="w-full" [value]="100" [animated]="true" size="sm" [showLabel]="false" label="Cargando vista previa…" />
+      <span>Cargando vista previa…</span>
+    </div>
   } @else if (previewError()) {
     <p class="p-4 text-sm text-destructive">{{ previewError() }}</p>
   } @else {

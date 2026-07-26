@@ -72,6 +72,14 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/llaves-cifrado/llaves-cifrado').then((m) => m.LlavesCifradoPage),
       },
       {
+        path: 'sftp-seguimiento',
+        loadComponent: () => import('./pages/sftp-seguimiento/sftp-seguimiento').then((m) => m.SftpSeguimientoPage),
+      },
+      {
+        path: 'sftp-config',
+        loadComponent: () => import('./pages/sftp-config/sftp-config').then((m) => m.SftpConfigPage),
+      },
+      {
         path: 'catalogos',
         loadComponent: () => import('./pages/catalogos/catalogos').then((m) => m.CatalogosPage),
       },

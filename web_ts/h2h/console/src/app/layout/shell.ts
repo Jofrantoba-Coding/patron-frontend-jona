@@ -93,6 +93,8 @@ export class Shell {
       ...gate('beneficiarios:read', { key: 'beneficiarios', label: 'Beneficiarios', icon: '☺' }),
       ...gate('certificados:read', { key: 'certificados', label: 'Certificados', icon: '⚿' }),
       ...gate('llaves:read', { key: 'llaves-cifrado', label: 'Llaves de cifrado', icon: '🔑' }),
+      ...gate('llaves:read', { key: 'sftp-config', label: 'Configuración SFTP', icon: '📡' }),
+      ...gate('planillas:read', { key: 'sftp-seguimiento', label: 'Seguimiento SFTP', icon: '🗂' }),
       ...gate('catalogos:read', { key: 'catalogos', label: 'Catálogos', icon: '≣' }),
       ...gate('catalogos:read', { key: 'correlativos', label: 'Correlativos', icon: '№' }),
       ...gate('auditoria:read', { key: 'auditoria', label: 'Auditoría', icon: '◷' }),

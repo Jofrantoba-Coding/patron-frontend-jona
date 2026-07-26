@@ -275,6 +275,25 @@ export interface DtoLlavesOrganizacion {
   alertaDias?: number;
 }
 
+/** Configuración de los datos de conexión SFTP de un banco (todos sensibles → Vault). */
+export interface DtoConexionSftp {
+  banco: string;
+  host: string;
+  puerto: string;
+  usuario: string;
+  password: string;
+  reintentos?: number;
+  timeoutSegundos?: number;
+}
+
+/** Configuración de los directorios (buzones IN/OUT) SFTP de una familia de producto. */
+export interface DtoDirectoriosSftp {
+  banco: string;
+  familia: string;
+  directorioIn: string;
+  directorioOut: string;
+}
+
 /** Payload para GENERAR automáticamente el par de llaves de la organización (Guía 1 BCP). */
 export interface DtoGenerarLlavesOrganizacion {
   banco: string;

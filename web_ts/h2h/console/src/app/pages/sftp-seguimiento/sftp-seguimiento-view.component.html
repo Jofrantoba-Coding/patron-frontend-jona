@@ -1,0 +1,284 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
+  <j-section-heading
+    eyebrow="Canal H2H"
+    heading="Seguimiento SFTP"
+    description="Buzones del banco por familia de producto: a la izquierda lo depositado en IN, a la derecha las respuestas recibidas en OUT."
+  />
+
+  <!-- Barra de acciones -->
+  <div class="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+    @if (modo() === 'DIRECTORIO') {
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+        [disabled]="cargando()"
+        (click)="onVolverPanorama()"
+      >← Todos los buzones</button>
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+        [disabled]="!padre() || cargando()"
+        (click)="onSubir()"
+      >↑ Subir</button>
+    }
+    <button
+      type="button"
+      class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+      [disabled]="cargando()"
+      (click)="refrescar()"
+      title="Volver a leer en el banco (abre una sesión SFTP)"
+    >↻ Refrescar</button>
+
+    <!-- El SFTP es POR BANCO: cada banco tiene su credencial y su árbol de buzones. -->
+    @if (bancos().length > 1) {
+      <label class="flex items-center gap-1 text-xs text-neutral-600">
+        Banco
+        <select class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs"
+          [value]="banco()" [disabled]="cargando()" (change)="onBanco($event)">
+          @for (b of bancos(); track b) {
+            <option [value]="b">{{ b }}</option>
+          }
+        </select>
+      </label>
+    } @else {
+      <j-badge variant="secondary">{{ banco() }}</j-badge>
+    }
+
+    @if (servidor()) {
+      <span class="truncate font-mono text-[11px] text-neutral-500" [title]="servidor()">{{ servidor() }}</span>
+    }
+
+    <div class="ml-auto flex items-center gap-2">
+      <input
+        type="search"
+        class="w-64 rounded-md border border-neutral-300 px-2 py-1 text-sm"
+        placeholder="Buscar archivo en todos los buzones…"
+        [value]="busqueda()"
+        (input)="onBuscar($event)"
+      />
+      @if (busqueda()) {
+        <button type="button" class="text-xs text-neutral-500 hover:text-neutral-800" (click)="onLimpiarBusqueda()">Limpiar</button>
+      }
+      @if (ultimaLectura(); as hora) {
+        <span class="text-xs text-neutral-400">Leído {{ hora }}</span>
+      }
+    </div>
+  </div>
+
+  @if (cargando()) {
+    <div>
+      <j-progress class="block" [value]="100" [animated]="true" size="sm" [showLabel]="false" label="Leyendo el banco…" />
+      <p class="mt-1 text-xs text-neutral-500">Leyendo los buzones del banco…</p>
+    </div>
+  }
+
+  @if (error(); as msg) {
+    <p class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ msg }}</p>
+  }
+
+  <!-- ══ PANORAMA: un bloque por buzón ══ -->
+  @if (modo() === 'PANORAMA') {
+    <p class="text-xs text-neutral-500">
+      {{ totalBuzones() }} buzón(es) · {{ totalArchivosPanorama() }} archivo(s)
+      @if (busqueda()) { que coinciden con «{{ busqueda() }}» }
+      @if (buzonesConError()) { · <span class="text-red-600">{{ buzonesConError() }} con error de lectura</span> }
+    </p>
+
+    <div class="grid gap-4">
+      @for (f of familias(); track f.familia) {
+        <section class="rounded-xl border border-neutral-200 bg-white">
+          <header class="flex flex-wrap items-center gap-2 border-b border-neutral-200 bg-neutral-50/60 px-3 py-2">
+            <span class="text-sm font-semibold text-neutral-800">{{ f.familia }}</span>
+            <span class="text-xs text-neutral-500">IN {{ conteo(f, 'IN') }} · OUT {{ conteo(f, 'OUT') }}</span>
+          </header>
+
+          <!-- IN a la izquierda (lo que enviamos) · OUT a la derecha (lo que respondió el banco) -->
+          <div class="grid lg:grid-cols-2">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2 border-b border-neutral-100 px-3 py-1.5">
+                  <j-badge [variant]="variantBuzon(lado(f, 'IN'))">IN</j-badge>
+                  <span class="text-xs font-medium text-neutral-600">Enviado al banco</span>
+                  @if (configurado(f, 'IN')) {
+                    <button
+                      type="button"
+                      class="ml-auto truncate font-mono text-[11px] text-neutral-500 hover:text-primary-700 hover:underline"
+                      [disabled]="cargando()"
+                      (click)="abrirRuta(lado(f, 'IN').ruta)"
+                      [title]="'Abrir ' + lado(f, 'IN').ruta"
+                    >{{ lado(f, 'IN').ruta }}</button>
+                  }
+                </div>
+
+                @if (!configurado(f, 'IN')) {
+                  <p class="px-3 py-4 text-xs text-neutral-400">Buzón no configurado.</p>
+                } @else if (lado(f, 'IN').error) {
+                  <p class="px-3 py-4 text-xs text-red-600">No se pudo leer: {{ lado(f, 'IN').error }}</p>
+                } @else if (!conteo(f, 'IN')) {
+                  <p class="px-3 py-4 text-xs text-neutral-400">
+                    @if (busqueda()) { Sin coincidencias. } @else { Vacío. }
+                  </p>
+                } @else {
+                  <ul class="divide-y divide-neutral-100">
+                    @for (e of lado(f, 'IN').entradas; track e.nombre) {
+                      <li class="flex items-center gap-2 px-3 py-1.5 hover:bg-neutral-50">
+                        <button
+                          type="button"
+                          class="flex min-w-0 flex-1 items-center gap-2 text-left hover:underline"
+                          [class.font-medium]="e.tipo === 'DIRECTORIO'"
+                          [class.text-primary-700]="e.tipo === 'DIRECTORIO'"
+                          [disabled]="cargando()"
+                          (click)="onEntrada(e, lado(f, 'IN').ruta)"
+                        >
+                          <span aria-hidden="true">{{ e.tipo === 'DIRECTORIO' ? '📁' : '🗎' }}</span>
+                          <span class="truncate font-mono text-xs" [title]="e.nombre">{{ e.nombre }}</span>
+                        </button>
+                        @if (badgeArchivo(e.nombre); as sufijo) {
+                          <j-badge [variant]="variantBadge(sufijo)">{{ sufijo }}</j-badge>
+                        }
+                        <span class="shrink-0 tabular-nums text-xs text-neutral-600">{{ tamano(e) }}</span>
+                        <span class="shrink-0 text-xs text-neutral-400">{{ e.fechaModificacion }}</span>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+              <div class="min-w-0 border-t border-neutral-200 lg:border-l lg:border-t-0">
+                <div class="flex flex-wrap items-center gap-2 border-b border-neutral-100 px-3 py-1.5">
+                  <j-badge [variant]="variantBuzon(lado(f, 'OUT'))">OUT</j-badge>
+                  <span class="text-xs font-medium text-neutral-600">Respuestas del banco</span>
+                  @if (configurado(f, 'OUT')) {
+                    <button
+                      type="button"
+                      class="ml-auto truncate font-mono text-[11px] text-neutral-500 hover:text-primary-700 hover:underline"
+                      [disabled]="cargando()"
+                      (click)="abrirRuta(lado(f, 'OUT').ruta)"
+                      [title]="'Abrir ' + lado(f, 'OUT').ruta"
+                    >{{ lado(f, 'OUT').ruta }}</button>
+                  }
+                </div>
+
+                @if (!configurado(f, 'OUT')) {
+                  <p class="px-3 py-4 text-xs text-neutral-400">Buzón no configurado.</p>
+                } @else if (lado(f, 'OUT').error) {
+                  <p class="px-3 py-4 text-xs text-red-600">No se pudo leer: {{ lado(f, 'OUT').error }}</p>
+                } @else if (!conteo(f, 'OUT')) {
+                  <p class="px-3 py-4 text-xs text-neutral-400">
+                    @if (busqueda()) { Sin coincidencias. } @else { Vacío. }
+                  </p>
+                } @else {
+                  <ul class="divide-y divide-neutral-100">
+                    @for (e of lado(f, 'OUT').entradas; track e.nombre) {
+                      <li class="flex items-center gap-2 px-3 py-1.5 hover:bg-neutral-50">
+                        <button
+                          type="button"
+                          class="flex min-w-0 flex-1 items-center gap-2 text-left hover:underline"
+                          [class.font-medium]="e.tipo === 'DIRECTORIO'"
+                          [class.text-primary-700]="e.tipo === 'DIRECTORIO'"
+                          [disabled]="cargando()"
+                          (click)="onEntrada(e, lado(f, 'OUT').ruta)"
+                        >
+                          <span aria-hidden="true">{{ e.tipo === 'DIRECTORIO' ? '📁' : '🗎' }}</span>
+                          <span class="truncate font-mono text-xs" [title]="e.nombre">{{ e.nombre }}</span>
+                        </button>
+                        @if (badgeArchivo(e.nombre); as sufijo) {
+                          <j-badge [variant]="variantBadge(sufijo)">{{ sufijo }}</j-badge>
+                        }
+                        <span class="shrink-0 tabular-nums text-xs text-neutral-600">{{ tamano(e) }}</span>
+                        <span class="shrink-0 text-xs text-neutral-400">{{ e.fechaModificacion }}</span>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+          </div>
+        </section>
+      } @empty {
+        <p class="rounded-xl border border-neutral-200 bg-white px-3 py-8 text-center text-sm text-neutral-400">
+          @if (busqueda()) {
+            Ningún buzón tiene archivos que coincidan con «{{ busqueda() }}».
+          } @else if (cargando()) {
+            Leyendo…
+          } @else {
+            La organización no tiene buzones SFTP configurados.
+          }
+        </p>
+      }
+    </div>
+  }
+
+  <!-- ══ DIRECTORIO: contenido de una ruta ══ -->
+  @if (modo() === 'DIRECTORIO') {
+    <section class="rounded-xl border border-neutral-200 bg-white">
+      <div class="flex flex-wrap items-center gap-1 border-b border-neutral-200 px-3 py-2 font-mono text-xs text-neutral-600">
+        @for (miga of migas(); track miga.ruta; let last = $last) {
+          <button type="button" class="rounded px-1 hover:bg-neutral-100 hover:text-primary-700 disabled:opacity-60"
+            [disabled]="cargando() || last" (click)="abrirRuta(miga.ruta)">{{ miga.label }}</button>
+          @if (!last) { <span class="text-neutral-300">/</span> }
+        }
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[620px] text-left text-sm">
+          <thead class="border-b border-neutral-200 bg-neutral-50 text-xs uppercase text-neutral-500">
+            <tr>
+              <th class="px-3 py-2 font-medium">
+                <button type="button" class="hover:text-neutral-800" (click)="onOrdenar('nombre')">Nombre</button>
+              </th>
+              <th class="px-3 py-2 font-medium">Tipo</th>
+              <th class="px-3 py-2 text-right font-medium">
+                <button type="button" class="hover:text-neutral-800" (click)="onOrdenar('tamano')">Tamaño</button>
+              </th>
+              <th class="px-3 py-2 font-medium">
+                <button type="button" class="hover:text-neutral-800" (click)="onOrdenar('fecha')">Modificado</button>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-neutral-100">
+            @for (e of entradasVisibles(); track e.nombre) {
+              <tr class="hover:bg-neutral-50">
+                <td class="px-3 py-2">
+                  <button
+                    type="button"
+                    class="flex items-center gap-2 text-left hover:underline"
+                    [class.font-medium]="e.tipo === 'DIRECTORIO'"
+                    [class.text-primary-700]="e.tipo === 'DIRECTORIO'"
+                    [disabled]="cargando()"
+                    (click)="onEntrada(e, ruta() || '')"
+                  >
+                    <span aria-hidden="true">{{ e.tipo === 'DIRECTORIO' ? '📁' : '🗎' }}</span>
+                    <span class="font-mono text-xs">{{ e.nombre }}</span>
+                  </button>
+                </td>
+                <td class="px-3 py-2">
+                  @if (badgeArchivo(e.nombre); as sufijo) {
+                    <j-badge [variant]="variantBadge(sufijo)">{{ sufijo }}</j-badge>
+                  } @else {
+                    <span class="text-xs text-neutral-400">{{ e.tipo === 'DIRECTORIO' ? 'Carpeta' : 'Archivo' }}</span>
+                  }
+                </td>
+                <td class="px-3 py-2 text-right tabular-nums text-neutral-700">{{ tamano(e) }}</td>
+                <td class="px-3 py-2 text-neutral-600">{{ e.fechaModificacion }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td class="px-3 py-8 text-center text-sm text-neutral-400" colspan="4">
+                  @if (busqueda()) { Sin coincidencias en este directorio. } @else { El directorio está vacío. }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="border-t border-neutral-200 px-3 py-2 text-xs text-neutral-500">
+        {{ totalDirectorios() }} carpeta(s) · {{ totalArchivos() }} archivo(s) · {{ bytesLegibles(bytesTotales()) }}
+        @if (busqueda()) { <span class="text-neutral-400">(filtrado)</span> }
+      </div>
+    </section>
+  }
+
+  <p class="text-xs text-neutral-500">
+    El panorama lee los buzones en una sola sesión SFTP (el banco solo admite una a la vez) y el
+    buscador filtra sobre lo ya leído, sin volver al servidor.
+  </p>
+</div>
