@@ -68,7 +68,12 @@ export class PlanillasPage extends PlanillasViewComponent implements OnInit {
           'Respuestas del banco recogidas del buzón OUT y registradas.'
         );
         break;
-      // PROCESADA: endpoint del flujo aún no implementado.
+      case 'PROCESADA':
+        // Fase 8. El estado destino NO lo decide esta pantalla: el backend concilia el veredicto
+        // del banco y cierra en PROCESADA, PROCESADA_PARCIAL o RECHAZADA — o no cierra si quedan
+        // operaciones en estado no final. Por eso el mensaje se arma con la respuesta.
+        this.ejecutarEtapa((id) => this.api.planillaDecidirBackend(id), (data) => this.mensajeDecision(data));
+        break;
       default:
         this.validarHallazgos.set([]);
         this.validarError.set(true);
@@ -77,10 +82,65 @@ export class PlanillasPage extends PlanillasViewComponent implements OnInit {
     }
   }
 
+  /**
+   * Anula la planilla abierta en el detalle: no se enviará y sus operaciones vuelven a quedar
+   * disponibles para programarse en un envío nuevo.
+   *
+   * <p>Se apoya en el mismo {@code ejecutarEtapa} que las etapas del pipeline —recarga el detalle,
+   * refresca el listado y refleja el mensaje— porque el efecto en pantalla es idéntico. Lo único
+   * propio es cerrar el diálogo antes de lanzar, para que el operador vea el progreso sobre el
+   * stepper y no sobre un modal que quedaría bloqueado.</p>
+   */
+  protected override confirmarAnular(): void {
+    const motivo = this.anularMotivo().trim();
+    if (!motivo || this.validando()) return;
+    this.cerrarAnular();
+    this.ejecutarEtapa(
+      (id) => this.api.planillaAnularBackend(id, motivo),
+      (data) => this.mensajeAnulacion(data)
+    );
+  }
+
+  /**
+   * Redacta el resultado de la anulación. Lo que el operador necesita confirmar no es que el
+   * estado cambió —eso lo ve en el stepper— sino cuántas operaciones quedaron libres: es la
+   * razón por la que anula.
+   */
+  private mensajeAnulacion(data: Record<string, unknown>): string {
+    const backend = typeof data['mensaje'] === 'string' ? (data['mensaje'] as string) : '';
+    if (data['yaEstaba'] === true) {
+      return backend || 'La planilla ya estaba anulada.';
+    }
+    const liberadas = Number(data['operacionesLiberadas'] ?? 0);
+    return backend || `Planilla anulada. ${liberadas} operación(es) liberada(s) para reprogramar.`;
+  }
+
+  /**
+   * Redacta el resultado de la fase 8 a partir de lo que devolvió el backend. Distingue los tres
+   * desenlaces que el operador necesita diferenciar: cerrada con éxito, cerrada con rechazos
+   * (operaciones liberadas para reprogramar) y NO cerrada por quedar estados no finales.
+   */
+  private mensajeDecision(data: Record<string, unknown>): string {
+    const backend = typeof data['mensaje'] === 'string' ? (data['mensaje'] as string) : '';
+    if (data['yaEstaba'] === true) {
+      return backend || 'La planilla ya había sido decidida.';
+    }
+    const num = (k: string): number => Number(data[k] ?? 0);
+    // cerrada === false ⇒ la conciliación se guardó pero faltan veredictos finales del banco.
+    if (data['decision'] === 'CONCILIACION' && data['cerrada'] === false) {
+      return backend || `Conciliación guardada; la planilla sigue abierta: ${num('pendientes')} operación(es) sin estado final.`;
+    }
+    const partes: string[] = [];
+    if (num('operacionesConfirmadas') > 0) partes.push(`${num('operacionesConfirmadas')} confirmada(s)`);
+    if (num('operacionesLiberadas') > 0) partes.push(`${num('operacionesLiberadas')} liberada(s) para reprogramar`);
+    const detalle = partes.length ? ` (${partes.join(', ')})` : '';
+    return `${backend || 'Decisión aplicada.'}${detalle}`;
+  }
+
   /** Ejecuta una etapa del flujo: invoca su endpoint, recarga el detalle y refleja el resultado. */
   private ejecutarEtapa(
     accion: (idPlanilla: string) => Observable<Record<string, unknown>>,
-    mensajeOk: string
+    mensajeOk: string | ((data: Record<string, unknown>) => string)
   ): void {
     const planilla = this.detalleSeleccionado();
     if (!planilla || this.validando()) return;
@@ -91,11 +151,11 @@ export class PlanillasPage extends PlanillasViewComponent implements OnInit {
     accion(planilla.id)
       .pipe(finalize(() => this.validando.set(false)))
       .subscribe({
-        next: () => {
+        next: (data) => {
           this.openDetalle(planilla); // recarga el detalle (nuevo estado + urls)
           this.load();
           this.validarError.set(false);
-          this.validarMensaje.set(mensajeOk);
+          this.validarMensaje.set(typeof mensajeOk === 'function' ? mensajeOk(data ?? {}) : mensajeOk);
         },
         error: (err) => {
           this.validarError.set(true);

@@ -16,6 +16,33 @@ export interface EntradaSftp {
  * resueltas; si el `ls` de ese buzón falló, viene `error` y la lista vacía (un buzón inexistente
  * no tumba el panorama completo).
  */
+/**
+ * Depósito propio: un PUT que hicimos al buzón IN, leído de la bitácora `ta_sfs_sftp_sesion`.
+ *
+ * Existe porque **listar el IN del banco no sirve como evidencia de envío**: Sterling recoge el
+ * archivo en segundos, así que un IN vacío no distingue «no se envió» de «ya lo recogieron». La
+ * bitácora sobrevive al recojo e incluye los PUT con `resultado = ERROR`, que también pudieron
+ * haber entregado el archivo.
+ */
+export interface DepositoSftp {
+  nombre: string;
+  ruta: string;
+  /** OK | ERROR — resultado del PUT, no del ciclo completo. */
+  resultado: string;
+  bytes: number;
+  /** Instante del PUT en ISO con offset, tal como lo registró la bitácora. */
+  instante: string;
+  familia: string;
+  /** Qué disparó el ciclo (p. ej. ENVIO_PLANILLA). */
+  disparador: string;
+  usuario: string | null;
+  resultadoSesion: string;
+  /** Planilla que corresponde al archivo, si se pudo emparejar por nombre. */
+  idPlanilla: string | null;
+  /** Estado actual de esa planilla: dice en qué acabó el envío. */
+  estadoPlanilla: string | null;
+}
+
 export interface BuzonSftp {
   familia: string;
   /** IN | OUT */
@@ -24,6 +51,9 @@ export interface BuzonSftp {
   total: number;
   entradas: EntradaSftp[];
   error?: string;
+  /** Solo en buzones IN: lo que depositamos en la ventana consultada. */
+  depositos?: DepositoSftp[];
+  totalDepositos?: number;
 }
 
 /**
@@ -45,6 +75,11 @@ export interface ExploracionSftp {
   padre?: string | null;
   entradas: EntradaSftp[];
   total: number;
+  /** Todos los depósitos de la ventana, sin separar por familia. */
+  depositos?: DepositoSftp[];
+  totalDepositos?: number;
+  /** Ventana efectivamente aplicada por el backend (eco de fecha + horas). */
+  ventana?: { desde: string; hasta: string };
 }
 
 /**
@@ -60,4 +95,14 @@ export interface SftpSeguimientoPageContract {
   abrirRuta(ruta: string): void;
   /** Vuelve a leer lo que se está viendo (panorama o directorio). */
   refrescar(): void;
+}
+
+/** Ventana de tiempo de los depósitos del IN, en hora local. */
+export interface VentanaDepositos {
+  /** `yyyy-MM-dd`. */
+  fecha: string;
+  /** `HH:mm`. */
+  horaInicio: string;
+  /** `HH:mm`. */
+  horaFin: string;
 }

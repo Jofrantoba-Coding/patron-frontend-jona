@@ -80,7 +80,22 @@
   @if (detalle(); as d) {
     <div class="flex min-h-[68vh] flex-col bg-white">
       <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-3">
-        <p class="mb-2 text-[11px] font-medium uppercase text-neutral-500">Etapas del archivo · haz clic en la siguiente para ejecutarla</p>
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <p class="text-[11px] font-medium uppercase text-neutral-500">Etapas del archivo · haz clic en la siguiente para ejecutarla</p>
+          <!--
+            La anulación no es un paso del pipeline: es salirse de él, así que va fuera del stepper
+            y no como una etapa más. Solo aparece mientras el archivo no haya salido; una vez
+            ENVIADA, anular podría duplicar pagos y el backend lo rechaza.
+          -->
+          @if (puedeAnular()) {
+            <button
+              type="button"
+              class="shrink-0 rounded-md border border-red-300 px-2.5 py-1 text-[11px] font-medium text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+              [disabled]="validando()"
+              (click)="abrirAnular()"
+            >Anular planilla</button>
+          }
+        </div>
         <div class="flex flex-wrap items-center gap-1.5">
           @for (etapa of etapas; track etapa; let i = $index) {
             <button
@@ -96,9 +111,11 @@
               [class.ring-primary-400]="etapaAccionable(i)"
               [class.text-primary-700]="etapaAccionable(i)"
               [class.hover:bg-primary-50]="etapaAccionable(i)"
+              [class.border-red-500]="$last && esTerminal() && estadoPlanillaActual() !== 'PROCESADA'"
+              [class.bg-red-600]="$last && esTerminal() && estadoPlanillaActual() !== 'PROCESADA'"
               [disabled]="!etapaAccionable(i)"
               (click)="onEtapa(etapa)"
-            >{{ (validando() && etapaAccionable(i)) ? etapa + '…' : etapa }}</button>
+            >{{ (validando() && etapaAccionable(i)) ? etiquetaEtapa(etapa, i) + '…' : etiquetaEtapa(etapa, i) }}</button>
             @if (!$last) {
               <span class="text-neutral-300">→</span>
             }
@@ -354,4 +371,53 @@
   } @else {
     <pre class="max-h-[60vh] overflow-auto whitespace-pre-wrap break-all rounded-b-md bg-neutral-950 p-3 text-xs leading-relaxed text-neutral-100">{{ previewContenido() }}</pre>
   }
+</j-dialog>
+
+<!--
+  Confirmación de la anulación. Es un diálogo y no un botón directo porque la acción libera las
+  operaciones de la planilla y no se deshace desde la pantalla: conviene un paso deliberado.
+-->
+<j-dialog
+  [open]="anularAbierto()"
+  size="md"
+  title="Anular planilla"
+  [description]="detalleTitle()"
+  (closed)="cerrarAnular()"
+  (cancel)="cerrarAnular()"
+>
+  <div class="space-y-3 p-4">
+    <p class="text-sm text-neutral-700">
+      La planilla quedará en <span class="font-medium">ANULADA</span> y no se enviará al banco. Sus
+      operaciones se liberarán y podrán programarse en un envío nuevo.
+    </p>
+    <div>
+      <label for="anular-motivo" class="mb-1 block text-xs font-medium text-neutral-700">
+        Motivo <span class="text-red-600">*</span>
+      </label>
+      <textarea
+        id="anular-motivo"
+        rows="3"
+        class="w-full rounded-md border border-neutral-300 p-2 text-sm focus:border-primary-500 focus:outline-none"
+        placeholder="Por qué no se envía esta planilla"
+        [value]="anularMotivo()"
+        (input)="onAnularMotivo($event)"
+      ></textarea>
+      <p class="mt-1 text-[11px] text-neutral-500">
+        Queda registrado en la planilla: es la única constancia de por qué no se envió.
+      </p>
+    </div>
+    <div class="flex justify-end gap-2 pt-1">
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 transition hover:bg-neutral-50"
+        (click)="cerrarAnular()"
+      >Cancelar</button>
+      <button
+        type="button"
+        class="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="!motivoValido() || validando()"
+        (click)="confirmarAnular()"
+      >Anular planilla</button>
+    </div>
+  </div>
 </j-dialog>

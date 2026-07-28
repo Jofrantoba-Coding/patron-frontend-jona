@@ -65,6 +65,36 @@
     </div>
   </div>
 
+  <!-- Ventana de los depósitos del IN. Es filtro de SERVIDOR (lee la bitácora), no del buscador. -->
+  <div class="flex flex-wrap items-end gap-2 rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2">
+    <div class="flex flex-col">
+      <label class="text-[11px] font-medium uppercase text-neutral-500" for="f-fecha">Fecha</label>
+      <input id="f-fecha" type="date" class="rounded-md border border-neutral-300 px-2 py-1 text-sm"
+             [value]="fecha()" (change)="onFecha($event)" />
+    </div>
+    <div class="flex flex-col">
+      <label class="text-[11px] font-medium uppercase text-neutral-500" for="f-desde">Hora inicio</label>
+      <input id="f-desde" type="time" class="rounded-md border border-neutral-300 px-2 py-1 text-sm"
+             [value]="horaInicio()" (change)="onHoraInicio($event)" />
+    </div>
+    <div class="flex flex-col">
+      <label class="text-[11px] font-medium uppercase text-neutral-500" for="f-hasta">Hora fin</label>
+      <input id="f-hasta" type="time" class="rounded-md border border-neutral-300 px-2 py-1 text-sm"
+             [value]="horaFin()" (change)="onHoraFin($event)" />
+    </div>
+    <button type="button"
+            class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+            [disabled]="cargando()" (click)="aplicarVentana()">Aplicar</button>
+    <button type="button"
+            class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-100 disabled:opacity-50"
+            [disabled]="cargando()" (click)="onHoyCompleto()">Hoy completo</button>
+    <p class="ml-auto max-w-md text-[11px] leading-snug text-neutral-500">
+      El banco recoge el archivo del IN en segundos, así que verlo vacío no significa que no se
+      envió. Los <strong>depósitos</strong> salen de nuestra bitácora y sobreviven al recojo.
+      <span class="text-neutral-400">{{ depositos().length }} en la ventana.</span>
+    </p>
+  </div>
+
   @if (cargando()) {
     <div>
       <j-progress class="block" [value]="100" [animated]="true" size="sm" [showLabel]="false" label="Leyendo el banco…" />
@@ -109,13 +139,41 @@
                   }
                 </div>
 
+                <!-- Depósitos propios: lo que pusimos nosotros, esté o no todavía en el banco. -->
+                @if (depositosDe(lado(f, 'IN')).length) {
+                  <div class="border-b border-neutral-100 bg-primary-50/40">
+                    <p class="px-3 pt-2 text-[11px] font-medium uppercase text-primary-800">
+                      Enviadas en la ventana · {{ depositosDe(lado(f, 'IN')).length }}
+                    </p>
+                    <ul class="divide-y divide-primary-100/60">
+                      @for (d of depositosDe(lado(f, 'IN')); track d.nombre + d.instante) {
+                        <li class="flex flex-wrap items-center gap-2 px-3 py-1.5">
+                          <span class="font-mono text-[11px] text-neutral-700">{{ d.nombre }}</span>
+                          <span class="text-[11px] text-neutral-500">{{ horaDeposito(d.instante) }}</span>
+                          @if (d.resultado !== 'OK') {
+                            <j-badge variant="destructive">PUT {{ d.resultado }}</j-badge>
+                          }
+                          @if (d.estadoPlanilla) {
+                            <j-badge [variant]="badgeDeposito(d)">{{ d.estadoPlanilla }}</j-badge>
+                          } @else {
+                            <span class="text-[11px] text-neutral-400">sin planilla asociada</span>
+                          }
+                          <span class="ml-auto text-[11px] text-neutral-400">{{ bytesLegibles(d.bytes) }}</span>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+
                 @if (!configurado(f, 'IN')) {
                   <p class="px-3 py-4 text-xs text-neutral-400">Buzón no configurado.</p>
                 } @else if (lado(f, 'IN').error) {
                   <p class="px-3 py-4 text-xs text-red-600">No se pudo leer: {{ lado(f, 'IN').error }}</p>
                 } @else if (!conteo(f, 'IN')) {
                   <p class="px-3 py-4 text-xs text-neutral-400">
-                    @if (busqueda()) { Sin coincidencias. } @else { Vacío. }
+                    @if (busqueda()) { Sin coincidencias. }
+                    @else if (depositosDe(lado(f, 'IN')).length) { El banco ya recogió todo lo depositado. }
+                    @else { Vacío. }
                   </p>
                 } @else {
                   <ul class="divide-y divide-neutral-100">

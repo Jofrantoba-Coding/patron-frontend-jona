@@ -24,6 +24,13 @@ type DetalleTab = 'resumen' | 'archivo' | 'registros' | 'respuestas';
 /** Etapas del ciclo de vida de una planilla (para el stepper del detalle). */
 export const ETAPAS = ['GENERADA', 'VALIDADA', 'CIFRADA', 'ENVIADA', 'RESPUESTA_RECIBIDA', 'PROCESADA'] as const;
 
+/**
+ * Estados en los que la planilla ya no admite más etapas. Solo `PROCESADA` pertenece al pipeline;
+ * los demás son desenlaces alternativos de la fase 8 (o un fallo) y NO están en {@link ETAPAS}.
+ * Sin esta lista el stepper los trataría como "estado desconocido" y volvería al primer paso.
+ */
+const ESTADOS_TERMINALES = ['PROCESADA', 'PROCESADA_PARCIAL', 'RECHAZADA', 'ANULADA', 'ERROR', 'ERROR_CIFRADO'];
+
 /** Catálogo BCP#TIPO_PRODUCTO#* → etiqueta legible. */
 const PRODUCTO_LABEL: Record<string, string> = {
   T: 'Transferencias',
@@ -46,6 +53,7 @@ const ESTADOS_PLANILLA = [
   'PROCESADA',
   'PROCESADA_PARCIAL',
   'RECHAZADA',
+  'ANULADA',
   'ERROR',
   'ERROR_CIFRADO',
 ];
@@ -113,12 +121,34 @@ export class PlanillasViewComponent {
     return `${p.productoCodigo ?? '-'} · ${p.estadoPlanillaCodigo ?? '-'} · ${p.monedaCodigo ?? '-'} ${NUM.format(Number(p.montoTotal ?? 0))}`;
   });
 
+  /** Estado actual de la planilla abierta en el detalle. */
+  protected readonly estadoPlanillaActual = computed(() =>
+    this.pv(this.detalle()?.planilla, 'estadoPlanillaCodigo')
+  );
+
+  /** La planilla ya está cerrada: ninguna etapa admite acción. */
+  protected readonly esTerminal = computed(() => ESTADOS_TERMINALES.includes(this.estadoPlanillaActual()));
+
   /** Índice de la etapa actual dentro del pipeline (para resaltar el stepper). */
   protected readonly etapaActual = computed(() => {
-    const estado = this.pv(this.detalle()?.planilla, 'estadoPlanillaCodigo');
+    const estado = this.estadoPlanillaActual();
     const idx = ETAPAS.indexOf(estado as (typeof ETAPAS)[number]);
-    return idx;
+    if (idx >= 0) return idx;
+    // RECHAZADA / PROCESADA_PARCIAL / ERROR cierran el ciclo pero no son pasos del pipeline: se
+    // muestran en la última posición. Sin esto darían -1 y el stepper "rebobinaría" a GENERADA.
+    return ESTADOS_TERMINALES.includes(estado) ? ETAPAS.length - 1 : idx;
   });
+
+  /**
+   * Rótulo del paso. El último muestra el desenlace REAL, porque la fase 8 puede cerrar en
+   * `PROCESADA`, `PROCESADA_PARCIAL` o `RECHAZADA`: rotularlo siempre "PROCESADA" mentiría sobre
+   * una planilla que el banco rechazó.
+   */
+  protected etiquetaEtapa(etapa: string, i: number): string {
+    if (i !== ETAPAS.length - 1) return etapa;
+    const estado = this.estadoPlanillaActual();
+    return ESTADOS_TERMINALES.includes(estado) ? estado : etapa;
+  }
 
   /** Estado de la acción de validación (etapa VALIDADA). */
   protected readonly validando = signal<boolean>(false);
@@ -131,16 +161,61 @@ export class PlanillasViewComponent {
   protected readonly etapasAccionables: Record<string, boolean> = { VALIDADA: true };
 
   /**
-   * La etapa `i` es la SIGUIENTE al estado actual: siempre habilitada para hacer clic. Al pulsarla
-   * dispara la transición desde el estado actual hacia esa etapa (si su endpoint aún no existe,
-   * la Page lo informa; ver {@code onEtapa}).
+   * La etapa `i` es la SIGUIENTE al estado actual: habilitada para hacer clic. Al pulsarla dispara
+   * la transición desde el estado actual hacia esa etapa (ver {@code onEtapa}).
+   *
+   * <p>Una planilla en estado terminal no ofrece ninguna: ya fue decidida y reabrirla no es una
+   * acción de pantalla.</p>
    */
   protected etapaAccionable(i: number): boolean {
-    return i === this.etapaActual() + 1 && !this.validando();
+    return !this.esTerminal() && i === this.etapaActual() + 1 && !this.validando();
   }
 
   /** Hook de acción por etapa (nombre del estado destino), sobrescrito por la Page. */
   protected onEtapa(_etapa: string): void {
+    return;
+  }
+
+  // ── Anulación voluntaria ──────────────────────────────────────────────
+  /** Estados desde los que el archivo NO ha salido y la planilla admite anularse. */
+  private static readonly ESTADOS_YA_EN_BANCO = ['ENVIADA', 'RESPUESTA_RECIBIDA'];
+
+  protected readonly anularAbierto = signal<boolean>(false);
+  protected readonly anularMotivo = signal<string>('');
+
+  /**
+   * La planilla admite anularse: no está cerrada y su archivo aún no salió.
+   *
+   * <p>Es una comprobación <b>optimista</b>. El backend además rechaza si consta un PUT del
+   * archivo en la bitácora SFTP —una excepción de SFTP puede dejar la planilla sin marcar como
+   * enviada cuando el archivo ya había llegado—, y eso la pantalla no lo sabe. Por eso el 422 se
+   * muestra tal cual llega en vez de intentar predecirlo aquí: la autoridad es el backend.</p>
+   */
+  protected readonly puedeAnular = computed(
+    () =>
+      !this.esTerminal() &&
+      !PlanillasViewComponent.ESTADOS_YA_EN_BANCO.includes(this.estadoPlanillaActual()) &&
+      !this.validando()
+  );
+
+  /** El motivo es obligatorio: es la única constancia de por qué la planilla no se envió. */
+  protected readonly motivoValido = computed(() => this.anularMotivo().trim().length > 0);
+
+  protected abrirAnular(): void {
+    this.anularMotivo.set('');
+    this.anularAbierto.set(true);
+  }
+
+  protected cerrarAnular(): void {
+    this.anularAbierto.set(false);
+  }
+
+  protected onAnularMotivo(event: Event): void {
+    this.anularMotivo.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  /** Hook de confirmación de la anulación, sobrescrito por la Page. */
+  protected confirmarAnular(): void {
     return;
   }
 

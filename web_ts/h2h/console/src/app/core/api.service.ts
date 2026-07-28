@@ -545,10 +545,18 @@ export class ApiService {
    * SIN abrir sesión SFTP; con `ruta` hace el `ls` remoto en un ciclo. El backend acota la ruta al
    * árbol de la organización.
    */
-  sftpExplorar(ruta?: string, banco?: string): Observable<Record<string, unknown>> {
+  sftpExplorar(
+    ruta?: string,
+    banco?: string,
+    ventana?: { fecha?: string; horaInicio?: string; horaFin?: string }
+  ): Observable<Record<string, unknown>> {
     const data: Record<string, unknown> = {};
     if (ruta) data['ruta'] = ruta;
     if (banco) data['banco'] = banco;
+    // Ventana de los depósitos del IN. Si no va, el backend asume el día de hoy completo.
+    if (ventana?.fecha) data['fecha'] = ventana.fecha;
+    if (ventana?.horaInicio) data['horaInicio'] = ventana.horaInicio;
+    if (ventana?.horaFin) data['horaFin'] = ventana.horaFin;
     // postBackend (no postMantenimientos): el controller vive bajo api/mantenimientos/h2h/v1/…,
     // igual que sftpListar. mantenimientosBase quita el /h2h/v1 y la ruta no existiría.
     return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
@@ -566,6 +574,43 @@ export class ApiService {
     return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
       '/planillas/recibir-respuestas',
       this.buildEnvelope({ idPlanilla })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Etapa final (fase 8): aplica la DECISIÓN sobre la respuesta del banco. El estado destino no
+   * lo elige el frontend — lo determina el veredicto:
+   *
+   * - `-VAL` sin respuestas de procesamiento ⇒ `RECHAZADA`, operaciones liberadas.
+   * - `-RES`/`-RES2` todas Procesada ⇒ `PROCESADA`; todas rechazadas ⇒ `RECHAZADA`;
+   *   mezcla ⇒ `PROCESADA_PARCIAL` (solo las rechazadas se liberan).
+   * - Con operaciones en estado no final (`Enviada` de una interbancaria vía BCR) la
+   *   conciliación se guarda pero la planilla NO se cierra: `cerrada = false`.
+   *
+   * Idempotente: sobre una planilla ya cerrada devuelve `decision = 'YA_DECIDIDA'`.
+   */
+  planillaDecidirBackend(idPlanilla: string): Observable<Record<string, unknown>> {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/decidir',
+      this.buildEnvelope({ idPlanilla })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * ANULA una planilla generada que se decide no enviar: queda en `ANULADA` —estado propio, no
+   * `ERROR`— y sus operaciones se liberan de sus dos reservas para poder programarse de nuevo.
+   *
+   * El `motivo` es obligatorio: es la única constancia de por qué no se envió (400 si falta).
+   *
+   * Solo antes de que el archivo salga. Devuelve 422 si la planilla está `ENVIADA` o
+   * `RESPUESTA_RECIBIDA`, si ya fue cerrada por otra vía, o si consta un PUT del archivo en la
+   * bitácora SFTP aunque el estado no lo refleje: liberar operaciones que el banco recibió
+   * duplicaría pagos. Idempotente (`yaEstaba = true` si ya estaba anulada).
+   */
+  planillaAnularBackend(idPlanilla: string, motivo: string): Observable<Record<string, unknown>> {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/anular',
+      this.buildEnvelope({ idPlanilla, motivo })
     ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
   }
 

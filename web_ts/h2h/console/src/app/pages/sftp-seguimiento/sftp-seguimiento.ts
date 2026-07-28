@@ -28,7 +28,7 @@ export class SftpSeguimientoPage extends SftpSeguimientoViewComponent implements
     if (this.cargando()) return;
     this.cargando.set(true);
     this.api
-      .sftpExplorar(undefined, this.banco())
+      .sftpExplorar(undefined, this.banco(), this.ventanaActual())
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (data) => this.setExploracion(data as unknown as ExploracionSftp),
@@ -41,7 +41,7 @@ export class SftpSeguimientoPage extends SftpSeguimientoViewComponent implements
     if (this.cargando()) return;
     this.cargando.set(true);
     this.api
-      .sftpExplorar(ruta, this.banco())
+      .sftpExplorar(ruta, this.banco(), this.ventanaActual())
       .pipe(finalize(() => this.cargando.set(false)))
       .subscribe({
         next: (data) => this.setExploracion(data as unknown as ExploracionSftp),
@@ -55,6 +55,15 @@ export class SftpSeguimientoPage extends SftpSeguimientoViewComponent implements
     this.banco.set(banco);
     this.buzones.set([]);
     this.cargarPanorama();
+  }
+
+  /**
+   * Aplica la ventana. Recarga contra el backend porque los depósitos salen de la bitácora del
+   * servidor, no de lo ya leído: filtrar en cliente solo podría recortar, nunca traer un envío
+   * anterior a la ventana que se tenía puesta.
+   */
+  protected override aplicarVentana(): void {
+    this.refrescar();
   }
 
   protected override refrescar(): void {

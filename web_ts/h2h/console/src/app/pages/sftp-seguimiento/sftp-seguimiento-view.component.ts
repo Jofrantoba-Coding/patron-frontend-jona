@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { JBadge, JProgress, JSectionHeading } from 'uijona-4ngular';
-import type { BuzonSftp, EntradaSftp, ExploracionSftp } from './inter-sftp-seguimiento';
+import type { BuzonSftp, DepositoSftp, EntradaSftp, ExploracionSftp, VentanaDepositos } from './inter-sftp-seguimiento';
 
 const NUM = new Intl.NumberFormat('es-PE');
 
@@ -44,6 +44,61 @@ export class SftpSeguimientoViewComponent {
   protected readonly cargando = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
   protected readonly ultimaLectura = signal<string | null>(null);
+
+  // ── Depósitos propios en el IN ────────────────────────────────────────
+  /**
+   * Lo que NOSOTROS pusimos en el IN durante la ventana, según la bitácora. Es la única evidencia
+   * visible de un envío: el banco recoge el archivo en segundos y el `ls` del IN sale vacío, así
+   * que sin esto la pantalla no distingue «no se envió» de «ya lo recogieron».
+   */
+  protected readonly depositos = signal<DepositoSftp[]>([]);
+  protected readonly ventanaAplicada = signal<{ desde: string; hasta: string } | null>(null);
+
+  /** Filtro de la ventana. Arranca en hoy, día completo. */
+  protected readonly fecha = signal<string>(SftpSeguimientoViewComponent.hoyIso());
+  protected readonly horaInicio = signal<string>('00:00');
+  protected readonly horaFin = signal<string>('23:59');
+
+  /** `yyyy-MM-dd` de hoy en hora local (no UTC: `toISOString` correría el día). */
+  private static hoyIso(): string {
+    const d = new Date();
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const dia = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mes}-${dia}`;
+  }
+
+  protected ventanaActual(): VentanaDepositos {
+    return { fecha: this.fecha(), horaInicio: this.horaInicio(), horaFin: this.horaFin() };
+  }
+
+  /** Los depósitos de un buzón, ya filtrados por el buscador global. */
+  protected depositosDe(buzon: BuzonSftp | null): DepositoSftp[] {
+    const q = this.busqueda().trim().toLowerCase();
+    const lista = buzon?.depositos ?? [];
+    return q ? lista.filter((d) => d.nombre.toLowerCase().includes(q)) : lista;
+  }
+
+  /** Hora local legible del depósito (el backend manda ISO con offset). */
+  protected horaDeposito(instante: string): string {
+    const d = new Date(instante);
+    return isNaN(d.getTime()) ? instante : d.toLocaleTimeString('es-PE');
+  }
+
+  /** Variante del badge según en qué acabó la planilla de ese depósito. */
+  protected badgeDeposito(deposito: DepositoSftp): 'default' | 'destructive' | 'outline' | 'secondary' {
+    if (deposito.resultado !== 'OK') return 'destructive';
+    switch (deposito.estadoPlanilla) {
+      case 'PROCESADA':
+        return 'default';
+      case 'RECHAZADA':
+      case 'ERROR':
+        return 'destructive';
+      case 'PROCESADA_PARCIAL':
+        return 'outline';
+      default:
+        return 'secondary';
+    }
+  }
 
   protected readonly busqueda = signal<string>('');
   protected readonly orden = signal<OrdenCampo>('nombre');
@@ -139,6 +194,8 @@ export class SftpSeguimientoViewComponent {
     if (data.modo === 'PANORAMA') {
       this.buzones.set(data.buzones ?? []);
     }
+    this.depositos.set(data.depositos ?? []);
+    this.ventanaAplicada.set(data.ventana ?? null);
     this.error.set(null);
     this.ultimaLectura.set(new Date().toLocaleTimeString('es-PE'));
   }
@@ -149,6 +206,10 @@ export class SftpSeguimientoViewComponent {
 
   // ── Hooks (los implementa la Page) ────────────────────────────────────
   protected cargarPanorama(): void {
+    return;
+  }
+  /** Reaplica la ventana de depósitos. Recarga porque el filtrado es del servidor, no del cliente. */
+  protected aplicarVentana(): void {
     return;
   }
   protected cambiarBanco(_banco: string): void {
@@ -167,6 +228,26 @@ export class SftpSeguimientoViewComponent {
   // ── Interacción ───────────────────────────────────────────────────────
   protected onBuscar(event: Event): void {
     this.busqueda.set((event.target as HTMLInputElement).value ?? '');
+  }
+
+  protected onFecha(event: Event): void {
+    this.fecha.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onHoraInicio(event: Event): void {
+    this.horaInicio.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onHoraFin(event: Event): void {
+    this.horaFin.set((event.target as HTMLInputElement).value);
+  }
+
+  /** Atajo al caso más común: todo lo enviado hoy. */
+  protected onHoyCompleto(): void {
+    this.fecha.set(SftpSeguimientoViewComponent.hoyIso());
+    this.horaInicio.set('00:00');
+    this.horaFin.set('23:59');
+    this.aplicarVentana();
   }
 
   protected onLimpiarBusqueda(): void {
