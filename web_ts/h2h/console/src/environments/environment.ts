@@ -14,6 +14,12 @@ export const environment = {
   apiBaseMantenimiento: 'https://api.jofrantoba.com/api/mantenimientos',
   /** Namespace H2H dentro de mantenimientos. */
   h2hBackendBase: 'https://api.jofrantoba.com/api/mantenimientos/h2h/v1',
+  /**
+   * Servicio de JOBS (api-schedulers). Es un despliegue APARTE de mantenimientos, no un namespace
+   * suyo: los jobs se separaron porque su pool retiene conexiones de la misma BD que atiende la
+   * consola. Por eso la base no se puede derivar de h2hBackendBase.
+   */
+  h2hSchedulersBase: 'https://api.jofrantoba.com/api/schedulers/h2h/v1',
   /** Mock server (solo endpoints sin backend real todavía). */
   mockBaseUrl: 'http://localhost:4010',
 };

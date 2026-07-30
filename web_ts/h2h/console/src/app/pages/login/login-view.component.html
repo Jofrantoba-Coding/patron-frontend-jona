@@ -1,0 +1,41 @@
+<div class="flex min-h-screen items-center justify-center bg-neutral-100 px-4 py-10">
+  <div class="w-full max-w-sm">
+    <div class="mb-6 flex items-center justify-center gap-2">
+      <span class="grid h-9 w-9 place-items-center rounded-lg bg-primary-600 text-sm font-black text-white">H2H</span>
+      <div>
+        <p class="text-sm font-bold leading-tight text-neutral-900">Consola H2H</p>
+        <p class="text-[11px] leading-tight text-neutral-400">Jofrantoba Consulting TI</p>
+      </div>
+    </div>
+
+    <j-card>
+      <j-card-header>
+        <j-card-title>Ingresar a la consola</j-card-title>
+        <j-card-description>Indique su organización para continuar</j-card-description>
+      </j-card-header>
+      <j-card-content>
+        @if (error()) {
+          <j-alert variant="danger" title="No se pudo continuar" className="mb-4">{{ error() }}</j-alert>
+        }
+        <form class="space-y-4" (submit)="onSubmit($event)" novalidate>
+          <j-form-field
+            id="organizacion"
+            label="Organización"
+            [value]="organizacion()"
+            (valueChange)="onOrganizacion($event)"
+            placeholder="almil"
+            [required]="true"
+          />
+          <p class="text-[11px] leading-snug text-neutral-400">
+            Corresponde al realm de su organización en
+            <span class="font-mono">auth.jofrantoba.com</span>. Será redirigido a Keycloak para
+            autenticarse; la consola nunca ve su contraseña.
+          </p>
+          <j-button type="submit" [fullWidth]="true" [loading]="cargando()" [disabled]="!puedeIngresar()">
+            Continuar
+          </j-button>
+        </form>
+      </j-card-content>
+    </j-card>
+  </div>
+</div>

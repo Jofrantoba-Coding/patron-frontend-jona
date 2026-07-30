@@ -19,6 +19,21 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
 
   ngOnInit(): void {
     this.load();
+    this.cargarVentana();
+  }
+
+  /**
+   * Ventana de atención del canal. Se pide una vez al entrar y no al abrir el diálogo: no cambia
+   * durante una sesión, y tenerla antes evita que el formulario aparezca sin saber qué días valen.
+   *
+   * <p>Un fallo aquí no rompe la pantalla —el formulario sigue operativo y el backend vuelve a
+   * validar—, solo se queda sin el aviso previo.</p>
+   */
+  private cargarVentana(): void {
+    this.api.ventanaCanalProgramacion().subscribe({
+      next: (v) => this.setVentana(v),
+      error: () => this.setVentana(null),
+    });
   }
 
   protected override load(): void {

@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { forkJoin, map, type Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { API_BASE, H2H_BACKEND_BASE } from './config';
+import { API_BASE, H2H_BACKEND_BASE, H2H_SCHEDULERS_BASE } from './config';
 import type {
   AuditEvent,
   Beneficiario,
@@ -46,6 +46,7 @@ import type {
   ProgramacionRow,
   RespuestaBCP,
   TenantContext,
+  VentanaSemanal,
 } from './models';
 import { SessionService } from './session.service';
 
@@ -337,6 +338,7 @@ export class ApiService {
   private readonly base = inject(API_BASE);
   private readonly backendBase = inject(H2H_BACKEND_BASE);
   private readonly mantenimientosBase = this.backendBase.replace(/\/h2h\/v1\/?$/, '');
+  private readonly schedulersBase = inject(H2H_SCHEDULERS_BASE);
   private readonly session = inject(SessionService);
 
   private headers(mutating = false): HttpHeaders {
@@ -361,6 +363,14 @@ export class ApiService {
     let p = new HttpParams();
     for (const [k, v] of Object.entries(params ?? {})) p = p.set(k, String(v));
     return this.http.post<T>(`${this.backendBase}${path}`, body, { headers: this.headers(true), params: p });
+  }
+  /**
+   * POST contra el servicio de JOBS (api-schedulers). Base propia porque es otro despliegue, no un
+   * namespace de mantenimientos: `backendBase` apunta a `api/mantenimientos/h2h/v1` y esta ruta
+   * no existiría ahí (el gateway devolvería 404, con un síntoma que no apunta al gateway).
+   */
+  private postSchedulers<T>(path: string, body: unknown = {}): Observable<T> {
+    return this.http.post<T>(`${this.schedulersBase}${path}`, body, { headers: this.headers(true) });
   }
   private postMantenimientos<T>(path: string, body: unknown = {}, params?: Record<string, string | number>): Observable<T> {
     let p = new HttpParams();
@@ -687,6 +697,17 @@ export class ApiService {
       map((d) => ({ programacion: d?.programacion ?? {}, detalles: d?.detalles ?? [] }))
     );
   }
+  /**
+   * Ventana de atención del canal, derivada en el backend a partir de la configuración horaria.
+   *
+   * <p>No se codifican los días ni las horas aquí: el mismo validador que responde este endpoint es
+   * el que rechaza al crear, así que una copia en el navegador se desincronizaría y ofrecería días
+   * que el backend no acepta.</p>
+   */
+  ventanaCanalProgramacion() {
+    const org = this.session.tenant()?.org_u_id;
+    return this.postBackend<VentanaSemanal>('/programaciones/ventana', { idOrganizacion: org });
+  }
   crearProgramacion(payload: ProgramacionCrear) {
     const org = this.session.tenant()?.org_u_id;
     return this.postBackend<ProgramacionDetalleFull>('/programaciones/crear', { idOrganizacion: org, ...payload });
@@ -786,6 +807,109 @@ export class ApiService {
 
   // -- Llaves de cifrado (envelope ALMIL) --------------------------------
   /** Envelope estándar ALMIL con tenant/contexto derivados de la sesión. */
+  // ── Schedulers (jobs H2H) ────────────────────────────────────────────────────────────
+  //
+  // Seguimiento y configuración de los tres jobs (programación / ciclo SFTP / decisión).
+
+  /**
+   * Panorama completo: instancia, pool, los tres jobs con su interruptor y última corrida por
+   * organización, lo atascado y el resumen. Una llamada pinta la pantalla entera — igual que
+   * `sftpExplorar` trae los ocho buzones en un ciclo.
+   */
+  schedulersPanorama(opciones?: {
+    idOrganizacion?: string;
+    minutosColgada?: number;
+    dias?: number;
+  }): Observable<Record<string, unknown>> {
+    return this.postSchedulers<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/seguimiento/panorama',
+      this.buildEnvelope(opciones ?? {})
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /** Organizaciones activas, para el selector. Se pide una vez; el panorama se refresca solo. */
+  schedulersOrganizaciones(): Observable<Record<string, unknown>> {
+    return this.postSchedulers<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/seguimiento/organizaciones',
+      this.buildEnvelope({})
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /** Histórico paginado de corridas. El total viene con la página, para poder paginar de verdad. */
+  schedulersCorridas(
+    filtro: Record<string, unknown> = {},
+    limit = 50,
+    offSet = 0
+  ): Observable<Record<string, unknown>> {
+    return this.postSchedulers<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/corridas/listar/paginacion',
+      this.buildEnvelope({ filtro, limit, offSet })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /** Detalle de una corrida, con su `metadata` (qué estaba procesando). */
+  schedulersCorridaDetalle(idCorrida: string): Observable<Record<string, unknown>> {
+    return this.postSchedulers<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/corridas/detalle',
+      this.buildEnvelope({ idCorrida })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Dispara un job sin esperar al cron. Responde 202: reparte y devuelve, porque un ciclo SFTP
+   * puede tardar minutos. El resultado se consulta después en el panorama.
+   *
+   * @param idOrganizacion ausente = todas las activas, igual que hace el cron
+   */
+  schedulersEjecutar(job: string, idOrganizacion?: string): Observable<Record<string, unknown>> {
+    return this.postSchedulers<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/jobs/ejecutar',
+      this.buildEnvelope(idOrganizacion ? { job, idOrganizacion } : { job })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /** Configuración que gobierna los jobs del tenant: interruptores, modo, cantidad, horarios. */
+  schedulersConfigLeer(idOrganizacion?: string): Observable<Record<string, unknown>> {
+    return this.postSchedulers<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/configuracion/leer',
+      this.buildEnvelope(idOrganizacion ? { idOrganizacion } : {})
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Enciende o apaga un job. Surte efecto en el tick siguiente, sin reiniciar nada.
+   *
+   * La respuesta trae `efectivo`, que puede NO coincidir con lo pedido: un `forzarApagado` de
+   * plataforma vence al encendido de la organización. Píntalo desde ahí, no desde lo enviado.
+   */
+  schedulersInterruptor(
+    job: string,
+    habilitado: boolean,
+    motivo?: string,
+    idOrganizacion?: string
+  ): Observable<Record<string, unknown>> {
+    return this.postSchedulers<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/configuracion/interruptor',
+      this.buildEnvelope({ job, habilitado, motivo, idOrganizacion })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Guarda un nodo de configuración del tenant. El backend acota los códigos admitidos a los
+   * cuatro que gobiernan el despacho y valida la forma del valor: un 422 aquí es una regla del
+   * dominio, no un fallo de transporte.
+   */
+  schedulersConfigGuardar(
+    codigo: string,
+    valor: unknown,
+    idOrganizacion?: string
+  ): Observable<Record<string, unknown>> {
+    return this.postSchedulers<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/configuracion/guardar',
+      this.buildEnvelope({ codigo, valor, idOrganizacion })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
   private buildEnvelope<T>(data: T): Record<string, unknown> {
     const t = this.session.tenant();
     const user = this.session.user();

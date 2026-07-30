@@ -20,5 +20,11 @@ export const environment = {
   gatewayBaseUrl: 'http://localhost:8090',
   apiBaseMantenimiento: 'http://localhost:8090/api/mantenimientos',
   h2hBackendBase: 'http://localhost:8090/api/mantenimientos/h2h/v1',
+  /**
+   * Servicio de JOBS (api-schedulers). Es un despliegue APARTE de mantenimientos, no un namespace
+   * suyo: los jobs se separaron porque su pool retiene conexiones de la misma BD que atiende la
+   * consola. Por eso la base no se puede derivar de h2hBackendBase.
+   */
+  h2hSchedulersBase: 'http://localhost:8090/api/schedulers/h2h/v1',
   mockBaseUrl: 'http://localhost:4010',
 };

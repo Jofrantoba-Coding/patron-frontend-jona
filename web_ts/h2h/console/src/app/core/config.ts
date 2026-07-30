@@ -26,3 +26,16 @@ export const H2H_BACKEND_BASE = new InjectionToken<string>('H2H_BACKEND_BASE', {
   providedIn: 'root',
   factory: () => localOverride('H2H_BACKEND_BASE') ?? environment.h2hBackendBase,
 });
+
+/**
+ * Base URL del servicio de JOBS (acity-pay-api-schedulers), servido a través del gateway.
+ *
+ * Es un despliegue APARTE de mantenimientos, no un namespace suyo: los jobs se separaron porque su
+ * pool de hilos retiene conexiones de la misma BD que atiende la consola, y compartir proceso hacía
+ * que el tamaño del pool fuera un compromiso entre dos usos. Por eso no se deriva de
+ * H2H_BACKEND_BASE. Override: localStorage.H2H_SCHEDULERS_BASE.
+ */
+export const H2H_SCHEDULERS_BASE = new InjectionToken<string>('H2H_SCHEDULERS_BASE', {
+  providedIn: 'root',
+  factory: () => localOverride('H2H_SCHEDULERS_BASE') ?? environment.h2hSchedulersBase,
+});

@@ -76,6 +76,18 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/sftp-seguimiento/sftp-seguimiento').then((m) => m.SftpSeguimientoPage),
       },
       {
+        path: 'jobs-configuracion',
+        loadComponent: () =>
+          import('./pages/jobs-configuracion/jobs-configuracion').then((m) => m.JobsConfiguracionPage),
+      },
+      {
+        path: 'schedulers-seguimiento',
+        loadComponent: () =>
+          import('./pages/schedulers-seguimiento/schedulers-seguimiento').then(
+            (m) => m.SchedulersSeguimientoPage
+          ),
+      },
+      {
         path: 'sftp-config',
         loadComponent: () => import('./pages/sftp-config/sftp-config').then((m) => m.SftpConfigPage),
       },

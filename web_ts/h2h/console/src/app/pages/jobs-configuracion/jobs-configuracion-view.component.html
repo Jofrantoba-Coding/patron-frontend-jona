@@ -1,0 +1,447 @@
+<div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
+  <j-section-heading
+    eyebrow="Canal H2H"
+    heading="Procesamiento automático"
+    description="Modo de envío, interruptores de los jobs y parámetros de despacho de la organización."
+  />
+
+  @if (cargando()) { <j-progress /> }
+  @if (error()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ error() }}</div>
+  }
+  @if (aviso()) {
+    <div class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">{{ aviso() }}</div>
+  }
+
+  <!-- MODO DE ENVÍO: el interruptor maestro. Va primero porque manda sobre todo lo demás. -->
+  <div class="rounded-xl border px-4 py-3"
+    [class]="esAutomatico() ? 'border-emerald-300 bg-emerald-50' : 'border-neutral-300 bg-neutral-50'">
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex-1">
+        <p class="text-sm font-semibold text-neutral-900">
+          Procesamiento automático:
+          <span [class]="esAutomatico() ? 'text-emerald-700' : 'text-neutral-600'">
+            {{ esAutomatico() ? 'ACTIVADO' : 'DESACTIVADO' }}
+          </span>
+        </p>
+        <p class="mt-0.5 text-xs text-neutral-600">
+          Decide con qué modo se sella cada operación <b>al ingestarla</b>. Cambiarlo
+          <b>no es retroactivo</b>: lo ya ingestado conserva su modo, y por eso volver a MANUAL no
+          deja operaciones a medias.
+        </p>
+      </div>
+
+      @if (!confirmandoAutomatico()) {
+        <button type="button"
+          class="rounded-md px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40"
+          [class]="esAutomatico() ? 'bg-neutral-600 hover:bg-neutral-700' : 'bg-emerald-600 hover:bg-emerald-700'"
+          [disabled]="cargando()"
+          (click)="onModo(esAutomatico() ? MODO_MANUAL : MODO_AUTOMATICO)">
+          {{ esAutomatico() ? 'Desactivar' : 'Activar' }}
+        </button>
+      }
+    </div>
+
+    <!-- Activar mueve dinero sin intervención: se confirma. Desactivar no, frenar siempre es seguro. -->
+    @if (confirmandoAutomatico()) {
+      <div class="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2">
+        <p class="text-xs font-semibold text-amber-900">¿Activar el procesamiento automático?</p>
+        <p class="mt-1 text-xs text-amber-800">
+          A partir de ahora, las operaciones que se ingesten se sellarán como AUTOMATICO y los jobs
+          las despacharán al banco sin intervención de un operador. Las ya existentes no cambian.
+        </p>
+        <div class="mt-2 flex gap-2">
+          <button type="button"
+            class="rounded-md bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-700"
+            (click)="onModo(MODO_AUTOMATICO)">Sí, activar</button>
+          <button type="button"
+            class="rounded-md border border-neutral-300 bg-white px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+            (click)="cancelarConfirmacion()">Cancelar</button>
+        </div>
+      </div>
+    }
+
+    @if (avisoCoherencia()) {
+      <p class="mt-2 rounded-md bg-white/60 px-2 py-1 text-[11px] text-neutral-600">
+        ⓘ {{ avisoCoherencia() }}
+      </p>
+    }
+  </div>
+
+  <!-- INTERRUPTORES por job -->
+  <div class="overflow-hidden rounded-xl border border-neutral-200">
+    <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-2">
+      <p class="text-sm font-semibold text-neutral-800">Jobs de la organización</p>
+      <p class="text-xs text-neutral-500">Surte efecto en el tick siguiente, sin reiniciar nada.</p>
+    </div>
+
+    <!--
+      Diagnóstico de la COMBINACIÓN, no de cada job por separado: el flujo es una tubería
+      (programar → enviar → decidir) y se cierra por la entrada, no por el medio.
+    -->
+    <div class="border-b px-4 py-2"
+      [class]="diagnostico().nivel === 'trampa' ? 'border-red-200 bg-red-50'
+             : diagnostico().nivel === 'aviso' ? 'border-amber-200 bg-amber-50'
+             : 'border-neutral-200 bg-white'">
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span class="font-mono text-[11px] text-neutral-500">
+          PROG {{ combinacion().prog ? '●' : '○' }} ·
+          SFTP {{ combinacion().sftp ? '●' : '○' }} ·
+          DEC {{ combinacion().dec ? '●' : '○' }}
+        </span>
+        <span class="text-xs"
+          [class]="diagnostico().nivel === 'trampa' ? 'font-semibold text-red-800'
+                 : diagnostico().nivel === 'aviso' ? 'font-medium text-amber-800'
+                 : 'text-neutral-600'">
+          @if (diagnostico().nivel === 'trampa') { ⚠ }
+          {{ diagnostico().texto }}
+        </span>
+      </div>
+
+      <div class="mt-1.5 flex flex-wrap items-center gap-2">
+        @if (siguientePaso(); as paso) {
+          <button type="button"
+            class="rounded-md bg-primary-600 px-2 py-1 text-xs font-semibold text-white hover:bg-primary-700 disabled:opacity-40"
+            [disabled]="cargando()"
+            (click)="cambiarInterruptor(paso.job, paso.encender)">
+            → {{ paso.texto }}
+          </button>
+        }
+        @if (puedeDetenerOrdenado()) {
+          <!-- Detener SIEMPRE empieza por PROGRAMACION: cerrar la entrada y dejar que drene. -->
+          <button type="button"
+            class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+            [disabled]="cargando()"
+            title="Apaga PROGRAMACION y deja que lo planificado termine de salir"
+            (click)="cambiarInterruptor('PROGRAMACION', false)">
+            ⏸ Detener ordenadamente (drenaje)
+          </button>
+        }
+      </div>
+      <p class="mt-1 text-[11px] text-neutral-400">
+        Apagado: PROGRAMACION → esperar drenaje → CICLO_SFTP → DECISION. Encendido: el inverso.
+      </p>
+    </div>
+    <table class="w-full text-left text-xs">
+      <thead class="text-neutral-500">
+        <tr><th class="px-4 py-1">Job</th><th>Estado efectivo</th><th>Motivo</th><th class="text-right pr-4">Acción</th></tr>
+      </thead>
+      <tbody>
+        @for (i of interruptores(); track i.job) {
+          <tr class="border-t border-neutral-100">
+            <td class="px-4 py-2 font-medium text-neutral-800">{{ i.job }}</td>
+            <td><j-badge [variant]="tono(i.datos?.efectivo)">{{ i.datos?.efectivo ? 'ENCENDIDO' : 'APAGADO' }}</j-badge></td>
+            <td class="text-neutral-500">{{ i.datos?.organizacion?.motivo || '—' }}</td>
+            <td class="pr-4 text-right">
+              <button type="button"
+                class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+                [disabled]="cargando()"
+                (click)="cambiarInterruptor(i.job, !i.datos?.efectivo)">
+                {{ i.datos?.efectivo ? 'Apagar' : 'Encender' }}
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PARÁMETROS DE DESPACHO: editables contra la lista blanca del backend -->
+  <div class="grid gap-4 md:grid-cols-2">
+    <!-- CANTIDAD -->
+    <div class="rounded-xl border border-neutral-200 px-4 py-3">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <p class="text-sm font-semibold text-neutral-800">Cantidad por planilla</p>
+          <p class="mb-2 text-xs text-neutral-500">
+            Solo determina cómo se <b>parte</b>, no si se espera: 47 operaciones son una planilla de 47.
+          </p>
+        </div>
+        @if (editando() !== 'cantidad') {
+          <button type="button" class="shrink-0 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-100"
+            [disabled]="cargando()"
+            (click)="abrirEdicion('cantidad', {
+              maxOperaciones: (cantidad().maxOperaciones ?? '') + '',
+              PEN: (cantidad().porMoneda?.['PEN'] ?? '') + '',
+              USD: (cantidad().porMoneda?.['USD'] ?? '') + ''
+            })">Editar</button>
+        }
+      </div>
+
+      @if (editando() === 'cantidad') {
+        <div class="space-y-2 text-xs">
+          <label class="flex items-center justify-between gap-2">General
+            <input type="number" min="1" max="8000" class="w-28 rounded border border-neutral-300 px-2 py-1 text-right font-mono"
+              [value]="campo('maxOperaciones')" (input)="onCampo('maxOperaciones', $event)" /></label>
+          <label class="flex items-center justify-between gap-2">PEN <span class="text-neutral-400">(opcional)</span>
+            <input type="number" min="1" max="8000" class="w-28 rounded border border-neutral-300 px-2 py-1 text-right font-mono"
+              [value]="campo('PEN')" (input)="onCampo('PEN', $event)" /></label>
+          <label class="flex items-center justify-between gap-2">USD <span class="text-neutral-400">(opcional)</span>
+            <input type="number" min="1" max="8000" class="w-28 rounded border border-neutral-300 px-2 py-1 text-right font-mono"
+              [value]="campo('USD')" (input)="onCampo('USD', $event)" /></label>
+          <p class="text-[11px] text-neutral-400">Por moneda gana sobre el general. Vacío = usa el general.</p>
+          @if (errorCampo()) { <p class="text-[11px] text-red-600">{{ errorCampo() }}</p> }
+          <div class="flex gap-2 pt-1">
+            <button type="button" class="rounded-md bg-primary-600 px-3 py-1 text-xs font-semibold text-white hover:bg-primary-700"
+              [disabled]="cargando()" (click)="onGuardarCantidad()">Guardar</button>
+            <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1 text-xs hover:bg-neutral-100"
+              (click)="cerrarEdicion()">Cancelar</button>
+          </div>
+        </div>
+      } @else {
+        <dl class="space-y-1 text-xs">
+          <div class="flex justify-between"><dt class="text-neutral-500">General</dt>
+            <dd class="font-mono">{{ cantidad().maxOperaciones ?? '—' }}</dd></div>
+          @for (m of monedas(cantidad().porMoneda); track m.moneda) {
+            <div class="flex justify-between"><dt class="text-neutral-500">{{ m.moneda }}</dt>
+              <dd class="font-mono">{{ m.valor }}</dd></div>
+          }
+          <div class="flex justify-between border-t border-neutral-100 pt-1">
+            <dt class="text-neutral-400">Plataforma</dt>
+            <dd class="font-mono text-neutral-400">{{ cantidadPlataforma().maxOperaciones ?? '—' }}</dd></div>
+        </dl>
+      }
+    </div>
+
+    <!-- REINTENTOS -->
+    <div class="rounded-xl border border-neutral-200 px-4 py-3">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <p class="text-sm font-semibold text-neutral-800">Reintentos</p>
+          <p class="mb-2 text-xs text-neutral-500">
+            Solo cuenta para causas transitorias. Al tope, la operación sale del barrido automático.
+          </p>
+        </div>
+        @if (editando() !== 'reintentos') {
+          <button type="button" class="shrink-0 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-100"
+            [disabled]="cargando()"
+            (click)="abrirEdicion('reintentos', {
+              maxReintentosAutomaticos: (reintentos().maxReintentosAutomaticos ?? '') + '',
+              alTope: reintentos().alTope ?? 'MARCAR_REVISION',
+              soloCausasTransitorias: (reintentos().soloCausasTransitorias !== false) + ''
+            })">Editar</button>
+        }
+      </div>
+
+      @if (editando() === 'reintentos') {
+        <div class="space-y-2 text-xs">
+          <label class="flex items-center justify-between gap-2">Máximo (0–10)
+            <input type="number" min="0" max="10" class="w-28 rounded border border-neutral-300 px-2 py-1 text-right font-mono"
+              [value]="campo('maxReintentosAutomaticos')" (input)="onCampo('maxReintentosAutomaticos', $event)" /></label>
+          <label class="flex items-center justify-between gap-2">Al tope
+            <select class="rounded border border-neutral-300 px-2 py-1"
+              [value]="campo('alTope')" (change)="onCampo('alTope', $event)">
+              <option value="MARCAR_REVISION">MARCAR_REVISION</option>
+              <option value="ANULAR">ANULAR</option>
+            </select></label>
+          <p class="text-[11px] text-neutral-400">
+            <b>ANULAR</b> cancela la operación. El defecto es MARCAR_REVISION: un contador de
+            reintentos no debería decidir cancelar un pago.
+          </p>
+          @if (errorCampo()) { <p class="text-[11px] text-red-600">{{ errorCampo() }}</p> }
+          <div class="flex gap-2 pt-1">
+            <button type="button" class="rounded-md bg-primary-600 px-3 py-1 text-xs font-semibold text-white hover:bg-primary-700"
+              [disabled]="cargando()" (click)="onGuardarReintentos()">Guardar</button>
+            <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1 text-xs hover:bg-neutral-100"
+              (click)="cerrarEdicion()">Cancelar</button>
+          </div>
+        </div>
+      } @else {
+        <dl class="space-y-1 text-xs">
+          <div class="flex justify-between"><dt class="text-neutral-500">Máximo</dt>
+            <dd class="font-mono">{{ reintentos().maxReintentosAutomaticos ?? '—' }}</dd></div>
+          <div class="flex justify-between"><dt class="text-neutral-500">Al tope</dt>
+            <dd class="font-mono">{{ reintentos().alTope ?? '—' }}</dd></div>
+          <div class="flex justify-between"><dt class="text-neutral-500">Solo transitorias</dt>
+            <dd class="font-mono">{{ reintentos().soloCausasTransitorias ? 'sí' : 'no' }}</dd></div>
+        </dl>
+      }
+    </div>
+  </div>
+
+  <!-- VENTANA DEL CANAL: dato del banco, se muestra para poder razonar sobre el margen -->
+  <div class="overflow-hidden rounded-xl border border-neutral-200">
+    <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-2">
+      <p class="text-sm font-semibold text-neutral-800">Ventana de atención del canal</p>
+      <p class="text-xs text-neutral-500">
+        Horas <b>publicadas por BCP</b>. No se editan aquí: son del banco. Lo que sí decide la
+        organización es el <b>margen de cierre</b> —cuánto antes deja de armar lotes para que el
+        último llegue a tiempo—, y se ajusta en cada subtipo.
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 text-xs">
+      @for (t of tramosAbiertos(); track t.dias) {
+        <span class="text-neutral-700">
+          <b class="font-semibold">{{ t.dias }}</b>
+          <span class="ml-1 font-mono">{{ t.desde }}–{{ t.hasta }}</span>
+        </span>
+      } @empty {
+        <span class="text-neutral-400">Sin ventana cargada.</span>
+      }
+      <span class="text-neutral-500">
+        Margen de plataforma <b class="font-mono">{{ ventanaCanal().margenCierreMinutos ?? 0 }} min</b>
+      </span>
+      <span class="text-neutral-400">{{ ventanaCanal().zonaHoraria }}</span>
+      @if (diasCerrados().length) {
+        <span class="text-neutral-400">No opera: {{ diasCerrados().join(', ') }}.</span>
+      }
+    </div>
+  </div>
+
+  <!-- HORARIOS por subtipo -->
+  <div class="overflow-hidden rounded-xl border border-neutral-200">
+    <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-2">
+      <p class="text-sm font-semibold text-neutral-800">Programación por subtipo</p>
+      <p class="text-xs text-neutral-500">
+        La cadencia decide el <b>tamaño</b> de los lotes, no la latencia: toda ejecución despacha lo
+        que haya. El margen recorta el cierre; dejarlo <b>vacío</b> hereda el de la plataforma.
+      </p>
+    </div>
+    <table class="w-full text-left text-xs">
+      <thead class="text-neutral-500">
+        <tr><th class="px-4 py-1">Subtipo</th><th>Habilitado</th><th>Cadencia</th><th>Por moneda</th><th>Margen</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (h of horarios(); track h.codigo) {
+          @if (editando() === h.codigo) {
+            <tr class="border-t border-neutral-100 bg-neutral-50">
+              <td class="px-4 py-2 font-medium text-neutral-800">{{ h.subtipo }}</td>
+              <td>
+                <select class="rounded border border-neutral-300 px-2 py-1 text-xs"
+                  [value]="campo('habilitado')" (change)="onCampo('habilitado', $event)">
+                  <option value="true">SÍ</option>
+                  <option value="false">NO</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" min="1" max="1440" class="w-20 rounded border border-neutral-300 px-2 py-1 text-right font-mono text-xs"
+                  [value]="campo('cadenciaMinutos')" (input)="onCampo('cadenciaMinutos', $event)" /> min
+              </td>
+              <td>
+                <span class="mr-1">PEN</span>
+                <input type="number" min="1" max="1440" class="mr-2 w-16 rounded border border-neutral-300 px-1 py-1 text-right font-mono text-xs"
+                  [value]="campo('cadPEN')" (input)="onCampo('cadPEN', $event)" />
+                <span class="mr-1">USD</span>
+                <input type="number" min="1" max="1440" class="w-16 rounded border border-neutral-300 px-1 py-1 text-right font-mono text-xs"
+                  [value]="campo('cadUSD')" (input)="onCampo('cadUSD', $event)" />
+              </td>
+              <td>
+                <input type="number" min="0" max="720" placeholder="hereda"
+                  class="w-20 rounded border border-neutral-300 px-2 py-1 text-right font-mono text-xs"
+                  [value]="campo('margenCierreMinutos')" (input)="onCampo('margenCierreMinutos', $event)" /> min
+              </td>
+              <td class="pr-4 text-right">
+                <button type="button" class="mr-1 rounded-md bg-primary-600 px-2 py-1 text-xs font-semibold text-white hover:bg-primary-700"
+                  [disabled]="cargando()" (click)="onGuardarHorario(h.codigo)">Guardar</button>
+                <button type="button" class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-100"
+                  (click)="cerrarEdicion()">Cancelar</button>
+              </td>
+            </tr>
+            @if (errorCampo()) {
+              <tr class="bg-neutral-50"><td></td><td colspan="5" class="pb-2 text-[11px] text-red-600">{{ errorCampo() }}</td></tr>
+            }
+            @for (a of alertasEdicion(); track a) {
+              <tr class="bg-neutral-50"><td></td><td colspan="5" class="pb-1 text-[11px] text-amber-700">⚠ {{ a }}</td></tr>
+            }
+          } @else {
+            <tr class="border-t border-neutral-100">
+              <td class="px-4 py-2 font-medium text-neutral-800">{{ h.subtipo }}</td>
+              <td><j-badge [variant]="tono(h.valor.habilitado)">{{ h.valor.habilitado ? 'SÍ' : 'NO' }}</j-badge></td>
+              <td class="font-mono text-neutral-600">{{ h.valor.cadenciaMinutos ?? '—' }} min</td>
+              <td class="text-neutral-600">
+                @for (m of monedas(h.valor.cadenciaPorMoneda); track m.moneda) {
+                  <span class="mr-2 font-mono">{{ m.moneda }} {{ m.valor }}m</span>
+                }
+              </td>
+              <td class="text-neutral-600">
+                @if (h.valor.margenCierreMinutos === null || h.valor.margenCierreMinutos === undefined) {
+                  <span class="font-mono">{{ ventanaCanal().margenCierreMinutos ?? 0 }}</span>
+                  <span class="ml-1 text-[10px] text-neutral-400">heredado</span>
+                } @else {
+                  <span class="font-mono">{{ h.valor.margenCierreMinutos }}</span> min
+                }
+              </td>
+              <td class="pr-4 text-right">
+                <button type="button" class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-100"
+                  [disabled]="cargando()"
+                  (click)="abrirEdicion(h.codigo, {
+                    habilitado: (h.valor.habilitado === true) + '',
+                    cadenciaMinutos: (h.valor.cadenciaMinutos ?? '') + '',
+                    cadPEN: (h.valor.cadenciaPorMoneda?.['PEN'] ?? '') + '',
+                    cadUSD: (h.valor.cadenciaPorMoneda?.['USD'] ?? '') + '',
+                    margenCierreMinutos: (h.valor.margenCierreMinutos ?? '') + ''
+                  })">Editar</button>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- VENTANA EFECTIVA: a qué conducen los valores de arriba, antes de guardarlos -->
+  <div class="overflow-hidden rounded-xl border border-neutral-200">
+    <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-2">
+      <p class="text-sm font-semibold text-neutral-800">Ventana efectiva</p>
+      <p class="text-xs text-neutral-500">
+        Lo que producen los valores actuales. Mientras se edita un subtipo, esta tabla se mueve con
+        lo que se teclea —<b>sin guardar nada</b>—, que es la forma de ver a qué conduce un margen
+        antes de aplicarlo. El conteo de lotes es un <b>techo</b>: supone que el primero se arma al
+        abrir. El job cuenta desde la última programación, así que un arranque tardío corre todo el
+        día y sale uno menos.
+      </p>
+    </div>
+    @for (s of simulaciones(); track s.codigo) {
+      <div class="border-t border-neutral-100 px-4 py-3" [class.bg-primary-50]="s.editando">
+        <div class="mb-2 flex items-center gap-2">
+          <span class="text-xs font-semibold text-neutral-800">{{ s.subtipo }}</span>
+          @if (s.editando) { <j-badge variant="default">simulando</j-badge> }
+          <span class="text-[11px] text-neutral-500">
+            margen {{ s.margen }} min{{ s.margenHeredado ? ' (heredado)' : '' }}
+          </span>
+        </div>
+        <table class="w-full text-left text-[11px]">
+          <thead class="text-neutral-400">
+            <tr><th class="py-1">Días</th><th>Publicado</th><th>Cierre efectivo</th><th>Útil</th><th>Lotes por moneda</th></tr>
+          </thead>
+          <tbody>
+            @for (t of s.tramos; track t.dias) {
+              <tr class="border-t border-neutral-100">
+                <td class="py-1 font-medium text-neutral-700">{{ t.dias }}</td>
+                <td class="font-mono text-neutral-500">{{ t.apertura }}–{{ t.cierrePublicado }}</td>
+                <td class="font-mono" [class.text-red-600]="t.cierre === t.apertura" [class.text-neutral-800]="t.cierre !== t.apertura">
+                  {{ t.apertura }}–{{ t.cierre }}
+                  @if (t.cutoffAplicado) {
+                    <span class="ml-1 text-[10px] font-sans text-amber-700">cut-off {{ t.cutoffAplicado }}</span>
+                  }
+                </td>
+                <td class="font-mono text-neutral-600">{{ t.minutosUtiles }} min</td>
+                <td class="text-neutral-600">
+                  @for (m of t.porMoneda; track m.moneda) {
+                    <span class="mr-3">
+                      <b>{{ m.moneda }}</b> hasta
+                      <span class="font-mono">{{ m.lotes }}</span> lote(s) cada
+                      <span class="font-mono">{{ m.cadencia }}m</span>, último
+                      <span class="font-mono">{{ m.ultimo }}</span>
+                    </span>
+                  } @empty {
+                    <span class="text-neutral-400">sin cadencia</span>
+                  }
+                </td>
+              </tr>
+              @if (t.alerta) {
+                <tr><td></td><td colspan="4" class="pb-1 text-[11px] text-amber-700">⚠ {{ t.alerta }}</td></tr>
+              }
+            } @empty {
+              <tr><td colspan="5" class="py-1 text-neutral-400">Sin tramos que simular.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  @if (config()) {
+    <p class="text-right text-[11px] text-neutral-400">Leído {{ config()?.generado }}</p>
+  }
+</div>

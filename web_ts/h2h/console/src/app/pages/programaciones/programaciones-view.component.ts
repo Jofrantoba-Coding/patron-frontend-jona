@@ -11,6 +11,7 @@ import {
 } from 'uijona-4ngular';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
 import type {
+  DiaVentana,
   Operacion,
   OperacionDetalle,
   OperacionDetalleRegistro,
@@ -20,6 +21,7 @@ import type {
   ProgramacionDetalleFull,
   ProgramacionFiltro,
   ProgramacionRow,
+  VentanaSemanal,
 } from '../../core/models';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
@@ -305,6 +307,155 @@ export class ProgramacionesViewComponent {
     this.seleccion.set(s);
   }
 
+  // ── Ventana de atención del canal ──────────────────────────────────────
+  //
+  // La entrega el backend ya resuelta (días que opera, horas con el margen restado). No se
+  // interpreta aquí ni se codifican los horarios: el mismo validador que responde el endpoint es el
+  // que rechaza al crear, y una segunda copia de la regla ofrecería días que el backend no acepta.
+
+  protected readonly ventana = signal<VentanaSemanal | null>(null);
+
+  protected setVentana(v: VentanaSemanal | null): void {
+    this.ventana.set(v);
+  }
+
+  /**
+   * Día de la ventana que corresponde a una fecha `YYYY-MM-DD`.
+   *
+   * <p>La fecha se arma por partes y no con `new Date(iso)`: esa forma interpreta la cadena como
+   * UTC, y en Lima (-05:00) retrocede al día anterior —un lunes se leería como domingo y el
+   * formulario rechazaría una fecha perfectamente válida—.</p>
+   */
+  protected diaDeVentana(iso: string): DiaVentana | null {
+    const v = this.ventana();
+    if (!v || !iso) return null;
+    const [anio, mes, dia] = iso.slice(0, 10).split('-').map(Number);
+    if (!anio || !mes || !dia) return null;
+    const js = new Date(anio, mes - 1, dia);
+    if (Number.isNaN(js.getTime())) return null;
+    // JS numera el domingo como 0; ISO-8601 y DayOfWeek lo numeran 7.
+    const diaSemana = js.getDay() === 0 ? 7 : js.getDay();
+    return v.dias?.find((d) => d.diaSemana === diaSemana) ?? null;
+  }
+
+  /** Días que el canal atiende, para decirlo antes de que el usuario elija mal. */
+  protected readonly resumenVentana = computed<string | null>(() => {
+    const v = this.ventana();
+    if (!v) return null;
+    if (!v.resuelta) return 'No se pudo leer la ventana de atención del canal.';
+    const abiertos = (v.dias ?? []).filter((d) => d.opera);
+    if (!abiertos.length) return 'El canal no tiene ningún día de atención configurado.';
+    return abiertos
+      .sort((a, b) => a.diaSemana - b.diaSemana)
+      .map((d) => `${d.nombre} ${this.hhmm(d.desde)}–${this.hhmm(d.hasta)}`)
+      .join(' · ');
+  });
+
+  /**
+   * Días cerrados, nombrados por la propia configuración.
+   *
+   * <p>Antes esto era un «domingos no opera» escrito en la plantilla. Sobraba decirlo a mano —el
+   * backend ya declara los siete días— y además habría quedado mintiendo el día que el banco
+   * cambie su calendario o se cierre un feriado.</p>
+   */
+  protected readonly diasCerrados = computed<string | null>(() => {
+    const v = this.ventana();
+    if (!v?.resuelta) return null;
+    const cerrados = (v.dias ?? [])
+      .filter((d) => !d.opera)
+      .sort((a, b) => a.diaSemana - b.diaSemana)
+      .map((d) => d.nombre);
+    if (!cerrados.length) return null;
+    return cerrados.length === 1 ? `${cerrados[0]} no opera.` : `No opera: ${cerrados.join(', ')}.`;
+  });
+
+  /** Aviso sobre la fecha de proceso elegida. Informa mientras se escribe; el corte es al guardar. */
+  protected readonly avisoFechaProceso = computed<string | null>(() => {
+    const iso = this.nuevoFechaProceso().trim();
+    if (!iso) return null;
+    const dia = this.diaDeVentana(iso);
+    if (!dia) return null;
+    return dia.opera
+      ? null
+      : `${dia.nombre}: el canal no atiende ese día. El plan no podría enviarse.`;
+  });
+
+  /** `HH:mm:ss` → `HH:mm`. El segundo no aporta nada en una ventana de atención. */
+  protected hhmm(hora: string | undefined): string {
+    return hora ? hora.slice(0, 5) : '—';
+  }
+
+  /**
+   * Subtipos habilitados que cierran ANTES que la ventana consolidada.
+   *
+   * <p>El resumen de arriba toma el cierre más tardío, así que por sí solo daría vía libre hasta las
+   * 20:15 cuando una interbancaria en el lote no pasa de las 12:15. El formulario no puede saber el
+   * subtipo —se deriva de las operaciones—, así que lo que corresponde es mostrar la restricción y
+   * dejar la decisión al operador, no fingir que no existe.</p>
+   *
+   * <p>Solo se listan los que difieren: si los tres cierran igual, repetirlo es ruido.</p>
+   */
+  protected readonly subtiposRestringidos = computed<{ subtipo: string; detalle: string }[]>(() => {
+    const v = this.ventana();
+    if (!v?.resuelta || !v.subtipos?.length) return [];
+    const consolidado = new Map((v.dias ?? []).map((d) => [d.diaSemana, d.hasta ?? '']));
+    const salida: { subtipo: string; detalle: string }[] = [];
+    for (const s of v.subtipos) {
+      if (!s.habilitado) continue;
+      const antes = (s.dias ?? []).filter(
+        (d) => d.opera && (d.hasta ?? '') < (consolidado.get(d.diaSemana) ?? '')
+      );
+      if (!antes.length) continue;
+      salida.push({
+        subtipo: s.subtipo,
+        detalle: antes
+          .sort((a, b) => a.diaSemana - b.diaSemana)
+          .map((d) => `${d.nombre} hasta ${this.hhmm(d.hasta)}`)
+          .join(' · '),
+      });
+    }
+    return salida;
+  });
+
+  /** Límites del `datetime-local` para la fecha de proceso elegida, si ese día opera. */
+  protected readonly limiteProgramado = computed<{ min: string; max: string } | null>(() => {
+    const iso = this.nuevoFechaProceso().trim().slice(0, 10);
+    const dia = this.diaDeVentana(iso);
+    if (!dia?.opera) return null;
+    return { min: `${iso}T${this.hhmm(dia.desde)}`, max: `${iso}T${this.hhmm(dia.hasta)}` };
+  });
+
+  /**
+   * Comprueba fecha y hora contra la ventana. Devuelve el motivo del rechazo, o `null` si pasa.
+   *
+   * <p>Cuando la ventana no se pudo leer se deja pasar: el backend vuelve a validar y rechaza. Es
+   * preferible a bloquear el formulario por un fallo de lectura que el usuario no puede arreglar.</p>
+   */
+  private motivoFueraDeVentana(fechaProceso: string, programadoLocal: string): string | null {
+    const v = this.ventana();
+    if (!v?.resuelta) return null;
+
+    const diaProceso = this.diaDeVentana(fechaProceso);
+    if (diaProceso && !diaProceso.opera) {
+      return `La fecha de proceso cae en ${diaProceso.nombre} y el canal no atiende ese día.`;
+    }
+    if (!programadoLocal) return null;
+
+    const diaProgramado = this.diaDeVentana(programadoLocal);
+    if (diaProgramado && !diaProgramado.opera) {
+      return `La fecha programada cae en ${diaProgramado.nombre} y el canal no atiende ese día.`;
+    }
+    // `2026-08-03T20:45` → `20:45`. Se compara como texto: `HH:mm` ordena igual que el reloj.
+    const hora = programadoLocal.slice(11, 16);
+    if (!hora || !diaProgramado?.opera) return null;
+    const desde = this.hhmm(diaProgramado.desde);
+    const hasta = this.hhmm(diaProgramado.hasta);
+    if (hora < desde || hora > hasta) {
+      return `La hora programada (${hora}) queda fuera de la ventana: ${diaProgramado.nombre} se atiende de ${desde} a ${hasta}.`;
+    }
+    return null;
+  }
+
   protected buildCrearPayload(): ProgramacionCrear | null {
     const idProducto = Number(this.nuevoIdProducto());
     const idMoneda = Number(this.nuevoIdMoneda());
@@ -320,6 +471,13 @@ export class ProgramacionesViewComponent {
     }
     if (operaciones.length === 0) {
       this.crearError.set('Seleccione al menos una operación para el plan.');
+      return null;
+    }
+    // La ventana se comprueba con las operaciones ya validadas: si el día está mal, el mensaje que
+    // hay que leer es ese y no «seleccione operaciones».
+    const fuera = this.motivoFueraDeVentana(fechaProceso, this.nuevoFechaProgramado().trim());
+    if (fuera) {
+      this.crearError.set(fuera);
       return null;
     }
     const payload: ProgramacionCrear = { idProducto, idMoneda, fechaProceso, modoEnvio: this.nuevoModo(), operaciones };

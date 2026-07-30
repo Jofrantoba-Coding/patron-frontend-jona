@@ -1,0 +1,223 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
+  <j-section-heading
+    eyebrow="Canal H2H"
+    heading="Seguimiento de schedulers"
+    description="Los tres jobs del canal: programación, ciclo SFTP y decisión. Estado por organización, lo atascado y el histórico de corridas."
+  />
+
+  <!-- Barra de acciones -->
+  <div class="flex flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+    <button
+      type="button"
+      class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+      [disabled]="cargando()"
+      (click)="refrescar()"
+      title="Vuelve a leer la bitácora y los interruptores"
+    >↻ Refrescar</button>
+
+    @if (organizaciones().length > 1) {
+      <label class="flex items-center gap-1 text-xs text-neutral-600">
+        Organización
+        <select class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs"
+          [value]="organizacion()" [disabled]="cargando()" (change)="onOrganizacion($event)">
+          <option value="">Todas</option>
+          @for (o of organizaciones(); track o.idOrganizacion) {
+            <option [value]="o.idOrganizacion">{{ o.codigo }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    <label class="flex items-center gap-1 text-xs text-neutral-600">
+      Resumen
+      <select class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs"
+        [value]="diasResumen()" [disabled]="cargando()" (change)="onDias($event)">
+        <option [value]="1">último día</option>
+        <option [value]="7">7 días</option>
+        <option [value]="30">30 días</option>
+        <option [value]="90">90 días</option>
+      </select>
+    </label>
+
+    <span class="ml-auto text-xs text-neutral-500">
+      @if (generado()) { Leído {{ hace(generado()) }} }
+    </span>
+  </div>
+
+  @if (cargando()) { <j-progress /> }
+
+  @if (error()) {
+    <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ error() }}</div>
+  }
+  @if (aviso()) {
+    <div class="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">{{ aviso() }}</div>
+  }
+
+  <!-- Estado de la instancia. Va primero porque si está apagada, nada de lo de abajo va a ocurrir. -->
+  @if (instancia(); as inst) {
+    <div class="rounded-xl border px-3 py-2"
+      [class]="salud() === 'ok' ? 'border-emerald-200 bg-emerald-50'
+             : salud() === 'apagado' ? 'border-neutral-300 bg-neutral-100'
+             : 'border-amber-200 bg-amber-50'">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+        <span class="font-semibold text-neutral-800">
+          @switch (salud()) {
+            @case ('ok') { ● Operativo }
+            @case ('apagado') { ○ Jobs apagados en esta instancia }
+            @default { ▲ Requiere atención }
+          }
+        </span>
+        <span class="text-neutral-600">Instancia <b>{{ inst.nombre }}</b></span>
+        <span class="text-neutral-600">En curso: <b>{{ inst.enCurso }}</b></span>
+        <span class="text-neutral-600">Pool: {{ poolTexto() }}</span>
+        @if (apagados() > 0) {
+          <span class="text-neutral-600">{{ apagados() }} interruptor(es) apagado(s)</span>
+        }
+      </div>
+      @if (!inst.habilitado) {
+        <p class="mt-1 text-xs text-neutral-600">
+          <code>h2h.jobs.habilitado = false</code>: ningún job corre en esta instancia, aunque los
+          interruptores por organización estén encendidos.
+        </p>
+      }
+    </div>
+  }
+
+  <!-- Corridas atascadas: lo único que exige acción inmediata. -->
+  @if (hayColgadas()) {
+    <div class="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2">
+      <p class="text-sm font-semibold text-amber-900">
+        {{ colgadas().length }} corrida(s) atascada(s) en EN_CURSO
+      </p>
+      <p class="mb-2 text-xs text-amber-800">
+        Suele significar que la instancia murió a mitad del tick. Al arrancar de nuevo se cierran solas.
+      </p>
+      <table class="w-full text-left text-xs">
+        <thead class="text-neutral-500">
+          <tr><th class="py-1">Job</th><th>Instancia</th><th>Desde</th></tr>
+        </thead>
+        <tbody>
+          @for (c of colgadas(); track c.id) {
+            <tr class="border-t border-amber-200">
+              <td class="py-1 font-medium">{{ c.job }}</td>
+              <td>{{ c.instancia }}</td>
+              <td>{{ momento(c.inicio) }} ({{ hace(c.inicio) }})</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Los tres jobs -->
+  @for (j of jobs(); track j.job) {
+    <div class="overflow-hidden rounded-xl border border-neutral-200">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-neutral-200 bg-neutral-50 px-3 py-2">
+        <button type="button" class="text-sm font-semibold text-neutral-800 hover:underline"
+          (click)="alternarJob(j.job)">
+          {{ jobAbierto() === j.job ? '▾' : '▸' }} {{ j.job }}
+        </button>
+        <span class="text-xs text-neutral-500">{{ j.descripcion }}</span>
+        <code class="text-[11px] text-neutral-400">cron {{ cron(j.job) }}</code>
+        <button
+          type="button"
+          class="ml-auto rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+          [disabled]="cargando() || !instancia()?.habilitado"
+          [title]="instancia()?.habilitado ? 'Ejecuta ahora, sin esperar al cron' : 'Los jobs están apagados en esta instancia'"
+          (click)="ejecutar(j.job)"
+        >▶ Ejecutar ahora</button>
+      </div>
+
+      <table class="w-full text-left text-xs">
+        <thead class="bg-white text-neutral-500">
+          <tr>
+            <th class="px-3 py-1">Organización</th>
+            <th>Interruptor</th>
+            <th>Última corrida</th>
+            <th>Estado</th>
+            <th>Resueltos</th>
+            <th>Duración</th>
+            <th>Instancia</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of j.organizaciones; track o.idOrganizacion) {
+            <tr class="border-t border-neutral-100">
+              <td class="px-3 py-1.5 font-medium text-neutral-800">{{ o.codigo }}</td>
+              <td>
+                <!-- Es el estado EFECTIVO: la plataforma puede forzar el apagado por encima. -->
+                <button type="button"
+                  class="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                  [class]="o.interruptor ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                                         : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'"
+                  [disabled]="cargando()"
+                  [title]="o.interruptor ? 'Encendido — clic para apagar' : 'Apagado — clic para encender'"
+                  (click)="cambiarInterruptor(j.job, o.idOrganizacion, !o.interruptor)"
+                >{{ o.interruptor ? 'ON' : 'OFF' }}</button>
+              </td>
+              @if (o.ultimaCorrida; as c) {
+                <td class="text-neutral-600" [title]="momento(c.inicio)">{{ hace(c.inicio) }}</td>
+                <td>
+                  <j-badge [variant]="tono(c.estado)">{{ c.estado }}</j-badge>
+                  @if (c.disparador === 'MANUAL') {
+                    <span class="ml-1 text-[10px] text-neutral-400">manual</span>
+                  }
+                </td>
+                <td class="text-neutral-700">{{ numero(c.resueltos) }}</td>
+                <td class="text-neutral-500">{{ duracion(c.duracionMs) }}</td>
+                <td class="text-[11px] text-neutral-400">{{ c.instancia }}</td>
+              } @else {
+                <td colspan="5" class="text-neutral-400">sin corridas registradas</td>
+              }
+            </tr>
+            @if (o.ultimaCorrida?.motivo) {
+              <tr class="border-t border-neutral-50">
+                <td></td>
+                <td colspan="6" class="pb-1.5 text-[11px] text-neutral-500">
+                  {{ o.ultimaCorrida?.motivo }}
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+
+      <!-- Detalle: el resumen de la ventana para este job. -->
+      @if (jobAbierto() === j.job) {
+        <div class="border-t border-neutral-200 bg-neutral-50 px-3 py-2">
+          <p class="mb-1 text-xs font-semibold text-neutral-700">
+            Últimos {{ diasResumen() }} día(s)
+          </p>
+          @if (resumenDe(j.job).length === 0) {
+            <p class="text-xs text-neutral-500">Sin corridas con contenido en la ventana.</p>
+          } @else {
+            <table class="w-full text-left text-xs">
+              <thead class="text-neutral-500">
+                <tr><th class="py-1">Estado</th><th>Corridas</th><th>Resueltos</th><th>Duración máx.</th></tr>
+              </thead>
+              <tbody>
+                @for (r of resumenDe(j.job); track r.estado) {
+                  <tr class="border-t border-neutral-200">
+                    <td class="py-1"><j-badge [variant]="tono(r.estado)">{{ r.estado }}</j-badge></td>
+                    <td>{{ numero(r.corridas) }}</td>
+                    <td>{{ numero(r.resueltos) }}</td>
+                    <td>{{ duracion(r.msMaximo) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+          <p class="mt-2 text-[11px] text-neutral-400">
+            Interruptor por organización: <code>{{ j.codigoParametria }}</code>
+          </p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!cargando() && jobs().length === 0 && !error()) {
+    <p class="rounded-lg border border-neutral-200 bg-white px-3 py-6 text-center text-sm text-neutral-500">
+      No hay información de jobs. Comprueba que el servicio de schedulers esté levantado.
+    </p>
+  }
+</div>

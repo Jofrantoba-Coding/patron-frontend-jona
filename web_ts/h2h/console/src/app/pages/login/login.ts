@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, type OnInit } from '@angular/core';
 import {
   JAlert,
   JButton,
@@ -10,73 +10,47 @@ import {
   JFormField,
 } from 'uijona-4ngular';
 import { environment } from '../../../environments/environment';
+import { LOGIN_ULTIMA_ORG } from './inter-login';
+import { LoginViewComponent } from './login-view.component';
 
 /**
- * Selección de organización (tenant). BFF: no autentica en el navegador; redirige
- * al gateway `/oauth2/authorization/{organizacion}`, que hace el flujo OAuth2
- * contra Keycloak, crea la sesión (cookie) y vuelve al console.
+ * Acceso a la consola. **BFF: el navegador no autentica ni maneja tokens.**
+ *
+ * <p>Lo único que ocurre aquí es entregar el navegador al gateway
+ * (`/oauth2/authorization/{organizacion}`), que hace el flujo OAuth2 contra el realm del tenant,
+ * crea la sesión en cookie y devuelve el control. Por eso no hay campo de contraseña: si lo
+ * hubiera, la consola estaría viendo credenciales que no le corresponden.</p>
+ *
+ * <p>La organización no es un nombre libre: el gateway la usa como `registrationId` y la traduce
+ * por el índice de tenants de Vault. Una que no esté aprovisionada no da un error amable —el
+ * gateway responde 500 al no poder resolver el `ClientRegistration`—, y de ahí que la Vista valide
+ * el formato antes de salir del navegador.</p>
  */
 @Component({
   selector: 'app-login',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JCard, JCardHeader, JCardTitle, JCardDescription, JCardContent, JFormField, JButton, JAlert],
-  template: `
-    <div class="flex min-h-screen items-center justify-center bg-neutral-100 px-4 py-10">
-      <div class="w-full max-w-sm">
-        <div class="mb-6 flex items-center justify-center gap-2">
-          <span class="grid h-9 w-9 place-items-center rounded-lg bg-primary-600 text-sm font-black text-white">H2H</span>
-          <div>
-            <p class="text-sm font-bold leading-tight text-neutral-900">Consola H2H</p>
-            <p class="text-[11px] leading-tight text-neutral-400">Jofrantoba Consulting TI</p>
-          </div>
-        </div>
-
-        <j-card>
-          <j-card-header>
-            <j-card-title>Ingresar a la consola</j-card-title>
-            <j-card-description>Indique su organización para continuar</j-card-description>
-          </j-card-header>
-          <j-card-content>
-            @if (error()) {
-              <j-alert variant="danger" title="No se pudo continuar" className="mb-4">{{ error() }}</j-alert>
-            }
-            <form class="space-y-4" (submit)="onSubmit($event)" novalidate>
-              <j-form-field
-                id="organizacion"
-                label="Organización"
-                [value]="organizationId()"
-                (valueChange)="organizationId.set($event)"
-                placeholder="almil"
-                [required]="true"
-              />
-              <p class="text-[11px] leading-snug text-neutral-400">
-                Corresponde al realm de su organización en
-                <span class="font-mono">auth.jofrantoba.com</span>. Será redirigido a Keycloak.
-              </p>
-              <j-button type="submit" [fullWidth]="true" [loading]="loading()">Continuar</j-button>
-            </form>
-          </j-card-content>
-        </j-card>
-      </div>
-    </div>
-  `,
+  templateUrl: './login-view.component.html',
 })
-export class LoginPage {
-  protected readonly organizationId = signal('');
-  protected readonly loading = signal(false);
-  protected readonly error = signal('');
+export class LoginPage extends LoginViewComponent implements OnInit {
+  ngOnInit(): void {
+    this.recuperarUltima();
+  }
 
-  protected onSubmit(event: Event): void {
-    event.preventDefault();
-    const org = this.organizationId().trim();
-    if (!org) {
-      this.error.set('Ingrese el identificador de su organización.');
-      return;
-    }
-    this.loading.set(true);
+  /**
+   * Sale del SPA hacia el gateway. No se apaga `cargando`: la pestaña se va a otra URL, y
+   * limpiarlo solo provocaría un parpadeo del botón justo antes de la redirección.
+   */
+  protected override ingresar(): void {
+    const org = this.organizacion().trim();
+    this.cargando.set(true);
     this.error.set('');
-    // BFF: el gateway inicia el flujo OAuth2 para la organización (registrationId).
+    try {
+      localStorage.setItem(LOGIN_ULTIMA_ORG, org);
+    } catch {
+      // localStorage bloqueado (modo privado): es una comodidad, no un requisito para entrar.
+    }
     window.location.href = `${environment.gatewayBaseUrl}/oauth2/authorization/${encodeURIComponent(org)}`;
   }
 }

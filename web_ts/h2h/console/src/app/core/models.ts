@@ -600,6 +600,49 @@ export interface ProgramacionDetalleFull {
 }
 
 /** Payload para crear un plan de envío. */
+/** Un día de la semana del canal, ya resuelto por el backend (margen restado incluido). */
+export interface DiaVentana {
+  /** 1 = lunes … 7 = domingo, como `DayOfWeek.getValue()`. */
+  diaSemana: number;
+  nombre: string;
+  opera: boolean;
+  /** `HH:mm:ss`. Solo cuando `opera`. */
+  desde?: string;
+  hasta?: string;
+}
+
+/**
+ * Ventana de atención del canal para los siete días.
+ *
+ * <p>`resuelta` en false significa que no se pudo leer la configuración horaria — distinto de «no
+ * opera ningún día». Con la diferencia borrada, el formulario bloquearía el calendario entero sin
+ * poder explicar por qué.</p>
+ */
+export interface VentanaSemanal {
+  zonaHoraria?: string;
+  resuelta: boolean;
+  dias: DiaVentana[];
+  /** Desglose por subtipo: ver `SubtipoVentana`. */
+  subtipos?: SubtipoVentana[];
+}
+
+/**
+ * Ventana de un subtipo concreto (TERCEROS, CUENTA_PROPIA, INTERBANCARIA).
+ *
+ * <p>Existe porque `dias` consolida tomando el cierre más TARDÍO, y eso esconde a los subtipos más
+ * restringidos: una INTERBANCARIA cierra a las 12:15 por el cut-off de la BCR, no a las 20:15 de las
+ * intrabancarias. El formulario elige producto y moneda —no subtipo, que se deriva de las
+ * operaciones—, así que la diferencia se muestra en lugar de suponerla.</p>
+ */
+export interface SubtipoVentana {
+  subtipo: string;
+  habilitado: boolean;
+  intrabancaria: boolean;
+  /** `false` = hereda el calendario del canal, así que cambiarlo mueve también este subtipo. */
+  ventanaPropia: boolean;
+  dias: DiaVentana[];
+}
+
 export interface ProgramacionCrear {
   idProducto: number;
   idMoneda: number;

@@ -95,6 +95,11 @@ export class Shell {
       ...gate('llaves:read', { key: 'llaves-cifrado', label: 'Llaves de cifrado', icon: '🔑' }),
       ...gate('llaves:read', { key: 'sftp-config', label: 'Configuración SFTP', icon: '📡' }),
       ...gate('planillas:read', { key: 'sftp-seguimiento', label: 'Seguimiento SFTP', icon: '🗂' }),
+      // Mismo permiso que el seguimiento SFTP: las dos pantallas miran el mismo canal, una desde
+      // los buzones del banco y otra desde los jobs que los alimentan.
+      ...gate('planillas:read', { key: 'schedulers-seguimiento', label: 'Schedulers', icon: '⏱' }),
+      // Escribe configuracion que enciende el envio de dinero: gate de escritura, no de lectura.
+      ...gate('llaves:read', { key: 'jobs-configuracion', label: 'Procesamiento automático', icon: '⚡' }),
       ...gate('catalogos:read', { key: 'catalogos', label: 'Catálogos', icon: '≣' }),
       ...gate('catalogos:read', { key: 'correlativos', label: 'Correlativos', icon: '№' }),
       ...gate('auditoria:read', { key: 'auditoria', label: 'Auditoría', icon: '◷' }),
