@@ -1,16 +1,25 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { JDataTable, JPagination, JSectionHeading, type JDataTableColumn, type JDataTableRow } from 'uijona-4ngular';
-import type { Operacion, OperacionDetalle, OperacionFiltro, Paginated, ProductoGrupo } from '../../core/models';
+import { JDataTable, JDialog, JPagination, JSectionHeading, type JDataTableColumn, type JDataTableRow } from 'uijona-4ngular';
+import type {
+  Operacion,
+  OperacionDetalle,
+  OperacionDetalleRegistro,
+  OperacionFiltro,
+  Paginated,
+  ProductoGrupo,
+} from '../../core/models';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
-import { META, META_TODAS, TIPOOP_GRUPO, type OperacionMeta } from './inter-operaciones';
+import { ANULACION_NEGADA, ESTADO_OPE_ANULADA, META, META_TODAS, TIPOOP_GRUPO, type OperacionMeta } from './inter-operaciones';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
+
+type Registro = OperacionDetalleRegistro;
 
 @Component({
   selector: 'app-operaciones-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, OperacionDetalleDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JDialog, OperacionDetalleDialog],
   templateUrl: './operaciones-view.component.html',
 })
 export class OperacionesViewComponent {
@@ -222,6 +231,105 @@ export class OperacionesViewComponent {
   }
   protected setOpDetalle(d: OperacionDetalle): void {
     this.opDetalle.set(d);
+  }
+
+  // ── Anulación de la operación ─────────────────────────────────────────
+  protected readonly anularAbierto = signal<boolean>(false);
+  protected readonly anularMotivo = signal<string>('');
+  protected readonly anulando = signal<boolean>(false);
+  /** Operación sobre la que se abrió la confirmación: sobrevive al cierre del detalle. */
+  protected readonly anularId = signal<string | null>(null);
+  protected readonly anularCodigo = signal<string>('');
+  /** Resultado de la última anulación (incluye el desenlace contable). */
+  protected readonly avisoMensaje = signal<string | null>(null);
+  protected readonly avisoError = signal<boolean>(false);
+
+  /** Registro plano de la operación abierta en el detalle. */
+  private readonly opRegistro = computed<Registro | null>(() => this.opDetalle()?.operacion ?? null);
+
+  protected readonly estadoOpDetalle = computed(() => this.pv(this.opRegistro(), 'estadoOperacionCodigo'));
+
+  /**
+   * Por qué NO se puede anular, o `null` si se puede. Se comprueba en el mismo orden que el
+   * backend, y se devuelve un texto en vez de un booleano porque el bloqueo hay que explicarlo.
+   *
+   * <p>Es una comprobación <b>optimista</b>: el backend además valida el aislamiento de la
+   * organización y puede negar por reglas que esta pantalla no ve. Por eso el 422 se muestra tal
+   * cual llega en lugar de intentar predecirlo aquí — la autoridad es el backend.</p>
+   */
+  protected readonly bloqueoAnular = computed<string | null>(() => {
+    const registro = this.opRegistro();
+    if (!registro) return null;
+    const estado = this.estadoOpDetalle();
+    if (estado === ESTADO_OPE_ANULADA) {
+      return 'la operación ya está anulada.';
+    }
+    const negado = ANULACION_NEGADA[estado];
+    if (negado) {
+      return negado;
+    }
+    // El HECHO manda sobre el estado: con planilla vigente existe un archivo que contiene esta
+    // operación y que pudo salir al banco. La vía es anular la planilla, que sí comprueba el PUT.
+    const idPlanilla = this.pv(registro, 'idPlanillaVigente');
+    if (idPlanilla !== '-') {
+      return `ya está incluida en la planilla ${idPlanilla}, cuyo archivo pudo llegar al banco. Anule esa planilla primero.`;
+    }
+    return null;
+  });
+
+  /** El motivo es obligatorio: es la única constancia de por qué este pago no se hizo. */
+  protected readonly motivoAnularValido = computed(() => this.anularMotivo().trim().length > 0);
+
+  /**
+   * Abre la confirmación y CIERRA el detalle: apilar dos diálogos deja el de atrás inerte y con
+   * scroll propio, y lo que hay que leer en ese momento es el motivo, no el snapshot.
+   */
+  protected abrirAnular(): void {
+    const registro = this.opRegistro();
+    if (!registro || this.bloqueoAnular()) return;
+    const id = this.pv(registro, 'id');
+    if (id === '-') return;
+    this.anularId.set(id);
+    this.anularCodigo.set(this.pv(registro, 'codigoOperacion'));
+    this.anularMotivo.set('');
+    this.avisoMensaje.set(null);
+    this.avisoError.set(false);
+    this.cerrarOpDetalle();
+    this.anularAbierto.set(true);
+  }
+
+  protected cerrarAnular(): void {
+    this.anularAbierto.set(false);
+    this.anularId.set(null);
+    this.anularMotivo.set('');
+  }
+
+  protected onAnularMotivo(event: Event): void {
+    this.anularMotivo.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected cerrarAviso(): void {
+    this.avisoMensaje.set(null);
+    this.avisoError.set(false);
+  }
+
+  /** Hook de confirmación, sobrescrito por la Page (es la que tiene el ApiService). */
+  protected confirmarAnular(): void {
+    return;
+  }
+
+  /** Lectura case-insensitive: la query nativa devuelve los alias en minúsculas. */
+  private raw(record: Registro | null | undefined, key: string): unknown {
+    if (!record) return undefined;
+    return record[key] ?? record[key.toLowerCase()];
+  }
+
+  /** Valor escalar de un registro formateado como texto; `'-'` si no está. */
+  protected pv(record: Registro | null | undefined, key: string): string {
+    const value = this.raw(record, key);
+    if (value === null || value === undefined || value === '') return '-';
+    if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+    return String(value);
   }
 
   protected setProducto(producto: ProductoGrupo | null): void {

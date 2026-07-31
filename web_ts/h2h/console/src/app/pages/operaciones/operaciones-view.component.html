@@ -1,6 +1,21 @@
 <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
   <j-section-heading [eyebrow]="meta().eyebrow" [heading]="meta().heading" [description]="meta().description" />
 
+  <!--
+    Resultado de la última anulación. Va en la página y no en el diálogo porque el diálogo se cierra
+    al confirmar: el desenlace contable (cuántas líneas se contrapusieron o se anularon) es lo que el
+    operador necesita leer después, y dentro de un modal cerrado no lo vería.
+  -->
+  @if (avisoMensaje()) {
+    <div
+      class="flex items-start justify-between gap-3 rounded-md border px-3 py-2 text-sm"
+      [class]="avisoError() ? 'border-red-200 bg-red-50 text-red-800' : 'border-emerald-200 bg-emerald-50 text-emerald-800'"
+    >
+      <p class="min-w-0 break-words">{{ avisoMensaje() }}</p>
+      <button type="button" class="shrink-0 text-xs underline" (click)="cerrarAviso()">Cerrar</button>
+    </div>
+  }
+
   @if (esTodas()) {
     <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -119,5 +134,67 @@
   </div>
 </div>
 
-<!-- Detalle de operación (componente compartido) -->
-<app-operacion-detalle-dialog [detalle]="opDetalle()" [loading]="opDetalleLoading()" (closed)="cerrarOpDetalle()" />
+<!-- Detalle de operación (componente compartido). Aquí SÍ ofrece anular: es la pantalla de gestión. -->
+<app-operacion-detalle-dialog
+  [detalle]="opDetalle()"
+  [loading]="opDetalleLoading()"
+  [anularVisible]="true"
+  [anularBloqueo]="bloqueoAnular()"
+  [anulando]="anulando()"
+  (closed)="cerrarOpDetalle()"
+  (anular)="abrirAnular()"
+/>
+
+<!--
+  Confirmación de la anulación. Es un paso deliberado y no un botón directo porque la acción es
+  terminal —no se desanula— y además deshace el asiento contable.
+-->
+<j-dialog
+  [open]="anularAbierto()"
+  size="md"
+  title="Anular operación"
+  [description]="anularCodigo()"
+  (closed)="cerrarAnular()"
+  (cancel)="cerrarAnular()"
+>
+  <div class="space-y-3 p-4">
+    <p class="text-sm text-neutral-700">
+      La operación quedará en <span class="font-medium">ANULADA</span> y no se pagará. Si estaba
+      reservada en un plan de envío, se quitará de él y sus totales se corregirán.
+    </p>
+    <p class="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+      <span class="font-semibold">Su asiento contable se deshace:</span> las líneas ya asentadas
+      reciben su contrapartida de reversa; las que aún no se asentaron quedan anuladas, sin
+      contrapartida. Es terminal: para volver a pagar hay que registrar una operación nueva.
+    </p>
+    <div>
+      <label for="anular-op-motivo" class="mb-1 block text-xs font-medium text-neutral-700">
+        Motivo <span class="text-red-600">*</span>
+      </label>
+      <textarea
+        id="anular-op-motivo"
+        rows="3"
+        class="w-full rounded-md border border-neutral-300 p-2 text-sm focus:border-primary-500 focus:outline-none"
+        placeholder="Por qué esta operación no se pagará"
+        [value]="anularMotivo()"
+        (input)="onAnularMotivo($event)"
+      ></textarea>
+      <p class="mt-1 text-[11px] text-neutral-500">
+        Queda registrado en la operación: es la única constancia de por qué no se pagó.
+      </p>
+    </div>
+    <div class="flex justify-end gap-2 pt-1">
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 transition hover:bg-neutral-50"
+        (click)="cerrarAnular()"
+      >Cancelar</button>
+      <button
+        type="button"
+        class="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="!motivoAnularValido() || anulando()"
+        (click)="confirmarAnular()"
+      >{{ anulando() ? 'Anulando…' : 'Anular operación' }}</button>
+    </div>
+  </div>
+</j-dialog>

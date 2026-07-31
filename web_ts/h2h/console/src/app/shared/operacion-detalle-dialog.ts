@@ -98,6 +98,35 @@ type Registro = OperacionDetalleRegistro;
           }
         </div>
       </section>
+
+      <!--
+        Acciones. Solo aparece si el contenedor las habilita (anularVisible), de modo que las
+        pantallas que usan este diálogo como consulta siguen siendo de solo lectura.
+      -->
+      @if (anularVisible) {
+        <section class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
+          @if (anularBloqueo) {
+            <!--
+              El motivo del bloqueo se muestra en vez de esconder el botón: que la acción no esté
+              disponible es información, y "no veo el botón" no explica por qué.
+            -->
+            <p class="text-xs text-amber-700"><span class="font-semibold">No se puede anular:</span> {{ anularBloqueo }}</p>
+          } @else {
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p class="text-xs text-neutral-600">
+                Anular deshace también el asiento contable de la operación. Es terminal: no se
+                desanula.
+              </p>
+              <button
+                type="button"
+                class="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="anulando"
+                (click)="anular.emit()"
+              >Anular operación</button>
+            </div>
+          }
+        </section>
+      }
     </div>
   }
 </j-dialog>
@@ -106,7 +135,14 @@ type Registro = OperacionDetalleRegistro;
 export class OperacionDetalleDialog {
   @Input() detalle: OperacionDetalle | null = null;
   @Input() loading: string | null = null;
+  /** Muestra el bloque de acciones con el botón de anular. Apagado por defecto: este diálogo se
+   *  usa también como consulta desde programaciones, y ahí no debe ofrecer mutaciones. */
+  @Input() anularVisible = false;
+  /** Por qué NO se puede anular. Con valor, sustituye al botón por la explicación. */
+  @Input() anularBloqueo: string | null = null;
+  @Input() anulando = false;
   @Output() closed = new EventEmitter<void>();
+  @Output() anular = new EventEmitter<void>();
 
   protected cerrar(): void {
     this.closed.emit();

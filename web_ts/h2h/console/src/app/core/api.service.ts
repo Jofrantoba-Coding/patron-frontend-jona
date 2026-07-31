@@ -474,6 +474,32 @@ export class ApiService {
     return this.patch<Operacion>(`/v1/operaciones/${id}/anular`, { motivo });
   }
 
+  /**
+   * ANULA una operación: decide que este pago no se hará nunca y DESHACE su asiento contable.
+   *
+   * Es terminal y no se desanda: si el pago vuelve a hacer falta, se registra una operación nueva.
+   *
+   * En una sola transacción el backend (1) la saca del plan si estaba reservada en uno —detalle a
+   * `EXCLUIDO`, reserva liberada y totales del plan corregidos—, (2) deshace el asiento: las líneas
+   * ya asentadas (`APLICADO`) pasan a `REVERSADO` y se les genera su CONTRAPARTIDA (`REVERSA`, con
+   * la naturaleza invertida), y las que nunca se asentaron pasan a `ANULADO` **sin** contrapartida
+   * —contraponer algo que no se posteó inflaría el mayor con un cargo y un abono inexistentes—, y
+   * (3) deja la operación en `ANULADA` sin reservas, con el motivo en sus atributos.
+   *
+   * El `motivo` es obligatorio (400 si falta). Devuelve 422 si el hecho ya está consumado: estado
+   * `PAGO_CONFIRMADO` o `CONTABILIZADA`, o la operación ya incluida en una planilla cuyo archivo
+   * pudo llegar al banco (ahí la vía es `/planillas/anular`). Idempotente (`yaEstaba = true`).
+   *
+   * En `data.contable.mensaje` viene el resultado de la reversa, que es lo que el operador necesita
+   * leer: cuántas líneas se contrapusieron y cuántas se anularon.
+   */
+  anularOperacionBackend(idOperacion: string, motivo: string): Observable<Record<string, unknown>> {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/operaciones/anular',
+      this.buildEnvelope({ idOperacion, motivo })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
   // ── Planillas ────────────────────────────────────────────────────────
   planillas(opts: { producto?: ProductoGrupo; subtipo?: string; page?: number; pageSize?: number } = {}) {
     const { producto, subtipo, page = 1, pageSize = 20 } = opts;

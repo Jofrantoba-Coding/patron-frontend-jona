@@ -41,6 +41,42 @@ export interface OpcionCatalogo {
 }
 
 export const ESTADOS_PROGRAMACION = ['ABIERTA', 'PROGRAMADA', 'GENERADA', 'ENVIADA', 'RESPONDIDA', 'ERROR', 'CANCELADA'];
+
+/**
+ * Transiciones que la consola puede pedir, por estado de origen. Espejo de `TRANSICIONES_OPERADOR`
+ * en `ProcessProgramacionEnvio`.
+ *
+ * <p>Es una copia deliberada, no la autoridad: el backend valida igual, porque el endpoint se puede
+ * llamar sin pasar por aquí. Esto solo evita ofrecer un botón que va a fallar —hasta ahora
+ * «Cancelar» aparecía incluso en un plan RESPONDIDA, y el backend lo aceptaba—.</p>
+ *
+ * <p>`GENERADA`, `ENVIADA` y `RESPONDIDA` no listan nada: sus transiciones las escribe el sistema
+ * con su propia evidencia. Cancelar un plan ya generado se hace anulando su planilla.</p>
+ */
+export const ACCIONES_POR_ESTADO: Record<string, string[]> = {
+  ABIERTA: ['PROGRAMADA', 'CANCELADA'],
+  PROGRAMADA: ['CANCELADA'],
+  ERROR: ['PROGRAMADA', 'CANCELADA'],
+  GENERADA: [],
+  ENVIADA: [],
+  RESPONDIDA: [],
+  CANCELADA: [],
+};
+
+/**
+ * Estados desde los que tiene sentido materializar la planilla. Es una lista aparte de
+ * `ACCIONES_POR_ESTADO` porque generar no es un cambio de estado que pida el operador: lo escribe el
+ * gatillado, y el estado resultante (`GENERADA`) no está en la lista blanca.
+ */
+export const ESTADOS_GENERABLES = ['ABIERTA', 'PROGRAMADA', 'ERROR'];
+
+/** Por qué no se puede cancelar desde ciertos estados. Se muestra como `title` del botón inhabilitado. */
+export const MOTIVO_SIN_CANCELAR: Record<string, string> = {
+  GENERADA: 'Ya hay una planilla generada: anúlela desde la planilla, esa vía sí libera las operaciones.',
+  ENVIADA: 'El archivo ya está en el banco. Espere su respuesta.',
+  RESPONDIDA: 'El banco ya respondió y las operaciones están conciliadas.',
+  CANCELADA: 'El plan ya está cancelado.',
+};
 export const TIPOS_DESTINO = ['INTERBANCARIA', 'TERCEROS', 'CUENTA_PROPIA'];
 export const CANALES = ['CCE', 'BCR', 'INTERNO'];
 export const MODOS = ['AUTOMATICO', 'MANUAL'];
@@ -502,6 +538,37 @@ export class ProgramacionesViewComponent {
   protected guardarNuevo(): void {
     return;
   }
+  // ── Acciones permitidas por estado ─────────────────────────────────────
+
+  /** Estado del plan abierto en el diálogo de detalle. */
+  private estadoDetalle(): string {
+    return this.pv(this.detalle()?.programacion, 'estadoCodigo').toUpperCase();
+  }
+
+  protected puede(accion: string): boolean {
+    return (ACCIONES_POR_ESTADO[this.estadoDetalle()] ?? []).includes(accion);
+  }
+
+  /** Materializar la planilla: el plan debe estar vivo y no tener ya una. */
+  protected puedeGenerar(sinPlanilla: boolean): boolean {
+    return sinPlanilla && ESTADOS_GENERABLES.includes(this.estadoDetalle());
+  }
+
+  /**
+   * Texto del `title` cuando la acción está vedada. Vacío si está permitida.
+   *
+   * <p>Un botón inhabilitado sin explicación obliga a adivinar; el motivo es justo lo que hace falta
+   * saber —sobre todo en GENERADA, donde la acción existe pero la vía es anular la planilla—.</p>
+   */
+  protected motivo(accion: string): string {
+    if (this.puede(accion)) return '';
+    const estado = this.estadoDetalle();
+    if (accion === 'CANCELADA') {
+      return MOTIVO_SIN_CANCELAR[estado] ?? `No disponible en estado ${estado}.`;
+    }
+    return `No disponible en estado ${estado}.`;
+  }
+
   protected cambiarEstado(_estado: string): void {
     return;
   }

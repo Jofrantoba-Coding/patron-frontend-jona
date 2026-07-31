@@ -69,6 +69,23 @@ export const META: Record<ProductoGrupo, OperacionMeta> = {
   },
 };
 
+/** Estado terminal de la anulación. */
+export const ESTADO_OPE_ANULADA = 'ANULADA';
+
+/**
+ * Estados desde los que el backend NO deja anular, con el motivo que se muestra.
+ *
+ * <p>Espeja `ANULACION_NEGADA` de `ProcessOperacionesH2h`. La autoridad sigue siendo el backend
+ * —el 422 se muestra tal cual llegue—; esto solo evita el viaje y, sobre todo, explica en pantalla
+ * por qué la acción no está disponible en vez de esconder el botón sin decir nada.</p>
+ */
+export const ANULACION_NEGADA: Record<string, string> = {
+  PAGO_CONFIRMADO:
+    'el banco ya confirmó el pago. Anular contradiría un hecho registrado; si el dinero debe volver, eso es una operación nueva (extorno).',
+  CONTABILIZADA:
+    'el asiento ya fue contabilizado hacia afuera. Se corrige por la vía contable, no anulando el origen.',
+};
+
 export const META_TODAS: OperacionMeta = {
   eyebrow: 'Operación',
   heading: 'Todas las operaciones',

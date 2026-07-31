@@ -88,9 +88,17 @@
           <h3 class="text-sm font-semibold text-neutral-800">Cabecera del plan</h3>
           <div class="flex flex-wrap items-center gap-2">
             <j-badge [variant]="badge(pv(d.programacion, 'estadoCodigo'))">{{ pv(d.programacion, 'estadoCodigo') }}</j-badge>
-            <button type="button" class="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100" (click)="cambiarEstado('PROGRAMADA')">Programar</button>
-            <button type="button" class="rounded-md bg-primary-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50" [disabled]="pv(d.programacion, 'idPlanilla') !== '-'" (click)="generar()">Generar planilla</button>
-            <button type="button" class="rounded-md border border-red-300 bg-white px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50" (click)="cambiarEstado('CANCELADA')">Cancelar</button>
+            <!-- Cada accion se habilita segun el estado (espejo de TRANSICIONES_OPERADOR en el
+                 backend, que valida igual). El title explica el porque cuando esta vedada. -->
+            <button type="button" class="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-40"
+              [disabled]="!puede('PROGRAMADA')" [attr.title]="motivo('PROGRAMADA') || null"
+              (click)="cambiarEstado('PROGRAMADA')">Programar</button>
+            <button type="button" class="rounded-md bg-primary-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+              [disabled]="!puedeGenerar(pv(d.programacion, 'idPlanilla') === '-')"
+              (click)="generar()">Generar planilla</button>
+            <button type="button" class="rounded-md border border-red-300 bg-white px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-40"
+              [disabled]="!puede('CANCELADA')" [attr.title]="motivo('CANCELADA') || null"
+              (click)="cambiarEstado('CANCELADA')">Cancelar</button>
           </div>
         </div>
         <div class="grid gap-2 p-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))]">
