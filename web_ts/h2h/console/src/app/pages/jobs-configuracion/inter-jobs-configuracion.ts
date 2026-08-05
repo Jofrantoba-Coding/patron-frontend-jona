@@ -52,6 +52,19 @@ export interface HorarioSubtipo {
   cadenciaPorMoneda?: Record<string, number>;
   /** `null` = usa el margen de la plataforma. */
   margenCierreMinutos?: number | null;
+  /**
+   * Ventana propia de la ORGANIZACIÓN para este subtipo.
+   *
+   * <p>Ausente = hereda: el backend baja al tramo del banco y, si tampoco lo declara, al del canal
+   * (`H2H#BCP#HORARIO#DEFECTO`). Cuando está presente **manda sobre los dos**, y la misma ventana
+   * la usan los cinco caminos que consultan el horario —programar a mano, generar la planilla, el
+   * ciclo SFTP, el job de programación y este calendario—, porque todos pasan por el mismo
+   * resolutor.</p>
+   *
+   * <p>Los <b>siete</b> días son obligatorios cuando se declara, cada uno con su `opera`: un día
+   * ausente no se distingue de un día sin cargar.</p>
+   */
+  ventanas?: TramoCanal[];
 }
 
 /**
@@ -95,6 +108,11 @@ export interface ReglaBancoSubtipo {
   tipoOperacion?: string;
   intrabancaria?: boolean;
   cutoffs?: CutoffBanco[];
+  /**
+   * Ventana propia del subtipo publicada por el banco. Escalón intermedio de la cascada: pierde
+   * frente a la de la organización y gana frente a la del canal.
+   */
+  ventanas?: TramoCanal[];
 }
 
 /** Lo que rinde una moneda dentro de un tramo, con la cadencia vigente. */
@@ -136,6 +154,13 @@ export interface SimulacionSubtipo {
   margen: number;
   /** El margen viene del nodo propio o se hereda de la plataforma. Cambia qué pasa si se borra. */
   margenHeredado: boolean;
+  /**
+   * Quién declara la ventana simulada: `ORGANIZACION`, `BANCO` o `CANAL`.
+   *
+   * <p>Sin esto la tabla es ambigua: los mismos tramos pueden venir de la ventana propia del
+   * subtipo o de la heredada, y de eso depende si editarla aquí cambia algo.</p>
+   */
+  origen: 'ORGANIZACION' | 'BANCO' | 'CANAL';
   tramos: TramoSimulado[];
 }
 

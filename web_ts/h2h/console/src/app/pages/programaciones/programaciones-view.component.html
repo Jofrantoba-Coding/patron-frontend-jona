@@ -101,6 +101,14 @@
               (click)="cambiarEstado('CANCELADA')">Cancelar</button>
           </div>
         </div>
+        <!-- Motivo del rechazo, junto a los botones que lo provocan. El texto viene del backend tal
+             cual: está redactado para el operador y dice cuál es la vía alternativa, no solo que no.
+             Antes estas acciones se suscribían sin manejador de error y el rechazo no se veía. -->
+        @if (accionError()) {
+          <div class="mx-3 mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            {{ accionError() }}
+          </div>
+        }
         <div class="grid gap-2 p-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))]">
           @for (campo of resumenCampos(d); track campo.label) {
             <div class="min-w-0 rounded-md bg-neutral-50 p-2">

@@ -264,6 +264,12 @@ export class JobsConfiguracionViewComponent {
     return this.borrador()[nombre] ?? '';
   }
 
+  /** Fija un campo del borrador sin pasar por un evento: casillas y conmutadores. */
+  protected onCampoValor(nombre: string, valor: string): void {
+    this.borrador.set({ ...this.borrador(), [nombre]: valor });
+    this.errorCampo.set('');
+  }
+
   protected onCampo(nombre: string, ev: Event): void {
     const valor = (ev.target as HTMLInputElement | HTMLSelectElement).value;
     this.borrador.set({ ...this.borrador(), [nombre]: valor });
@@ -361,14 +367,51 @@ export class JobsConfiguracionViewComponent {
    * Ventana efectiva de cada subtipo. Para el que se está editando toma los valores del borrador,
    * así que la tabla se mueve mientras se teclea; para el resto, los guardados.
    */
+  /**
+   * Tramos que rigen para un subtipo, con la MISMA precedencia que aplica el backend
+   * ({@code ResolutorHorarioEnvio}): organización → banco → canal.
+   *
+   * <p>Mientras se edita ese subtipo se leen del <b>borrador</b>, no de lo guardado: la simulación
+   * existe justamente para enseñar a qué conduce lo que se está tecleando antes de escribirlo. Si
+   * leyera lo persistido, cambiar el sábado no movería nada en pantalla hasta pulsar Guardar —que
+   * es exactamente el defecto que tenía—.</p>
+   */
+  private origenVentana(h: { valor: HorarioSubtipo; banco: ReglaBancoSubtipo }, editando: boolean):
+      'ORGANIZACION' | 'BANCO' | 'CANAL' {
+    if (editando ? this.campo('ventanaPropia') === 'true' : !!h.valor.ventanas?.length) {
+      return 'ORGANIZACION';
+    }
+    return h.banco.ventanas?.length ? 'BANCO' : 'CANAL';
+  }
+
+  private tramosVigentes(h: { valor: HorarioSubtipo; banco: ReglaBancoSubtipo }, editando: boolean): TramoCanal[] {
+    if (editando) {
+      // Con la casilla desmarcada se simula lo heredado, que es lo que de verdad se aplicaría.
+      if (this.campo('ventanaPropia') !== 'true') {
+        return h.banco.ventanas?.length ? h.banco.ventanas : this.tramosCanal();
+      }
+      return JobsConfiguracionViewComponent.DIAS.map((d) => ({
+        dias: d,
+        opera: this.campo(`d_${d}_opera`) !== 'false',
+        desde: this.campo(`d_${d}_desde`),
+        hasta: this.campo(`d_${d}_hasta`),
+      }));
+    }
+    if (h.valor.ventanas?.length) return h.valor.ventanas;
+    if (h.banco.ventanas?.length) return h.banco.ventanas;
+    return this.tramosCanal();
+  }
+
   protected readonly simulaciones = computed<SimulacionSubtipo[]>(() => {
     const canal = this.ventanaCanal();
-    const tramos = this.tramosCanal();
     const margenPlataforma = canal.margenCierreMinutos ?? 0;
     const enEdicion = this.editando();
 
     return this.horarios().map((h) => {
       const editando = enEdicion === h.codigo;
+      // Por subtipo, no una sola vez para todos: antes se tomaba `tramosCanal()` fuera del map, así
+      // que la ventana propia de la organización —y el borrador en curso— no se veían nunca aquí.
+      const tramos = this.tramosVigentes(h, editando);
       const propio = editando
         ? this.numeroCampo('margenCierreMinutos')
         : h.valor.margenCierreMinutos ?? null;
@@ -398,6 +441,7 @@ export class JobsConfiguracionViewComponent {
         editando,
         margen,
         margenHeredado: propio === null,
+        origen: this.origenVentana(h, editando),
         // Solo se simulan los días abiertos: un día cerrado no tiene ventana que recortar, y
         // filtrarlo aquí es explícito —antes se caía solo porque no traía horas que parsear—.
         tramos: tramos
@@ -484,6 +528,81 @@ export class JobsConfiguracionViewComponent {
       .map((t) => `${t.dias}: ${t.alerta}`);
   });
 
+  /**
+   * Valores iniciales del formulario de un subtipo, incluidos los 21 campos de la ventana.
+   *
+   * <p>Se arma aquí y no en la plantilla porque son 24 claves: en el HTML era ilegible y cualquier
+   * campo nuevo se olvidaba en uno de los dos sitios.</p>
+   *
+   * <p><b>La ventana se precarga con la que está EN VIGOR</b>, sea propia o heredada. Abrir el
+   * formulario en blanco obligaría a reescribir el horario del banco de memoria para cambiar un
+   * solo día, y ahí es donde se cuelan los errores.</p>
+   */
+  protected semillaEdicion(h: { codigo: string; valor: HorarioSubtipo }): Record<string, string> {
+    const base: Record<string, string> = {
+      habilitado: (h.valor.habilitado === true) + '',
+      cadenciaMinutos: (h.valor.cadenciaMinutos ?? '') + '',
+      cadPEN: (h.valor.cadenciaPorMoneda?.['PEN'] ?? '') + '',
+      cadUSD: (h.valor.cadenciaPorMoneda?.['USD'] ?? '') + '',
+      margenCierreMinutos: (h.valor.margenCierreMinutos ?? '') + '',
+      ventanaPropia: (Array.isArray(h.valor.ventanas) && h.valor.ventanas.length > 0) + '',
+    };
+    const vigentes = Array.isArray(h.valor.ventanas) && h.valor.ventanas.length
+      ? h.valor.ventanas
+      : this.tramosCanal();
+    for (const dia of JobsConfiguracionViewComponent.DIAS) {
+      const t = vigentes.find((x) => (x.dias ?? '').toUpperCase() === dia);
+      // `opera` ausente se lee como true: la configuración vieja solo escribía los tramos abiertos.
+      base[`d_${dia}_opera`] = (t ? t.opera !== false : false) + '';
+      base[`d_${dia}_desde`] = t?.desde ?? '07:00';
+      base[`d_${dia}_hasta`] = t?.hasta ?? '20:30';
+    }
+    return base;
+  }
+
+  /** Los siete días, en el orden en que se pintan y se guardan. */
+  protected static readonly DIAS: readonly string[] = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM'];
+
+  protected readonly dias = JobsConfiguracionViewComponent.DIAS;
+
+  /**
+   * Arma los siete tramos desde el borrador y los valida ANTES de salir del navegador.
+   *
+   * <p>El backend vuelve a validar lo mismo —es la autoridad—, pero repetirlo aquí convierte un
+   * viaje al servidor y un 422 en un mensaje inmediato junto al campo. Las reglas son las mismas a
+   * propósito: si divergieran, la pantalla aceptaría formas que el backend rechaza.</p>
+   */
+  private construirTramos(): TramoCanal[] {
+    const tramos: TramoCanal[] = [];
+    for (const dia of JobsConfiguracionViewComponent.DIAS) {
+      const opera = this.campo(`d_${dia}_opera`) !== 'false';
+      if (!opera) {
+        // Sin horas: un día cerrado no las tiene, y escribirlas sugeriría que algún día se usan.
+        tramos.push({ dias: dia, opera: false });
+        continue;
+      }
+      const desde = this.campo(`d_${dia}_desde`).trim();
+      const hasta = this.campo(`d_${dia}_hasta`).trim();
+      const mDesde = this.aMinutos(desde);
+      const mHasta = this.aMinutos(hasta);
+      if (mDesde === null || mHasta === null) {
+        throw new Error(`${dia}: la apertura y el cierre deben venir como HH:mm (llegó “${desde}”–“${hasta}”).`);
+      }
+      if (mDesde >= mHasta) {
+        throw new Error(`${dia}: la apertura (${desde}) debe ser anterior al cierre (${hasta}).`);
+      }
+      tramos.push({ dias: dia, opera: true, desde, hasta });
+    }
+    if (tramos.every((t) => t.opera === false)) {
+      // Los siete cerrados es «no envío nunca», que ya se dice con Habilitado=NO y de forma
+      // legible. Guardarlo como ventana dejaría el subtipo encendido y mudo.
+      throw new Error(
+        'Los siete días quedaron cerrados: eso es apagar el subtipo. Use Habilitado = NO, que lo dice de frente.'
+      );
+    }
+    return tramos;
+  }
+
   protected construirHorario(): HorarioSubtipo | null {
     try {
       const v: HorarioSubtipo = {
@@ -512,6 +631,14 @@ export class JobsConfiguracionViewComponent {
       // que salga llegue a tiempo. Vacío = hereda el de la plataforma, y esa herencia hay que poder
       // recuperarla: por eso el campo admite quedarse en blanco en vez de forzar un número.
       v.margenCierreMinutos = this.entero('margenCierreMinutos', 0, 720, false);
+
+      // Ventana propia de la organización. Solo se manda si el operador la activó: omitirla es lo
+      // que devuelve el subtipo a heredar del banco/canal, y esa vuelta atrás tiene que ser posible
+      // desde la pantalla. Mandar los tramos heredados como propios los congelaría, y el día que el
+      // banco cambiara su horario este subtipo se quedaría con el viejo sin que nadie lo note.
+      if (this.campo('ventanaPropia') === 'true') {
+        v.ventanas = this.construirTramos();
+      }
 
       // Un margen que mata TODOS los tramos deja el subtipo sin enviar nunca, y el backend lo acepta
       // en silencio —recorta el cierre a la apertura—. Se rechaza aquí porque es indistinguible de

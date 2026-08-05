@@ -69,7 +69,8 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
     this.api
       .crearProgramacion(payload)
       .pipe(finalize(() => this.crearGuardando.set(false)))
-      .subscribe((res) => {
+      .subscribe({
+        next: (res) => {
         this.crearOpen.set(false);
         this.resetNuevo();
         this.load();
@@ -87,24 +88,39 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
             montoTotal: Number(res.programacion['montoTotal'] ?? 0),
           });
         }
+        },
+        // El diálogo se queda ABIERTO con el motivo dentro: cerrarlo obligaría a recapturar todo
+        // el formulario para corregir un campo.
+        error: (err) => this.crearError.set(this.mensajeError(err, 'No se pudo crear el plan.')),
       });
   }
 
   protected override cambiarEstado(estado: string): void {
     const id = this.detalleSeleccionado()?.id;
     if (!id) return;
-    this.api.cambiarEstadoProgramacion(id, estado).subscribe((res) => {
-      this.setDetalle(res);
-      this.load();
+    this.accionError.set('');
+    this.api.cambiarEstadoProgramacion(id, estado).subscribe({
+      next: (res) => {
+        this.setDetalle(res);
+        this.load();
+      },
+      error: (err) =>
+        this.accionError.set(this.mensajeError(err, `No se pudo pasar el plan a ${estado}.`)),
     });
   }
 
   protected override generar(): void {
     const id = this.detalleSeleccionado()?.id;
     if (!id) return;
-    this.api.generarProgramacion(id).subscribe((res) => {
-      this.setDetalle(res);
-      this.load();
+    this.accionError.set('');
+    this.api.generarProgramacion(id).subscribe({
+      next: (res) => {
+        this.setDetalle(res);
+        this.load();
+      },
+      // Aquí es donde más duele perder el mensaje: el rechazo típico —fuera de la ventana, fecha de
+      // proceso pasada, plan sin operaciones— explica exactamente qué corregir.
+      error: (err) => this.accionError.set(this.mensajeError(err, 'No se pudo generar la planilla.')),
     });
   }
 
@@ -127,9 +143,14 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
   protected override quitarOperacion(idOperacion: string): void {
     const id = this.detalleSeleccionado()?.id;
     if (!id || !idOperacion || idOperacion === '-') return;
-    this.api.quitarOperacionesProgramacion(id, [idOperacion]).subscribe((res) => {
-      this.setDetalle(res);
-      this.load();
+    this.accionError.set('');
+    this.api.quitarOperacionesProgramacion(id, [idOperacion]).subscribe({
+      next: (res) => {
+        this.setDetalle(res);
+        this.load();
+      },
+      error: (err) =>
+        this.accionError.set(this.mensajeError(err, 'No se pudo quitar la operación del plan.')),
     });
   }
 

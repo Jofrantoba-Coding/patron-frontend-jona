@@ -337,6 +337,52 @@
                   (click)="cerrarEdicion()">Cancelar</button>
               </td>
             </tr>
+            <!-- VENTANA PROPIA del subtipo. Lo que se guarda aquí manda sobre la del banco y sobre
+                 la del canal, y la usan los cinco caminos que consultan el horario: programar a
+                 mano, generar la planilla, el ciclo SFTP, el job y este calendario. -->
+            <tr class="bg-neutral-50">
+              <td></td>
+              <td colspan="5" class="pb-3">
+                <label class="flex items-center gap-2 text-xs text-neutral-700">
+                  <input type="checkbox" [checked]="campo('ventanaPropia') === 'true'"
+                    (change)="onCampoValor('ventanaPropia', campo('ventanaPropia') === 'true' ? 'false' : 'true')" />
+                  <span>Ventana propia de la organización para este subtipo</span>
+                </label>
+                @if (campo('ventanaPropia') === 'true') {
+                  <p class="mt-1 text-[11px] text-neutral-500">
+                    Sustituye a la del banco para <b>este</b> subtipo. Desmarcarlo la devuelve a heredada.
+                    El cierre efectivo resta el margen, y el banco solo procesa dentro de <b>su</b>
+                    horario publicado: abrir antes permite programar, no que el BCP lo reciba.
+                  </p>
+                  <table class="mt-2 text-[11px]">
+                    <thead class="text-neutral-500">
+                      <tr><th class="pr-3 text-left">Día</th><th class="pr-3">Opera</th><th class="pr-3">Desde</th><th>Hasta</th></tr>
+                    </thead>
+                    <tbody>
+                      @for (d of dias; track d) {
+                        <tr>
+                          <td class="pr-3 font-mono font-semibold text-neutral-700">{{ d }}</td>
+                          <td class="pr-3 text-center">
+                            <input type="checkbox" [checked]="campo('d_' + d + '_opera') !== 'false'"
+                              (change)="onCampoValor('d_' + d + '_opera', campo('d_' + d + '_opera') !== 'false' ? 'false' : 'true')" />
+                          </td>
+                          <td class="pr-3">
+                            <input type="time" class="rounded border border-neutral-300 px-1 py-0.5 font-mono text-[11px]"
+                              [disabled]="campo('d_' + d + '_opera') === 'false'"
+                              [value]="campo('d_' + d + '_desde')" (input)="onCampo('d_' + d + '_desde', $event)" />
+                          </td>
+                          <td>
+                            <input type="time" class="rounded border border-neutral-300 px-1 py-0.5 font-mono text-[11px]"
+                              [disabled]="campo('d_' + d + '_opera') === 'false'"
+                              [value]="campo('d_' + d + '_hasta')" (input)="onCampo('d_' + d + '_hasta', $event)" />
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </td>
+            </tr>
             @if (errorCampo()) {
               <tr class="bg-neutral-50"><td></td><td colspan="5" class="pb-2 text-[11px] text-red-600">{{ errorCampo() }}</td></tr>
             }
@@ -364,13 +410,7 @@
               <td class="pr-4 text-right">
                 <button type="button" class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-100"
                   [disabled]="cargando()"
-                  (click)="abrirEdicion(h.codigo, {
-                    habilitado: (h.valor.habilitado === true) + '',
-                    cadenciaMinutos: (h.valor.cadenciaMinutos ?? '') + '',
-                    cadPEN: (h.valor.cadenciaPorMoneda?.['PEN'] ?? '') + '',
-                    cadUSD: (h.valor.cadenciaPorMoneda?.['USD'] ?? '') + '',
-                    margenCierreMinutos: (h.valor.margenCierreMinutos ?? '') + ''
-                  })">Editar</button>
+                  (click)="abrirEdicion(h.codigo, semillaEdicion(h))">Editar</button>
               </td>
             </tr>
           }
@@ -396,13 +436,23 @@
         <div class="mb-2 flex items-center gap-2">
           <span class="text-xs font-semibold text-neutral-800">{{ s.subtipo }}</span>
           @if (s.editando) { <j-badge variant="default">simulando</j-badge> }
+          <!-- De donde sale la ventana que se esta simulando. Sin el dato, unos mismos tramos
+               pueden ser los propios del subtipo o los heredados, y de eso depende si editarlos
+               aqui cambia algo. -->
+          <span class="rounded px-1.5 py-0.5 text-[10px] font-medium"
+            [class.bg-primary-100]="s.origen === 'ORGANIZACION'"
+            [class.text-primary-800]="s.origen === 'ORGANIZACION'"
+            [class.bg-neutral-100]="s.origen !== 'ORGANIZACION'"
+            [class.text-neutral-600]="s.origen !== 'ORGANIZACION'">
+            ventana {{ s.origen === 'ORGANIZACION' ? 'propia' : (s.origen === 'BANCO' ? 'del banco' : 'del canal') }}
+          </span>
           <span class="text-[11px] text-neutral-500">
             margen {{ s.margen }} min{{ s.margenHeredado ? ' (heredado)' : '' }}
           </span>
         </div>
         <table class="w-full text-left text-[11px]">
           <thead class="text-neutral-400">
-            <tr><th class="py-1">Días</th><th>Publicado</th><th>Cierre efectivo</th><th>Útil</th><th>Lotes por moneda</th></tr>
+            <tr><th class="py-1">Días</th><th>Declarado</th><th>Cierre efectivo</th><th>Útil</th><th>Lotes por moneda</th></tr>
           </thead>
           <tbody>
             @for (t of s.tramos; track t.dias) {

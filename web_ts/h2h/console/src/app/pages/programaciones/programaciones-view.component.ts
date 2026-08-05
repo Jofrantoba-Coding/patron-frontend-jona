@@ -139,6 +139,27 @@ export class ProgramacionesViewComponent {
   protected readonly crearOpen = signal<boolean>(false);
   protected readonly crearGuardando = signal<boolean>(false);
   protected readonly crearError = signal<string>('');
+
+  /**
+   * Motivo por el que el backend rechazó la última acción sobre el plan.
+   *
+   * <p><b>Por qué existe.</b> Estas acciones se suscribían solo con `next`, así que un rechazo del
+   * backend no se veía en ninguna parte: el botón parecía no hacer nada. Y los mensajes del dominio
+   * no son un «no permitido» seco —dicen cuál es la vía alternativa: «anule la planilla, esa vía sí
+   * libera las operaciones»—, que es justo lo que el operador necesita para saber qué hacer.</p>
+   */
+  protected readonly accionError = signal<string>('');
+
+  /**
+   * Mensaje del envelope ALMIL, con reserva.
+   *
+   * <p>Mismo orden que en el resto de la consola: primero el detalle por campo, luego el mensaje
+   * general y, si no hay ninguno —una caída de red no trae envelope—, el texto por defecto.</p>
+   */
+  protected mensajeError(err: unknown, porDefecto: string): string {
+    const e = err as { error?: { message?: string; errors?: { message?: string }[] } };
+    return e?.error?.errors?.[0]?.message ?? e?.error?.message ?? porDefecto;
+  }
   protected readonly nuevoIdProducto = signal<string>('');
   protected readonly nuevoIdMoneda = signal<string>('');
   protected readonly nuevoFechaProceso = signal<string>('');
