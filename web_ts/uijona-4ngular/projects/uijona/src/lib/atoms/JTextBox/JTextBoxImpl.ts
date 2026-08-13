@@ -1,4 +1,3 @@
-import { J_TEXT_BOX_TEMPLATE } from './JTextBoxView';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,11 +15,13 @@ import type { JStyle } from '../../core/types';
 import { JIconLeft, JIconRight } from './JIconSlots';
 import {
   JTEXTBOX_DEFAULTS,
-  JTEXTBOX_SIZE_CLASSES,
-  JTEXTBOX_VARIANT_CLASSES,
   type JTextBoxSize,
   type JTextBoxVariant,
 } from './InterJTextBox';
+import {
+  JTEXTBOX_SIZE_CLASSES,
+  JTEXTBOX_VARIANT_CLASSES,
+} from './JTextBoxStyles';
 
 /**
  * JTextBox — input de texto con iconos internos, estado de error y eventos
@@ -37,7 +38,7 @@ import {
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JTextBox), multi: true },
   ],
-  template: J_TEXT_BOX_TEMPLATE,
+  templateUrl: './JTextBoxView.html',
 })
 export class JTextBox implements ControlValueAccessor {
   readonly value = model<string>('');
@@ -108,6 +109,10 @@ export class JTextBox implements ControlValueAccessor {
     this.keydown.emit(event);
     if (event.key === 'Enter') {
       this.enterPress.emit({ value: this.value(), event });
+    }
+    // Gesto de limpiado: Backspace sobre un campo ya vacio (paridad con jona-ui React).
+    if (event.key === 'Backspace' && (event.target as HTMLInputElement).value === '') {
+      this.cleared.emit();
     }
   }
 

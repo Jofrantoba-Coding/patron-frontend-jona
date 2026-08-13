@@ -1,4 +1,3 @@
-import { J_FORM_FIELD_TEMPLATE } from './JFormFieldView';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -27,7 +26,7 @@ import { JFORMFIELD_DEFAULTS, type JFormFieldOrientation } from './InterJFormFie
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JFormField), multi: true },
   ],
-  template: J_FORM_FIELD_TEMPLATE,
+  templateUrl: './JFormFieldView.html',
 })
 export class JFormField implements ControlValueAccessor {
   readonly id = input.required<string>();

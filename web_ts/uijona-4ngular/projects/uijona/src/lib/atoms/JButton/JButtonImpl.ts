@@ -1,25 +1,24 @@
-import { J_BUTTON_TEMPLATE, J_BUTTON_STYLES } from './JButtonView';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  output,
-} from '@angular/core';
+// JButtonImpl.ts — JONA Implementacion
+// Estado, eventos y composicion de clases. La estructura vive en JButtonView.html
+// y las clases en JButtonStyles.ts.
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import { JSpinner } from '../JSpinner';
 import {
   JBUTTON_DEFAULTS,
-  JBUTTON_ICON_POSITION_CLASSES,
-  JBUTTON_SIZE_CLASSES,
-  JBUTTON_VARIANT_CLASSES,
   type JButtonIconPosition,
   type JButtonSize,
   type JButtonType,
   type JButtonVariant,
 } from './InterJButton';
+import {
+  JBUTTON_BASE_CLASSES,
+  JBUTTON_ICON_POSITION_CLASSES,
+  JBUTTON_SIZE_CLASSES,
+  JBUTTON_VARIANT_CLASSES,
+} from './JButtonStyles';
 
 /**
  * JButton — boton con variantes, tamanos, estado de carga y modo enlace.
@@ -36,8 +35,8 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSpinner, NgTemplateOutlet],
   host: { class: 'contents' },
-  styles: J_BUTTON_STYLES,
-  template: J_BUTTON_TEMPLATE,
+  templateUrl: './JButtonView.html',
+  styleUrl: './JButtonView.css',
 })
 export class JButton {
   readonly variant = input<JButtonVariant>(JBUTTON_DEFAULTS.variant);
@@ -50,6 +49,7 @@ export class JButton {
   readonly href = input<string>();
   readonly target = input<string>();
   readonly rel = input<string>();
+  /** @deprecated sin efecto; el espaciado solo-icono se resuelve en JButtonView.css */
   readonly iconOnly = input<boolean>(false);
   readonly ariaLabel = input<string>();
   readonly className = input<string>('');
@@ -63,15 +63,10 @@ export class JButton {
   protected readonly classes = computed(() => {
     const linkDisabled = this.href() && (this.disabled() || this.loading());
     return cn(
-      'jbutton',
-      'inline-flex items-center justify-center gap-2',
-      'font-medium transition-colors duration-200',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-      'disabled:pointer-events-none disabled:opacity-50',
+      JBUTTON_BASE_CLASSES,
       JBUTTON_VARIANT_CLASSES[this.variant()],
       JBUTTON_SIZE_CLASSES[this.size()],
       JBUTTON_ICON_POSITION_CLASSES[this.iconPosition()],
-      this.iconOnly() && 'gap-0',
       this.fullWidth() && 'w-full',
       linkDisabled && 'pointer-events-none opacity-50',
       this.className()

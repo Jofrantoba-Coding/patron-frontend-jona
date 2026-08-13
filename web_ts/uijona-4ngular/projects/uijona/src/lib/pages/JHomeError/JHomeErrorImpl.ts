@@ -1,4 +1,3 @@
-import { J_HOME_ERROR_TEMPLATE } from './JHomeErrorView';
 import type { InterJHomeError } from './InterJHomeError';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { JBorderLayout, JNorth, JSouth } from '../../layouts';
@@ -10,7 +9,7 @@ import { JErrorPage, JFooterPage, JHeaderPage } from '../../organisms';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JBorderLayout, JNorth, JSouth, JHeaderPage, JFooterPage, JErrorPage],
   host: { class: 'contents' },
-  template: J_HOME_ERROR_TEMPLATE,
+  templateUrl: './JHomeErrorView.html',
 })
 export class JHomeError {
   readonly errorCode = input<string | number>('404');

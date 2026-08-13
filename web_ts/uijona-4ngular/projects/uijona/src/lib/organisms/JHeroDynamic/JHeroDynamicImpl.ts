@@ -1,4 +1,3 @@
-import { J_HERO_DYNAMIC_TEMPLATE, J_HERO_DYNAMIC_STYLES } from './JHeroDynamicView';
 import type { HeroDynamicCTA, InterJHeroDynamic } from './InterJHeroDynamic';
 import {
   ChangeDetectionStrategy,
@@ -28,8 +27,8 @@ const CTA_VARIANT = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_HERO_DYNAMIC_TEMPLATE,
-  styles: J_HERO_DYNAMIC_STYLES,
+  templateUrl: './JHeroDynamicView.html',
+  styleUrl: './JHeroDynamicView.css',
 })
 export class JHeroDynamic implements OnInit {
   readonly eyebrow = input<string>();

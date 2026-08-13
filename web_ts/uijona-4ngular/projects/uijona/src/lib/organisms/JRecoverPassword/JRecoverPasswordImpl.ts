@@ -1,4 +1,3 @@
-import { J_RECOVER_PASSWORD_TEMPLATE } from './JRecoverPasswordView';
 import type { InterJRecoverPassword } from './InterJRecoverPassword';
 import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { JButton } from '../../atoms/JButton';
@@ -19,7 +18,7 @@ import { JFormField } from '../../molecules/JFormField';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JButton, JAlert, JCard, JCardHeader, JCardTitle, JCardDescription, JCardContent, JCardFooter, JFormField],
   host: { class: 'contents' },
-  template: J_RECOVER_PASSWORD_TEMPLATE,
+  templateUrl: './JRecoverPasswordView.html',
 })
 export class JRecoverPassword {
   readonly email = model<string>('');

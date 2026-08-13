@@ -1,4 +1,3 @@
-import { J_SEPARATOR_TEMPLATE } from './JSeparatorView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
@@ -12,7 +11,7 @@ import { JSEPARATOR_DEFAULTS, type JSeparatorOrientation } from './InterJSeparat
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_SEPARATOR_TEMPLATE,
+  templateUrl: './JSeparatorView.html',
 })
 export class JSeparator {
   readonly orientation = input<JSeparatorOrientation>(JSEPARATOR_DEFAULTS.orientation);

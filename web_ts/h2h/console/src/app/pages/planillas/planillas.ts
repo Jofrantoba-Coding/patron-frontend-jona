@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
 import { finalize, type Observable } from 'rxjs';
-import { JBadge, JDataTable, JDialog, JPagination, JProgress, JSectionHeading, JTabs, JTabsContent, JTabsList, JTabsTrigger } from 'uijona-4ngular';
+import { JBadge, JDataTable, JDatePicker, JDialog, JPagination, JProgress, JSectionHeading, JTabs, JTabsContent, JTabsList, JTabsTrigger } from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
 import type { PlanillaRow } from '../../core/models';
 import { PlanillasViewComponent } from './planillas-view.component';
@@ -10,7 +10,7 @@ import { PlanillasViewComponent } from './planillas-view.component';
   selector: 'app-planillas',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JDatePicker, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent],
   templateUrl: './planillas-view.component.html',
 })
 export class PlanillasPage extends PlanillasViewComponent implements OnInit {

@@ -19,15 +19,3 @@ export const JAVATAR_DEFAULTS = {
   shape: 'circle',
 } as const satisfies Required<Pick<InterJAvatar, 'alt' | 'size' | 'shape'>>;
 
-export const JAVATAR_SIZE_CLASSES: Record<JAvatarSize, string> = {
-  xs: 'w-6 h-6 text-xs',
-  sm: 'w-8 h-8 text-xs',
-  md: 'w-10 h-10 text-sm',
-  lg: 'w-14 h-14 text-base',
-  xl: 'w-20 h-20 text-lg',
-};
-
-export const JAVATAR_SHAPE_CLASSES: Record<JAvatarShape, string> = {
-  circle: 'rounded-full',
-  square: 'rounded-md',
-};

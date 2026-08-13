@@ -1,4 +1,3 @@
-import { J_BORDER_LAYOUT_TEMPLATE } from './JBorderLayoutView';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -32,7 +31,7 @@ export class JWest {}
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JPanel],
   host: { class: 'contents' },
-  template: J_BORDER_LAYOUT_TEMPLATE,
+  templateUrl: './JBorderLayoutView.html',
 })
 export class JBorderLayout {
   readonly className = input<string>('');

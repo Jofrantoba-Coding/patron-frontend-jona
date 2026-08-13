@@ -1,4 +1,3 @@
-import { J_HOME_CREATE_ACCOUNT_TEMPLATE } from './JHomeCreateAccountView';
 import type { InterJHomeCreateAccount } from './InterJHomeCreateAccount';
 import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { JBorderLayout, JNorth, JSouth } from '../../layouts';
@@ -10,7 +9,7 @@ import { JCreateAccount, JFooterPage, JHeaderPage } from '../../organisms';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JBorderLayout, JNorth, JSouth, JHeaderPage, JFooterPage, JCreateAccount],
   host: { class: 'contents' },
-  template: J_HOME_CREATE_ACCOUNT_TEMPLATE,
+  templateUrl: './JHomeCreateAccountView.html',
 })
 export class JHomeCreateAccount {
   readonly name = model<string>('');

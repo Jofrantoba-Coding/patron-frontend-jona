@@ -1,0 +1,4 @@
+/*
+  JMarketingHeroView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jhero-metrics:empty { display: none; } .jhero-visual:empty { display: none; }

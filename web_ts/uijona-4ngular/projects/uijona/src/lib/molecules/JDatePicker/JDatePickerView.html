@@ -1,0 +1,116 @@
+<!--
+  JDatePickerView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+<div [class]="cn('relative w-full', className())">
+  <div #trigger [class]="triggerClasses()">
+    <!--
+      Se puede escribir la fecha directamente: la máscara va poniendo los
+      separadores. Para quien conoce la fecha, teclear es más rápido que
+      navegar un calendario con el ratón.
+    -->
+    <input
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      [disabled]="disabled()"
+      [value]="textoVisible()"
+      [placeholder]="placeholderMascara()"
+      [attr.aria-label]="placeholder()"
+      [attr.aria-describedby]="null"
+      (input)="onInput($event)"
+      (blur)="onBlurTexto()"
+      class="min-w-0 flex-1 rounded-l-md border-0 bg-transparent px-3 py-1 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none disabled:cursor-not-allowed"
+    />
+    <button
+      type="button"
+      [disabled]="disabled()"
+      (click)="toggle()"
+      aria-label="Abrir calendario"
+      aria-haspopup="dialog"
+      [attr.aria-expanded]="open()"
+      class="flex h-full w-9 shrink-0 items-center justify-center rounded-r-md text-neutral-500 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+    </button>
+  </div>
+
+  @if (open()) {
+    <div
+      role="dialog"
+      aria-label="Calendario"
+      [style]="panelStyle()"
+      class="z-50 w-80 max-w-[calc(100vw-16px)] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl"
+    >
+      <div class="mb-2 flex flex-row items-center justify-between gap-2">
+        <button
+          type="button"
+          (click)="prevMonth()"
+          [disabled]="!canPrev()"
+          aria-label="Mes anterior"
+          class="flex h-7 w-7 items-center justify-center rounded hover:bg-neutral-100 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <span class="text-sm font-semibold text-neutral-900">{{ monthName() }} {{ viewYear() }}</span>
+        <button
+          type="button"
+          (click)="nextMonth()"
+          [disabled]="!canNext()"
+          aria-label="Mes siguiente"
+          class="flex h-7 w-7 items-center justify-center rounded hover:bg-neutral-100 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+      </div>
+
+      <div class="mb-1 grid grid-cols-7 text-center">
+        @for (d of days; track d) {
+          <span class="text-xs font-medium text-neutral-400">{{ d }}</span>
+        }
+      </div>
+
+      <div class="grid grid-cols-7 gap-y-0.5">
+        @for (cell of cells(); track $index) {
+          @if (cell) {
+            <button
+              type="button"
+              (click)="selectDay(cell)"
+              [disabled]="isDisabled(cell)"
+              [attr.aria-pressed]="isSelected(cell)"
+              [class]="dayClasses(cell)"
+            >
+              {{ cell.getDate() }}
+            </button>
+          } @else {
+            <span></span>
+          }
+        }
+      </div>
+
+      @if (showTime() || showSeconds()) {
+        <!--
+          Rueda en lugar de tres `input type=number`. Los spinners nativos
+          aceptaban valores fuera de rango, no daban vuelta de 23 a 00 y exigían
+          apuntar a una caja diminuta. La rueda además deja ver los valores
+          contiguos, que es lo que se busca al ajustar una hora de corte.
+        -->
+        <div class="mt-3 flex flex-col gap-2 border-t border-neutral-200 pt-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-neutral-600">Hora</span>
+            <span class="text-xs tabular-nums text-neutral-400">{{ horaActual() }}</span>
+          </div>
+          <j-time-wheel
+            [value]="horaActual()"
+            [showSeconds]="showSeconds()"
+            [disabled]="disabled()"
+            (changed)="onHoraRueda($event)"
+          />
+        </div>
+      }
+    </div>
+  }
+</div>

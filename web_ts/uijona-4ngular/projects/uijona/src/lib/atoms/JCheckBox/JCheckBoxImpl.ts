@@ -1,4 +1,3 @@
-import { J_CHECK_BOX_TEMPLATE } from './JCheckBoxView';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -18,11 +17,13 @@ import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JCHECKBOX_DEFAULTS,
-  JCHECKBOX_SIZE_CLASSES,
-  JCHECKBOX_WRAPPER_CLASSES,
   type JCheckBoxLabelPosition,
   type JCheckBoxSize,
 } from './InterJCheckBox';
+import {
+  JCHECKBOX_SIZE_CLASSES,
+  JCHECKBOX_WRAPPER_CLASSES,
+} from './JCheckBoxStyles';
 
 /**
  * JCheckBox — checkbox accesible con label integrado, estado indeterminado y
@@ -37,7 +38,7 @@ import {
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JCheckBox), multi: true },
   ],
-  template: J_CHECK_BOX_TEMPLATE,
+  templateUrl: './JCheckBoxView.html',
   imports: [NgTemplateOutlet],
 })
 export class JCheckBox implements ControlValueAccessor {

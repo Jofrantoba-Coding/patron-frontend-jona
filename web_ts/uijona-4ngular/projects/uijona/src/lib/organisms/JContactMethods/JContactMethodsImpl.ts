@@ -1,4 +1,3 @@
-import { J_CONTACT_METHODS_TEMPLATE } from './JContactMethodsView';
 import type { ContactMethodData, InterJContactMethods } from './InterJContactMethods';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -10,7 +9,7 @@ import { JContactMethodCard } from '../../molecules/JContactMethodCard';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JContactMethodCard],
   host: { class: 'contents' },
-  template: J_CONTACT_METHODS_TEMPLATE,
+  templateUrl: './JContactMethodsView.html',
 })
 export class JContactMethods {
   readonly methods = input.required<ContactMethodData[]>();

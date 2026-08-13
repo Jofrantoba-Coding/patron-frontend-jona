@@ -1,12 +1,13 @@
-import { J_SKELETON_TEMPLATE } from './JSkeletonView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JSKELETON_DEFAULTS,
-  JSKELETON_VARIANT_CLASSES,
   type JSkeletonVariant,
 } from './InterJSkeleton';
+import {
+  JSKELETON_VARIANT_CLASSES,
+} from './JSkeletonStyles';
 
 /**
  * JSkeleton — placeholder de carga (pulse, wave o estatico).
@@ -16,7 +17,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_SKELETON_TEMPLATE,
+  templateUrl: './JSkeletonView.html',
 })
 export class JSkeleton {
   readonly circle = input<boolean>(JSKELETON_DEFAULTS.circle);

@@ -11,8 +11,3 @@ export const JSKELETON_DEFAULTS = {
   variant: 'pulse',
 } as const satisfies Required<InterJSkeleton>;
 
-export const JSKELETON_VARIANT_CLASSES: Record<JSkeletonVariant, string> = {
-  pulse: 'animate-pulse bg-neutral-200',
-  wave: 'jskeleton-wave',
-  none: 'bg-neutral-200',
-};

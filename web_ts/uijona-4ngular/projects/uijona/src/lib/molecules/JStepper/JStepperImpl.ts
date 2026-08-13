@@ -1,4 +1,3 @@
-import { J_STEPPER_TEMPLATE } from './JStepperView';
 import type { JStepperOrientation, JStepperStepStatus, JStepperStep, InterJStepper } from './InterJStepper';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
@@ -12,7 +11,7 @@ import { cn } from '../../core/cn';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet],
   host: { class: 'contents' },
-  template: J_STEPPER_TEMPLATE,
+  templateUrl: './JStepperView.html',
 })
 export class JStepper {
   readonly steps = input.required<JStepperStep[]>();

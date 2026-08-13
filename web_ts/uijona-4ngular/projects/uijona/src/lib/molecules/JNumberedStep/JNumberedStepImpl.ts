@@ -1,4 +1,3 @@
-import { J_NUMBERED_STEP_TEMPLATE } from './JNumberedStepView';
 import type { InterJNumberedStep } from './InterJNumberedStep';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -10,7 +9,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_NUMBERED_STEP_TEMPLATE,
+  templateUrl: './JNumberedStepView.html',
 })
 export class JNumberedStep {
   readonly num = input.required<string>();

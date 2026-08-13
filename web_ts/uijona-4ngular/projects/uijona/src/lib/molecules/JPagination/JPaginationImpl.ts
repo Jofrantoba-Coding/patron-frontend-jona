@@ -1,4 +1,3 @@
-import { J_PAGINATION_TEMPLATE } from './JPaginationView';
 import type { InterJPagination } from './InterJPagination';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -24,7 +23,7 @@ function buildRange(current: number, total: number, siblings: number): (number |
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_PAGINATION_TEMPLATE,
+  templateUrl: './JPaginationView.html',
 })
 export class JPagination {
   readonly currentPage = input.required<number>();

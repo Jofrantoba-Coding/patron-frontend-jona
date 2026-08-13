@@ -1,33 +1,154 @@
 <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
-  <j-section-heading eyebrow="Banco" heading="Respuestas BCP" description="Recepción y procesamiento de respuestas VAL/RES/RES2/PAR." />
+  <j-section-heading
+    eyebrow="4 · Banco"
+    heading="Respuestas del banco"
+    description="Acuses y resultados que devuelve BCP: VAL, RES, RES2 y PAR."
+  />
+
+  <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-sm font-semibold text-neutral-700">Filtros</p>
+        <p class="text-xs text-neutral-500">Búsqueda por archivo, tipo de acuse, planilla y periodo de recepción.</p>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100" (click)="onResetFiltros()">
+          Limpiar
+        </button>
+        <button type="button" class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700" (click)="onAplicarFiltros()">
+          Aplicar
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="res-archivo">Archivo</label>
+        <input id="res-archivo" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroNombre()" (input)="onNombre($event)" placeholder="Nombre del archivo" />
+      </div>
+      <!--
+        El desplegable muestra el código y su significado juntos porque el código solo engaña:
+        `VAL` parece «validada» y es un rechazo. Filtrar por «VAL» creyendo lo contrario es un
+        error caro, y aquí es donde se elige.
+      -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="res-tipo">Tipo</label>
+        <select id="res-tipo" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroTipo()" (change)="onTipo($event)">
+          <option value="">Todos</option>
+          @for (tipo of tiposRespuesta; track tipo) {
+            <option [value]="tipo">{{ tipo }} — {{ significado(tipo).titulo }}</option>
+          }
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="res-planilla">ID Planilla</label>
+        <input id="res-planilla" type="text" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="filtroIdPlanilla()" (input)="onIdPlanilla($event)" placeholder="ID planilla" />
+      </div>
+      <!--
+        Periodo sobre la FECHA DE RECEPCIÓN, que es cuando el acuse llegó a nuestro buzón, no
+        cuando el banco lo generó ni cuando se envió la planilla. La hora se interpreta en hora
+        de Lima y viaja como instante; ver `core/zona-horaria.ts`.
+      -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Recibida desde <span class="font-normal text-neutral-400">(hora de Lima)</span></label>
+        <j-date-picker
+          [value]="filtroFechaDesde()"
+          [showTime]="true"
+          placeholder="Inicio del periodo"
+          (changed)="onFechaDesde($event)"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Recibida hasta <span class="font-normal text-neutral-400">(hora de Lima)</span></label>
+        <j-date-picker
+          [value]="filtroFechaHasta()"
+          [showTime]="true"
+          placeholder="Fin del periodo"
+          (changed)="onFechaHasta($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!--
+    Las respuestas se leen, no se «procesan» desde aquí: la decisión (aceptar el
+    resultado, reintentar, anular) se toma sobre la PLANILLA, que es la que
+    conoce el lote completo. Por eso cada fila lleva a su planilla en vez de
+    ofrecer una acción propia que el backend no expone.
+  -->
   <j-table responsiveMode="scroll">
     <j-table-header>
       <j-table-row>
         <j-table-head>Archivo</j-table-head>
         <j-table-head>Tipo</j-table-head>
+        <j-table-head>Significado</j-table-head>
         <j-table-head>Recepción</j-table-head>
         <j-table-head className="text-right">Total</j-table-head>
         <j-table-head className="text-right">OK</j-table-head>
         <j-table-head className="text-right">Error</j-table-head>
-        <j-table-head>Acción</j-table-head>
+        <j-table-head>Planilla</j-table-head>
       </j-table-row>
     </j-table-header>
     <j-table-body>
-      @for (r of rows(); track r.prb_u_id) {
+      @for (r of rows(); track r.id) {
         <j-table-row>
-          <j-table-cell><span class="font-mono text-xs">{{ r.prb_v_nombre_archivo }}</span></j-table-cell>
-          <j-table-cell><j-badge variant="secondary">{{ r.prb_n_id_tiporespuesta_code }}</j-badge></j-table-cell>
-          <j-table-cell><span class="text-xs text-neutral-500">{{ r.prb_d_fecha_recepcion | slice: 0 : 16 }}</span></j-table-cell>
-          <j-table-cell className="text-right tabular-nums">{{ r.prb_n_total_operaciones }}</j-table-cell>
-          <j-table-cell className="text-right tabular-nums text-success-600">{{ r.prb_n_operaciones_ok }}</j-table-cell>
-          <j-table-cell className="text-right tabular-nums text-danger-600">{{ r.prb_n_operaciones_error }}</j-table-cell>
+          <j-table-cell><span class="font-mono text-xs">{{ r.nombreArchivo }}</span></j-table-cell>
           <j-table-cell>
-            <j-button size="sm" variant="outline" [loading]="busy() === r.prb_u_id" (clicked)="procesar(r)">Procesar</j-button>
+            <j-badge [variant]="badgeDe(r.tipoRespuestaCodigo)">{{ r.tipoRespuestaCodigo }}</j-badge>
+          </j-table-cell>
+          <j-table-cell>
+            <p class="text-xs font-medium text-neutral-700">{{ significado(r.tipoRespuestaCodigo).titulo }}</p>
+            <p class="text-[11px] text-neutral-500">{{ significado(r.tipoRespuestaCodigo).detalle }}</p>
+          </j-table-cell>
+          <j-table-cell>
+            <!--
+              Se ancla a la zona del canal, la misma que anuncian las etiquetas del filtro
+              ("hora de Lima"). Recortar los 16 primeros caracteres del texto crudo enseñaba
+              la hora de la JVM que corre la API: parecía limpio y podía ir 5 horas corrido
+              respecto al periodo que el usuario acababa de pedir.
+            -->
+            <span class="text-xs text-neutral-500">{{ horaCanal(r.fechaRecepcion) }}</span>
+          </j-table-cell>
+          <j-table-cell className="text-right tabular-nums">{{ r.totalOperaciones }}</j-table-cell>
+          <j-table-cell className="text-right tabular-nums text-success-600">{{ r.operacionesOk }}</j-table-cell>
+          <j-table-cell className="text-right tabular-nums text-danger-600">{{ r.operacionesError }}</j-table-cell>
+          <j-table-cell>
+            <j-button size="sm" variant="outline" (clicked)="verPlanilla(r.idPlanilla)">
+              Ver planilla
+            </j-button>
           </j-table-cell>
         </j-table-row>
       } @empty {
-        <j-table-row><j-table-cell [colSpan]="7"><span class="text-sm text-neutral-400">Sin respuestas.</span></j-table-cell></j-table-row>
+        <j-table-row>
+          <j-table-cell [colSpan]="8">
+            @if (cargando()) {
+              <span class="text-sm text-neutral-400">Consultando…</span>
+            } @else if (hayFiltros()) {
+              <div class="py-2">
+                <p class="text-sm text-neutral-500">Ninguna respuesta coincide con el filtro.</p>
+                <p class="mt-0.5 text-xs text-neutral-400">
+                  Puede haber acuses fuera de este periodo o de otro tipo: prueba a limpiar los filtros.
+                </p>
+              </div>
+            } @else {
+              <div class="py-2">
+                <p class="text-sm text-neutral-500">Todavía no hay respuestas del banco.</p>
+                <p class="mt-0.5 text-xs text-neutral-400">
+                  Aparecerán aquí cuando se envíe una planilla y BCP deposite su acuse en el buzón.
+                </p>
+              </div>
+            }
+          </j-table-cell>
+        </j-table-row>
       }
     </j-table-body>
   </j-table>
+
+  @if (total() > pageSize()) {
+    <j-pagination
+      [currentPage]="page()"
+      [totalPages]="totalPaginas()"
+      (pageChange)="onPagina($event)"
+    />
+  }
 </div>

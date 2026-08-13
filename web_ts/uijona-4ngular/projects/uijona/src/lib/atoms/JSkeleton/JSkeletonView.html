@@ -1,0 +1,11 @@
+<!--
+  JSkeletonView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+<div
+  aria-hidden="true"
+  [attr.data-jskeleton-variant]="variant()"
+  [attr.data-jskeleton-circle]="circle() ? true : null"
+  [style]="style()"
+  [class]="classes()"
+></div>

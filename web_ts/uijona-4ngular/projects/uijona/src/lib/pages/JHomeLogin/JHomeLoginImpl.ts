@@ -1,4 +1,3 @@
-import { J_HOME_LOGIN_TEMPLATE } from './JHomeLoginView';
 import type { InterJHomeLogin } from './InterJHomeLogin';
 import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { JBorderLayout, JNorth, JSouth } from '../../layouts';
@@ -10,7 +9,7 @@ import { JFooterPage, JHeaderPage, JLogin } from '../../organisms';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JBorderLayout, JNorth, JSouth, JHeaderPage, JFooterPage, JLogin],
   host: { class: 'contents' },
-  template: J_HOME_LOGIN_TEMPLATE,
+  templateUrl: './JHomeLoginView.html',
 })
 export class JHomeLogin {
   readonly email = model<string>('');

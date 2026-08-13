@@ -1,14 +1,15 @@
-import { J_SPINNER_TEMPLATE } from './JSpinnerView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
-  JSPINNER_COLOR_CLASSES,
   JSPINNER_DEFAULTS,
-  JSPINNER_SIZE_CLASSES,
   type JSpinnerColor,
   type JSpinnerSize,
 } from './InterJSpinner';
+import {
+  JSPINNER_COLOR_CLASSES,
+  JSPINNER_SIZE_CLASSES,
+} from './JSpinnerStyles';
 
 /**
  * JSpinner — indicador de carga.
@@ -20,7 +21,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_SPINNER_TEMPLATE,
+  templateUrl: './JSpinnerView.html',
 })
 export class JSpinner {
   readonly size = input<JSpinnerSize>(JSPINNER_DEFAULTS.size);

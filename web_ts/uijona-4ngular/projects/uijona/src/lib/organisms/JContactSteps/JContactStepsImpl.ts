@@ -1,4 +1,3 @@
-import { J_CONTACT_STEPS_TEMPLATE } from './JContactStepsView';
 import type { ContactStepData, InterJContactSteps } from './InterJContactSteps';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -11,7 +10,7 @@ import { JNumberedStep } from '../../molecules/JNumberedStep';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSectionHeading, JNumberedStep],
   host: { class: 'contents' },
-  template: J_CONTACT_STEPS_TEMPLATE,
+  templateUrl: './JContactStepsView.html',
 })
 export class JContactSteps {
   readonly eyebrow = input<string>();

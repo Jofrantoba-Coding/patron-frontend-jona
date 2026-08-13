@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { JPanel, type JPanelLayout } from '../../atoms/JPanel';
-import { JLayoutBase, LAYOUT_TEMPLATE } from '../LayoutBase';
+import { JLayoutBase } from '../LayoutBase';
 
 /** JGroupLayout — grupos en grilla responsive con spans (layout=group). */
 @Component({
@@ -9,7 +9,7 @@ import { JLayoutBase, LAYOUT_TEMPLATE } from '../LayoutBase';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JPanel],
   host: { class: 'contents' },
-  template: LAYOUT_TEMPLATE,
+  templateUrl: '../LayoutBaseView.html',
 })
 export class JGroupLayout extends JLayoutBase {
   readonly layoutType: JPanelLayout = 'group';

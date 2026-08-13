@@ -1,0 +1,240 @@
+<!--
+  JChartView.html — JONA View (template puro)
+
+  El gráfico se dibuja con SVG propio: la geometría llega ya resuelta desde
+  `core/chart`. Va dentro de un <figure> con <figcaption> para que el título
+  quede asociado al dibujo y no suelto encima.
+-->
+<figure [class]="raizClasses()">
+  @if (titulo() || descripcion()) {
+    <figcaption class="flex flex-col gap-0.5">
+      @if (titulo(); as t) {
+        <span class="text-sm font-semibold text-neutral-900">{{ t }}</span>
+      }
+      @if (descripcion(); as d) {
+        <span class="text-xs text-neutral-500">{{ d }}</span>
+      }
+    </figcaption>
+  }
+
+  @if (vacio()) {
+    <div [class]="vacioClasses" [style.height.px]="alto()" role="status">{{ textoVacio() }}</div>
+  } @else {
+    <div #contenedor class="relative w-full min-w-0">
+      <svg
+        [attr.viewBox]="'0 0 ' + ancho() + ' ' + alto()"
+        [attr.height]="alto()"
+        [class]="svgClasses"
+        role="img"
+        [attr.aria-label]="resumenAccesible()"
+        (pointermove)="onPuntero($event)"
+        (pointerleave)="onSalir()"
+      >
+        <!-- Rejilla del eje de VALORES. Recesiva a propósito: si compite con los
+             datos, estorba. El eje de categorías nunca lleva rejilla, porque
+             entre dos categorías no hay nada que medir. -->
+        @for (t of ejeY().ticks; track t) {
+          @if (horizontal()) {
+            <line
+              [attr.x1]="yDe(t)"
+              [attr.x2]="yDe(t)"
+              [attr.y1]="area().y"
+              [attr.y2]="area().y + area().alto"
+              [attr.stroke]="colorRejilla"
+              stroke-width="1"
+            />
+            <text
+              [attr.x]="yDe(t)"
+              [attr.y]="area().y + area().alto + 16"
+              text-anchor="middle"
+              [attr.fill]="colorInkMute"
+              font-size="11"
+            >
+              {{ formatoEje(t) }}
+            </text>
+          } @else {
+            <line
+              [attr.x1]="area().x"
+              [attr.x2]="area().x + area().ancho"
+              [attr.y1]="yDe(t)"
+              [attr.y2]="yDe(t)"
+              [attr.stroke]="colorRejilla"
+              stroke-width="1"
+            />
+            <text
+              [attr.x]="area().x - 8"
+              [attr.y]="yDe(t) + 4"
+              text-anchor="end"
+              [attr.fill]="colorInkMute"
+              font-size="11"
+            >
+              {{ formatoEje(t) }}
+            </text>
+          }
+        }
+
+        <!-- Línea de base en cero, algo más marcada: es la referencia de lectura. -->
+        <line
+          [attr.x1]="horizontal() ? yDe(0) : area().x"
+          [attr.x2]="horizontal() ? yDe(0) : area().x + area().ancho"
+          [attr.y1]="horizontal() ? area().y : yDe(0)"
+          [attr.y2]="horizontal() ? area().y + area().alto : yDe(0)"
+          [attr.stroke]="colorEje"
+          stroke-width="1"
+        />
+
+        @if (esBarras()) {
+          @for (b of barras(); track b.serie + '-' + b.indice) {
+            <rect
+              [attr.x]="b.x"
+              [attr.y]="b.y"
+              [attr.width]="b.ancho"
+              [attr.height]="b.alto"
+              [attr.rx]="radioBarra"
+              [attr.fill]="colorDe(b.serie)"
+              [attr.opacity]="opacidadDe(b.serie)"
+              [attr.stroke]="apilado() ? colorSuperficie : null"
+              [attr.stroke-width]="apilado() ? separacion : null"
+            />
+          }
+        } @else {
+          @for (s of seriesGeometria(); track s.id) {
+            @if (esArea()) {
+              <path [attr.d]="s.rutaArea" [attr.fill]="colorDe(s.indice)" [attr.opacity]="opacidadArea(s.indice)" />
+            }
+            <path
+              [attr.d]="s.ruta"
+              fill="none"
+              [attr.stroke]="colorDe(s.indice)"
+              [attr.stroke-width]="grosorLinea"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              [attr.opacity]="opacidadDe(s.indice)"
+            />
+            @for (p of s.puntos; track p.indice) {
+              @if (p.valor !== null) {
+                <circle
+                  [attr.cx]="p.x"
+                  [attr.cy]="p.y"
+                  [attr.r]="indiceActivo() === p.indice ? radioMarcaHover : radioMarca"
+                  [attr.fill]="colorDe(s.indice)"
+                  [attr.stroke]="colorSuperficie"
+                  stroke-width="2"
+                  [attr.opacity]="opacidadDe(s.indice)"
+                />
+              }
+            }
+          }
+        }
+
+        <!-- Cruceta: fija la lectura en la categoría señalada. -->
+        @if (indiceActivo() !== null && !esBarras()) {
+          <line
+            [attr.x1]="xCategoria(indiceActivo()!)"
+            [attr.x2]="xCategoria(indiceActivo()!)"
+            [attr.y1]="area().y"
+            [attr.y2]="area().y + area().alto"
+            [attr.stroke]="colorEje"
+            stroke-width="1"
+            stroke-dasharray="3 3"
+          />
+        }
+
+        <!-- Etiquetas de categoría: abajo en vertical, a la izquierda en
+             horizontal (que es justo para lo que sirve tumbar las barras). -->
+        @for (c of categoriasVisibles(); track c.indice) {
+          @if (horizontal()) {
+            <text
+              [attr.x]="area().x - 8"
+              [attr.y]="posCategoria(c.indice) + 4"
+              text-anchor="end"
+              [attr.fill]="colorInkMute"
+              font-size="11"
+            >
+              {{ c.etiqueta }}
+            </text>
+          } @else {
+            <text
+              [attr.x]="posCategoria(c.indice)"
+              [attr.y]="alto() - 10"
+              text-anchor="middle"
+              [attr.fill]="colorInkMute"
+              font-size="11"
+            >
+              {{ c.etiqueta }}
+            </text>
+          }
+        }
+      </svg>
+
+      <!-- Tooltip en HTML y no en SVG: hereda tipografía y tokens del sistema. -->
+      @if (indiceActivo() !== null) {
+        <div
+          class="pointer-events-none absolute z-10 min-w-[8rem] rounded-md border border-neutral-200 bg-white p-2 text-xs shadow-lg"
+          [style.left.px]="tooltipX()"
+          [style.top.px]="8"
+          role="status"
+        >
+          <p class="mb-1 font-semibold text-neutral-900">{{ etiquetaCategoria(indiceActivo()!) }}</p>
+          @for (v of valoresEn(indiceActivo()!); track v.id) {
+            <p class="flex items-center justify-between gap-3">
+              <span class="flex items-center gap-1.5 text-neutral-600">
+                <span class="h-2 w-2 shrink-0 rounded-sm" [style.background]="colorDe(v.indice)"></span>
+                {{ v.nombre }}
+              </span>
+              <span class="font-medium tabular-nums text-neutral-900">{{ v.texto }}</span>
+            </p>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Leyenda solo con dos o más series: con una, el título ya la nombra. -->
+    @if (llevaLeyendaVista()) {
+      <div [class]="leyendaClasses">
+        @for (s of seriesVisibles(); track s.id; let i = $index) {
+          <span class="flex items-center gap-1.5 text-xs text-neutral-600">
+            <span class="h-2.5 w-2.5 shrink-0 rounded-sm" [style.background]="colorDe(i)"></span>
+            {{ s.nombre }}
+          </span>
+        }
+      </div>
+    }
+
+    <!--
+      Tabla de datos. Es la vía de lectura cuando el color no basta —daltonismo,
+      impresión en blanco y negro, lector de pantalla— y la única forma de copiar
+      cifras exactas, que un gráfico nunca da.
+    -->
+    <details class="mt-1" [open]="mostrarTabla()">
+      <summary
+        class="cursor-pointer text-xs text-neutral-500 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+      >
+        Ver los datos como tabla
+      </summary>
+      <div class="mt-2 overflow-x-auto">
+        <table [class]="tablaClasses">
+          <caption class="sr-only">{{ titulo() || 'Datos del gráfico' }}</caption>
+          <thead>
+            <tr>
+              <th scope="col" [class]="tablaThClasses">Categoría</th>
+              @for (s of seriesVisibles(); track s.id) {
+                <th scope="col" [class]="tablaThClasses + ' text-right'">{{ s.nombre }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of filasTabla(); track fila.categoria) {
+              <tr>
+                <th scope="row" [class]="tablaTdClasses + ' font-medium text-neutral-700'">{{ fila.categoria }}</th>
+                @for (v of fila.valores; track $index) {
+                  <td [class]="tablaTdClasses + ' text-right text-neutral-600'">{{ v }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </details>
+  }
+</figure>

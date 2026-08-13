@@ -1,4 +1,3 @@
-import { J_CREATE_ACCOUNT_TEMPLATE } from './JCreateAccountView';
 import type { InterJCreateAccount } from './InterJCreateAccount';
 import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { JButton } from '../../atoms/JButton';
@@ -19,7 +18,7 @@ import { JFormField } from '../../molecules/JFormField';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JButton, JAlert, JCard, JCardHeader, JCardTitle, JCardDescription, JCardContent, JCardFooter, JFormField],
   host: { class: 'contents' },
-  template: J_CREATE_ACCOUNT_TEMPLATE,
+  templateUrl: './JCreateAccountView.html',
 })
 export class JCreateAccount {
   readonly name = model<string>('');

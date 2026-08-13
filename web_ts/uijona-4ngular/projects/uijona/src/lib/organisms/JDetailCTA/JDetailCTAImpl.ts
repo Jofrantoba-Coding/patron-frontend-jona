@@ -1,4 +1,3 @@
-import { J_DETAIL_CTA_TEMPLATE } from './JDetailCTAView';
 import type { InterJDetailCTA } from './InterJDetailCTA';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -12,7 +11,7 @@ const CTA_BASE =
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_DETAIL_CTA_TEMPLATE,
+  templateUrl: './JDetailCTAView.html',
 })
 export class JDetailCTA {
   readonly title = input.required<string>();

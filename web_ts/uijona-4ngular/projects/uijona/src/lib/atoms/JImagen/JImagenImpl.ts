@@ -1,16 +1,17 @@
-import { J_IMAGEN_TEMPLATE } from './JImagenView';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
-  JIMAGEN_ASPECT_RATIO_CLASSES,
   JIMAGEN_DEFAULTS,
-  JIMAGEN_FIT_CLASSES,
-  JIMAGEN_RADIUS_CLASSES,
   type JImagenAspectRatio,
   type JImagenFit,
   type JImagenRadius,
 } from './InterJImagen';
+import {
+  JIMAGEN_ASPECT_RATIO_CLASSES,
+  JIMAGEN_FIT_CLASSES,
+  JIMAGEN_RADIUS_CLASSES,
+} from './JImagenStyles';
 
 /**
  * JImagen — imagen con object-fit, radio, aspect-ratio y fallback opcional.
@@ -20,7 +21,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_IMAGEN_TEMPLATE,
+  templateUrl: './JImagenView.html',
 })
 export class JImagen {
   readonly src = input.required<string>();

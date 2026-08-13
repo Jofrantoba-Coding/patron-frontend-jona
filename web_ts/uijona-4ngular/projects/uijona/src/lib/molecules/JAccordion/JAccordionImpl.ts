@@ -1,32 +1,13 @@
-import { J_ACCORDION_TEMPLATE } from './JAccordionView';
 import type { JAccordionSize, JAccordionVariant, JAccordionItem, InterJAccordion } from './InterJAccordion';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
-
-const TRIGGER_SIZE: Record<JAccordionSize, string> = {
-  sm: 'px-3 py-2 text-xs',
-  md: 'px-4 py-3 text-sm',
-  lg: 'px-5 py-4 text-base',
-};
-
-const CONTENT_SIZE: Record<JAccordionSize, string> = {
-  sm: 'px-3 pb-2 text-xs',
-  md: 'px-4 pb-4 text-sm',
-  lg: 'px-5 pb-5 text-base',
-};
-
-const CONTAINER_VARIANT: Record<JAccordionVariant, string> = {
-  default: 'w-full divide-y divide-neutral-200 rounded-md border border-neutral-200 bg-white',
-  bordered: 'w-full flex flex-col gap-2',
-  ghost: 'w-full divide-y divide-neutral-100',
-};
-
-const ITEM_VARIANT: Record<JAccordionVariant, string> = {
-  default: '',
-  bordered: 'rounded-md border border-neutral-200 bg-white overflow-hidden',
-  ghost: '',
-};
+import {
+  CONTAINER_VARIANT,
+  CONTENT_SIZE,
+  ITEM_VARIANT,
+  TRIGGER_SIZE,
+} from './JAccordionStyles';
 
 function toArray(value: string | string[] | undefined): string[] {
   if (!value) return [];
@@ -41,7 +22,7 @@ function toArray(value: string | string[] | undefined): string[] {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_ACCORDION_TEMPLATE,
+  templateUrl: './JAccordionView.html',
 })
 export class JAccordion {
   readonly items = input.required<JAccordionItem[]>();

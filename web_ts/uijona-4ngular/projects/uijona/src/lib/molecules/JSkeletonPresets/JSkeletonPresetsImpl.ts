@@ -1,4 +1,3 @@
-import { J_SKELETON_PRESETS_TEMPLATE_1, J_SKELETON_PRESETS_TEMPLATE_2, J_SKELETON_PRESETS_TEMPLATE_3, J_SKELETON_PRESETS_TEMPLATE_4 } from './JSkeletonPresetsView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { JSkeleton } from '../../atoms/JSkeleton';
 
@@ -9,7 +8,7 @@ import { JSkeleton } from '../../atoms/JSkeleton';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSkeleton],
   host: { class: 'contents' },
-  template: J_SKELETON_PRESETS_TEMPLATE_1,
+  templateUrl: './JSkeletonUserRowView.html',
 })
 export class JSkeletonUserRow {}
 
@@ -20,7 +19,7 @@ export class JSkeletonUserRow {}
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSkeleton],
   host: { class: 'contents' },
-  template: J_SKELETON_PRESETS_TEMPLATE_2,
+  templateUrl: './JSkeletonCardView.html',
 })
 export class JSkeletonCard {}
 
@@ -31,7 +30,7 @@ export class JSkeletonCard {}
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSkeleton],
   host: { class: 'contents' },
-  template: J_SKELETON_PRESETS_TEMPLATE_3,
+  templateUrl: './JSkeletonTableRowsView.html',
 })
 export class JSkeletonTableRows {
   readonly rows = input<number>(4);
@@ -47,7 +46,7 @@ export class JSkeletonTableRows {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSkeleton],
   host: { class: 'contents' },
-  template: J_SKELETON_PRESETS_TEMPLATE_4,
+  templateUrl: './JSkeletonFormView.html',
 })
 export class JSkeletonForm {
   readonly fields = input<number>(3);

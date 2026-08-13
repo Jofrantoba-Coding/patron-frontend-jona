@@ -1,0 +1,32 @@
+<!--
+  LayoutBaseView.html — JONA View (template puro, compartido)
+  Lo usan los layouts que envuelven JPanel con un `layout` fijo. Cada layout
+  aporta `layoutType` y sus `default*`; el contrato comun vive en InterLayoutBase.ts.
+-->
+<j-panel
+  [layout]="layoutType"
+  [variant]="variant()"
+  [padding]="padding()"
+  [radius]="radius()"
+  [gap]="gap() ?? defaultGap"
+  [direction]="direction() ?? defaultDirection"
+  [alignItems]="alignItems()"
+  [justifyContent]="justifyContent()"
+  [wrap]="wrap() ?? defaultWrap"
+  [columns]="columns()"
+  [rows]="rows()"
+  [autoFitMin]="autoFitMin() ?? defaultAutoFitMin"
+  [placement]="placement() ?? defaultPlacement"
+  [dense]="dense()"
+  [mode]="mode()"
+  [minHeight]="minHeight()"
+  [mobileSmall]="mobileSmall()"
+  [mobileLarge]="mobileLarge()"
+  [tablet]="tablet()"
+  [desktop]="desktop()"
+  [tv]="tv()"
+  [className]="cn('w-full max-w-full min-w-0', className())"
+  [style]="style()"
+>
+  <ng-content />
+</j-panel>

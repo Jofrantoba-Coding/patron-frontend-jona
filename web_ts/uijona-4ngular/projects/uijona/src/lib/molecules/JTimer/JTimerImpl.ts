@@ -1,4 +1,3 @@
-import { J_TIMER_TEMPLATE } from './JTimerView';
 import type { JTimerMode, JTimerStatus, JTimerVariant, JTimerSize, JTimerTone, InterJTimer } from './InterJTimer';
 import {
   ChangeDetectionStrategy,
@@ -12,26 +11,11 @@ import {
   signal,
 } from '@angular/core';
 import { cn } from '../../core/cn';
-
-const VARIANT_CLASSES: Record<JTimerVariant, string> = {
-  plain: 'bg-transparent',
-  card: 'rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-5',
-  inline: 'inline-flex items-center gap-3',
-};
-
-const SIZE_CLASSES: Record<JTimerSize, { display: string; label: string; button: string }> = {
-  sm: { display: 'text-xl', label: 'text-xs', button: 'h-8 px-3 text-xs' },
-  md: { display: 'text-3xl', label: 'text-sm', button: 'h-9 px-3 text-sm' },
-  lg: { display: 'text-5xl', label: 'text-base', button: 'h-10 px-4 text-sm' },
-};
-
-const TONE_CLASSES: Record<JTimerTone, string> = {
-  neutral: 'text-neutral-900',
-  success: 'text-success-700',
-  warning: 'text-warning-700',
-  danger: 'text-danger-700',
-  info: 'text-primary-700',
-};
+import {
+  SIZE_CLASSES,
+  TONE_CLASSES,
+  VARIANT_CLASSES,
+} from './JTimerStyles';
 
 const pad = (n: number, len = 2) => String(n).padStart(len, '0');
 
@@ -43,7 +27,7 @@ const pad = (n: number, len = 2) => String(n).padStart(len, '0');
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TIMER_TEMPLATE,
+  templateUrl: './JTimerView.html',
 })
 export class JTimer implements OnInit {
   readonly mode = input<JTimerMode>('countdown');

@@ -1,4 +1,3 @@
-import { J_CARD_TEMPLATE_1, J_CARD_TEMPLATE_2, J_CARD_TEMPLATE_3, J_CARD_TEMPLATE_4, J_CARD_TEMPLATE_5, J_CARD_TEMPLATE_6 } from './JCardView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
@@ -12,7 +11,7 @@ import type { JStyle } from '../../core/types';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_CARD_TEMPLATE_1,
+  templateUrl: './JCardView.html',
 })
 export class JCard {
   readonly className = input<string>('');
@@ -27,7 +26,7 @@ export class JCard {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_CARD_TEMPLATE_2,
+  templateUrl: './JCardHeaderView.html',
 })
 export class JCardHeader {
   readonly className = input<string>('');
@@ -41,7 +40,7 @@ export class JCardHeader {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_CARD_TEMPLATE_3,
+  templateUrl: './JCardTitleView.html',
 })
 export class JCardTitle {
   readonly className = input<string>('');
@@ -55,7 +54,7 @@ export class JCardTitle {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_CARD_TEMPLATE_4,
+  templateUrl: './JCardDescriptionView.html',
 })
 export class JCardDescription {
   readonly className = input<string>('');
@@ -69,7 +68,7 @@ export class JCardDescription {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_CARD_TEMPLATE_5,
+  templateUrl: './JCardContentView.html',
 })
 export class JCardContent {
   readonly className = input<string>('');
@@ -83,7 +82,7 @@ export class JCardContent {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_CARD_TEMPLATE_6,
+  templateUrl: './JCardFooterView.html',
 })
 export class JCardFooter {
   readonly className = input<string>('');

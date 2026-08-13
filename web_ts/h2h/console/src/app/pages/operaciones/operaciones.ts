@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import { JDataTable, JDialog, JPagination, JSectionHeading } from 'uijona-4ngular';
+import { JDataTable, JDatePicker, JDialog, JPagination, JSectionHeading } from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
 import type { ProductoGrupo } from '../../core/models';
+import { SessionService } from '../../core/session.service';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
 import { OperacionesViewComponent } from './operaciones-view.component';
 
@@ -11,12 +12,28 @@ import { OperacionesViewComponent } from './operaciones-view.component';
   selector: 'app-operaciones',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JDialog, OperacionDetalleDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JDialog, JDatePicker, OperacionDetalleDialog],
   templateUrl: './operaciones-view.component.html',
 })
 export class OperacionesPage extends OperacionesViewComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly session = inject(SessionService);
+
+  constructor() {
+    super();
+    this.can = (permiso: string) => this.session.can(permiso);
+  }
+
+  /**
+   * Cambiar de producto navega en vez de mutar el estado local: la ruta es la
+   * fuente de verdad del filtro, así el enlace se puede compartir y el botón de
+   * atrás deshace el cambio.
+   */
+  protected override onPestanaProducto(ruta: string): void {
+    this.router.navigate(['/', ...ruta.split('/')]);
+  }
 
   protected override abrirOpDetalle(idOperacion: string): void {
     if (!idOperacion || idOperacion === '-') return;

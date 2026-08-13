@@ -1,4 +1,3 @@
-import { J_ICON_TEMPLATE } from './JIconView';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import type { JStyle } from '../../core/types';
 import { JButton } from '../JButton';
@@ -14,7 +13,7 @@ import { JICON_DEFAULTS, type JButtonVariant } from './InterJIcon';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JButton],
   host: { class: 'contents' },
-  template: J_ICON_TEMPLATE,
+  templateUrl: './JIconView.html',
 })
 export class JIcon {
   readonly label = input.required<string>();

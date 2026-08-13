@@ -1,4 +1,3 @@
-import { J_COMBO_BOX_TEMPLATE } from './JComboBoxView';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,13 +13,15 @@ import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JCOMBOBOX_DEFAULTS,
-  JCOMBOBOX_SIZE_CLASSES,
-  JCOMBOBOX_VARIANT_CLASSES,
   type JComboBoxGroup,
   type JComboBoxOption,
   type JComboBoxSize,
   type JComboBoxVariant,
 } from './InterJComboBox';
+import {
+  JCOMBOBOX_SIZE_CLASSES,
+  JCOMBOBOX_VARIANT_CLASSES,
+} from './JComboBoxStyles';
 
 /**
  * JComboBox — select nativo con opciones planas o agrupadas. Implementa
@@ -34,7 +35,7 @@ import {
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JComboBox), multi: true },
   ],
-  template: J_COMBO_BOX_TEMPLATE,
+  templateUrl: './JComboBoxView.html',
 })
 export class JComboBox implements ControlValueAccessor {
   readonly options = input<JComboBoxOption[]>();

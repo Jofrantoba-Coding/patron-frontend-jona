@@ -1,4 +1,3 @@
-import { J_SELECT_FIELD_TEMPLATE } from './JSelectFieldView';
 import type { InterJSelectField } from './InterJSelectField';
 import {
   ChangeDetectionStrategy,
@@ -30,7 +29,7 @@ import { JLabel } from '../../atoms/JLabel';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JSelectField), multi: true },
   ],
-  template: J_SELECT_FIELD_TEMPLATE,
+  templateUrl: './JSelectFieldView.html',
 })
 export class JSelectField implements ControlValueAccessor {
   readonly id = input.required<string>();

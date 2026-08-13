@@ -1,18 +1,9 @@
-import { J_PANEL_TEMPLATE } from './JPanelView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
-  JPANEL_ALIGN_VALUES,
   JPANEL_DEFAULTS,
-  JPANEL_DIRECTION_VALUES,
-  JPANEL_GAP_VALUES,
-  JPANEL_JUSTIFY_VALUES,
-  JPANEL_PADDING_CLASSES,
-  JPANEL_RADIUS_CLASSES,
   JPANEL_RESPONSIVE_LAYOUTS,
-  JPANEL_VARIANT_CLASSES,
-  JPANEL_WRAP_VALUES,
   type JPanelAlign,
   type JPanelDirection,
   type JPanelGap,
@@ -26,6 +17,18 @@ import {
   type JPanelVariant,
   type JPanelWrap,
 } from './InterJPanel';
+import {
+  JPANEL_GAP_VALUES,
+  JPANEL_ALIGN_VALUES,
+  JPANEL_JUSTIFY_VALUES,
+  JPANEL_DIRECTION_VALUES,
+  JPANEL_WRAP_VALUES,
+} from './JPanelStyles';
+import {
+  JPANEL_PADDING_CLASSES,
+  JPANEL_RADIUS_CLASSES,
+  JPANEL_VARIANT_CLASSES,
+} from './JPanelStyles';
 
 interface ResolvedConfig {
   layout: JPanelLayout;
@@ -119,7 +122,7 @@ function setConfigVars(
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_PANEL_TEMPLATE,
+  templateUrl: './JPanelView.html',
 })
 export class JPanel {
   readonly variant = input<JPanelVariant>(JPANEL_DEFAULTS.variant);

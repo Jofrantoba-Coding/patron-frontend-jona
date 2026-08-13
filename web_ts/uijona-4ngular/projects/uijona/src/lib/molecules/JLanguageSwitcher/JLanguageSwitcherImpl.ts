@@ -1,4 +1,3 @@
-import { J_LANGUAGE_SWITCHER_TEMPLATE } from './JLanguageSwitcherView';
 import type { JLanguageOption, InterJLanguageSwitcher } from './InterJLanguageSwitcher';
 import {
   ChangeDetectionStrategy,
@@ -26,7 +25,7 @@ import { JGlyph } from '../../atoms/JGlyph';
     '(document:mousedown)': 'onDocClick($event)',
     '(document:keydown.escape)': 'close()',
   },
-  template: J_LANGUAGE_SWITCHER_TEMPLATE,
+  templateUrl: './JLanguageSwitcherView.html',
 })
 export class JLanguageSwitcher {
   readonly languages = input.required<JLanguageOption[]>();

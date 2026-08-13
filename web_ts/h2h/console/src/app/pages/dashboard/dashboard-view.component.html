@@ -1,68 +1,280 @@
 <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
   <j-section-heading
     eyebrow="Operación del día"
-    heading="Dashboard H2H"
-    [description]="summary() ? 'Flujo del ' + summary()!.fechaOperacion : 'Cargando…'"
+    heading="Estado del canal"
+    description="Qué se puede enviar hoy, qué está esperando y qué necesita atención."
   />
 
-  @if (summary(); as s) {
-    <div class="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))]">
-      <j-stat-card label="Planillas hoy" [value]="num(s.kpis.planillasHoy)" tone="info" />
-      <j-stat-card label="Monto enviado hoy" [value]="pen(s.kpis.montoEnviadoHoy)" tone="success" />
-      <j-stat-card label="Operaciones aprobadas" [value]="num(s.kpis.operacionesAprobadas)" tone="success" />
-      <j-stat-card label="Operaciones rechazadas" [value]="num(s.kpis.operacionesRechazadas)" tone="danger" />
-      <j-stat-card label="Certificados por vencer" [value]="num(s.kpis.certificadosPorVencer)" tone="warning" />
-    </div>
+  <app-nav-paneles />
 
-    <div class="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
-      <p class="mb-4 text-sm font-semibold text-neutral-900">Pipeline del día</p>
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-2">
-        @for (step of s.pipeline; track step.estado; let last = $last) {
-          <div class="flex flex-1 items-center gap-2">
-            <div class="min-w-0 flex-1 rounded-md border border-neutral-200 bg-neutral-50 p-3">
-              <div class="flex items-center gap-2">
-                <j-dot [tone]="dotTone(step.statusUi)" [pulse]="step.statusUi === 'active'" />
-                <span class="truncate text-xs font-medium text-neutral-500">{{ step.label }}</span>
+  <!--
+    Filtros en una sola fila, encima de todo lo que afectan. Solo se ofrecen los
+    que el backend sabe aplicar de verdad: un control que no filtra es peor que
+    su ausencia.
+  -->
+  <div class="flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+    <label class="flex min-w-[8rem] flex-col gap-1">
+      <span class="text-xs font-medium text-neutral-500">Moneda</span>
+      <select
+        class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+        [value]="filtroMoneda()"
+        (change)="onMoneda($event)"
+      >
+        <option value="">Todas</option>
+        @for (m of monedasDisponibles(); track m) {
+          <option [value]="m">{{ m }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="flex min-w-[12rem] flex-col gap-1">
+      <span class="text-xs font-medium text-neutral-500">Tipo de operación</span>
+      <select
+        class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+        [value]="filtroTipo()"
+        (change)="onTipo($event)"
+      >
+        <option value="">Todos</option>
+        @for (t of tiposDisponibles(); track t) {
+          <option [value]="t">{{ etiquetaTipo(t) }}</option>
+        }
+      </select>
+    </label>
+
+    <!--
+      Periodo sobre la fecha de la operación. La hora que se elige aquí se
+      interpreta en la zona del NEGOCIO y se manda al backend como epoch: ver
+      `core/zona-horaria.ts` para por qué no se usa la zona del navegador.
+    -->
+    <label class="flex min-w-[13rem] flex-col gap-1">
+      <span class="text-xs font-medium text-neutral-500">Desde</span>
+      <j-date-picker
+        [value]="filtroDesde()"
+        [showTime]="true"
+        [disabled]="!periodoSoportado"
+        placeholder="Inicio del periodo"
+        (changed)="onDesde($event)"
+      />
+    </label>
+
+    <label class="flex min-w-[13rem] flex-col gap-1">
+      <span class="text-xs font-medium text-neutral-500">Hasta</span>
+      <j-date-picker
+        [value]="filtroHasta()"
+        [showTime]="true"
+        [disabled]="!periodoSoportado"
+        placeholder="Fin del periodo"
+        (changed)="onHasta($event)"
+      />
+    </label>
+
+    <!--
+      Día de proceso en el banco. Sin hora, y con etiquetas que lo distinguen del
+      periodo de arriba: aquél acota cuándo se REGISTRÓ la operación, éste cuándo el
+      banco la PROCESA. Se pueden usar juntos.
+    -->
+    <label class="flex min-w-[13rem] flex-col gap-1">
+      <span class="text-xs font-medium text-neutral-500">Se procesa desde</span>
+      <j-date-picker
+        [value]="filtroProcDesde()"
+        [disabled]="!periodoSoportado"
+        placeholder="Día inicial"
+        (changed)="onProcDesde($event)"
+      />
+    </label>
+
+    <label class="flex min-w-[13rem] flex-col gap-1">
+      <span class="text-xs font-medium text-neutral-500">Se procesa hasta</span>
+      <j-date-picker
+        [value]="filtroProcHasta()"
+        [disabled]="!periodoSoportado"
+        placeholder="Día final"
+        (changed)="onProcHasta($event)"
+      />
+    </label>
+
+    @if (hayFiltro()) {
+      <button
+        type="button"
+        (click)="limpiarFiltros()"
+        class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+      >
+        Quitar filtros
+      </button>
+    }
+
+    <p class="ml-auto max-w-[22rem] text-[11px] leading-snug text-neutral-400">
+      El periodo se interpreta en <strong>hora de Lima</strong>, la zona en la que opera el
+      canal, no en la del equipo desde el que se consulta.
+    </p>
+  </div>
+
+  <!--
+    El reloj va primero de lo filtrable. En un canal por ventanas la primera
+    decisión del día no es "cuánto llevo" sino "¿llego al corte?". No depende de
+    los filtros: la ventana del canal es la misma para todo.
+  -->
+  <app-reloj-canal />
+
+  <!--
+    Avisos derivados de conteos reales. Antes venían de una lista fija del mock;
+    ahora solo aparece un aviso si hay algo que lo justifique, y desaparece solo
+    cuando se resuelve.
+  -->
+  @for (a of avisos(); track a.titulo) {
+    <j-alert [variant]="a.variante" [title]="a.titulo">{{ a.detalle }}</j-alert>
+  }
+
+  <!-- Pendientes por etapa: la lista de trabajo, clicable. -->
+  <div class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">
+    @for (e of etapasPendientes(); track e.clave) {
+      <button
+        type="button"
+        (click)="irAEtapa(e.ruta)"
+        class="flex items-center justify-between gap-3 rounded-lg border bg-white p-4 text-left shadow-sm transition-colors hover:border-primary-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        [class]="e.cantidad > 0 ? 'border-neutral-200' : 'border-neutral-100'"
+      >
+        <div class="min-w-0">
+          <p class="text-xs font-medium uppercase tracking-wide text-neutral-400">
+            {{ e.orden }} · {{ e.etapa }}
+          </p>
+          <p class="mt-0.5 truncate text-sm text-neutral-600">{{ e.accion }}</p>
+        </div>
+        <p
+          class="shrink-0 text-2xl font-black tabular-nums"
+          [class]="e.cantidad > 0 ? 'text-primary-600' : 'text-neutral-300'"
+        >
+          {{ num(e.cantidad) }}
+        </p>
+      </button>
+    }
+  </div>
+
+  <!--
+    Dinero en curso. Una tarjeta por MONEDA, nunca las dos en un mismo eje:
+    PEN y USD son unidades distintas y ponerlas juntas invita a compararlas como
+    si 1 fuera 1.
+  -->
+  @if (montos(); as m) {
+    @if (!m.completo && m.total > 0) {
+      <j-alert variant="info" title="Importes no disponibles">
+        Hay {{ num(m.total) }} operaciones, más de las que se pueden sumar desde la consola. El
+        total exacto necesita un endpoint de agregación en el backend; se prefiere no mostrar una
+        cifra parcial.
+      </j-alert>
+    } @else if (m.porMoneda.length > 0) {
+      <div class="grid gap-6 lg:grid-cols-2">
+        @for (mon of m.porMoneda; track mon.moneda) {
+          <j-card>
+            <j-card-header>
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <j-card-title>Dinero en curso · {{ mon.moneda }}</j-card-title>
+                  <j-card-description>
+                    {{ num(mon.operaciones) }} operaciones registradas
+                  </j-card-description>
+                </div>
+                <!-- Cifra protagonista: es el número con el que se abre el día. -->
+                <p class="shrink-0 text-2xl font-black tabular-nums text-neutral-900">
+                  {{ importe(mon.monto, mon.moneda) }}
+                </p>
               </div>
-              <p class="mt-1 text-xl font-black tabular-nums text-neutral-900">{{ num(step.cantidad) }}</p>
-            </div>
-            @if (!last) {
-              <span class="hidden shrink-0 text-neutral-300 sm:inline">→</span>
+            </j-card-header>
+            <j-card-content>
+              @if (mon.tipos.length > 1) {
+                <j-chart
+                  tipo="bar"
+                  [series]="serieMontos(mon)"
+                  [categorias]="categoriasMontos(mon)"
+                  [moneda]="mon.moneda"
+                  [alto]="alturaMontos(mon)"
+                />
+              } @else if (mon.tipos.length === 1) {
+                <!-- Un solo tipo: un gráfico de una barra no dice nada que el
+                     número no diga ya. -->
+                <p class="text-sm text-neutral-600">
+                  Todo en <span class="font-medium">{{ etiquetaTipo(mon.tipos[0].tipo) }}</span>
+                  ({{ num(mon.tipos[0].operaciones) }} operaciones).
+                </p>
+              }
+            </j-card-content>
+          </j-card>
+        }
+      </div>
+    }
+  }
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!--
+      Recorrido del dinero. Una operación no "está en un estado" cualquiera:
+      avanza por una secuencia, y verla en orden explica dónde se atasca.
+    -->
+    <j-card>
+      <j-card-header>
+        <j-card-title>Operaciones por estado</j-card-title>
+        <j-card-description>Dónde está el dinero que ya entró al sistema</j-card-description>
+      </j-card-header>
+      <j-card-content>
+        @if (resumen()) {
+          <!--
+            Barras tumbadas: los nombres de estado son largos y así caben
+            enteros a la izquierda, sin girarlos ni recortarlos. Una sola serie,
+            así que no lleva leyenda: el título de la tarjeta ya la nombra.
+          -->
+          <j-chart
+            tipo="bar"
+            [series]="serieOperaciones()"
+            [categorias]="categoriasOperaciones()"
+            [alto]="220"
+            unidad=" ops"
+            textoVacio="Todavía no hay operaciones cargadas."
+          />
+          <p class="mt-2 border-t border-neutral-100 pt-2 text-xs text-neutral-400">
+            {{ num(totalOperaciones()) }} operaciones en total
+          </p>
+        } @else {
+          <p class="text-sm text-neutral-400">Consultando…</p>
+        }
+      </j-card-content>
+    </j-card>
+
+    <!-- Desenlace de los archivos ya enviados al banco. -->
+    <j-card>
+      <j-card-header>
+        <j-card-title>Archivos en el banco</j-card-title>
+        <j-card-description>
+          Qué pasó con lo que ya salió
+          @if (filtroTipo()) {
+            <!-- Honestidad sobre el alcance del filtro: las planillas se agrupan
+                 por producto BCP, no por tipo de operación. -->
+            · <span class="text-warning-700">el filtro de tipo no aplica aquí</span>
+          }
+        </j-card-description>
+      </j-card-header>
+      <j-card-content>
+        @if (resumen()) {
+          <!--
+            Con cuatro desenlaces y cifras pequeñas, las tarjetas se leen mejor
+            que un gráfico: un dibujo de cuatro barras de valor 0 o 1 no añade
+            nada sobre el número suelto. El gráfico entra cuando haya volumen.
+          -->
+          <div class="grid grid-cols-2 gap-3">
+            @for (p of estadoPlanillas(); track p.label) {
+              <div class="rounded-md border border-neutral-200 p-3">
+                <p class="text-xs text-neutral-500">{{ p.label }}</p>
+                <p class="text-xl font-black tabular-nums" [class]="p.color">{{ num(p.cantidad) }}</p>
+              </div>
             }
           </div>
-        }
-      </div>
-    </div>
-
-    <div class="grid gap-6 lg:grid-cols-3">
-      <div class="flex flex-col gap-3 lg:col-span-2">
-        <p class="text-sm font-semibold text-neutral-900">Alertas que requieren acción</p>
-        @for (a of s.alertas; track a.title) {
-          <j-alert [variant]="alertVariant(a.severity)" [title]="a.title">{{ a.message }}</j-alert>
-        } @empty {
-          <p class="text-sm text-neutral-400">Sin alertas.</p>
-        }
-      </div>
-
-      <div class="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
-        <div class="mb-3 flex items-center justify-between">
-          <p class="text-sm font-semibold text-neutral-900">Salud de servicios</p>
-          @if (health(); as h) {
-            <j-badge [variant]="h.status === 'UP' ? 'secondary' : 'destructive'">{{ h.status }}</j-badge>
+          @if (totalPlanillasBanco() === 0) {
+            <p class="mt-3 text-sm text-neutral-400">
+              Todavía no ha salido ningún archivo al banco.
+            </p>
           }
-        </div>
-        <ul class="flex flex-col gap-2.5">
-          @for (svc of health()?.services ?? []; track svc.name) {
-            <li class="flex items-center justify-between gap-2">
-              <span class="flex min-w-0 items-center gap-2">
-                <j-dot [tone]="svc.status === 'UP' ? 'success' : svc.status === 'DEGRADED' ? 'warning' : 'danger'" />
-                <span class="truncate font-mono text-xs text-neutral-700">{{ svc.name }}</span>
-              </span>
-              <span class="shrink-0 text-xs tabular-nums text-neutral-400">{{ svc.latencyMs }} ms</span>
-            </li>
-          }
-        </ul>
-      </div>
-    </div>
-  }
+        } @else {
+          <p class="text-sm text-neutral-400">Consultando…</p>
+        }
+      </j-card-content>
+    </j-card>
+  </div>
 </div>

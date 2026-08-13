@@ -1,4 +1,3 @@
-import { J_ERROR_PAGE_TEMPLATE } from './JErrorPageView';
 import type { InterJErrorPage } from './InterJErrorPage';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { JButton } from '../../atoms/JButton';
@@ -9,7 +8,7 @@ import { JButton } from '../../atoms/JButton';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JButton],
   host: { class: 'contents' },
-  template: J_ERROR_PAGE_TEMPLATE,
+  templateUrl: './JErrorPageView.html',
 })
 export class JErrorPage {
   readonly errorCode = input<string | number>('404');

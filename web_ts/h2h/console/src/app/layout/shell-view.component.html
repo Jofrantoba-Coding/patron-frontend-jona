@@ -1,0 +1,62 @@
+<!--
+  shell-view.component.html — JONA View del layout principal.
+  Solo estructura y bindings: la navegación y la sesión llegan resueltas.
+-->
+<j-sidebar-layout
+  [nav]="nav()"
+  [activeKey]="activeKey()"
+  [collapsible]="true"
+  (navItemClick)="onNav($event)"
+>
+  <div jHeader class="flex min-w-0 flex-col gap-2">
+    <div class="flex items-center gap-2">
+      <span
+        class="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary-600 text-sm font-black text-white"
+        >H2H</span
+      >
+      <div class="min-w-0">
+        <p class="truncate text-sm font-semibold leading-tight text-neutral-900">Consola H2H</p>
+        <p class="truncate text-[11px] leading-tight text-neutral-400">Jofrantoba Consulting TI</p>
+      </div>
+    </div>
+
+    <div class="flex min-w-0 items-center gap-1.5">
+      <span class="truncate text-xs font-medium text-neutral-600">{{
+        tenant()?.org_v_nombrecomercial
+      }}</span>
+      <j-badge [variant]="ambienteVariant()">{{ tenant()?.org_v_ambiente }}</j-badge>
+    </div>
+
+    <!--
+      Reloj del canal. En un canal por ventanas, la pregunta operativa más
+      frecuente no es "qué hay pendiente" sino "cuánto me queda para el corte".
+      Por eso vive en la cabecera, visible desde cualquier pantalla.
+    -->
+    <app-reloj-canal [compacta]="true" />
+  </div>
+
+  <div jFooter class="flex flex-col gap-2">
+    <j-user-avatar [name]="user()?.name ?? ''" [email]="user()?.email" size="sm" />
+    <button
+      type="button"
+      (click)="logout()"
+      class="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-danger-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+    >
+      <svg
+        class="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+      Cerrar sesión
+    </button>
+  </div>
+
+  <router-outlet />
+</j-sidebar-layout>

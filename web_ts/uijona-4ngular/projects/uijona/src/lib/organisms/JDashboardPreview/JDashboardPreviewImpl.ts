@@ -1,4 +1,3 @@
-import { J_DASHBOARD_PREVIEW_TEMPLATE } from './JDashboardPreviewView';
 import type { DashboardStat, InterJDashboardPreview } from './InterJDashboardPreview';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -8,7 +7,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_DASHBOARD_PREVIEW_TEMPLATE,
+  templateUrl: './JDashboardPreviewView.html',
 })
 export class JDashboardPreview {
   readonly title = input.required<string>();

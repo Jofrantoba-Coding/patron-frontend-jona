@@ -1,4 +1,3 @@
-import { J_SITE_FOOTER_TEMPLATE } from './JSiteFooterView';
 import type { FooterLink, InterJSiteFooter } from './InterJSiteFooter';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -8,7 +7,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_SITE_FOOTER_TEMPLATE,
+  templateUrl: './JSiteFooterView.html',
 })
 export class JSiteFooter {
   readonly copyright = input.required<string>();

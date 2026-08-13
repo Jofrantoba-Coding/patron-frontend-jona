@@ -41,6 +41,139 @@ export interface LoginResponse extends TenantContext {
   expiresIn: number;
 }
 
+/**
+ * Las cuatro etapas del canal H2H, en el orden real del proceso.
+ *
+ * <p>Cada una es una capa con su propia máquina de estados: la operación nace en
+ * la ingesta, se agrupa en una programación, se materializa en una planilla y
+ * termina con la respuesta del banco. Vive en `core` y no en el layout porque la
+ * usan tanto el menú como los servicios que cuentan el trabajo pendiente.</p>
+ */
+export type EtapaCanal = 'operaciones' | 'programaciones' | 'planillas' | 'respuestas';
+
+/** Trabajo que requiere acción humana en cada etapa. */
+export type PendientesPorEtapa = Partial<Record<EtapaCanal, number>>;
+
+/**
+ * Conteos reales del canal para el panel de control.
+ *
+ * <p>Solo lo que la API sabe responder hoy. No hay agregación de importes en el
+ * backend, así que el panel no muestra montos: prefiero una pantalla que diga
+ * menos a una que muestre una cifra inventada por el mock.</p>
+ */
+export interface ResumenCanal {
+  opsRegistradas: number;
+  opsEnProceso: number;
+  opsConfirmadas: number;
+  opsRechazadas: number;
+  opsError: number;
+  plaEnviadas: number;
+  plaProcesadas: number;
+  plaParciales: number;
+  plaRechazadas: number;
+  plaError: number;
+  plaErrorCifrado: number;
+}
+
+/**
+ * Filtros del panel de control. Solo los que el backend acepta de verdad.
+ *
+ * <p>Las fechas viajan como hora de pared (`yyyy-MM-ddTHH:mm`) y se convierten a
+ * epoch al armar la petición, con la zona del negocio: ver `core/zona-horaria.ts`.</p>
+ */
+export interface FiltroPanel {
+  moneda?: string;
+  /** Código del tipo de operación. No aplica a las planillas: ver `ResumenCanal`. */
+  tipoOperacion?: string;
+  /** Inicio del periodo, ISO con hora (`yyyy-MM-ddTHH:mm`). Ver `FILTRO_PERIODO_SOPORTADO`. */
+  fechaDesde?: string;
+  /** Fin del periodo, ISO con hora. */
+  fechaHasta?: string;
+  /**
+   * Día inicial de proceso en el banco, ISO sin hora (`yyyy-MM-dd`).
+   *
+   * <p>Es un filtro DISTINTO del periodo de arriba y responde otra pregunta: aquél
+   * acota el instante en que la operación se registró (`ope_d_fecha_operacion`,
+   * `timestamptz`), éste acota el día en que el banco la procesa
+   * (`ope_d_fecha_proceso`, columna `date`). En un panel de canal la segunda suele ser
+   * la pregunta natural —"cuánto dinero se mueve mañana"—, y las dos pueden estar
+   * puestas a la vez.</p>
+   */
+  fechaProcesoDesde?: string;
+  /** Día final de proceso en el banco, ISO sin hora. */
+  fechaProcesoHasta?: string;
+}
+
+/**
+ * ¿El backend sabe ya filtrar por periodo?
+ *
+ * <p>Activo desde jofrantoba-model-jpa 2.0.6, que añadió operadores temporales
+ * con enlace tipado al DSL, y desde que `FilterOperacion` acepta el periodo.</p>
+ *
+ * <p>Se conserva el interruptor porque el backend <em>ignora en silencio</em> los
+ * campos que no conoce: devuelve 200 y el total sin filtrar. Si alguna vez hay que
+ * desplegar la consola contra una API anterior, ponerlo en `false` evita que el
+ * panel muestre cifras de todo el histórico como si fueran del periodo elegido.</p>
+ */
+export const FILTRO_PERIODO_SOPORTADO = true;
+
+/**
+ * Un grupo del resumen agregado que devuelve el backend (`/{entidad}/resumen`).
+ *
+ * <p>Es UNA fila de un `group by`: la combinación estado (o tipo) × moneda, con sus
+ * cantidades e importe ya sumados por el motor. Sustituye a la vía anterior —traer el
+ * listado entero y sumar en el navegador—, que tenía tope y por encima de él dejaba de
+ * dar la cifra.</p>
+ *
+ * <p>`monto` y `moneda` son nulos en respuestas: `tt_prb_respuesta` no tiene columna de
+ * importe porque el banco no lo informa. Ahí lo que se mira es la conciliación
+ * (`operacionesOk` / `operacionesError`).</p>
+ */
+export interface GrupoResumen {
+  /** Estado de la entidad o, en respuestas, el tipo (VAL/RES/RES2/PAR). */
+  clave: string;
+  moneda: string | null;
+  /** Filas de la propia entidad: operaciones, planes, archivos o respuestas. */
+  cantidad: number;
+  /** Operaciones que lleva dentro. Un plan o una planilla son contenedores. */
+  operaciones: number | null;
+  monto: number | null;
+  operacionesOk: number | null;
+  operacionesError: number | null;
+}
+
+/** Entidades que saben responder un resumen agregado. */
+export type EntidadResumen = 'operaciones' | 'programaciones' | 'planillas' | 'respuestas';
+
+/** Importes agrupados por tipo de operación dentro de una moneda. */
+export interface MontoPorTipo {
+  tipo: string;
+  monto: number;
+  operaciones: number;
+}
+
+export interface MontoPorMoneda {
+  moneda: string;
+  monto: number;
+  operaciones: number;
+  tipos: MontoPorTipo[];
+}
+
+/**
+ * Importes en curso.
+ *
+ * <p>`completo: false` significa que la suma NO se pudo calcular entera (hay
+ * más operaciones de las que se pueden traer de una vez). En ese caso no se
+ * muestra ninguna cifra: un importe parcial presentado como total es peor que
+ * la ausencia del dato.</p>
+ */
+export interface ResumenMontos {
+  completo: boolean;
+  /** Operaciones consideradas, venga o no la suma. */
+  total: number;
+  porMoneda: MontoPorMoneda[];
+}
+
 export type PipelineStatus = 'done' | 'active' | 'warning' | 'error' | 'pending';
 export interface PipelineStep {
   estado: string;
@@ -349,6 +482,47 @@ export interface RespuestaBCP {
   prb_n_id_formato_code: string;
 }
 
+/**
+ * Respuesta del banco, tal y como la devuelve el backend real
+ * (`api/mantenimientos/h2h/v1/respuestas`).
+ *
+ * <p>Sustituye a `RespuestaBCP`, que reproducía los nombres crudos de columna
+ * (`prb_u_id`) porque venía del mock. Los alias son los del DAO; recuérdese que
+ * PostgreSQL los pliega a minúsculas, de ahí la normalización al leerlos.</p>
+ */
+export interface RespuestaRow {
+  id: string;
+  idPlanilla: string;
+  idTipoRespuesta: number | null;
+  /** `RES` (aceptada), `VAL` (rechazo de estructura), `RES2` (resultado final), `PAR` (parcial). */
+  tipoRespuestaCodigo: string;
+  tipoRespuestaFullCode: string | null;
+  nombreArchivo: string;
+  fechaRecepcion: string | null;
+  totalOperaciones: number;
+  operacionesOk: number;
+  operacionesError: number;
+  formatoCodigo: string | null;
+  urlClaro: string | null;
+  urlCifrado: string | null;
+  archivoGenerado: string | null;
+}
+
+/** Filtros aceptados por `/respuestas/listar/*` y `/respuestas/contar`. */
+export interface RespuestaFiltro {
+  /**
+   * Periodo como hora de pared (`yyyy-MM-ddTHH:mm`); se convierte a epoch al
+   * armar la petición con la zona del negocio. Filtra por la fecha de RECEPCIÓN de la respuesta.
+   */
+  fechaDesde?: string;
+  fechaHasta?: string;
+
+  id?: string;
+  idPlanilla?: string;
+  tipoRespuesta?: string;
+  nombreArchivo?: string;
+}
+
 // Backend real (api/mantenimientos/h2h/v1/planillas) — consulta de solo lectura.
 export interface PlanillaRow {
   id: string;
@@ -376,6 +550,19 @@ export interface PlanillaRow {
 }
 
 export interface PlanillaFiltro {
+  /**
+   * Rango sobre la FECHA DEL ARCHIVO (columna `date`). Filtro distinto del de
+   * envío: éste sí incluye planillas que aún no han salido al banco.
+   */
+  fechaArchivoDesde?: string;
+  fechaArchivoHasta?: string;
+  /**
+   * Periodo como hora de pared (`yyyy-MM-ddTHH:mm`); se convierte a epoch al
+   * armar la petición con la zona del negocio. Filtra por la fecha de ENVÍO (una planilla aún no enviada queda fuera, por eso la etiqueta lo dice).
+   */
+  fechaDesde?: string;
+  fechaHasta?: string;
+
   id?: string;
   idEntidadFin?: number;
   idProducto?: number;
@@ -395,24 +582,6 @@ export interface PlanillaDetalleFull {
   respuestas: OperacionDetalleRegistro[];
 }
 
-export interface Certificado {
-  certificadoId: string;
-  scope: string;
-  tipo: string;
-  alias: string;
-  uso: string;
-  estado: string;
-  algoritmo: string;
-  longitud: number;
-  fingerprint: string;
-  fechaEmision: string;
-  fechaVencimiento: string;
-  diasParaVencer: number;
-  custodiaPrivada: string;
-  publicKeyUrl: string;
-  bcpPublicKeyLoaded: boolean;
-}
-
 export interface AuditEvent {
   eventId: string;
   actor: string;
@@ -422,41 +591,6 @@ export interface AuditEvent {
   result: string;
   traceId: string;
   createdAt: string;
-}
-
-export type TipoDocumento = 'PLANILLA' | 'RESPUESTA';
-/** Fila unificada de la bandeja global de documentos (planilla o respuesta). */
-export interface Documento {
-  id: string;
-  tipoDocumento: TipoDocumento;
-  producto: ProductoGrupo | null;
-  productoCode: string | null;
-  subtipo: string | null;
-  nombre: string;
-  formato: string;
-  modalidad: string | null;
-  estado: string;
-  tipoRespuesta: string | null;
-  cifrado: boolean;
-  fecha: string;
-  montoTotal: number | null;
-  totalOperaciones: number | null;
-  urlClaro: string | null;
-  urlCifrado: string | null;
-  planillaId: string | null;
-}
-
-/** Filtros de la bandeja global de documentos. */
-export interface DocumentoFiltro {
-  producto?: ProductoGrupo;
-  subtipo?: string;
-  tipoDocumento?: TipoDocumento;
-  estado?: string;
-  formato?: string;
-  modalidad?: string;
-  cifrado?: boolean;
-  fechaDesde?: string;
-  fechaHasta?: string;
 }
 
 export interface OperacionFiltro {
@@ -472,6 +606,19 @@ export interface OperacionFiltro {
   estadoOperacion?: string;
   moneda?: string;
   sinPlanillaVigente?: boolean;
+  /**
+   * Rango sobre el DÍA DE PROCESO en el banco (columna `date`, sin hora). Se manda como epoch y el
+   * backend resuelve el DÍA en hora de Lima. Es un filtro DISTINTO del de registro.
+   */
+  fechaProcesoDesde?: string;
+  fechaProcesoHasta?: string;
+  /**
+   * Periodo sobre la fecha de la operación, como hora de pared
+   * (`yyyy-MM-ddTHH:mm`). Se convierte a epoch al armar la petición usando la
+   * zona del negocio: ver `core/zona-horaria.ts`.
+   */
+  fechaDesde?: string;
+  fechaHasta?: string;
 }
 
 export interface Parametria {
@@ -497,23 +644,6 @@ export interface ParametriaFiltro {
   persistente?: boolean;
   soloPadres?: boolean;
   soloHijos?: boolean;
-}
-
-export interface DocumentoDescarga {
-  documentoId: string;
-  variante: 'claro' | 'cifrado';
-  url: string;
-  nombre: string;
-  contentType: string;
-}
-
-export interface DocumentoPreview {
-  documentoId: string;
-  tipoDocumento: TipoDocumento;
-  nombre: string;
-  formato: string;
-  contentType: string;
-  contenido: string;
 }
 
 export interface EstructuraArchivo {
@@ -580,6 +710,16 @@ export interface ProgramacionRow {
 }
 
 export interface ProgramacionFiltro {
+  /** Rango sobre el DÍA DE PROCESO del plan (columna `date`), distinto del momento programado. */
+  fechaProcesoDiaDesde?: string;
+  fechaProcesoDiaHasta?: string;
+  /**
+   * Periodo como hora de pared (`yyyy-MM-ddTHH:mm`); se convierte a epoch al
+   * armar la petición con la zona del negocio. Filtra por el momento PROGRAMADO del plan.
+   */
+  fechaDesde?: string;
+  fechaHasta?: string;
+
   id?: string;
   idProducto?: number;
   idMoneda?: number;

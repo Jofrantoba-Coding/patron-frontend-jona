@@ -1,19 +1,20 @@
-import { J_PROGRESS_TEMPLATE } from './JProgressView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
-  JPROGRESS_BAR_FILL,
-  JPROGRESS_BAR_HEIGHT,
-  JPROGRESS_CIRCLE_COLOR,
-  JPROGRESS_CIRCLE_DIAMETER,
-  JPROGRESS_CIRCLE_FONT_SIZE,
-  JPROGRESS_CIRCLE_STROKE_WIDTH,
   JPROGRESS_DEFAULTS,
   type JProgressSize,
   type JProgressType,
   type JProgressVariant,
 } from './InterJProgress';
+import {
+  JPROGRESS_BAR_HEIGHT,
+  JPROGRESS_BAR_FILL,
+  JPROGRESS_CIRCLE_DIAMETER,
+  JPROGRESS_CIRCLE_STROKE_WIDTH,
+  JPROGRESS_CIRCLE_COLOR,
+  JPROGRESS_CIRCLE_FONT_SIZE,
+} from './JProgressStyles';
 
 /**
  * JProgress — barra o circulo de progreso, con label opcional y animacion shimmer.
@@ -23,7 +24,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_PROGRESS_TEMPLATE,
+  templateUrl: './JProgressView.html',
 })
 export class JProgress {
   readonly value = input<number>(JPROGRESS_DEFAULTS.value);

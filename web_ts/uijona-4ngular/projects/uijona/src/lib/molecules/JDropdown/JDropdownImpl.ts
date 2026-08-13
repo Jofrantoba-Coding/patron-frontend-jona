@@ -1,4 +1,3 @@
-import { J_DROPDOWN_TEMPLATE } from './JDropdownView';
 import type { JDropdownItem, JDropdownGroup, InterJDropdown } from './InterJDropdown';
 import {
   ChangeDetectionStrategy,
@@ -30,7 +29,7 @@ const VPAD = 8;
     '(window:resize)': 'reposition()',
     '(window:scroll)': 'reposition()',
   },
-  template: J_DROPDOWN_TEMPLATE,
+  templateUrl: './JDropdownView.html',
 })
 export class JDropdown {
   readonly groups = input.required<JDropdownGroup[]>();

@@ -1,0 +1,17 @@
+<!--
+  JHomeErrorView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+<j-border-layout>
+  <j-header-page jNorth [title]="appTitle()" />
+  <j-footer-page jSouth [text]="footerText()" />
+  <j-error-page
+    [errorCode]="errorCode()"
+    [title]="title()"
+    [message]="message()"
+    [primaryLabel]="primaryLabel()"
+    [secondaryLabel]="secondaryLabel()"
+    (goHome)="goHome.emit()"
+    (goBack)="goBack.emit()"
+  />
+</j-border-layout>

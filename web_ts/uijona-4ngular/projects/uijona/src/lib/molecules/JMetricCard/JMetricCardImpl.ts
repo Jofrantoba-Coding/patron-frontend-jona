@@ -1,4 +1,3 @@
-import { J_METRIC_CARD_TEMPLATE } from './JMetricCardView';
 import type { InterJMetricCard } from './InterJMetricCard';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -10,7 +9,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_METRIC_CARD_TEMPLATE,
+  templateUrl: './JMetricCardView.html',
 })
 export class JMetricCard {
   readonly value = input.required<string>();

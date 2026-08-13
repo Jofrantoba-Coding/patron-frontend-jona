@@ -1,0 +1,4 @@
+/*
+  JStatCardView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jstat-icon:empty { display: none; }

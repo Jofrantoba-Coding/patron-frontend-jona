@@ -1,4 +1,3 @@
-import { J_MARKETING_HERO_TEMPLATE, J_MARKETING_HERO_STYLES } from './JMarketingHeroView';
 import type { MarketingHeroCTA, InterJMarketingHero } from './InterJMarketingHero';
 import {
   ChangeDetectionStrategy,
@@ -26,8 +25,8 @@ const CTA_VARIANT = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_MARKETING_HERO_TEMPLATE,
-  styles: J_MARKETING_HERO_STYLES,
+  templateUrl: './JMarketingHeroView.html',
+  styleUrl: './JMarketingHeroView.css',
 })
 export class JMarketingHero {
   readonly eyebrow = input<string>();

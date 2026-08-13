@@ -1,4 +1,3 @@
-import { J_SECTION_HEADING_TEMPLATE } from './JSectionHeadingView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 
@@ -10,7 +9,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_SECTION_HEADING_TEMPLATE,
+  templateUrl: './JSectionHeadingView.html',
 })
 export class JSectionHeading {
   readonly eyebrow = input<string>();

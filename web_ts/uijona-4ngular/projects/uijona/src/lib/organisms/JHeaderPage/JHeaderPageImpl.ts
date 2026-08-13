@@ -1,4 +1,3 @@
-import { J_HEADER_PAGE_TEMPLATE, J_HEADER_PAGE_STYLES } from './JHeaderPageView';
 import type { InterJHeaderPage } from './InterJHeaderPage';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -8,8 +7,8 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_HEADER_PAGE_TEMPLATE,
-  styles: J_HEADER_PAGE_STYLES,
+  templateUrl: './JHeaderPageView.html',
+  styleUrl: './JHeaderPageView.css',
 })
 export class JHeaderPage {
   readonly title = input<string>('JONA UI');

@@ -1,4 +1,3 @@
-import { J_DIALOG_TEMPLATE, J_DIALOG_STYLES } from './JDialogView';
 import type { JDialogSize, InterJDialog } from './InterJDialog';
 import { DOCUMENT } from '@angular/common';
 import {
@@ -11,14 +10,9 @@ import {
   output,
 } from '@angular/core';
 import { cn } from '../../core/cn';
-
-const SIZE_CLASS: Record<JDialogSize, string> = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-  '2xl': 'max-w-5xl',
-};
+import {
+  SIZE_CLASS,
+} from './JDialogStyles';
 
 /**
  * JDialog — modal con backdrop, cierre por Escape/overlay y bloqueo de scroll.
@@ -29,8 +23,8 @@ const SIZE_CLASS: Record<JDialogSize, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents', '(document:keydown.escape)': 'onEscape()' },
-  template: J_DIALOG_TEMPLATE,
-  styles: J_DIALOG_STYLES,
+  templateUrl: './JDialogView.html',
+  styleUrl: './JDialogView.css',
 })
 export class JDialog {
   readonly open = input.required<boolean>();

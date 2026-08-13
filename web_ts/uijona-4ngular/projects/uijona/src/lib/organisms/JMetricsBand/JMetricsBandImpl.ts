@@ -1,4 +1,3 @@
-import { J_METRICS_BAND_TEMPLATE } from './JMetricsBandView';
 import type { MetricItem, InterJMetricsBand } from './InterJMetricsBand';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -8,7 +7,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_METRICS_BAND_TEMPLATE,
+  templateUrl: './JMetricsBandView.html',
 })
 export class JMetricsBand {
   readonly metrics = input.required<MetricItem[]>();

@@ -1,0 +1,13 @@
+<!--
+  JTabsContentView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+@if (tabs.value() === value()) {
+  <div
+    role="tabpanel"
+    tabindex="0"
+    [class]="cn('min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500', className())"
+  >
+    <ng-content />
+  </div>
+}

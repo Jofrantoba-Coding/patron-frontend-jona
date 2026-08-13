@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { JPanel, type JPanelLayout } from '../../atoms/JPanel';
-import { JLayoutBase, LAYOUT_TEMPLATE } from '../LayoutBase';
+import { JLayoutBase } from '../LayoutBase';
 
 /** JGridBagLayout — grilla responsive con constraints por hijo (layout=gridbag). */
 @Component({
@@ -9,7 +9,7 @@ import { JLayoutBase, LAYOUT_TEMPLATE } from '../LayoutBase';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JPanel],
   host: { class: 'contents' },
-  template: LAYOUT_TEMPLATE,
+  templateUrl: '../LayoutBaseView.html',
 })
 export class JGridBagLayout extends JLayoutBase {
   readonly layoutType: JPanelLayout = 'gridbag';

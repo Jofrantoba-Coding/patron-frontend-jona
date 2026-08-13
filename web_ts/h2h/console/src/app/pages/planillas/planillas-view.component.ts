@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import {
   JBadge,
   JDataTable,
+  JDatePicker,
   JDialog,
   JPagination,
   JProgress,
@@ -15,6 +16,8 @@ import {
   type JDataTableRow,
 } from 'uijona-4ngular';
 import type { OperacionDetalleRegistro, Paginated, PlanillaDetalleFull, PlanillaFiltro, PlanillaRow } from '../../core/models';
+import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
+import { siguientePaso, type SiguientePaso } from './inter-planillas';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
 
@@ -88,7 +91,7 @@ const BADGE: Record<string, JBadgeVariant> = {
   selector: 'app-planillas-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JDatePicker, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent],
   templateUrl: './planillas-view.component.html',
 })
 export class PlanillasViewComponent {
@@ -158,7 +161,13 @@ export class PlanillasViewComponent {
   protected readonly validarHallazgos = signal<{ code?: string; field?: string; message?: string }[]>([]);
 
   /** Etapas con endpoint de acción implementado (clave = estado destino). */
-  protected readonly etapasAccionables: Record<string, boolean> = { VALIDADA: true };
+  /**
+   * Siguiente paso de la planilla abierta en el detalle. Alimenta la llamada a
+   * la acción de la cabecera del diálogo, para no obligar a leer el stepper.
+   */
+  protected readonly pasoDetalle = computed<SiguientePaso>(() =>
+    siguientePaso(this.estadoPlanillaActual())
+  );
 
   /**
    * La etapa `i` es la SIGUIENTE al estado actual: habilitada para hacer clic. Al pulsarla dispara
@@ -304,8 +313,23 @@ export class PlanillasViewComponent {
     { key: 'montoTotal', header: 'Monto', align: 'right', sortable: true, render: (value) => NUM.format(Number(value ?? 0)) },
     { key: 'totalOperaciones', header: 'Ops.', align: 'right', sortable: true, render: (value) => String(value ?? 0) },
     { key: 'estadoPlanillaCodigo', header: 'Estado', sortable: true },
+    // Qué toca hacer, junto al estado. Sin esta columna hay que abrir el detalle
+    // de cada fila para descubrir en qué punto del pipeline está.
+    {
+      key: 'estadoPlanillaCodigo',
+      header: 'Siguiente paso',
+      render: (value) => siguientePaso(value as string).accion,
+    },
     { key: 'fechaArchivo', header: 'F. archivo', sortable: true },
-    { key: 'fechaEnvio', header: 'Envío', align: 'center', render: (value) => (value ? String(value) : 'No enviada') },
+    // Se ancla a la zona del negocio: el backend manda el timestamptz con el
+    // desplazamiento de la JVM que corre la API, así que en crudo se veía la hora del
+    // servidor —y con microsegundos— en vez de la del canal.
+    {
+      key: 'fechaEnvio',
+      header: 'Envío',
+      align: 'center',
+      render: (value) => instanteDeBackendAHoraDePared(value) || 'No enviada',
+    },
   ];
 
   protected badge(estado: string): JBadgeVariant {
@@ -329,6 +353,25 @@ export class PlanillasViewComponent {
     this.filtroMoneda.set((event.target as HTMLSelectElement).value);
   }
 
+  protected readonly filtroProcDesde = signal<string>('');
+  protected readonly filtroProcHasta = signal<string>('');
+  protected onProcDesde(valor: string): void {
+    this.filtroProcDesde.set(valor);
+  }
+  protected onProcHasta(valor: string): void {
+    this.filtroProcHasta.set(valor);
+  }
+  protected readonly filtroFechaDesde = signal<string>('');
+  protected readonly filtroFechaHasta = signal<string>('');
+
+  // JDatePicker emite el valor ISO ya formado, no un Event del DOM.
+  protected onFechaDesde(valor: string): void {
+    this.filtroFechaDesde.set(valor);
+  }
+  protected onFechaHasta(valor: string): void {
+    this.filtroFechaHasta.set(valor);
+  }
+
   protected onAplicarFiltros(): void {
     this.page.set(1);
     this.load();
@@ -338,6 +381,10 @@ export class PlanillasViewComponent {
     this.filtroSecuencial.set('');
     this.filtroEstado.set('');
     this.filtroMoneda.set('');
+    this.filtroFechaDesde.set('');
+    this.filtroFechaHasta.set('');
+    this.filtroProcDesde.set('');
+    this.filtroProcHasta.set('');
     this.page.set(1);
     this.load();
   }
@@ -362,6 +409,10 @@ export class PlanillasViewComponent {
     if (secuencial) filters.secuencial = secuencial;
     if (estado) filters.estadoPlanilla = estado;
     if (moneda) filters.moneda = moneda;
+    if (this.filtroFechaDesde()) filters.fechaDesde = this.filtroFechaDesde();
+    if (this.filtroFechaHasta()) filters.fechaHasta = this.filtroFechaHasta();
+    if (this.filtroProcDesde()) filters.fechaArchivoDesde = this.filtroProcDesde();
+    if (this.filtroProcHasta()) filters.fechaArchivoHasta = this.filtroProcHasta();
     return filters;
   }
 

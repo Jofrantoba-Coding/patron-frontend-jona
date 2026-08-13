@@ -1,14 +1,15 @@
-import { J_DOT_TEMPLATE } from './JDotView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JDOT_DEFAULTS,
-  JDOT_SIZE_CLASSES,
-  JDOT_TONE_CLASSES,
   type JDotSize,
   type JDotTone,
 } from './InterJDot';
+import {
+  JDOT_SIZE_CLASSES,
+  JDOT_TONE_CLASSES,
+} from './JDotStyles';
 
 /**
  * JDot — punto indicador de estado, con halo opcional (pulse).
@@ -18,7 +19,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_DOT_TEMPLATE,
+  templateUrl: './JDotView.html',
 })
 export class JDot {
   readonly size = input<JDotSize>(JDOT_DEFAULTS.size);

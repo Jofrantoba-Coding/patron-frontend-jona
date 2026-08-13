@@ -1,12 +1,13 @@
-import { J_BADGE_TEMPLATE } from './JBadgeView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JBADGE_DEFAULTS,
-  JBADGE_VARIANT_CLASSES,
   type JBadgeVariant,
 } from './InterJBadge';
+import {
+  JBADGE_VARIANT_CLASSES,
+} from './JBadgeStyles';
 
 /**
  * JBadge — indicador de estado. Contenido proyectado por defecto.
@@ -16,7 +17,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_BADGE_TEMPLATE,
+  templateUrl: './JBadgeView.html',
 })
 export class JBadge {
   readonly variant = input<JBadgeVariant>(JBADGE_DEFAULTS.variant);

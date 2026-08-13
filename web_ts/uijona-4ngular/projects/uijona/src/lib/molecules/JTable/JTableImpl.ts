@@ -1,4 +1,3 @@
-import { J_TABLE_TEMPLATE_1, J_TABLE_TEMPLATE_2, J_TABLE_TEMPLATE_3, J_TABLE_TEMPLATE_4, J_TABLE_TEMPLATE_5, J_TABLE_TEMPLATE_6, J_TABLE_TEMPLATE_7, J_TABLE_TEMPLATE_8 } from './JTableView';
 import type { JTableResponsiveMode, JTableSortDirection } from './InterJTable';
 import {
   ChangeDetectionStrategy,
@@ -10,18 +9,10 @@ import {
 } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
-
-const OUTER_CLASSES: Record<JTableResponsiveMode, string> = {
-  scroll: 'relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200',
-  cards: 'relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200',
-  none: 'relative flex w-full max-w-full flex-col rounded-md border border-neutral-200',
-};
-
-const INNER_CLASSES: Record<JTableResponsiveMode, string> = {
-  scroll: 'overflow-x-auto',
-  cards: '',
-  none: 'overflow-x-auto',
-};
+import {
+  INNER_CLASSES,
+  OUTER_CLASSES,
+} from './JTableStyles';
 
 /**
  * JTable — tabla componible. Se compone con JTableHeader / JTableBody /
@@ -37,7 +28,7 @@ const INNER_CLASSES: Record<JTableResponsiveMode, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABLE_TEMPLATE_1,
+  templateUrl: './JTableView.html',
 })
 export class JTable {
   readonly responsiveMode = input<JTableResponsiveMode>('scroll');
@@ -65,7 +56,7 @@ export class JTable {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABLE_TEMPLATE_2,
+  templateUrl: './JTableCaptionView.html',
 })
 export class JTableCaption {
   readonly className = input<string>('');
@@ -77,7 +68,7 @@ export class JTableCaption {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABLE_TEMPLATE_3,
+  templateUrl: './JTableHeaderView.html',
 })
 export class JTableHeader {
   private readonly table = inject(JTable, { optional: true });
@@ -96,7 +87,7 @@ export class JTableHeader {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABLE_TEMPLATE_4,
+  templateUrl: './JTableBodyView.html',
 })
 export class JTableBody {
   private readonly table = inject(JTable, { optional: true });
@@ -115,7 +106,7 @@ export class JTableBody {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABLE_TEMPLATE_5,
+  templateUrl: './JTableFooterView.html',
 })
 export class JTableFooter {
   private readonly table = inject(JTable, { optional: true });
@@ -134,7 +125,7 @@ export class JTableFooter {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABLE_TEMPLATE_6,
+  templateUrl: './JTableRowView.html',
 })
 export class JTableRow {
   private readonly table = inject(JTable, { optional: true });
@@ -155,7 +146,7 @@ export class JTableRow {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABLE_TEMPLATE_7,
+  templateUrl: './JTableHeadView.html',
 })
 export class JTableHead {
   readonly columnIndex = input<number>();
@@ -200,7 +191,7 @@ export class JTableHead {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABLE_TEMPLATE_8,
+  templateUrl: './JTableCellView.html',
 })
 export class JTableCell {
   private readonly table = inject(JTable, { optional: true });

@@ -1,0 +1,9 @@
+/*
+  JDialogView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jdialog-icon:empty {
+  display: none;
+}
+.jdialog-footer:empty {
+  display: none;
+}

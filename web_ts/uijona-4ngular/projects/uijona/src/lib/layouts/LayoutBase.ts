@@ -16,40 +16,6 @@ import type {
   JPanelWrap,
 } from '../atoms/JPanel';
 
-/**
- * Template compartido por los layouts que envuelven JPanel con un `layout` fijo.
- * Cada layout provee `layoutType` y (opcionalmente) los `default*`.
- */
-export const LAYOUT_TEMPLATE = `
-  <j-panel
-    [layout]="layoutType"
-    [variant]="variant()"
-    [padding]="padding()"
-    [radius]="radius()"
-    [gap]="gap() ?? defaultGap"
-    [direction]="direction() ?? defaultDirection"
-    [alignItems]="alignItems()"
-    [justifyContent]="justifyContent()"
-    [wrap]="wrap() ?? defaultWrap"
-    [columns]="columns()"
-    [rows]="rows()"
-    [autoFitMin]="autoFitMin() ?? defaultAutoFitMin"
-    [placement]="placement() ?? defaultPlacement"
-    [dense]="dense()"
-    [mode]="mode()"
-    [minHeight]="minHeight()"
-    [mobileSmall]="mobileSmall()"
-    [mobileLarge]="mobileLarge()"
-    [tablet]="tablet()"
-    [desktop]="desktop()"
-    [tv]="tv()"
-    [className]="cn('w-full max-w-full min-w-0', className())"
-    [style]="style()"
-  >
-    <ng-content />
-  </j-panel>
-`;
-
 @Directive()
 export abstract class JLayoutBase {
   abstract readonly layoutType: JPanelLayout;

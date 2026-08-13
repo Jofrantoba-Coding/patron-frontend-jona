@@ -1,4 +1,3 @@
-import { J_SEARCH_INPUT_TEMPLATE } from './JSearchInputView';
 import type { InterJSearchInput } from './InterJSearchInput';
 import {
   ChangeDetectionStrategy,
@@ -26,7 +25,7 @@ import { JSpinner } from '../../atoms/JSpinner';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JSearchInput), multi: true },
   ],
-  template: J_SEARCH_INPUT_TEMPLATE,
+  templateUrl: './JSearchInputView.html',
 })
 export class JSearchInput implements ControlValueAccessor {
   readonly value = model<string>('');

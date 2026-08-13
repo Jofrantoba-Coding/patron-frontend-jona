@@ -1,4 +1,3 @@
-import { J_RELATED_ITEM_TEMPLATE } from './JRelatedItemView';
 import type { InterJRelatedItem } from './InterJRelatedItem';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -10,7 +9,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_RELATED_ITEM_TEMPLATE,
+  templateUrl: './JRelatedItemView.html',
 })
 export class JRelatedItem {
   readonly name = input.required<string>();

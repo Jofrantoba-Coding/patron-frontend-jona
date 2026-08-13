@@ -17,7 +17,10 @@ export const environment = {
   /*gatewayBaseUrl: 'https://api.jofrantoba.com',
   apiBaseMantenimiento: 'https://api.jofrantoba.com/api/mantenimientos',
   h2hBackendBase: 'https://api.jofrantoba.com/api/mantenimientos/h2h/v1',*/
-  gatewayBaseUrl: 'https://do2wzcgqvazy6.cloudfront.net',
+  gatewayBaseUrl: 'http://localhost:8090',
+  apiBaseMantenimiento: 'http://localhost:8090/api/mantenimientos',
+  h2hBackendBase: 'http://localhost:8090/api/mantenimientos/h2h/v1',
+  /*gatewayBaseUrl: 'https://do2wzcgqvazy6.cloudfront.net',
   apiBaseMantenimiento: 'https://do2wzcgqvazy6.cloudfront.net/api/mantenimientos',
   h2hBackendBase: 'https://do2wzcgqvazy6.cloudfront.net/api/mantenimientos/h2h/v1',
   /**
@@ -25,6 +28,7 @@ export const environment = {
    * suyo: los jobs se separaron porque su pool retiene conexiones de la misma BD que atiende la
    * consola. Por eso la base no se puede derivar de h2hBackendBase.
    */
-  h2hSchedulersBase: 'https://do2wzcgqvazy6.cloudfront.net/api/schedulers/h2h/v1',
+  //h2hSchedulersBase: 'https://do2wzcgqvazy6.cloudfront.net/api/schedulers/h2h/v1',
+  h2hSchedulersBase: 'http://localhost:8090/api/schedulers/h2h/v1',
   mockBaseUrl: 'http://localhost:4010',
 };

@@ -1,4 +1,3 @@
-import { J_SERVICE_CARD_TEMPLATE } from './JServiceCardView';
 import type { InterJServiceCard } from './InterJServiceCard';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
@@ -13,7 +12,7 @@ import { cn } from '../../core/cn';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet],
   host: { class: 'contents' },
-  template: J_SERVICE_CARD_TEMPLATE,
+  templateUrl: './JServiceCardView.html',
 })
 export class JServiceCard {
   readonly icon = input<string>();

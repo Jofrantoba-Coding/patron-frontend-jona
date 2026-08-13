@@ -1,13 +1,9 @@
-import { J_LOGO_MARQUEE_TEMPLATE } from './JLogoMarqueeView';
 import type { JLogoMarqueeSpeed, InterJLogoMarquee } from './InterJLogoMarquee';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
-
-const SPEED_CLASSES: Record<JLogoMarqueeSpeed, string> = {
-  slow: 'animate-[marquee_48s_linear_infinite]',
-  normal: 'animate-[marquee_32s_linear_infinite]',
-  fast: 'animate-[marquee_20s_linear_infinite]',
-};
+import {
+  SPEED_CLASSES,
+} from './JLogoMarqueeStyles';
 
 /** JLogoMarquee — franja de logos/etiquetas en desplazamiento continuo. */
 @Component({
@@ -15,7 +11,7 @@ const SPEED_CLASSES: Record<JLogoMarqueeSpeed, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_LOGO_MARQUEE_TEMPLATE,
+  templateUrl: './JLogoMarqueeView.html',
 })
 export class JLogoMarquee {
   readonly items = input.required<string[]>();

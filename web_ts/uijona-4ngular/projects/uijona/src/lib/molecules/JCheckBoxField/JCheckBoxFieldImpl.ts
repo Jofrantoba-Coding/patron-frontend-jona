@@ -1,4 +1,3 @@
-import { J_CHECK_BOX_FIELD_TEMPLATE } from './JCheckBoxFieldView';
 import type { InterJCheckBoxField } from './InterJCheckBoxField';
 import {
   ChangeDetectionStrategy,
@@ -25,7 +24,7 @@ import { JLabel } from '../../atoms/JLabel';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JCheckBoxField), multi: true },
   ],
-  template: J_CHECK_BOX_FIELD_TEMPLATE,
+  templateUrl: './JCheckBoxFieldView.html',
 })
 export class JCheckBoxField implements ControlValueAccessor {
   readonly id = input.required<string>();

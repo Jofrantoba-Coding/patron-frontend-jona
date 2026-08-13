@@ -1,4 +1,3 @@
-import { J_MARKETING_CTA_TEMPLATE } from './JMarketingCTAView';
 import type { InterJMarketingCTA } from './InterJMarketingCTA';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -12,7 +11,7 @@ const LINK_BASE =
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_MARKETING_CTA_TEMPLATE,
+  templateUrl: './JMarketingCTAView.html',
 })
 export class JMarketingCTA {
   readonly heading = input.required<string>();

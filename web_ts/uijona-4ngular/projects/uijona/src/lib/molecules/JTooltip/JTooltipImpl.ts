@@ -1,4 +1,3 @@
-import { J_TOOLTIP_TEMPLATE } from './JTooltipView';
 import type { JTooltipSide, InterJTooltip } from './InterJTooltip';
 import {
   ChangeDetectionStrategy,
@@ -25,7 +24,7 @@ const PADDING = 8;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents', '(document:keydown.escape)': 'hide()' },
-  template: J_TOOLTIP_TEMPLATE,
+  templateUrl: './JTooltipView.html',
 })
 export class JTooltip {
   readonly content = input.required<string>();

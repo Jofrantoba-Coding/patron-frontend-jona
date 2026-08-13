@@ -1,6 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  type OnInit } from '@angular/core';
 import { finalize } from 'rxjs';
-import { JBadge, JDataTable, JDialog, JPagination, JSectionHeading } from 'uijona-4ngular';
+import { JBadge,
+  JDataTable,
+  JDatePicker,
+  JDialog,
+  JPagination,
+  JSectionHeading,
+} from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
 import type { ProgramacionRow } from '../../core/models';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
@@ -11,7 +21,7 @@ import { ProgramacionesViewComponent } from './programaciones-view.component';
   selector: 'app-programaciones',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, OperacionDetalleDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JDatePicker, OperacionDetalleDialog],
   templateUrl: './programaciones-view.component.html',
 })
 export class ProgramacionesPage extends ProgramacionesViewComponent implements OnInit {

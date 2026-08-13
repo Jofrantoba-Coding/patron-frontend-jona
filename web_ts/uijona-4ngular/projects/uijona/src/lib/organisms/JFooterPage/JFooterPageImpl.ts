@@ -1,4 +1,3 @@
-import { J_FOOTER_PAGE_TEMPLATE, J_FOOTER_PAGE_STYLES } from './JFooterPageView';
 import type { InterJFooterPage } from './InterJFooterPage';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -8,8 +7,8 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_FOOTER_PAGE_TEMPLATE,
-  styles: J_FOOTER_PAGE_STYLES,
+  templateUrl: './JFooterPageView.html',
+  styleUrl: './JFooterPageView.css',
 })
 export class JFooterPage {
   readonly text = input<string>('© 2026 JONA UI');

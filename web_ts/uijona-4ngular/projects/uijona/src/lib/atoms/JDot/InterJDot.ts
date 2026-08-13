@@ -17,17 +17,3 @@ export const JDOT_DEFAULTS = {
   pulse: false,
 } as const satisfies Required<Pick<InterJDot, 'size' | 'tone' | 'pulse'>>;
 
-export const JDOT_SIZE_CLASSES: Record<JDotSize, string> = {
-  sm: 'h-1.5 w-1.5',
-  md: 'h-2 w-2',
-  lg: 'h-2.5 w-2.5',
-};
-
-export const JDOT_TONE_CLASSES: Record<JDotTone, string> = {
-  primary: 'bg-primary-500',
-  accent: 'bg-accent-500',
-  success: 'bg-success-500',
-  warning: 'bg-warning-500',
-  danger: 'bg-danger-500',
-  neutral: 'bg-neutral-300',
-};

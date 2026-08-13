@@ -1,5 +1,15 @@
 # Uijona4ngular
 
+JONA Design System para Angular 21 — equivalente de `web_ts/uijona` (React, `jona-ui`).
+
+> **Antes de tocar un componente, lee [CONVENCIONES-JONA.md](./CONVENCIONES-JONA.md)**:
+> describe las capas del patrón (contrato / presentación / vista / implementación)
+> y las reglas que verifica `npm run lint:jona` en CI.
+
+```bash
+npm run verify   # lint:jona + build + tests
+```
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.18.
 
 ## Development server

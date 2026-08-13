@@ -1,4 +1,3 @@
-import { J_EMPTY_STATE_TEMPLATE, J_EMPTY_STATE_STYLES } from './JEmptyStateView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import { JButton } from '../../atoms/JButton';
@@ -15,8 +14,8 @@ import type { JEmptyStateAction } from './InterJEmptyState';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JButton],
   host: { class: 'contents' },
-  template: J_EMPTY_STATE_TEMPLATE,
-  styles: J_EMPTY_STATE_STYLES,
+  templateUrl: './JEmptyStateView.html',
+  styleUrl: './JEmptyStateView.css',
 })
 export class JEmptyState {
   readonly title = input.required<string>();

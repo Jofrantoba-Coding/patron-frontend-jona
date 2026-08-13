@@ -1,8 +1,13 @@
-import { J_CHIP_TEMPLATE } from './JChipView';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
-import { JCHIP_DEFAULTS, JCHIP_VARIANT_CLASSES, type JChipVariant } from './InterJChip';
+import {
+  JCHIP_DEFAULTS,
+  type JChipVariant,
+} from './InterJChip';
+import {
+  JCHIP_VARIANT_CLASSES,
+} from './JChipStyles';
 
 /**
  * JChip — chip seleccionable y/o removible. Si `selected` no se define, el chip
@@ -13,7 +18,7 @@ import { JCHIP_DEFAULTS, JCHIP_VARIANT_CLASSES, type JChipVariant } from './Inte
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_CHIP_TEMPLATE,
+  templateUrl: './JChipView.html',
 })
 export class JChip {
   readonly variant = input<JChipVariant>(JCHIP_DEFAULTS.variant);

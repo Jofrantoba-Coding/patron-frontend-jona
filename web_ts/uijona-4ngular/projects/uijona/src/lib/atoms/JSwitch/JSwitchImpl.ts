@@ -1,4 +1,3 @@
-import { J_SWITCH_TEMPLATE } from './JSwitchView';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -14,11 +13,13 @@ import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JSWITCH_DEFAULTS,
-  JSWITCH_THUMB_SIZE,
-  JSWITCH_THUMB_TRANSLATE,
-  JSWITCH_TRACK_SIZE,
   type JSwitchSize,
 } from './InterJSwitch';
+import {
+  JSWITCH_TRACK_SIZE,
+  JSWITCH_THUMB_SIZE,
+  JSWITCH_THUMB_TRANSLATE,
+} from './JSwitchStyles';
 
 /**
  * JSwitch — toggle booleano accesible (role=switch). Implementa
@@ -32,7 +33,7 @@ import {
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JSwitch), multi: true },
   ],
-  template: J_SWITCH_TEMPLATE,
+  templateUrl: './JSwitchView.html',
 })
 export class JSwitch implements ControlValueAccessor {
   readonly checked = model<boolean>(false);

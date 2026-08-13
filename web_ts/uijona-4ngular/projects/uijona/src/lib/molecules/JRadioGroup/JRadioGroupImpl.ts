@@ -1,4 +1,3 @@
-import { J_RADIO_GROUP_TEMPLATE } from './JRadioGroupView';
 import type { JRadioGroupOption, InterJRadioGroup } from './InterJRadioGroup';
 import {
   ChangeDetectionStrategy,
@@ -25,7 +24,7 @@ import { JRadioButton } from '../../atoms/JRadioButton';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JRadioGroup), multi: true },
   ],
-  template: J_RADIO_GROUP_TEMPLATE,
+  templateUrl: './JRadioGroupView.html',
 })
 export class JRadioGroup implements ControlValueAccessor {
   readonly name = input.required<string>();

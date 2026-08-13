@@ -1,0 +1,4 @@
+/*
+  JEmptyStateView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jempty-icon:empty { display: none; }

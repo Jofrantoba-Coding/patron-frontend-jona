@@ -1,4 +1,3 @@
-import { J_NUMBER_INPUT_TEMPLATE } from './JNumberInputView';
 import type { InterJNumberInput } from './InterJNumberInput';
 import {
   ChangeDetectionStrategy,
@@ -37,7 +36,7 @@ const parse = (value: string): number | null => {
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JNumberInput), multi: true },
   ],
-  template: J_NUMBER_INPUT_TEMPLATE,
+  templateUrl: './JNumberInputView.html',
 })
 export class JNumberInput implements ControlValueAccessor {
   readonly value = model<number | null>(null);

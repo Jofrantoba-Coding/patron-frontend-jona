@@ -1,0 +1,9 @@
+<!--
+  JTableView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+<div [class]="cn(outer(), wrapperClassName())">
+  <div [class]="inner()">
+    <table [class]="tableClasses()" [style]="style()"><ng-content /></table>
+  </div>
+</div>

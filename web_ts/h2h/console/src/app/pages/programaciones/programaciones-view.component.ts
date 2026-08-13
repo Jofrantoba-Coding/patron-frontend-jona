@@ -1,7 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  signal } from '@angular/core';
 import {
   JBadge,
   JDataTable,
+  JDatePicker,
   JDialog,
   JPagination,
   JSectionHeading,
@@ -10,6 +15,7 @@ import {
   type JDataTableRow,
 } from 'uijona-4ngular';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
+import { siguientePasoProgramacion } from './inter-programaciones';
 import type {
   DiaVentana,
   Operacion,
@@ -23,10 +29,10 @@ import type {
   ProgramacionRow,
   VentanaSemanal,
 } from '../../core/models';
+import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
 // timestamptz (prg_dt_programado / prg_dt_ejecutado) -> fecha + hora:min:seg
-const FDT = new Intl.DateTimeFormat('es-PE', { dateStyle: 'short', timeStyle: 'medium', hour12: false });
 // date (prg_d_fecha_proceso) -> solo fecha
 const FD = new Intl.DateTimeFormat('es-PE', { dateStyle: 'short' });
 
@@ -112,7 +118,7 @@ const BADGE: Record<string, JBadgeVariant> = {
   selector: 'app-programaciones-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, OperacionDetalleDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JDatePicker, OperacionDetalleDialog],
   templateUrl: './programaciones-view.component.html',
 })
 export class ProgramacionesViewComponent {
@@ -232,6 +238,12 @@ export class ProgramacionesViewComponent {
     { key: 'montoTotal', header: 'Monto', align: 'right', sortable: true, render: (v) => NUM.format(Number(v ?? 0)) },
     { key: 'totalOperaciones', header: 'Ops.', align: 'right', sortable: true, render: (v) => String(v ?? 0) },
     { key: 'estadoCodigo', header: 'Estado', sortable: true },
+    // Qué toca hacer con este plan, sin abrir el detalle.
+    {
+      key: 'estadoCodigo',
+      header: 'Siguiente paso',
+      render: (value) => siguientePasoProgramacion(value as string),
+    },
     { key: 'fechaProceso', header: 'F. proceso', sortable: true, render: (v) => this.fd(v) },
     { key: 'fechaProgramado', header: 'Programado', align: 'center', render: (v) => this.fdt(v) },
   ];
@@ -266,12 +278,35 @@ export class ProgramacionesViewComponent {
     this.page.set(1);
     this.load();
   }
+  protected readonly filtroProcDesde = signal<string>('');
+  protected readonly filtroProcHasta = signal<string>('');
+  protected onProcDesde(valor: string): void {
+    this.filtroProcDesde.set(valor);
+  }
+  protected onProcHasta(valor: string): void {
+    this.filtroProcHasta.set(valor);
+  }
+  protected readonly filtroFechaDesde = signal<string>('');
+  protected readonly filtroFechaHasta = signal<string>('');
+
+  // JDatePicker emite el valor ISO ya formado, no un Event del DOM.
+  protected onFechaDesde(valor: string): void {
+    this.filtroFechaDesde.set(valor);
+  }
+  protected onFechaHasta(valor: string): void {
+    this.filtroFechaHasta.set(valor);
+  }
+
   protected onResetFiltros(): void {
     this.filtroCodigo.set('');
     this.filtroEstado.set('');
     this.filtroModo.set('');
     this.filtroTipoDestino.set('');
     this.filtroMoneda.set('');
+    this.filtroFechaDesde.set('');
+    this.filtroFechaHasta.set('');
+    this.filtroProcDesde.set('');
+    this.filtroProcHasta.set('');
     this.page.set(1);
     this.load();
   }
@@ -295,6 +330,10 @@ export class ProgramacionesViewComponent {
     if (modo) filters.modoEnvio = modo;
     if (destino) filters.tipoDestino = destino;
     if (moneda) filters.moneda = moneda;
+    if (this.filtroFechaDesde()) filters.fechaDesde = this.filtroFechaDesde();
+    if (this.filtroFechaHasta()) filters.fechaHasta = this.filtroFechaHasta();
+    if (this.filtroProcDesde()) filters.fechaProcesoDiaDesde = this.filtroProcDesde();
+    if (this.filtroProcHasta()) filters.fechaProcesoDiaHasta = this.filtroProcHasta();
     return filters;
   }
 
@@ -316,6 +355,15 @@ export class ProgramacionesViewComponent {
   }
   protected onNuevoFechaProgramado(e: Event): void {
     this.nuevoFechaProgramado.set((e.target as HTMLInputElement).value);
+  }
+
+  // JDatePicker emite el valor ya en ISO, sin Event de por medio: el contrato del
+  // componente entrega el dato, no el evento del DOM.
+  protected onNuevaFechaProcesoValor(valor: string): void {
+    this.nuevoFechaProceso.set(valor);
+  }
+  protected onNuevaFechaProgramadoValor(valor: string): void {
+    this.nuevoFechaProgramado.set(valor);
   }
   protected onNuevoModo(e: Event): void {
     this.nuevoModo.set((e.target as HTMLSelectElement).value);
@@ -655,10 +703,15 @@ export class ProgramacionesViewComponent {
   }
 
   /** Formatea un timestamp (con hora:min:seg). Usar para columnas *_dt_ (timestamptz). */
+  /*
+   * Antes formateaba con `new Date(...)` + Intl SIN `timeZone`, o sea en la zona del
+   * NAVEGADOR. Coincidía con la del canal solo mientras quien mirase estuviera en Lima,
+   * y el backend además manda el timestamptz con el desplazamiento de la JVM que corre
+   * la API: dos fuentes de desfase que no se ven hasta cuadrar un corte horario.
+   */
   protected fdt(value: unknown): string {
     if (value === null || value === undefined || value === '') return '-';
-    const d = new Date(String(value));
-    return Number.isNaN(d.getTime()) ? String(value) : FDT.format(d);
+    return instanteDeBackendAHoraDePared(value, undefined, true) || '-';
   }
   /** Formatea una fecha (sin hora). Usar para columnas *_d_ tipo date. */
   protected fd(value: unknown): string {

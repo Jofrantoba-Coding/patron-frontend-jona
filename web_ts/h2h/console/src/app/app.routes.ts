@@ -18,10 +18,29 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.DashboardPage),
       },
+      // Paneles por entidad. Una sola Page parametrizada por `data.entidad`, igual que
+      // OperacionesPage se parametriza por `producto`: los tres hacen lo mismo —estados,
+      // cantidades e importes— con otro vocabulario. El de planillas trae además la
+      // conciliación de las respuestas, que no se entiende separada del archivo.
       {
-        path: 'documentos',
-        loadComponent: () => import('./pages/documentos/documentos').then((m) => m.DocumentosPage),
+        path: 'dashboard/operaciones',
+        data: { entidad: 'operaciones' },
+        loadComponent: () => import('./pages/panel/panel-entidad').then((m) => m.PanelEntidadPage),
       },
+      {
+        path: 'dashboard/programaciones',
+        data: { entidad: 'programaciones' },
+        loadComponent: () => import('./pages/panel/panel-entidad').then((m) => m.PanelEntidadPage),
+      },
+      {
+        path: 'dashboard/planillas',
+        data: { entidad: 'planillas' },
+        loadComponent: () => import('./pages/panel/panel-entidad').then((m) => m.PanelEntidadPage),
+      },
+      // 'documentos' se retiró: la bandeja unificada solo existía en el mock y
+      // los archivos se descargan desde el detalle de cada planilla. A
+      // diferencia de 'certificados' no se deja redirección, porque no hay
+      // pantalla que herede su función. La ruta comodín lleva al panel.
       // Todas las operaciones (panel de búsqueda) + vistas por producto:
       // una sola OperacionesPage parametrizada por route data.
       {
@@ -63,10 +82,9 @@ export const routes: Routes = [
         path: 'organizacion',
         loadComponent: () => import('./pages/organizacion/organizacion').then((m) => m.OrganizacionPage),
       },
-      {
-        path: 'certificados',
-        loadComponent: () => import('./pages/certificados/certificados').then((m) => m.CertificadosPage),
-      },
+      // 'certificados' se retiró (duplicaba Llaves de cifrado sobre datos del
+      // mock). Se redirige para no romper enlaces guardados ni marcadores.
+      { path: 'certificados', pathMatch: 'full', redirectTo: 'llaves-cifrado' },
       {
         path: 'llaves-cifrado',
         loadComponent: () => import('./pages/llaves-cifrado/llaves-cifrado').then((m) => m.LlavesCifradoPage),

@@ -11,6 +11,8 @@
     "build:css": "tailwindcss -i ./projects/uijona/src/styles/uijona.css -o ./dist/uijona/styles/uijona.css --minify",
     "watch": "ng build uijona --watch --configuration development",
     "test": "ng test",
+    "lint:jona": "node scripts/verificar-patron-jona.mjs",
+    "verify": "npm run lint:jona && npm run build && npm test",
     "storybook": "ng run uijona:storybook",
     "build-storybook": "ng run uijona:build-storybook"
   },

@@ -1,22 +1,27 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { forkJoin, map, type Observable } from 'rxjs';
+import { catchError, forkJoin, map, of, switchMap, type Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { FILTRO_PERIODO_SOPORTADO } from './models';
+import { horaDeParedAEpoch } from './zona-horaria';
 import { API_BASE, H2H_BACKEND_BASE, H2H_SCHEDULERS_BASE } from './config';
 import type {
   AuditEvent,
+  PendientesPorEtapa,
+  EntidadResumen,
+  FiltroPanel,
+  GrupoResumen,
+  ResumenCanal,
+  ResumenMontos,
+  RespuestaFiltro,
+  RespuestaRow,
   Beneficiario,
   BeneficiarioCuenta,
   BeneficiarioDetalle,
   BeneficiarioFiltro,
-  Certificado,
   Correlativo,
   CorrelativoFiltro,
   DashboardSummary,
-  Documento,
-  DocumentoDescarga,
-  DocumentoFiltro,
-  DocumentoPreview,
   OperacionFiltro,
   EstructuraArchivo,
   Health,
@@ -120,6 +125,113 @@ const toNumber = (value: unknown, fallback = 0): number => {
   const parsed = Number(value ?? fallback);
   return Number.isFinite(parsed) ? parsed : fallback;
 };
+
+/**
+ * Lectura insensible a mayúsculas de una fila del backend.
+ *
+ * <p>Los DAO nativos mapean con `getColumnName()` y PostgreSQL pliega a
+ * minúsculas cualquier alias sin comillas, así que `nombreArchivo` llega como
+ * `nombrearchivo`. Poner comillas en el alias no ayuda: la librería no usa
+ * `getColumnLabel()`.</p>
+ */
+const pickRespuesta = <T>(row: Record<string, unknown>, key: string): T =>
+  (row[key] ?? row[key.toLowerCase()]) as T;
+
+const normalizeRespuestaRow = (row: Record<string, unknown>): RespuestaRow => ({
+  id: pickRespuesta<string>(row, 'id'),
+  idPlanilla: pickRespuesta<string>(row, 'idPlanilla'),
+  idTipoRespuesta: pickRespuesta<number | null>(row, 'idTipoRespuesta') ?? null,
+  tipoRespuestaCodigo: pickRespuesta<string>(row, 'tipoRespuestaCodigo') ?? '',
+  tipoRespuestaFullCode: pickRespuesta<string | null>(row, 'tipoRespuestaFullCode') ?? null,
+  nombreArchivo: pickRespuesta<string>(row, 'nombreArchivo') ?? '',
+  fechaRecepcion: pickRespuesta<string | null>(row, 'fechaRecepcion') ?? null,
+  totalOperaciones: Number(pickRespuesta<number>(row, 'totalOperaciones') ?? 0),
+  operacionesOk: Number(pickRespuesta<number>(row, 'operacionesOk') ?? 0),
+  operacionesError: Number(pickRespuesta<number>(row, 'operacionesError') ?? 0),
+  formatoCodigo: pickRespuesta<string | null>(row, 'formatoCodigo') ?? null,
+  urlClaro: pickRespuesta<string | null>(row, 'urlClaro') ?? null,
+  urlCifrado: pickRespuesta<string | null>(row, 'urlCifrado') ?? null,
+  archivoGenerado: pickRespuesta<string | null>(row, 'archivoGenerado') ?? null,
+});
+
+/**
+ * Cuántas operaciones se aceptan sumar en el navegador.
+ *
+ * <p>Con 400 operaciones una sola petición y una pasada de suma no se notan.
+ * Con decenas de miles sí, y además haría inútil la paginación del backend. Por
+ * encima de este tope el panel dice que el total no está disponible en vez de
+ * enseñar una cifra recortada.</p>
+ */
+const TOPE_SUMA_CLIENTE = 5000;
+
+/** Entidad a la que va dirigido un cuerpo del panel. Decide los nombres de las fechas. */
+type DestinoFiltro = 'operacion' | 'planilla' | 'programacion';
+
+/** Extremos de un rango ya convertidos a epoch; `null` es "sin acotar por ese lado". */
+interface RangoEpoch {
+  desde: number | null;
+  hasta: number | null;
+}
+
+/**
+ * Nombre de los campos de fecha que espera cada entidad del backend.
+ *
+ * <p>Ver `baseFiltrada` para por qué en planillas los dos filtros apuntan a la misma
+ * columna (`fechaArchivo*`) en lugar de usar `fechaEnvio*` para el instante.</p>
+ */
+const CAMPOS_FECHA_POR_DESTINO: Record<
+  DestinoFiltro,
+  { instante: { desde: string; hasta: string }; dia: { desde: string; hasta: string } }
+> = {
+  operacion: {
+    instante: { desde: 'fechaDesde', hasta: 'fechaHasta' },
+    dia: { desde: 'fechaProcesoDesde', hasta: 'fechaProcesoHasta' },
+  },
+  programacion: {
+    instante: { desde: 'fechaProgramadoDesde', hasta: 'fechaProgramadoHasta' },
+    dia: { desde: 'fechaProcesoDiaDesde', hasta: 'fechaProcesoDiaHasta' },
+  },
+  planilla: {
+    instante: { desde: 'fechaArchivoDesde', hasta: 'fechaArchivoHasta' },
+    dia: { desde: 'fechaArchivoDesde', hasta: 'fechaArchivoHasta' },
+  },
+};
+
+/** Agrupa importes por moneda y, dentro de cada una, por tipo de operación. */
+function agruparMontos(filas: OperacionBackendRow[], total: number): ResumenMontos {
+  const porMoneda = new Map<string, { monto: number; ops: number; tipos: Map<string, { monto: number; ops: number }> }>();
+
+  for (const fila of filas) {
+    const moneda = String(pickOperacion<string>(fila, 'monedaCodigo') ?? '—');
+    const tipo = String(pickOperacion<string>(fila, 'tipoOperacionCodigo') ?? '—');
+    const monto = Number(pickOperacion<number>(fila, 'montoTotal') ?? 0);
+
+    const entrada = porMoneda.get(moneda) ?? { monto: 0, ops: 0, tipos: new Map() };
+    entrada.monto += monto;
+    entrada.ops += 1;
+    const t = entrada.tipos.get(tipo) ?? { monto: 0, ops: 0 };
+    t.monto += monto;
+    t.ops += 1;
+    entrada.tipos.set(tipo, t);
+    porMoneda.set(moneda, entrada);
+  }
+
+  return {
+    completo: filas.length >= total,
+    total,
+    porMoneda: [...porMoneda.entries()]
+      // De mayor a menor importe: lo que más dinero mueve va primero.
+      .sort((a, b) => b[1].monto - a[1].monto)
+      .map(([moneda, v]) => ({
+        moneda,
+        monto: v.monto,
+        operaciones: v.ops,
+        tipos: [...v.tipos.entries()]
+          .sort((a, b) => b[1].monto - a[1].monto)
+          .map(([tipo, t]) => ({ tipo, monto: t.monto, operaciones: t.ops })),
+      })),
+  };
+}
 
 const normalizeOperacion = (row: OperacionBackendRow): Operacion => ({
   id: pickOperacion<string>(row, 'id'),
@@ -428,7 +540,8 @@ export class ApiService {
   // ── Operaciones ──────────────────────────────────────────────────────
   operaciones(opts: { producto?: ProductoGrupo; subtipo?: string; page?: number; pageSize?: number; filters?: OperacionFiltro } = {}) {
     const { producto, subtipo, page = 1, pageSize = 2, filters } = opts;
-    const body: Record<string, string | boolean | string[]> = {};
+    // `number` entró con el periodo: la API espera epoch en milisegundos.
+    const body: Record<string, string | number | boolean | string[]> = {};
     const org = this.session.tenant()?.org_u_id;
     if (org) body['idOrganizacion'] = org;
 
@@ -447,6 +560,17 @@ export class ApiService {
     if (filtros.estadoOperacion) body['estadoOperacion'] = filtros.estadoOperacion;
     if (filtros.moneda) body['moneda'] = filtros.moneda;
     if (typeof filtros.sinPlanillaVigente === 'boolean') body['sinPlanillaVigente'] = filtros.sinPlanillaVigente;
+    // Mismo criterio que el panel: la API espera epoch, y la hora de pared se
+    // interpreta en la zona del negocio, no en la del navegador.
+    const desde = horaDeParedAEpoch(filtros.fechaDesde ?? '');
+    const hasta = horaDeParedAEpoch(filtros.fechaHasta ?? '');
+    if (desde !== null) body['fechaDesde'] = desde;
+    if (hasta !== null) body['fechaHasta'] = hasta;
+    // Día de proceso en el banco: columna `date`, filtro independiente del anterior.
+    const procDesde = horaDeParedAEpoch(filtros.fechaProcesoDesde ?? '');
+    const procHasta = horaDeParedAEpoch(filtros.fechaProcesoHasta ?? '');
+    if (procDesde !== null) body['fechaProcesoDesde'] = procDesde;
+    if (procHasta !== null) body['fechaProcesoHasta'] = procHasta;
 
     const offSet = (page - 1) * pageSize;
     return forkJoin({
@@ -529,6 +653,14 @@ export class ApiService {
     if (f.secuencial) body['secuencial'] = f.secuencial;
     if (f.nombreArchivo) body['nombreArchivo'] = f.nombreArchivo;
     if (typeof f.isFlujoPar === 'boolean') body['isFlujoPar'] = f.isFlujoPar;
+    const pDesde = horaDeParedAEpoch(f.fechaDesde ?? '');
+    const pHasta = horaDeParedAEpoch(f.fechaHasta ?? '');
+    if (pDesde !== null) body['fechaEnvioDesde'] = pDesde;
+    if (pHasta !== null) body['fechaEnvioHasta'] = pHasta;
+    const arcDesde = horaDeParedAEpoch(f.fechaArchivoDesde ?? '');
+    const arcHasta = horaDeParedAEpoch(f.fechaArchivoHasta ?? '');
+    if (arcDesde !== null) body['fechaArchivoDesde'] = arcDesde;
+    if (arcHasta !== null) body['fechaArchivoHasta'] = arcHasta;
 
     const offSet = (page - 1) * pageSize;
     return forkJoin({
@@ -657,6 +789,50 @@ export class ApiService {
    *
    * Contrato legado (sin envelope): el controller de respuestas devuelve el ObjectNode directo.
    */
+  /**
+   * Listado real de respuestas del banco, con su total.
+   *
+   * <p>Reemplaza al mock `respuestas()`. Se normaliza clave a clave porque el
+   * DAO nativo mapea con `getColumnName()` y PostgreSQL pliega a minúsculas
+   * todo alias sin comillas: `nombreArchivo` llega como `nombrearchivo`.</p>
+   */
+  respuestasBackend(opts: { page?: number; pageSize?: number; filters?: RespuestaFiltro } = {}) {
+    const { page = 1, pageSize = 10, filters } = opts;
+    const body: Record<string, string | number | boolean> = {};
+    const org = this.session.tenant()?.org_u_id;
+    if (org) body['idOrganizacion'] = org;
+    const f = filters ?? {};
+    if (f.id) body['id'] = f.id;
+    if (f.idPlanilla) body['idPlanilla'] = f.idPlanilla;
+    if (f.tipoRespuesta) body['tipoRespuesta'] = f.tipoRespuesta;
+    if (f.nombreArchivo) body['nombreArchivo'] = f.nombreArchivo;
+    const pDesde = horaDeParedAEpoch(f.fechaDesde ?? '');
+    const pHasta = horaDeParedAEpoch(f.fechaHasta ?? '');
+    if (pDesde !== null) body['fechaRecepcionDesde'] = pDesde;
+    if (pHasta !== null) body['fechaRecepcionHasta'] = pHasta;
+
+    const offSet = (page - 1) * pageSize;
+    return forkJoin({
+      items: this.postBackend<Record<string, unknown>[]>('/respuestas/listar/paginacion', body, {
+        limit: pageSize,
+        offSet,
+      }),
+      total: this.postBackend<number>('/respuestas/contar', body),
+    }).pipe(
+      map(({ items, total }) => ({
+        items: (items ?? []).map(normalizeRespuestaRow),
+        pagination: { page, pageSize, total: Number(total ?? 0) },
+      }))
+    );
+  }
+
+  /** Respuestas asociadas a una planilla concreta. */
+  respuestasPorPlanillaBackend(idPlanilla: string) {
+    return this.postBackend<Record<string, unknown>[]>('/respuestas/por-planilla', { idPlanilla }).pipe(
+      map((items) => (items ?? []).map(normalizeRespuestaRow))
+    );
+  }
+
   respuestaDetalleBackend(idRespuesta: string): Observable<Record<string, unknown>> {
     return this.postBackend<Record<string, unknown>>('/respuestas/detalle', { id: idRespuesta }).pipe(
       map((res) => res ?? {})
@@ -707,6 +883,19 @@ export class ApiService {
     if (f.modoEnvio) body['modoEnvio'] = f.modoEnvio;
     if (f.codigo) body['codigo'] = f.codigo;
     if (f.fechaProceso) body['fechaProceso'] = f.fechaProceso;
+    // Periodo sobre el momento PROGRAMADO del plan. `fechaProceso` es otra cosa:
+    // el día en que el banco procesa, sin hora.
+    const prgDesde = horaDeParedAEpoch(f.fechaDesde ?? '');
+    const prgHasta = horaDeParedAEpoch(f.fechaHasta ?? '');
+    if (prgDesde !== null) body['fechaProgramadoDesde'] = prgDesde;
+    if (prgHasta !== null) body['fechaProgramadoHasta'] = prgHasta;
+    // OJO con el nombre: `FilterProgramacion` los llama `fechaProcesoDia*`, NO
+    // `fechaProceso*` como `FilterOperacion`. Se enviaron mal y el filtro no hacía nada:
+    // el backend ignora en silencio la clave que no conoce y responde 200 con todo.
+    const dpDesde = horaDeParedAEpoch(f.fechaProcesoDiaDesde ?? '');
+    const dpHasta = horaDeParedAEpoch(f.fechaProcesoDiaHasta ?? '');
+    if (dpDesde !== null) body['fechaProcesoDiaDesde'] = dpDesde;
+    if (dpHasta !== null) body['fechaProcesoDiaHasta'] = dpHasta;
     const offSet = (page - 1) * pageSize;
     return forkJoin({
       items: this.postBackend<Record<string, unknown>[]>('/programaciones/listar/paginacion', body, { limit: pageSize, offSet }),
@@ -734,6 +923,279 @@ export class ApiService {
     const org = this.session.tenant()?.org_u_id;
     return this.postBackend<VentanaSemanal>('/programaciones/ventana', { idOrganizacion: org });
   }
+  /**
+   * Trabajo pendiente por etapa del flujo, para los badges del menú.
+   *
+   * <p>"Pendiente" es siempre <em>requiere una acción humana</em>, no "existe":
+   * una planilla ya enviada no es trabajo, y una operación ya programada
+   * tampoco. Por eso cada etapa filtra por el estado que espera intervención y
+   * no por el total de la tabla.</p>
+   *
+   * <p>Va en una sola llamada agregada —seis `contar` en paralelo— porque se
+   * dispara al montar la consola y encadenarlas retrasaría la primera pintura.
+   * Si alguna falla se devuelve 0 para esa etapa: un badge que no aparece es
+   * preferible a una consola que no carga.</p>
+   */
+  pendientesPorEtapa(filtro: FiltroPanel = {}): Observable<PendientesPorEtapa> {
+    // Un cuerpo por entidad: los nombres de los campos de fecha no coinciden entre
+    // ellas y el backend ignora en silencio los que no reconoce. Ver `baseFiltrada`.
+    const baseOperacion = this.baseFiltrada(filtro, 'operacion');
+    const baseProgramacion = this.baseFiltrada(filtro, 'programacion');
+    const basePlanilla = this.baseFiltrada(filtro, 'planilla');
+    const contar = (
+      path: string,
+      base: Record<string, string | number | boolean>,
+      extra: Record<string, string | number | boolean>
+    ) =>
+      this.postBackend<number>(path, { ...base, ...extra }).pipe(
+        map((n) => Number(n ?? 0)),
+        catchError(() => of(0))
+      );
+
+    return forkJoin({
+      // Operaciones ingestadas que todavía no entraron en ninguna planilla.
+      operaciones: contar('/operaciones/contar', baseOperacion, { sinPlanillaVigente: true }),
+      // Planes de envío abiertos: aún admiten operaciones y nadie los ha generado.
+      programaciones: contar('/programaciones/contar', baseProgramacion, { estado: 'ABIERTA' }),
+      // Planillas a medio camino del envío; cada estado espera un paso distinto
+      // (validar, cifrar, enviar) pero todos son el mismo pendiente para el menú.
+      generadas: contar('/planillas/contar', basePlanilla, { estadoPlanilla: 'GENERADA' }),
+      validadas: contar('/planillas/contar', basePlanilla, { estadoPlanilla: 'VALIDADA' }),
+      cifradas: contar('/planillas/contar', basePlanilla, { estadoPlanilla: 'CIFRADA' }),
+      // Respuesta del banco recibida y sin decidir: es el pendiente más urgente
+      // de todos, porque la respuesta caduca en el buzón.
+      respuestas: contar('/planillas/contar', basePlanilla, { estadoPlanilla: 'RESPUESTA_RECIBIDA' }),
+    }).pipe(
+      map((r) => ({
+        operaciones: r.operaciones,
+        programaciones: r.programaciones,
+        planillas: r.generadas + r.validadas + r.cifradas,
+        respuestas: r.respuestas,
+      }))
+    );
+  }
+
+  /**
+   * Resumen del canal para el panel de control, con datos reales.
+   *
+   * <p>El panel vivía del mock (`dashboardSummary`), que ofrecía cosas que la
+   * API real no sabe calcular —monto enviado del día, certificados por vencer—.
+   * Aquí solo se pide lo que el backend puede responder hoy: conteos por
+   * estado. No hay endpoint de agregación de importes, así que el panel no
+   * finge tenerlos.</p>
+   *
+   * <p>Son conteos en paralelo y no una consulta agregada porque no existe tal
+   * endpoint; se limita a los estados con lectura operativa, no a los doce del
+   * catálogo, para no convertir la carga del panel en veinte peticiones.</p>
+   */
+  resumenCanal(filtro: FiltroPanel = {}): Observable<ResumenCanal> {
+    const base = this.baseFiltrada(filtro, 'operacion');
+    const contar = (path: string, extra: Record<string, string | number | boolean>) =>
+      this.postBackend<number>(path, { ...base, ...extra }).pipe(
+        map((n) => Number(n ?? 0)),
+        catchError(() => of(0))
+      );
+    const ops = (estadoOperacion: string) => contar('/operaciones/contar', { estadoOperacion });
+    // Las planillas se agrupan por PRODUCTO (BCP#TIPO_PRODUCTO#*), no por tipo
+    // de operación: son taxonomías distintas. Por eso el filtro de tipo no se
+    // les pasa; la moneda sí, que es la misma en las dos.
+    const basePlanilla: Record<string, string | number | boolean> = this.baseFiltrada(
+      filtro,
+      'planilla'
+    );
+    delete basePlanilla['tipoOperacion'];
+    const pla = (estadoPlanilla: string) =>
+      this.postBackend<number>('/planillas/contar', { ...basePlanilla, estadoPlanilla }).pipe(
+        map((n) => Number(n ?? 0)),
+        catchError(() => of(0))
+      );
+
+    return forkJoin({
+      opsRegistradas: ops('REGISTRADA'),
+      opsEnProceso: ops('EN_PROCESO_PAGO'),
+      opsConfirmadas: ops('PAGO_CONFIRMADO'),
+      opsRechazadas: ops('PAGO_RECHAZADO'),
+      opsError: ops('ERROR'),
+      plaEnviadas: pla('ENVIADA'),
+      plaProcesadas: pla('PROCESADA'),
+      plaParciales: pla('PROCESADA_PARCIAL'),
+      plaRechazadas: pla('RECHAZADA'),
+      plaError: pla('ERROR'),
+      plaErrorCifrado: pla('ERROR_CIFRADO'),
+    });
+  }
+
+  /**
+   * Importes en curso, por moneda y por tipo de operación.
+   *
+   * <p><b>Se calcula en el navegador y eso tiene un límite.</b> El backend no
+   * expone ninguna agregación de importes —no hay endpoint de totales ni un
+   * `sum()` en los DAO—, así que la única vía sin tocar backend es traer las
+   * operaciones y sumarlas aquí.</p>
+   *
+   * <p>Por eso primero se cuenta y, si hay más operaciones de las que se pueden
+   * traer de una vez, NO se devuelve una suma: se marca `completo: false` y la
+   * pantalla dice que el dato no está disponible. Una cifra de dinero
+   * silenciosamente parcial es peor que ninguna cifra — quien la lea la tomará
+   * por el total y decidirá con ella.</p>
+   */
+  /**
+   * Resumen agregado de una entidad: cantidades e importes por estado y moneda.
+   *
+   * <p>Una sola petición por dashboard. El motor hace el `group by` y la suma, que es
+   * quien puede hacerla sobre todo el conjunto sin traerlo: la vía anterior —traer el
+   * listado y sumar aquí— tenía un tope por encima del cual el panel dejaba de dar la
+   * cifra, y con cuatro dashboards eso habría sido la norma y no la excepción.</p>
+   *
+   * <p>El backend acepta el mismo cuerpo de filtros que `/contar` y `/listar`, así que se
+   * reutiliza `baseFiltrada` con el destino de la entidad. Las claves llegan en MINÚSCULAS
+   * porque PostgreSQL pliega los alias sin comillas; de ahí la lectura tolerante.</p>
+   */
+  resumenPorEstado(entidad: EntidadResumen, filtro: FiltroPanel = {}): Observable<GrupoResumen[]> {
+    const destino: DestinoFiltro =
+      entidad === 'operaciones' ? 'operacion' : entidad === 'planillas' ? 'planilla' : 'programacion';
+    // Respuestas no tiene columnas de fecha propias en el panel: hereda el destino de
+    // programaciones solo para los campos comunes, y sus fechas se ignoran sin ruido.
+    const base = this.baseFiltrada(filtro, entidad === 'respuestas' ? 'operacion' : destino);
+
+    return this.postBackend<Record<string, unknown>[]>(`/${entidad}/resumen`, base).pipe(
+      map((filas) => (filas ?? []).map((f) => this.aGrupoResumen(f))),
+      catchError(() => of([] as GrupoResumen[]))
+    );
+  }
+
+  /** Normaliza una fila del `group by`, que llega con las claves en minúsculas. */
+  private aGrupoResumen(fila: Record<string, unknown>): GrupoResumen {
+    const leer = (clave: string): unknown => fila[clave] ?? fila[clave.toLowerCase()];
+    const numeroONulo = (valor: unknown): number | null =>
+      valor === null || valor === undefined ? null : Number(valor);
+
+    return {
+      clave: String(leer('estado') ?? leer('tipo') ?? '—'),
+      moneda: leer('moneda') === undefined || leer('moneda') === null ? null : String(leer('moneda')),
+      cantidad: Number(leer('cantidad') ?? 0),
+      operaciones: numeroONulo(leer('operaciones')),
+      monto: numeroONulo(leer('monto')),
+      operacionesOk: numeroONulo(leer('operacionesOk')),
+      operacionesError: numeroONulo(leer('operacionesError')),
+    };
+  }
+
+  resumenMontos(filtro: FiltroPanel = {}): Observable<ResumenMontos> {
+    const base = this.baseFiltrada(filtro, 'operacion');
+
+    return this.postBackend<number>('/operaciones/contar', base).pipe(
+      map((n) => Number(n ?? 0)),
+      switchMap((total) => {
+        if (total === 0) {
+          return of({ completo: true, total: 0, porMoneda: [] } as ResumenMontos);
+        }
+        if (total > TOPE_SUMA_CLIENTE) {
+          return of({ completo: false, total, porMoneda: [] } as ResumenMontos);
+        }
+        return this.postBackend<OperacionBackendRow[]>('/operaciones/listar/paginacion', base, {
+          limit: total,
+          offSet: 0,
+        }).pipe(
+          map((filas) => agruparMontos(filas ?? [], total)),
+          catchError(() => of({ completo: false, total, porMoneda: [] } as ResumenMontos))
+        );
+      }),
+      catchError(() => of({ completo: false, total: 0, porMoneda: [] } as ResumenMontos))
+    );
+  }
+
+  /**
+   * Cuerpo base de las consultas del panel, con el filtro aplicado.
+   *
+   * <p><b>Los nombres de los campos de fecha dependen de la entidad</b>, y por eso hay
+   * que decir a dónde va el cuerpo. Cada `Filter*` del backend nombra sus fechas segun
+   * lo que significan en su tabla, y no coinciden entre sí:</p>
+   *
+   * <pre>
+   *                  instante (ts*)              dia (d*)
+   *   operacion      fechaDesde/Hasta            fechaProcesoDesde/Hasta
+   *   programacion   fechaProgramadoDesde/Hasta  fechaProcesoDiaDesde/Hasta
+   *   planilla       fechaEnvioDesde/Hasta       fechaArchivoDesde/Hasta
+   * </pre>
+   *
+   * <p>Mandar un mismo cuerpo con `fechaDesde` a los tres —que es lo que se hacia—
+   * NO da error: el backend ignora en silencio los campos que no conoce y responde
+   * 200 con el total SIN filtrar. El panel quedaba entonces con las operaciones
+   * acotadas al periodo y las planillas y programaciones contando todo el historico,
+   * sin nada en pantalla que lo delatara.</p>
+   *
+   * <p>En planillas los dos filtros van a `fechaArchivo*` a proposito, y no a
+   * `fechaEnvio*` pese a ser este el analogo exacto del instante: `pla_d_fecha_envio`
+   * esta NULL mientras la planilla no sale, de modo que filtrar por ahi esconderia
+   * justo las que el panel cuenta como pendientes (GENERADA/VALIDADA/CIFRADA) y las
+   * tarjetas se irian a cero al elegir cualquier periodo.</p>
+   *
+   * <p>La zona horaria NO se manda: la pone el controller (`ZONA_CANAL`). Mandarla
+   * desde aqui solo añadiria una forma de que el navegador y el canal discrepen.</p>
+   */
+  private baseFiltrada(
+    filtro: FiltroPanel,
+    destino: DestinoFiltro
+  ): Record<string, string | number | boolean> {
+    const org = this.session.tenant()?.org_u_id;
+    const base: Record<string, string | number | boolean> = org ? { idOrganizacion: org } : {};
+    if (filtro.moneda) base['moneda'] = filtro.moneda;
+    if (filtro.tipoOperacion) base['tipoOperacion'] = filtro.tipoOperacion;
+
+    // El periodo solo se manda cuando la API sabe aplicarlo. Enviarlo antes no
+    // daría error —los campos desconocidos se ignoran en silencio— y ese es
+    // justo el problema: devolvería el total sin filtrar como si fuera del
+    // periodo pedido. Si hay que desplegar contra una API anterior, basta con
+    // poner FILTRO_PERIODO_SOPORTADO en false.
+    if (!FILTRO_PERIODO_SOPORTADO) {
+      return base;
+    }
+
+    // La API espera epoch en milisegundos, no la hora de pared: el DSL de filtros
+    // separa por ':' y una hora ISO se partiría. La conversión usa la zona del
+    // NEGOCIO y no la del navegador, para que el mismo texto en pantalla signifique
+    // el mismo instante se mire desde donde se mire.
+    const campos = CAMPOS_FECHA_POR_DESTINO[destino];
+    const periodo: RangoEpoch = {
+      desde: horaDeParedAEpoch(filtro.fechaDesde ?? ''),
+      hasta: horaDeParedAEpoch(filtro.fechaHasta ?? ''),
+    };
+    const dia: RangoEpoch = {
+      desde: horaDeParedAEpoch(filtro.fechaProcesoDesde ?? ''),
+      hasta: horaDeParedAEpoch(filtro.fechaProcesoHasta ?? ''),
+    };
+
+    if (campos.instante.desde === campos.dia.desde) {
+      // Planillas: los dos filtros caen en la misma columna, asi que se cruzan en vez
+      // de pisarse. Aplicar los dos significa la interseccion de los dos rangos.
+      this.ponerRango(base, campos.dia, this.intersecar(periodo, dia));
+      return base;
+    }
+    this.ponerRango(base, campos.instante, periodo);
+    this.ponerRango(base, campos.dia, dia);
+    return base;
+  }
+
+  /** Rango mas estrecho que cumple los dos: el `desde` mayor y el `hasta` menor. */
+  private intersecar(a: RangoEpoch, b: RangoEpoch): RangoEpoch {
+    const mayor = (x: number | null, y: number | null) =>
+      x === null ? y : y === null ? x : Math.max(x, y);
+    const menor = (x: number | null, y: number | null) =>
+      x === null ? y : y === null ? x : Math.min(x, y);
+    return { desde: mayor(a.desde, b.desde), hasta: menor(a.hasta, b.hasta) };
+  }
+
+  /** Añade al cuerpo los extremos que tengan valor, con los nombres de la entidad. */
+  private ponerRango(
+    base: Record<string, string | number | boolean>,
+    campos: { desde: string; hasta: string },
+    rango: RangoEpoch
+  ): void {
+    if (rango.desde !== null) base[campos.desde] = rango.desde;
+    if (rango.hasta !== null) base[campos.hasta] = rango.hasta;
+  }
+
   crearProgramacion(payload: ProgramacionCrear) {
     const org = this.session.tenant()?.org_u_id;
     return this.postBackend<ProgramacionDetalleFull>('/programaciones/crear', { idOrganizacion: org, ...payload });
@@ -760,22 +1222,6 @@ export class ApiService {
   }
   procesarRespuesta(id: string) {
     return this.post<unknown>(`/v1/respuestas/${id}/procesar`, { dryRun: false });
-  }
-
-  // ── Documentos (bandeja global) ──────────────────────────────────────
-  documentos(filtro: DocumentoFiltro = {}, page = 1, pageSize = 50) {
-    const params: Record<string, string | number> = { page, pageSize };
-    for (const [k, v] of Object.entries(filtro)) if (v !== undefined && v !== '') params[k] = String(v);
-    return this.get<Paginated<Documento>>('/v1/documentos', params);
-  }
-  documento(id: string) {
-    return this.get<Documento>(`/v1/documentos/${id}`);
-  }
-  previewDocumento(id: string) {
-    return this.get<DocumentoPreview>(`/v1/documentos/${id}/preview`);
-  }
-  descargarDocumento(id: string, variante: 'claro' | 'cifrado' = 'claro') {
-    return this.get<DocumentoDescarga>(`/v1/documentos/${id}/download`, { variante });
   }
 
   // ── Beneficiarios ────────────────────────────────────────────────────
@@ -1080,13 +1526,9 @@ export class ApiService {
     return this.get<{ items: EstructuraArchivo[] }>('/v1/estructuras', producto ? { producto } : undefined);
   }
 
-  // ── Certificados ─────────────────────────────────────────────────────
-  certificados() {
-    return this.get<{ items: Certificado[] }>('/v1/certificados');
-  }
-  rotarCertificado(id: string, nuevoAlias: string) {
-    return this.patch<Certificado>(`/v1/certificados/${id}/rotar`, { nuevoAlias });
-  }
+  // Los certificados salieron de la consola: su pantalla duplicaba Llaves de
+  // cifrado con datos del mock. La gestión real vive en
+  // `api/mantenimientos/h2h/v1/organizacion/encriptacion`.
 
   // ── Identidad / RBAC ─────────────────────────────────────────────────
   identityUsers() {

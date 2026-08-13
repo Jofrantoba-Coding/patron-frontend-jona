@@ -1,14 +1,15 @@
-import { J_GLYPH_TEMPLATE } from './JGlyphView';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JGLYPH_DEFAULTS,
-  JGLYPH_SIZE_CLASSES,
-  JGLYPH_TONE_CLASSES,
   type JGlyphSize,
   type JGlyphTone,
 } from './InterJGlyph';
+import {
+  JGLYPH_SIZE_CLASSES,
+  JGLYPH_TONE_CLASSES,
+} from './JGlyphStyles';
 
 /**
  * JGlyph — envoltura SVG para iconos. Las formas (<path>, <circle>, ...) se
@@ -20,7 +21,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_GLYPH_TEMPLATE,
+  templateUrl: './JGlyphView.html',
 })
 export class JGlyph {
   readonly size = input<JGlyphSize | number>(JGLYPH_DEFAULTS.size);

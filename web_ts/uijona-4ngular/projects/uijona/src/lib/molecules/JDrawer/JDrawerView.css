@@ -1,0 +1,4 @@
+/*
+  JDrawerView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jdrawer-footer:empty { display: none; }

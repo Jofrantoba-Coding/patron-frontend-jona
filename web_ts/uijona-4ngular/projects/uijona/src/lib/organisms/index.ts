@@ -17,3 +17,4 @@ export * from './JErrorPage';
 export * from './JLogin';
 export * from './JRecoverPassword';
 export * from './JCreateAccount';
+export * from './JChart';

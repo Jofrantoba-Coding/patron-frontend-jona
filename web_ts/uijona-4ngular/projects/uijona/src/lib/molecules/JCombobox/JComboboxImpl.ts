@@ -1,4 +1,3 @@
-import { J_COMBOBOX_TEMPLATE } from './JComboboxView';
 import type { JComboboxOption, InterJCombobox } from './InterJCombobox';
 import {
   ChangeDetectionStrategy,
@@ -31,7 +30,7 @@ import { cn } from '../../core/cn';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JCombobox), multi: true },
   ],
-  template: J_COMBOBOX_TEMPLATE,
+  templateUrl: './JComboboxView.html',
 })
 export class JCombobox implements ControlValueAccessor {
   readonly options = input.required<JComboboxOption[]>();

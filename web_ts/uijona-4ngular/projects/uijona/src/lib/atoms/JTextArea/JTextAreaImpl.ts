@@ -1,4 +1,3 @@
-import { J_TEXT_AREA_TEMPLATE } from './JTextAreaView';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,13 +16,15 @@ import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JTEXTAREA_DEFAULTS,
-  JTEXTAREA_RESIZE_CLASSES,
-  JTEXTAREA_SIZE_CLASSES,
-  JTEXTAREA_VARIANT_CLASSES,
   type JTextAreaResize,
   type JTextAreaSize,
   type JTextAreaVariant,
 } from './InterJTextArea';
+import {
+  JTEXTAREA_RESIZE_CLASSES,
+  JTEXTAREA_SIZE_CLASSES,
+  JTEXTAREA_VARIANT_CLASSES,
+} from './JTextAreaStyles';
 
 /**
  * JTextArea — campo multilinea con autoresize opcional. Implementa
@@ -37,7 +38,7 @@ import {
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JTextArea), multi: true },
   ],
-  template: J_TEXT_AREA_TEMPLATE,
+  templateUrl: './JTextAreaView.html',
 })
 export class JTextArea implements ControlValueAccessor {
   readonly value = model<string>('');

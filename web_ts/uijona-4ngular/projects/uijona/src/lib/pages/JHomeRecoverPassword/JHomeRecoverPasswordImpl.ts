@@ -1,4 +1,3 @@
-import { J_HOME_RECOVER_PASSWORD_TEMPLATE } from './JHomeRecoverPasswordView';
 import type { InterJHomeRecoverPassword } from './InterJHomeRecoverPassword';
 import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { JBorderLayout, JNorth, JSouth } from '../../layouts';
@@ -10,7 +9,7 @@ import { JFooterPage, JHeaderPage, JRecoverPassword } from '../../organisms';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JBorderLayout, JNorth, JSouth, JHeaderPage, JFooterPage, JRecoverPassword],
   host: { class: 'contents' },
-  template: J_HOME_RECOVER_PASSWORD_TEMPLATE,
+  templateUrl: './JHomeRecoverPasswordView.html',
 })
 export class JHomeRecoverPassword {
   readonly email = model<string>('');

@@ -1,4 +1,3 @@
-import { J_BREADCRUMB_TEMPLATE_1, J_BREADCRUMB_TEMPLATE_2, J_BREADCRUMB_TEMPLATE_3, J_BREADCRUMB_TEMPLATE_4, J_BREADCRUMB_TEMPLATE_5, J_BREADCRUMB_TEMPLATE_6, J_BREADCRUMB_TEMPLATE_7 } from './JBreadcrumbView';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { cn } from '../../core/cn';
 
@@ -12,7 +11,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_BREADCRUMB_TEMPLATE_1,
+  templateUrl: './JBreadcrumbView.html',
 })
 export class JBreadcrumb {
   readonly className = input<string>('');
@@ -24,7 +23,7 @@ export class JBreadcrumb {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_BREADCRUMB_TEMPLATE_2,
+  templateUrl: './JBreadcrumbListView.html',
 })
 export class JBreadcrumbList {
   readonly className = input<string>('');
@@ -38,7 +37,7 @@ export class JBreadcrumbList {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_BREADCRUMB_TEMPLATE_3,
+  templateUrl: './JBreadcrumbItemView.html',
 })
 export class JBreadcrumbItem {
   readonly className = input<string>('');
@@ -50,7 +49,7 @@ export class JBreadcrumbItem {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_BREADCRUMB_TEMPLATE_4,
+  templateUrl: './JBreadcrumbLinkView.html',
 })
 export class JBreadcrumbLink {
   readonly href = input<string>();
@@ -69,7 +68,7 @@ export class JBreadcrumbLink {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_BREADCRUMB_TEMPLATE_5,
+  templateUrl: './JBreadcrumbPageView.html',
 })
 export class JBreadcrumbPage {
   readonly className = input<string>('');
@@ -81,7 +80,7 @@ export class JBreadcrumbPage {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_BREADCRUMB_TEMPLATE_6,
+  templateUrl: './JBreadcrumbSeparatorView.html',
 })
 export class JBreadcrumbSeparator {
   readonly className = input<string>('');
@@ -93,7 +92,7 @@ export class JBreadcrumbSeparator {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_BREADCRUMB_TEMPLATE_7,
+  templateUrl: './JBreadcrumbEllipsisView.html',
 })
 export class JBreadcrumbEllipsis {
   readonly className = input<string>('');

@@ -1,3 +1,7 @@
+// InterJButton.ts — JONA Contrato
+// Capa agnostica: tipos, valores por defecto y documentacion de cada opcion.
+// NO contiene clases de Tailwind ni detalles de presentacion: eso vive en JButtonStyles.ts.
+
 export type JButtonVariant =
   | 'default'
   | 'outline'
@@ -23,8 +27,24 @@ export interface InterJButton {
   href?: string;
   target?: string;
   rel?: string;
-  /** Marca el boton como solo-icono (sin texto) para el espaciado cuadrado. */
+  /**
+   * @deprecated Sin efecto visual. El espaciado solo-icono se resuelve en CSS:
+   * `.jbutton-text:empty { display: none }` elimina el hueco del flex gap.
+   * Se mantiene por compatibilidad y se retirara en la proxima mayor.
+   */
   iconOnly?: boolean;
+  ariaLabel?: string;
+  className?: string;
+
+  // Observer events — el nombre entre parentesis es el output de Angular.
+  /** (clicked) */
+  onClick?: (event: MouseEvent) => void;
+  /** (focused) */
+  onFocus?: (event: FocusEvent) => void;
+  /** (blurred) */
+  onBlur?: (event: FocusEvent) => void;
+  /** (keydown) */
+  onKeyDown?: (event: KeyboardEvent) => void;
 }
 
 export const JBUTTON_DEFAULTS = {
@@ -38,31 +58,30 @@ export const JBUTTON_DEFAULTS = {
   Pick<InterJButton, 'variant' | 'size' | 'iconPosition' | 'loading' | 'fullWidth' | 'type'>
 >;
 
-export const JBUTTON_VARIANT_CLASSES: Record<JButtonVariant, string> = {
-  default: 'bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500',
-  outline:
-    'border border-neutral-300 bg-transparent text-neutral-900 hover:bg-neutral-100 focus-visible:ring-neutral-400',
-  ghost: 'bg-transparent text-neutral-700 hover:bg-neutral-100 focus-visible:ring-neutral-400',
-  destructive: 'bg-danger-500 text-white hover:bg-danger-600 focus-visible:ring-danger-500',
-  secondary:
-    'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 focus-visible:ring-neutral-400',
-  link: 'bg-transparent text-primary-600 underline-offset-4 hover:underline p-0 h-auto focus-visible:ring-primary-500',
-  accent: 'bg-accent-600 text-white hover:bg-accent-700 focus-visible:ring-accent-500',
+/** Documentacion de cada variante — consumida por Storybook y por las guias de uso. */
+export const JBUTTON_VARIANTS: Record<JButtonVariant, string> = {
+  default: 'Filled. Color primario, accion principal.',
+  outline: 'Borde y texto, sin relleno. Accion secundaria.',
+  ghost: 'Sin borde ni relleno. Accion terciaria.',
+  destructive: 'Rojo. Acciones destructivas.',
+  secondary: 'Neutral. Acciones complementarias.',
+  link: 'Solo texto subrayado. Navegacion inline.',
+  accent: 'Filled. Color de acento (secundario de marca).',
 };
 
-export const JBUTTON_ICON_POSITION_CLASSES: Record<JButtonIconPosition, string> = {
-  left: 'flex-row',
-  right: 'flex-row-reverse',
-  top: 'flex-col',
-  bottom: 'flex-col-reverse',
+export const JBUTTON_SIZES: Record<JButtonSize, string> = {
+  xs: '24px min-height. Espacios muy comprimidos.',
+  sm: '28px min-height. Dentro de tablas o listas.',
+  md: '36px min-height. Tamano por defecto.',
+  default: '36px min-height. Alias de md para compat.',
+  lg: '44px min-height. Acciones destacadas.',
+  xl: '56px min-height. Hero o calls to action.',
+  icon: '36x36 cuadrado. Solo icono, sin texto.',
 };
 
-export const JBUTTON_SIZE_CLASSES: Record<JButtonSize, string> = {
-  xs: 'min-h-6 px-2 py-0.5 text-xs rounded',
-  sm: 'min-h-7 px-3 py-1 text-xs rounded-md',
-  md: 'min-h-9 px-4 py-2 text-sm rounded-md',
-  default: 'min-h-9 px-4 py-2 text-sm rounded-md',
-  lg: 'min-h-11 px-6 py-2 text-base rounded-md',
-  xl: 'min-h-14 px-8 py-3 text-lg rounded-lg',
-  icon: 'h-9 w-9 p-0 rounded-md',
+export const JBUTTON_ICON_POSITIONS: Record<JButtonIconPosition, string> = {
+  left: 'Icono antes del texto (default). flex-direction: row.',
+  right: 'Icono despues del texto. flex-direction: row-reverse.',
+  top: 'Icono sobre el texto. flex-direction: column.',
+  bottom: 'Icono bajo el texto. flex-direction: column-reverse.',
 };

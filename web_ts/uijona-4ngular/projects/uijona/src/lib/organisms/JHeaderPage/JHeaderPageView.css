@@ -1,0 +1,15 @@
+/*
+  JHeaderPageView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jhp-title:empty {
+  display: none;
+}
+.jhp-title:not(:empty) + .jhp-title-text {
+  display: none;
+}
+.jhp-nav:empty {
+  display: none;
+}
+.jhp-actions:empty {
+  display: none;
+}

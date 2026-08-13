@@ -1,4 +1,3 @@
-import { J_ALERT_TEMPLATE, J_ALERT_STYLES } from './JAlertView';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,10 +11,12 @@ import { JIconSlot } from '../../core/slots';
 import type { JStyle } from '../../core/types';
 import {
   JALERT_DEFAULTS,
-  JALERT_DISMISS_VARIANT_CLASSES,
-  JALERT_VARIANT_CLASSES,
   type JAlertVariant,
 } from './InterJAlert';
+import {
+  JALERT_DISMISS_VARIANT_CLASSES,
+  JALERT_VARIANT_CLASSES,
+} from './JAlertStyles';
 
 /**
  * JAlert — mensaje contextual con variante, título, icono opcional (proyecta
@@ -26,8 +27,8 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_ALERT_TEMPLATE,
-  styles: J_ALERT_STYLES,
+  templateUrl: './JAlertView.html',
+  styleUrl: './JAlertView.css',
 })
 export class JAlert {
   readonly variant = input<JAlertVariant>(JALERT_DEFAULTS.variant);

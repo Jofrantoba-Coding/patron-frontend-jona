@@ -1,4 +1,3 @@
-import { J_FAQ_ITEM_TEMPLATE } from './JFaqItemView';
 import type { InterJFaqItem } from './InterJFaqItem';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -10,7 +9,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_FAQ_ITEM_TEMPLATE,
+  templateUrl: './JFaqItemView.html',
 })
 export class JFaqItem {
   readonly question = input.required<string>();

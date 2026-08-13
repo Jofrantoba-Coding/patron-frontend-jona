@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { JDataTable, JDialog, JPagination, JSectionHeading, type JDataTableColumn, type JDataTableRow } from 'uijona-4ngular';
+import { JDataTable, JDatePicker, JDialog, JPagination, JSectionHeading, type JDataTableColumn, type JDataTableRow } from 'uijona-4ngular';
 import type {
   Operacion,
   OperacionDetalle,
@@ -8,8 +8,18 @@ import type {
   Paginated,
   ProductoGrupo,
 } from '../../core/models';
+import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
-import { ANULACION_NEGADA, ESTADO_OPE_ANULADA, META, META_TODAS, TIPOOP_GRUPO, type OperacionMeta } from './inter-operaciones';
+import {
+  ANULACION_NEGADA,
+  ESTADO_OPE_ANULADA,
+  META,
+  META_TODAS,
+  TIPOOP_GRUPO,
+  modalidadDe,
+  situacionOperacion,
+  type OperacionMeta,
+} from './inter-operaciones';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
 
@@ -19,7 +29,7 @@ type Registro = OperacionDetalleRegistro;
   selector: 'app-operaciones-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JDialog, OperacionDetalleDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JDialog, JDatePicker, OperacionDetalleDialog],
   templateUrl: './operaciones-view.component.html',
 })
 export class OperacionesViewComponent {
@@ -37,6 +47,16 @@ export class OperacionesViewComponent {
   protected readonly filtroTipoOperacion = signal<string>('');
   protected readonly filtroMoneda = signal<string>('');
   protected readonly filtroSinPlanillaVigente = signal<string>('');
+  protected readonly filtroProcDesde = signal<string>('');
+  protected readonly filtroProcHasta = signal<string>('');
+  protected onProcDesde(valor: string): void {
+    this.filtroProcDesde.set(valor);
+  }
+  protected onProcHasta(valor: string): void {
+    this.filtroProcHasta.set(valor);
+  }
+  protected readonly filtroFechaDesde = signal<string>('');
+  protected readonly filtroFechaHasta = signal<string>('');
   protected readonly master = signal<Operacion[]>([]);
   protected readonly page = signal<number>(1);
   protected readonly pageSize = signal<number>(50);
@@ -48,6 +68,39 @@ export class OperacionesViewComponent {
 
   protected readonly esTodas = computed(() => this.producto() === null);
   protected readonly meta = computed<OperacionMeta>(() => (this.producto() ? META[this.producto() as ProductoGrupo] : META_TODAS));
+
+  /** Permisos efectivos; la Page los sustituye por los de la sesión. */
+  protected can: (permiso: string) => boolean = () => true;
+
+  /**
+   * Los productos como pestañas y no como entradas del menú.
+   *
+   * <p>Pagos Masivos, Transferencias y Factoring no son destinos distintos: son
+   * la misma bandeja de operaciones filtrada. Tenerlos en el menú lateral los
+   * presentaba como secciones hermanas de Planillas —que es una etapa
+   * posterior—, y aplanaba el proceso. Aquí se leen como lo que son: un filtro
+   * sobre la vista actual, con "Todas" como punto de partida.</p>
+   *
+   * <p>Cada pestaña sigue navegando a su ruta, así que los enlaces guardados y
+   * el botón de atrás del navegador se comportan igual que antes.</p>
+   */
+  protected readonly pestanasProducto = computed<{ valor: string; ruta: string; label: string }[]>(
+    () => {
+      const tabs = [{ valor: 'todas', ruta: 'operaciones', label: 'Todas' }];
+      if (this.can('operaciones.pagos_masivos:read'))
+        tabs.push({ valor: 'pagos_masivos', ruta: 'operaciones/pagos-masivos', label: 'Pagos masivos' });
+      if (this.can('operaciones.transferencias:read'))
+        tabs.push({ valor: 'transferencias', ruta: 'operaciones/transferencias', label: 'Transferencias' });
+      if (this.can('operaciones.factoring:read'))
+        tabs.push({ valor: 'factoring', ruta: 'operaciones/factoring', label: 'Factoring' });
+      return tabs;
+    }
+  );
+
+  protected readonly pestanaActiva = computed(() => this.producto() ?? 'todas');
+
+  /** La Page la sobrescribe para navegar. */
+  protected onPestanaProducto(_ruta: string): void {}
   protected readonly rowKey = (row: JDataTableRow) => String((row as unknown as Operacion).id);
 
   protected readonly estados = computed(() => Array.from(new Set(this.master().map((operacion) => operacion.estadoOperacionCodigo))).sort());
@@ -86,7 +139,42 @@ export class OperacionesViewComponent {
       align: 'right',
       render: (value) => NUM.format(Number(value ?? 0)),
     },
+    // Momento en que la operación entró al canal. Es la columna por la que filtra
+    // "Desde/Hasta", y sin ella el filtro parece no hacer nada: se acota un periodo
+    // pero no hay forma de comprobar en pantalla qué quedó dentro.
+    {
+      key: 'fechaOperacion',
+      header: 'Registrada',
+      sortable: true,
+      align: 'center',
+      render: (value) => instanteDeBackendAHoraDePared(value) || '—',
+    },
+    // El día en que el banco debe procesarla. Manda sobre el corte horario, así
+    // que es dato de primera línea y no de detalle.
+    {
+      key: 'fechaProceso',
+      header: 'F. proceso',
+      sortable: true,
+      align: 'center',
+      render: (value) => (value ? String(value) : '—'),
+    },
+    // H2H sale sola; H2W queda pendiente de firma en la banca web. Dos filas
+    // idénticas pueden exigir trabajo humano distinto.
+    {
+      key: 'atributos',
+      header: 'Modalidad',
+      align: 'center',
+      render: (value) => modalidadDe(value),
+    },
     { key: 'estadoOperacionCodigo', header: 'Estado', sortable: true },
+    // Si ya está en una planilla no se puede programar de nuevo. Sin esta
+    // columna, el operador lo descubría al intentarlo y recibir el rechazo.
+    {
+      key: 'idPlanillaVigente',
+      header: 'Situación',
+      align: 'center',
+      render: (value) => situacionOperacion(value).etiqueta,
+    },
   ];
 
   protected onSubtipo(event: Event): void {
@@ -143,6 +231,15 @@ export class OperacionesViewComponent {
     this.filtroSinPlanillaVigente.set((event.target as HTMLSelectElement).value);
   }
 
+  // JDatePicker entrega el valor ISO ya formado, no un Event del DOM.
+  protected onFechaDesde(valor: string): void {
+    this.filtroFechaDesde.set(valor);
+  }
+
+  protected onFechaHasta(valor: string): void {
+    this.filtroFechaHasta.set(valor);
+  }
+
   protected onAplicarFiltros(): void {
     this.page.set(1);
     this.load();
@@ -161,6 +258,10 @@ export class OperacionesViewComponent {
     this.filtroTipoOperacion.set('');
     this.filtroMoneda.set('');
     this.filtroSinPlanillaVigente.set('');
+    this.filtroFechaDesde.set('');
+    this.filtroFechaHasta.set('');
+    this.filtroProcDesde.set('');
+    this.filtroProcHasta.set('');
     this.page.set(1);
     this.load();
   }
@@ -201,6 +302,10 @@ export class OperacionesViewComponent {
     }
     if (estadoOperacion) filters.estadoOperacion = estadoOperacion;
     if (moneda) filters.moneda = moneda;
+    if (this.filtroFechaDesde()) filters.fechaDesde = this.filtroFechaDesde();
+    if (this.filtroFechaHasta()) filters.fechaHasta = this.filtroFechaHasta();
+    if (this.filtroProcDesde()) filters.fechaProcesoDesde = this.filtroProcDesde();
+    if (this.filtroProcHasta()) filters.fechaProcesoHasta = this.filtroProcHasta();
     if (sinPlanilla === 'true' || sinPlanilla === 'false') {
       filters.sinPlanillaVigente = sinPlanilla === 'true';
     }

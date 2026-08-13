@@ -1,4 +1,3 @@
-import { J_MULTI_SELECT_TEMPLATE } from './JMultiSelectView';
 import type { JMultiSelectOption, InterJMultiSelect } from './InterJMultiSelect';
 import {
   ChangeDetectionStrategy,
@@ -32,7 +31,7 @@ import { cn } from '../../core/cn';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JMultiSelect), multi: true },
   ],
-  template: J_MULTI_SELECT_TEMPLATE,
+  templateUrl: './JMultiSelectView.html',
 })
 export class JMultiSelect implements ControlValueAccessor {
   readonly options = input.required<JMultiSelectOption[]>();

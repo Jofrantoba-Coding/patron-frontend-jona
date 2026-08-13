@@ -93,4 +93,95 @@
   --jona-z-dropdown: 1000;
   --jona-z-modal:    1050;
   --jona-z-toast:    1100;
+
+  /* ── Gráficos: paleta categórica ─────────────────────────
+   *
+   * Ocho ranuras en ORDEN FIJO. Se asignan por posición y nunca se rotan: el
+   * color identifica a la serie, no a su puesto en el ranking. Si un filtro
+   * cambia cuántas series hay, las que quedan conservan su color.
+   *
+   * Una novena serie NO genera un color nuevo: se agrupa en «Otros», se pasa a
+   * múltiplos pequeños o se cambia de forma.
+   *
+   * La ranura 1 es el azul de marca (--jona-primary-600). El resto viene de un
+   * tema categórico validado. La paleta completa pasa las seis comprobaciones
+   * (banda de luminosidad, croma mínimo, separación con daltonismo, umbral de
+   * visión normal y contraste) en claro y en oscuro; no se toca ninguna ranura
+   * sin volver a validarla.
+   *
+   * Los colores de ESTADO (danger/success/warning) están reservados: nunca se
+   * usan como serie, para que un color de estado no se confunda con un dato.
+   */
+  --jona-chart-1: 37  99  235;  /* azul de marca  #2563EB */
+  --jona-chart-2: 235 104 52;   /* naranja        #EB6834 */
+  --jona-chart-3: 27  175 122;  /* aqua           #1BAF7A */
+  --jona-chart-4: 237 161 0;    /* amarillo       #EDA100 */
+  --jona-chart-5: 232 123 164;  /* magenta        #E87BA4 */
+  --jona-chart-6: 0   131 0;    /* verde          #008300 */
+  --jona-chart-7: 74  58  167;  /* violeta        #4A3AA7 */
+  --jona-chart-8: 227 73  72;   /* rojo           #E34948 */
+
+  /* Superficie e ink del gráfico. La rejilla es recesiva a propósito: compite
+   * con los datos si se pinta al mismo peso que ellos. */
+  --jona-chart-surface: 252 252 251;
+  --jona-chart-grid:    226 232 240;
+  --jona-chart-axis:    148 163 184;
+  --jona-chart-ink:     51  65  85;
+  --jona-chart-ink-mute: 100 116 139;
+
+  /* Rampa secuencial (magnitud): un solo tono, claro → oscuro. Nunca arcoíris. */
+  --jona-chart-seq-1: 205 226 251;
+  --jona-chart-seq-2: 158 197 244;
+  --jona-chart-seq-3: 109 167 236;
+  --jona-chart-seq-4: 57  135 229;
+  --jona-chart-seq-5: 37  106 191;
+  --jona-chart-seq-6: 24  79  149;
+
+  /* Par divergente (polaridad): dos tonos opuestos con gris neutro en medio.
+   * El punto medio NUNCA lleva tono, o inventa una categoría que no existe. */
+  --jona-chart-div-neg: 235 104 52;
+  --jona-chart-div-mid: 240 239 236;
+  --jona-chart-div-pos: 37  99  235;
+}
+
+/* Modo oscuro: pasos PROPIOS de las mismas rampas, no una inversión automática.
+ * Cada uno se revalidó contra la superficie oscura. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --jona-chart-1: 59  130 246;  /* #3B82F6 */
+    --jona-chart-2: 217 89  38;   /* #D95926 */
+    --jona-chart-3: 25  158 112;  /* #199E70 */
+    --jona-chart-4: 201 133 0;    /* #C98500 */
+    --jona-chart-5: 213 81  129;  /* #D55181 */
+    --jona-chart-6: 0   131 0;    /* #008300 */
+    --jona-chart-7: 144 133 233;  /* #9085E9 */
+    --jona-chart-8: 230 103 103;  /* #E66767 */
+
+    --jona-chart-surface: 26 26 25;
+    --jona-chart-grid:    51 65 85;
+    --jona-chart-axis:    100 116 139;
+    --jona-chart-ink:     226 232 240;
+    --jona-chart-ink-mute: 148 163 184;
+
+    --jona-chart-div-mid: 56 56 53;
+  }
+}
+
+:root[data-theme='dark'] {
+  --jona-chart-1: 59  130 246;
+  --jona-chart-2: 217 89  38;
+  --jona-chart-3: 25  158 112;
+  --jona-chart-4: 201 133 0;
+  --jona-chart-5: 213 81  129;
+  --jona-chart-6: 0   131 0;
+  --jona-chart-7: 144 133 233;
+  --jona-chart-8: 230 103 103;
+
+  --jona-chart-surface: 26 26 25;
+  --jona-chart-grid:    51 65 85;
+  --jona-chart-axis:    100 116 139;
+  --jona-chart-ink:     226 232 240;
+  --jona-chart-ink-mute: 148 163 184;
+
+  --jona-chart-div-mid: 56 56 53;
 }

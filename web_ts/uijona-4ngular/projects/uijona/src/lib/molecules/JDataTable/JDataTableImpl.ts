@@ -1,4 +1,3 @@
-import { J_DATA_TABLE_TEMPLATE } from './JDataTableView';
 import type { JDataTableSortDirection, JDataTableRow, JDataTableColumn, JDataTableSort, InterJDataTable } from './InterJDataTable';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -11,7 +10,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_DATA_TABLE_TEMPLATE,
+  templateUrl: './JDataTableView.html',
 })
 export class JDataTable {
   readonly columns = input.required<JDataTableColumn[]>();

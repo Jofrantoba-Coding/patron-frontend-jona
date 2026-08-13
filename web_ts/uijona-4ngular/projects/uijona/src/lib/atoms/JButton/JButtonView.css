@@ -1,0 +1,14 @@
+/*
+  JButtonView.css — JONA View (estilos del componente)
+  Encapsulados por Angular. El resto del look vive en utilidades Tailwind
+  (JButtonStyles.ts) y en la hoja global `styles/uijona.css`.
+*/
+
+/* Sin icono y sin texto no deben ocupar espacio ni generar hueco de flex gap. */
+.jbutton-icon:empty {
+  display: none;
+}
+
+.jbutton-text:empty {
+  display: none;
+}

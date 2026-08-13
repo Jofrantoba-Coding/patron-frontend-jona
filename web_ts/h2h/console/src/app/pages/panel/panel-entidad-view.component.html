@@ -1,0 +1,231 @@
+<app-nav-paneles />
+
+<j-section-heading
+  eyebrow="Panel de control"
+  [heading]="voc().titulo"
+  [description]="voc().descripcion"
+/>
+
+<!--
+  Mismos filtros que el panel general y con las mismas etiquetas: el periodo acota el
+  INSTANTE de registro y el día de proceso el DÍA en que el banco trabaja el archivo.
+  Son preguntas distintas y se pueden usar a la vez.
+-->
+<div class="mb-6 flex flex-wrap items-end gap-3">
+  <label class="flex min-w-[13rem] flex-col gap-1">
+    <span class="text-xs font-medium text-neutral-500">Desde</span>
+    <j-date-picker
+      [value]="filtroDesde()"
+      [showTime]="true"
+      placeholder="Inicio del periodo"
+      (changed)="onDesde($event)"
+    />
+  </label>
+
+  <label class="flex min-w-[13rem] flex-col gap-1">
+    <span class="text-xs font-medium text-neutral-500">Hasta</span>
+    <j-date-picker
+      [value]="filtroHasta()"
+      [showTime]="true"
+      placeholder="Fin del periodo"
+      (changed)="onHasta($event)"
+    />
+  </label>
+
+  <label class="flex min-w-[13rem] flex-col gap-1">
+    <span class="text-xs font-medium text-neutral-500">Se procesa desde</span>
+    <j-date-picker
+      [value]="filtroProcDesde()"
+      placeholder="Día inicial"
+      (changed)="onProcDesde($event)"
+    />
+  </label>
+
+  <label class="flex min-w-[13rem] flex-col gap-1">
+    <span class="text-xs font-medium text-neutral-500">Se procesa hasta</span>
+    <j-date-picker
+      [value]="filtroProcHasta()"
+      placeholder="Día final"
+      (changed)="onProcHasta($event)"
+    />
+  </label>
+
+  @if (hayFiltro()) {
+    <button
+      type="button"
+      (click)="limpiarFiltros()"
+      class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+    >
+      Quitar filtros
+    </button>
+  }
+</div>
+
+@if (cargando()) {
+  <p class="text-sm text-neutral-500">Cargando…</p>
+} @else if (total() === 0) {
+  <j-alert variant="info" [title]="hayFiltro() ? 'Nada en ese periodo' : 'Todavía no hay datos'">
+    @if (hayFiltro()) {
+      Ninguna {{ voc().unidad }} coincide con el filtro. Pruebe a ampliar el rango.
+    } @else {
+      Aún no se ha registrado ninguna {{ voc().unidad }} en el canal.
+    }
+  </j-alert>
+} @else {
+  <!-- Cifras de cabecera: lo que se lee de un vistazo antes de entrar en el detalle. -->
+  <div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <j-card>
+      <j-card-header>
+        <j-card-description>Total</j-card-description>
+        <p class="text-2xl font-black tabular-nums text-neutral-900">{{ num(total()) }}</p>
+        <j-card-description>{{ voc().unidadPlural }}</j-card-description>
+      </j-card-header>
+    </j-card>
+
+    <!--
+      Un plan o una planilla son contenedores: "1 planilla" puede ser 402 operaciones.
+      Por eso la segunda cifra existe solo donde significa algo distinto de la primera.
+    -->
+    @if (voc().contiene) {
+      <j-card>
+        <j-card-header>
+          <j-card-description>Operaciones dentro</j-card-description>
+          <p class="text-2xl font-black tabular-nums text-neutral-900">{{ num(totalOperaciones()) }}</p>
+          <j-card-description>repartidas en {{ num(total()) }} {{ voc().unidadPlural }}</j-card-description>
+        </j-card-header>
+      </j-card>
+    }
+
+    @for (m of importesPorMoneda(); track m.moneda) {
+      <j-card>
+        <j-card-header>
+          <j-card-description>Importe · {{ m.moneda }}</j-card-description>
+          <p class="text-2xl font-black tabular-nums text-neutral-900">{{ importe(m.monto, m.moneda) }}</p>
+          <j-card-description>{{ num(m.cantidad) }} {{ voc().unidadPlural }}</j-card-description>
+        </j-card-header>
+      </j-card>
+    }
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Reparto por estado: dónde está atascado el trabajo. -->
+    <j-card>
+      <j-card-header>
+        <j-card-title>Por estado</j-card-title>
+        <j-card-description>Dónde está ahora mismo cada {{ voc().unidad }}.</j-card-description>
+      </j-card-header>
+      <j-card-content>
+        <j-chart
+          tipo="bar"
+          [series]="serieEstado()"
+          [categorias]="categoriasEstado()"
+          [alto]="220"
+          textoVacio="Sin datos en este periodo."
+        />
+        <table class="mt-4 w-full text-sm">
+          <thead>
+            <tr class="border-b border-neutral-200 text-left text-xs uppercase text-neutral-500">
+              <th class="py-1.5">Estado</th>
+              <th class="py-1.5 text-right">{{ voc().unidadPlural }}</th>
+              @if (voc().contiene) {
+                <th class="py-1.5 text-right">Operaciones</th>
+              }
+              <th class="py-1.5 text-right">Reparto</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of porEstado(); track e.estado) {
+              <tr class="border-b border-neutral-100 last:border-0">
+                <td class="py-1.5 font-medium text-neutral-700">{{ e.estado }}</td>
+                <td class="py-1.5 text-right tabular-nums">{{ num(e.cantidad) }}</td>
+                @if (voc().contiene) {
+                  <td class="py-1.5 text-right tabular-nums text-neutral-500">{{ num(e.operaciones) }}</td>
+                }
+                <td class="py-1.5 text-right tabular-nums text-neutral-500">{{ porcentaje(e.cantidad) }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </j-card-content>
+    </j-card>
+
+    <!-- Dinero por estado, una tarjeta por moneda. -->
+    @if (voc().conMonto) {
+      <div class="flex flex-col gap-6">
+        @for (m of importesPorMoneda(); track m.moneda) {
+          <j-card>
+            <j-card-header>
+              <j-card-title>Importe por estado · {{ m.moneda }}</j-card-title>
+              <j-card-description>{{ importe(m.monto, m.moneda) }} en total.</j-card-description>
+            </j-card-header>
+            <j-card-content>
+              <j-chart
+                tipo="bar"
+                [series]="serieImporte(m.moneda)"
+                [categorias]="categoriasImporte(m.moneda)"
+                [moneda]="m.moneda"
+                [alto]="alturaImporte(m.moneda)"
+              />
+            </j-card-content>
+          </j-card>
+        }
+      </div>
+    }
+  </div>
+
+  <!--
+    Conciliación del banco. Vive en el panel de planillas porque una respuesta no se
+    entiende sin el archivo que la provocó. No lleva importe: el banco no lo manda en la
+    respuesta, y ponerlo desde la planilla sobreestimaría lo realmente conciliado cuando
+    la respuesta es parcial.
+  -->
+  @if (gruposRespuesta().length > 0) {
+    <j-card class="mt-6">
+      <j-card-header>
+        <j-card-title>Respuestas del banco</j-card-title>
+        <j-card-description>
+          {{ num(conciliacion().archivos) }} archivos recibidos, con
+          {{ num(conciliacion().operaciones) }} operaciones informadas.
+        </j-card-description>
+      </j-card-header>
+      <j-card-content>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div>
+            <p class="text-xs uppercase text-neutral-500">Conciliadas</p>
+            <p class="text-xl font-black tabular-nums text-success-600">{{ num(conciliacion().ok) }}</p>
+          </div>
+          <div>
+            <p class="text-xs uppercase text-neutral-500">Con error</p>
+            <p class="text-xl font-black tabular-nums text-danger-600">{{ num(conciliacion().error) }}</p>
+          </div>
+          <div>
+            <p class="text-xs uppercase text-neutral-500">Sin clasificar</p>
+            <p class="text-xl font-black tabular-nums text-neutral-500">{{ num(conciliacion().sinClasificar) }}</p>
+          </div>
+        </div>
+        <table class="mt-4 w-full text-sm">
+          <thead>
+            <tr class="border-b border-neutral-200 text-left text-xs uppercase text-neutral-500">
+              <th class="py-1.5">Tipo</th>
+              <th class="py-1.5 text-right">Archivos</th>
+              <th class="py-1.5 text-right">Operaciones</th>
+              <th class="py-1.5 text-right">Ok</th>
+              <th class="py-1.5 text-right">Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of gruposRespuesta(); track r.clave) {
+              <tr class="border-b border-neutral-100 last:border-0">
+                <td class="py-1.5 font-medium text-neutral-700">{{ r.clave }}</td>
+                <td class="py-1.5 text-right tabular-nums">{{ num(r.cantidad) }}</td>
+                <td class="py-1.5 text-right tabular-nums text-neutral-500">{{ num(r.operaciones ?? 0) }}</td>
+                <td class="py-1.5 text-right tabular-nums text-success-600">{{ num(r.operacionesOk ?? 0) }}</td>
+                <td class="py-1.5 text-right tabular-nums text-danger-600">{{ num(r.operacionesError ?? 0) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </j-card-content>
+    </j-card>
+  }
+}

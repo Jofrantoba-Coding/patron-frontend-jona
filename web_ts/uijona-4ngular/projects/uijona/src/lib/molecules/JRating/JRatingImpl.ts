@@ -1,13 +1,9 @@
-import { J_RATING_TEMPLATE } from './JRatingView';
 import type { JRatingSize, InterJRating } from './InterJRating';
 import { ChangeDetectionStrategy, Component, computed, input, model, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
-
-const SIZE_CLASSES: Record<JRatingSize, string> = {
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-7 w-7',
-};
+import {
+  SIZE_CLASSES,
+} from './JRatingStyles';
 
 /**
  * JRating — selector o indicador de calificación por estrellas.
@@ -17,7 +13,7 @@ const SIZE_CLASSES: Record<JRatingSize, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_RATING_TEMPLATE,
+  templateUrl: './JRatingView.html',
 })
 export class JRating {
   readonly value = model<number>(0);

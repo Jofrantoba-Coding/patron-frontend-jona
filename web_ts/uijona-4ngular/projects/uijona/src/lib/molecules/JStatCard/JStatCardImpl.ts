@@ -1,21 +1,10 @@
-import { J_STAT_CARD_TEMPLATE, J_STAT_CARD_STYLES } from './JStatCardView';
 import type { StatCardTone, StatCardTrend, InterJStatCard } from './InterJStatCard';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
-
-const TONE_CLASSES: Record<StatCardTone, string> = {
-  neutral: 'bg-neutral-100 text-neutral-600',
-  success: 'bg-success-50 text-success-700',
-  warning: 'bg-warning-50 text-warning-700',
-  danger: 'bg-danger-50 text-danger-700',
-  info: 'bg-primary-50 text-primary-700',
-};
-
-const TREND_CLASSES: Record<StatCardTrend, string> = {
-  up: 'text-success-700',
-  down: 'text-danger-700',
-  flat: 'text-neutral-500',
-};
+import {
+  TONE_CLASSES,
+  TREND_CLASSES,
+} from './JStatCardStyles';
 
 /**
  * JStatCard — métrica compacta para dashboards con tono, tendencia e icono
@@ -26,8 +15,8 @@ const TREND_CLASSES: Record<StatCardTrend, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_STAT_CARD_TEMPLATE,
-  styles: J_STAT_CARD_STYLES,
+  templateUrl: './JStatCardView.html',
+  styleUrl: './JStatCardView.css',
 })
 export class JStatCard {
   readonly label = input.required<string>();

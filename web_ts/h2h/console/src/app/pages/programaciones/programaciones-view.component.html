@@ -48,6 +48,37 @@
           <option value="USD">USD</option>
         </select>
       </div>
+      <!--
+        Periodo sobre el momento PROGRAMADO del plan, que no es lo mismo que su fecha de proceso (el día en que el banco lo procesa, sin hora). La hora se interpreta en hora de Lima —la zona en la
+        que opera el canal— y viaja a la API como instante; ver `core/zona-horaria.ts`.
+      -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Programada desde <span class="font-normal text-neutral-400">(hora de Lima)</span></label>
+        <j-date-picker
+          [value]="filtroFechaDesde()"
+          [showTime]="true"
+          placeholder="Inicio del periodo"
+          (changed)="onFechaDesde($event)"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Programada hasta <span class="font-normal text-neutral-400">(hora de Lima)</span></label>
+        <j-date-picker
+          [value]="filtroFechaHasta()"
+          [showTime]="true"
+          placeholder="Fin del periodo"
+          (changed)="onFechaHasta($event)"
+        />
+      </div>
+      <!-- Dia de proceso del plan, sin hora. Distinto del momento programado, que es cuando se gatilla. -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Procesa desde el</label>
+        <j-date-picker [value]="filtroProcDesde()" placeholder="Día inicial" (changed)="onProcDesde($event)" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Procesa hasta el</label>
+        <j-date-picker [value]="filtroProcHasta()" placeholder="Día final" (changed)="onProcHasta($event)" />
+      </div>
     </div>
   </div>
 
@@ -207,10 +238,13 @@
       </div>
       <div class="flex flex-col gap-1">
         <label class="text-xs font-medium text-neutral-500" for="n-fecha">Fecha proceso * <span class="font-normal text-neutral-400">(día hábil BCP)</span></label>
-        <input id="n-fecha" type="date"
-          class="rounded-md border bg-white px-3 py-1.5 text-sm"
-          [class.border-red-400]="avisoFechaProceso()" [class.border-neutral-300]="!avisoFechaProceso()"
-          [value]="nuevoFechaProceso()" (input)="onNuevoFechaProceso($event)" />
+        <!-- Se puede teclear la fecha (la máscara pone los guiones) o elegirla en el calendario. -->
+        <j-date-picker
+          [value]="nuevoFechaProceso()"
+          placeholder="Fecha de proceso"
+          [className]="avisoFechaProceso() ? 'jdatepicker-error' : ''"
+          (changed)="onNuevaFechaProcesoValor($event)"
+        />
         @if (avisoFechaProceso()) {
           <span class="text-[11px] text-red-600">{{ avisoFechaProceso() }}</span>
         }
@@ -219,10 +253,20 @@
         <label class="text-xs font-medium text-neutral-500" for="n-programado">Programado <span class="font-normal text-neutral-400">(cuándo gatilla)</span></label>
         <!-- min/max acotan al tramo del día elegido. El navegador solo avisa; el corte real lo hace
              motivoFueraDeVentana() al guardar, y de nuevo el backend. -->
-        <input id="n-programado" type="datetime-local" step="1"
-          class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
-          [attr.min]="limiteProgramado()?.min" [attr.max]="limiteProgramado()?.max"
-          [value]="nuevoFechaProgramado()" (input)="onNuevoFechaProgramado($event)" />
+        <!--
+          Antes era un `datetime-local` con `step=1`: para fijar los segundos había
+          que apuntar a un spinner minúsculo. Ahora la hora se ajusta con la rueda
+          o se teclea entera con la máscara.
+        -->
+        <j-date-picker
+          [value]="nuevoFechaProgramado()"
+          [showTime]="true"
+          [showSeconds]="true"
+          [min]="limiteProgramado()?.min"
+          [max]="limiteProgramado()?.max"
+          placeholder="Cuándo gatilla"
+          (changed)="onNuevaFechaProgramadoValor($event)"
+        />
         @if (limiteProgramado(); as l) {
           <span class="text-[11px] text-neutral-400">Ese día: {{ l.min.slice(11) }}–{{ l.max.slice(11) }}</span>
         }

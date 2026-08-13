@@ -1,4 +1,3 @@
-import { J_CONTACT_METHOD_CARD_TEMPLATE } from './JContactMethodCardView';
 import type { InterJContactMethodCard } from './InterJContactMethodCard';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -10,7 +9,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_CONTACT_METHOD_CARD_TEMPLATE,
+  templateUrl: './JContactMethodCardView.html',
 })
 export class JContactMethodCard {
   readonly icon = input.required<string>();

@@ -1,4 +1,3 @@
-import { J_CASE_STUDIES_TEMPLATE } from './JCaseStudiesView';
 import type { CaseStudyMetric, CaseStudyItem, InterJCaseStudies } from './InterJCaseStudies';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
@@ -15,7 +14,7 @@ const CARD_CLASS =
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSectionHeading, NgTemplateOutlet],
   host: { class: 'contents' },
-  template: J_CASE_STUDIES_TEMPLATE,
+  templateUrl: './JCaseStudiesView.html',
 })
 export class JCaseStudies {
   readonly eyebrow = input<string>();

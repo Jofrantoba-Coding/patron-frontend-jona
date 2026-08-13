@@ -1,0 +1,17 @@
+<!--
+  JImagenView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+<img
+  [src]="currentSrc()"
+  [alt]="alt()"
+  [attr.loading]="loading()"
+  [attr.decoding]="decoding()"
+  [attr.data-jimagen-fit]="fit()"
+  [attr.data-jimagen-radius]="radius()"
+  [attr.data-jimagen-aspect]="aspectRatio() !== 'auto' ? aspectRatio() : null"
+  [attr.data-jimagen-block]="block() ? 'true' : null"
+  [class]="classes()"
+  [style]="style()"
+  (error)="onError()"
+/>

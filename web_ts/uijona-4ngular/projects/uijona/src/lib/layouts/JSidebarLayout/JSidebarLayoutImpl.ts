@@ -1,4 +1,3 @@
-import { J_SIDEBAR_LAYOUT_TEMPLATE } from './JSidebarLayoutView';
 import type { InterJSidebarLayout, SidebarNavItem, SidebarNavGroup } from './InterJSidebarLayout';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -10,7 +9,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_SIDEBAR_LAYOUT_TEMPLATE,
+  templateUrl: './JSidebarLayoutView.html',
   styles: [`.jsidebar-header:empty { display: none; } .jsidebar-footer:empty { display: none; }`],
 })
 export class JSidebarLayout {

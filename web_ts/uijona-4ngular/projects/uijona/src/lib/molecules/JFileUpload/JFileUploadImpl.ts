@@ -1,4 +1,3 @@
-import { J_FILE_UPLOAD_TEMPLATE } from './JFileUploadView';
 import type { JFileUploadReject, InterJFileUpload } from './InterJFileUpload';
 import { ChangeDetectionStrategy, Component, computed, input, model, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -31,7 +30,7 @@ let uid = 0;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_FILE_UPLOAD_TEMPLATE,
+  templateUrl: './JFileUploadView.html',
 })
 export class JFileUpload {
   readonly files = model<File[]>([]);

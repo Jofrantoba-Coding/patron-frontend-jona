@@ -1,28 +1,13 @@
-import { J_PROGRESS_ITEM_TEMPLATE } from './JProgressItemView';
 import type { JProgressItemVariant, JProgressItemSize, InterJProgressItem } from './InterJProgressItem';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import { JProgress } from '../../atoms/JProgress';
-
-const TEXT_SIZE: Record<JProgressItemSize, string> = {
-  sm: 'text-xs',
-  md: 'text-sm',
-  lg: 'text-base',
-};
-
-const CARD_PADDING: Record<JProgressItemSize, string> = {
-  sm: 'p-3',
-  md: 'p-4',
-  lg: 'p-5',
-};
-
-const VALUE_COLOR: Record<JProgressItemVariant, string> = {
-  default: 'text-primary-600',
-  success: 'text-success-600',
-  warning: 'text-warning-500',
-  danger: 'text-danger-500',
-};
+import {
+  CARD_PADDING,
+  TEXT_SIZE,
+  VALUE_COLOR,
+} from './JProgressItemStyles';
 
 /**
  * JProgressItem — métrica con label, porcentaje y barra de progreso (JProgress).
@@ -33,7 +18,7 @@ const VALUE_COLOR: Record<JProgressItemVariant, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JProgress],
   host: { class: 'contents' },
-  template: J_PROGRESS_ITEM_TEMPLATE,
+  templateUrl: './JProgressItemView.html',
 })
 export class JProgressItem {
   readonly label = input.required<string>();

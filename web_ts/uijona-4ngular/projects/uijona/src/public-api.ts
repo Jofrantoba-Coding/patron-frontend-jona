@@ -29,6 +29,7 @@ export * from './lib/atoms/JTextArea';
 export * from './lib/atoms/JCheckBox';
 export * from './lib/atoms/JRadioButton';
 export * from './lib/atoms/JSwitch';
+export * from './lib/atoms/JTimeWheel';
 export * from './lib/atoms/JComboBox';
 export * from './lib/atoms/JPanel';
 

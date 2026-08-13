@@ -1,0 +1,4 @@
+/*
+  JAlertView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jalert-icon:empty { display: none; }

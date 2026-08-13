@@ -2,6 +2,35 @@
   <j-section-heading [eyebrow]="meta().eyebrow" [heading]="meta().heading" [description]="meta().description" />
 
   <!--
+    Selector de producto. Es un filtro de esta bandeja, no una sección aparte:
+    por eso vive junto a la tabla y no en el menú lateral.
+  -->
+  @if (pestanasProducto().length > 1) {
+    <div
+      role="tablist"
+      aria-label="Producto de pago"
+      class="flex flex-wrap items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-50 p-1"
+    >
+      @for (t of pestanasProducto(); track t.valor) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="pestanaActiva() === t.valor"
+          (click)="onPestanaProducto(t.ruta)"
+          class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          [class]="
+            pestanaActiva() === t.valor
+              ? 'bg-white text-neutral-900 shadow-sm'
+              : 'text-neutral-500 hover:bg-white/60 hover:text-neutral-700'
+          "
+        >
+          {{ t.label }}
+        </button>
+      }
+    </div>
+  }
+
+  <!--
     Resultado de la última anulación. Va en la página y no en el diálogo porque el diálogo se cierra
     al confirmar: el desenlace contable (cuántas líneas se contrapusieron o se anularon) es lo que el
     operador necesita leer después, y dentro de un modal cerrado no lo vería.
@@ -97,6 +126,38 @@
             <option value="false">No</option>
           </select>
         </div>
+        <!--
+          Periodo sobre la fecha de la operación. La hora que se escribe aquí se
+          interpreta en hora de Lima —la zona en la que opera el canal— y viaja a
+          la API como instante; ver `core/zona-horaria.ts`.
+        -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500">Desde <span class="font-normal text-neutral-400">(hora de Lima)</span></label>
+          <j-date-picker
+            [value]="filtroFechaDesde()"
+            [showTime]="true"
+            placeholder="Inicio del periodo"
+            (changed)="onFechaDesde($event)"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500">Hasta <span class="font-normal text-neutral-400">(hora de Lima)</span></label>
+          <j-date-picker
+            [value]="filtroFechaHasta()"
+            [showTime]="true"
+            placeholder="Fin del periodo"
+            (changed)="onFechaHasta($event)"
+          />
+        </div>
+      <!-- Dia de proceso en el banco. Es una fecha sin hora y un filtro distinto del de registro: responde "que se procesa tal dia", no "que se cargo tal dia". -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Se procesa desde</label>
+        <j-date-picker [value]="filtroProcDesde()" placeholder="Día inicial" (changed)="onProcDesde($event)" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Se procesa hasta</label>
+        <j-date-picker [value]="filtroProcHasta()" placeholder="Día final" (changed)="onProcHasta($event)" />
+      </div>
       </div>
     </div>
   } @else if (meta().subtipos.length > 1) {

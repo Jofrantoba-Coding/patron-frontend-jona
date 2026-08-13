@@ -1,14 +1,15 @@
-import { J_AVATAR_TEMPLATE } from './JAvatarView';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JAVATAR_DEFAULTS,
-  JAVATAR_SHAPE_CLASSES,
-  JAVATAR_SIZE_CLASSES,
   type JAvatarShape,
   type JAvatarSize,
 } from './InterJAvatar';
+import {
+  JAVATAR_SHAPE_CLASSES,
+  JAVATAR_SIZE_CLASSES,
+} from './JAvatarStyles';
 
 /**
  * JAvatar — avatar con imagen, fallback a iniciales y forma configurable.
@@ -18,7 +19,7 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_AVATAR_TEMPLATE,
+  templateUrl: './JAvatarView.html',
 })
 export class JAvatar {
   readonly src = input<string>();

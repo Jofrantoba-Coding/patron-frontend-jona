@@ -1,0 +1,11 @@
+<!--
+  JBreadcrumbLinkView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+<a
+  [href]="href() ?? '#'"
+  [class]="cn('transition-colors hover:text-neutral-900 cursor-pointer', className())"
+  (click)="onClick($event)"
+>
+  <ng-content />
+</a>

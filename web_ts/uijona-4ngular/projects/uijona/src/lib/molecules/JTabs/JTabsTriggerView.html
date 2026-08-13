@@ -1,0 +1,15 @@
+<!--
+  JTabsTriggerView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+<button
+  role="tab"
+  type="button"
+  [attr.aria-selected]="isActive()"
+  [disabled]="disabled()"
+  [class]="classes()"
+  (click)="onClick()"
+  (focus)="tabs.tabFocus.emit(value())"
+>
+  <ng-content />
+</button>

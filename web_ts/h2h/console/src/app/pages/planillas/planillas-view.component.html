@@ -43,6 +43,37 @@
           <option value="USD">USD</option>
         </select>
       </div>
+      <!--
+        Periodo sobre la FECHA DE ENVÍO. Una planilla aún no enviada no tiene esa marca y queda fuera del rango: por eso la etiqueta dice "Enviada" y no "Periodo". La hora se interpreta en hora de Lima —la zona en la
+        que opera el canal— y viaja a la API como instante; ver `core/zona-horaria.ts`.
+      -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Enviada desde <span class="font-normal text-neutral-400">(hora de Lima)</span></label>
+        <j-date-picker
+          [value]="filtroFechaDesde()"
+          [showTime]="true"
+          placeholder="Inicio del periodo"
+          (changed)="onFechaDesde($event)"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">Enviada hasta <span class="font-normal text-neutral-400">(hora de Lima)</span></label>
+        <j-date-picker
+          [value]="filtroFechaHasta()"
+          [showTime]="true"
+          placeholder="Fin del periodo"
+          (changed)="onFechaHasta($event)"
+        />
+      </div>
+      <!-- Fecha del archivo. A diferencia del filtro de envio, esta SI incluye planillas que aun no han salido al banco. -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">F. archivo desde</label>
+        <j-date-picker [value]="filtroProcDesde()" placeholder="Día inicial" (changed)="onProcDesde($event)" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500">F. archivo hasta</label>
+        <j-date-picker [value]="filtroProcHasta()" placeholder="Día final" (changed)="onProcHasta($event)" />
+      </div>
     </div>
   </div>
 
@@ -80,6 +111,46 @@
   @if (detalle(); as d) {
     <div class="flex min-h-[68vh] flex-col bg-white">
       <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-3">
+        <!--
+          Llamada a la acción explícita. El stepper de abajo muestra el recorrido
+          completo, pero exige leerlo entero para deducir qué toca; esta línea lo
+          dice y lo ofrece como un botón. El stepper se queda como contexto.
+        -->
+        @if (pasoDetalle(); as paso) {
+          <div
+            class="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-md border px-3 py-2"
+            [class]="
+              paso.tono === 'atencion'
+                ? 'border-warning-200 bg-warning-50'
+                : paso.tono === 'accion'
+                  ? 'border-primary-200 bg-primary-50'
+                  : 'border-neutral-200 bg-white'
+            "
+          >
+            <div class="min-w-0">
+              <p
+                class="text-sm font-semibold"
+                [class]="paso.tono === 'atencion' ? 'text-warning-800' : 'text-neutral-800'"
+              >
+                {{ paso.tono === 'cerrado' ? paso.accion : 'Siguiente paso: ' + paso.accion }}
+              </p>
+              @if (paso.nota) {
+                <p class="text-xs text-neutral-600">{{ paso.nota }}</p>
+              }
+            </div>
+            @if (paso.destino && paso.tono !== 'espera' && !esTerminal()) {
+              <button
+                type="button"
+                class="shrink-0 rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="validando()"
+                (click)="onEtapa(paso.destino!)"
+              >
+                {{ validando() ? paso.accion + '…' : paso.accion }}
+              </button>
+            }
+          </div>
+        }
+
         <div class="mb-2 flex items-center justify-between gap-3">
           <p class="text-[11px] font-medium uppercase text-neutral-500">Etapas del archivo · haz clic en la siguiente para ejecutarla</p>
           <!--

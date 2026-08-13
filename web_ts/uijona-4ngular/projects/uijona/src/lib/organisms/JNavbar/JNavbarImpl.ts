@@ -1,4 +1,3 @@
-import { J_NAVBAR_TEMPLATE } from './JNavbarView';
 import type { InterJNavbar } from './InterJNavbar';
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
 import { cn } from '../../core/cn';
@@ -8,7 +7,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_NAVBAR_TEMPLATE,
+  templateUrl: './JNavbarView.html',
 })
 export class JNavbar {
   readonly mobileOpen = model<boolean>(false);

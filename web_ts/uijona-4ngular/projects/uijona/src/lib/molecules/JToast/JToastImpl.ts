@@ -1,4 +1,3 @@
-import { J_TOAST_TEMPLATE } from './JToastView';
 import type { JToastVariant, JToastPosition, InterJToast } from './InterJToast';
 import { JTOAST_POSITION_DEFAULT } from './InterJToast';
 import {
@@ -12,13 +11,9 @@ import {
   output,
 } from '@angular/core';
 import { cn } from '../../core/cn';
-
-const VARIANT_CLASSES: Record<JToastVariant, string> = {
-  default: 'bg-neutral-900 text-white',
-  success: 'bg-success-600 text-white',
-  warning: 'bg-warning-500 text-white',
-  danger: 'bg-danger-500 text-white',
-};
+import {
+  VARIANT_CLASSES,
+} from './JToastStyles';
 
 /**
  * JToast — unidad visual de notificación con auto-cierre por `duration`.
@@ -28,7 +23,7 @@ const VARIANT_CLASSES: Record<JToastVariant, string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TOAST_TEMPLATE,
+  templateUrl: './JToastView.html',
 })
 export class JToast implements OnInit {
   readonly id = input.required<string>();

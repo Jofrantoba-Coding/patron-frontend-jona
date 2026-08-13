@@ -86,6 +86,51 @@ export const ANULACION_NEGADA: Record<string, string> = {
     'el asiento ya fue contabilizado hacia afuera. Se corrige por la vía contable, no anulando el origen.',
 };
 
+/**
+ * Situación de una operación dentro del flujo.
+ *
+ * <p>Es el hecho más operativo de una operación y hasta ahora no se veía: una
+ * ya comprometida en una planilla no se puede meter en otra programación, y
+ * cuando el listado no lo dice, el operador lo descubre al intentarlo.</p>
+ *
+ * <p>Se deriva de `idPlanillaVigente`. Ojo con una particularidad del backend:
+ * el mapeo de resultados <b>omite las columnas nulas</b>, así que la clave no
+ * llega como `null`, sino que directamente no viene. Por eso la comprobación es
+ * de presencia de valor y no de igualdad con `null`.</p>
+ */
+export interface SituacionOperacion {
+  etiqueta: string;
+  comprometida: boolean;
+}
+
+export const situacionOperacion = (idPlanillaVigente: unknown): SituacionOperacion =>
+  idPlanillaVigente
+    ? { etiqueta: 'En planilla', comprometida: true }
+    : { etiqueta: 'Libre', comprometida: false };
+
+/**
+ * Modalidad de validación, que sale de la tríada `atributos`.
+ *
+ * <p>No es un detalle técnico: en `H2W` la planilla queda «pendiente de firma»
+ * en la banca web y alguien tiene que entrar a firmarla con su token, mientras
+ * que en `H2H` sale sola. Dos operaciones idénticas en pantalla pueden exigir
+ * trabajo humano distinto, y eso merecía estar a la vista.</p>
+ */
+export const modalidadDe = (atributos: unknown): string => {
+  const a = atributos as { modalidadValidacion?: string } | null | undefined;
+  return a?.modalidadValidacion ?? '—';
+};
+
+/** Cuenta de cargo (de dónde sale el dinero), también en la tríada. */
+export const cuentaCargoDe = (atributos: unknown): string => {
+  const a = atributos as
+    | { cuentaCargo?: { numeroCuenta?: string; entidadFinanciera?: string } }
+    | null
+    | undefined;
+  const c = a?.cuentaCargo;
+  return c?.numeroCuenta ? `${c.entidadFinanciera ?? ''} ${c.numeroCuenta}`.trim() : '—';
+};
+
 export const META_TODAS: OperacionMeta = {
   eyebrow: 'Operación',
   heading: 'Todas las operaciones',

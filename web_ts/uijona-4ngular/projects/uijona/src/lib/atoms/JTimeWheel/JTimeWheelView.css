@@ -1,0 +1,33 @@
+/*
+  JTimeWheelView.css — JONA View (estilos del componente, encapsulados por Angular)
+
+  El ajuste al centro lo hace el navegador con scroll-snap, no JavaScript: así el
+  gesto conserva la inercia nativa del sistema (que es lo que hace que una rueda
+  se sienta como la del móvil) y no hay que reimplementar la física del arrastre.
+*/
+
+.jtimewheel-col {
+  scroll-snap-type: y mandatory;
+  /* La barra de scroll rompería la ilusión de rueda y desplazaría el centro. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.jtimewheel-col::-webkit-scrollbar {
+  display: none;
+}
+
+.jtimewheel-item {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+/*
+  Quien haya pedido menos animación en su sistema no quiere que la rueda se
+  deslice sola al abrirse: el salto es instantáneo y el valor, el mismo.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .jtimewheel-col {
+    scroll-behavior: auto;
+  }
+}

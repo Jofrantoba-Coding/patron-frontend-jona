@@ -1,13 +1,14 @@
-import { J_RADIO_BUTTON_TEMPLATE } from './JRadioButtonView';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
   JRADIOBUTTON_DEFAULTS,
-  JRADIOBUTTON_WRAPPER_CLASSES,
   type JRadioButtonLabelPosition,
 } from './InterJRadioButton';
+import {
+  JRADIOBUTTON_WRAPPER_CLASSES,
+} from './JRadioButtonStyles';
 
 /**
  * JRadioButton — radio input base con label integrado. Normalmente se agrupa con
@@ -19,7 +20,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet],
   host: { class: 'contents' },
-  template: J_RADIO_BUTTON_TEMPLATE,
+  templateUrl: './JRadioButtonView.html',
 })
 export class JRadioButton {
   readonly checked = input<boolean>(false);

@@ -1,0 +1,122 @@
+<!--
+  reloj-canal-view.component.html — JONA View del reloj del canal.
+  Dos densidades: `compacta` para la cabecera del sidebar, completa para el panel.
+-->
+@if (compacta()) {
+  <div
+    class="flex items-center gap-2 rounded-md border px-2 py-1.5"
+    [class]="claseCaja()"
+    [attr.title]="lectura().detalle"
+  >
+    <j-dot [tone]="tono()" [pulse]="lectura().urgencia === 'critico'" />
+    <div class="min-w-0 leading-tight">
+      <p class="truncate text-[11px] font-semibold" [class]="claseTitular()">
+        {{ lectura().titular }}
+      </p>
+      <p class="truncate text-[10px] text-neutral-500">{{ lectura().detalle }}</p>
+    </div>
+  </div>
+} @else {
+  <j-card [className]="'overflow-hidden'">
+    <j-card-header>
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="min-w-0">
+          <j-card-title>Ventana del canal</j-card-title>
+          <j-card-description>
+            Hora límite real para que el archivo salga hoy
+            @if (zona()) {
+              · {{ zona() }}
+            }
+          </j-card-description>
+        </div>
+        <div class="flex items-center gap-2 rounded-md border px-3 py-2" [class]="claseCaja()">
+          <j-dot [tone]="tono()" [pulse]="lectura().urgencia === 'critico'" />
+          <div class="leading-tight">
+            <p class="text-sm font-bold tabular-nums" [class]="claseTitular()">
+              {{ lectura().titular }}
+            </p>
+            <p class="text-[11px] text-neutral-500">{{ lectura().detalle }}</p>
+          </div>
+        </div>
+      </div>
+    </j-card-header>
+
+    <j-card-content>
+      @if (!ventana()) {
+        <p class="text-sm text-neutral-400">Consultando la ventana del canal…</p>
+      } @else if (!ventana()!.resuelta) {
+        <!--
+          `resuelta: false` no es «no opera»: es «no se pudo leer la configuración
+          horaria». Decirlo evita que alguien concluya que el canal está cerrado.
+        -->
+        <j-alert variant="warning" title="Sin configuración horaria">
+          No se pudo resolver la ventana de atención de esta organización. Revisa la
+          configuración del canal antes de programar envíos.
+        </j-alert>
+      } @else {
+        <div class="flex flex-col gap-4">
+          <!-- Subtipos de hoy: el consolidado toma el cierre más tardío y esconde
+               al más restrictivo, que suele ser el que de verdad manda. -->
+          <div class="flex flex-col gap-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              Cortes de hoy
+            </p>
+            @for (s of subtiposHoy(); track s.subtipo) {
+              <div
+                class="flex items-center justify-between gap-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2"
+              >
+                <div class="flex min-w-0 items-center gap-2">
+                  <j-badge [variant]="s.intrabancaria ? 'secondary' : 'default'">
+                    {{ s.intrabancaria ? 'Mismo banco' : 'Interbancaria' }}
+                  </j-badge>
+                  <span class="truncate text-sm text-neutral-700">{{ nombre(s.subtipo) }}</span>
+                </div>
+                <div class="shrink-0 text-right leading-tight">
+                  <p class="text-sm font-semibold tabular-nums text-neutral-900">
+                    {{ horaCierre(s) }}
+                  </p>
+                  <p class="text-[11px] text-neutral-500">{{ restanteDe(s) }}</p>
+                </div>
+              </div>
+            } @empty {
+              <p class="text-sm text-neutral-400">Hoy el canal no atiende ningún subtipo.</p>
+            }
+          </div>
+
+          <!-- La semana, para planificar más allá de hoy. -->
+          <div class="flex flex-col gap-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              Próximos días
+            </p>
+            <div class="flex flex-wrap gap-2">
+              @for (d of ventana()!.dias; track d.diaSemana; let primero = $first) {
+                <div
+                  class="min-w-[104px] flex-1 rounded-md border px-3 py-2"
+                  [class]="
+                    primero
+                      ? 'border-primary-200 bg-primary-50'
+                      : d.opera
+                        ? 'border-neutral-200 bg-white'
+                        : 'border-neutral-100 bg-neutral-50'
+                  "
+                >
+                  <p class="truncate text-[11px] font-medium capitalize text-neutral-500">
+                    {{ primero ? 'Hoy' : d.nombre }}
+                  </p>
+                  @if (d.opera) {
+                    <p class="text-sm font-semibold tabular-nums text-neutral-900">
+                      {{ hhmm(d.hasta) }}
+                    </p>
+                    <p class="text-[10px] text-neutral-400">desde {{ hhmm(d.desde) }}</p>
+                  } @else {
+                    <p class="text-sm font-semibold text-neutral-400">Cerrado</p>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </j-card-content>
+  </j-card>
+}

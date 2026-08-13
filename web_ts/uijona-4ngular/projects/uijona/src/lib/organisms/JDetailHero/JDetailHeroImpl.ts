@@ -1,4 +1,3 @@
-import { J_DETAIL_HERO_TEMPLATE, J_DETAIL_HERO_STYLES } from './JDetailHeroView';
 import type { InterJDetailHero } from './InterJDetailHero';
 import {
   ChangeDetectionStrategy,
@@ -19,8 +18,8 @@ const CTA_BASE =
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_DETAIL_HERO_TEMPLATE,
-  styles: J_DETAIL_HERO_STYLES,
+  templateUrl: './JDetailHeroView.html',
+  styleUrl: './JDetailHeroView.css',
 })
 export class JDetailHero {
   readonly backHref = input.required<string>();

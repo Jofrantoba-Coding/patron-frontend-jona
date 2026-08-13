@@ -1,4 +1,3 @@
-import { J_TABS_TEMPLATE_1, J_TABS_TEMPLATE_2, J_TABS_TEMPLATE_3, J_TABS_TEMPLATE_4 } from './JTabsView';
 import type { JTabsVariant, JTabsOrientation } from './InterJTabs';
 import {
   ChangeDetectionStrategy,
@@ -19,7 +18,7 @@ import { cn } from '../../core/cn';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABS_TEMPLATE_1,
+  templateUrl: './JTabsView.html',
 })
 export class JTabs {
   readonly value = model.required<string>();
@@ -50,7 +49,7 @@ export class JTabs {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABS_TEMPLATE_2,
+  templateUrl: './JTabsListView.html',
 })
 export class JTabsList {
   protected readonly tabs = inject(JTabs);
@@ -74,7 +73,7 @@ export class JTabsList {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABS_TEMPLATE_3,
+  templateUrl: './JTabsTriggerView.html',
 })
 export class JTabsTrigger {
   protected readonly tabs = inject(JTabs);
@@ -116,7 +115,7 @@ export class JTabsTrigger {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'contents' },
-  template: J_TABS_TEMPLATE_4,
+  templateUrl: './JTabsContentView.html',
 })
 export class JTabsContent {
   protected readonly tabs = inject(JTabs);

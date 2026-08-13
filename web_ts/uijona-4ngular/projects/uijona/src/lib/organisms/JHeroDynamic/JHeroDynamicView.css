@@ -1,0 +1,4 @@
+/*
+  JHeroDynamicView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jhero-visual:empty { display: none; }

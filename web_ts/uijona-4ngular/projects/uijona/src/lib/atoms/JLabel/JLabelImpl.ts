@@ -1,13 +1,9 @@
-import { J_LABEL_TEMPLATE } from './JLabelView';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { cn } from '../../core/cn';
 import type { JStyle } from '../../core/types';
 import {
-  JLABEL_COLOR_CLASSES,
   JLABEL_DEFAULTS,
-  JLABEL_SIZE_CLASSES,
-  JLABEL_VARIANT_CLASSES,
   JLABEL_VARIANT_DEFAULT_AS,
   JLABEL_VARIANT_DEFAULT_SIZE,
   type JLabelAs,
@@ -15,6 +11,11 @@ import {
   type JLabelSize,
   type JLabelVariant,
 } from './InterJLabel';
+import {
+  JLABEL_COLOR_CLASSES,
+  JLABEL_SIZE_CLASSES,
+  JLABEL_VARIANT_CLASSES,
+} from './JLabelStyles';
 
 /**
  * JLabel — texto polimorfico: cuerpo, titulo, etiqueta de formulario, enlace,
@@ -27,7 +28,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet],
   host: { class: 'contents' },
-  template: J_LABEL_TEMPLATE,
+  templateUrl: './JLabelView.html',
 })
 export class JLabel {
   readonly as = input<JLabelAs>();

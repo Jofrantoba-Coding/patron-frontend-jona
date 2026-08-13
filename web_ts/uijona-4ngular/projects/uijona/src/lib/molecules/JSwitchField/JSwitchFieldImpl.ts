@@ -1,4 +1,3 @@
-import { J_SWITCH_FIELD_TEMPLATE } from './JSwitchFieldView';
 import type { InterJSwitchField } from './InterJSwitchField';
 import {
   ChangeDetectionStrategy,
@@ -27,7 +26,7 @@ import { JSwitch, type JSwitchSize } from '../../atoms/JSwitch';
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JSwitchField), multi: true },
   ],
-  template: J_SWITCH_FIELD_TEMPLATE,
+  templateUrl: './JSwitchFieldView.html',
 })
 export class JSwitchField implements ControlValueAccessor {
   readonly id = input.required<string>();

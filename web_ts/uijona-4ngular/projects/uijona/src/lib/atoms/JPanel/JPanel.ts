@@ -1,11 +1,5 @@
 export { JPanel } from './JPanelImpl';
-export {
-  JPANEL_DEFAULTS,
-  JPANEL_VARIANT_CLASSES,
-  JPANEL_PADDING_CLASSES,
-  JPANEL_RADIUS_CLASSES,
-  JPANEL_GAP_VALUES,
-} from './InterJPanel';
+export { JPANEL_DEFAULTS } from './InterJPanel';
 export type {
   InterJPanel,
   JPanelVariant,

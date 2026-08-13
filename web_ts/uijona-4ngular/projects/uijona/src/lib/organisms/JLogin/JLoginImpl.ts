@@ -1,4 +1,3 @@
-import { J_LOGIN_TEMPLATE } from './JLoginView';
 import type { InterJLogin } from './InterJLogin';
 import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { JButton } from '../../atoms/JButton';
@@ -19,7 +18,7 @@ import { JFormField } from '../../molecules/JFormField';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JButton, JAlert, JCard, JCardHeader, JCardTitle, JCardDescription, JCardContent, JCardFooter, JFormField],
   host: { class: 'contents' },
-  template: J_LOGIN_TEMPLATE,
+  templateUrl: './JLoginView.html',
 })
 export class JLogin {
   readonly email = model<string>('');

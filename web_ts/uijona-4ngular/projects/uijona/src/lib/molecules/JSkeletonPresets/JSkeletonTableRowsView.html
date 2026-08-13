@@ -1,0 +1,13 @@
+<!--
+  JSkeletonTableRowsView.html — JONA View (template puro)
+  Sin logica: solo estructura y bindings.
+-->
+<div class="space-y-2">
+  @for (r of rowsArr(); track r) {
+    <div class="flex gap-4">
+      @for (c of colsArr(); track c) {
+        <j-skeleton className="h-4 flex-1" />
+      }
+    </div>
+  }
+</div>

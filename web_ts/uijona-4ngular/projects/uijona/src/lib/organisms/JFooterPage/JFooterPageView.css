@@ -1,0 +1,15 @@
+/*
+  JFooterPageView.css — JONA View (estilos del componente, encapsulados por Angular)
+*/
+.jfp-left:empty {
+  display: none;
+}
+.jfp-left:not(:empty) + .jfp-left-text {
+  display: none;
+}
+.jfp-center:empty {
+  display: none;
+}
+.jfp-right:empty {
+  display: none;
+}

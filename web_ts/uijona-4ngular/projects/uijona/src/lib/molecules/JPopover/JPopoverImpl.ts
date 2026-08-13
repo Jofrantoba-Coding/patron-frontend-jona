@@ -1,4 +1,3 @@
-import { J_POPOVER_TEMPLATE } from './JPopoverView';
 import type { JPopoverAlign, JPopoverSide, InterJPopover } from './InterJPopover';
 import {
   ChangeDetectionStrategy,
@@ -28,7 +27,7 @@ const VP = 8;
     '(window:resize)': 'reposition()',
     '(window:scroll)': 'reposition()',
   },
-  template: J_POPOVER_TEMPLATE,
+  templateUrl: './JPopoverView.html',
 })
 export class JPopover {
   readonly align = input<JPopoverAlign>('start');

@@ -1,4 +1,3 @@
-import { J_DATE_PICKER_TEMPLATE } from './JDatePickerView';
 import type { InterJDatePicker } from './InterJDatePicker';
 import {
   ChangeDetectionStrategy,
@@ -15,6 +14,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { cn } from '../../core/cn';
+import { JTimeWheel } from '../../atoms/JTimeWheel';
 
 const DAYS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
 
@@ -50,6 +50,26 @@ function partsToDate(p: Parts | null): Date | null {
   return p ? new Date(p.year, p.month - 1, p.day) : null;
 }
 
+/**
+ * ¿Las partes forman una fecha real?
+ *
+ * <p>`parseValue` solo comprueba los rangos (día 1-31), así que deja pasar un
+ * 31 de febrero. Al teclear con máscara esa fecha imposible sí se puede
+ * escribir, y `new Date(2026, 1, 31)` la desplazaría en silencio al 3 de marzo:
+ * el usuario vería una fecha que él no puso.</p>
+ */
+function partesValidas(p: Parts): boolean {
+  const d = new Date(p.year, p.month - 1, p.day);
+  return (
+    d.getFullYear() === p.year &&
+    d.getMonth() === p.month - 1 &&
+    d.getDate() === p.day &&
+    p.hour <= 23 &&
+    p.minute <= 59 &&
+    p.second <= 59
+  );
+}
+
 function isSameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
@@ -72,10 +92,11 @@ function isSameDay(a: Date, b: Date): boolean {
     '(window:resize)': 'reposition()',
     '(window:scroll)': 'reposition()',
   },
+  imports: [JTimeWheel],
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => JDatePicker), multi: true },
   ],
-  template: J_DATE_PICKER_TEMPLATE,
+  templateUrl: './JDatePickerView.html',
 })
 export class JDatePicker implements ControlValueAccessor {
   readonly value = model<string>('');
@@ -94,6 +115,26 @@ export class JDatePicker implements ControlValueAccessor {
   protected readonly days = DAYS;
   protected readonly timeInputClass =
     'h-8 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500';
+
+  /** Texto a medio teclear. `null` = el input muestra el valor del modelo. */
+  protected readonly textoEditando = signal<string | null>(null);
+
+  /** Patrón visible, que es además la pista de qué se espera que se teclee. */
+  protected readonly placeholderMascara = computed(() =>
+    this.showSeconds() ? 'aaaa-mm-dd hh:mm:ss' : this.showTime() ? 'aaaa-mm-dd hh:mm' : 'aaaa-mm-dd'
+  );
+
+  /** El valor canónico usa `T`; al mostrarlo se cambia por un espacio, más legible. */
+  protected readonly textoVisible = computed(
+    () => this.textoEditando() ?? this.value().replace('T', ' ')
+  );
+
+  /** Hora que se le pasa a la rueda. */
+  protected readonly horaActual = computed(() => {
+    const t = this.timeParts();
+    const base = `${pad(t.hour)}:${pad(t.minute)}`;
+    return this.showSeconds() ? `${base}:${pad(t.second)}` : base;
+  });
 
   protected readonly open = signal(false);
   protected readonly panelStyle = signal<Record<string, string>>({});
@@ -204,18 +245,64 @@ export class JDatePicker implements ControlValueAccessor {
     this.emit({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate(), hour: t.hour, minute: t.minute, second: t.second });
     this.close();
   }
-  protected onTime(part: 'hour' | 'minute' | 'second', event: Event): void {
-    const raw = Number((event.target as HTMLInputElement).value);
-    const max = part === 'hour' ? 23 : 59;
-    const val = Number.isNaN(raw) ? 0 : Math.min(max, Math.max(0, raw));
+  /** La rueda entrega `HH:mm[:ss]`; aquí solo se fusiona con la fecha ya elegida. */
+  protected onHoraRueda(hora: string): void {
+    const [h = '0', m = '0', s = '0'] = hora.split(':');
     const base = this.selectedParts() ?? this.dateToParts(this.selectedDate() ?? this.today);
-    this.emit({ ...base, [part]: val });
+    this.emit({ ...base, hour: Number(h), minute: Number(m), second: Number(s) });
   }
+
+  /**
+   * Escritura con máscara.
+   *
+   * <p>Se conserva el texto a medio escribir en `textoEditando` y NO se emite
+   * hasta que la fecha está completa: emitir cada pulsación produciría valores
+   * intermedios inválidos (`2026-0`) que el formulario de arriba tomaría como
+   * buenos. Al salir del campo se descarta lo incompleto y se vuelve al valor
+   * canónico, de modo que el input nunca queda mostrando algo que el modelo no
+   * tiene.</p>
+   */
   protected onInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.value.set(value);
-    this.onChange(value);
-    this.changed.emit(value);
+    const crudo = (event.target as HTMLInputElement).value;
+    const enmascarado = this.aplicarMascara(crudo);
+    this.textoEditando.set(enmascarado);
+    (event.target as HTMLInputElement).value = enmascarado;
+
+    if (enmascarado.length === this.longitudMascara()) {
+      const iso = enmascarado.replace(' ', 'T');
+      const partes = parseValue(iso);
+      if (partes && partesValidas(partes)) {
+        this.textoEditando.set(null);
+        this.emit(partes);
+      }
+    }
+  }
+
+  /** Al salir se descarta lo incompleto: el input vuelve a reflejar el modelo. */
+  protected onBlurTexto(): void {
+    this.textoEditando.set(null);
+    this.onTouched();
+  }
+
+  /** Deja solo dígitos y coloca los separadores en su sitio según se escribe. */
+  private aplicarMascara(texto: string): string {
+    const d = texto.replace(/\D/g, '').slice(0, this.digitosMascara());
+    let salida = d.slice(0, 4);
+    if (d.length > 4) salida += '-' + d.slice(4, 6);
+    if (d.length > 6) salida += '-' + d.slice(6, 8);
+    if (d.length > 8) salida += ' ' + d.slice(8, 10);
+    if (d.length > 10) salida += ':' + d.slice(10, 12);
+    if (d.length > 12) salida += ':' + d.slice(12, 14);
+    return salida;
+  }
+
+  private digitosMascara(): number {
+    if (this.showSeconds()) return 14;
+    return this.showTime() ? 12 : 8;
+  }
+
+  private longitudMascara(): number {
+    return this.placeholderMascara().length;
   }
 
   private dateToParts(d: Date): Parts {
