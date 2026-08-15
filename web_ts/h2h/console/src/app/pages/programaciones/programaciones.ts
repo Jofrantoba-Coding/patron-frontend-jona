@@ -119,6 +119,39 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
     });
   }
 
+  /**
+   * Cambia el canal de salida del plan. Es contingencia, no el camino normal.
+   *
+   * <p>El backend niega el cambio si la planilla del plan ya salio o su caso esta cerrado
+   * —cambiarlo entonces haria que el mismo archivo se entregara por dos canales—, asi que su
+   * mensaje se muestra tal cual: explica por que no se puede y que hacer en su lugar.</p>
+   */
+  protected override confirmarModalidad(): void {
+    const plan = this.modalidadPlan();
+    if (!plan) return;
+    const destino = this.modalidadDestino();
+    if (this.motivoFechaModalidad()) return;
+    this.accionError.set('');
+    // La fecha solo se manda si cambia: reenviar la misma reescribiría todas las operaciones del
+    // plan para dejarlas igual, y ensuciaría la bitácora con un cambio que no lo es.
+    const fecha = this.modalidadFechaCambia() ? this.modalidadFecha() : undefined;
+    this.api.cambiarModalidadProgramacion(plan.id, destino, fecha).subscribe({
+      next: () => {
+        this.cerrarModalidad();
+        // Se recarga el detalle solo si es el plan abierto: el cambio tambien mueve el modo de
+        // envio a MANUAL cuando va a H2W, y el panel del detalle lo muestra.
+        if (this.detalleSeleccionado()?.id === plan.id) {
+          this.openDetalle(plan);
+        }
+        this.load();
+      },
+      error: (err) =>
+        this.accionError.set(
+          this.mensajeError(err, `No se pudo cambiar el canal del plan a ${destino}.`)
+        ),
+    });
+  }
+
   protected override generar(): void {
     const id = this.detalleSeleccionado()?.id;
     if (!id) return;

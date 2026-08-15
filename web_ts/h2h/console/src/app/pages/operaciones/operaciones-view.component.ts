@@ -23,6 +23,34 @@ import {
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
 
+/** Catálogo del que salen los estados de la operación. Es GLOBAL: no depende de ningún banco. */
+export const CATALOGO_ESTADO_OPERACION = 'GLOBAL#ESTADO_OPERACION';
+
+/**
+ * Estados de la operación con los que arranca el filtro, mientras llega el catálogo.
+ *
+ * <p><b>Por qué existe si se cargan por API.</b> Es el suelo. Antes las opciones salían de las
+ * filas ya cargadas —{@code new Set(master().map(o => o.estadoOperacionCodigo))}—, lo que da un
+ * filtro que solo deja filtrar por lo que ya se está viendo; y como el filtrado lo resuelve el
+ * <b>backend</b> sobre el total, los estados ausentes de la página no aparecían nunca. Dejar el
+ * desplegable vacío hasta que responda la API —o para siempre, si falla— sería volver a ese mismo
+ * fallo por otra puerta.</p>
+ *
+ * <p>Orden de aparición en el flujo, igual que el {@code para_n_orden} del catálogo. El valor que
+ * viaja a la API es el código corto: el backend compone {@code GLOBAL#ESTADO_OPERACION#<código>}
+ * (ver {@code codigoGlobal} en {@code DaoOperacion}).</p>
+ */
+export const ESTADOS_OPERACION = [
+  'REGISTRADA',
+  'VALIDADA',
+  'EN_PROCESO_PAGO',
+  'PAGO_CONFIRMADO',
+  'PAGO_RECHAZADO',
+  'CONTABILIZADA',
+  'ANULADA',
+  'ERROR',
+];
+
 type Registro = OperacionDetalleRegistro;
 
 @Component({
@@ -103,7 +131,22 @@ export class OperacionesViewComponent {
   protected onPestanaProducto(_ruta: string): void {}
   protected readonly rowKey = (row: JDataTableRow) => String((row as unknown as Operacion).id);
 
-  protected readonly estados = computed(() => Array.from(new Set(this.master().map((operacion) => operacion.estadoOperacionCodigo))).sort());
+  /**
+   * Opciones del filtro de estado. Arrancan con {@link ESTADOS_OPERACION} y la Page las sustituye
+   * por el catálogo real en cuanto responde la API.
+   */
+  protected readonly estados = signal<readonly string[]>(ESTADOS_OPERACION);
+
+  /**
+   * Sustituye las opciones por las del catálogo. Ignora una respuesta vacía a propósito: dejar el
+   * desplegable sin opciones es el fallo que este filtro ya tuvo una vez, y con la lista de
+   * arranque el operador al menos puede seguir filtrando.
+   */
+  protected setEstados(codigos: readonly string[]): void {
+    if (codigos.length) {
+      this.estados.set(codigos);
+    }
+  }
   protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
 
   protected readonly rows = computed<JDataTableRow[]>(() => this.master() as unknown as JDataTableRow[]);

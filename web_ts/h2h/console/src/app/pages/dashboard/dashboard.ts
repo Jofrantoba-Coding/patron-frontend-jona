@@ -15,6 +15,7 @@ import {
 import { ApiService } from '../../core/api.service';
 import { NavPanelesComponent } from '../../shared/nav-paneles/nav-paneles';
 import { RelojCanalComponent } from '../../shared/reloj-canal/reloj-canal';
+import { RelojesJobsComponent } from '../../shared/relojes-jobs/relojes-jobs';
 import { DashboardViewComponent } from './dashboard-view.component';
 
 @Component({
@@ -33,6 +34,7 @@ import { DashboardViewComponent } from './dashboard-view.component';
     JChart,
     JDatePicker,
     RelojCanalComponent,
+    RelojesJobsComponent,
   ],
   templateUrl: './dashboard-view.component.html',
 })

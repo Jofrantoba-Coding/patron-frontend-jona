@@ -11,6 +11,7 @@ import type {
   EntidadResumen,
   FiltroPanel,
   GrupoResumen,
+  RelojesJobs,
   ResumenCanal,
   ResumenMontos,
   RespuestaFiltro,
@@ -414,6 +415,8 @@ const normalizePlanillaRow = (row: Record<string, unknown>): PlanillaRow => ({
   isFlujoPar: pickPlanilla<boolean | null>(row, 'isFlujoPar'),
   fechaEnvio: pickPlanilla<string | null>(row, 'fechaEnvio'),
   reintentos: pickPlanilla<number | null>(row, 'reintentos'),
+  modalidadCodigo: pickPlanilla<string | null>(row, 'modalidadCodigo'),
+  modoProcesamiento: pickPlanilla<string | null>(row, 'modoProcesamiento'),
   idOrganizacion: pickPlanilla<string>(row, 'idOrganizacion'),
 });
 
@@ -434,6 +437,7 @@ const normalizeProgramacionRow = (row: Record<string, unknown>): ProgramacionRow
   tipoDestino: pickProgramacion<string | null>(row, 'tipoDestino'),
   canalLiquidacion: pickProgramacion<string | null>(row, 'canalLiquidacion'),
   modoEnvio: pickProgramacion<string>(row, 'modoEnvio'),
+  modalidadCodigo: pickProgramacion<string | null>(row, 'modalidadCodigo'),
   fechaProceso: pickProgramacion<string>(row, 'fechaProceso'),
   fechaProgramado: pickProgramacion<string | null>(row, 'fechaProgramado'),
   fechaEjecutado: pickProgramacion<string | null>(row, 'fechaEjecutado'),
@@ -481,6 +485,29 @@ export class ApiService {
    * namespace de mantenimientos: `backendBase` apunta a `api/mantenimientos/h2h/v1` y esta ruta
    * no existiría ahí (el gateway devolvería 404, con un síntoma que no apunta al gateway).
    */
+  private getSchedulers<T>(path: string): Observable<T> {
+    return this.http.get<T>(`${this.schedulersBase}${path}`, { headers: this.headers() });
+  }
+
+  /**
+   * Cuánto falta para el próximo disparo de cada job.
+   *
+   * <p>Los cron viven en el secreto de Vault del ambiente (`api-schedulers-dev` / `-prd`) y el
+   * backend devuelve, además del tiempo restante, SU instante. La cuenta atrás se descuenta en
+   * local a partir de ese instante y no del reloj del equipo: un navegador desajustado unos
+   * minutos mostraría un tiempo que no se corresponde con ningún disparo real.</p>
+   */
+  relojesJobs(): Observable<RelojesJobs | null> {
+    return this.getSchedulers<ApiResponseEnvelope<RelojesJobs>>(
+      // La ruta va RELATIVA a schedulersBase, que ya trae `api/schedulers/h2h/v1`: con la ruta
+      // absoluta el prefijo salia duplicado y el endpoint respondia 404 siempre.
+      '/seguimiento/relojes'
+    ).pipe(
+      map((res) => (res?.data ?? null) as RelojesJobs | null),
+      catchError(() => of(null))
+    );
+  }
+
   private postSchedulers<T>(path: string, body: unknown = {}): Observable<T> {
     return this.http.post<T>(`${this.schedulersBase}${path}`, body, { headers: this.headers(true) });
   }
@@ -706,6 +733,69 @@ export class ApiService {
       '/planillas/enviar',
       this.buildEnvelope({ idPlanilla })
     ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  // ── H2W · el archivo lo sube el operador al portal web del banco ──────
+  //
+  // Estas tres etapas sustituyen al ENVÍO por SFTP y a la lectura del buzón. El backend
+  // rechaza `/planillas/enviar` sobre una planilla H2W (guarda contra el doble pago), así
+  // que la consola tampoco debe ofrecerlo: ver `siguientePaso` en inter-planillas.
+
+  /**
+   * Descarga el archivo para subirlo al portal. `tipo` es `claro` (TXT) o `cifrado` (.gpg):
+   * no está confirmado cuál acepta el portal, así que se ofrecen los dos y queda registrado
+   * cuál se llevó el operador. Deja la planilla en PENDIENTE_ENVIO.
+   */
+  planillaDescargarPortal(idPlanilla: string, tipo: 'claro' | 'cifrado') {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/portal/descargar',
+      this.buildEnvelope({ idPlanilla, tipoArchivo: tipo })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /** Confirma la subida al portal con la constancia que devuelve el banco; avanza a ENVIADA. */
+  planillaConfirmarSubidaPortal(idPlanilla: string, constancia: string) {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/portal/confirmar',
+      this.buildEnvelope({ idPlanilla, constancia })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
+   * Cierra la planilla con el resultado que el operador vio en el portal.
+   *
+   * <p>O `resultado` global, o `detalles` uno a uno. El estado final (PROCESADA /
+   * PROCESADA_PARCIAL / RECHAZADA) lo calcula el backend a partir de los veredictos: no se
+   * declara desde aquí, para no poder cerrar en verde algo con rechazos dentro.</p>
+   */
+  planillaCerrarPortal(
+    idPlanilla: string,
+    veredicto: { resultado?: string; detalles?: { secuencial: number; resultado: string; codigoDevolucion?: string; observacion?: string }[] }
+  ) {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/planillas/portal/cerrar',
+      this.buildEnvelope({ idPlanilla, ...veredicto })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /** Cambia el canal de salida de un plan (H2H ⇄ H2W). Vía de contingencia. */
+  /**
+   * Cambia el canal de salida del plan, opcionalmente reprogramándolo.
+   *
+   * <p>`fechaProceso` (`yyyy-MM-dd`) no es un extra: a H2W se pasa un plan cuando el camino
+   * automático falló, o sea con su fecha ya vencida, y el TXT la lleva en el nombre y en la
+   * cabecera. El backend la propaga al plan y a sus operaciones —la plantilla lee de ambos— y
+   * rechaza pasar a H2W con la fecha vencida si no se manda una nueva.</p>
+   */
+  cambiarModalidadProgramacion(
+    idProgramacion: string,
+    modalidad: 'H2H' | 'H2W',
+    fechaProceso?: string
+  ) {
+    const body: Record<string, unknown> = { id: idProgramacion, modalidad };
+    // Solo si viene: sin ella el plan conserva su fecha y no se reescriben las operaciones.
+    if (fechaProceso) body['fechaProceso'] = fechaProceso;
+    return this.postBackend<Record<string, unknown>>('/programaciones/modalidad', body);
   }
 
   /**

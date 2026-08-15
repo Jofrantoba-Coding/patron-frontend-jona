@@ -8,13 +8,14 @@ import { environment } from '../../environments/environment';
 import { ApiService } from '../core/api.service';
 import { SessionService } from '../core/session.service';
 import { RelojCanalComponent } from '../shared/reloj-canal/reloj-canal';
+import { RelojesJobsComponent } from '../shared/relojes-jobs/relojes-jobs';
 import { ShellViewComponent } from './shell-view.component';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, JSidebarLayout, JUserAvatar, JBadge, RelojCanalComponent],
+  imports: [RouterOutlet, JSidebarLayout, JUserAvatar, JBadge, RelojCanalComponent, RelojesJobsComponent],
   templateUrl: './shell-view.component.html',
 })
 export class Shell extends ShellViewComponent {

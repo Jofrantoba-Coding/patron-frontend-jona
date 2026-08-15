@@ -1,0 +1,113 @@
+@if (compacta()) {
+  <!--
+    Variante de barra lateral: una linea por job. Va junto al reloj del canal porque los dos
+    responden mitades de la misma pregunta —hasta cuando puedo enviar, y cuando va a mover algo
+    el sistema por su cuenta—.
+  -->
+  @if (datos(); as d) {
+    <div class="rounded-md border border-neutral-200 bg-white px-2 py-1.5">
+      <div class="mb-1 flex items-center justify-between gap-2">
+        <p class="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">Jobs</p>
+        @if (todosApagados()) {
+          <span
+            class="rounded bg-amber-100 px-1 py-px text-[9px] font-medium uppercase text-amber-800"
+            title="h2h.jobs.habilitado = false: las cuentas atras dicen cuando tocaria, no que vaya a ocurrir."
+          >Off</span>
+        }
+      </div>
+      @for (r of relojes(); track r.clave) {
+        <div class="flex items-baseline justify-between gap-2 leading-tight" [attr.title]="r.descripcion">
+          <span class="truncate text-[10px] text-neutral-500">{{ r.nombre }}</span>
+          <span
+            class="shrink-0 text-[11px] font-bold tabular-nums"
+            [class]="r.estado === 'roto' ? 'text-danger-600' : 'text-primary-600'"
+          >{{ r.restante }}</span>
+        </div>
+      }
+    </div>
+  }
+} @else {
+@if (datos(); as d) {
+  <j-card>
+    <j-card-header>
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <j-card-title>Próximo disparo de los jobs</j-card-title>
+          <j-card-description>
+            Hora de {{ zona() }}
+            @if (environment()) {
+              · ambiente <span class="font-medium">{{ environment() }}</span>
+            }
+          </j-card-description>
+        </div>
+        <button
+          type="button"
+          class="shrink-0 rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 transition hover:bg-neutral-100"
+          (click)="refrescar()"
+        >
+          Actualizar
+        </button>
+      </div>
+    </j-card-header>
+
+    <j-card-content>
+      <!--
+        El interruptor global se avisa una sola vez y arriba: repetirlo en las tres tarjetas
+        haría ruido, y omitirlo dejaría tres cuentas atrás contando hacia disparos que no van
+        a ocurrir.
+      -->
+      @if (todosApagados()) {
+        <j-alert variant="warning" title="Los jobs están apagados">
+          Esta instancia tiene <code>h2h.jobs.habilitado = false</code>: las cuentas atrás
+          muestran cuándo <em>tocaría</em> cada job, pero no se va a ejecutar ninguno.
+        </j-alert>
+      }
+
+      <div class="mt-3 grid gap-3 sm:grid-cols-3">
+        @for (r of relojes(); track r.clave) {
+          <div
+            class="rounded-lg border p-3"
+            [class]="r.estado === 'roto' ? 'border-danger-200 bg-danger-50' : 'border-neutral-200 bg-white'"
+          >
+            <p class="text-xs font-medium uppercase tracking-wide text-neutral-500">{{ r.nombre }}</p>
+
+            <p
+              class="mt-1 text-2xl font-black tabular-nums"
+              [class]="r.estado === 'roto' ? 'text-danger-600' : 'text-primary-600'"
+            >
+              {{ r.restante }}
+            </p>
+
+            @if (r.estado === 'activo' || r.estado === 'apagado') {
+              <p class="text-[11px] text-neutral-500">A las {{ r.proxima }}</p>
+            }
+            @if (r.estado === 'apagado') {
+              <!-- Etiqueta y no texto suelto: tiene que verse de un vistazo que ese reloj dice
+                   cuando TOCARIA, no cuando va a ocurrir. -->
+              <span class="mt-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-800">
+                Deshabilitado
+              </span>
+            }
+            @if (r.motivo && r.estado !== 'apagado') {
+              <p class="mt-1 text-[11px]" [class]="r.estado === 'roto' ? 'text-danger-700' : 'text-neutral-500'">
+                {{ r.motivo }}
+              </p>
+            }
+
+            <p class="mt-2 border-t border-neutral-100 pt-2 text-[11px] leading-snug text-neutral-400">
+              {{ r.descripcion }}
+            </p>
+            <p class="mt-1 font-mono text-[10px] text-neutral-400">{{ r.cron }}</p>
+          </div>
+        }
+      </div>
+    </j-card-content>
+  </j-card>
+} @else {
+  <!-- Sin datos no se inventa un reloj: se dice que no se pudo leer. -->
+  <j-alert variant="info" title="Relojes de los jobs no disponibles">
+    No se pudo leer la configuración de los schedulers. El servicio puede estar caído o no
+    exponer todavía el endpoint.
+  </j-alert>
+}
+}

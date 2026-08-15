@@ -17,15 +17,32 @@ import {
 } from 'uijona-4ngular';
 import type { OperacionDetalleRegistro, Paginated, PlanillaDetalleFull, PlanillaFiltro, PlanillaRow } from '../../core/models';
 import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
-import { siguientePaso, type SiguientePaso } from './inter-planillas';
+import { esperaOperador, siguientePaso, type SiguientePaso } from './inter-planillas';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
 
 type Registro = OperacionDetalleRegistro;
 type DetalleTab = 'resumen' | 'archivo' | 'registros' | 'respuestas';
 
-/** Etapas del ciclo de vida de una planilla (para el stepper del detalle). */
+/** Etapas del ciclo de vida de una planilla que sale por SFTP (stepper del detalle). */
 export const ETAPAS = ['GENERADA', 'VALIDADA', 'CIFRADA', 'ENVIADA', 'RESPUESTA_RECIBIDA', 'PROCESADA'] as const;
+
+/**
+ * Las del canal H2W, que no son las mismas. Dos diferencias, y ninguna es cosmética:
+ *
+ * <ul>
+ *   <li><b>No hay CIFRADA.</b> El cifrado protege el tramo SFTP, donde el archivo viaja solo hasta
+ *       el buzón del banco. Aquí lo descarga una persona ya autenticada en la consola y lo sube por
+ *       HTTPS al portal: la envoltura PGP no añade protección y sí un paso que puede fallar.</li>
+ *   <li><b>PENDIENTE_ENVIO sí es un paso.</b> No estaba en la lista de SFTP —allí es un estado de
+ *       paso—, y al no estarlo el stepper daba índice −1 y «rebobinaba» por detrás de GENERADA:
+ *       justo cuando la planilla espera a que alguien la suba, que es el momento en que más se
+ *       mira.</li>
+ *   <li><b>No hay RESPUESTA_RECIBIDA.</b> En este canal no llega nada al buzón; el resultado lo
+ *       declara el operador desde la pantalla del banco.</li>
+ * </ul>
+ */
+export const ETAPAS_H2W = ['GENERADA', 'VALIDADA', 'PENDIENTE_ENVIO', 'ENVIADA', 'PROCESADA'] as const;
 
 /**
  * Estados en los que la planilla ya no admite más etapas. Solo `PROCESADA` pertenece al pipeline;
@@ -110,7 +127,10 @@ export class PlanillasViewComponent {
   protected readonly detalleSeleccionado = signal<PlanillaRow | null>(null);
   protected readonly detalleTab = signal<DetalleTab>('resumen');
 
-  protected readonly etapas = ETAPAS;
+  /** Las etapas que se pintan, según el canal de la planilla abierta. */
+  protected readonly etapas = computed<readonly string[]>(() =>
+    this.esH2w() ? ETAPAS_H2W : ETAPAS
+  );
   protected readonly estadosPlanilla = ESTADOS_PLANILLA;
 
   protected readonly rows = computed<JDataTableRow[]>(() => this.rowsSignal() as unknown as JDataTableRow[]);
@@ -135,11 +155,19 @@ export class PlanillasViewComponent {
   /** Índice de la etapa actual dentro del pipeline (para resaltar el stepper). */
   protected readonly etapaActual = computed(() => {
     const estado = this.estadoPlanillaActual();
-    const idx = ETAPAS.indexOf(estado as (typeof ETAPAS)[number]);
+    const etapas = this.etapas();
+    const idx = etapas.indexOf(estado);
     if (idx >= 0) return idx;
     // RECHAZADA / PROCESADA_PARCIAL / ERROR cierran el ciclo pero no son pasos del pipeline: se
     // muestran en la última posición. Sin esto darían -1 y el stepper "rebobinaría" a GENERADA.
-    return ESTADOS_TERMINALES.includes(estado) ? ETAPAS.length - 1 : idx;
+    if (ESTADOS_TERMINALES.includes(estado)) return etapas.length - 1;
+    // Estado que no pertenece a ESTE pipeline pero sí al otro: una planilla H2W que se cifró antes
+    // de que el cifrado saliera del flujo. Se ancla al paso anterior —VALIDADA— en vez de dejar el
+    // −1, que pinta el stepper entero como "pendiente" y hace parecer que no se ha hecho nada.
+    if (estado === 'CIFRADA' || estado === 'PENDIENTE_CIFRADO') {
+      return Math.max(0, etapas.indexOf('VALIDADA'));
+    }
+    return idx;
   });
 
   /**
@@ -148,7 +176,7 @@ export class PlanillasViewComponent {
    * una planilla que el banco rechazó.
    */
   protected etiquetaEtapa(etapa: string, i: number): string {
-    if (i !== ETAPAS.length - 1) return etapa;
+    if (i !== this.etapas().length - 1) return etapa;
     const estado = this.estadoPlanillaActual();
     return ESTADOS_TERMINALES.includes(estado) ? estado : etapa;
   }
@@ -166,8 +194,107 @@ export class PlanillasViewComponent {
    * la acción de la cabecera del diálogo, para no obligar a leer el stepper.
    */
   protected readonly pasoDetalle = computed<SiguientePaso>(() =>
-    siguientePaso(this.estadoPlanillaActual())
+    siguientePaso(this.estadoPlanillaActual(), this.modalidadPlanillaActual())
   );
+
+  /** Canal de la planilla abierta. Decide qué acción se ofrece en CIFRADA y en ENVIADA. */
+  protected readonly modalidadPlanillaActual = computed<string>(() =>
+    String(this.detalleSeleccionado()?.modalidadCodigo ?? 'H2H').toUpperCase()
+  );
+
+  /** ¿La planilla abierta sale por el portal web? */
+  protected readonly esH2w = computed<boolean>(() => this.modalidadPlanillaActual() === 'H2W');
+
+  // ── H2W · estado de los diálogos del portal ────────────────────────────
+  //
+  // La View solo guarda el estado y expone los abridores; quien llama a la API es la Page.
+
+  /** Diálogo de "confirmar subida": pide la constancia que devuelve el portal. */
+  protected readonly confirmarSubidaOpen = signal<boolean>(false);
+  protected readonly constanciaPortal = signal<string>('');
+
+  /** Diálogo de cierre: resultado global o, si se despliega, uno por operación. */
+  protected readonly cerrarPortalOpen = signal<boolean>(false);
+  protected readonly cierreResultado = signal<'PROCESADA' | 'RECHAZADA'>('PROCESADA');
+  protected readonly cierrePorDetalle = signal<boolean>(false);
+  /** Veredicto por secuencial cuando el banco procesó solo una parte del lote. */
+  protected readonly cierreDetalles = signal<Record<number, 'PROCESADA' | 'RECHAZADA'>>({});
+
+  protected abrirConfirmarSubida(): void {
+    this.constanciaPortal.set('');
+    this.confirmarSubidaOpen.set(true);
+  }
+
+  protected cerrarConfirmarSubida(): void {
+    this.confirmarSubidaOpen.set(false);
+  }
+
+  protected onConstancia(event: Event): void {
+    this.constanciaPortal.set((event.target as HTMLInputElement).value);
+  }
+
+  /**
+   * Abre el cierre. Arranca con TODAS en PROCESADA porque es el caso normal —el portal acepta
+   * el lote entero— y el parcial es la excepción que el operador despliega.
+   */
+  protected abrirCerrarPortal(): void {
+    const inicial: Record<number, 'PROCESADA' | 'RECHAZADA'> = {};
+    for (const r of this.registrosDelDetalle()) {
+      inicial[r.secuencial] = 'PROCESADA';
+    }
+    this.cierreDetalles.set(inicial);
+    this.cierreResultado.set('PROCESADA');
+    this.cierrePorDetalle.set(false);
+    this.cerrarPortalOpen.set(true);
+  }
+
+  protected cerrarCierrePortal(): void {
+    this.cerrarPortalOpen.set(false);
+  }
+
+  protected onCierreResultado(event: Event): void {
+    this.cierreResultado.set((event.target as HTMLSelectElement).value as 'PROCESADA' | 'RECHAZADA');
+  }
+
+  protected alternarCierrePorDetalle(): void {
+    this.cierrePorDetalle.set(!this.cierrePorDetalle());
+  }
+
+  protected onVeredictoDetalle(secuencial: number, event: Event): void {
+    const valor = (event.target as HTMLSelectElement).value as 'PROCESADA' | 'RECHAZADA';
+    this.cierreDetalles.set({ ...this.cierreDetalles(), [secuencial]: valor });
+  }
+
+  /** Cuántas van marcadas como rechazadas: se muestra antes de cerrar, para que no sorprenda. */
+  protected readonly cierreRechazadas = computed<number>(
+    () => Object.values(this.cierreDetalles()).filter((v) => v === 'RECHAZADA').length
+  );
+
+  /**
+   * Operaciones de la planilla abierta, con su secuencial.
+   *
+   * <p>Es lo que el backend exige declarar entero en un cierre parcial: si falta alguna, la
+   * planilla no cierra. La lista sale del detalle ya cargado, así que no hay una llamada extra.</p>
+   */
+  protected readonly registrosDelDetalle = computed<
+    { secuencial: number; titular: string; monto: string }[]
+  >(() => {
+    // El beneficiario y el importe NO son columnas del detalle: viven dentro del snapshot
+    // `bloqueOperacion`. Se reutilizan los mismos lectores que ya usa la tabla de registros
+    // —regBeneficiario / regMonto— en vez de leer claves a mano, que es como esta tabla
+    // acababa mostrando una lista de filas vacias sobre la que nadie puede decidir nada.
+    const detalles = (this.detalle()?.detalles ?? []) as Registro[];
+    return detalles.map((r, i) => ({
+      secuencial: Number(this.raw(r, 'secuencial') ?? i + 1),
+      titular: this.regBeneficiario(r),
+      monto: this.regMonto(r),
+    }));
+  });
+
+  /** La Page las sobrescribe: es quien tiene el servicio. */
+  protected descargarParaPortal(_tipo: 'claro' | 'cifrado'): void {}
+  protected confirmarSubida(): void {}
+  protected confirmarCierrePortal(): void {}
 
   /**
    * La etapa `i` es la SIGUIENTE al estado actual: habilitada para hacer clic. Al pulsarla dispara
@@ -318,7 +445,25 @@ export class PlanillasViewComponent {
     {
       key: 'estadoPlanillaCodigo',
       header: 'Siguiente paso',
-      render: (value) => siguientePaso(value as string).accion,
+      // Se pasa la fila entera y no solo el estado: en H2W el mismo estado pide otra accion
+      // (CIFRADA no es "Enviar" sino "Descargar y subir al portal").
+      render: (value, row) =>
+        siguientePaso(value as string, (row as unknown as PlanillaRow).modalidadCodigo).accion,
+    },
+    // Canal y quien empuja. Van juntos porque responden la misma pregunta del operador:
+    // "¿esto avanza solo o me esta esperando a mi?".
+    {
+      key: 'modalidadCodigo',
+      header: 'Canal',
+      align: 'center',
+      render: (value) => (String(value ?? 'H2H').toUpperCase() === 'H2W' ? 'Portal web' : 'SFTP'),
+    },
+    {
+      key: 'modoProcesamiento',
+      header: 'Proceso',
+      align: 'center',
+      render: (value, row) =>
+        esperaOperador(row as unknown as PlanillaRow) ? 'Manual' : 'Automatico',
     },
     { key: 'fechaArchivo', header: 'F. archivo', sortable: true },
     // Se ancla a la zona del negocio: el backend manda el timestamptz con el

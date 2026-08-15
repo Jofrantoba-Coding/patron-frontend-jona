@@ -168,7 +168,7 @@
           }
         </div>
         <div class="flex flex-wrap items-center gap-1.5">
-          @for (etapa of etapas; track etapa; let i = $index) {
+          @for (etapa of etapas(); track etapa; let i = $index) {
             <button
               type="button"
               class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition disabled:cursor-not-allowed"
@@ -489,6 +489,156 @@
         [disabled]="!motivoValido() || validando()"
         (click)="confirmarAnular()"
       >Anular planilla</button>
+    </div>
+  </div>
+</j-dialog>
+
+<!--
+  H2W · confirmar la subida al portal. El archivo ya se descargó y lo subió el operador; lo
+  único que falta registrar es la constancia que devolvió el banco, que en este canal es la
+  ÚNICA prueba de que el archivo llegó (no hay ruta remota de SFTP que guardar).
+-->
+<j-dialog
+  [open]="confirmarSubidaOpen()"
+  size="md"
+  title="Confirmar subida al portal"
+  [description]="detalleTitle()"
+  (closed)="cerrarConfirmarSubida()"
+  (cancel)="cerrarConfirmarSubida()"
+>
+  <div class="space-y-3 p-4">
+    <p class="text-sm text-neutral-700">
+      La planilla pasará a <span class="font-medium">ENVIADA</span> y sus operaciones quedarán
+      marcadas como entregadas al banco.
+    </p>
+    <div>
+      <label for="portal-constancia" class="mb-1 block text-xs font-medium text-neutral-700">
+        Constancia del portal <span class="text-red-600">*</span>
+      </label>
+      <input
+        id="portal-constancia"
+        type="text"
+        class="w-full rounded-md border border-neutral-300 p-2 text-sm focus:border-primary-500 focus:outline-none"
+        placeholder="N.° de operación que devolvió la banca web"
+        [value]="constanciaPortal()"
+        (input)="onConstancia($event)"
+      />
+      <p class="mt-1 text-[11px] text-neutral-500">
+        Sin SFTP no hay ruta remota que guardar: esta referencia es la única evidencia del envío.
+      </p>
+    </div>
+    <div class="flex justify-end gap-2 pt-1">
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 transition hover:bg-neutral-50"
+        (click)="cerrarConfirmarSubida()"
+      >Cancelar</button>
+      <button
+        type="button"
+        class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="!constanciaPortal().trim() || validando()"
+        (click)="confirmarSubida()"
+      >Confirmar subida</button>
+    </div>
+  </div>
+</j-dialog>
+
+<!--
+  H2W · cerrar con el resultado del portal. Arranca en "todo procesado" porque es el caso
+  normal; el parcial se despliega. El estado final NO se elige aquí: lo calcula el backend a
+  partir de los veredictos, para no poder cerrar en verde una planilla con rechazos dentro.
+-->
+<j-dialog
+  [open]="cerrarPortalOpen()"
+  size="lg"
+  title="Cerrar con el resultado del portal"
+  [description]="detalleTitle()"
+  (closed)="cerrarCierrePortal()"
+  (cancel)="cerrarCierrePortal()"
+>
+  <div class="space-y-3 p-4">
+    @if (!cierrePorDetalle()) {
+      <div>
+        <label for="cierre-resultado" class="mb-1 block text-xs font-medium text-neutral-700">
+          Resultado de todo el lote
+        </label>
+        <select
+          id="cierre-resultado"
+          class="w-full rounded-md border border-neutral-300 bg-white p-2 text-sm"
+          [value]="cierreResultado()"
+          (change)="onCierreResultado($event)"
+        >
+          <option value="PROCESADA">Procesado — el banco aceptó todas</option>
+          <option value="RECHAZADA">Rechazado — el banco no procesó ninguna</option>
+        </select>
+        <p class="mt-1 text-[11px] text-neutral-500">
+          Las rechazadas se liberan y podrán reprogramarse en un envío nuevo.
+        </p>
+      </div>
+    } @else {
+      <p class="text-sm text-neutral-700">
+        Marque el resultado de cada operación. Hay que declararlas <strong>todas</strong>: una
+        que quede sin veredicto impediría cerrar la planilla.
+      </p>
+      <div class="max-h-72 overflow-y-auto rounded-md border border-neutral-200">
+        <table class="w-full text-sm">
+          <thead class="sticky top-0 bg-neutral-50">
+            <tr class="text-left text-xs uppercase text-neutral-500">
+              <th class="p-2">#</th>
+              <th class="p-2">Beneficiario</th>
+              <th class="p-2 text-right">Monto</th>
+              <th class="p-2">Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of registrosDelDetalle(); track r.secuencial) {
+              <tr class="border-t border-neutral-100">
+                <td class="p-2 tabular-nums text-neutral-500">{{ r.secuencial }}</td>
+                <td class="p-2">{{ r.titular }}</td>
+                <td class="p-2 text-right tabular-nums">{{ r.monto }}</td>
+                <td class="p-2">
+                  <select
+                    class="w-full rounded border border-neutral-300 bg-white p-1 text-xs"
+                    [value]="cierreDetalles()[r.secuencial]"
+                    (change)="onVeredictoDetalle(r.secuencial, $event)"
+                  >
+                    <option value="PROCESADA">Procesada</option>
+                    <option value="RECHAZADA">Rechazada</option>
+                  </select>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (cierreRechazadas() > 0) {
+        <p class="text-xs text-amber-700">
+          {{ cierreRechazadas() }} operación(es) marcadas como rechazadas: se liberarán para
+          reprogramarse y la planilla cerrará como PROCESADA_PARCIAL.
+        </p>
+      }
+    }
+
+    <button
+      type="button"
+      class="text-xs font-medium text-primary-700 underline"
+      (click)="alternarCierrePorDetalle()"
+    >
+      {{ cierrePorDetalle() ? 'Volver al cierre de todo el lote' : 'El banco procesó solo una parte…' }}
+    </button>
+
+    <div class="flex justify-end gap-2 pt-1">
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 transition hover:bg-neutral-50"
+        (click)="cerrarCierrePortal()"
+      >Cancelar</button>
+      <button
+        type="button"
+        class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="validando()"
+        (click)="confirmarCierrePortal()"
+      >Cerrar planilla</button>
     </div>
   </div>
 </j-dialog>

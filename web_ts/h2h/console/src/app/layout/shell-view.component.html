@@ -33,6 +33,13 @@
       Por eso vive en la cabecera, visible desde cualquier pantalla.
     -->
     <app-reloj-canal [compacta]="true" />
+
+    <!--
+      Relojes de los jobs, debajo del reloj del canal: aquel dice hasta cuando se puede enviar y
+      estos cuando el sistema va a mover algo por su cuenta. Aqui van en una linea por job; el
+      detalle (que hace cada uno, su cron) esta en el panel de control.
+    -->
+    <app-relojes-jobs [compacta]="true" />
   </div>
 
   <div jFooter class="flex flex-col gap-2">

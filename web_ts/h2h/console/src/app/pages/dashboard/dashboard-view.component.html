@@ -117,6 +117,13 @@
   <app-reloj-canal />
 
   <!--
+    Relojes de los schedulers. Van junto al reloj del canal porque responden la otra mitad de la
+    misma pregunta: aquél dice hasta cuándo se puede enviar, éstos cuándo va a mover algo el
+    sistema por su cuenta.
+  -->
+  <app-relojes-jobs />
+
+  <!--
     Avisos derivados de conteos reales. Antes venían de una lista fija del mock;
     ahora solo aparece un aviso si hay algo que lo justifique, y desaparece solo
     cuando se resuelve.

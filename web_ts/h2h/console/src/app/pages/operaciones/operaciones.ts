@@ -6,7 +6,7 @@ import { ApiService } from '../../core/api.service';
 import type { ProductoGrupo } from '../../core/models';
 import { SessionService } from '../../core/session.service';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
-import { OperacionesViewComponent } from './operaciones-view.component';
+import { CATALOGO_ESTADO_OPERACION, OperacionesViewComponent } from './operaciones-view.component';
 
 @Component({
   selector: 'app-operaciones',
@@ -52,11 +52,45 @@ export class OperacionesPage extends OperacionesViewComponent implements OnInit 
   }
 
   ngOnInit(): void {
+    this.cargarEstados();
     this.route.data.subscribe((data) => {
       const producto = (data['producto'] as ProductoGrupo | undefined) ?? null;
       this.setProducto(producto);
       this.load();
     });
+  }
+
+  /**
+   * Trae los estados del catálogo `GLOBAL#ESTADO_OPERACION`.
+   *
+   * <p>Es GLOBAL a propósito: el estado interno de la operación no debe atarse al catálogo de
+   * ningún banco. En la misma tabla convive `BCP#ESTADO_OPERACION_BANCO#*`, que es lo que el BCP
+   * informa en los `-RES`/`-RES2`; son dos ejes distintos y este filtro solo mira el primero.</p>
+   *
+   * <p>Se pide una vez al entrar, no al abrir el desplegable: no cambia durante una sesión.</p>
+   *
+   * <p><b>El código sale de `codigo`, no de `valor` ni de `abreviatura`.</b> El backend filtra
+   * componiendo `GLOBAL#ESTADO_OPERACION#<lo que se mande>` y comparándolo contra `para_v_codigo`
+   * (ver `codigoGlobal` en `DaoOperacion`), así que el tercer segmento del código es la única
+   * fuente que no puede desalinearse. Hoy los tres campos coinciden; si alguien pusiera una
+   * etiqueta legible en `valor`, filtrar por él devolvería cero filas sin ningún error.</p>
+   *
+   * <p>Si la llamada falla no se toca nada: el filtro se queda con la lista de arranque. Vaciarlo
+   * sería reponer el fallo que tenía —un desplegable sin las opciones que hacen falta—.</p>
+   */
+  private cargarEstados(): void {
+    this.api
+      .parametrias({ codigoPadre: CATALOGO_ESTADO_OPERACION, soloHijos: true })
+      .subscribe({
+        next: (items) =>
+          this.setEstados(
+            [...items]
+              .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
+              .map((p) => String(p.codigo ?? '').split('#')[2] ?? '')
+              .filter((codigo) => codigo.length > 0)
+          ),
+        error: () => undefined,
+      });
   }
 
   /**

@@ -127,6 +127,11 @@
             <button type="button" class="rounded-md bg-primary-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50"
               [disabled]="!puedeGenerar(pv(d.programacion, 'idPlanilla') === '-')"
               (click)="generar()">Generar planilla</button>
+            <!-- Canal de salida. No es una transicion de estado, por eso no pasa por `puede()`:
+                 el backend decide si se permite mirando la PLANILLA (si ya salio, lo niega). -->
+            <button type="button" class="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+              [attr.title]="'Canal actual: ' + (pv(d.programacion, 'modalidadCodigo') || 'H2H')"
+              (click)="abrirModalidad(detalleSeleccionado()!)">Canal: {{ pv(d.programacion, 'modalidadCodigo') || 'H2H' }}</button>
             <button type="button" class="rounded-md border border-red-300 bg-white px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-40"
               [disabled]="!puede('CANCELADA')" [attr.title]="motivo('CANCELADA') || null"
               (click)="cambiarEstado('CANCELADA')">Cancelar</button>
@@ -138,6 +143,14 @@
         @if (accionError()) {
           <div class="mx-3 mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
             {{ accionError() }}
+          </div>
+        }
+        <!-- Fecha vencida: se avisa ANTES de pulsar «Generar planilla», que es cuando llegaria el
+             rechazo. Sin esto el operador solo ve un error y no sabe que lo que falta es cambiar
+             la fecha, ni desde donde se hace. -->
+        @if (avisoFechaPlanVencida()) {
+          <div class="mx-3 mb-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            {{ avisoFechaPlanVencida() }}
           </div>
         }
         <div class="grid gap-2 p-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))]">
@@ -272,8 +285,26 @@
         }
       </div>
       <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="n-canal-salida">Canal de salida</label>
+        <select id="n-canal-salida" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoModalidad()" (change)="onNuevaModalidad($event)">
+          <option value="H2H">H2H — sale por SFTP</option>
+          <option value="H2W">H2W — se sube al portal web</option>
+        </select>
+        @if (nuevoModalidad() === 'H2W') {
+          <span class="text-[11px] text-amber-700">
+            El archivo lo descarga y sube un operador: el plan queda en modo MANUAL.
+          </span>
+        }
+      </div>
+      <div class="flex flex-col gap-1">
         <label class="text-xs font-medium text-neutral-500" for="n-modo">Modo</label>
-        <select id="n-modo" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoModo()" (change)="onNuevoModo($event)">
+        <select
+          id="n-modo"
+          class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm disabled:bg-neutral-100 disabled:text-neutral-500"
+          [value]="nuevoModo()"
+          [disabled]="nuevoModalidad() === 'H2W'"
+          (change)="onNuevoModo($event)"
+        >
           @for (m of modos; track m) {<option [value]="m">{{ m }}</option>}
         </select>
       </div>
@@ -355,3 +386,91 @@
 
 <!-- Detalle de operación (componente compartido) -->
 <app-operacion-detalle-dialog [detalle]="opDetalle()" [loading]="opDetalleLoading()" (closed)="cerrarOpDetalle()" />
+
+<!--
+  Cambio del canal de salida sobre un plan ya creado. Es una vía de CONTINGENCIA: los planes
+  nacen H2H y siguen el proceso de siempre; esto existe para cuando algo obliga a sacar el lote
+  por la web (falló el SFTP, se perdió la ventana) y ya no se puede volver a crear el plan.
+-->
+<j-dialog
+  [open]="modalidadOpen()"
+  size="md"
+  title="Cambiar canal de salida"
+  [description]="modalidadPlan()?.codigo ?? ''"
+  (closed)="cerrarModalidad()"
+  (cancel)="cerrarModalidad()"
+>
+  <div class="space-y-3 p-4">
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-neutral-500" for="mod-destino">Nuevo canal</label>
+      <select
+        id="mod-destino"
+        class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+        [value]="modalidadDestino()"
+        (change)="onModalidadDestino($event)"
+      >
+        <option value="H2H">H2H — sale por SFTP</option>
+        <option value="H2W">H2W — se sube al portal web</option>
+      </select>
+    </div>
+
+    <!-- La fecha viaja con el cambio de canal a proposito: a H2W se llega cuando el automatico
+         fallo, o sea con la fecha del plan ya vencida, y el TXT la lleva en el nombre y en la
+         cabecera. Sin moverla el archivo sale caducado y el banco lo rechaza igual. -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-neutral-500" for="mod-fecha">Fecha de proceso</label>
+      <input
+        id="mod-fecha"
+        type="date"
+        class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+        [value]="modalidadFecha()"
+        [min]="hoyCanal()"
+        (change)="onModalidadFecha($event)"
+      />
+      @if (motivoFechaModalidad()) {
+        <p class="text-[11px] text-red-700">{{ motivoFechaModalidad() }}</p>
+      } @else if (modalidadFechaCambia()) {
+        <p class="text-[11px] text-neutral-500">
+          Se reprograma el lote: la fecha se aplica al plan y a sus operaciones, que es de donde la
+          plantilla la lee al generar el TXT.
+        </p>
+      }
+    </div>
+
+    @if (modalidadDestino() === 'H2W') {
+      <p class="rounded-md bg-amber-50 p-2 text-xs text-amber-800">
+        El plan pasa a modo <strong>MANUAL</strong>: ni el job ni el ciclo SFTP volverán a tocarlo.
+        Su planilla habrá que descargarla, subirla al portal y cerrarla a mano.
+      </p>
+    } @else {
+      <p class="rounded-md bg-neutral-50 p-2 text-xs text-neutral-600">
+        El plan vuelve al canal automático: el ciclo SFTP podrá procesar su planilla.
+      </p>
+    }
+
+    <p class="text-[11px] text-neutral-500">
+      El cambio alcanza también a la planilla ya generada y a las operaciones del plan. No se
+      permite si el archivo ya salió o el caso está cerrado: entregarlo por dos canales
+      duplicaría los pagos.
+    </p>
+
+    @if (accionError()) {
+      <p class="rounded-md bg-red-50 p-2 text-xs text-red-700">{{ accionError() }}</p>
+    }
+
+    <div class="flex justify-end gap-2 pt-1">
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 transition hover:bg-neutral-50"
+        (click)="cerrarModalidad()"
+      >Cancelar</button>
+      <button
+        type="button"
+        class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
+        [disabled]="!!motivoFechaModalidad()"
+        [attr.title]="motivoFechaModalidad() || null"
+        (click)="confirmarModalidad()"
+      >Cambiar canal</button>
+    </div>
+  </div>
+</j-dialog>

@@ -171,6 +171,11 @@ export class ProgramacionesViewComponent {
   protected readonly nuevoFechaProceso = signal<string>('');
   protected readonly nuevoFechaProgramado = signal<string>('');
   protected readonly nuevoModo = signal<string>('MANUAL');
+  /**
+   * Canal de salida del plan nuevo. Por defecto H2H: es el camino de siempre y el que el job
+   * sabe llevar solo. H2W se elige cuando ya se sabe que ese lote se sube a mano al portal.
+   */
+  protected readonly nuevoModalidad = signal<string>('H2H');
   protected readonly nuevoTipoDestino = signal<string>('');
   protected readonly nuevoCanal = signal<string>('');
 
@@ -181,6 +186,108 @@ export class ProgramacionesViewComponent {
   protected readonly opsCargando = signal<boolean>(false);
   protected readonly loteFiltro = signal<string>('');
   protected readonly seleccion = signal<Set<string>>(new Set());
+
+  // ── Cambio de canal sobre un plan ya creado (contingencia) ─────────────
+  protected readonly modalidadOpen = signal<boolean>(false);
+  protected readonly modalidadDestino = signal<'H2H' | 'H2W'>('H2W');
+  protected readonly modalidadPlan = signal<ProgramacionRow | null>(null);
+
+  /**
+   * Fecha de proceso con la que se reprograma el lote al cambiar de canal.
+   *
+   * <p>No es un extra del formulario: a H2W se llega casi siempre porque el camino automático
+   * falló, y para entonces la fecha del plan suele estar vencida. El TXT la lleva en el nombre y en
+   * la cabecera, así que sin moverla el archivo sale caducado y el banco lo rechaza —lo suba un job
+   * o una persona—.</p>
+   */
+  protected readonly modalidadFecha = signal<string>('');
+
+  /**
+   * Hoy en la zona del CANAL, en `yyyy-MM-dd`.
+   *
+   * <p>Con la del navegador, un operador en otro huso vería un mínimo distinto del que aplica el
+   * backend y el formulario aceptaría una fecha que luego se rechaza —o al revés—. `en-CA` rinde
+   * exactamente `yyyy-MM-dd`, que es lo que espera un `input type="date"`.</p>
+   */
+  protected readonly hoyCanal = computed<string>(() =>
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: this.ventana()?.zonaHoraria ?? 'America/Lima',
+    }).format(new Date())
+  );
+
+  /**
+   * Abre el cambio de canal. Propone el canal CONTRARIO al actual, que es lo que se viene a
+   * hacer: nadie abre este dialogo para dejar el plan como estaba.
+   */
+  protected abrirModalidad(plan: ProgramacionRow): void {
+    this.modalidadPlan.set(plan);
+    this.modalidadDestino.set(
+      String(plan.modalidadCodigo ?? 'H2H').toUpperCase() === 'H2W' ? 'H2H' : 'H2W'
+    );
+    // Se propone la del plan mientras siga sirviendo; si ya venció, hoy —el mínimo que el banco
+    // aceptaría—, para que el operador no tenga que calcularlo ni topar con el rechazo después.
+    const suya = this.fechaProcesoDe(plan);
+    this.modalidadFecha.set(suya && suya >= this.hoyCanal() ? suya : this.hoyCanal());
+    this.accionError.set('');
+    this.modalidadOpen.set(true);
+  }
+
+  protected cerrarModalidad(): void {
+    this.modalidadOpen.set(false);
+  }
+
+  protected onModalidadDestino(event: Event): void {
+    this.modalidadDestino.set((event.target as HTMLSelectElement).value as 'H2H' | 'H2W');
+  }
+
+  protected onModalidadFecha(event: Event): void {
+    this.modalidadFecha.set((event.target as HTMLInputElement).value);
+  }
+
+  /** `fechaProceso` de un plan como `yyyy-MM-dd`, o `''`. El backend puede mandarla con hora. */
+  private fechaProcesoDe(plan: ProgramacionRow | null): string {
+    return String(plan?.fechaProceso ?? '').slice(0, 10);
+  }
+
+  /** Motivo por el que la fecha elegida no vale, o `null`. Espejo de lo que valida el backend. */
+  protected readonly motivoFechaModalidad = computed<string | null>(() => {
+    const fecha = this.modalidadFecha();
+    if (!fecha) return 'Indique la fecha de proceso.';
+    if (fecha < this.hoyCanal()) {
+      return `La fecha de proceso no puede ser anterior a hoy (${this.hoyCanal()}): el archivo saldría caducado.`;
+    }
+    return null;
+  });
+
+  /** ¿La fecha propuesta cambia la que tiene el plan? Si no, no se manda y no se reescribe nada. */
+  protected readonly modalidadFechaCambia = computed<boolean>(
+    () => this.modalidadFecha() !== this.fechaProcesoDe(this.modalidadPlan())
+  );
+
+  /**
+   * Aviso sobre la fecha del plan abierto, o `null` si está en regla.
+   *
+   * <p>Va junto al botón de generar porque es ahí donde importa: el rechazo por fecha vencida llega
+   * al pulsarlo, y sin este aviso el operador solo ve un error sin saber que lo que falta es
+   * cambiar la fecha —ni desde dónde—.</p>
+   */
+  protected readonly avisoFechaPlanVencida = computed<string | null>(() => {
+    const fecha = this.fechaProcesoDe(this.detalleSeleccionado());
+    if (!fecha) return null;
+    if (fecha < this.hoyCanal()) {
+      return `La fecha de proceso del plan (${fecha}) ya pasó. Cámbiela desde «Canal de salida» antes de generar: el TXT la lleva en el nombre y el banco lo rechazaría.`;
+    }
+    return null;
+  });
+
+  /** Canal legible de una fila del listado. */
+  protected canalDe(row: unknown): string {
+    const codigo = String((row as ProgramacionRow).modalidadCodigo ?? 'H2H').toUpperCase();
+    return codigo === 'H2W' ? 'Portal web' : 'SFTP';
+  }
+
+  /** La Page la sobrescribe: es quien tiene el servicio. */
+  protected confirmarModalidad(): void {}
 
   protected readonly estados = ESTADOS_PROGRAMACION;
   protected readonly tiposDestino = TIPOS_DESTINO;
@@ -244,6 +351,9 @@ export class ProgramacionesViewComponent {
       header: 'Siguiente paso',
       render: (value) => siguientePasoProgramacion(value as string),
     },
+    // Canal de salida. Va en el listado porque decide si el plan sale solo o si alguien tiene
+    // que bajarse el archivo y subirlo a mano al banco.
+    { key: 'modalidadCodigo', header: 'Canal', align: 'center', render: (_v, row) => this.canalDe(row) },
     { key: 'fechaProceso', header: 'F. proceso', sortable: true, render: (v) => this.fd(v) },
     { key: 'fechaProgramado', header: 'Programado', align: 'center', render: (v) => this.fdt(v) },
   ];
@@ -367,6 +477,18 @@ export class ProgramacionesViewComponent {
   }
   protected onNuevoModo(e: Event): void {
     this.nuevoModo.set((e.target as HTMLSelectElement).value);
+  }
+  /**
+   * Elegir H2W fuerza MANUAL: en ese canal no hay job que suba nada al portal, asi que un plan
+   * AUTOMATICO seria un plan que nadie dispara. El backend lo rechaza; aqui se ajusta antes para
+   * no ofrecer una combinacion que va a fallar.
+   */
+  protected onNuevaModalidad(e: Event): void {
+    const valor = (e.target as HTMLSelectElement).value;
+    this.nuevoModalidad.set(valor);
+    if (valor === 'H2W') {
+      this.nuevoModo.set('MANUAL');
+    }
   }
   protected onNuevoTipoDestino(e: Event): void {
     this.nuevoTipoDestino.set((e.target as HTMLSelectElement).value);
@@ -585,7 +707,14 @@ export class ProgramacionesViewComponent {
       this.crearError.set(fuera);
       return null;
     }
-    const payload: ProgramacionCrear = { idProducto, idMoneda, fechaProceso, modoEnvio: this.nuevoModo(), operaciones };
+    const payload: ProgramacionCrear = {
+      idProducto,
+      idMoneda,
+      fechaProceso,
+      modoEnvio: this.nuevoModo(),
+      modalidad: this.nuevoModalidad(),
+      operaciones,
+    };
     if (this.nuevoTipoDestino()) payload.tipoDestino = this.nuevoTipoDestino();
     if (this.nuevoCanal()) payload.canalLiquidacion = this.nuevoCanal();
     // datetime-local (hora local, sin zona) -> ISO con offset que acepta OffsetDateTime en el backend

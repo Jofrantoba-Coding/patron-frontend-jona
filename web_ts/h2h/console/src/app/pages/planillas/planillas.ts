@@ -59,8 +59,26 @@ export class PlanillasPage extends PlanillasViewComponent implements OnInit {
       case 'CIFRADA':
         this.ejecutarEtapa((id) => this.api.planillaCifrarBackend(id), 'Planilla cifrada y archivo generado.');
         break;
+      case 'PENDIENTE_ENVIO':
+        // H2W: la etapa no es una llamada que "avanza" sino una descarga. El estado lo mueve el
+        // propio endpoint al entregar el archivo.
+        //
+        // En CLARO: el cifrado se sacó del flujo H2W. Protege el tramo SFTP —donde el archivo
+        // viaja solo hasta el buzón del banco—, no éste, en el que lo baja una persona ya
+        // autenticada y lo sube por HTTPS al portal. Pedir 'cifrado' aquí además fallaba en cuanto
+        // se dejó de cifrar: sin `urlCifrado` el backend responde «ejecute antes la etapa de
+        // cifrado», que es un callejón sin salida porque esa etapa ya no se ofrece.
+        this.descargarParaPortal('claro');
+        break;
       case 'ENVIADA':
-        this.ejecutarEtapa((id) => this.api.planillaEnviarBackend(id), 'Planilla enviada por SFTP a BCP.');
+        // El mismo destino, dos caminos distintos: por SFTP lo manda el backend; por portal lo
+        // sube una persona y aquí solo se registra su constancia. Ofrecer el envío por SFTP en
+        // una planilla H2W daría un error del backend (guarda contra el doble pago).
+        if (this.esH2w()) {
+          this.abrirConfirmarSubida();
+        } else {
+          this.ejecutarEtapa((id) => this.api.planillaEnviarBackend(id), 'Planilla enviada por SFTP a BCP.');
+        }
         break;
       case 'RESPUESTA_RECIBIDA':
         this.ejecutarEtapa(
@@ -69,6 +87,12 @@ export class PlanillasPage extends PlanillasViewComponent implements OnInit {
         );
         break;
       case 'PROCESADA':
+        if (this.esH2w()) {
+          // En este canal no hay archivo de respuesta que conciliar: el resultado lo declara
+          // quien lo vio en el portal.
+          this.abrirCerrarPortal();
+          break;
+        }
         // Fase 8. El estado destino NO lo decide esta pantalla: el backend concilia el veredicto
         // del banco y cierra en PROCESADA, PROCESADA_PARCIAL o RECHAZADA — o no cierra si quedan
         // operaciones en estado no final. Por eso el mensaje se arma con la respuesta.
@@ -80,6 +104,102 @@ export class PlanillasPage extends PlanillasViewComponent implements OnInit {
         this.validarMensaje.set(`Etapa "${etapa}": endpoint del flujo pendiente de implementar.`);
         break;
     }
+  }
+
+  // ── H2W · las tres etapas del portal web ───────────────────────────────
+
+  /**
+   * Descarga el archivo y lo entrega al navegador para que el operador lo suba al portal.
+   *
+   * <p>El backend responde base64 dentro del envelope JSON (no un octet-stream), así que aquí
+   * se reconstruye el binario y se dispara la descarga. Se hace con un Blob y no con un
+   * `data:` URI porque un TXT de miles de operaciones supera el límite de longitud de URL de
+   * varios navegadores y la descarga fallaría en silencio justo con los lotes grandes.</p>
+   */
+  protected override descargarParaPortal(tipo: 'claro' | 'cifrado'): void {
+    const planilla = this.detalleSeleccionado();
+    if (!planilla || this.validando()) return;
+    this.validando.set(true);
+    this.validarError.set(false);
+    this.validarHallazgos.set([]);
+    this.api
+      .planillaDescargarPortal(planilla.id, tipo)
+      .pipe(finalize(() => this.validando.set(false)))
+      .subscribe({
+        next: (data) => {
+          const nombre = String(data['nombreArchivo'] ?? planilla.nombreArchivo);
+          this.guardarBlob(
+            this.blobDeBase64(String(data['contenidoBase64'] ?? '')),
+            tipo === 'cifrado' ? `${nombre}.gpg` : nombre
+          );
+          // Mismo refresco que las demas etapas: el endpoint dejo la planilla en
+          // PENDIENTE_ENVIO y el stepper tiene que reflejarlo.
+          this.openDetalle(planilla);
+          this.load();
+          this.validarMensaje.set(
+            `Archivo ${tipo} descargado. Subalo al portal del banco y luego confirme la subida.`
+          );
+        },
+        error: (err) => {
+          this.validarError.set(true);
+          this.validarMensaje.set(this.mensajeError(err));
+          this.validarHallazgos.set(this.hallazgosDe(err));
+        },
+      });
+  }
+
+  /**
+   * base64 → Blob. Se construye un Blob y no un `data:` URI porque el TXT de un lote grande
+   * supera el limite de longitud de URL de varios navegadores, y la descarga fallaria en
+   * silencio justo con las planillas que mas importan.
+   */
+  private blobDeBase64(base64: string): Blob {
+    const binario = atob(base64);
+    const bytes = new Uint8Array(binario.length);
+    for (let i = 0; i < binario.length; i++) {
+      bytes[i] = binario.charCodeAt(i);
+    }
+    return new Blob([bytes], { type: 'application/octet-stream' });
+  }
+
+  /** Registra la constancia del portal: la planilla pasa a ENVIADA. */
+  protected override confirmarSubida(): void {
+    const planilla = this.detalleSeleccionado();
+    const constancia = this.constanciaPortal().trim();
+    if (!planilla || !constancia || this.validando()) return;
+    this.cerrarConfirmarSubida();
+    this.ejecutarEtapa(
+      (id) => this.api.planillaConfirmarSubidaPortal(id, constancia),
+      (data) =>
+        data['yaEstaba'] === true
+          ? 'La planilla ya estaba marcada como enviada.'
+          : 'Subida confirmada: la planilla queda enviada al banco.'
+    );
+  }
+
+  /**
+   * Cierra la planilla con lo que el operador vio en el portal.
+   *
+   * <p>Si el cierre es por detalle se mandan TODAS las operaciones, no solo las rechazadas: el
+   * backend exige el veredicto completo porque una que falte quedaría en el aire y la planilla
+   * no podría cerrarse.</p>
+   */
+  protected override confirmarCierrePortal(): void {
+    const planilla = this.detalleSeleccionado();
+    if (!planilla || this.validando()) return;
+    const veredicto = this.cierrePorDetalle()
+      ? {
+          detalles: this.registrosDelDetalle().map((r) => ({
+            secuencial: r.secuencial,
+            resultado: this.cierreDetalles()[r.secuencial] ?? 'PROCESADA',
+          })),
+        }
+      : { resultado: this.cierreResultado() };
+    this.cerrarCierrePortal();
+    this.ejecutarEtapa(
+      (id) => this.api.planillaCerrarPortal(id, veredicto),
+      (data) => this.mensajeDecision(data)
+    );
   }
 
   /**

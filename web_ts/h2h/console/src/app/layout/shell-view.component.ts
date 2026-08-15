@@ -12,6 +12,7 @@ import {
 } from 'uijona-4ngular';
 import type { AppUser, Tenant } from '../core/models';
 import { RelojCanalComponent } from '../shared/reloj-canal/reloj-canal';
+import { RelojesJobsComponent } from '../shared/relojes-jobs/relojes-jobs';
 import { ETIQUETA_GRUPO, type PendientesPorEtapa } from './inter-shell';
 
 type Usuario = Pick<AppUser, 'name' | 'email'> | null;
@@ -20,7 +21,7 @@ type Usuario = Pick<AppUser, 'name' | 'email'> | null;
   selector: 'app-shell-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, JSidebarLayout, JUserAvatar, JBadge, RelojCanalComponent],
+  imports: [RouterOutlet, JSidebarLayout, JUserAvatar, JBadge, RelojCanalComponent, RelojesJobsComponent],
   templateUrl: './shell-view.component.html',
 })
 export class ShellViewComponent {

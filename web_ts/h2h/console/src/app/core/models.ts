@@ -142,6 +142,44 @@ export interface GrupoResumen {
   operacionesError: number | null;
 }
 
+/**
+ * Un reloj de job: cuánto falta para que se dispare.
+ *
+ * <p>`proxima` y `faltaMs` son nulos cuando el cron no se puede interpretar o no tiene una
+ * ocurrencia futura. En ese caso NO se pinta una cuenta atrás en cero —que se leería como
+ * "está a punto de dispararse", justo lo contrario de lo que ocurre— sino el motivo.</p>
+ */
+export interface RelojJob {
+  clave: string;
+  nombre: string;
+  descripcion: string;
+  cron: string;
+  habilitado: boolean;
+  proxima: string | null;
+  faltaMs: number | null;
+  /** El disparo siguiente al próximo: permite reiniciar la cuenta atrás al llegar a cero. */
+  siguiente?: string | null;
+  /** Distancia entre disparos, para seguir rodando si la pestaña estuvo dormida varios ciclos. */
+  periodoMs?: number | null;
+  error?: string;
+  nota?: string;
+}
+
+/**
+ * Estado de los relojes de los schedulers.
+ *
+ * <p>`ahora` es el instante del SERVIDOR: la consola mide con él su desfase y descuenta en
+ * local, para no depender del reloj del equipo del operador. `zona` es aquella en la que se
+ * evalúan los cron (la del canal), y `environment` dice de qué secreto salieron.</p>
+ */
+export interface RelojesJobs {
+  ahora: string;
+  zona: string;
+  environment: string;
+  habilitado: boolean;
+  relojes: RelojJob[];
+}
+
 /** Entidades que saben responder un resumen agregado. */
 export type EntidadResumen = 'operaciones' | 'programaciones' | 'planillas' | 'respuestas';
 
@@ -546,6 +584,13 @@ export interface PlanillaRow {
   isFlujoPar?: boolean | null;
   fechaEnvio?: string | null;
   reintentos?: number | null;
+  /** Canal de salida: `H2H` (SFTP) o `H2W` (el operador la sube al portal del banco). */
+  modalidadCodigo?: string | null;
+  /**
+   * Quién empuja las etapas: `AUTOMATICO` (el ciclo SFTP) o `MANUAL` (el operador, de punta a
+   * punta). Una MANUAL en GENERADA no está "en curso": está esperando a una persona.
+   */
+  modoProcesamiento?: string | null;
   idOrganizacion?: string;
 }
 
@@ -699,6 +744,8 @@ export interface ProgramacionRow {
   tipoDestino?: string | null;
   canalLiquidacion?: string | null;
   modoEnvio: string;
+  /** Canal de salida del lote: `H2H` (SFTP) o `H2W` (portal web del banco). */
+  modalidadCodigo?: string | null;
   fechaProceso: string;
   fechaProgramado?: string | null;
   fechaEjecutado?: string | null;
@@ -790,6 +837,11 @@ export interface ProgramacionCrear {
   tipoDestino?: string;
   canalLiquidacion?: string;
   modoEnvio?: string;
+  /**
+   * Canal de salida: `H2H` (sale por SFTP) o `H2W` (el operador lo sube al portal del banco).
+   * Sin valor, el backend lo crea como H2H. `H2W` obliga a `modoEnvio = MANUAL`.
+   */
+  modalidad?: string;
   fechaProgramado?: string;
   codigo?: string;
   operaciones?: string[];

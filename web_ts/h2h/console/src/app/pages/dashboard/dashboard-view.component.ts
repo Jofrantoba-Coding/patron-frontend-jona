@@ -23,6 +23,7 @@ import type {
 } from '../../core/models';
 import { NavPanelesComponent } from '../../shared/nav-paneles/nav-paneles';
 import { RelojCanalComponent } from '../../shared/reloj-canal/reloj-canal';
+import { RelojesJobsComponent } from '../../shared/relojes-jobs/relojes-jobs';
 
 const NUM = new Intl.NumberFormat('es-PE');
 
@@ -58,6 +59,7 @@ type Tono = 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
     JChart,
     JDatePicker,
     RelojCanalComponent,
+    RelojesJobsComponent,
   ],
   templateUrl: './dashboard-view.component.html',
 })
