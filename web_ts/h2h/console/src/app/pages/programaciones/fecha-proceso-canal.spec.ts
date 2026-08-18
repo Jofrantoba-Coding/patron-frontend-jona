@@ -18,6 +18,9 @@ import { ProgramacionesViewComponent } from './programaciones-view.component';
  */
 describe('ProgramacionesViewComponent: fecha de proceso al cambiar de canal', () => {
   type Interna = {
+    nuevoModalidad: { set: (v: string) => void };
+    nuevoFechaProceso: { set: (v: string) => void };
+    avisoFechaProceso: () => string | null;
     setVentana: (v: VentanaSemanal | null) => void;
     abrirModalidad: (plan: unknown) => void;
     modalidadFecha: { set: (v: string) => void; (): string };
@@ -51,6 +54,32 @@ describe('ProgramacionesViewComponent: fecha de proceso al cambiar de canal', ()
     const fixture = TestBed.createComponent(ProgramacionesViewComponent);
     vista = fixture.componentInstance as unknown as Interna;
     vista.setVentana(ventana());
+  });
+
+  it('en H2W la ventana del canal NO bloquea la fecha', () => {
+    // La ventana es la del SFTP: a qué hora el banco acepta el PUT. En H2W no hay PUT —una persona
+    // descarga el archivo y lo sube al portal cuando le toca—, así que rechazar un plan por caer en
+    // domingo niega algo que el canal sí permite. Además contradiría al generador, que ya exime a
+    // H2W de la ventana: un plan que no se puede crear pero sí generar.
+    vista.setVentana({
+      zonaHoraria: 'America/Lima',
+      resuelta: true,
+      // Domingo (día 7) cerrado; el resto abierto.
+      dias: [1, 2, 3, 4, 5, 6, 7].map((diaSemana) => ({
+        diaSemana,
+        nombre: diaSemana === 7 ? 'domingo' : 'día',
+        opera: diaSemana !== 7,
+        desde: '09:00:00',
+        hasta: '17:00:00',
+      })),
+    } as unknown as VentanaSemanal);
+    vista.nuevoFechaProceso.set('2026-08-16');   // domingo
+
+    vista.nuevoModalidad.set('H2H');
+    expect(vista.avisoFechaProceso()).toContain('no atiende');
+
+    vista.nuevoModalidad.set('H2W');
+    expect(vista.avisoFechaProceso()).toBeNull();
   });
 
   it('«hoy» se calcula en la zona del CANAL, no en la del navegador', () => {

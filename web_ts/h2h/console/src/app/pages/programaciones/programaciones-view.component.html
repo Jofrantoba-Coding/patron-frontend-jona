@@ -296,6 +296,28 @@
           </span>
         }
       </div>
+      <!-- Solo con TODAS las operaciones seleccionadas siendo transferencias a terceros y hacia el
+           portal: el backend convierte todo o nada. -->
+      @if (conversionNuevoDisponible()) {
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="n-conversion">Producto del archivo</label>
+          <select
+            id="n-conversion"
+            class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+            [value]="nuevoConversion()"
+            (change)="onNuevoConversion($event)"
+          >
+            <option value="MANTENER">Mantener transferencias a terceros</option>
+            <option value="PAGO_MASIVO_PROVEEDORES">Convertir a pago masivo de proveedores</option>
+          </select>
+          @if (nuevoConversion() === 'PAGO_MASIVO_PROVEEDORES') {
+            <span class="text-[11px] text-red-700">
+              Las transferencias seleccionadas quedarán <strong>anuladas</strong> y su asiento
+              revertido. No tiene vuelta atrás.
+            </span>
+          }
+        </div>
+      }
       <div class="flex flex-col gap-1">
         <label class="text-xs font-medium text-neutral-500" for="n-modo">Modo</label>
         <select
@@ -437,6 +459,30 @@
       }
     </div>
 
+    <!-- Solo aparece si el plan lleva unicamente transferencias a terceros: el backend convierte
+         todo o nada, asi que ofrecerlo sobre un plan mixto seria ofrecer un boton que solo falla. -->
+    @if (conversionDisponible()) {
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium text-neutral-500" for="mod-conversion">Producto del archivo</label>
+        <select
+          id="mod-conversion"
+          class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+          [value]="modalidadConversion()"
+          (change)="onModalidadConversion($event)"
+        >
+          <option value="MANTENER">Mantener transferencias a terceros</option>
+          <option value="PAGO_MASIVO_PROVEEDORES">Convertir a pago masivo de proveedores</option>
+        </select>
+        @if (modalidadConversion() === 'PAGO_MASIVO_PROVEEDORES') {
+          <p class="rounded-md bg-red-50 p-2 text-[11px] text-red-800">
+            Se creará una operación de abono a proveedores por cada transferencia y las
+            <strong>originales quedarán anuladas</strong>, con su asiento revertido: el cargo pasa
+            de la cuenta 4699 a la 4212. <strong>No tiene vuelta atrás</strong> desde aquí.
+          </p>
+        }
+      </div>
+    }
+
     @if (modalidadDestino() === 'H2W') {
       <p class="rounded-md bg-amber-50 p-2 text-xs text-amber-800">
         El plan pasa a modo <strong>MANUAL</strong>: ni el job ni el ciclo SFTP volverán a tocarlo.
@@ -458,6 +504,14 @@
       <p class="rounded-md bg-red-50 p-2 text-xs text-red-700">{{ accionError() }}</p>
     }
 
+    <!-- Se explica ANTES de los botones: un boton deshabilitado sin motivo visible obliga a pasar
+         el raton por encima para descubrir por que, y aqui el motivo trae una salida concreta. -->
+    @if (motivoNoCambiaCanal()) {
+      <div class="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        {{ motivoNoCambiaCanal() }}
+      </div>
+    }
+
     <div class="flex justify-end gap-2 pt-1">
       <button
         type="button"
@@ -467,8 +521,8 @@
       <button
         type="button"
         class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
-        [disabled]="!!motivoFechaModalidad()"
-        [attr.title]="motivoFechaModalidad() || null"
+        [disabled]="!!motivoFechaModalidad() || !!motivoNoCambiaCanal()"
+        [attr.title]="motivoNoCambiaCanal() || motivoFechaModalidad() || null"
         (click)="confirmarModalidad()"
       >Cambiar canal</button>
     </div>

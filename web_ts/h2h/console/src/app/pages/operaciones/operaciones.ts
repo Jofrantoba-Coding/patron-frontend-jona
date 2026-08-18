@@ -125,6 +125,53 @@ export class OperacionesPage extends OperacionesViewComponent implements OnInit 
       });
   }
 
+  /**
+   * Convierte el lote marcado. El error se muestra <b>dentro del diálogo</b> y no se cierra:
+   * el 422 enumera qué operaciones estorban, y cerrar la lista al mismo tiempo obligaría a
+   * reconstruir la selección a ciegas para poder corregirla.
+   */
+  protected override confirmarConvertir(): void {
+    const ids = this.seleccionadasParaConvertir().map((op) => String(op.id));
+    if (ids.length === 0 || this.convirtiendo()) return;
+    const fecha = this.convertirFechaProceso().trim() || undefined;
+    this.convirtiendo.set(true);
+    this.avisoMensaje.set(null);
+    this.api
+      .convertirOperacionesAPagoMasivoProveedores(ids, fecha)
+      .pipe(finalize(() => this.convirtiendo.set(false)))
+      .subscribe({
+        next: (data) => {
+          this.cerrarConvertir();
+          // Se sale del modo y se limpia la selección: las originales quedaron anuladas, así que
+          // mantenerlas marcadas invitaría a reintentar sobre operaciones que ya no existen.
+          this.toggleModoConversion();
+          this.avisoError.set(false);
+          this.avisoMensaje.set(this.mensajeConversion(data ?? {}));
+          this.load();
+        },
+        error: (err) => {
+          this.avisoError.set(true);
+          this.avisoMensaje.set(this.mensajeError(err));
+        },
+      });
+  }
+
+  /** Resultado de la conversión: cuántas y con qué códigos quedaron las nuevas. */
+  private mensajeConversion(data: Record<string, unknown>): string {
+    const convertidas = Number(data['convertidas'] ?? 0);
+    const detalle = Array.isArray(data['detalle']) ? (data['detalle'] as Record<string, unknown>[]) : [];
+    const codigos = detalle
+      .map((fila) => String(fila['codigoOperacion'] ?? ''))
+      .filter((codigo) => codigo.length > 0);
+    const partes = [
+      `${convertidas} transferencia(s) convertida(s) a pago masivo de proveedores; las originales quedaron anuladas y su asiento revertido.`,
+    ];
+    if (codigos.length > 0) {
+      partes.push(`Operaciones nuevas: ${codigos.join(', ')}.`);
+    }
+    return partes.join(' ');
+  }
+
   /** Redacta el resultado: estado + qué pasó con el asiento + si salió de un plan. */
   private mensajeAnulacion(data: Record<string, unknown>, codigo: string): string {
     if (data['yaEstaba'] === true) {

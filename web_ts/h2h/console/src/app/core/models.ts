@@ -350,6 +350,8 @@ export interface Operacion {
   beneficiario: OperacionBeneficiario;
   beneficiarioCuenta: OperacionBeneficiarioCuenta;
   idPlanillaVigente: string | null;
+  /** Plan de envío que la tiene reservada. Con valor, la conversión va por el plan, no por aquí. */
+  idProgramacion?: string | null;
   intentosEnvio: number;
   idCarga?: string | null;
   fechaCarga?: string | null;
@@ -830,6 +832,17 @@ export interface SubtipoVentana {
   dias: DiaVentana[];
 }
 
+/**
+ * Qué producto sale del plan cuando las operaciones son transferencias a terceros.
+ *
+ * <p>`MANTENER` las deja como están. `PAGO_MASIVO_PROVEEDORES` crea una operación de abono a
+ * proveedores por cada transferencia y **anula la original**, revirtiendo su asiento: el archivo
+ * ya no es el mismo producto, y la contabilidad tampoco (el debe pasa de 4699 a 4212).</p>
+ *
+ * <p>No tiene vuelta atrás: deshacerlo sería otra conversión, no un botón.</p>
+ */
+export type ConversionProducto = 'MANTENER' | 'PAGO_MASIVO_PROVEEDORES';
+
 export interface ProgramacionCrear {
   idProducto: number;
   idMoneda: number;
@@ -847,4 +860,6 @@ export interface ProgramacionCrear {
   operaciones?: string[];
   cargas?: string[];
   programacion?: Record<string, unknown>;
+  /** Conversión de producto al meter las operaciones al plan. Sin valor, no convierte nada. */
+  conversion?: ConversionProducto;
 }

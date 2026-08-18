@@ -124,6 +124,16 @@ export class JobsConfiguracionPage extends JobsConfiguracionViewComponent implem
     this.persistir('H2H#BCP#REINTENTOS', valor, 'Política de reintentos actualizada.');
   }
 
+  protected override guardarDiferido(habilitado: boolean): void {
+    this.persistir(
+      'H2H#BCP#PROGRAMACION#DIFERIR_FUERA_DE_VENTANA',
+      { habilitado },
+      habilitado
+        ? 'Fuera de ventana, los lotes se agendarán a la próxima apertura.'
+        : 'Fuera de ventana no se programará nada: se esperará a que el canal abra.'
+    );
+  }
+
   protected override guardarHorario(codigo: string, valor: HorarioSubtipo): void {
     this.persistir(codigo, valor, 'Programación horaria actualizada.');
   }

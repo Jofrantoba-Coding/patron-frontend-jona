@@ -7,6 +7,7 @@ import {
   type ConfiguracionJobs,
   type HorarioSubtipo,
   type InterruptorJob,
+  type DiferirFueraDeVentana,
   type Reintentos,
   type RendimientoMoneda,
   type ReglaBancoSubtipo,
@@ -66,24 +67,103 @@ export class JobsConfiguracionViewComponent {
     () => (this.config()?.cantidadProgramable?.plataforma as CantidadProgramable) ?? {}
   );
 
+  /**
+   * ¿Está encendido el diferido? Cascada organización → plataforma → encendido.
+   *
+   * <p>El defecto es encendido porque es la conducta que el sistema ya tenía: fuera de ventana el
+   * job agenda a la próxima apertura. Leer un nodo ausente como «apagado» dejaría de programar por
+   * una parametría que falta, que es un corte de servicio por un dato de catálogo.</p>
+   */
+  protected readonly diferirFueraDeVentana = computed<boolean>(() => {
+    const bloque = this.config()?.diferirFueraDeVentana;
+    const propio = (bloque?.organizacion as DiferirFueraDeVentana | null)?.habilitado;
+    if (typeof propio === 'boolean') {
+      return propio;
+    }
+    const plataforma = (bloque?.plataforma as DiferirFueraDeVentana | null)?.habilitado;
+    return typeof plataforma === 'boolean' ? plataforma : true;
+  });
+
+  /**
+   * ¿Lo decide la organización, o lo hereda de la plataforma?
+   *
+   * <p>Se muestra por lo mismo que en el margen de cierre: sin el contraste, un «Sí» no dice si
+   * alguien lo eligió aquí o viene heredado — y de eso depende qué pasa si cambia el defecto.</p>
+   */
+  protected readonly diferirHeredado = computed<boolean>(() => {
+    const propio = (this.config()?.diferirFueraDeVentana?.organizacion as DiferirFueraDeVentana | null)
+      ?.habilitado;
+    return typeof propio !== 'boolean';
+  });
+
+  /** El backend anterior no manda el bloque: sin él no se pinta el control. */
+  protected readonly diferirDisponible = computed<boolean>(
+    () => !!this.config()?.diferirFueraDeVentana
+  );
+
   protected readonly reintentos = computed<Reintentos>(
     () => (this.config()?.reintentos?.organizacion as Reintentos) ?? {}
   );
 
   protected readonly horarios = computed<
-    { subtipo: string; codigo: string; valor: HorarioSubtipo; banco: ReglaBancoSubtipo }[]
+    {
+      clave: string;
+      producto: string;
+      subtipo: string;
+      codigo: string;
+      valor: HorarioSubtipo;
+      banco: ReglaBancoSubtipo;
+    }[]
   >(() => {
     const s = this.config()?.horarios?.subtipos ?? {};
-    return Object.keys(s).map((subtipo) => ({
-      subtipo,
-      codigo: s[subtipo].codigo,
-      valor: (s[subtipo].organizacion as HorarioSubtipo) ?? {},
+    return Object.keys(s).map((clave) => ({
+      clave,
+      // Desglosados por el backend desde que la pantalla administra dos ramas. Se cae a la clave
+      // para no romper contra un backend anterior, que solo mandaba transferencias.
+      producto: s[clave].producto ?? 'TRANSFERENCIAS',
+      subtipo: s[clave].subtipo ?? clave,
+      codigo: s[clave].codigo,
+      valor: (s[clave].organizacion as HorarioSubtipo) ?? {},
       // Las reglas del banco viajan para poder simular: los cut-off de INTERBANCARIA recortan el
       // cierre igual que el margen, y sin ellos la simulación mentiría justo en el subtipo que
       // más restricciones tiene.
-      banco: (s[subtipo].banco as ReglaBancoSubtipo) ?? {},
+      banco: (s[clave].banco as ReglaBancoSubtipo) ?? {},
     }));
   });
+
+  /**
+   * Los mismos subtipos agrupados por producto, que es como se leen.
+   *
+   * <p>Siete subtipos en una lista plana no dicen a qué producto pertenece cada uno, y eso importa:
+   * mover la ventana de `TERCEROS` no toca a `ABONO_PROVEEDOR` aunque compartan pantalla. Sin el
+   * encabezado, quien busque «el horario de pagos masivos» acabaría editando el de transferencias
+   * — que es justo la confusión que este cambio viene a cerrar.</p>
+   */
+  protected readonly horariosPorProducto = computed(() => {
+    const orden = ['TRANSFERENCIAS', 'PAGOS_MASIVOS'];
+    const grupos = new Map<string, ReturnType<typeof this.horarios>>();
+    for (const h of this.horarios()) {
+      grupos.set(h.producto, [...(grupos.get(h.producto) ?? []), h]);
+    }
+    return Array.from(grupos.entries())
+      .sort(([a], [b]) => {
+        // Un producto que nadie previó va al final, pero no se pierde.
+        const ia = orden.indexOf(a);
+        const ib = orden.indexOf(b);
+        return (ia < 0 ? orden.length : ia) - (ib < 0 ? orden.length : ib);
+      })
+      .map(([producto, subtipos]) => ({
+        producto,
+        etiqueta: this.ETIQUETA_PRODUCTO[producto] ?? producto,
+        subtipos: [...subtipos].sort((x, y) => x.subtipo.localeCompare(y.subtipo)),
+      }));
+  });
+
+  /** Nombre legible del producto. Sin él la pantalla mostraría el código de la parametría. */
+  private readonly ETIQUETA_PRODUCTO: Record<string, string> = {
+    TRANSFERENCIAS: 'Transferencias',
+    PAGOS_MASIVOS: 'Pagos masivos',
+  };
 
   /** Ventana publicada por el banco. Es de solo lectura: la organización no negocia el horario. */
   protected readonly ventanaCanal = computed<VentanaCanal>(
@@ -659,6 +739,14 @@ export class JobsConfiguracionViewComponent {
   // ── Ganchos que implementa la Page ─────────────────────────────────────
   protected cargar(): void {}
   protected guardarModoEnvio(_modo: string): void {}
+
+  protected guardarDiferido(_habilitado: boolean): void {}
+
+  /** Traduce el `<select>` y persiste. El valor viaja como booleano, no como texto. */
+  protected onDiferido(evento: Event): void {
+    const valor = (evento.target as HTMLSelectElement).value;
+    this.guardarDiferido(valor === 'true');
+  }
   protected cambiarInterruptor(_job: string, _habilitado: boolean): void {}
   protected guardarCantidad(_valor: CantidadProgramable): void {}
   protected guardarReintentos(_valor: Reintentos): void {}

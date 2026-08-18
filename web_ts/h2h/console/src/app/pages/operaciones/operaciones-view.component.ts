@@ -151,7 +151,7 @@ export class OperacionesViewComponent {
 
   protected readonly rows = computed<JDataTableRow[]>(() => this.master() as unknown as JDataTableRow[]);
 
-  protected readonly columns: JDataTableColumn[] = [
+  private readonly columnasBase: JDataTableColumn[] = [
     { key: 'codigoOperacion', header: 'Código', sortable: true },
     { key: 'tipoOperacionCodigo', header: 'Tipo', sortable: true },
     {
@@ -219,6 +219,146 @@ export class OperacionesViewComponent {
       render: (value) => situacionOperacion(value).etiqueta,
     },
   ];
+
+  /**
+   * Columnas de la tabla. En modo conversión se antepone una de selección.
+   *
+   * <p>`j-data-table` no tiene selección propia, así que la marca se pinta como texto y el clic de
+   * fila hace de casilla. Sale más barato —y más consistente— que duplicar la tabla entera solo
+   * para poder marcar filas.</p>
+   */
+  protected readonly columns = computed<JDataTableColumn[]>(() => {
+    if (!this.modoConversion()) {
+      return this.columnasBase;
+    }
+    const marca: JDataTableColumn = {
+      key: 'id',
+      header: '',
+      align: 'center',
+      render: (value, row) => {
+        const op = row as unknown as Operacion;
+        // Una fila que no se puede convertir se marca como tal en la propia tabla: descubrirlo al
+        // pulsar «Convertir» —con el 422 del backend— obligaría a adivinar cuál de todas estorba.
+        if (this.motivoNoConvertible(op)) return '·';
+        return this.enConversion(String(value ?? '')) ? '✓' : '○';
+      },
+    };
+    return [marca, ...this.columnasBase];
+  });
+
+  // ── Conversión a pago masivo de proveedores ───────────────────────────
+  //
+  // Convertir crea una operación nueva por transferencia y ANULA la original, revirtiendo su
+  // asiento (el debe pasa de 4699 a 4212). No hay deshacer, así que la pantalla exige entrar a un
+  // modo explícito y no ofrece la acción suelta en cada fila.
+
+  /** ¿Está la tabla en modo «marcar para convertir»? */
+  protected readonly modoConversion = signal<boolean>(false);
+  protected readonly seleccionConversion = signal<Set<string>>(new Set());
+  protected readonly convertirAbierto = signal<boolean>(false);
+  protected readonly convirtiendo = signal<boolean>(false);
+  /** Opcional: sin fecha, cada operación conserva la suya (igual que el backend). */
+  protected readonly convertirFechaProceso = signal<string>('');
+
+  /**
+   * Por qué esta operación NO se puede convertir, o `null` si se puede.
+   *
+   * <p>Espejo de las guardas del backend, en su mismo orden. Es <b>optimista</b>: el backend sigue
+   * siendo la autoridad —valida además el aislamiento del tenant— y su 422 se muestra tal cual.
+   * Lo que se gana aquí es que el operador no marque filas que van a hacer fallar el lote entero,
+   * porque la conversión es todo o nada.</p>
+   */
+  protected motivoNoConvertible(op: Operacion): string | null {
+    if (String(op.tipoOperacionCodigo ?? '').toUpperCase() !== 'TRANSFERENCIA_TERCEROS') {
+      return 'no es una transferencia a terceros.';
+    }
+    const estado = String(op.estadoOperacionCodigo ?? '').toUpperCase();
+    if (estado !== 'REGISTRADA' && estado !== 'VALIDADA') {
+      return `su estado (${estado || '—'}) ya no admite conversión.`;
+    }
+    if (op.idPlanillaVigente) {
+      return `ya está en la planilla ${op.idPlanillaVigente}: viajó al banco como transferencia.`;
+    }
+    if (op.idProgramacion) {
+      return 'pertenece a un plan; conviértalo desde el plan al pasarlo a portal web (H2W).';
+    }
+    return null;
+  }
+
+  protected enConversion(id: string): boolean {
+    return this.seleccionConversion().has(id);
+  }
+
+  /** Operaciones de la página que sí admiten conversión. */
+  protected readonly convertibles = computed<Operacion[]>(() =>
+    this.master().filter((op) => !this.motivoNoConvertible(op))
+  );
+
+  protected readonly seleccionConversionCount = computed(() => this.seleccionConversion().size);
+
+  protected toggleModoConversion(): void {
+    const entrando = !this.modoConversion();
+    this.modoConversion.set(entrando);
+    // Salir del modo limpia la selección: dejarla viva la reaplicaría sobre otra página o otro
+    // filtro sin que se vea, que es como se convierte algo que no se estaba mirando.
+    if (!entrando) this.seleccionConversion.set(new Set());
+  }
+
+  protected toggleConversion(id: string): void {
+    const op = this.master().find((o) => String(o.id) === id);
+    if (!op || this.motivoNoConvertible(op)) return;
+    const s = new Set(this.seleccionConversion());
+    if (s.has(id)) s.delete(id);
+    else s.add(id);
+    this.seleccionConversion.set(s);
+  }
+
+  /** Marca o desmarca todas las convertibles de la página visible. */
+  protected toggleTodasConvertibles(): void {
+    const visibles = this.convertibles().map((op) => String(op.id));
+    const s = new Set(this.seleccionConversion());
+    const todasMarcadas = visibles.length > 0 && visibles.every((id) => s.has(id));
+    for (const id of visibles) {
+      if (todasMarcadas) s.delete(id);
+      else s.add(id);
+    }
+    this.seleccionConversion.set(s);
+  }
+
+  /** Las seleccionadas, en el orden en que se ven, para poder nombrarlas en la confirmación. */
+  protected readonly seleccionadasParaConvertir = computed<Operacion[]>(() =>
+    this.master().filter((op) => this.seleccionConversion().has(String(op.id)))
+  );
+
+  /** Importe total de lo que se va a convertir: es la magnitud de lo que se está anulando. */
+  protected readonly totalAConvertir = computed(() =>
+    NUM.format(
+      this.seleccionadasParaConvertir().reduce((suma, op) => suma + Number(op.montoTotal ?? 0), 0)
+    )
+  );
+
+  /** Monedas distintas en la selección. Ver el aviso del diálogo. */
+  protected readonly monedasEnConversion = computed<string[]>(() =>
+    Array.from(new Set(this.seleccionadasParaConvertir().map((op) => String(op.monedaCodigo ?? '—'))))
+  );
+
+  protected abrirConvertir(): void {
+    if (this.seleccionConversionCount() === 0) return;
+    this.convertirFechaProceso.set('');
+    this.avisoMensaje.set(null);
+    this.convertirAbierto.set(true);
+  }
+
+  protected cerrarConvertir(): void {
+    this.convertirAbierto.set(false);
+  }
+
+  protected onConvertirFecha(event: Event): void {
+    this.convertirFechaProceso.set((event.target as HTMLInputElement).value);
+  }
+
+  /** La Page la sobrescribe: es quien tiene el servicio. */
+  protected confirmarConvertir(): void {}
 
   protected onSubtipo(event: Event): void {
     this.subtipo.set((event.target as HTMLSelectElement).value);
@@ -368,7 +508,14 @@ export class OperacionesViewComponent {
   }
 
   protected onRowClick(event: { row: JDataTableRow; index: number }): void {
-    this.abrirOpDetalle(String((event.row as unknown as Operacion).id));
+    const id = String((event.row as unknown as Operacion).id);
+    // En modo conversión el clic marca la fila. Abrir el detalle ahí obligaría a cerrarlo tras
+    // cada marca, que con un lote de veinte operaciones es inusable.
+    if (this.modoConversion()) {
+      this.toggleConversion(id);
+      return;
+    }
+    this.abrirOpDetalle(id);
   }
   protected abrirOpDetalle(_idOperacion: string): void {
     return;

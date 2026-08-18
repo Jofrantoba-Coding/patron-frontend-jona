@@ -259,6 +259,56 @@
     </div>
   </div>
 
+  <!-- DIFERIDO FUERA DE VENTANA: qué hace el job cuando le toca turno y el canal está cerrado.
+       Va aquí, entre los parámetros de despacho y la ventana del canal, porque es justo la
+       bisagra entre los dos: decide cómo se comporta el despacho frente al horario. -->
+  @if (diferirDisponible()) {
+    <div class="overflow-hidden rounded-xl border border-neutral-200">
+      <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-2">
+        <p class="text-sm font-semibold text-neutral-800">Fuera de la ventana de atención</p>
+        <p class="text-xs text-neutral-500">
+          Qué hace el <b>job automático</b> cuando le toca armar un lote y el canal está cerrado.
+          No afecta a la programación manual.
+        </p>
+      </div>
+      <div class="space-y-3 px-4 py-3">
+        <label class="flex items-center gap-3 text-xs">
+          <span class="text-neutral-500">Agendar a la próxima apertura</span>
+          <select class="rounded border border-neutral-300 px-2 py-1 text-xs"
+            [value]="diferirFueraDeVentana() + ''" [disabled]="cargando()"
+            (change)="onDiferido($event)">
+            <option value="true">Sí — se adelanta el lote</option>
+            <option value="false">No — se espera a que abra</option>
+          </select>
+          @if (diferirHeredado()) {
+            <span class="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-500">
+              heredado de la plataforma
+            </span>
+          }
+        </label>
+
+        <!-- Se explican las dos ramas porque «no programar» suena a avería y no lo es: el job
+             vuelve cada pocos minutos, así que se recupera solo en cuanto abre la ventana. -->
+        <p class="text-xs leading-relaxed text-neutral-500">
+          @if (diferirFueraDeVentana()) {
+            El plan se crea <b>ya</b>, fechado en el siguiente instante en que el canal abre, y la
+            fecha de proceso pasa a ser la de ese día — también en sus operaciones. El operador ve el
+            lote esperando en vez de un vacío.
+          } @else {
+            <b>No se programa nada</b> hasta que el canal abra. No es un fallo: el job vuelve a
+            intentarlo cada pocos minutos, así que armará el lote solo en cuanto haya ventana.
+          }
+        </p>
+
+        <p class="text-xs leading-relaxed text-neutral-400">
+          En ninguno de los dos casos llega a existir un plan fuera de ventana: lo que cambia es
+          <b>cuándo se crea</b>, no cuándo sale. Por eso H2H sigue respetando el horario del banco —
+          BCP acepta el archivo según sus propias ventanas, y una fecha vencida se rechaza.
+        </p>
+      </div>
+    </div>
+  }
+
   <!-- VENTANA DEL CANAL: dato del banco, se muestra para poder razonar sobre el margen -->
   <div class="overflow-hidden rounded-xl border border-neutral-200">
     <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-2">
@@ -302,7 +352,16 @@
         <tr><th class="px-4 py-1">Subtipo</th><th>Habilitado</th><th>Cadencia</th><th>Por moneda</th><th>Margen</th><th></th></tr>
       </thead>
       <tbody>
-        @for (h of horarios(); track h.codigo) {
+        <!-- Agrupado por producto: mover la ventana de TERCEROS no toca a ABONO_PROVEEDOR aunque
+             compartan tabla, y sin el encabezado quien busca «el horario de pagos masivos» acaba
+             editando el de transferencias. -->
+        @for (grupo of horariosPorProducto(); track grupo.producto) {
+          <tr class="border-t border-neutral-200 bg-neutral-100">
+            <td colspan="6" class="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-600">
+              {{ grupo.etiqueta }}
+            </td>
+          </tr>
+        @for (h of grupo.subtipos; track h.codigo) {
           @if (editando() === h.codigo) {
             <tr class="border-t border-neutral-100 bg-neutral-50">
               <td class="px-4 py-2 font-medium text-neutral-800">{{ h.subtipo }}</td>
@@ -414,6 +473,7 @@
               </td>
             </tr>
           }
+        }
         }
       </tbody>
     </table>

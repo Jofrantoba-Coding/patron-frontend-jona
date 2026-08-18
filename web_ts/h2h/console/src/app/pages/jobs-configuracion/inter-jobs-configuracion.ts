@@ -36,6 +36,22 @@ export interface CantidadProgramable {
   porMoneda?: Record<string, number>;
 }
 
+/**
+ * ¿Puede el job agendar un lote para una ventana FUTURA?
+ *
+ * <p>`true` —el defecto— es la conducta que el sistema ya tenía: fuera de ventana el plan se agenda
+ * al siguiente instante en que el canal abre, y la fecha de proceso pasa a ser la de ese día, tanto
+ * en el plan como en sus operaciones. `false` hace que el job **no programe** fuera de ventana:
+ * espera, y como corre cada pocos minutos, programa solo en cuanto abre.</p>
+ *
+ * <p><b>En ninguno de los dos casos existe un plan fuera de ventana.</b> Lo que cambia no es dónde
+ * cae el plan sino cuándo se crea, y por eso H2H sigue respetando el horario del banco: BCP acepta
+ * el archivo según SUS ventanas, y una fecha vieja o una hora inválida se rechazan.</p>
+ */
+export interface DiferirFueraDeVentana {
+  habilitado?: boolean;
+}
+
 /** Política de reintentos automáticos. */
 export interface Reintentos {
   maxReintentosAutomaticos?: number;
@@ -164,16 +180,36 @@ export interface SimulacionSubtipo {
   tramos: TramoSimulado[];
 }
 
+/**
+ * Un subtipo horario configurable, con el producto al que pertenece.
+ *
+ * <p>La clave del `Record` es `<PRODUCTO>#<SUBTIPO>` y no el subtipo suelto: hoy los nombres no
+ * colisionan entre productos, pero apoyarse en eso haría que el día que dos compartan nombre uno
+ * pisara al otro sin ruido.</p>
+ *
+ * <p>`producto` y `subtipo` llegan desglosados para que la pantalla pueda agrupar sin partir la
+ * clave. Son opcionales porque un backend anterior a la rama de pagos masivos no los manda.</p>
+ */
+export interface SubtipoHorarioConfig {
+  codigo: string;
+  producto?: string;
+  subtipo?: string;
+  organizacion: unknown;
+  banco: unknown;
+}
+
 export interface ConfiguracionJobs {
   interruptores: Record<string, InterruptorJob>;
   /** AUTOMATICO | MANUAL. Gobierna la INGESTA, no los jobs. */
   modoEnvio: BloqueConfig;
   cantidadProgramable: BloqueConfig;
   reintentos: BloqueConfig;
+  /** Interruptor del diferido. Opcional: un backend anterior no lo manda. */
+  diferirFueraDeVentana?: BloqueConfig;
   horarios: {
     /** Ventana del CANAL: es del banco. La organización no puede cambiarla. */
     ventanaCanal: unknown;
-    subtipos: Record<string, { codigo: string; organizacion: unknown; banco: unknown }>;
+    subtipos: Record<string, SubtipoHorarioConfig>;
   };
   generado: string;
 }
@@ -185,6 +221,8 @@ export interface JobsConfiguracionPageContract {
   guardarModoEnvio(modo: string): void;
   guardarCantidad(valor: CantidadProgramable): void;
   guardarReintentos(valor: Reintentos): void;
+  /** Enciende o apaga el diferido del job cuando el canal esta cerrado. */
+  guardarDiferido(habilitado: boolean): void;
   guardarHorario(codigo: string, valor: HorarioSubtipo): void;
   cambiarInterruptor(job: string, habilitado: boolean): void;
 }

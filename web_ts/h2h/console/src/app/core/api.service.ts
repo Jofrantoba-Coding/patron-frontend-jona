@@ -46,6 +46,7 @@ import type {
   PlanillaFiltro,
   PlanillaRow,
   ProductoGrupo,
+  ConversionProducto,
   ProgramacionCrear,
   ProgramacionDetalleFull,
   ProgramacionFiltro,
@@ -259,6 +260,8 @@ const normalizeOperacion = (row: OperacionBackendRow): Operacion => ({
   beneficiario: pickOperacion<Operacion['beneficiario']>(row, 'beneficiario'),
   beneficiarioCuenta: pickOperacion<Operacion['beneficiarioCuenta']>(row, 'beneficiarioCuenta'),
   idPlanillaVigente: pickOperacion<string | null>(row, 'idPlanillaVigente'),
+  // `pickOperacion` lee tolerando el case: PostgreSQL pliega el alias a `idprogramacion`.
+  idProgramacion: pickOperacion<string | null>(row, 'idProgramacion'),
   intentosEnvio: pickOperacion<number>(row, 'intentosEnvio'),
   idCarga: pickOperacion<string | null>(row, 'idCarga'),
   fechaCarga: pickOperacion<string | null>(row, 'fechaCarga'),
@@ -651,6 +654,33 @@ export class ApiService {
     ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
   }
 
+  /**
+   * Convierte transferencias a terceros en pagos masivos — abono a proveedores.
+   *
+   * <p>Por cada transferencia crea una operación de abono equivalente y deja la original
+   * **anulada**, revirtiendo su asiento: el debe pasa de la cuenta `4699` a la `4212`. No es una
+   * reclasificación cosmética y **no tiene vuelta atrás** desde la consola.</p>
+   *
+   * <p>Es **todo o nada**: si una sola operación del lote no admite conversión, el backend
+   * responde 422 sin convertir ninguna, enumerando cuáles estorban y por qué. Por eso se manda la
+   * lista entera en una petición en vez de una por operación — así el error habla del lote.</p>
+   *
+   * <p>Devuelve 422 también si alguna pertenece a un plan de envío: esa conversión va por
+   * `/programaciones/modalidad`, que además repunta los detalles del plan y le cambia el producto.
+   * `fechaProceso` es opcional; sin ella cada operación conserva la suya.</p>
+   */
+  convertirOperacionesAPagoMasivoProveedores(
+    operaciones: string[],
+    fechaProceso?: string
+  ): Observable<Record<string, unknown>> {
+    const data: Record<string, unknown> = { operaciones };
+    if (fechaProceso) data['fechaProceso'] = fechaProceso;
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/operaciones/convertir/pagomasivo-proveedores',
+      this.buildEnvelope(data)
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
   // ── Planillas ────────────────────────────────────────────────────────
   planillas(opts: { producto?: ProductoGrupo; subtipo?: string; page?: number; pageSize?: number } = {}) {
     const { producto, subtipo, page = 1, pageSize = 20 } = opts;
@@ -790,11 +820,15 @@ export class ApiService {
   cambiarModalidadProgramacion(
     idProgramacion: string,
     modalidad: 'H2H' | 'H2W',
-    fechaProceso?: string
+    fechaProceso?: string,
+    conversion?: ConversionProducto
   ) {
     const body: Record<string, unknown> = { id: idProgramacion, modalidad };
     // Solo si viene: sin ella el plan conserva su fecha y no se reescriben las operaciones.
     if (fechaProceso) body['fechaProceso'] = fechaProceso;
+    // `MANTENER` es el default del backend, asi que no se manda: el cuerpo solo lleva lo que pide
+    // un cambio real, y una conversion nunca viaja por descuido.
+    if (conversion && conversion !== 'MANTENER') body['conversion'] = conversion;
     return this.postBackend<Record<string, unknown>>('/programaciones/modalidad', body);
   }
 
@@ -1009,9 +1043,14 @@ export class ApiService {
    * el que rechaza al crear, así que una copia en el navegador se desincronizaría y ofrecería días
    * que el backend no acepta.</p>
    */
-  ventanaCanalProgramacion() {
+  ventanaCanalProgramacion(producto?: string) {
     const org = this.session.tenant()?.org_u_id;
-    return this.postBackend<VentanaSemanal>('/programaciones/ventana', { idOrganizacion: org });
+    const body: Record<string, unknown> = { idOrganizacion: org };
+    // Cada producto tiene su rama horaria. Sin `producto` el backend responde la de transferencias
+    // —lo que hacía antes—, y el formulario mostraría un horario distinto del que se le va a
+    // aplicar al validar un plan de pagos masivos.
+    if (producto) body['producto'] = producto;
+    return this.postBackend<VentanaSemanal>('/programaciones/ventana', body);
   }
   /**
    * Trabajo pendiente por etapa del flujo, para los badges del menú.

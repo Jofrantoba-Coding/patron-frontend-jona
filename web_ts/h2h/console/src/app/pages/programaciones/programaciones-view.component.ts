@@ -17,6 +17,7 @@ import {
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
 import { siguientePasoProgramacion } from './inter-programaciones';
 import type {
+  ConversionProducto,
   DiaVentana,
   Operacion,
   OperacionDetalle,
@@ -176,6 +177,11 @@ export class ProgramacionesViewComponent {
    * sabe llevar solo. H2W se elige cuando ya se sabe que ese lote se sube a mano al portal.
    */
   protected readonly nuevoModalidad = signal<string>('H2H');
+  /**
+   * Producto con el que saldrá el plan nuevo. Igual que en el diálogo de canal, arranca en
+   * `MANTENER`: convertir anula las operaciones seleccionadas y revierte sus asientos.
+   */
+  protected readonly nuevoConversion = signal<ConversionProducto>('MANTENER');
   protected readonly nuevoTipoDestino = signal<string>('');
   protected readonly nuevoCanal = signal<string>('');
 
@@ -229,6 +235,9 @@ export class ProgramacionesViewComponent {
     const suya = this.fechaProcesoDe(plan);
     this.modalidadFecha.set(suya && suya >= this.hoyCanal() ? suya : this.hoyCanal());
     this.accionError.set('');
+    // Cada apertura parte de MANTENER: convertir anula operaciones y revierte asientos, y heredar
+    // esa eleccion del diálogo anterior seria la forma de convertir un plan sin querer.
+    this.modalidadConversion.set('MANTENER');
     this.modalidadOpen.set(true);
   }
 
@@ -244,12 +253,62 @@ export class ProgramacionesViewComponent {
     this.modalidadFecha.set((event.target as HTMLInputElement).value);
   }
 
+  /**
+   * Producto con el que saldrá el plan. Arranca siempre en `MANTENER`: convertir anula las
+   * operaciones originales y revierte sus asientos, así que tiene que ser una elección explícita
+   * y no algo que quede pegado del diálogo anterior.
+   */
+  protected readonly modalidadConversion = signal<ConversionProducto>('MANTENER');
+
+  protected onModalidadConversion(event: Event): void {
+    this.modalidadConversion.set(
+      (event.target as HTMLSelectElement).value as ConversionProducto
+    );
+  }
+
+  /**
+   * ¿Se ofrece convertir a pago masivo de proveedores?
+   *
+   * <p>Solo al ir al portal web y solo si TODAS las operaciones del plan son transferencias a
+   * terceros. El backend lo rechaza todo o nada, así que ofrecerlo sobre un plan mixto sería
+   * ofrecer un botón que solo puede fallar.</p>
+   */
+  protected readonly conversionDisponible = computed<boolean>(() => {
+    if (this.modalidadDestino() !== 'H2W') return false;
+    const ops = this.operaciones(this.detalle());
+    if (!ops.length) return false;
+    return ops.every(
+      (op) =>
+        String(this.raw(op, 'tipoOperacionCodigo') ?? '').toUpperCase() ===
+        'TRANSFERENCIA_TERCEROS'
+    );
+  });
+
   /** `fechaProceso` de un plan como `yyyy-MM-dd`, o `''`. El backend puede mandarla con hora. */
   private fechaProcesoDe(plan: ProgramacionRow | null): string {
     return String(plan?.fechaProceso ?? '').slice(0, 10);
   }
 
   /** Motivo por el que la fecha elegida no vale, o `null`. Espejo de lo que valida el backend. */
+  /**
+   * Por qué este plan NO puede cambiar de canal, o `null` si puede.
+   *
+   * <p>La regla es del backend y aquí solo se anticipa: un plan que ya generó planilla no cambia de
+   * canal. Los dos canales no comparten archivo —H2H envía el TXT cifrado por SFTP, H2W lo sube una
+   * persona en claro al portal del banco—, así que el archivo ya hecho no sirve para el otro.</p>
+   *
+   * <p>Se comprueba en la consola porque antes no se comprobaba en ninguna parte del frontend: el
+   * botón salía habilitado, el operador lo pulsaba y el rechazo llegaba del servidor. La guarda de
+   * verdad sigue estando en el dominio; esto solo evita ofrecer algo imposible.</p>
+   */
+  protected readonly motivoNoCambiaCanal = computed<string | null>(() => {
+    const plan = this.modalidadPlan();
+    if (!plan) return null;
+    if (!plan.idPlanilla) return null;
+    return 'Este plan ya generó su planilla, y el archivo pertenece al canal con el que se creó.'
+      + ' Anule la planilla para liberar sus operaciones y cree un plan nuevo en el otro canal.';
+  });
+
   protected readonly motivoFechaModalidad = computed<string | null>(() => {
     const fecha = this.modalidadFecha();
     if (!fecha) return 'Indique la fecha de proceso.';
@@ -334,6 +393,34 @@ export class ProgramacionesViewComponent {
     return rows.filter((op) => String(op.idCarga ?? '') === lote);
   });
   protected readonly seleccionCount = computed(() => this.seleccion().size);
+
+  /**
+   * ¿Se ofrece convertir a proveedores al crear el plan?
+   *
+   * <p>Mismas dos condiciones que en el cambio de canal: se va al portal web y las operaciones
+   * <b>seleccionadas</b> son todas transferencias a terceros. Se mira la selección y no el listado
+   * completo, porque es la selección lo que entra al plan.</p>
+   */
+  protected readonly conversionNuevoDisponible = computed<boolean>(() => {
+    if (String(this.nuevoModalidad()).toUpperCase() !== 'H2W') return false;
+    const elegidas = this.seleccion();
+    if (elegidas.size === 0) return false;
+    const porId = new Map(this.opsRows().map((op) => [String(op.id), op]));
+    for (const id of elegidas) {
+      const op = porId.get(String(id));
+      // Una seleccionada que ya no está en el listado (cambió el filtro) no se puede verificar; no
+      // se asume que sea convertible.
+      if (!op) return false;
+      if (String(op.tipoOperacionCodigo ?? '').toUpperCase() !== 'TRANSFERENCIA_TERCEROS') {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  protected onNuevoConversion(event: Event): void {
+    this.nuevoConversion.set((event.target as HTMLSelectElement).value as ConversionProducto);
+  }
 
   protected readonly columns: JDataTableColumn[] = [
     { key: 'codigo', header: 'Código', sortable: true },
@@ -453,6 +540,14 @@ export class ProgramacionesViewComponent {
     this.opsRows.set([]);
     this.seleccion.set(new Set());
     this.loteFiltro.set('');
+    // Cada producto tiene su rama horaria: sin recargar, el formulario seguiría mostrando la
+    // ventana del producto anterior mientras el backend valida contra la del nuevo.
+    this.onProductoParaVentana(this.productoAbrevSel());
+  }
+
+  /** La Page la sobrescribe: es quien tiene el servicio. */
+  protected onProductoParaVentana(_abreviatura: string): void {
+    return;
   }
   protected onNuevoIdMoneda(e: Event): void {
     this.nuevoIdMoneda.set((e.target as HTMLSelectElement).value);
@@ -598,6 +693,9 @@ export class ProgramacionesViewComponent {
 
   /** Aviso sobre la fecha de proceso elegida. Informa mientras se escribe; el corte es al guardar. */
   protected readonly avisoFechaProceso = computed<string | null>(() => {
+    // Mismo criterio que motivoFueraDeVentana: en H2W la ventana del SFTP no aplica. Sin esto el
+    // campo se pintaría en rojo diciendo «el plan no podría enviarse» sobre un plan que sí puede.
+    if (String(this.nuevoModalidad()).toUpperCase() === 'H2W') return null;
     const iso = this.nuevoFechaProceso().trim();
     if (!iso) return null;
     const dia = this.diaDeVentana(iso);
@@ -653,12 +751,18 @@ export class ProgramacionesViewComponent {
   });
 
   /**
-   * Comprueba fecha y hora contra la ventana. Devuelve el motivo del rechazo, o `null` si pasa.
+   * Motivo por el que las fechas caen fuera de la ventana del canal, o `null`.
    *
    * <p>Cuando la ventana no se pudo leer se deja pasar: el backend vuelve a validar y rechaza. Es
    * preferible a bloquear el formulario por un fallo de lectura que el usuario no puede arreglar.</p>
+   *
+   * <p>En **H2W no se comprueba**: la ventana es la del SFTP —a qué hora el banco acepta el PUT— y
+   * en H2W no hay PUT, sino una persona que descarga el archivo y lo sube al portal cuando le
+   * toca. Bloquear un plan de portal por caer en domingo negaría algo que el canal sí permite, y
+   * además contradiría al generador, que ya exime a H2W de la ventana.</p>
    */
   private motivoFueraDeVentana(fechaProceso: string, programadoLocal: string): string | null {
+    if (String(this.nuevoModalidad()).toUpperCase() === 'H2W') return null;
     const v = this.ventana();
     if (!v?.resuelta) return null;
 
@@ -715,6 +819,11 @@ export class ProgramacionesViewComponent {
       modalidad: this.nuevoModalidad(),
       operaciones,
     };
+    // Igual que en el cambio de canal: solo viaja si la opción llegó a ofrecerse, para que una
+    // selección que dejó de ser elegible no arrastre una conversión que el backend rechazaría.
+    if (this.conversionNuevoDisponible() && this.nuevoConversion() !== 'MANTENER') {
+      payload.conversion = this.nuevoConversion();
+    }
     if (this.nuevoTipoDestino()) payload.tipoDestino = this.nuevoTipoDestino();
     if (this.nuevoCanal()) payload.canalLiquidacion = this.nuevoCanal();
     // datetime-local (hora local, sin zona) -> ISO con offset que acepta OffsetDateTime en el backend

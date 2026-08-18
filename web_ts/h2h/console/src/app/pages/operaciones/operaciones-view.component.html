@@ -176,8 +176,54 @@
     </div>
   }
 
+  <!-- Barra de conversión. Fuera del modo, solo el interruptor: convertir anula operaciones y
+       revierte asientos, así que no se ofrece como una acción más al alcance de un clic distraído. -->
+  <div class="flex flex-wrap items-center justify-between gap-3 rounded-md border border-neutral-200 bg-white px-3 py-2">
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        class="rounded-md border px-3 py-1.5 text-sm font-medium transition"
+        [class.border-primary-600]="modoConversion()"
+        [class.bg-primary-50]="modoConversion()"
+        [class.text-primary-700]="modoConversion()"
+        [class.border-neutral-300]="!modoConversion()"
+        [class.text-neutral-700]="!modoConversion()"
+        (click)="toggleModoConversion()"
+      >{{ modoConversion() ? 'Salir de selección' : 'Convertir a pago masivo' }}</button>
+      @if (modoConversion()) {
+        <span class="text-xs text-neutral-500">
+          {{ seleccionConversionCount() }} seleccionada(s) de {{ convertibles().length }} convertible(s) en esta página.
+        </span>
+      }
+    </div>
+    @if (modoConversion()) {
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-100"
+          [disabled]="convertibles().length === 0"
+          (click)="toggleTodasConvertibles()"
+        >Marcar convertibles</button>
+        <button
+          type="button"
+          class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
+          [disabled]="seleccionConversionCount() === 0"
+          (click)="abrirConvertir()"
+        >Convertir {{ seleccionConversionCount() }} a proveedores</button>
+      </div>
+    }
+  </div>
+
+  @if (modoConversion()) {
+    <p class="rounded-md bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+      Marque las transferencias a terceros que deban salir como planilla de proveedores. Las filas
+      con <strong>·</strong> no se pueden convertir; pase el detalle para ver por qué. La conversión
+      es <strong>todo o nada</strong>: si una sola del lote no procede, no se convierte ninguna.
+    </p>
+  }
+
   <j-data-table
-    [columns]="columns"
+    [columns]="columns()"
     [data]="rows()"
     [rowKey]="rowKey"
     [showFilter]="false"
@@ -256,6 +302,92 @@
         [disabled]="!motivoAnularValido() || anulando()"
         (click)="confirmarAnular()"
       >{{ anulando() ? 'Anulando…' : 'Anular operación' }}</button>
+    </div>
+  </div>
+</j-dialog>
+
+<!-- Confirmación de la conversión. Es la última pantalla antes de anular operaciones y revertir
+     asientos, así que enumera exactamente qué se va a convertir en vez de dar solo un contador. -->
+<j-dialog
+  [open]="convertirAbierto()"
+  size="md"
+  title="Convertir a pago masivo de proveedores"
+  [description]="seleccionConversionCount() + ' transferencia(s) · ' + totalAConvertir()"
+  (closed)="cerrarConvertir()"
+  (cancel)="cerrarConvertir()"
+>
+  <div class="space-y-3 p-4">
+    <p class="rounded-md bg-red-50 p-2 text-xs text-red-800">
+      Por cada transferencia se creará una operación de <strong>abono a proveedores</strong> y la
+      original quedará <strong>anulada</strong>, con su asiento revertido: el cargo pasa de la
+      cuenta 4699 a la 4212. <strong>No tiene vuelta atrás</strong> desde la consola.
+    </p>
+
+    @if (monedasEnConversion().length > 1) {
+      <p class="rounded-md bg-amber-50 p-2 text-xs text-amber-800">
+        La selección mezcla {{ monedasEnConversion().length }} monedas ({{ monedasEnConversion().join(', ') }}).
+        La conversión funciona igual, pero una planilla de proveedores es de <strong>una sola
+        moneda</strong>: harán falta tantos planes como monedas.
+      </p>
+    }
+
+    <div class="max-h-56 overflow-y-auto rounded-md border border-neutral-200">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-neutral-50 text-neutral-500">
+          <tr>
+            <th class="px-2 py-1 font-medium">Código</th>
+            <th class="px-2 py-1 font-medium">Beneficiario</th>
+            <th class="px-2 py-1 text-center font-medium">Mon.</th>
+            <th class="px-2 py-1 text-right font-medium">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (op of seleccionadasParaConvertir(); track op.id) {
+            <tr class="border-t border-neutral-100">
+              <td class="px-2 py-1 font-mono text-[11px]">{{ op.codigoOperacion }}</td>
+              <td class="px-2 py-1">{{ op.beneficiario?.titular ?? '—' }}</td>
+              <td class="px-2 py-1 text-center">{{ op.monedaCodigo }}</td>
+              <td class="px-2 py-1 text-right">{{ op.montoTotal }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Opcional a propósito, igual que en el backend: sin fecha cada operación conserva la suya.
+         Ponerle hoy por defecto movería la fecha de proceso de todo el lote sin que nadie lo pida. -->
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-medium text-neutral-500" for="conv-fecha">
+        Fecha de proceso <span class="font-normal text-neutral-400">(opcional)</span>
+      </label>
+      <input
+        id="conv-fecha"
+        type="date"
+        class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+        [value]="convertirFechaProceso()"
+        (change)="onConvertirFecha($event)"
+      />
+      <span class="text-[11px] text-neutral-500">
+        Sin fecha, cada operación nueva conserva la de la transferencia que la origina.
+      </span>
+    </div>
+
+    @if (avisoMensaje() && avisoError()) {
+      <p class="rounded-md bg-red-50 p-2 text-xs whitespace-pre-line text-red-700">{{ avisoMensaje() }}</p>
+    }
+
+    <div class="flex justify-end gap-2 pt-1">
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 transition hover:bg-neutral-50"
+        (click)="cerrarConvertir()"
+      >Cancelar</button>
+      <button
+        type="button"
+        class="rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
+        [disabled]="convirtiendo() || seleccionConversionCount() === 0"
+        (click)="confirmarConvertir()"
+      >{{ convirtiendo() ? 'Convirtiendo…' : 'Convertir y anular originales' }}</button>
     </div>
   </div>
 </j-dialog>

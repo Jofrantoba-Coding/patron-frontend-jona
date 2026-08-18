@@ -39,11 +39,22 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
    * <p>Un fallo aquí no rompe la pantalla —el formulario sigue operativo y el backend vuelve a
    * validar—, solo se queda sin el aviso previo.</p>
    */
-  private cargarVentana(): void {
-    this.api.ventanaCanalProgramacion().subscribe({
+  private cargarVentana(producto?: string): void {
+    this.api.ventanaCanalProgramacion(producto).subscribe({
       next: (v) => this.setVentana(v),
       error: () => this.setVentana(null),
     });
+  }
+
+  /**
+   * Recarga la ventana cuando cambia el producto del formulario.
+   *
+   * <p>La ventana ya no es «la del canal» sino la del producto, así que dejarla fija a la primera
+   * carga mostraría el horario de transferencias mientras el backend valida el de pagos masivos.
+   * La Vista la invoca al cambiar el selector.</p>
+   */
+  protected override onProductoParaVentana(abreviatura: string): void {
+    this.cargarVentana(abreviatura || undefined);
   }
 
   protected override load(): void {
@@ -135,7 +146,10 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
     // La fecha solo se manda si cambia: reenviar la misma reescribiría todas las operaciones del
     // plan para dejarlas igual, y ensuciaría la bitácora con un cambio que no lo es.
     const fecha = this.modalidadFechaCambia() ? this.modalidadFecha() : undefined;
-    this.api.cambiarModalidadProgramacion(plan.id, destino, fecha).subscribe({
+    // La conversion solo viaja si el dialogo llego a ofrecerla: si el plan dejo de ser elegible
+    // entre que se abrio y se confirmo, no se manda una conversion que el backend rechazaria.
+    const conversion = this.conversionDisponible() ? this.modalidadConversion() : undefined;
+    this.api.cambiarModalidadProgramacion(plan.id, destino, fecha, conversion).subscribe({
       next: () => {
         this.cerrarModalidad();
         // Se recarga el detalle solo si es el plan abierto: el cambio tambien mueve el modo de
