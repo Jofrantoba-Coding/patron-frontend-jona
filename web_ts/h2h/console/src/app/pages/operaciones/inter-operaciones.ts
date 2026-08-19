@@ -72,6 +72,12 @@ export const META: Record<ProductoGrupo, OperacionMeta> = {
 /** Estado terminal de la anulación. */
 export const ESTADO_OPE_ANULADA = 'ANULADA';
 
+/** Solo se informa a Calimaco lo que el banco ya pagó. */
+export const ESTADO_OPE_CONFIRMADO = 'PAGO_CONFIRMADO';
+
+/** Estado final: ya se le dijo al sistema de origen y no hay nada más que hacer. */
+export const ESTADO_OPE_INFORMADO = 'PAGO_INFORMADO';
+
 /**
  * Estados desde los que el backend NO deja anular, con el motivo que se muestra.
  *

@@ -653,6 +653,17 @@ export interface OperacionFiltro {
   estadoOperacion?: string;
   moneda?: string;
   sinPlanillaVigente?: boolean;
+  /** `true` = todavía no está reservada por ninguna programación de envío. */
+  sinProgramacion?: boolean;
+  /**
+   * `AUTOMATICO` | `MANUAL`: con qué modo quedó sellada la operación en la ingesta.
+   *
+   * <p>La pantalla de programación manual debe pedir `MANUAL`, que es el complemento de lo que toma
+   * el job. Los dos caminos tienen que ver conjuntos **disjuntos**: si ambos vieran la misma
+   * operación, la reserva evitaría el doble despacho, pero quién la envía dejaría de ser
+   * determinista (HAB-08 §6.7).</p>
+   */
+  modoEnvio?: string;
   /**
    * Rango sobre el DÍA DE PROCESO en el banco (columna `date`, sin hora). Se manda como epoch y el
    * backend resuelve el DÍA en hora de Lima. Es un filtro DISTINTO del de registro.

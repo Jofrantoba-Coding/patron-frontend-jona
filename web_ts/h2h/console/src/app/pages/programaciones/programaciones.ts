@@ -244,7 +244,23 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
         producto: grupo,
         page: 1,
         pageSize: 500,
-        filters: { moneda: moneda || undefined, sinPlanillaVigente: true },
+        filters: {
+          moneda: moneda || undefined,
+          // El destino estrecha el producto: `T` incluye interbancaria, terceros y cuenta propia, y
+          // un plan declarado INTERBANCARIA solo puede llevar interbancarias. `undefined` cuando no
+          // se eligio destino, o cuando el producto no es el de transferencias.
+          tipoOperacion: this.tipoOperacionDestino(),
+          // Los cuatro filtros describen lo mismo: «se puede programar ahora».
+          //   REGISTRADA        una ANULADA no se programa, y sin esto salian en la lista
+          //   sinPlanillaVigente ya tiene archivo: la via es la planilla, no una programacion nueva
+          //   sinProgramacion    ya la reservo otra programacion
+          //   MANUAL             el complemento de lo que toma el job; los dos conjuntos deben ser
+          //                      disjuntos o deja de ser determinista quien la envia (HAB-08 §6.7)
+          estadoOperacion: 'REGISTRADA',
+          sinPlanillaVigente: true,
+          sinProgramacion: true,
+          modoEnvio: 'MANUAL',
+        },
       })
       .pipe(finalize(() => this.opsCargando.set(false)))
       .subscribe((res) => this.opsRows.set(res.items));

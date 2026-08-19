@@ -77,6 +77,21 @@ export function horaDeParedAEpoch(texto: string, zona = ZONA_NEGOCIO_POR_DEFECTO
   return naive - desfaseDeZona(primer, zona);
 }
 
+/**
+ * Ahora mismo, como hora de pared de `zona`, en `yyyy-MM-ddTHH:mm[:ss]`.
+ *
+ * <p>Es el formato que consumen los selectores de fecha y hora, así que sirve para proponerles un
+ * valor inicial. Se corre el instante por el desfase de la zona: hecho eso, su representación UTC
+ * <b>es</b> la hora de pared que allí se ve, y `toISOString` la rinde ya con el formato exacto.</p>
+ *
+ * <p>No vale `new Date()` a secas: daría la hora del equipo del operador, y un plan programado
+ * «ahora» desde otro huso saldría corrido respecto de la ventana que aplica el backend.</p>
+ */
+export function ahoraDePared(zona = ZONA_NEGOCIO_POR_DEFECTO, conSegundos = true): string {
+  const ahora = Date.now();
+  return new Date(ahora + desfaseDeZona(ahora, zona)).toISOString().slice(0, conSegundos ? 19 : 16);
+}
+
 /** Instante → hora de pared en `zona`, para etiquetar lo que se está filtrando. */
 export function epochAHoraDePared(
   epoch: number,

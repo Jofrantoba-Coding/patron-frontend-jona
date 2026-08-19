@@ -248,8 +248,15 @@
   [anularVisible]="true"
   [anularBloqueo]="bloqueoAnular()"
   [anulando]="anulando()"
+  [calimacoVisible]="true"
+  [calimacoBloqueo]="bloqueoCalimaco()"
+  [comparacion]="comparacion()"
+  [comparando]="comparando()"
+  [informando]="informando()"
   (closed)="cerrarOpDetalle()"
   (anular)="abrirAnular()"
+  (comparar)="compararCalimaco()"
+  (informar)="informarCalimaco()"
 />
 
 <!--

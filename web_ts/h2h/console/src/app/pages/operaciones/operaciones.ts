@@ -100,6 +100,85 @@ export class OperacionesPage extends OperacionesViewComponent implements OnInit 
    * estado cambió se ve en la tabla, pero qué pasó con el asiento —contrapartidas de reversa o
    * líneas anuladas— no se ve en ningún sitio y es la mitad de lo que hace esta acción.</p>
    */
+  /**
+   * Compara la operación abierta con el pago que Calimaco dice tener. **No cambia nada.**
+   *
+   * <p>Se puede pulsar cuantas veces se quiera. Un error se muestra como comparación fallida y no
+   * como aviso global: lo que falló es este paso, no la pantalla.</p>
+   */
+  protected override compararCalimaco(): void {
+    const id = this.idOperacionAbierta();
+    if (!id || this.comparando()) return;
+    this.comparando.set(true);
+    this.api.calimacoComparar(id).subscribe({
+      next: (c) => {
+        this.comparando.set(false);
+        this.comparacion.set(c);
+      },
+      error: (err) => {
+        this.comparando.set(false);
+        this.comparacion.set({
+          coincide: false,
+          puedeInformar: false,
+          motivos: [this.mensajeCalimaco(err, 'No se pudo comparar con Calimaco.')],
+          campos: [],
+        });
+      },
+    });
+  }
+
+  /**
+   * Manda el cambio de estado a Calimaco y, si lo confirma, la operación queda en PAGO_INFORMADO.
+   *
+   * <p>Irreversible. Se exige tener una comparación que cuadre <b>en esta pantalla</b>, y el backend
+   * vuelve a comparar por su cuenta: entre mirar la tabla y pulsar pueden pasar minutos.</p>
+   *
+   * <p>Al terminar se recarga el listado: la operación cambió de estado y dejarla pintada en el
+   * anterior invita a volver a pulsar.</p>
+   */
+  protected override informarCalimaco(): void {
+    const id = this.idOperacionAbierta();
+    if (!id || this.informando() || !this.comparacion()?.puedeInformar) return;
+    this.informando.set(true);
+    this.api.calimacoInformar(id).subscribe({
+      next: (c) => {
+        this.informando.set(false);
+        this.comparacion.set(c);
+        if (c.informado) {
+          this.load();
+        }
+      },
+      error: (err) => {
+        this.informando.set(false);
+        const previa = this.comparacion();
+        this.comparacion.set({
+          ...(previa ?? { coincide: false, campos: [] }),
+          puedeInformar: false,
+          motivos: [this.mensajeCalimaco(err, 'No se pudo informar el pago a Calimaco.')],
+        } as typeof previa & { puedeInformar: boolean });
+      },
+    });
+  }
+
+  /** El id de la operación abierta en el detalle, o `null`. */
+  private idOperacionAbierta(): string | null {
+    const registro = this.opDetalle()?.operacion ?? null;
+    if (!registro) return null;
+    const id = this.pv(registro, 'id');
+    return id === '-' ? null : id;
+  }
+
+  /**
+   * El mensaje del backend cuando lo hay.
+   *
+   * <p>Los 422 de este proceso están escritos para leerse —«la integración no está configurada»— y
+   * sustituirlos por un texto genérico obligaría a abrir el log del servidor.</p>
+   */
+  private mensajeCalimaco(err: unknown, porDefecto: string): string {
+    const e = err as { error?: { message?: string; errors?: { message?: string }[] } } | null;
+    return e?.error?.errors?.[0]?.message ?? e?.error?.message ?? porDefecto;
+  }
+
   protected override confirmarAnular(): void {
     const id = this.anularId();
     const motivo = this.anularMotivo().trim();

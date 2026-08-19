@@ -16,6 +16,8 @@ import type { DiaVentana, SubtipoVentana, VentanaSemanal } from '../../core/mode
 import {
   MINUTOS_AVISO,
   MINUTOS_CRITICOS,
+  PRODUCTOS_RELOJ,
+  PRODUCTO_RELOJ_POR_DEFECTO,
   etiquetaSubtipo,
   subtiposVigentes,
   type LecturaCanal,
@@ -57,6 +59,39 @@ const humanizar = (minutos: number): string => {
 export class RelojCanalViewComponent {
   /** Densidad compacta para la cabecera del sidebar. */
   readonly compacta = input<boolean>(false);
+
+  protected readonly PRODUCTOS = PRODUCTOS_RELOJ;
+
+  /**
+   * Producto cuya ventana se está mirando.
+   *
+   * <p>Viaja a `/programaciones/ventana`: cada producto tiene su rama horaria y sus cortes. Arranca
+   * en transferencias porque es la rama con más subtipos y la única con un cut-off interbancario que
+   * muerde a media mañana.</p>
+   */
+  protected readonly producto = signal<string>(PRODUCTO_RELOJ_POR_DEFECTO);
+
+  protected readonly nombreProducto = computed<string>(
+    () => PRODUCTOS_RELOJ.find((p) => p.codigo === this.producto())?.label ?? ''
+  );
+
+  /**
+   * Cambiar de producto vuelve a pedir la ventana y **borra la anterior**.
+   *
+   * <p>Sin limpiarla, el reloj seguiría contando hacia el corte del producto viejo mientras llega la
+   * respuesta: una cuenta atrás que dice 22:45 cuando ya se preguntó por la interbancaria de las
+   * 12:15 es peor que un «consultando».</p>
+   */
+  protected onProducto(evento: Event): void {
+    this.producto.set((evento.target as HTMLSelectElement).value);
+    this.ventana.set(null);
+    this.refrescar();
+  }
+
+  /** La Page la sobrescribe: es quien tiene el servicio. */
+  protected refrescar(): void {
+    return;
+  }
 
   protected readonly ventana = signal<VentanaSemanal | null>(null);
   /** Reloj inyectado por la Page: mantener el "ahora" fuera hace la vista testeable. */

@@ -1,0 +1,328 @@
+<div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
+  <j-section-heading
+    eyebrow="Sistemas de origen"
+    heading="Integración Calimaco"
+    description="Calimaco es el sistema del casino desde el que llegan las operaciones. Cuando un pago queda confirmado por el banco, se le avisa para que la operación pase a PAGO_INFORMADO. Aquí se configuran sus cuatro endpoints: cada uno se guarda en su propio secreto de Vault, y en la base solo queda la referencia."
+  />
+
+  @if (aviso()) {
+    <div class="rounded-md border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+      {{ aviso() }}
+    </div>
+  }
+  @if (error()) {
+    <div class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- ══ Qué va a pasar de verdad ══════════════════════════════════════
+       Los tres frenos por separado no responden «¿esto está encendido?».
+       Esta frase sí, y va arriba porque es lo que se viene a mirar. -->
+  <div class="rounded-md border px-4 py-3 text-sm"
+       [class]="bloqueadoPorPlataforma() || !habilitado() || modo() === 'OFFLINE'
+         ? 'border-neutral-300 bg-neutral-50 text-neutral-700'
+         : (modo() === 'SIMULACION'
+            ? 'border-amber-300 bg-amber-50 text-amber-900'
+            : 'border-red-300 bg-red-50 text-red-800')">
+    <span class="font-medium">Estado efectivo:</span> {{ efecto() }}
+  </div>
+
+  <!-- ══ Candado de plataforma (solo lectura) ══ -->
+  @if (candado(); as c) {
+    <j-card>
+      <j-card-header>
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <j-card-title>Candado de plataforma</j-card-title>
+          @if (c.forzarApagado) {
+            <j-badge variant="outline">apagado forzado</j-badge>
+          } @else if (c.habilitado) {
+            <j-badge variant="secondary">permitido</j-badge>
+          } @else {
+            <j-badge variant="outline">no permitido</j-badge>
+          }
+        </div>
+        <p class="text-sm text-neutral-500">
+          Vive en la parametría de la plataforma y una organización no puede contradecirlo. No se
+          edita desde aquí; se muestra para que nadie busque en el sitio equivocado cuando enciende
+          su organización y no ve efecto.
+        </p>
+      </j-card-header>
+      <j-card-content>
+        <dl class="grid grid-cols-[9rem_1fr] gap-x-3 gap-y-1.5 text-xs">
+          <dt class="text-neutral-400">Habilitado</dt>
+          <dd class="text-neutral-700">{{ c.habilitado ? 'sí' : 'no' }}</dd>
+          <dt class="text-neutral-400">Apagado forzado</dt>
+          <dd class="text-neutral-700">{{ c.forzarApagado ? 'sí — manda sobre la organización' : 'no' }}</dd>
+          @if (c.motivo) {
+            <dt class="text-neutral-400">Motivo</dt>
+            <dd class="text-neutral-700">{{ c.motivo }}</dd>
+          }
+        </dl>
+      </j-card-content>
+    </j-card>
+  }
+
+  <!-- ══ Interruptor de la organización ══ -->
+  <j-card>
+    <j-card-header>
+      <j-card-title>Aviso a Calimaco</j-card-title>
+      <p class="text-sm text-neutral-500">
+        Encendido y modo de esta organización. Nace apagado y en OFFLINE a propósito.
+      </p>
+    </j-card-header>
+    <j-card-content>
+      <div class="flex flex-wrap items-end gap-4">
+        <label class="flex flex-col gap-1 text-sm">
+          <span class="font-medium text-neutral-600">Estado</span>
+          <select class="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+                  [value]="habilitado() ? 'true' : 'false'" (change)="toggleHabilitado($event)">
+            <option value="false">Apagado</option>
+            <option value="true">Encendido</option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1 text-sm">
+          <span class="font-medium text-neutral-600">Modo</span>
+          <select class="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+                  [value]="modo()" (change)="onModo($event)">
+            @for (m of MODOS; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <p class="mt-3 rounded-md bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+        {{ DESCRIPCION_MODO[modo()] }}
+      </p>
+      <p class="mt-2 text-xs text-neutral-500">
+        El barrido automático nunca envía el cambio de estado de verdad: aunque el modo sea REAL, se
+        comporta como SIMULACIÓN. Marcar un pago en Calimaco solo ocurre cuando una persona lo pide
+        desde el detalle de la operación.
+      </p>
+
+      <!-- Guardado propio: este panel no pasa por Vault. El botón del final de la página reescribe
+           las cuatro credenciales, y encender el aviso no tiene por qué acercarse a ninguna. -->
+      <div class="mt-3 flex flex-wrap items-center justify-end gap-3">
+        @if (interruptorCambiado()) {
+          <span class="text-xs text-neutral-500">Hay cambios sin guardar en este panel.</span>
+        }
+        <j-button size="sm" [loading]="cargando()"
+                  [disabled]="!interruptorCambiado() || confirmandoReal()"
+                  (clicked)="onGuardarInterruptor()">
+          Guardar aviso
+        </j-button>
+      </div>
+
+      @if (confirmandoReal()) {
+        <div class="mt-3 rounded-md border border-red-300 bg-red-50 px-3 py-3 text-sm text-red-800">
+          <p class="font-medium">REAL habilita el envío manual desde el detalle de la operación.</p>
+          <p class="mt-1 text-xs">
+            A partir de ese momento, quien revise una operación podrá marcar el pago como pagado en
+            Calimaco. Ese envío es irreversible.
+          </p>
+          <div class="mt-3 flex gap-2">
+            <j-button size="sm" variant="outline" (clicked)="cancelarReal()">Cancelar</j-button>
+            <j-button size="sm" (clicked)="confirmarReal()">Entiendo, pasar a REAL</j-button>
+          </div>
+        </div>
+      }
+    </j-card-content>
+  </j-card>
+
+  <!-- ══ Los cuatro endpoints ══════════════════════════════════════════
+       Uno por tarjeta porque uno por secreto: no todo es común entre ellos
+       —el lote es multipart y los otros urlencoded— y esa diferencia es un
+       dato de cada endpoint, no una rama en el código del backend. -->
+  <div>
+    <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+      <h3 class="text-sm font-semibold text-neutral-700">Endpoints de la API</h3>
+      <span class="text-xs text-neutral-500">
+        {{ configurados() }} de 4 con URL · cada uno en su propio secreto de Vault, en la ruta que
+        espeja su ruta HTTP
+      </span>
+    </div>
+
+    <div class="flex flex-col gap-5">
+      @for (e of endpoints(); track e.nombre) {
+        <j-card>
+          <j-card-header>
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <j-card-title>{{ e.nombre }}</j-card-title>
+              <div class="flex flex-wrap gap-1.5">
+                @if (e.nombre === 'LOTE') {
+                  <j-badge variant="outline">irreversible</j-badge>
+                }
+                @if (e.tienePassword) {
+                  <j-badge variant="secondary">con credencial</j-badge>
+                }
+                @if (e.url) {
+                  <j-badge variant="secondary">configurado</j-badge>
+                } @else {
+                  <j-badge variant="outline">pendiente</j-badge>
+                }
+              </div>
+            </div>
+            <p class="text-sm text-neutral-500">{{ DESCRIPCION_ENDPOINT[e.nombre] }}</p>
+            @if (e.secretRef) {
+              <p class="mt-1 break-all font-mono text-xs text-neutral-400">{{ e.secretRef }}</p>
+            }
+          </j-card-header>
+          <j-card-content>
+            <label class="flex flex-col gap-1 text-sm">
+              <span class="font-medium text-neutral-600">
+                URL completa
+                @if (e.nombre === 'LOGIN') { <span class="text-red-600">*</span> }
+              </span>
+              <input class="rounded-md border border-neutral-300 px-3 py-2 font-mono text-sm"
+                     [value]="e.url" (input)="onCampoEndpoint(e.nombre, 'url', $event)"
+                     placeholder="https://api.casinoatlanticcity.com/api/admin/…" />
+            </label>
+
+            <div class="mt-3 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))]">
+              <label class="flex flex-col gap-1 text-sm">
+                <span class="font-medium text-neutral-600">Método</span>
+                <input class="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+                       [value]="e.metodo" (input)="onCampoEndpoint(e.nombre, 'metodo', $event)"
+                       placeholder="POST" />
+              </label>
+              <label class="flex flex-col gap-1 text-sm">
+                <span class="font-medium text-neutral-600">Content-type</span>
+                <input class="rounded-md border border-neutral-300 px-3 py-2 font-mono text-sm"
+                       [value]="e.contentType"
+                       (input)="onCampoEndpoint(e.nombre, 'contentType', $event)"
+                       placeholder="application/x-www-form-urlencoded" />
+              </label>
+              @if (e.nombre === 'LOGIN') {
+                <label class="flex flex-col gap-1 text-sm">
+                  <span class="font-medium text-neutral-600">Contraseña</span>
+                  <input type="password" autocomplete="new-password"
+                         class="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+                         [value]="e.password"
+                         (input)="onCampoEndpoint(e.nombre, 'password', $event)"
+                         [placeholder]="e.tienePassword ? 'sin cambios' : 'requerida'" />
+                </label>
+              }
+            </div>
+
+            <!-- Parámetros del secreto: usuario, company, reporte, límites, orden… -->
+            <div class="mt-4">
+              <p class="mb-1.5 text-xs font-medium text-neutral-600">
+                Parámetros del secreto
+                @if (e.nombre === 'LOGIN') {
+                  <span class="font-normal text-neutral-400">
+                    — aquí van <span class="font-mono">usuario</span> y
+                    <span class="font-mono">company</span>
+                  </span>
+                }
+              </p>
+              @if (e.parametros.length) {
+                <div class="flex flex-col gap-2">
+                  @for (par of e.parametros; track $index) {
+                    <div class="flex flex-wrap items-center gap-2">
+                      <input class="w-44 rounded-md border border-neutral-300 px-3 py-1.5 font-mono text-xs"
+                             [value]="par.nombre"
+                             (input)="onPar(e.nombre, 'parametros', $index, 'nombre', $event)"
+                             placeholder="usuario" />
+                      <input class="min-w-0 flex-1 rounded-md border border-neutral-300 px-3 py-1.5 font-mono text-xs"
+                             [value]="par.valor"
+                             (input)="onPar(e.nombre, 'parametros', $index, 'valor', $event)"
+                             placeholder="valor" />
+                      <j-button size="sm" variant="outline"
+                                (clicked)="quitarPar(e.nombre, 'parametros', $index)">Quitar</j-button>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="text-xs text-neutral-400">Sin parámetros.</p>
+              }
+              <div class="mt-2">
+                <j-button size="sm" variant="outline"
+                          (clicked)="agregarPar(e.nombre, 'parametros')">Añadir parámetro</j-button>
+              </div>
+            </div>
+
+            <!-- Cabeceras -->
+            <div class="mt-4">
+              <p class="mb-1.5 text-xs font-medium text-neutral-600">
+                Cabeceras HTTP
+                <span class="font-normal text-neutral-400">
+                  — la lista que se guarda sustituye entera a la anterior, así que también se puede
+                  quitar una
+                </span>
+              </p>
+              @if (e.cabeceras.length) {
+                <div class="flex flex-col gap-2">
+                  @for (cab of e.cabeceras; track $index) {
+                    <div class="flex flex-wrap items-center gap-2">
+                      <input class="w-44 rounded-md border border-neutral-300 px-3 py-1.5 font-mono text-xs"
+                             [value]="cab.nombre"
+                             (input)="onPar(e.nombre, 'cabeceras', $index, 'nombre', $event)"
+                             placeholder="user-agent" />
+                      <input class="min-w-0 flex-1 rounded-md border border-neutral-300 px-3 py-1.5 font-mono text-xs"
+                             [value]="cab.valor"
+                             (input)="onPar(e.nombre, 'cabeceras', $index, 'valor', $event)"
+                             placeholder="valor" />
+                      <j-button size="sm" variant="outline"
+                                (clicked)="quitarPar(e.nombre, 'cabeceras', $index)">Quitar</j-button>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="text-xs text-neutral-400">
+                  Sin cabeceras propias. Se enviarán solo las del cliente HTTP.
+                </p>
+              }
+              <div class="mt-2">
+                <j-button size="sm" variant="outline"
+                          (clicked)="agregarPar(e.nombre, 'cabeceras')">Añadir cabecera</j-button>
+              </div>
+            </div>
+          </j-card-content>
+        </j-card>
+      }
+    </div>
+  </div>
+
+  <!-- ══ Transición y tiempos ══ -->
+  <j-card>
+    <j-card-header>
+      <j-card-title>Transición de estado y tiempos</j-card-title>
+      <p class="text-sm text-neutral-500">
+        Estado de partida y de llegada del pago en Calimaco. No van en el secreto porque no son
+        credencial sino política: aquí los ve quien audita sin pedir acceso a Vault. Antes de mandar
+        el cambio se comprueban contra las transiciones que Calimaco permite, así que un valor mal
+        escrito falla en la comprobación y no a medio lote.
+      </p>
+    </j-card-header>
+    <j-card-content>
+      <div class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))]">
+        <label class="flex flex-col gap-1 text-sm">
+          <span class="font-medium text-neutral-600">Estado origen</span>
+          <input class="rounded-md border border-neutral-300 px-3 py-2 font-mono text-sm"
+                 [value]="estadoOrigen()" (input)="onTexto(estadoOrigen, $event)" placeholder="ACCEPTED" />
+        </label>
+        <label class="flex flex-col gap-1 text-sm">
+          <span class="font-medium text-neutral-600">Estado destino</span>
+          <input class="rounded-md border border-neutral-300 px-3 py-2 font-mono text-sm"
+                 [value]="estadoDestino()" (input)="onTexto(estadoDestino, $event)" placeholder="PROCESSED" />
+        </label>
+        <label class="flex flex-col gap-1 text-sm">
+          <span class="font-medium text-neutral-600">Timeout (segundos)</span>
+          <input type="number" min="1"
+                 class="w-32 rounded-md border border-neutral-300 px-3 py-2 text-sm"
+                 [value]="timeout()" (change)="onNumero(timeout, $event)" />
+        </label>
+      </div>
+    </j-card-content>
+  </j-card>
+
+  <!-- ══ Guardar ══ -->
+  <div class="flex flex-wrap items-center justify-end gap-3">
+    @if (motivoNoGuardable(); as motivo) {
+      <span class="text-sm text-neutral-500">{{ motivo }}</span>
+    }
+    <j-button [loading]="cargando()" [disabled]="!!motivoNoGuardable()" (clicked)="onGuardar()">
+      Guardar endpoints
+    </j-button>
+  </div>
+</div>

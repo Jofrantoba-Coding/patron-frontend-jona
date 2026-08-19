@@ -48,9 +48,13 @@ export class RelojCanalComponent extends RelojCanalViewComponent {
    * La ventana se vuelve a pedir, no se cachea en sesión: la configuración
    * horaria se edita desde la propia consola y un valor viejo haría que el
    * operador confíe en un corte que ya no existe.
+   *
+   * <p>Va con el producto elegido. Sin él la API responde la ventana del CANAL, que llega con
+   * `habilitado=false`, y la vista —que filtra los subtipos por ese campo— la leía como «canal
+   * cerrado» a cualquier hora.</p>
    */
-  refrescar(): void {
-    this.api.ventanaCanalProgramacion().subscribe({
+  override refrescar(): void {
+    this.api.ventanaCanalProgramacion(this.producto()).subscribe({
       next: (v) => this.ventana.set(v),
       // Sin ventana el reloj se queda en 'sinDato' y lo dice; no se inventa una.
       error: () => this.ventana.set(null),

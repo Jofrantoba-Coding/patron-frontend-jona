@@ -1,0 +1,144 @@
+/**
+ * Contratos de las programaciones de informe al sistema de origen.
+ *
+ * <p>Una programación es una **tanda** de operaciones que se van a informar juntas. Existe para que
+ * la trazabilidad sea la misma la pida una persona o la pida el scheduler, y para poder responder
+ * «qué se informó el martes, con qué criterio y quién lo pidió».</p>
+ *
+ * <p>Endpoints en `api/mantenimientos/h2h/v1/informes/*`.</p>
+ */
+
+/** Los dos grupos que se pueden programar. */
+export const GRUPOS_INFORME = ['transferencias', 'pagos_masivos'] as const;
+export type GrupoInforme = (typeof GRUPOS_INFORME)[number];
+
+export const ETIQUETA_GRUPO: Record<GrupoInforme, string> = {
+  transferencias: 'Transferencias',
+  pagos_masivos: 'Pagos masivos',
+};
+
+/**
+ * El único estado desde el que se puede informar.
+ *
+ * <p>Antes de esto el banco todavía puede rechazar el pago, y decirle al casino que se pagó algo que
+ * luego se devuelve es peor que no decir nada: el jugador ve su dinero acreditado y no lo está.</p>
+ */
+export const ESTADO_EXIGIDO = 'PAGO_CONFIRMADO';
+
+/** Una operación que se puede programar. */
+export interface CandidatoInforme {
+  id: string;
+  codigoOperacion?: string | null;
+  /** El identificador del origen (`1.3572384016`). Sin él no hay con qué buscarla allí. */
+  codigoExterno?: string | null;
+  referenciaOrigen?: string | null;
+  monto?: number | string | null;
+  moneda?: string | null;
+  tipoOperacion?: string | null;
+  fechaOperacion?: string | null;
+  titular?: string | null;
+  cuenta?: string | null;
+}
+
+export interface CandidatosInforme {
+  items: CandidatoInforme[];
+  total: number;
+  montoTotal?: number | string | null;
+  /**
+   * Si se llegó al tope de candidatos que el backend devuelve de una vez.
+   *
+   * <p>Se muestra: «500 candidatos» y «500 o más» no son lo mismo, y sin avisarlo alguien creería
+   * que ya no queda nada por programar.</p>
+   */
+  truncado?: boolean;
+}
+
+/** Cabecera de una tanda. */
+export interface ProgramacionInforme {
+  id: string;
+  codigo: string;
+  sistema?: string | null;
+  /** ABIERTA | PROGRAMADA | EN_PROCESO | INFORMADA | PARCIAL | ERROR | CANCELADA */
+  estado: string;
+  /** MANUAL | AUTOMATICO: quién la originó. */
+  modoEnvio?: string | null;
+  /**
+   * OFFLINE | SIMULACION | REAL en el momento de ejecutar.
+   *
+   * <p>No es informativo: una tanda en SIMULACIÓN **no cambió nada** en el origen, y sin este dato
+   * sería indistinguible de una de verdad.</p>
+   */
+  modoIntegracion?: string | null;
+  fechaProceso?: string | null;
+  programado?: string | null;
+  ejecutado?: string | null;
+  totalOperaciones: number;
+  /** Las verificadas releyendo el pago. Que el origen acepte la petición es otra cosa. */
+  informadas: number;
+  fallidas: number;
+  montoTotal?: number | string | null;
+  usuario?: string | null;
+  usuarioEjecucion?: string | null;
+  motivo?: string | null;
+  /** Con qué criterio se armó, congelado. */
+  criterio?: Record<string, unknown> | null;
+}
+
+/** Una operación dentro de la tanda, con su desenlace. */
+export interface DetalleInforme {
+  id: string;
+  secuencial: number;
+  idOperacion: string;
+  codigoOperacion?: string | null;
+  identificador?: string | null;
+  monto?: number | string | null;
+  moneda?: string | null;
+  /** PLANIFICADO | COMPARADO | NO_COINCIDE | ENVIADO | INFORMADO | SIN_ENVIAR | ERROR | EXCLUIDO */
+  estado: string;
+  estadoPrevioOrigen?: string | null;
+  /** La evidencia de la relectura: en qué estado quedó el pago. */
+  estadoPostOrigen?: string | null;
+  verificado?: boolean;
+  /** Ya estaba aplicado: no se envió nada, solo se puso al día la operación. */
+  sinEnviar?: boolean;
+  comparacionOk?: boolean;
+  /** La comparación campo a campo congelada. Es el *por qué* de la decisión. */
+  comparacion?: Record<string, unknown> | null;
+  motivo?: string | null;
+  usuario?: string | null;
+  informado?: string | null;
+  intento?: number;
+  titular?: string | null;
+}
+
+export interface DetalleProgramacionInforme {
+  cabecera: ProgramacionInforme;
+  detalles: DetalleInforme[];
+}
+
+/** Lo que se manda al crear la tanda. */
+export interface CrearInforme {
+  operaciones: string[];
+  grupo?: GrupoInforme | null;
+  moneda?: string | null;
+  /** ISO-8601 con zona. Vacío = ahora. Nunca en el pasado. */
+  programado?: string | null;
+  motivo?: string | null;
+}
+
+export interface ResultadoEjecucion {
+  informadas: number;
+  fallidas: number;
+  total: number;
+}
+
+/**
+ * Estados de la cabecera desde los que aún se puede ejecutar.
+ *
+ * <p>Espeja lo que acepta el backend. La autoridad sigue siendo él —el 422 se muestra tal cual—;
+ * esto solo evita el viaje y explica en pantalla por qué el botón no está disponible.</p>
+ */
+export const EJECUTABLES = ['ABIERTA', 'PROGRAMADA', 'EN_PROCESO', 'PARCIAL', 'ERROR'];
+
+/** Y desde los que se puede cancelar: solo si no se ha ejecutado. */
+export const CANCELABLES = ['ABIERTA', 'PROGRAMADA'];

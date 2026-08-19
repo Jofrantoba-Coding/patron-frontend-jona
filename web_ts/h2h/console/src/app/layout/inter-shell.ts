@@ -27,24 +27,32 @@ export interface InterShell {
  *
  * Ahora los grupos siguen el modelo mental del negocio:
  *
- *  1. EL FLUJO      las cuatro etapas del canal, numeradas y en orden. Cada
+ *  1. EL FLUJO      las cinco etapas del canal, numeradas y en orden. Cada
  *                   etapa es una capa con su propia máquina de estados
- *                   (operación → programación → planilla → respuesta).
+ *                   (operación → programación → planilla → respuesta →
+ *                   informe al origen). La quinta cierra la cadena: solo admite
+ *                   operaciones en PAGO_CONFIRMADO y termina en PAGO_INFORMADO.
  *  2. MAESTROS      los datos que alimentan el flujo.
  *  3. CANAL BCP     la conexión con el banco: credenciales, llaves, automatismos.
- *  4. GOBIERNO      quién puede hacer qué, y qué pasó.
+ *  4. ORIGEN        cómo se habla con el sistema del que vienen las operaciones.
+ *                   Va aparte del canal a propósito: son las dos puntas opuestas
+ *                   del mismo flujo, y mezclarlas haría pensar que Calimaco es
+ *                   algo del banco. Aquí vive la CONFIGURACIÓN; informar un pago
+ *                   concreto es la etapa 5 del flujo, no un ajuste.
+ *  5. GOBIERNO      quién puede hacer qué, y qué pasó.
  *
  * Las vistas por producto (Pagos Masivos, Transferencias, Factoring) dejan de
  * ser ítems hermanos: son un filtro DENTRO de Operaciones, que es lo que
  * realmente son. Las rutas siguen existiendo, así que los enlaces guardados no
  * se rompen.
  */
-export const GRUPOS_NAV = ['flujo', 'maestros', 'canal', 'gobierno'] as const;
+export const GRUPOS_NAV = ['flujo', 'maestros', 'canal', 'origen', 'gobierno'] as const;
 export type GrupoNav = (typeof GRUPOS_NAV)[number];
 
 export const ETIQUETA_GRUPO: Record<GrupoNav, string> = {
   flujo: 'El flujo H2H',
   maestros: 'Maestros',
   canal: 'Canal BCP',
+  origen: 'Sistemas de origen',
   gobierno: 'Gobierno',
 };

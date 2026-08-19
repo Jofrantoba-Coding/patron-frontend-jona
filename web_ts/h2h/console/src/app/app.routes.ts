@@ -106,6 +106,16 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'calimaco',
+        loadComponent: () =>
+          import('./pages/calimaco/calimaco').then((m) => m.CalimacoPage),
+      },
+      {
+        path: 'informes',
+        loadComponent: () =>
+          import('./pages/informes/informes').then((m) => m.InformesPage),
+      },
+      {
         path: 'sftp-config',
         loadComponent: () => import('./pages/sftp-config/sftp-config').then((m) => m.SftpConfigPage),
       },

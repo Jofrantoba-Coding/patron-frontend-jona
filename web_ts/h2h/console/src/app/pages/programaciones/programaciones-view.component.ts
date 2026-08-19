@@ -30,7 +30,11 @@ import type {
   ProgramacionRow,
   VentanaSemanal,
 } from '../../core/models';
-import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
+import {
+  ahoraDePared,
+  horaDeParedAEpoch,
+  instanteDeBackendAHoraDePared,
+} from '../../core/zona-horaria';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
 // timestamptz (prg_dt_programado / prg_dt_ejecutado) -> fecha + hora:min:seg
@@ -85,6 +89,24 @@ export const MOTIVO_SIN_CANCELAR: Record<string, string> = {
   CANCELADA: 'El plan ya está cancelado.',
 };
 export const TIPOS_DESTINO = ['INTERBANCARIA', 'TERCEROS', 'CUENTA_PROPIA'];
+
+/**
+ * Tipo destino del plan → el tipo de operación EXACTO que se le puede meter.
+ *
+ * <p>El producto de BCP no distingue el destino: `T` es «Transferencias» y las tres variantes viven
+ * dentro. Quien las separa es este campo, así que también tiene que separar lo que se ofrece: un
+ * plan declarado INTERBANCARIA con una operación de terceros dentro se crea sin protestar
+ * —`prg_v_tipo_destino` es cabecera y el backend no la contrasta con el detalle— y el error aparece
+ * en el TXT, con el correlativo ya gastado.</p>
+ *
+ * <p>Son los códigos de `GLOBAL#TIPO_OPERACION`, no los del mapeo `BCP#MAPEO#*`: el filtro de la API
+ * compara contra el tipo de negocio de la operación.</p>
+ */
+const TIPOOP_POR_DESTINO: Record<string, string> = {
+  INTERBANCARIA: 'TRANSFERENCIA_INTERBANCARIA',
+  TERCEROS: 'TRANSFERENCIA_TERCEROS',
+  CUENTA_PROPIA: 'TRANSFERENCIA_CUENTA_PROPIA',
+};
 export const CANALES = ['CCE', 'BCR', 'INTERNO'];
 export const MODOS = ['AUTOMATICO', 'MANUAL'];
 
@@ -220,6 +242,17 @@ export class ProgramacionesViewComponent {
       timeZone: this.ventana()?.zonaHoraria ?? 'America/Lima',
     }).format(new Date())
   );
+
+  /**
+   * Ahora en la zona del CANAL, en `yyyy-MM-ddTHH:mm:ss`.
+   *
+   * <p>Hermano de {@link hoyCanal} con hora, para proponerla en el control de «Programado».
+   * <b>Método y no `computed`</b>: lee el reloj, y un computed lo congelaría en el primer cálculo
+   * —el formulario abierto a las 18:00 propondría la hora en que se cargó la pantalla—.</p>
+   */
+  protected ahoraCanal(): string {
+    return ahoraDePared(this.ventana()?.zonaHoraria ?? undefined);
+  }
 
   /**
    * Abre el cambio de canal. Propone el canal CONTRARIO al actual, que es lo que se viene a
@@ -455,6 +488,18 @@ export class ProgramacionesViewComponent {
     return GRUPO_POR_PRODUCTO[abrev];
   }
 
+  /**
+   * El tipo de operación exacto que impone el «Tipo destino» elegido, o `undefined`.
+   *
+   * <p>Solo se aplica en el producto de transferencias, que es el único donde el destino discrimina
+   * entre tipos de operación. En los demás el campo tiene otro significado —el job lo llena con el
+   * subtipo de su rama horaria— y estrechar por él dejaría la lista vacía sin explicar por qué.</p>
+   */
+  protected tipoOperacionDestino(): string | undefined {
+    if (this.grupoProducto(this.productoAbrevSel()) !== 'transferencias') return undefined;
+    return TIPOOP_POR_DESTINO[this.nuevoTipoDestino()];
+  }
+
   protected onCodigo(event: Event): void {
     this.filtroCodigo.set((event.target as HTMLInputElement).value);
   }
@@ -585,8 +630,16 @@ export class ProgramacionesViewComponent {
       this.nuevoModo.set('MANUAL');
     }
   }
+  /**
+   * Igual que producto y moneda: el destino es criterio de BUSQUEDA, asi que lo ya marcado deja de
+   * valer. Sin limpiarlo, la seleccion sobreviviria invisible —fuera de la lista nueva— y el plan se
+   * llevaria operaciones del destino anterior.
+   */
   protected onNuevoTipoDestino(e: Event): void {
     this.nuevoTipoDestino.set((e.target as HTMLSelectElement).value);
+    this.opsRows.set([]);
+    this.seleccion.set(new Set());
+    this.loteFiltro.set('');
   }
   protected onNuevoCanal(e: Event): void {
     this.nuevoCanal.set((e.target as HTMLSelectElement).value);
@@ -597,6 +650,13 @@ export class ProgramacionesViewComponent {
 
   protected abrirCrear(): void {
     this.crearError.set('');
+    // Los dos controles arrancan en AHORA, en la zona del canal, no vacios. Vacio el date-picker
+    // rellenaba con 00:00 la hora que nadie tocaba, y esa medianoche queda fuera de la ventana de
+    // casi todos los productos: el operador leia «la hora programada (00:00) queda fuera de la
+    // ventana» sin haber elegido hora ninguna. Proponer el reloj real es ademas lo que se quiere
+    // casi siempre —programar ya— y deja el valor DENTRO de la ventana en horario de operacion.
+    this.nuevoFechaProceso.set(this.hoyCanal());
+    this.nuevoFechaProgramado.set(this.ahoraCanal());
     this.opsRows.set([]);
     this.seleccion.set(new Set());
     this.loteFiltro.set('');
@@ -826,11 +886,14 @@ export class ProgramacionesViewComponent {
     }
     if (this.nuevoTipoDestino()) payload.tipoDestino = this.nuevoTipoDestino();
     if (this.nuevoCanal()) payload.canalLiquidacion = this.nuevoCanal();
-    // datetime-local (hora local, sin zona) -> ISO con offset que acepta OffsetDateTime en el backend
+    // Hora de pared sin zona (`2026-08-18T13:43:00`) -> instante ISO, que es lo que parsea
+    // OffsetDateTime en el backend. La zona es la del CANAL, no la del navegador: con
+    // `new Date(texto)` —lo que habia aqui— el mismo texto viajaba como instantes distintos segun
+    // el huso del equipo, y la ventana que valida el backend es una sola. Ver core/zona-horaria.ts.
     const programado = this.nuevoFechaProgramado().trim();
     if (programado) {
-      const d = new Date(programado);
-      if (!Number.isNaN(d.getTime())) payload.fechaProgramado = d.toISOString();
+      const epoch = horaDeParedAEpoch(programado, this.ventana()?.zonaHoraria ?? undefined);
+      if (epoch !== null) payload.fechaProgramado = new Date(epoch).toISOString();
     }
     return payload;
   }

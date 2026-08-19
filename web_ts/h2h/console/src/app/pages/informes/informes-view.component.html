@@ -1,0 +1,340 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <j-section-heading
+    eyebrow="Sistemas de origen"
+    heading="Informes de pago al origen"
+    description="Una programación es una tanda de operaciones que se informan juntas al sistema del casino. Solo entran operaciones en PAGO_CONFIRMADO: antes de eso el banco todavía puede rechazar el pago, y decirle al casino que se pagó algo que luego se devuelve es peor que no decir nada."
+  />
+
+  @if (aviso()) {
+    <div class="rounded-md border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+      {{ aviso() }}
+    </div>
+  }
+  @if (error()) {
+    <div class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+      {{ error() }}
+    </div>
+  }
+
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-sm text-neutral-500">
+      {{ programaciones().length }} programación(es)
+    </p>
+    <div class="flex gap-2">
+      <j-button size="sm" variant="outline" [loading]="cargando()" (clicked)="recargar()">
+        Recargar
+      </j-button>
+      <j-button size="sm" (clicked)="abrirCrear()">Programar informe</j-button>
+    </div>
+  </div>
+
+  <!-- ══ Listado de tandas ══ -->
+  @if (programaciones().length) {
+    <div class="overflow-x-auto rounded-md border border-neutral-200">
+      <table class="w-full min-w-[52rem] text-sm">
+        <thead class="bg-neutral-50 text-left text-xs text-neutral-500">
+          <tr>
+            <th class="px-3 py-2 font-medium">Código</th>
+            <th class="px-3 py-2 font-medium">Estado</th>
+            <th class="px-3 py-2 font-medium">Modo</th>
+            <th class="px-3 py-2 font-medium">Programado</th>
+            <th class="px-3 py-2 text-right font-medium">Ops</th>
+            <th class="px-3 py-2 text-right font-medium">Informadas</th>
+            <th class="px-3 py-2 text-right font-medium">Fallidas</th>
+            <th class="px-3 py-2 text-right font-medium">Monto</th>
+            <th class="px-3 py-2 font-medium">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of programaciones(); track p.id) {
+            <tr class="border-t border-neutral-100">
+              <td class="px-3 py-2 font-mono text-xs">{{ p.codigo }}</td>
+              <td class="px-3 py-2">
+                <j-badge [variant]="p.estado === 'INFORMADA' ? 'secondary' : 'outline'">
+                  {{ p.estado }}
+                </j-badge>
+              </td>
+              <td class="px-3 py-2 text-xs">
+                {{ p.modoEnvio }}
+                <!--
+                  El modo de integración va junto al de envío porque es lo que distingue «se avisó»
+                  de «se ensayó avisar», y sin él una tanda INFORMADA de una simulación parece real.
+                -->
+                <span class="ml-1 rounded px-1 py-0.5"
+                      [class]="p.modoIntegracion === 'REAL'
+                        ? 'bg-red-100 text-red-800' : 'bg-neutral-100 text-neutral-600'">
+                  {{ p.modoIntegracion }}
+                </span>
+              </td>
+              <td class="px-3 py-2 text-xs text-neutral-600">{{ p.programado ?? '—' }}</td>
+              <td class="px-3 py-2 text-right">{{ p.totalOperaciones }}</td>
+              <td class="px-3 py-2 text-right"
+                  [class]="p.informadas > 0 ? 'text-emerald-700' : 'text-neutral-400'">
+                {{ p.informadas }}
+              </td>
+              <td class="px-3 py-2 text-right"
+                  [class]="p.fallidas > 0 ? 'text-red-700' : 'text-neutral-400'">
+                {{ p.fallidas }}
+              </td>
+              <td class="px-3 py-2 text-right font-mono text-xs">{{ formato(p.montoTotal) }}</td>
+              <td class="px-3 py-2">
+                <j-button size="sm" variant="outline" [loading]="detalleCargando() === p.id"
+                          (clicked)="abrirDetalle(p.id)">Ver</j-button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-3 py-8 text-center text-sm text-neutral-500">
+      Todavía no hay programaciones de informe.
+    </p>
+  }
+</div>
+
+<!-- ══════════════════ Armar una tanda ══════════════════ -->
+<j-dialog
+  [open]="crearAbierto()"
+  size="xl"
+  title="Programar informe al origen"
+  description="Solo se listan operaciones en PAGO_CONFIRMADO, con código externo del origen y que no estén ya en otra tanda viva. La selección es explícita a propósito: la tanda acaba mandando una llamada irreversible por cada operación."
+  (closed)="cerrarCrear()"
+  (cancel)="cerrarCrear()"
+>
+  <div class="flex flex-wrap items-end gap-3 p-1">
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Producto</span>
+      <select class="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+              [value]="grupo()" (change)="onGrupo($event)">
+        <option value="">Todos</option>
+        @for (g of GRUPOS; track g) {
+          <option [value]="g">{{ ETIQUETA_GRUPO[g] }}</option>
+        }
+      </select>
+    </label>
+    <label class="flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Moneda</span>
+      <select class="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+              [value]="moneda()" (change)="onMoneda($event)">
+        <option value="">Todas</option>
+        <option value="PEN">PEN</option>
+        <option value="USD">USD</option>
+      </select>
+    </label>
+    <j-button size="sm" variant="outline" [loading]="buscando()" (clicked)="buscarCandidatos()">
+      Buscar
+    </j-button>
+  </div>
+
+  @if (candidatos(); as c) {
+    @if (c.truncado) {
+      <p class="mt-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        Se muestran los primeros {{ c.total }} y hay más. Afine el filtro: «seleccionar todo» marca
+        solo lo que está a la vista.
+      </p>
+    }
+
+    @if (c.items.length) {
+      <div class="mt-3 max-h-[22rem] overflow-auto rounded-md border border-neutral-200">
+        <table class="w-full min-w-[46rem] text-xs">
+          <thead class="sticky top-0 bg-neutral-50 text-left text-neutral-500">
+            <tr>
+              <th class="px-2 py-2">
+                <input type="checkbox" [checked]="todasSeleccionadas()" (change)="alternarTodas()"
+                       aria-label="Seleccionar los que están a la vista" />
+              </th>
+              <th class="px-2 py-2 font-medium">Operación</th>
+              <th class="px-2 py-2 font-medium">Identificador origen</th>
+              <th class="px-2 py-2 font-medium">Tipo</th>
+              <th class="px-2 py-2 text-right font-medium">Monto</th>
+              <th class="px-2 py-2 font-medium">Titular</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (o of c.items; track o.id) {
+              <tr class="border-t border-neutral-100"
+                  [class.bg-neutral-50]="seleccionada(o.id)">
+                <td class="px-2 py-1.5">
+                  <input type="checkbox" [checked]="seleccionada(o.id)" (change)="alternar(o.id)"
+                         [attr.aria-label]="'Seleccionar ' + (o.codigoOperacion ?? o.id)" />
+                </td>
+                <td class="px-2 py-1.5 font-mono">{{ o.codigoOperacion ?? '—' }}</td>
+                <td class="px-2 py-1.5 font-mono break-all">{{ o.codigoExterno ?? '—' }}</td>
+                <td class="px-2 py-1.5">{{ o.tipoOperacion ?? '—' }}</td>
+                <td class="px-2 py-1.5 text-right font-mono">
+                  {{ formato(o.monto) }} {{ o.moneda ?? '' }}
+                </td>
+                <td class="px-2 py-1.5">{{ o.titular ?? '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="mt-3 rounded-md border border-dashed border-neutral-300 bg-neutral-50 px-3 py-6 text-center text-sm text-neutral-500">
+        No hay operaciones que se puedan informar con ese filtro. Recuerde que solo entran las que
+        están en {{ ESTADO_EXIGIDO }} y traen el identificador del origen.
+      </p>
+    }
+
+    <label class="mt-3 flex flex-col gap-1 text-sm">
+      <span class="font-medium text-neutral-600">Motivo o nota (opcional)</span>
+      <input class="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+             [value]="motivo()" (input)="onMotivo($event)"
+             placeholder="Por qué se programa esta tanda" />
+    </label>
+
+    @if (avisoMonedas(); as monedas) {
+      <p class="mt-2 text-xs text-amber-700">{{ monedas }}</p>
+    }
+
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <!-- El resumen va junto al botón: es lo que se está a punto de comprometer. -->
+      <p class="text-sm text-neutral-600">
+        <strong>{{ seleccionadas() }}</strong> seleccionada(s)
+        @if (seleccionadas() > 0) {
+          · <span class="font-mono">{{ formato(montoSeleccionado()) }}</span>
+          {{ monedasSeleccionadas().length === 1 ? monedasSeleccionadas()[0] : '' }}
+        }
+      </p>
+      <div class="flex items-center gap-2">
+        @if (motivoNoCrear(); as m) {
+          <span class="text-xs text-neutral-500">{{ m }}</span>
+        }
+        <j-button size="sm" variant="outline" (clicked)="cerrarCrear()">Cancelar</j-button>
+        <j-button size="sm" [loading]="creando()" [disabled]="!!motivoNoCrear()"
+                  (clicked)="onCrear()">Programar</j-button>
+      </div>
+    </div>
+  } @else if (!buscando()) {
+    <p class="mt-3 text-sm text-neutral-500">Pulse Buscar para ver las operaciones programables.</p>
+  }
+</j-dialog>
+
+<!-- ══════════════════ Detalle de una tanda ══════════════════ -->
+<j-dialog
+  [open]="!!detalle()"
+  size="xl"
+  [title]="'Programación ' + (detalle()?.cabecera?.codigo ?? '')"
+  (closed)="cerrarDetalle()"
+  (cancel)="cerrarDetalle()"
+>
+  @if (detalle(); as d) {
+    <div class="flex flex-col gap-4">
+      <j-card>
+        <j-card-header>
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <j-card-title>{{ d.cabecera.codigo }}</j-card-title>
+            <div class="flex flex-wrap gap-1.5">
+              <j-badge [variant]="d.cabecera.estado === 'INFORMADA' ? 'secondary' : 'outline'">
+                {{ d.cabecera.estado }}
+              </j-badge>
+              <j-badge [variant]="d.cabecera.modoIntegracion === 'REAL' ? 'outline' : 'secondary'">
+                {{ d.cabecera.modoIntegracion }}
+              </j-badge>
+            </div>
+          </div>
+        </j-card-header>
+        <j-card-content>
+          <dl class="grid grid-cols-[9rem_1fr] gap-x-3 gap-y-1.5 text-xs">
+            <dt class="text-neutral-400">Operaciones</dt>
+            <dd class="text-neutral-700">
+              {{ d.cabecera.totalOperaciones }} ·
+              <span class="text-emerald-700">{{ d.cabecera.informadas }} informadas</span> ·
+              <span [class]="d.cabecera.fallidas > 0 ? 'text-red-700' : 'text-neutral-400'">
+                {{ d.cabecera.fallidas }} fallidas
+              </span>
+              @if (pendientes() > 0) { · {{ pendientes() }} pendiente(s) }
+            </dd>
+            <dt class="text-neutral-400">Monto</dt>
+            <dd class="font-mono text-neutral-700">{{ formato(d.cabecera.montoTotal) }}</dd>
+            <dt class="text-neutral-400">Programado</dt>
+            <dd class="text-neutral-700">{{ d.cabecera.programado ?? '—' }}</dd>
+            <dt class="text-neutral-400">Ejecutado</dt>
+            <dd class="text-neutral-700">{{ d.cabecera.ejecutado ?? 'todavía no' }}</dd>
+            <dt class="text-neutral-400">Creada por</dt>
+            <dd class="text-neutral-700">{{ d.cabecera.usuario ?? '(scheduler)' }}</dd>
+            @if (d.cabecera.usuarioEjecucion) {
+              <dt class="text-neutral-400">Ejecutada por</dt>
+              <dd class="text-neutral-700">{{ d.cabecera.usuarioEjecucion }}</dd>
+            }
+            @if (d.cabecera.motivo) {
+              <dt class="text-neutral-400">Motivo</dt>
+              <dd class="text-neutral-700">{{ d.cabecera.motivo }}</dd>
+            }
+          </dl>
+        </j-card-content>
+      </j-card>
+
+      <!-- ══ Detalle por operación ══ -->
+      <div class="overflow-x-auto rounded-md border border-neutral-200">
+        <table class="w-full min-w-[50rem] text-xs">
+          <thead class="bg-neutral-50 text-left text-neutral-500">
+            <tr>
+              <th class="px-2 py-2 font-medium">#</th>
+              <th class="px-2 py-2 font-medium">Operación</th>
+              <th class="px-2 py-2 font-medium">Identificador</th>
+              <th class="px-2 py-2 text-right font-medium">Monto</th>
+              <th class="px-2 py-2 font-medium">Estado</th>
+              <th class="px-2 py-2 font-medium">En el origen</th>
+              <th class="px-2 py-2 font-medium">Motivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (f of d.detalles; track f.id) {
+              <tr class="border-t border-neutral-100 align-top">
+                <td class="px-2 py-1.5 text-neutral-400">{{ f.secuencial }}</td>
+                <td class="px-2 py-1.5 font-mono">{{ f.codigoOperacion ?? '—' }}</td>
+                <td class="px-2 py-1.5 font-mono break-all">{{ f.identificador ?? '—' }}</td>
+                <td class="px-2 py-1.5 text-right font-mono">
+                  {{ formato(f.monto) }} {{ f.moneda ?? '' }}
+                </td>
+                <td class="px-2 py-1.5">
+                  <span [class]="f.estado === 'INFORMADO' || f.estado === 'SIN_ENVIAR'
+                          ? 'text-emerald-700'
+                          : (f.estado === 'NO_COINCIDE' || f.estado === 'ERROR'
+                             ? 'text-red-700' : 'text-neutral-600')">
+                    {{ f.estado }}
+                  </span>
+                  @if (f.sinEnviar) {
+                    <span class="ml-1 text-neutral-400">(sin enviar)</span>
+                  }
+                </td>
+                <td class="px-2 py-1.5 text-neutral-600">
+                  {{ f.estadoPrevioOrigen ?? '—' }}
+                  @if (f.estadoPostOrigen) { → {{ f.estadoPostOrigen }} }
+                  @if (f.verificado) { <span class="text-emerald-700">✓</span> }
+                </td>
+                <td class="px-2 py-1.5 text-neutral-500">{{ f.motivo ?? '' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══ Acciones ══ -->
+      <div class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
+        <p class="text-xs text-neutral-600">{{ efectoEjecutar() }}</p>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          @if (bloqueoEjecutar(); as b) {
+            <p class="text-xs text-amber-700">
+              <span class="font-semibold">No se puede ejecutar:</span> {{ b }}
+            </p>
+          } @else {
+            <j-button size="sm" [loading]="ejecutando()" (clicked)="ejecutar()">
+              Ejecutar ({{ pendientes() }} pendiente(s))
+            </j-button>
+          }
+          @if (!bloqueoCancelar()) {
+            <j-button size="sm" variant="outline" [loading]="cancelando()" (clicked)="cancelar()">
+              Cancelar programación
+            </j-button>
+          } @else if (bloqueoCancelar(); as b) {
+            <p class="text-xs text-neutral-500">No se puede cancelar: {{ b }}</p>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</j-dialog>

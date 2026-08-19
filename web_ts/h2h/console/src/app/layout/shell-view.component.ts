@@ -50,7 +50,7 @@ export class ShellViewComponent {
       can('operaciones.transferencias:read') ||
       can('operaciones.factoring:read');
 
-    // ── El flujo: las cuatro etapas del canal, numeradas y en orden ──────────
+    // ── El flujo: las cinco etapas del canal, numeradas y en orden ───────────
     // Los productos (Pagos Masivos / Transferencias / Factoring) ya NO son
     // items del menu: son un filtro dentro de Operaciones. Sus rutas siguen
     // existiendo para no romper enlaces guardados.
@@ -83,6 +83,20 @@ export class ShellViewComponent {
         icon: '❹',
         ...badge(pend.respuestas),
       }),
+      // Etapa 5: cierra la cadena. Solo admite operaciones en PAGO_CONFIRMADO —o sea, despues de la
+      // respuesta del banco— y su resultado es el estado final PAGO_INFORMADO.
+      //
+      // Sin badge, a diferencia de las cuatro anteriores: `/informes/contar` cuenta TODAS las tandas
+      // y no las que esperan accion, asi que el numero nunca bajaria a cero. Un badge que no se apaga
+      // deja de ser un aviso. Antes que pintar uno falso, no se pinta.
+      //
+      // El permiso es `planillas:read`, el mismo que la programacion de envios: lo que se hace aqui
+      // es armar tandas de operaciones, no tocar credenciales.
+      ...gate('planillas:read', {
+        key: 'informes',
+        label: '5 · Informes de pago',
+        icon: '❺',
+      }),
     ];
 
     const maestros: SidebarNavItem[] = [
@@ -109,6 +123,20 @@ export class ShellViewComponent {
       ...gate('planillas:read', { key: 'schedulers-seguimiento', label: 'Corridas', icon: '◔' }),
     ];
 
+    // ── Sistemas de origen: como se habla con el sistema del que vienen ─────
+    const origen: SidebarNavItem[] = [
+      // Mismo permiso que el resto de la configuracion del canal: quien puede
+      // tocar credenciales del banco es quien puede tocar las del origen.
+      ...gate('llaves:read', {
+        key: 'calimaco',
+        label: 'Integración Calimaco',
+        icon: '⇄',
+      }),
+      // «Informes de pago» estaba aqui y se movio a la etapa 5 del flujo: informar al origen no es
+      // configurar la integracion, es el ultimo paso de una operacion. Aqui queda lo que si es
+      // configuracion.
+    ];
+
     const gobierno: SidebarNavItem[] = [
       ...(can('organizacion:read') || can('catalogos:read') || can('rbac:read')
         ? [{ key: 'organizacion', label: 'Organización', icon: '⌂' } as SidebarNavItem]
@@ -122,6 +150,7 @@ export class ShellViewComponent {
       { label: ETIQUETA_GRUPO.flujo, items: flujo },
       { label: ETIQUETA_GRUPO.maestros, items: maestros },
       { label: ETIQUETA_GRUPO.canal, items: canal },
+      { label: ETIQUETA_GRUPO.origen, items: origen },
       { label: ETIQUETA_GRUPO.gobierno, items: gobierno },
     ];
     return grupos.filter((g) => g.items.length > 0);

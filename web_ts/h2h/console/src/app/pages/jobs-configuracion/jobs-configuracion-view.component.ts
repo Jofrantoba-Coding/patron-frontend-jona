@@ -236,7 +236,13 @@ export class JobsConfiguracionViewComponent {
     return e?.error?.errors?.[0]?.message ?? e?.error?.message ?? porDefecto;
   }
 
-  // ── Coherencia entre los tres interruptores (HAB-08 §6.6) ──────────────
+  // ── Coherencia entre los tres interruptores de la tubería (HAB-08 §6.6) ──
+  //
+  // «Los tres» son PROGRAMACION, CICLO_SFTP y DECISION. INFORME_ORIGEN también sale en la lista de
+  // arriba —la pinta la respuesta del API, no una lista fija— pero NO entra en este diagnóstico y no
+  // es un olvido: no está en la tubería. Corre después de que el banco respondió, avisa al sistema
+  // de origen, y apagarlo no deja nada reservado a medias. Meterlo aquí obligaría a inventar
+  // combinaciones que no significan nada.
   //
   // Los tres NO son independientes: el flujo es una tubería —programar, enviar, decidir— y se
   // cierra por la entrada, no por el medio. Apagar solo CICLO_SFTP deja operaciones reservadas que

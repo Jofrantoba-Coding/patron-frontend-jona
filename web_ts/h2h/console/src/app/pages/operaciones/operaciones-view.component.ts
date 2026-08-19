@@ -10,9 +10,12 @@ import type {
 } from '../../core/models';
 import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
+import type { ComparacionCalimaco } from '../calimaco/inter-conciliacion';
 import {
   ANULACION_NEGADA,
   ESTADO_OPE_ANULADA,
+  ESTADO_OPE_CONFIRMADO,
+  ESTADO_OPE_INFORMADO,
   META,
   META_TODAS,
   TIPOOP_GRUPO,
@@ -523,10 +526,56 @@ export class OperacionesViewComponent {
   protected cerrarOpDetalle(): void {
     this.opDetalle.set(null);
     this.opDetalleLoading.set(null);
+    // La comparación es una foto del momento en que se pulsó: dejarla viva al abrir OTRA operación
+    // mostraría los datos de la anterior junto al botón irreversible de esta.
+    this.limpiarComparacion();
   }
   protected setOpDetalle(d: OperacionDetalle): void {
     this.opDetalle.set(d);
   }
+
+  // ── Anulación de la operación ─────────────────────────────────────────
+  // ── Conciliación con Calimaco ─────────────────────────────────────────
+  protected readonly comparacion = signal<ComparacionCalimaco | null>(null);
+  protected readonly comparando = signal<boolean>(false);
+  protected readonly informando = signal<boolean>(false);
+
+  /**
+   * Por qué NO se puede informar a Calimaco, o `null`.
+   *
+   * <p>Igual que el de anular, es una comprobación <b>optimista</b> que solo evita el viaje obvio: la
+   * autoridad es el backend, que además vuelve a comparar antes de mandar. Devuelve texto y no un
+   * booleano porque el bloqueo hay que explicarlo — «no veo el botón» no dice nada.</p>
+   */
+  protected readonly bloqueoCalimaco = computed<string | null>(() => {
+    const registro = this.opRegistro();
+    if (!registro) return null;
+    const estado = this.estadoOpDetalle();
+    if (estado === ESTADO_OPE_INFORMADO) {
+      return 'la operación ya está informada a Calimaco.';
+    }
+    if (estado !== ESTADO_OPE_CONFIRMADO) {
+      // Solo se informa lo que el banco YA pagó: avisar antes sería decirle al casino que pagamos
+      // algo que todavía puede rechazarse.
+      return `solo se informa lo que ya está en ${ESTADO_OPE_CONFIRMADO}, y está en ${estado}.`;
+    }
+    if (this.pv(registro, 'codigoExterno') === '-') {
+      return 'la operación no tiene código externo, así que no hay identificador con el que'
+        + ' buscarla en Calimaco.';
+    }
+    return null;
+  });
+
+  /** La comparación caduca al cerrar el detalle: es una foto de un momento, no un estado. */
+  protected limpiarComparacion(): void {
+    this.comparacion.set(null);
+    this.comparando.set(false);
+    this.informando.set(false);
+  }
+
+  /** La Page los sobrescribe. */
+  protected compararCalimaco(): void {}
+  protected informarCalimaco(): void {}
 
   // ── Anulación de la operación ─────────────────────────────────────────
   protected readonly anularAbierto = signal<boolean>(false);

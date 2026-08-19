@@ -55,6 +55,27 @@ import type {
   TenantContext,
   VentanaSemanal,
 } from './models';
+import type {
+  ConfiguracionCalimaco,
+  GuardarCalimaco,
+  GuardarInterruptorCalimaco,
+  ModoCalimaco,
+  ParCalimaco,
+} from '../pages/calimaco/inter-calimaco';
+import { ENDPOINTS_CALIMACO, MODOS_CALIMACO } from '../pages/calimaco/inter-calimaco';
+import type {
+  CampoComparado,
+  ComparacionCalimaco,
+} from '../pages/calimaco/inter-conciliacion';
+import type {
+  CandidatoInforme,
+  CandidatosInforme,
+  CrearInforme,
+  DetalleInforme,
+  DetalleProgramacionInforme,
+  ProgramacionInforme,
+  ResultadoEjecucion,
+} from '../pages/informes/inter-informes';
 import { SessionService } from './session.service';
 
 const guid = () =>
@@ -590,6 +611,8 @@ export class ApiService {
     if (filtros.estadoOperacion) body['estadoOperacion'] = filtros.estadoOperacion;
     if (filtros.moneda) body['moneda'] = filtros.moneda;
     if (typeof filtros.sinPlanillaVigente === 'boolean') body['sinPlanillaVigente'] = filtros.sinPlanillaVigente;
+    if (typeof filtros.sinProgramacion === 'boolean') body['sinProgramacion'] = filtros.sinProgramacion;
+    if (filtros.modoEnvio) body['modoEnvio'] = filtros.modoEnvio;
     // Mismo criterio que el panel: la API espera epoch, y la hora de pared se
     // interpreta en la zona del negocio, no en la del navegador.
     const desde = horaDeParedAEpoch(filtros.fechaDesde ?? '');
@@ -1627,6 +1650,148 @@ export class ApiService {
     ).pipe(map((r) => r.data));
   }
 
+  // -- Integración Calimaco (sistema de origen) --------------------------
+  /**
+   * Configuración vigente de la integración con Calimaco.
+   *
+   * <p>El backend no devuelve la contraseña — manda `tienePassword` en su lugar — así que la
+   * pantalla no puede rellenarla ni reenviarla por accidente.</p>
+   */
+  calimacoLeer(): Observable<ConfiguracionCalimaco> {
+    return this.postBackend<ApiResponseEnvelope<ConfiguracionCalimaco>>(
+      '/organizacion/calimaco/leer',
+      this.buildEnvelope({})
+    ).pipe(map((r) => normalizeConfiguracionCalimaco(r?.data)));
+  }
+
+  /** Guarda los endpoints: el nodo de conexión en tm_orcon y las cuatro credenciales en Vault. */
+  calimacoGuardar(data: GuardarCalimaco): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/organizacion/calimaco/guardar',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
+  /**
+   * Enciende o apaga el aviso de la organización, y fija su modo. **No toca Vault.**
+   *
+   * <p>Endpoint aparte de `calimacoGuardar` a propósito: aquel reescribe los cuatro secretos, y
+   * cambiar el modo no tiene por qué tocar ninguna credencial. Devuelve el estado que quedó, releído
+   * del nodo, así que la pantalla puede pintar lo que hay y no lo que pidió.</p>
+   */
+  calimacoGuardarInterruptor(
+    data: GuardarInterruptorCalimaco
+  ): Observable<{ habilitado: boolean; modo: ModoCalimaco }> {
+    return this.postBackend<ApiResponseEnvelope<{ habilitado: boolean; modo: ModoCalimaco }>>(
+      '/organizacion/calimaco/interruptor',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
+  // -- Conciliacion de una operacion con Calimaco ------------------------
+  /**
+   * Compara la operacion con el pago que Calimaco dice tener. **No cambia nada.**
+   *
+   * <p>Se puede pulsar cuantas veces se quiera: es de solo lectura.</p>
+   */
+  calimacoComparar(idOperacion: string): Observable<ComparacionCalimaco> {
+    return this.postBackend<ApiResponseEnvelope<ComparacionCalimaco>>(
+      '/operacion/calimaco/comparar',
+      this.buildEnvelope({ idOperacion })
+    ).pipe(map((r) => normalizeComparacionCalimaco(r?.data)));
+  }
+
+  /**
+   * Marca el pago en Calimaco y, si lo confirma, deja la operacion en PAGO_INFORMADO.
+   *
+   * <p>Irreversible. El backend **vuelve a comparar** antes de mandar y no se fia de que esta
+   * pantalla diga que ya cuadraba: entre mirar la tabla y pulsar el boton pueden pasar minutos.</p>
+   */
+  calimacoInformar(idOperacion: string): Observable<ComparacionCalimaco> {
+    return this.postBackend<ApiResponseEnvelope<ComparacionCalimaco>>(
+      '/operacion/calimaco/informar',
+      this.buildEnvelope({ idOperacion })
+    ).pipe(map((r) => normalizeComparacionCalimaco(r?.data)));
+  }
+
+  // -- Programaciones de informe al origen -------------------------------
+  /**
+   * Operaciones que SE PUEDEN programar.
+   *
+   * <p>Solo las que están en PAGO_CONFIRMADO, tienen código externo del origen y no están ya en otra
+   * tanda viva. No se ofrece lo que luego se va a rechazar.</p>
+   */
+  informeCandidatos(grupo?: string | null, moneda?: string | null): Observable<CandidatosInforme> {
+    return this.postBackend<ApiResponseEnvelope<CandidatosInforme>>(
+      '/informes/candidatos',
+      this.buildEnvelope({ grupo: grupo ?? undefined, moneda: moneda ?? undefined })
+    ).pipe(map((r) => normalizeCandidatosInforme(r?.data)));
+  }
+
+  /** Crea la tanda. El backend revalida cada operación contra la base. */
+  informeCrear(data: CrearInforme): Observable<{ id: string; codigo: string }> {
+    return this.postBackend<ApiResponseEnvelope<{ id: string; codigo: string }>>(
+      '/informes/crear',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
+  informeListar(limit = 50, offSet = 0): Observable<ProgramacionInforme[]> {
+    return this.postBackend<ApiResponseEnvelope<ProgramacionInforme[]>>(
+      '/informes/listar',
+      this.buildEnvelope({}),
+      { limit, offSet }
+    ).pipe(map((r) => (r?.data ?? []).map(normalizeProgramacionInforme)));
+  }
+
+  informeContar(): Observable<number> {
+    return this.postBackend<ApiResponseEnvelope<number>>(
+      '/informes/contar',
+      this.buildEnvelope({})
+    ).pipe(map((r) => Number(r?.data ?? 0)));
+  }
+
+  informeDetalle(id: string): Observable<DetalleProgramacionInforme> {
+    return this.postBackend<ApiResponseEnvelope<DetalleProgramacionInforme>>(
+      '/informes/detalle',
+      this.buildEnvelope({ id })
+    ).pipe(
+      map((r) => ({
+        cabecera: normalizeProgramacionInforme(
+          (r?.data?.cabecera ?? {}) as ProgramacionInforme
+        ),
+        detalles: (r?.data?.detalles ?? []) as DetalleInforme[],
+      }))
+    );
+  }
+
+  /** La descarta sin ejecutar y libera sus operaciones para volver a programarlas. */
+  informeCancelar(id: string, motivo: string): Observable<unknown> {
+    return this.postBackend<ApiResponseEnvelope<unknown>>(
+      '/informes/cancelar',
+      this.buildEnvelope({ id, motivo })
+    ).pipe(map((r) => r.data));
+  }
+
+  /**
+   * Recorre la tanda informando cada operación.
+   *
+   * <p><b>Irreversible en modo REAL.</b> El backend compara cada operación otra vez y relee el pago
+   * después de mandarlo: solo avanza lo que el origen confirma.</p>
+   */
+  informeEjecutar(id: string): Observable<ResultadoEjecucion> {
+    return this.postBackend<ApiResponseEnvelope<ResultadoEjecucion>>(
+      '/informes/ejecutar',
+      this.buildEnvelope({ id })
+    ).pipe(
+      map((r) => ({
+        informadas: Number(r?.data?.informadas ?? 0),
+        fallidas: Number(r?.data?.fallidas ?? 0),
+        total: Number(r?.data?.total ?? 0),
+      }))
+    );
+  }
+
   // -- Correlativos ------------------------------------------------------
   correlativos(filtro: CorrelativoFiltro = {}) {
     const body: Record<string, unknown> = {};
@@ -1673,4 +1838,144 @@ export class ApiService {
   audit() {
     return this.get<Paginated<AuditEvent>>('/v1/audit/events');
   }
+}
+
+/**
+ * Rellena lo que el backend pueda no traer.
+ *
+ * <p>Una organización recién dada de alta no tiene secreto todavía, y sin esto la pantalla
+ * reventaría al leer `secreto.cabeceras` de un `undefined` en vez de pintar un formulario en
+ * blanco, que es lo correcto para ese estado.</p>
+ *
+ * <p>El modo se valida contra la lista conocida: un valor raro en la base debe caer a OFFLINE —el
+ * lado seguro— y no colarse hasta el selector.</p>
+ */
+function normalizeConfiguracionCalimaco(raw: unknown): ConfiguracionCalimaco {
+  const d = (raw ?? {}) as Record<string, unknown>;
+  const plataforma = (d['plataforma'] ?? {}) as Record<string, unknown>;
+  const modo = String(d['modo'] ?? '').toUpperCase() as ModoCalimaco;
+  const porNombre = new Map<string, Record<string, unknown>>();
+  if (Array.isArray(d['endpoints'])) {
+    for (const e of d['endpoints'] as Array<Record<string, unknown>>) {
+      porNombre.set(String(e['nombre'] ?? '').toUpperCase(), e);
+    }
+  }
+  return {
+    habilitado: d['habilitado'] === true,
+    modo: MODOS_CALIMACO.includes(modo) ? modo : 'OFFLINE',
+    estadoOrigen: (d['estadoOrigen'] as string | null) ?? null,
+    estadoDestino: (d['estadoDestino'] as string | null) ?? null,
+    timeoutSegundos: Number(d['timeoutSegundos'] ?? 30) || 30,
+    plataforma: {
+      habilitado: plataforma['habilitado'] === true,
+      // Ausente se lee como candado echado: es el valor que no puede hacer dano si el backend
+      // cambia la forma de la respuesta.
+      forzarApagado: plataforma['forzarApagado'] !== false,
+      motivo: (plataforma['motivo'] as string | null) ?? null,
+    },
+    // Los cuatro siempre, en el orden del flujo: uno que el backend no devuelva es justo el que
+    // hay que poder configurar, asi que se devuelve vacio en vez de desaparecer.
+    endpoints: ENDPOINTS_CALIMACO.map((nombre) => {
+      const e = porNombre.get(nombre) ?? {};
+      return {
+        nombre,
+        secretRef: e['secretRef'] as string | undefined,
+        metodo: e['metodo'] as string | undefined,
+        url: e['url'] as string | undefined,
+        contentType: e['contentType'] as string | undefined,
+        tienePassword: e['tienePassword'] === true,
+        cabeceras: pares(e['cabeceras']),
+        parametros: pares(e['parametros']),
+      };
+    }),
+  };
+}
+
+/** Lista de pares nombre/valor, tolerante con lo que no lo sea. */
+function pares(raw: unknown): ParCalimaco[] {
+  if (!Array.isArray(raw)) return [];
+  return (raw as Array<Record<string, unknown>>).map((p) => ({
+    nombre: String(p['nombre'] ?? ''),
+    valor: String(p['valor'] ?? ''),
+  }));
+}
+
+/**
+ * Rellena lo que el backend pueda no traer.
+ *
+ * <p>`puedeInformar` se lee como FALSO ante cualquier duda: es el valor que gobierna un boton
+ * irreversible, y un backend que cambie la forma de la respuesta no debe poder habilitarlo por
+ * omision.</p>
+ */
+function normalizeComparacionCalimaco(raw: unknown): ComparacionCalimaco {
+  const d = (raw ?? {}) as Record<string, unknown>;
+  return {
+    coincide: d['coincide'] === true,
+    puedeInformar: d['puedeInformar'] === true,
+    motivos: Array.isArray(d['motivos']) ? (d['motivos'] as unknown[]).map((m) => String(m)) : [],
+    campos: Array.isArray(d['campos'])
+      ? (d['campos'] as Array<Record<string, unknown>>).map(
+          (c): CampoComparado => ({
+            campo: String(c['campo'] ?? ''),
+            nuestro: (c['nuestro'] as string | null) ?? null,
+            suyo: (c['suyo'] as string | null) ?? null,
+            coincide: c['coincide'] === true,
+            critico: c['critico'] === true,
+          })
+        )
+      : [],
+    modo: (d['modo'] as string | null) ?? null,
+    envioPermitido: d['envioPermitido'] === true,
+    identificador: (d['identificador'] as string | null) ?? null,
+    estadoCalimaco: (d['estadoCalimaco'] as string | null) ?? null,
+    estadoOperacion: (d['estadoOperacion'] as string | null) ?? null,
+    estadoDestinoCalimaco: (d['estadoDestinoCalimaco'] as string | null) ?? null,
+    informado: d['informado'] === true,
+    simulada: d['simulada'] === true,
+    aplicada: d['aplicada'] === true,
+    puedeEnviar: d['puedeEnviar'] === true,
+    yaAplicado: d['yaAplicado'] === true,
+    verificado: d['verificado'] === true,
+    sinEnviar: d['sinEnviar'] === true,
+    estadoCalimacoDespues: (d['estadoCalimacoDespues'] as string | null) ?? null,
+  };
+}
+
+/**
+ * Rellena lo que el backend pueda no traer.
+ *
+ * <p>Los contadores se leen como numeros SIEMPRE: la pantalla los pinta y compara, y un `undefined`
+ * ahi acabaria en un «NaN de 5 informadas».</p>
+ */
+function normalizeProgramacionInforme(raw: unknown): ProgramacionInforme {
+  const d = (raw ?? {}) as Record<string, unknown>;
+  return {
+    id: String(d['id'] ?? ''),
+    codigo: String(d['codigo'] ?? ''),
+    sistema: (d['sistema'] as string | null) ?? null,
+    estado: String(d['estado'] ?? ''),
+    modoEnvio: (d['modoEnvio'] as string | null) ?? null,
+    modoIntegracion: (d['modoIntegracion'] as string | null) ?? null,
+    fechaProceso: (d['fechaProceso'] as string | null) ?? null,
+    programado: (d['programado'] as string | null) ?? null,
+    ejecutado: (d['ejecutado'] as string | null) ?? null,
+    totalOperaciones: Number(d['totalOperaciones'] ?? 0),
+    informadas: Number(d['informadas'] ?? 0),
+    fallidas: Number(d['fallidas'] ?? 0),
+    montoTotal: (d['montoTotal'] as number | string | null) ?? null,
+    usuario: (d['usuario'] as string | null) ?? null,
+    usuarioEjecucion: (d['usuarioEjecucion'] as string | null) ?? null,
+    motivo: (d['motivo'] as string | null) ?? null,
+    criterio: (d['criterio'] as Record<string, unknown> | null) ?? null,
+  };
+}
+
+function normalizeCandidatosInforme(raw: unknown): CandidatosInforme {
+  const d = (raw ?? {}) as Record<string, unknown>;
+  return {
+    items: Array.isArray(d['items']) ? (d['items'] as CandidatoInforme[]) : [],
+    total: Number(d['total'] ?? 0),
+    montoTotal: (d['montoTotal'] as number | string | null) ?? null,
+    truncado: d['truncado'] === true,
+  };
 }

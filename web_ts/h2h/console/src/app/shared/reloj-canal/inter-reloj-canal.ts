@@ -41,6 +41,34 @@ export const MINUTOS_AVISO = 120;
 export const REFRESCO_MS = 60_000;
 
 /**
+ * Productos entre los que se puede mirar la ventana.
+ *
+ * <p>Son los cinco que tienen rama horaria en el backend (`NODO_POR_PRODUCTO` de
+ * `ResolutorHorarioEnvio`). Cada uno tiene ventanas distintas —las transferencias a terceros pueden
+ * cerrar a las 22:45 y la interbancaria a las 12:15 por el cut-off de la BCR— así que preguntar «qué
+ * corte manda» sin decir de qué producto no tiene respuesta.</p>
+ *
+ * <p><b>Factoring (`FA`) no está, a propósito.</b> No tiene rama horaria: la API cae a la ventana del
+ * canal, y esa viene con `habilitado=false`, así que el reloj la leería como cerrada siempre.
+ * Ofrecer una opción cuya única respuesta posible es falsa es peor que no ofrecerla.</p>
+ */
+export const PRODUCTOS_RELOJ: ReadonlyArray<{ codigo: string; label: string }> = [
+  { codigo: 'T', label: 'Transferencias' },
+  { codigo: 'P', label: 'Abono a proveedores' },
+  { codigo: 'H', label: 'Haberes' },
+  { codigo: 'C', label: 'CTS' },
+  { codigo: 'CG', label: 'Cheque de gerencia' },
+];
+
+/**
+ * Con qué producto arranca el reloj.
+ *
+ * <p>Transferencias: es la rama con más subtipos —y la única con un cut-off interbancario que muerde
+ * a media mañana—, así que es donde la cuenta atrás importa más.</p>
+ */
+export const PRODUCTO_RELOJ_POR_DEFECTO = 'T';
+
+/**
  * Nombres legibles de los subtipos. El catálogo los guarda en mayúscula y con
  * guion bajo, que es correcto como código y horrible como etiqueta.
  */
