@@ -106,6 +106,63 @@ export class OperacionesPage extends OperacionesViewComponent implements OnInit 
    * <p>Se puede pulsar cuantas veces se quiera. Un error se muestra como comparación fallida y no
    * como aviso global: lo que falló es este paso, no la pantalla.</p>
    */
+  /**
+   * Paso 1: la cuenta de servicio entra y puede hacer la transición. No cambia nada.
+   *
+   * <p>No lleva id de operación: pregunta por la integración, así que sirve igual con el diálogo
+   * abierto en cualquier pago. Se puede repetir.</p>
+   */
+  protected override verificarSesionCalimaco(): void {
+    if (this.verificandoSesion()) return;
+    this.verificandoSesion.set(true);
+    this.api.calimacoSesion().subscribe({
+      next: (ss) => {
+        this.verificandoSesion.set(false);
+        this.sesionCalimaco.set(ss);
+      },
+      error: (err) => {
+        this.verificandoSesion.set(false);
+        // Se pinta como resultado del paso, no como error de pantalla: «no se pudo comprobar» ES la
+        // respuesta a «¿está la sesión lista?».
+        this.sesionCalimaco.set({
+          utilizable: false,
+          sesionActiva: false,
+          transicionPermitida: false,
+          motivos: [this.mensajeCalimaco(err, 'No se pudo comprobar la sesión de Calimaco.')],
+        });
+      },
+    });
+  }
+
+  /**
+   * Paso 4: se relee el pago y se dice si los dos sistemas coinciden. No cambia nada.
+   *
+   * <p>Aparte del paso 2 a propósito: tras informar, la operación está en PAGO_INFORMADO y comparar
+   * la contrasta con PAGO_CONFIRMADO, así que respondería «no cuadra» por el motivo equivocado.</p>
+   */
+  protected override verificarEstadoCalimaco(): void {
+    const id = this.idOperacionAbierta();
+    if (!id || this.verificandoEstado()) return;
+    this.verificandoEstado.set(true);
+    this.api.calimacoEstado(id).subscribe({
+      next: (e) => {
+        this.verificandoEstado.set(false);
+        this.estadoCalimaco.set(e);
+        // Si los dos lados coinciden, la fila del listado cambió de estado: se recarga para que la
+        // tabla de atrás no siga mostrando PAGO_CONFIRMADO.
+        if (e.coherente) {
+          this.load();
+        }
+      },
+      error: (err) => {
+        this.verificandoEstado.set(false);
+        this.estadoCalimaco.set({
+          motivos: [this.mensajeCalimaco(err, 'No se pudo verificar el estado en Calimaco.')],
+        });
+      },
+    });
+  }
+
   protected override compararCalimaco(): void {
     const id = this.idOperacionAbierta();
     if (!id || this.comparando()) return;
@@ -140,6 +197,9 @@ export class OperacionesPage extends OperacionesViewComponent implements OnInit 
     const id = this.idOperacionAbierta();
     if (!id || this.informando() || !this.comparacion()?.puedeInformar) return;
     this.informando.set(true);
+    // La lectura del paso 4 es de ANTES del envío: dejarla en pantalla haría creer que ya se
+    // verificó lo que se acaba de mandar.
+    this.estadoCalimaco.set(null);
     this.api.calimacoInformar(id).subscribe({
       next: (c) => {
         this.informando.set(false);

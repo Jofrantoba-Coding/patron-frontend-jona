@@ -352,6 +352,19 @@ export interface Operacion {
   idPlanillaVigente: string | null;
   /** Plan de envío que la tiene reservada. Con valor, la conversión va por el plan, no por aquí. */
   idProgramacion?: string | null;
+  /**
+   * Informe de pago donde la operación **cerró su flujo**.
+   *
+   * <p>Es un cierre, no una reserva: se escribe cuando la operación llega a `PAGO_INFORMADO` y no se
+   * limpia nunca. Con valor, el pago se avisó al sistema de origen y ahí terminó su vida.</p>
+   *
+   * <p>El *cómo* no cabe aquí y vive en el detalle del informe: `INFORMADO` (se mandó el lote y la
+   * relectura lo confirmó) frente a `SIN_ENVIAR` (el origen ya lo tenía aplicado). Los dos son éxito,
+   * pero en uno se tocó su sistema y en el otro no.</p>
+   */
+  idInforme?: string | null;
+  /** El código legible de ese informe (`INF-000003`). Un uuid no le dice nada a quien lee la tabla. */
+  codigoInforme?: string | null;
   intentosEnvio: number;
   idCarga?: string | null;
   fechaCarga?: string | null;

@@ -62,6 +62,7 @@ import type {
   ModoCalimaco,
   ParCalimaco,
 } from '../pages/calimaco/inter-calimaco';
+import type { EstadoCalimaco, SesionCalimaco } from '../pages/calimaco/inter-conciliacion';
 import { ENDPOINTS_CALIMACO, MODOS_CALIMACO } from '../pages/calimaco/inter-calimaco';
 import type {
   CampoComparado,
@@ -283,6 +284,8 @@ const normalizeOperacion = (row: OperacionBackendRow): Operacion => ({
   idPlanillaVigente: pickOperacion<string | null>(row, 'idPlanillaVigente'),
   // `pickOperacion` lee tolerando el case: PostgreSQL pliega el alias a `idprogramacion`.
   idProgramacion: pickOperacion<string | null>(row, 'idProgramacion'),
+  idInforme: pickOperacion<string | null>(row, 'idInforme'),
+  codigoInforme: pickOperacion<string | null>(row, 'codigoInforme'),
   intentosEnvio: pickOperacion<number>(row, 'intentosEnvio'),
   idCarga: pickOperacion<string | null>(row, 'idCarga'),
   fechaCarga: pickOperacion<string | null>(row, 'fechaCarga'),
@@ -1688,6 +1691,34 @@ export class ApiService {
     ).pipe(map((r) => r.data));
   }
 
+  // -- Informe manual de una operacion a Calimaco (4 pasos) --------------
+
+  /**
+   * Paso 1: la cuenta de servicio entra y **puede** hacer la transición. No cambia nada.
+   *
+   * <p>Sin operación a propósito: pregunta por la integración, así que se puede pulsar antes de
+   * elegir el pago.</p>
+   */
+  calimacoSesion(): Observable<SesionCalimaco> {
+    return this.postBackend<ApiResponseEnvelope<SesionCalimaco>>(
+      '/operacion/calimaco/sesion',
+      this.buildEnvelope({})
+    ).pipe(map((r) => normalizeSesionCalimaco(r?.data)));
+  }
+
+  /**
+   * Paso 4: cómo está el pago ahora en Calimaco y si coincide con nuestra fila. No cambia nada.
+   *
+   * <p>Endpoint aparte de `comparar` porque la pregunta es distinta: después de informar, nuestra
+   * operación está en `PAGO_INFORMADO` y `comparar` la contrasta con `PAGO_CONFIRMADO`.</p>
+   */
+  calimacoEstado(idOperacion: string): Observable<EstadoCalimaco> {
+    return this.postBackend<ApiResponseEnvelope<EstadoCalimaco>>(
+      '/operacion/calimaco/estado',
+      this.buildEnvelope({ idOperacion })
+    ).pipe(map((r) => normalizeEstadoCalimaco(r?.data)));
+  }
+
   // -- Conciliacion de una operacion con Calimaco ------------------------
   /**
    * Compara la operacion con el pago que Calimaco dice tener. **No cambia nada.**
@@ -1907,6 +1938,46 @@ function pares(raw: unknown): ParCalimaco[] {
  * irreversible, y un backend que cambie la forma de la respuesta no debe poder habilitarlo por
  * omision.</p>
  */
+/**
+ * Paso 1. El backend responde 200 aunque la credencial falle —eso es el resultado, no un error— así
+ * que aquí no se distingue «falló» de «no lista»: los dos casos llegan con `sesionActiva: false` y
+ * el motivo dentro.
+ */
+function normalizeSesionCalimaco(raw: unknown): SesionCalimaco {
+  const d = (raw ?? {}) as Record<string, unknown>;
+  return {
+    modo: (d['modo'] as string | null) ?? null,
+    utilizable: d['utilizable'] === true,
+    envioPermitido: d['envioPermitido'] === true,
+    sesionActiva: d['sesionActiva'] === true,
+    transicionPermitida: d['transicionPermitida'] === true,
+    estadosPermitidos: Array.isArray(d['estadosPermitidos'])
+      ? (d['estadosPermitidos'] as unknown[]).map((e) => String(e))
+      : [],
+    usuario: (d['usuario'] as string | null) ?? null,
+    company: (d['company'] as string | null) ?? null,
+    estadoOrigenCalimaco: (d['estadoOrigenCalimaco'] as string | null) ?? null,
+    estadoDestinoCalimaco: (d['estadoDestinoCalimaco'] as string | null) ?? null,
+    motivos: Array.isArray(d['motivos']) ? (d['motivos'] as unknown[]).map((m) => String(m)) : [],
+  };
+}
+
+/** Paso 4. `coherente` ya viene resuelto del backend: no se recalcula aquí para no tener dos reglas. */
+function normalizeEstadoCalimaco(raw: unknown): EstadoCalimaco {
+  const d = (raw ?? {}) as Record<string, unknown>;
+  return {
+    modo: (d['modo'] as string | null) ?? null,
+    identificador: (d['identificador'] as string | null) ?? null,
+    estadoCalimaco: (d['estadoCalimaco'] as string | null) ?? null,
+    estadoDestinoCalimaco: (d['estadoDestinoCalimaco'] as string | null) ?? null,
+    enDestino: d['enDestino'] === true,
+    estadoOperacion: (d['estadoOperacion'] as string | null) ?? null,
+    operacionInformada: d['operacionInformada'] === true,
+    coherente: d['coherente'] === true,
+    motivos: Array.isArray(d['motivos']) ? (d['motivos'] as unknown[]).map((m) => String(m)) : [],
+  };
+}
+
 function normalizeComparacionCalimaco(raw: unknown): ComparacionCalimaco {
   const d = (raw ?? {}) as Record<string, unknown>;
   return {
@@ -1938,6 +2009,8 @@ function normalizeComparacionCalimaco(raw: unknown): ComparacionCalimaco {
     verificado: d['verificado'] === true,
     sinEnviar: d['sinEnviar'] === true,
     estadoCalimacoDespues: (d['estadoCalimacoDespues'] as string | null) ?? null,
+    idProgramacionInforme: (d['idProgramacionInforme'] as string | null) ?? null,
+    codigoProgramacionInforme: (d['codigoProgramacionInforme'] as string | null) ?? null,
   };
 }
 

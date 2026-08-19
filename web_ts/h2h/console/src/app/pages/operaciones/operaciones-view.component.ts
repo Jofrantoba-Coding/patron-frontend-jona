@@ -10,7 +10,11 @@ import type {
 } from '../../core/models';
 import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
-import type { ComparacionCalimaco } from '../calimaco/inter-conciliacion';
+import type {
+  ComparacionCalimaco,
+  EstadoCalimaco,
+  SesionCalimaco,
+} from '../calimaco/inter-conciliacion';
 import {
   ANULACION_NEGADA,
   ESTADO_OPE_ANULADA,
@@ -220,6 +224,18 @@ export class OperacionesViewComponent {
       header: 'Situación',
       align: 'center',
       render: (value) => situacionOperacion(value).etiqueta,
+    },
+    // El cierre del flujo: en qué informe se avisó el pago al sistema de origen. Va en la tabla y no
+    // solo en el detalle porque la pregunta se hace sobre la lista —«¿dónde se cerró este?»— y
+    // obligar a abrir cada fila para responderla es lo que vuelve inútil el dato.
+    //
+    // Vacío no es un hueco: significa que la operación todavía no cerró. Se pinta con una raya en vez
+    // de en blanco para que se lea como «aún no» y no como «falta el dato».
+    {
+      key: 'codigoInforme',
+      header: 'Informe',
+      align: 'center',
+      render: (value) => (value ? String(value) : '—'),
     },
   ];
 
@@ -540,6 +556,14 @@ export class OperacionesViewComponent {
   protected readonly comparando = signal<boolean>(false);
   protected readonly informando = signal<boolean>(false);
 
+  /** Paso 1: la credencial de la cuenta de servicio. No depende de la operación elegida. */
+  protected readonly sesionCalimaco = signal<SesionCalimaco | null>(null);
+  protected readonly verificandoSesion = signal<boolean>(false);
+
+  /** Paso 4: cómo quedó el pago al releerlo. */
+  protected readonly estadoCalimaco = signal<EstadoCalimaco | null>(null);
+  protected readonly verificandoEstado = signal<boolean>(false);
+
   /**
    * Por qué NO se puede informar a Calimaco, o `null`.
    *
@@ -571,11 +595,18 @@ export class OperacionesViewComponent {
     this.comparacion.set(null);
     this.comparando.set(false);
     this.informando.set(false);
+    // El paso 4 también es una foto de UNA operación: dejarlo vivo al abrir otra mostraría el
+    // «verificado» de la anterior. La sesión (paso 1) NO se limpia: es de la integración, no del
+    // pago, así que sigue valiendo para el siguiente.
+    this.estadoCalimaco.set(null);
+    this.verificandoEstado.set(false);
   }
 
   /** La Page los sobrescribe. */
   protected compararCalimaco(): void {}
   protected informarCalimaco(): void {}
+  protected verificarSesionCalimaco(): void {}
+  protected verificarEstadoCalimaco(): void {}
 
   // ── Anulación de la operación ─────────────────────────────────────────
   protected readonly anularAbierto = signal<boolean>(false);
