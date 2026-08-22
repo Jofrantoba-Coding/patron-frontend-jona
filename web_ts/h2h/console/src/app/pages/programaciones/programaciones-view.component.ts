@@ -108,6 +108,39 @@ const TIPOOP_POR_DESTINO: Record<string, string> = {
   CUENTA_PROPIA: 'TRANSFERENCIA_CUENTA_PROPIA',
 };
 export const CANALES = ['CCE', 'BCR', 'INTERNO'];
+
+/**
+ * Tipo destino del plan → canales de liquidación que admite la base
+ * (`ck_tt_prg_programacion_destino_canal`).
+ *
+ * <p>Una interbancaria SALE del banco, así que la liquida una cámara —CCE la compensación
+ * electrónica, BCR el LBTR— y el canal es OBLIGATORIO. Una transferencia a terceros o entre cuentas
+ * propias se mueve DENTRO del BCP: su canal es INTERNO, o ninguno mientras no se decide. Nunca
+ * cámara.</p>
+ *
+ * <p>Sin este filtro la combinación INTERBANCARIA + INTERNO llegaba hasta el INSERT y volvía como
+ * el texto del constraint de Postgres: el plan no se creaba y quien programa el envío leía SQL.</p>
+ */
+/**
+ * Tipos de operación que el backend sabe convertir a pago masivo de proveedores.
+ *
+ * <p>Las dos transferencias que salen hacia un beneficiario: el layout de proveedores expresa el
+ * abono intrabancario (tipos `A/C/M`) y también el interbancario (`B`, que lleva la CCI). Espejo de
+ * `ConversorAPagoMasivoProveedores.TIPOS_ORIGEN`.</p>
+ */
+export const TIPOS_CONVERTIBLES = ['TRANSFERENCIA_TERCEROS', 'TRANSFERENCIA_INTERBANCARIA'];
+
+/** Cómo se nombra cada tipo convertible en la etiqueta «mantener». */
+const NOMBRE_TIPO_CONVERTIBLE: Record<string, string> = {
+  TRANSFERENCIA_TERCEROS: 'transferencias a terceros',
+  TRANSFERENCIA_INTERBANCARIA: 'transferencias interbancarias',
+};
+
+export const CANALES_POR_DESTINO: Record<string, string[]> = {
+  INTERBANCARIA: ['CCE', 'BCR'],
+  TERCEROS: ['INTERNO'],
+  CUENTA_PROPIA: ['INTERNO'],
+};
 export const MODOS = ['AUTOMATICO', 'MANUAL'];
 
 /** Abreviatura BCP#TIPO_PRODUCTO#* → grupo de operaciones para filtrar la tabla. */
@@ -300,21 +333,55 @@ export class ProgramacionesViewComponent {
   }
 
   /**
-   * ¿Se ofrece convertir a pago masivo de proveedores?
+   * El tipo convertible que lleva el plan, o `null` si no se puede convertir.
    *
-   * <p>Solo al ir al portal web y solo si TODAS las operaciones del plan son transferencias a
-   * terceros. El backend lo rechaza todo o nada, así que ofrecerlo sobre un plan mixto sería
-   * ofrecer un botón que solo puede fallar.</p>
+   * <p>Solo al ir al portal web, y solo si TODAS sus operaciones son del MISMO tipo convertible.
+   * Lo de «todas» lo impone el backend, que convierte todo o nada. Lo de «el mismo» lo impone el
+   * plan: su canal de liquidación es uno solo, y lo de terceros va por INTERNO mientras que una
+   * interbancaria va por cámara — un plan mixto no podría declarar los dos.</p>
    */
-  protected readonly conversionDisponible = computed<boolean>(() => {
-    if (this.modalidadDestino() !== 'H2W') return false;
+  protected readonly tipoConvertiblePlan = computed<string | null>(() => {
+    if (this.modalidadDestino() !== 'H2W') return null;
     const ops = this.operaciones(this.detalle());
-    if (!ops.length) return false;
-    return ops.every(
-      (op) =>
-        String(this.raw(op, 'tipoOperacionCodigo') ?? '').toUpperCase() ===
-        'TRANSFERENCIA_TERCEROS'
+    if (!ops.length) return null;
+    const tipos = new Set(
+      ops.map((op) => String(this.raw(op, 'tipoOperacionCodigo') ?? '').toUpperCase())
     );
+    if (tipos.size !== 1) return null;
+    const tipo = [...tipos][0];
+    return TIPOS_CONVERTIBLES.includes(tipo) ? tipo : null;
+  });
+
+  protected readonly conversionDisponible = computed<boolean>(
+    () => this.tipoConvertiblePlan() !== null
+  );
+
+  /** «Mantener transferencias a terceros» o «…interbancarias», según lo que lleve dentro. */
+  protected readonly etiquetaMantenerPlan = computed<string>(
+    () => NOMBRE_TIPO_CONVERTIBLE[this.tipoConvertiblePlan() ?? ''] ?? 'las transferencias'
+  );
+
+  /**
+   * Aviso del cut-off al convertir interbancarias sobre un plan ya creado.
+   *
+   * <p>Convertir cambia el archivo, no por dónde sale el dinero: esos abonos siguen compensando por
+   * cámara (CCE 14:30 · BCR 12:30) aunque la planilla sea de pagos masivos, cuyo horario no tiene
+   * corte. El backend exige que el plan declare la cámara justo para que ese plazo no se pierda; si
+   * el plan no la trae, decirlo aquí evita que el operador se lo encuentre al confirmar.</p>
+   */
+  protected readonly avisoCamaraPlan = computed<string | null>(() => {
+    if (this.tipoConvertiblePlan() !== 'TRANSFERENCIA_INTERBANCARIA') return null;
+    const canal = String(this.pv(this.detalle()?.programacion ?? {}, 'canalLiquidacion') ?? '')
+      .trim()
+      .toUpperCase();
+    if (canal === 'CCE' || canal === 'BCR') {
+      const hora = canal === 'CCE' ? 'las 14:30' : 'las 12:30';
+      return `Estos abonos siguen compensando por ${canal}: su corte real es ${hora}, no el cierre`
+        + ' del producto de pagos masivos.';
+    }
+    return 'Este plan no declara cámara de liquidación y sus interbancarias la necesitan (CCE o'
+      + ' BCR): sin ella se perdería el corte real —14:30 / 12:30— al pasar a pagos masivos. El'
+      + ' backend rechazará la conversión.';
   });
 
   /** `fechaProceso` de un plan como `yyyy-MM-dd`, o `''`. El backend puede mandarla con hora. */
@@ -386,6 +453,61 @@ export class ProgramacionesViewComponent {
   protected readonly canales = CANALES;
   protected readonly modos = MODOS;
 
+  /**
+   * Los canales que se ofrecen para el destino elegido. Sin destino se ofrecen todos: la cabecera
+   * puede ir sin destino y entonces la base no cruza nada.
+   */
+  protected readonly canalesDisponibles = computed<string[]>(
+    () => CANALES_POR_DESTINO[this.nuevoTipoDestino()] ?? CANALES
+  );
+
+  /** ¿Hay que elegir canal sí o sí? Solo en interbancaria: sin cámara la base rechaza la fila. */
+  protected readonly canalObligatorio = computed(() => this.nuevoTipoDestino() === 'INTERBANCARIA');
+
+  /**
+   * Lo que pinta el `<select>` de canal, **incluida la opción vacía**.
+   *
+   * <p>La vacía va SIEMPRE, también cuando el canal es obligatorio, y esa es la parte que importa:
+   * el `<select>` se enlaza con `[value]="nuevoCanal()"`, así que si el valor del modelo —cadena
+   * vacía mientras nadie elige— no tiene ninguna `<option>` que lo represente, el navegador enseña
+   * la primera de la lista. Al quitar la vacía en interbancaria, la pantalla mostraba «CCE» con el
+   * modelo todavía en blanco: elegir CCE no disparaba `change` porque ya parecía elegido, y guardar
+   * respondía «elija CCE o BCR» sobre un formulario que decía CCE. Con la opción vacía presente, lo
+   * que se ve y lo que se va a enviar son lo mismo.</p>
+   *
+   * <p>Se construye aquí y no en la plantilla para que la invariante —la primera opción es la
+   * vacía— se pueda comprobar en un test sin renderizar.</p>
+   */
+  protected readonly opcionesCanal = computed<{ valor: string; etiqueta: string }[]>(() => [
+    { valor: '', etiqueta: this.canalObligatorio() ? '— elija cámara —' : '—' },
+    ...this.canalesDisponibles().map((canal) => ({ valor: canal, etiqueta: canal })),
+  ]);
+
+  /**
+   * El cruce destino × canal, dicho en el idioma de quien programa el envío.
+   *
+   * <p>Se comprueba además del select porque el destino se puede cambiar DESPUÉS de haber elegido
+   * canal, y porque lo que devuelve la base en ese caso es el texto del constraint: inservible en
+   * pantalla.</p>
+   */
+  protected readonly motivoCanalIncompatible = computed<string | null>(() => {
+    const destino = this.nuevoTipoDestino();
+    if (!destino) return null;
+    const posibles = CANALES_POR_DESTINO[destino] ?? CANALES;
+    const canal = this.nuevoCanal();
+    if (!canal) {
+      return destino === 'INTERBANCARIA'
+        ? 'Una interbancaria sale del banco por una cámara: elija CCE o BCR como canal de liquidación.'
+        : null;
+    }
+    if (!posibles.includes(canal)) {
+      return destino === 'INTERBANCARIA'
+        ? `Una interbancaria no se liquida por ${canal}: elija CCE o BCR. INTERNO es para lo que se queda dentro del BCP.`
+        : `Un plan ${destino} se liquida dentro del banco: su canal es INTERNO, no ${canal}.`;
+    }
+    return null;
+  });
+
   protected readonly rows = computed<JDataTableRow[]>(() => this.rowsSignal() as unknown as JDataTableRow[]);
   protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
   protected readonly rowKey = (row: JDataTableRow) => String((row as unknown as ProgramacionRow).id);
@@ -428,27 +550,56 @@ export class ProgramacionesViewComponent {
   protected readonly seleccionCount = computed(() => this.seleccion().size);
 
   /**
-   * ¿Se ofrece convertir a proveedores al crear el plan?
+   * El tipo convertible de lo SELECCIONADO al crear el plan, o `null`.
    *
-   * <p>Mismas dos condiciones que en el cambio de canal: se va al portal web y las operaciones
-   * <b>seleccionadas</b> son todas transferencias a terceros. Se mira la selección y no el listado
-   * completo, porque es la selección lo que entra al plan.</p>
+   * <p>Mismas condiciones que en el cambio de canal —portal web, todas del mismo tipo convertible—
+   * pero mirando la selección y no el listado: es la selección lo que entra al plan.</p>
    */
-  protected readonly conversionNuevoDisponible = computed<boolean>(() => {
-    if (String(this.nuevoModalidad()).toUpperCase() !== 'H2W') return false;
+  protected readonly tipoConvertibleNuevo = computed<string | null>(() => {
+    if (String(this.nuevoModalidad()).toUpperCase() !== 'H2W') return null;
     const elegidas = this.seleccion();
-    if (elegidas.size === 0) return false;
+    if (elegidas.size === 0) return null;
     const porId = new Map(this.opsRows().map((op) => [String(op.id), op]));
+    const tipos = new Set<string>();
     for (const id of elegidas) {
       const op = porId.get(String(id));
       // Una seleccionada que ya no está en el listado (cambió el filtro) no se puede verificar; no
       // se asume que sea convertible.
-      if (!op) return false;
-      if (String(op.tipoOperacionCodigo ?? '').toUpperCase() !== 'TRANSFERENCIA_TERCEROS') {
-        return false;
-      }
+      if (!op) return null;
+      tipos.add(String(op.tipoOperacionCodigo ?? '').toUpperCase());
     }
-    return true;
+    if (tipos.size !== 1) return null;
+    const tipo = [...tipos][0];
+    return TIPOS_CONVERTIBLES.includes(tipo) ? tipo : null;
+  });
+
+  protected readonly conversionNuevoDisponible = computed<boolean>(
+    () => this.tipoConvertibleNuevo() !== null
+  );
+
+  /** «Mantener transferencias a terceros» o «…interbancarias», según lo seleccionado. */
+  protected readonly etiquetaMantenerNuevo = computed<string>(
+    () => NOMBRE_TIPO_CONVERTIBLE[this.tipoConvertibleNuevo() ?? ''] ?? 'las transferencias'
+  );
+
+  /**
+   * Por qué no se pueden convertir estas interbancarias con el canal elegido, o `null`.
+   *
+   * <p>Espejo de la guarda del backend: convertir no cambia por dónde sale el dinero, así que el
+   * plan tiene que seguir declarando su cámara o el corte real (CCE 14:30 · BCR 12:30) desaparece
+   * al pasar el plan al producto de pagos masivos, que no tiene corte.</p>
+   *
+   * <p>En el camino normal no se ve nunca: para listar interbancarias se elige destino
+   * INTERBANCARIA, y entonces el canal ya está obligado a CCE o BCR.</p>
+   */
+  protected readonly motivoConversionSinCamara = computed<string | null>(() => {
+    if (this.tipoConvertibleNuevo() !== 'TRANSFERENCIA_INTERBANCARIA') return null;
+    if (this.nuevoConversion() !== 'PAGO_MASIVO_PROVEEDORES') return null;
+    const canal = this.nuevoCanal();
+    if (canal === 'CCE' || canal === 'BCR') return null;
+    return 'Para convertir interbancarias a pago masivo hay que declarar la cámara del plan (CCE o'
+      + ' BCR): esos abonos se compensan igual por cámara —14:30 / 12:30— aunque el archivo sea de'
+      + ' proveedores, y el producto de pagos masivos no tiene corte propio.';
   });
 
   protected onNuevoConversion(event: Event): void {
@@ -637,6 +788,13 @@ export class ProgramacionesViewComponent {
    */
   protected onNuevoTipoDestino(e: Event): void {
     this.nuevoTipoDestino.set((e.target as HTMLSelectElement).value);
+    // El canal cuelga del destino: conservar el anterior es lo que colaba INTERBANCARIA + INTERNO.
+    // Si el destino nuevo solo admite uno se pone solo; si admite dos (CCE/BCR) se vacía, porque
+    // elegir cámara por el operador es decidir por dónde sale el dinero.
+    const posibles = CANALES_POR_DESTINO[this.nuevoTipoDestino()] ?? CANALES;
+    if (!posibles.includes(this.nuevoCanal())) {
+      this.nuevoCanal.set(posibles.length === 1 ? posibles[0] : '');
+    }
     this.opsRows.set([]);
     this.seleccion.set(new Set());
     this.loteFiltro.set('');
@@ -869,6 +1027,19 @@ export class ProgramacionesViewComponent {
     const fuera = this.motivoFueraDeVentana(fechaProceso, this.nuevoFechaProgramado().trim());
     if (fuera) {
       this.crearError.set(fuera);
+      return null;
+    }
+    // Destino × canal. Última barrera antes del POST: el select ya solo ofrece los válidos, pero el
+    // destino puede haber cambiado después de elegir canal.
+    const canalMal = this.motivoCanalIncompatible();
+    if (canalMal) {
+      this.crearError.set(canalMal);
+      return null;
+    }
+    // Y el cut-off que la conversión no puede hacer desaparecer.
+    const sinCamara = this.motivoConversionSinCamara();
+    if (sinCamara) {
+      this.crearError.set(sinCamara);
       return null;
     }
     const payload: ProgramacionCrear = {

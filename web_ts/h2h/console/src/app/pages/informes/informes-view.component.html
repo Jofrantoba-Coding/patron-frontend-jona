@@ -102,6 +102,22 @@
   (closed)="cerrarCrear()"
   (cancel)="cerrarCrear()"
 >
+  <!-- Los cuatro pasos, siempre a la vista: armar la tanda es el 1, no el final. -->
+  <ol class="mb-3 flex flex-wrap items-center gap-1 text-xs">
+    @for (p of PASOS; track p.n) {
+      <li class="flex items-center gap-1">
+        <span class="flex h-5 w-5 items-center justify-center rounded-full text-[11px]"
+              [class]="p.n === 1 ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-400'">
+          {{ p.n }}
+        </span>
+        <span [class]="p.n === 1 ? 'font-medium text-neutral-900' : 'text-neutral-400'">
+          {{ p.titulo }}
+        </span>
+        @if (p.n < 4) { <span class="px-1 text-neutral-300">›</span> }
+      </li>
+    }
+  </ol>
+
   <div class="flex flex-wrap items-end gap-3 p-1">
     <label class="flex flex-col gap-1 text-sm">
       <span class="font-medium text-neutral-600">Producto</span>
@@ -204,7 +220,7 @@
         }
         <j-button size="sm" variant="outline" (clicked)="cerrarCrear()">Cancelar</j-button>
         <j-button size="sm" [loading]="creando()" [disabled]="!!motivoNoCrear()"
-                  (clicked)="onCrear()">Programar</j-button>
+                  (clicked)="onCrear()">Programar y revisar</j-button>
       </div>
     </div>
   } @else if (!buscando()) {
@@ -267,74 +283,350 @@
         </j-card-content>
       </j-card>
 
-      <!-- ══ Detalle por operación ══ -->
-      <div class="overflow-x-auto rounded-md border border-neutral-200">
-        <table class="w-full min-w-[50rem] text-xs">
-          <thead class="bg-neutral-50 text-left text-neutral-500">
-            <tr>
-              <th class="px-2 py-2 font-medium">#</th>
-              <th class="px-2 py-2 font-medium">Operación</th>
-              <th class="px-2 py-2 font-medium">Identificador</th>
-              <th class="px-2 py-2 text-right font-medium">Monto</th>
-              <th class="px-2 py-2 font-medium">Estado</th>
-              <th class="px-2 py-2 font-medium">En el origen</th>
-              <th class="px-2 py-2 font-medium">Motivo</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (f of d.detalles; track f.id) {
-              <tr class="border-t border-neutral-100 align-top">
-                <td class="px-2 py-1.5 text-neutral-400">{{ f.secuencial }}</td>
-                <td class="px-2 py-1.5 font-mono">{{ f.codigoOperacion ?? '—' }}</td>
-                <td class="px-2 py-1.5 font-mono break-all">{{ f.identificador ?? '—' }}</td>
-                <td class="px-2 py-1.5 text-right font-mono">
-                  {{ formato(f.monto) }} {{ f.moneda ?? '' }}
-                </td>
-                <td class="px-2 py-1.5">
-                  <span [class]="f.estado === 'INFORMADO' || f.estado === 'SIN_ENVIAR'
-                          ? 'text-emerald-700'
-                          : (f.estado === 'NO_COINCIDE' || f.estado === 'ERROR'
-                             ? 'text-red-700' : 'text-neutral-600')">
-                    {{ f.estado }}
-                  </span>
-                  @if (f.sinEnviar) {
-                    <span class="ml-1 text-neutral-400">(sin enviar)</span>
-                  }
-                </td>
-                <td class="px-2 py-1.5 text-neutral-600">
-                  {{ f.estadoPrevioOrigen ?? '—' }}
-                  @if (f.estadoPostOrigen) { → {{ f.estadoPostOrigen }} }
-                  @if (f.verificado) { <span class="text-emerald-700">✓</span> }
-                </td>
-                <td class="px-2 py-1.5 text-neutral-500">{{ f.motivo ?? '' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <!-- Los cuatro pasos. El 1 quedó atrás, en el diálogo de armado. -->
+      <ol class="flex flex-wrap items-center gap-1 text-xs">
+        @for (p of PASOS; track p.n) {
+          <li class="flex items-center gap-1">
+            <span class="flex h-5 w-5 items-center justify-center rounded-full text-[11px]"
+                  [class]="p.n === paso() ? 'bg-neutral-900 text-white'
+                    : (p.n < paso() ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-neutral-100 text-neutral-400')">
+              {{ p.n }}
+            </span>
+            <span [class]="p.n === paso() ? 'font-medium text-neutral-900' : 'text-neutral-400'">
+              {{ p.titulo }}
+            </span>
+            @if (p.n < 4) { <span class="px-1 text-neutral-300">›</span> }
+          </li>
+        }
+      </ol>
 
-      <!-- ══ Acciones ══ -->
-      <div class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
-        <p class="text-xs text-neutral-600">{{ efectoEjecutar() }}</p>
-        <div class="mt-3 flex flex-wrap items-center gap-2">
-          @if (bloqueoEjecutar(); as b) {
-            <p class="text-xs text-amber-700">
-              <span class="font-semibold">No se puede ejecutar:</span> {{ b }}
+      <!-- ══ Detalle por operación. Se ve en revisar y en el cierre: en el paso de ejecutar
+           estorba, porque ahí lo que hay que leer es qué va a pasar. ══ -->
+      @if (paso() === 2 || paso() === 4) {
+        <div class="overflow-x-auto rounded-md border border-neutral-200">
+          <table class="w-full min-w-[54rem] text-xs">
+            <thead class="bg-neutral-50 text-left text-neutral-500">
+              <tr>
+                <th class="px-2 py-2 font-medium">#</th>
+                <th class="px-2 py-2 font-medium">Operación</th>
+                <th class="px-2 py-2 font-medium">Identificador</th>
+                <th class="px-2 py-2 text-right font-medium">Monto</th>
+                <th class="px-2 py-2 font-medium">Estado</th>
+                <th class="px-2 py-2 font-medium">En el origen</th>
+                <th class="px-2 py-2 font-medium">
+                  {{ paso() === 2 ? 'Comparación' : 'Motivo' }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (f of d.detalles; track f.id) {
+                <tr class="border-t border-neutral-100 align-top">
+                  <td class="px-2 py-1.5 text-neutral-400">{{ f.secuencial }}</td>
+                  <td class="px-2 py-1.5 font-mono">{{ f.codigoOperacion ?? '—' }}</td>
+                  <td class="px-2 py-1.5 font-mono break-all">{{ f.identificador ?? '—' }}</td>
+                  <td class="px-2 py-1.5 text-right font-mono">
+                    {{ formato(f.monto) }} {{ f.moneda ?? '' }}
+                  </td>
+                  <td class="px-2 py-1.5">
+                    <span [class]="f.estado === 'INFORMADO' || f.estado === 'SIN_ENVIAR'
+                            ? 'text-emerald-700'
+                            : (f.estado === 'NO_COINCIDE' || f.estado === 'ERROR'
+                               ? 'text-red-700' : 'text-neutral-600')">
+                      {{ f.estado }}
+                    </span>
+                    @if (f.sinEnviar) {
+                      <span class="ml-1 text-neutral-400">(sin enviar)</span>
+                    }
+                  </td>
+                  <td class="px-2 py-1.5 text-neutral-600">
+                    {{ f.estadoPrevioOrigen ?? '—' }}
+                    @if (f.estadoPostOrigen) { → {{ f.estadoPostOrigen }} }
+                    @if (f.verificado) { <span class="text-emerald-700">✓</span> }
+                  </td>
+                  <td class="px-2 py-1.5 text-neutral-500">
+                    @if (paso() === 2) {
+                      @if (comparacionDe(f.idOperacion); as c) {
+                        <span [class]="c.coincide ? 'text-emerald-700' : 'text-red-700'">
+                          {{ c.coincide ? 'cuadra' : 'no cuadra' }}
+                        </span>
+                        @if (c.yaAplicado) {
+                          <span class="ml-1 text-neutral-500">· ya aplicado en el origen</span>
+                        }
+                        @for (m of c.motivos; track m) {
+                          <span class="mt-0.5 block text-[11px] text-neutral-500">{{ m }}</span>
+                        }
+                        <!-- El detalle campo a campo es lo que convierte un «no cuadra» en algo
+                             accionable: dice QUÉ campo y con qué valores a cada lado. -->
+                        <button type="button"
+                                class="mt-1 text-[11px] text-neutral-500 underline"
+                                (click)="alternarFila(f.idOperacion)">
+                          {{ filaAbierta() === f.idOperacion ? 'Ocultar' : 'Ver' }} detalle de la
+                          comparación
+                        </button>
+                      } @else {
+                        <span class="text-neutral-300">sin comparar</span>
+                      }
+                    } @else {
+                      {{ f.motivo ?? '' }}
+                    }
+                  </td>
+                </tr>
+                @if (paso() === 2 && filaAbierta() === f.idOperacion) {
+                  <tr class="border-t border-neutral-100 bg-neutral-50">
+                    <td colspan="7" class="px-3 py-2">
+                      @if (camposDe(f.idOperacion).length) {
+                        <table class="w-full text-[11px]">
+                          <thead class="text-left text-neutral-500">
+                            <tr>
+                              <th class="py-1 font-medium">Campo</th>
+                              <th class="py-1 font-medium">Aquí</th>
+                              <th class="py-1 font-medium">En el origen</th>
+                              <th class="py-1 font-medium">&nbsp;</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (campo of camposDe(f.idOperacion); track campo.campo) {
+                              <tr class="border-t border-neutral-200">
+                                <td class="py-1 pr-3 text-neutral-600">
+                                  {{ campo.campo }}
+                                  <!-- Crítico y de contraste no son lo mismo: los de contraste
+                                       —banco, titular, documento— difieren de forma inocente todo
+                                       el tiempo y NO bloquean. Sin decirlo, un «no cuadra» en el
+                                       titular parece un motivo para no informar. -->
+                                  @if (!campo.critico) {
+                                    <span class="ml-1 text-neutral-400">(contraste)</span>
+                                  }
+                                </td>
+                                <td class="py-1 pr-3 font-mono text-neutral-700">
+                                  {{ campo.nuestro ?? '—' }}
+                                </td>
+                                <td class="py-1 pr-3 font-mono text-neutral-700">
+                                  {{ campo.suyo ?? '—' }}
+                                </td>
+                                <td class="py-1"
+                                    [class]="campo.coincide ? 'text-emerald-700'
+                                      : (campo.critico ? 'text-red-700' : 'text-amber-700')">
+                                  {{ campo.coincide ? '✓' : '✗' }}
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <p class="text-[11px] text-neutral-500">
+                          No hay campos que comparar: no se llegó a leer el pago en el origen.
+                        </p>
+                      }
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- ══ Paso 2 · Revisar ══ -->
+      @if (paso() === 2) {
+        <div class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
+          <p class="text-xs text-neutral-600">
+            Comparar es de <strong>solo lectura</strong>: pregunta a Calimaco por las operaciones de
+            la tanda y enseña si cuadran importe, moneda, cuenta y estado. No informa nada. Es el
+            paso que permite ver el veredicto <em>antes</em> de una llamada que en modo REAL no se
+            deshace.
+          </p>
+
+          <div class="mt-3 rounded-md border border-neutral-200 bg-white p-3">
+          <div class="flex flex-wrap items-end gap-3">
+            <label class="flex flex-col gap-1 text-xs">
+              <span class="font-medium text-neutral-600">Buscar el pago</span>
+              <select class="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-xs"
+                      [value]="estrategia()" (change)="onEstrategia($event)">
+                @for (e of ESTRATEGIAS; track e) {
+                  <option [value]="e">{{ ETIQUETA_ESTRATEGIA[e] }}</option>
+                }
+              </select>
+            </label>
+            @if (estrategia() === 'FECHAS') {
+              <label class="flex flex-col gap-1 text-xs">
+                <span class="font-medium text-neutral-600">Desde</span>
+                <input class="w-48 rounded-md border border-neutral-300 px-2 py-1.5 font-mono text-xs"
+                       [value]="ventanaDesde()" (input)="onVentanaDesde($event)"
+                       placeholder="yyyy-MM-dd HH:mm:ss" />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span class="font-medium text-neutral-600">Hasta</span>
+                <input class="w-48 rounded-md border border-neutral-300 px-2 py-1.5 font-mono text-xs"
+                       [value]="ventanaHasta()" (input)="onVentanaHasta($event)"
+                       placeholder="yyyy-MM-dd HH:mm:ss" />
+              </label>
+            }
+          </div>
+          @if (consultaConfigurada(); as cfg) {
+            <p class="mt-1 text-[11px] text-neutral-500">
+              Configurado para esta organización: <strong>{{ ETIQUETA_ESTRATEGIA[cfg.estrategia] }}</strong>
+              @if (cfg.estrategia === 'FECHAS') { · ventana de {{ cfg.diasVentana }} día(s) }
+              @if (estrategiaCambiada()) {
+                <span class="text-amber-700"> · está usando otra solo para esta pantalla</span>
+              }
+            </p>
+          }
+          <p class="mt-1 text-[11px] text-neutral-500">
+            <strong>Por operación</strong> pregunta por el identificador de cada una: encuentra el
+            pago aunque sea antiguo, ya esté aplicado o sea de otro banco, a cambio de una llamada
+            por operación. <strong>Por fechas</strong> barre la ventana de una vez —es lo que hace
+            el job—, pero el reporte filtra además por estado de partida y por banco, así que lo que
+            quede fuera sale como «ausente».
+          </p>
+          </div>
+
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <j-button size="sm" variant="outline" [loading]="comparandoTodas()"
+                      (clicked)="compararTodas()">
+              Comparar las {{ d.detalles.length }} operación(es)
+            </j-button>
+            @if (resumenComparacion().hechas > 0) {
+              <p class="text-xs text-neutral-600">
+                {{ resumenComparacion().cuadran }} de {{ resumenComparacion().hechas }} cuadran
+                @if (resumenComparacion().yaAplicados > 0) {
+                  · {{ resumenComparacion().yaAplicados }} ya aplicada(s) en el origen
+                }
+              </p>
+            }
+            @if (ultimaComparacion(); as u) {
+              <p class="text-[11px] text-neutral-500">
+                Comparado por {{ ETIQUETA_ESTRATEGIA[u.estrategia] }}
+                @if (u.desde) { · ventana {{ u.desde }} .. {{ u.hasta }} }
+                @if (u.pagosLeidos !== null && u.pagosLeidos !== undefined) {
+                  · el barrido trajo {{ u.pagosLeidos }} pago(s)
+                }
+              </p>
+            }
+            @if (errorComparar(); as e) {
+              <p class="text-xs text-red-700">{{ e }}</p>
+            }
+          </div>
+          <div class="mt-3 flex flex-wrap justify-end gap-2">
+            <j-button size="sm" variant="outline" (clicked)="cerrarDetalle()">Cerrar</j-button>
+            <j-button size="sm" (clicked)="irAlPaso(3)">Siguiente: ejecutar</j-button>
+          </div>
+        </div>
+      }
+
+      <!-- ══ Paso 3 · Ejecutar ══ -->
+      @if (paso() === 3) {
+        <div class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
+          <p class="text-xs text-neutral-600">{{ efectoEjecutar() }}</p>
+
+          <!-- El mismo selector que en revisar, y a propósito: informar con un alcance distinto
+               del que se revisó daría un desenlace que nadie vio venir. -->
+          <div class="mt-3 rounded-md border border-neutral-200 bg-white p-3">
+          <div class="flex flex-wrap items-end gap-3">
+            <label class="flex flex-col gap-1 text-xs">
+              <span class="font-medium text-neutral-600">Buscar el pago</span>
+              <select class="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-xs"
+                      [value]="estrategia()" (change)="onEstrategia($event)">
+                @for (e of ESTRATEGIAS; track e) {
+                  <option [value]="e">{{ ETIQUETA_ESTRATEGIA[e] }}</option>
+                }
+              </select>
+            </label>
+            @if (estrategia() === 'FECHAS') {
+              <label class="flex flex-col gap-1 text-xs">
+                <span class="font-medium text-neutral-600">Desde</span>
+                <input class="w-48 rounded-md border border-neutral-300 px-2 py-1.5 font-mono text-xs"
+                       [value]="ventanaDesde()" (input)="onVentanaDesde($event)"
+                       placeholder="yyyy-MM-dd HH:mm:ss" />
+              </label>
+              <label class="flex flex-col gap-1 text-xs">
+                <span class="font-medium text-neutral-600">Hasta</span>
+                <input class="w-48 rounded-md border border-neutral-300 px-2 py-1.5 font-mono text-xs"
+                       [value]="ventanaHasta()" (input)="onVentanaHasta($event)"
+                       placeholder="yyyy-MM-dd HH:mm:ss" />
+              </label>
+            }
+          </div>
+          @if (consultaConfigurada(); as cfg) {
+            <p class="mt-1 text-[11px] text-neutral-500">
+              Configurado para esta organización: <strong>{{ ETIQUETA_ESTRATEGIA[cfg.estrategia] }}</strong>
+              @if (cfg.estrategia === 'FECHAS') { · ventana de {{ cfg.diasVentana }} día(s) }
+              @if (estrategiaCambiada()) {
+                <span class="text-amber-700"> · está usando otra solo para esta pantalla</span>
+              }
+            </p>
+          }
+          <p class="mt-1 text-[11px] text-neutral-500">
+            <strong>Por operación</strong> pregunta por el identificador de cada una: encuentra el
+            pago aunque sea antiguo, ya esté aplicado o sea de otro banco, a cambio de una llamada
+            por operación. <strong>Por fechas</strong> barre la ventana de una vez —es lo que hace
+            el job—, pero el reporte filtra además por estado de partida y por banco, así que lo que
+            quede fuera sale como «ausente».
+          </p>
+          </div>
+
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            @if (bloqueoEjecutar(); as b) {
+              <p class="text-xs text-amber-700">
+                <span class="font-semibold">No se puede ejecutar:</span> {{ b }}
+              </p>
+            } @else {
+              <j-button size="sm" [loading]="ejecutando()" (clicked)="ejecutar()">
+                Ejecutar ({{ pendientes() }} pendiente(s))
+              </j-button>
+            }
+            @if (!bloqueoCancelar()) {
+              <j-button size="sm" variant="outline" [loading]="cancelando()" (clicked)="cancelar()">
+                Cancelar programación
+              </j-button>
+            } @else if (bloqueoCancelar(); as b) {
+              <p class="text-xs text-neutral-500">No se puede cancelar: {{ b }}</p>
+            }
+          </div>
+          <div class="mt-3 flex flex-wrap justify-end gap-2">
+            <j-button size="sm" variant="outline" (clicked)="irAlPaso(2)">Atrás</j-button>
+          </div>
+        </div>
+      }
+
+      <!-- ══ Paso 4 · Cierre ══ -->
+      @if (paso() === 4) {
+        <div class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
+          @if (resultado(); as r) {
+            <p class="text-sm text-neutral-700">
+              <strong>{{ r.informadas }}</strong> informada(s) ·
+              <strong [class]="r.fallidas > 0 ? 'text-red-700' : ''">{{ r.fallidas }}</strong>
+              fallida(s) de {{ r.total }}.
             </p>
           } @else {
-            <j-button size="sm" [loading]="ejecutando()" (clicked)="ejecutar()">
-              Ejecutar ({{ pendientes() }} pendiente(s))
-            </j-button>
+            <p class="text-sm text-neutral-700">
+              Esta tanda ya se ejecutó: {{ d.cabecera.informadas }} informada(s) y
+              {{ d.cabecera.fallidas }} fallida(s) de {{ d.cabecera.totalOperaciones }}.
+            </p>
           }
-          @if (!bloqueoCancelar()) {
-            <j-button size="sm" variant="outline" [loading]="cancelando()" (clicked)="cancelar()">
-              Cancelar programación
-            </j-button>
-          } @else if (bloqueoCancelar(); as b) {
-            <p class="text-xs text-neutral-500">No se puede cancelar: {{ b }}</p>
+          <!-- El modo va aquí y no solo en la cabecera: una tanda INFORMADA en SIMULACIÓN no
+               cambió nada en el origen, y sin decirlo se lee como un aviso que sí se dio. -->
+          <p class="mt-1 text-xs text-neutral-600">
+            Modo de integración: <strong>{{ d.cabecera.modoIntegracion ?? '—' }}</strong>.
+            @if (d.cabecera.modoIntegracion !== 'REAL') {
+              En este modo <strong>no se envió nada</strong> al sistema de origen.
+            }
+          </p>
+          @if (pendientes() > 0) {
+            <p class="mt-1 text-xs text-amber-700">
+              Quedan {{ pendientes() }} operación(es) sin desenlace: se puede volver a ejecutar.
+            </p>
           }
+          <div class="mt-3 flex flex-wrap justify-end gap-2">
+            @if (pendientes() > 0 && !bloqueoEjecutar()) {
+              <j-button size="sm" variant="outline" (clicked)="irAlPaso(3)">
+                Volver a ejecutar
+              </j-button>
+            }
+            <j-button size="sm" (clicked)="cerrarDetalle()">Cerrar</j-button>
+          </div>
         </div>
-      </div>
+      }
     </div>
   }
 </j-dialog>

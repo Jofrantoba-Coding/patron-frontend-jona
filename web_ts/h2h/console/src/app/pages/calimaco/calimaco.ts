@@ -4,6 +4,7 @@ import { ApiService } from '../../core/api.service';
 import { CalimacoViewComponent } from './calimaco-view.component';
 import type {
   GuardarCalimaco,
+  GuardarConsultaCalimaco,
   GuardarInterruptorCalimaco,
 } from './inter-calimaco';
 
@@ -28,6 +29,44 @@ export class CalimacoPage extends CalimacoViewComponent {
   constructor() {
     super();
     this.cargar();
+    this.cargarConsulta();
+  }
+
+  /**
+   * Con qué alcance busca esta organización.
+   *
+   * <p>Lectura aparte de `cargar()`: aquella toca los cuatro secretos de Vault para saber si hay
+   * contraseña, y esto son dos filas. Un fallo aquí no rompe la pantalla —el resto se configura
+   * igual—, solo deja el panel sin datos.</p>
+   */
+  private cargarConsulta(): void {
+    this.api.calimacoLeerConsulta().subscribe({
+      next: (data) => this.setConsulta(data),
+      error: (err) => this.error.set(
+        this.mensajeDe(err, 'No se pudo leer cómo se consultan los pagos.')),
+    });
+  }
+
+  protected override guardarConsulta(valor: GuardarConsultaCalimaco): void {
+    this.guardandoConsulta.set(true);
+    this.aviso.set(null);
+    this.error.set(null);
+    this.api.calimacoGuardarConsulta(valor).subscribe({
+      next: (data) => {
+        this.guardandoConsulta.set(false);
+        // Se adopta lo que devuelve el servidor, no lo que se tecleó: es lo que quedó escrito en el
+        // nodo, ya normalizado. Si el backend hubiera ajustado algo, la pantalla lo enseña.
+        this.setConsulta({ ...data, tieneNodo: true,
+          maximoDiasVentana: this.consulta()?.maximoDiasVentana ?? 90,
+          plataforma: this.consulta()?.plataforma ?? data });
+        this.aviso.set(`A partir de ahora se buscará por ${data.estrategia === 'FECHAS'
+          ? 'fechas de operación' : 'operación'}. Aplica desde la siguiente corrida del job.`);
+      },
+      error: (err) => {
+        this.guardandoConsulta.set(false);
+        this.error.set(this.mensajeDe(err, 'No se pudo guardar cómo se consultan los pagos.'));
+      },
+    });
   }
 
   protected override cargar(): void {

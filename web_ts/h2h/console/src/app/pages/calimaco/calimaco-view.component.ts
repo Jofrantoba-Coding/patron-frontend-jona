@@ -5,11 +5,16 @@ import {
   DESCRIPCION_MODO,
   ENDPOINTS_CALIMACO,
   MODOS_CALIMACO,
+  ESTRATEGIAS_CALIMACO,
+  DESCRIPCION_ESTRATEGIA,
   type ConfiguracionCalimaco,
   type EndpointCalimaco,
   type GuardarCalimaco,
   type GuardarEndpoint,
   type GuardarInterruptorCalimaco,
+  type ConsultaCalimacoConfig,
+  type EstrategiaConsultaCalimaco,
+  type GuardarConsultaCalimaco,
   type ModoCalimaco,
   type NombreEndpoint,
 } from './inter-calimaco';
@@ -45,6 +50,8 @@ interface EndpointEditable extends EndpointCalimaco {
 })
 export class CalimacoViewComponent {
   protected readonly MODOS = MODOS_CALIMACO;
+  protected readonly ESTRATEGIAS = ESTRATEGIAS_CALIMACO;
+  protected readonly DESCRIPCION_ESTRATEGIA = DESCRIPCION_ESTRATEGIA;
   protected readonly DESCRIPCION_MODO = DESCRIPCION_MODO;
   protected readonly DESCRIPCION_ENDPOINT = DESCRIPCION_ENDPOINT;
 
@@ -62,6 +69,75 @@ export class CalimacoViewComponent {
   protected readonly timeout = signal(30);
 
   protected readonly candado = computed(() => this.config()?.plataforma ?? null);
+
+  // ── Con qué alcance se busca el pago (CALIMACO#API#CONSULTA) ──────────────
+  //
+  // Panel propio, como el interruptor: no pasa por Vault, escribe una fila de tm_orcon y responde a
+  // una pregunta distinta. El interruptor dice SI se avisa; esto, CÓMO se busca el pago que se va a
+  // avisar — y de ello depende lo que el job encuentra.
+  protected readonly consulta = signal<ConsultaCalimacoConfig | null>(null);
+  protected readonly estrategia = signal<EstrategiaConsultaCalimaco>('OPERACION');
+  protected readonly diasVentana = signal(7);
+  protected readonly guardandoConsulta = signal(false);
+
+  protected setConsulta(data: ConsultaCalimacoConfig): void {
+    this.consulta.set(data);
+    this.estrategia.set(data.estrategia);
+    this.diasVentana.set(data.diasVentana);
+  }
+
+  protected onEstrategia(evento: Event): void {
+    this.estrategia.set((evento.target as HTMLSelectElement).value as EstrategiaConsultaCalimaco);
+  }
+
+  protected onDiasVentana(evento: Event): void {
+    this.diasVentana.set(Number((evento.target as HTMLInputElement).value));
+  }
+
+  /** ¿Hay algo que escribir? Sin cambios, el botón no invita a guardar. */
+  protected readonly consultaCambiada = computed<boolean>(() => {
+    const guardada = this.consulta();
+    if (!guardada) return false;
+    return this.estrategia() !== guardada.estrategia || this.diasVentana() !== guardada.diasVentana;
+  });
+
+  /**
+   * Por qué no se puede guardar, o `null`.
+   *
+   * <p>Espeja el rango que valida el backend —que rechaza en vez de recortar— para que el motivo se
+   * lea aquí en lugar de volver como un 422.</p>
+   */
+  protected readonly motivoNoGuardarConsulta = computed<string | null>(() => {
+    if (this.estrategia() !== 'FECHAS') return null;
+    const maximo = this.consulta()?.maximoDiasVentana ?? 90;
+    const dias = this.diasVentana();
+    if (!Number.isFinite(dias) || dias < 1 || dias > maximo) {
+      return `La ventana debe estar entre 1 y ${maximo} días. Para mirar más atrás, consulte por`
+        + ' operación.';
+    }
+    return null;
+  });
+
+  /**
+   * Qué va a pasar con esta elección, dicho entero.
+   *
+   * <p>La descripción de la estrategia no basta: lo que importa es la consecuencia sobre el job,
+   * que es quien corre solo y quien deja de encontrar cosas.</p>
+   */
+  protected readonly efectoConsulta = computed<string>(() => {
+    if (this.estrategia() === 'OPERACION') {
+      return 'El job preguntará por cada operación. Encuentra pagos antiguos, ya aplicados o de'
+        + ' otro banco, a cambio de una llamada por operación.';
+    }
+    return `El job barrerá los últimos ${this.diasVentana()} día(s) por moneda. Lo que quede fuera`
+      + ' de esa ventana —o esté ya aplicado, o sea de otra entidad— lo verá como ausente y no lo'
+      + ' informará.';
+  });
+
+  protected onGuardarConsulta(): void {
+    if (!this.consultaCambiada() || this.motivoNoGuardarConsulta()) return;
+    this.guardarConsulta({ estrategia: this.estrategia(), diasVentana: this.diasVentana() });
+  }
 
   /**
    * ¿La plataforma permite avisar?
@@ -310,4 +386,5 @@ export class CalimacoViewComponent {
   protected cargar(): void {}
   protected guardar(_valor: GuardarCalimaco): void {}
   protected guardarInterruptor(_valor: GuardarInterruptorCalimaco): void {}
+  protected guardarConsulta(_valor: GuardarConsultaCalimaco): void {}
 }

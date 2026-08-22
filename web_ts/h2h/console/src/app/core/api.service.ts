@@ -65,6 +65,10 @@ import type {
 import type { EstadoCalimaco, SesionCalimaco } from '../pages/calimaco/inter-conciliacion';
 import { ENDPOINTS_CALIMACO, MODOS_CALIMACO } from '../pages/calimaco/inter-calimaco';
 import type {
+  ConsultaCalimacoConfig,
+  GuardarConsultaCalimaco,
+} from '../pages/calimaco/inter-calimaco';
+import type {
   CampoComparado,
   ComparacionCalimaco,
 } from '../pages/calimaco/inter-conciliacion';
@@ -76,6 +80,10 @@ import type {
   DetalleProgramacionInforme,
   ProgramacionInforme,
   ResultadoEjecucion,
+} from '../pages/informes/inter-informes';
+import type {
+  ComparacionTanda,
+  ConsultaConfigurada,
 } from '../pages/informes/inter-informes';
 import { SessionService } from './session.service';
 
@@ -474,6 +482,19 @@ const normalizeProgramacionRow = (row: Record<string, unknown>): ProgramacionRow
   idPlanilla: pickProgramacion<string | null>(row, 'idPlanilla'),
   idOrganizacion: pickProgramacion<string>(row, 'idOrganizacion'),
 });
+
+/**
+ * El bloque de consulta que viaja al backend, o nada.
+ *
+ * <p>La ventana solo acompaña a `FECHAS` y solo si está completa: media ventana no es una ventana, y
+ * mandarla sugeriría que se aplicó un filtro que el backend va a ignorar.</p>
+ */
+function consultaPedida(estrategia?: string | null, desde?: string | null, hasta?: string | null):
+    Record<string, string> {
+  if (!estrategia) return {};
+  if (estrategia !== 'FECHAS') return { estrategia };
+  return desde && hasta ? { estrategia, desde, hasta } : { estrategia };
+}
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -1699,6 +1720,27 @@ export class ApiService {
    * <p>Sin operación a propósito: pregunta por la integración, así que se puede pulsar antes de
    * elegir el pago.</p>
    */
+  /** Con qué alcance consulta esta organización, y qué heredaría de plataforma. */
+  calimacoLeerConsulta(): Observable<ConsultaCalimacoConfig> {
+    return this.postBackend<ApiResponseEnvelope<ConsultaCalimacoConfig>>(
+      '/organizacion/calimaco/consulta/leer',
+      this.buildEnvelope({})
+    ).pipe(map((r) => r.data));
+  }
+
+  /**
+   * Cambia si se busca por operación o por fechas.
+   *
+   * <p>Endpoint aparte de `calimacoGuardar` por lo mismo que el interruptor: aquel reescribe los
+   * cuatro secretos de Vault, y esto solo toca una fila de `tm_orcon`.</p>
+   */
+  calimacoGuardarConsulta(data: GuardarConsultaCalimaco): Observable<ConsultaCalimacoConfig> {
+    return this.postBackend<ApiResponseEnvelope<ConsultaCalimacoConfig>>(
+      '/organizacion/calimaco/consulta/guardar',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
   calimacoSesion(): Observable<SesionCalimaco> {
     return this.postBackend<ApiResponseEnvelope<SesionCalimaco>>(
       '/operacion/calimaco/sesion',
@@ -1767,6 +1809,37 @@ export class ApiService {
     ).pipe(map((r) => r.data));
   }
 
+  /**
+   * Compara la tanda entera sin informar nada. Es el paso «revisar» del asistente.
+   *
+   * <p>Sin `estrategia` manda la configurada para la organización. El resultado depende de ella:
+   * una operación puede salir «ausente» por fechas y cuadrar por identificador.</p>
+   */
+  informeComparar(id: string, estrategia?: string | null, desde?: string | null,
+      hasta?: string | null): Observable<ComparacionTanda> {
+    return this.postBackend<ApiResponseEnvelope<ComparacionTanda>>(
+      '/informes/comparar',
+      this.buildEnvelope({ id, ...consultaPedida(estrategia, desde, hasta) })
+    ).pipe(map((r) => ({
+      estrategia: (r?.data?.estrategia ?? 'OPERACION') as ComparacionTanda['estrategia'],
+      desde: r?.data?.desde ?? null,
+      hasta: r?.data?.hasta ?? null,
+      pagosLeidos: r?.data?.pagosLeidos ?? null,
+      items: r?.data?.items ?? [],
+    })));
+  }
+
+  /** La estrategia configurada, para que el asistente arranque con la de la organización. */
+  informeConsulta(): Observable<ConsultaConfigurada> {
+    return this.postBackend<ApiResponseEnvelope<ConsultaConfigurada>>(
+      '/informes/consulta',
+      this.buildEnvelope({})
+    ).pipe(map((r) => ({
+      estrategia: (r?.data?.estrategia ?? 'OPERACION') as ConsultaConfigurada['estrategia'],
+      diasVentana: Number(r?.data?.diasVentana ?? 7),
+    })));
+  }
+
   informeListar(limit = 50, offSet = 0): Observable<ProgramacionInforme[]> {
     return this.postBackend<ApiResponseEnvelope<ProgramacionInforme[]>>(
       '/informes/listar',
@@ -1810,10 +1883,20 @@ export class ApiService {
    * <p><b>Irreversible en modo REAL.</b> El backend compara cada operación otra vez y relee el pago
    * después de mandarlo: solo avanza lo que el origen confirma.</p>
    */
-  informeEjecutar(id: string): Observable<ResultadoEjecucion> {
+  /**
+   * Ejecuta la tanda.
+   *
+   * <p>`desde`/`hasta` son opcionales y NO hacen falta para informar: sin ellos cada operación
+   * pregunta a Calimaco por su identificador, que es lo que más encuentra —sin rango, ni estado, ni
+   * banco de por medio—. Sirven para ver la tanda con los ojos del job, que barre por ventana. El
+   * backend los trata como atajo, no como lista blanca: lo que no salga en el barrido se consulta
+   * igualmente.</p>
+   */
+  informeEjecutar(id: string, estrategia?: string | null, desde?: string | null,
+      hasta?: string | null): Observable<ResultadoEjecucion> {
     return this.postBackend<ApiResponseEnvelope<ResultadoEjecucion>>(
       '/informes/ejecutar',
-      this.buildEnvelope({ id })
+      this.buildEnvelope({ id, ...consultaPedida(estrategia, desde, hasta) })
     ).pipe(
       map((r) => ({
         informadas: Number(r?.data?.informadas ?? 0),

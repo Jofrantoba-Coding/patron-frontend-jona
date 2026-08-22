@@ -296,8 +296,9 @@
           </span>
         }
       </div>
-      <!-- Solo con TODAS las operaciones seleccionadas siendo transferencias a terceros y hacia el
-           portal: el backend convierte todo o nada. -->
+      <!-- Solo con TODAS las seleccionadas siendo del MISMO tipo convertible —terceros o
+           interbancarias— y hacia el portal: el backend convierte todo o nada, y el canal del plan
+           es uno solo. -->
       @if (conversionNuevoDisponible()) {
         <div class="flex flex-col gap-1">
           <label class="text-xs font-medium text-neutral-500" for="n-conversion">Producto del archivo</label>
@@ -307,14 +308,24 @@
             [value]="nuevoConversion()"
             (change)="onNuevoConversion($event)"
           >
-            <option value="MANTENER">Mantener transferencias a terceros</option>
+            <option value="MANTENER">Mantener {{ etiquetaMantenerNuevo() }}</option>
             <option value="PAGO_MASIVO_PROVEEDORES">Convertir a pago masivo de proveedores</option>
           </select>
           @if (nuevoConversion() === 'PAGO_MASIVO_PROVEEDORES') {
             <span class="text-[11px] text-red-700">
-              Las transferencias seleccionadas quedarán <strong>anuladas</strong> y su asiento
-              revertido. No tiene vuelta atrás.
+              Las transferencias seleccionadas quedarán <strong>anuladas</strong> y su asiento pasará
+              a la operación de reemplazo. No tiene vuelta atrás.
             </span>
+            @if (tipoConvertibleNuevo() === 'TRANSFERENCIA_INTERBANCARIA') {
+              <span class="text-[11px] text-amber-700">
+                El archivo será de proveedores, pero estos abonos siguen saliendo por
+                <strong>cámara</strong>: el corte sigue siendo CCE 14:30 / BCR 12:30, no el cierre
+                de pagos masivos.
+              </span>
+            }
+          }
+          @if (motivoConversionSinCamara(); as motivo) {
+            <p class="text-xs text-amber-700">{{ motivo }}</p>
           }
         </div>
       }
@@ -339,10 +350,14 @@
       </div>
       <div class="flex flex-col gap-1">
         <label class="text-xs font-medium text-neutral-500" for="n-canal">Canal liquidación</label>
+        <!-- Solo los canales que admite el destino: una interbancaria se liquida por cámara (CCE o
+             BCR) y lo intrabancario por INTERNO. La combinación cruzada la rechaza la base. -->
         <select id="n-canal" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm" [value]="nuevoCanal()" (change)="onNuevoCanal($event)">
-          <option value="">—</option>
-          @for (c of canales; track c) {<option [value]="c">{{ c }}</option>}
+          @for (o of opcionesCanal(); track o.valor) {<option [value]="o.valor">{{ o.etiqueta }}</option>}
         </select>
+        @if (motivoCanalIncompatible(); as motivo) {
+          <p class="text-xs text-amber-700">{{ motivo }}</p>
+        }
       </div>
     </div>
     <div class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
@@ -459,8 +474,9 @@
       }
     </div>
 
-    <!-- Solo aparece si el plan lleva unicamente transferencias a terceros: el backend convierte
-         todo o nada, asi que ofrecerlo sobre un plan mixto seria ofrecer un boton que solo falla. -->
+    <!-- Solo si el plan lleva unicamente transferencias de un mismo tipo convertible —terceros o
+         interbancarias—: el backend convierte todo o nada, asi que ofrecerlo sobre un plan mixto
+         seria ofrecer un boton que solo falla. -->
     @if (conversionDisponible()) {
       <div class="flex flex-col gap-1">
         <label class="text-xs font-medium text-neutral-500" for="mod-conversion">Producto del archivo</label>
@@ -470,15 +486,19 @@
           [value]="modalidadConversion()"
           (change)="onModalidadConversion($event)"
         >
-          <option value="MANTENER">Mantener transferencias a terceros</option>
+          <option value="MANTENER">Mantener {{ etiquetaMantenerPlan() }}</option>
           <option value="PAGO_MASIVO_PROVEEDORES">Convertir a pago masivo de proveedores</option>
         </select>
         @if (modalidadConversion() === 'PAGO_MASIVO_PROVEEDORES') {
           <p class="rounded-md bg-red-50 p-2 text-[11px] text-red-800">
             Se creará una operación de abono a proveedores por cada transferencia y las
-            <strong>originales quedarán anuladas</strong>, con su asiento revertido: el cargo pasa
-            de la cuenta 4699 a la 4212. <strong>No tiene vuelta atrás</strong> desde aquí.
+            <strong>originales quedarán anuladas</strong>. El asiento no se rehace: se traslada a la
+            operación de reemplazo, que cancela el mismo pasivo.
+            <strong>No tiene vuelta atrás</strong> desde aquí.
           </p>
+          @if (avisoCamaraPlan(); as aviso) {
+            <p class="rounded-md bg-amber-50 p-2 text-[11px] text-amber-800">{{ aviso }}</p>
+          }
         }
       </div>
     }

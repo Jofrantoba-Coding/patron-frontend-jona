@@ -127,6 +127,43 @@ export interface GuardarCalimaco {
  * <p>Va por `…/organizacion/calimaco/interruptor`, que no toca Vault. Antes esto solo se podía
  * cambiar guardando la página entera, y eso reescribía las cuatro credenciales.</p>
  */
+/**
+ * Con qué alcance busca esta organización los pagos en el origen.
+ *
+ * <p>`OPERACION` pregunta por el identificador de cada operación —sin rango, sin estado y sin banco
+ * de por medio— y `FECHAS` barre una ventana de una vez. No es una preferencia de rendimiento:
+ * decide lo que el job **encuentra**, porque el barrido filtra además por estado de partida y por
+ * banco. Vive en `CALIMACO#API#CONSULTA`, en parametría y en la configuración de la organización.</p>
+ */
+export interface ConsultaCalimacoConfig {
+  /** Lo vigente: lo propio de la organización o, si no tiene nodo, lo de plataforma. */
+  estrategia: EstrategiaConsultaCalimaco;
+  diasVentana: number;
+  /** `false` = está heredando el defecto de plataforma. */
+  tieneNodo: boolean;
+  maximoDiasVentana: number;
+  plataforma: { estrategia: EstrategiaConsultaCalimaco; diasVentana: number };
+}
+
+export const ESTRATEGIAS_CALIMACO = ['OPERACION', 'FECHAS'] as const;
+export type EstrategiaConsultaCalimaco = (typeof ESTRATEGIAS_CALIMACO)[number];
+
+export const DESCRIPCION_ESTRATEGIA: Record<EstrategiaConsultaCalimaco, string> = {
+  OPERACION:
+    'Una consulta por operación, filtrando por su identificador. Encuentra el pago aunque sea'
+    + ' antiguo, ya esté aplicado o sea de otro banco. Cuesta una llamada por operación.',
+  FECHAS:
+    'Una consulta por moneda que barre la ventana. Es más barata, pero el reporte filtra también'
+    + ' por estado de partida y por banco: lo que quede fuera se verá como ausente, no como'
+    + ' discrepante.',
+};
+
+/** Lo que se manda para cambiarlo. Los dos campos son opcionales por separado. */
+export interface GuardarConsultaCalimaco {
+  estrategia?: EstrategiaConsultaCalimaco;
+  diasVentana?: number;
+}
+
 export interface GuardarInterruptorCalimaco {
   habilitado: boolean;
   modo: ModoCalimaco;

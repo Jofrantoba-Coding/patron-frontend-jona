@@ -29,6 +29,15 @@ describe('ProgramacionesViewComponent: conversión a pago masivo de proveedores'
     opsRows: { set: (v: unknown[]) => void };
     seleccion: { set: (v: Set<string>) => void };
     conversionNuevoDisponible: () => boolean;
+    tipoConvertibleNuevo: () => string | null;
+    tipoConvertiblePlan: () => string | null;
+    etiquetaMantenerNuevo: () => string;
+    avisoCamaraPlan: () => string | null;
+    motivoConversionSinCamara: () => string | null;
+    nuevoCanal: { set: (v: string) => void };
+    nuevoTipoDestino: { set: (v: string) => void };
+    nuevoFechaProgramado: { set: (v: string) => void };
+    crearError: { set: (v: string) => void; (): string };
     nuevoIdProducto: { set: (v: string) => void };
     nuevoIdMoneda: { set: (v: string) => void };
     nuevoFechaProceso: { set: (v: string) => void };
@@ -183,6 +192,90 @@ describe('ProgramacionesViewComponent: conversión a pago masivo de proveedores'
     vista.seleccion.set(new Set(['o0', 'o1'])); // ahora hay una no convertible dentro
     const sinOpcion = vista.buildCrearPayload();
     expect(sinOpcion?.conversion).toBeUndefined();
+  });
+
+  // ── Interbancarias: también se convierten, pero arrastran su cámara ──────
+
+  it('al crear, se ofrece también con interbancarias', () => {
+    // El layout de proveedores sabe expresar el abono interbancario: tipo de cuenta `B`, con la
+    // CCI en lugar del número. No hay nada del producto del banco que lo impida.
+    prepararCreacion(
+      ['TRANSFERENCIA_INTERBANCARIA', 'TRANSFERENCIA_INTERBANCARIA'],
+      ['o0', 'o1']
+    );
+
+    expect(vista.conversionNuevoDisponible()).toBe(true);
+    expect(vista.tipoConvertibleNuevo()).toBe('TRANSFERENCIA_INTERBANCARIA');
+    expect(vista.etiquetaMantenerNuevo()).toContain('interbancarias');
+  });
+
+  it('al crear, NO se ofrece si se mezclan terceros con interbancarias', () => {
+    // Las dos son convertibles por separado, pero el plan tiene UN canal de liquidación: lo de
+    // terceros se liquida por INTERNO y lo interbancario por cámara. Un plan mixto no puede
+    // declarar los dos, y el que se declarase mentiría sobre la mitad de las operaciones.
+    prepararCreacion(['TRANSFERENCIA_TERCEROS', 'TRANSFERENCIA_INTERBANCARIA'], ['o0', 'o1']);
+
+    expect(vista.conversionNuevoDisponible()).toBe(false);
+  });
+
+  it('convertir interbancarias exige declarar la cámara del plan', () => {
+    // Lo que se protege: convertir cambia el archivo, no por dónde sale el dinero. Esos abonos
+    // siguen compensando por CCE (14:30) o BCR (12:30), pero el plan pasa al producto de pagos
+    // masivos, cuyo horario NO tiene corte. Sin la cámara declarada, el plazo real desaparecería
+    // del plan sin que nada lo diga.
+    prepararCreacion(['TRANSFERENCIA_INTERBANCARIA'], ['o0']);
+    vista.nuevoConversion.set('PAGO_MASIVO_PROVEEDORES');
+    vista.nuevoCanal.set('');
+
+    const motivo = vista.motivoConversionSinCamara();
+    expect(motivo).toContain('CCE');
+    expect(motivo).toContain('BCR');
+
+    vista.nuevoCanal.set('CCE');
+    expect(vista.motivoConversionSinCamara()).toBeNull();
+  });
+
+  it('el payload no viaja si faltan la cámara y la conversión va junta', () => {
+    prepararCreacion(['TRANSFERENCIA_INTERBANCARIA'], ['o0']);
+    vista.nuevoConversion.set('PAGO_MASIVO_PROVEEDORES');
+    vista.nuevoIdProducto.set('340');
+    vista.nuevoIdMoneda.set('69');
+    vista.nuevoFechaProceso.set('2026-08-21');
+    vista.nuevoFechaProgramado.set('');
+    vista.nuevoCanal.set('');
+
+    expect(vista.buildCrearPayload()).toBeNull();
+    expect(vista.crearError()).toContain('cámara');
+  });
+
+  it('con terceros no se pide cámara ninguna', () => {
+    // Lo intrabancario no pasa por CCE ni BCR: pedirle una cámara sería inventar un requisito.
+    prepararCreacion(['TRANSFERENCIA_TERCEROS'], ['o0']);
+    vista.nuevoConversion.set('PAGO_MASIVO_PROVEEDORES');
+    vista.nuevoCanal.set('');
+
+    expect(vista.motivoConversionSinCamara()).toBeNull();
+  });
+
+  it('un plan de interbancarias avisa del corte que conserva', () => {
+    vista.setDetalle({
+      programacion: { canalLiquidacion: 'BCR' },
+      detalles: [{ id: 'd0', tipoOperacionCodigo: 'TRANSFERENCIA_INTERBANCARIA' }],
+    });
+    abrirHaciaPortal();
+
+    expect(vista.tipoConvertiblePlan()).toBe('TRANSFERENCIA_INTERBANCARIA');
+    expect(vista.avisoCamaraPlan()).toContain('12:30');
+  });
+
+  it('un plan de interbancarias SIN cámara avisa de que no se podrá convertir', () => {
+    vista.setDetalle({
+      programacion: {},
+      detalles: [{ id: 'd0', tipoOperacionCodigo: 'TRANSFERENCIA_INTERBANCARIA' }],
+    });
+    abrirHaciaPortal();
+
+    expect(vista.avisoCamaraPlan()).toContain('rechazará');
   });
 
   it('cada apertura del diálogo vuelve a MANTENER', () => {
