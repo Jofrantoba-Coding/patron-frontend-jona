@@ -1,3 +1,5 @@
+import type { ComparacionCalimaco } from '../calimaco/inter-conciliacion';
+
 /**
  * Contratos de las programaciones de informe al sistema de origen.
  *
@@ -158,7 +160,15 @@ export interface ItemComparado {
   identificador?: string | null;
   /** Solo con `FECHAS`: el barrido no trajo ninguna fila con ese identificador. */
   ausenteEnBarrido?: boolean;
-  comparacion: Record<string, unknown>;
+  /**
+   * El veredicto campo a campo.
+   *
+   * <p>Es el mismo tipo que devuelve la comparación de una operación suelta —lo produce el mismo
+   * `ComparadorPagoCalimaco`—, así que se declara como tal en vez de un `Record` genérico: tipearlo
+   * flojo aquí solo trasladaba el problema a un `as` en la Page, que es donde el compilador acabó
+   * protestando.</p>
+   */
+  comparacion: ComparacionCalimaco;
 }
 
 /** El resultado de comparar la tanda entera, sin informar nada. */

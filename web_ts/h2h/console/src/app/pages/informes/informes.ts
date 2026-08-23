@@ -3,7 +3,6 @@ import { finalize } from 'rxjs/operators';
 import { JBadge, JButton, JCard, JCardContent, JCardHeader, JCardTitle, JDialog, JSectionHeading } from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
 import { InformesViewComponent } from './informes-view.component';
-import type { ComparacionCalimaco } from '../calimaco/inter-conciliacion';
 import type { CrearInforme } from './inter-informes';
 
 /**
@@ -122,7 +121,7 @@ export class InformesPage extends InformesViewComponent {
         next: (res) => {
           this.ultimaComparacion.set(res);
           for (const item of res.items) {
-            this.setComparacion(item.idOperacion, item.comparacion as ComparacionCalimaco);
+            this.setComparacion(item.idOperacion, item.comparacion);
           }
         },
         error: (err) => this.errorComparar.set(
