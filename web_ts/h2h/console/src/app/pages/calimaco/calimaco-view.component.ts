@@ -7,14 +7,19 @@ import {
   MODOS_CALIMACO,
   ESTRATEGIAS_CALIMACO,
   DESCRIPCION_ESTRATEGIA,
+  DESCRIPCION_ESTRATEGIA_ENVIO,
+  ESTRATEGIAS_ENVIO_CALIMACO,
   type ConfiguracionCalimaco,
   type EndpointCalimaco,
   type GuardarCalimaco,
   type GuardarEndpoint,
   type GuardarInterruptorCalimaco,
   type ConsultaCalimacoConfig,
+  type EnvioCalimacoConfig,
   type EstrategiaConsultaCalimaco,
+  type EstrategiaEnvioCalimaco,
   type GuardarConsultaCalimaco,
+  type GuardarEnvioCalimaco,
   type ModoCalimaco,
   type NombreEndpoint,
 } from './inter-calimaco';
@@ -52,6 +57,8 @@ export class CalimacoViewComponent {
   protected readonly MODOS = MODOS_CALIMACO;
   protected readonly ESTRATEGIAS = ESTRATEGIAS_CALIMACO;
   protected readonly DESCRIPCION_ESTRATEGIA = DESCRIPCION_ESTRATEGIA;
+  protected readonly ESTRATEGIAS_ENVIO = ESTRATEGIAS_ENVIO_CALIMACO;
+  protected readonly DESCRIPCION_ESTRATEGIA_ENVIO = DESCRIPCION_ESTRATEGIA_ENVIO;
   protected readonly DESCRIPCION_MODO = DESCRIPCION_MODO;
   protected readonly DESCRIPCION_ENDPOINT = DESCRIPCION_ENDPOINT;
 
@@ -137,6 +144,77 @@ export class CalimacoViewComponent {
   protected onGuardarConsulta(): void {
     if (!this.consultaCambiada() || this.motivoNoGuardarConsulta()) return;
     this.guardarConsulta({ estrategia: this.estrategia(), diasVentana: this.diasVentana() });
+  }
+
+  // ── En cuántas peticiones se avisa (CALIMACO#API#ENVIO) ───────────────────
+  //
+  // Tercer panel y tercera pregunta. El interruptor dice SI se avisa; la consulta, CÓMO se busca el
+  // pago; esto, EN CUÁNTAS LLAMADAS se avisa del cambio. Se separa porque el riesgo es de otra
+  // naturaleza: aquí no se deja de encontrar nada, se arriesga a que una llamada que falla se lleve
+  // por delante el aviso de todo un lote.
+  protected readonly envio = signal<EnvioCalimacoConfig | null>(null);
+  protected readonly estrategiaEnvio = signal<EstrategiaEnvioCalimaco>('OPERACION');
+  protected readonly tamanoLote = signal(100);
+  protected readonly guardandoEnvio = signal(false);
+
+  protected setEnvio(data: EnvioCalimacoConfig): void {
+    this.envio.set(data);
+    this.estrategiaEnvio.set(data.estrategia);
+    this.tamanoLote.set(data.tamanoLote);
+  }
+
+  protected onEstrategiaEnvio(evento: Event): void {
+    this.estrategiaEnvio.set(
+      (evento.target as HTMLSelectElement).value as EstrategiaEnvioCalimaco);
+  }
+
+  protected onTamanoLote(evento: Event): void {
+    this.tamanoLote.set(Number((evento.target as HTMLInputElement).value));
+  }
+
+  protected readonly envioCambiado = computed<boolean>(() => {
+    const guardado = this.envio();
+    if (!guardado) return false;
+    return this.estrategiaEnvio() !== guardado.estrategia
+      || this.tamanoLote() !== guardado.tamanoLote;
+  });
+
+  /**
+   * Por qué no se puede guardar, o `null`.
+   *
+   * <p>Espeja el rango que valida el backend —que rechaza en vez de recortar—. El tamaño se valida
+   * aunque ahora mismo se envíe por operación: guardar un número imposible «porque no se usa» es
+   * dejarlo puesto para el día que alguien cambie la estrategia y no mire este campo.</p>
+   */
+  protected readonly motivoNoGuardarEnvio = computed<string | null>(() => {
+    const maximo = this.envio()?.maximoTamanoLote ?? 500;
+    const tamano = this.tamanoLote();
+    if (!Number.isFinite(tamano) || tamano < 1 || tamano > maximo) {
+      return `El tamaño de lote debe estar entre 1 y ${maximo}.`;
+    }
+    return null;
+  });
+
+  /**
+   * Qué va a pasar con esta elección, en llamadas.
+   *
+   * <p>Se cuenta sobre la tanda del job (50) porque es el caso que corre solo y el que justifica el
+   * cambio. Decir «es más barato» sin el número no ayuda a decidir el tamaño.</p>
+   */
+  protected readonly efectoEnvio = computed<string>(() => {
+    if (this.estrategiaEnvio() === 'OPERACION') {
+      return 'Una tanda de 50 operaciones hará 50 llamadas de aviso, cada una con su verificación'
+        + ' detrás.';
+    }
+    const tamano = Math.max(1, this.tamanoLote());
+    const peticiones = Math.ceil(50 / tamano);
+    return `Una tanda de 50 operaciones hará ${peticiones} llamada(s) de aviso y una verificación`
+      + ' para todas. Si una falla, se cae el aviso de las operaciones que iban en ella.';
+  });
+
+  protected onGuardarEnvio(): void {
+    if (!this.envioCambiado() || this.motivoNoGuardarEnvio()) return;
+    this.guardarEnvio({ estrategia: this.estrategiaEnvio(), tamanoLote: this.tamanoLote() });
   }
 
   /**
@@ -387,4 +465,6 @@ export class CalimacoViewComponent {
   protected guardar(_valor: GuardarCalimaco): void {}
   protected guardarInterruptor(_valor: GuardarInterruptorCalimaco): void {}
   protected guardarConsulta(_valor: GuardarConsultaCalimaco): void {}
+
+  protected guardarEnvio(_valor: GuardarEnvioCalimaco): void {}
 }

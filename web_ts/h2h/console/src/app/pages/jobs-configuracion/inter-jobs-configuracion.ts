@@ -29,6 +29,25 @@ export interface InterruptorJob {
   efectivo: boolean;
 }
 
+/**
+ * Cuántas operaciones entran en una tanda del job de informe al origen.
+ *
+ * <p>No confundir con `CantidadProgramable`, que es cuántas caben en una **planilla** que va al
+ * banco. Esto es cuántas se **avisan al sistema de origen** por corrida: en modo REAL cada fila es
+ * una llamada irreversible, y una tanda de quinientas no la revisa nadie.</p>
+ *
+ * <p>`efectivo` es lo que el job va a usar de verdad —ya resuelta la herencia y acotado el rango—.
+ * Sin él, la pantalla no puede distinguir «hereda 50» de «alguien eligió 50».</p>
+ */
+export interface TopeInformeOrigen {
+  codigo: string;
+  organizacion: { tope?: number } | null;
+  plataforma: { tope?: number } | null;
+  efectivo: number;
+  minimo: number;
+  maximo: number;
+}
+
 /** Cantidad de operaciones por planilla. `porMoneda` gana sobre `maxOperaciones`. */
 export interface CantidadProgramable {
   maxOperaciones?: number;
@@ -203,6 +222,8 @@ export interface ConfiguracionJobs {
   /** AUTOMATICO | MANUAL. Gobierna la INGESTA, no los jobs. */
   modoEnvio: BloqueConfig;
   cantidadProgramable: BloqueConfig;
+  /** Tope de la tanda del informe al origen. Opcional: un backend anterior no lo manda. */
+  topeInformeOrigen?: TopeInformeOrigen;
   reintentos: BloqueConfig;
   /** Interruptor del diferido. Opcional: un backend anterior no lo manda. */
   diferirFueraDeVentana?: BloqueConfig;
@@ -220,6 +241,8 @@ export interface JobsConfiguracionPageContract {
   /** Cambia el modo de envío de la organización (AUTOMATICO | MANUAL). */
   guardarModoEnvio(modo: string): void;
   guardarCantidad(valor: CantidadProgramable): void;
+  /** Cuántas operaciones entran en una tanda del job de informe al origen. */
+  guardarTopeInforme(tope: number): void;
   guardarReintentos(valor: Reintentos): void;
   /** Enciende o apaga el diferido del job cuando el canal esta cerrado. */
   guardarDiferido(habilitado: boolean): void;

@@ -66,7 +66,9 @@ import type { EstadoCalimaco, SesionCalimaco } from '../pages/calimaco/inter-con
 import { ENDPOINTS_CALIMACO, MODOS_CALIMACO } from '../pages/calimaco/inter-calimaco';
 import type {
   ConsultaCalimacoConfig,
+  EnvioCalimacoConfig,
   GuardarConsultaCalimaco,
+  GuardarEnvioCalimaco,
 } from '../pages/calimaco/inter-calimaco';
 import type {
   CampoComparado,
@@ -1737,6 +1739,27 @@ export class ApiService {
   calimacoGuardarConsulta(data: GuardarConsultaCalimaco): Observable<ConsultaCalimacoConfig> {
     return this.postBackend<ApiResponseEnvelope<ConsultaCalimacoConfig>>(
       '/organizacion/calimaco/consulta/guardar',
+      this.buildEnvelope(data)
+    ).pipe(map((r) => r.data));
+  }
+
+  /** En cuántas peticiones avisa esta organización, y qué heredaría de plataforma. */
+  calimacoLeerEnvio(): Observable<EnvioCalimacoConfig> {
+    return this.postBackend<ApiResponseEnvelope<EnvioCalimacoConfig>>(
+      '/organizacion/calimaco/envio/leer',
+      this.buildEnvelope({})
+    ).pipe(map((r) => r.data));
+  }
+
+  /**
+   * Cambia si se avisa de una en una o por lotes, y de qué tamaño.
+   *
+   * <p>Aparte del de consulta a propósito: aquel decide **qué se encuentra** y este **cuántas
+   * llamadas irreversibles** se hacen. Son dos preguntas y las suele responder gente distinta.</p>
+   */
+  calimacoGuardarEnvio(data: GuardarEnvioCalimaco): Observable<EnvioCalimacoConfig> {
+    return this.postBackend<ApiResponseEnvelope<EnvioCalimacoConfig>>(
+      '/organizacion/calimaco/envio/guardar',
       this.buildEnvelope(data)
     ).pipe(map((r) => r.data));
   }

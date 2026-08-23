@@ -134,6 +134,14 @@ export class JobsConfiguracionPage extends JobsConfiguracionViewComponent implem
     );
   }
 
+  protected override guardarTopeInforme(tope: number): void {
+    this.persistir(
+      'H2H#BCP#JOBS#INFORME_ORIGEN',
+      { tope },
+      `A partir de la próxima corrida el job informará hasta ${tope} operación(es) por tanda.`
+    );
+  }
+
   protected override guardarHorario(codigo: string, valor: HorarioSubtipo): void {
     this.persistir(codigo, valor, 'Programación horaria actualizada.');
   }

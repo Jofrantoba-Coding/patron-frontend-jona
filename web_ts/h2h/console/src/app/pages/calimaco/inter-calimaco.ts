@@ -164,6 +164,42 @@ export interface GuardarConsultaCalimaco {
   diasVentana?: number;
 }
 
+/**
+ * En cuántas peticiones se avisa del pago al origen.
+ *
+ * <p>No confundir con la consulta: aquella decide **si se encuentra** el pago, y esta decide
+ * **cuánto cuesta avisar** de que ya se pagó. `OPERACION` hace una llamada por operación —lo de
+ * siempre— y `LOTE` manda hasta `tamanoLote` identificadores en la misma. Vive en
+ * `CALIMACO#API#ENVIO`, en parametría y en la configuración de la organización.</p>
+ */
+export interface EnvioCalimacoConfig {
+  /** Lo vigente: lo propio de la organización o, si no tiene nodo, lo de plataforma. */
+  estrategia: EstrategiaEnvioCalimaco;
+  tamanoLote: number;
+  /** `false` = está heredando el defecto de plataforma. */
+  tieneNodo: boolean;
+  maximoTamanoLote: number;
+  plataforma: { estrategia: EstrategiaEnvioCalimaco; tamanoLote: number };
+}
+
+export const ESTRATEGIAS_ENVIO_CALIMACO = ['OPERACION', 'LOTE'] as const;
+export type EstrategiaEnvioCalimaco = (typeof ESTRATEGIAS_ENVIO_CALIMACO)[number];
+
+export const DESCRIPCION_ESTRATEGIA_ENVIO: Record<EstrategiaEnvioCalimaco, string> = {
+  OPERACION:
+    'Una llamada por operación, con su verificación detrás. Es lo que se venía haciendo: una tanda'
+    + ' de 50 son 50 escrituras.',
+  LOTE:
+    'Una llamada con varias operaciones dentro y una sola verificación para todas. Mucho más'
+    + ' barato, pero si la llamada falla se cae el aviso de todo el lote a la vez.',
+};
+
+/** Lo que se manda para cambiarlo. Los dos campos son opcionales por separado. */
+export interface GuardarEnvioCalimaco {
+  estrategia?: EstrategiaEnvioCalimaco;
+  tamanoLote?: number;
+}
+
 export interface GuardarInterruptorCalimaco {
   habilitado: boolean;
   modo: ModoCalimaco;
@@ -174,4 +210,6 @@ export interface CalimacoPageContract {
   cargar(): void;
   guardar(valor: GuardarCalimaco): void;
   guardarInterruptor(valor: GuardarInterruptorCalimaco): void;
+  guardarConsulta(valor: GuardarConsultaCalimaco): void;
+  guardarEnvio(valor: GuardarEnvioCalimaco): void;
 }

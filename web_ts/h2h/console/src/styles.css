@@ -14,3 +14,47 @@ body {
   color: rgb(var(--jona-neutral-900));
   font-family: var(--jona-font-sans);
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   El panel lateral scrollea ENTERO, cabecera incluida.
+
+   `JSidebarLayout` pone el scroll solo en el `<nav>` y deja la cabecera fija con
+   `shrink-0`. En esta consola la cabecera es grande —marca, tenant, reloj del canal y los
+   relojes de los jobs— así que se comía la altura y a las secciones les quedaba una rendija
+   por la que desplazarse. Aquí el scroll pasa al `<aside>`: la cabecera y las opciones se
+   desplazan juntas y se llega a todas.
+
+   El pie (avatar, cerrar sesión y colapsar) se queda anclado abajo con `sticky`: son acciones,
+   no opciones de menú, y perderlas de vista al bajar sería peor que el problema que se arregla.
+
+   Solo de `lg` hacia arriba: por debajo el aside ya es `fixed inset-y-0`, está acotado y el
+   scroll del `nav` funciona como debe.
+
+   Esto vive aquí y no en la librería a propósito: el `dist/uijona` que consume el console se
+   construyó el 2026-08-12 y el código de la librería lleva encima un refactor grande del
+   2026-08-13 que NO está en ese dist. Reconstruirlo para un arreglo de tres líneas metería ese
+   refactor entero en la consola. Cuando se reconstruya, esto se borra y se arregla allí.
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  app-shell aside {
+    overflow-y: auto;
+  }
+
+  /* El nav deja de ser el que scrollea y pasa a medir lo que ocupen sus opciones. */
+  app-shell aside > nav {
+    flex: none;
+    overflow: visible;
+  }
+
+  /* El pie es el último hijo del aside, con o sin el bloque de usuario (que se oculta al
+     colapsar). `inherit` toma el blanco del propio aside, así no tapa mal al desplazarse. */
+  app-shell aside > div:last-child {
+    position: sticky;
+    bottom: 0;
+    background-color: inherit;
+    /* Al quitarle el `flex-1` al nav se pierde lo que empujaba el pie hacia abajo cuando el menú
+       es corto. `margin-top: auto` se come el hueco sobrante en ese caso y se resuelve a cero
+       cuando hay desbordamiento, así que sirve para los dos. */
+    margin-top: auto;
+  }
+}

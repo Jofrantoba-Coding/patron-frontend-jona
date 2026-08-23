@@ -101,6 +101,76 @@ export class JobsConfiguracionViewComponent {
     () => !!this.config()?.diferirFueraDeVentana
   );
 
+  // ── Tope de la tanda del informe al origen ─────────────────────────────
+  //
+  // Vive en el mismo nodo que el interruptor del job (H2H#BCP#JOBS#INFORME_ORIGEN) pero se edita
+  // aparte: aquello es un botón y esto un número que se teclea.
+
+  /** El backend anterior no manda el bloque: sin él no se pinta el control. */
+  protected readonly topeInformeDisponible = computed<boolean>(
+    () => !!this.config()?.topeInformeOrigen
+  );
+
+  /** Lo que el job usará en la próxima corrida, ya resuelta la herencia. */
+  protected readonly topeInformeEfectivo = computed<number>(
+    () => this.config()?.topeInformeOrigen?.efectivo ?? 50
+  );
+
+  /**
+   * ¿Lo decide la organización o lo hereda?
+   *
+   * <p>Mismo motivo que en el diferido: sin el contraste, un «50» no dice si alguien lo eligió
+   * aquí o viene del defecto de plataforma — y de eso depende qué pasa si el defecto cambia.</p>
+   */
+  protected readonly topeInformeHeredado = computed<boolean>(
+    () => typeof this.config()?.topeInformeOrigen?.organizacion?.tope !== 'number'
+  );
+
+  protected readonly topeInformeMinimo = computed<number>(
+    () => this.config()?.topeInformeOrigen?.minimo ?? 1
+  );
+
+  protected readonly topeInformeMaximo = computed<number>(
+    () => this.config()?.topeInformeOrigen?.maximo ?? 1000
+  );
+
+  /** Lo tecleado. Arranca en el efectivo y se resincroniza al recargar la configuración. */
+  protected readonly topeInforme = signal<number | null>(null);
+
+  /** El valor a mostrar: lo tecleado si hay algo, y si no lo que está guardado. */
+  protected readonly topeInformeValor = computed<number>(
+    () => this.topeInforme() ?? this.topeInformeEfectivo()
+  );
+
+  protected readonly topeInformeCambiado = computed<boolean>(
+    () => this.topeInformeValor() !== this.topeInformeEfectivo()
+  );
+
+  /**
+   * Por qué no se puede guardar, o `null`.
+   *
+   * <p>Espeja el rango que valida el backend —que rechaza en vez de recortar— para explicarlo
+   * antes del viaje. El techo no es arbitrario: el barrido del origen trae 1000 filas como
+   * máximo, así que una tanda mayor no cabe en una sola consulta.</p>
+   */
+  protected readonly motivoNoGuardarTope = computed<string | null>(() => {
+    const v = this.topeInformeValor();
+    if (!Number.isInteger(v) || v < this.topeInformeMinimo() || v > this.topeInformeMaximo()) {
+      return `El tope debe ser un entero entre ${this.topeInformeMinimo()} y ${this.topeInformeMaximo()}.`;
+    }
+    return null;
+  });
+
+  protected onTopeInforme(evento: Event): void {
+    const crudo = (evento.target as HTMLInputElement).value;
+    this.topeInforme.set(crudo === '' ? null : Number(crudo));
+  }
+
+  protected onGuardarTopeInforme(): void {
+    if (!this.topeInformeCambiado() || this.motivoNoGuardarTope()) return;
+    this.guardarTopeInforme(this.topeInformeValor());
+  }
+
   protected readonly reintentos = computed<Reintentos>(
     () => (this.config()?.reintentos?.organizacion as Reintentos) ?? {}
   );
@@ -211,6 +281,9 @@ export class JobsConfiguracionViewComponent {
     this.config.set(data);
     this.error.set(null);
     this.confirmandoAutomatico.set(false);
+    // Lo tecleado se descarta al recargar: tras guardar, el campo tiene que reflejar lo que quedó
+    // en el nodo. Sin esto, un valor rechazado por el backend seguiría en pantalla como si valiera.
+    this.topeInforme.set(null);
   }
 
   protected setError(mensaje: string): void {
@@ -747,6 +820,8 @@ export class JobsConfiguracionViewComponent {
   protected guardarModoEnvio(_modo: string): void {}
 
   protected guardarDiferido(_habilitado: boolean): void {}
+
+  protected guardarTopeInforme(_tope: number): void {}
 
   /** Traduce el `<select>` y persiste. El valor viaja como booleano, no como texto. */
   protected onDiferido(evento: Event): void {

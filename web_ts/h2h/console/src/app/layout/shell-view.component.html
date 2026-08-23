@@ -2,10 +2,28 @@
   shell-view.component.html — JONA View del layout principal.
   Solo estructura y bindings: la navegación y la sesión llegan resueltas.
 -->
+<!--
+  `sidebarClassName` acota el panel a la altura de la ventana en escritorio.
+
+  Sin esto el aside es `lg:static` y, como fila flex, se estira a lo que mida su propio contenido:
+  con la cabecera que le metemos —marca, tenant, reloj del canal y los relojes de los jobs— más la
+  lista de secciones, pasa de la pantalla y quien acaba desplazándose es la PÁGINA entera. El `nav`
+  ya trae `overflow-y-auto`, pero nunca llegaba a activarse porque no tenía altura que respetar.
+
+  Con `lg:h-screen` la tiene y el menú se desplaza solo; `lg:sticky top-0` lo deja anclado si algún
+  día la página vuelve a crecer por otro motivo. En móvil no hacía falta: allí ya es `fixed
+  inset-y-0`. El orden importa —`sidebarClassName` va el último en el `cn` del componente— así que
+  `lg:sticky` gana sobre el `lg:static` de base por tailwind-merge (comprobado: lo elimina).
+
+  `lg:bottom-auto` suelta el `bottom:0` que trae `inset-y-0` para el caso móvil. Un sticky con top y
+  bottom a la vez se ata por arriba igual, pero dejarlo puesto sería pedirle al navegador que
+  resuelva una restricción que no queremos y que no aporta nada.
+-->
 <j-sidebar-layout
   [nav]="nav()"
   [activeKey]="activeKey()"
   [collapsible]="true"
+  sidebarClassName="lg:sticky lg:top-0 lg:bottom-auto lg:h-screen"
   (navItemClick)="onNav($event)"
 >
   <div jHeader class="flex min-w-0 flex-col gap-2">

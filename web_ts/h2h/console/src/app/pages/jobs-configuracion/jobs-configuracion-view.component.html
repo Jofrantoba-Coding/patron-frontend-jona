@@ -259,6 +259,58 @@
     </div>
   </div>
 
+  <!-- TOPE DE LA TANDA DEL INFORME AL ORIGEN.
+       Va aquí, con el resto de parámetros de despacho, y no junto a los interruptores: el
+       interruptor dice SI el job corre; esto, DE CUÁNTO EN CUÁNTO avisa. -->
+  @if (topeInformeDisponible()) {
+    <div class="overflow-hidden rounded-xl border border-neutral-200">
+      <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-2">
+        <p class="text-sm font-semibold text-neutral-800">Tamaño de tanda del informe al origen</p>
+        <p class="text-xs text-neutral-500">
+          Cuántas operaciones avisa el <b>job de informe</b> en cada corrida. No es lo mismo que las
+          operaciones por planilla: aquello va al banco, esto al sistema de origen.
+        </p>
+      </div>
+      <div class="space-y-3 px-4 py-3">
+        <label class="flex flex-wrap items-center gap-3 text-xs">
+          <span class="text-neutral-500">Operaciones por tanda</span>
+          <input type="number" class="w-28 rounded border border-neutral-300 px-2 py-1 text-xs"
+            [value]="topeInformeValor()" [min]="topeInformeMinimo()" [max]="topeInformeMaximo()"
+            [disabled]="cargando()" (input)="onTopeInforme($event)" />
+          @if (topeInformeHeredado()) {
+            <span class="rounded bg-neutral-100 px-1.5 py-0.5 text-[11px] text-neutral-500">
+              heredado de la plataforma
+            </span>
+          }
+          <button type="button"
+            class="rounded bg-neutral-900 px-3 py-1 text-xs text-white disabled:opacity-40"
+            [disabled]="cargando() || !topeInformeCambiado() || !!motivoNoGuardarTope()"
+            (click)="onGuardarTopeInforme()">
+            Guardar
+          </button>
+        </label>
+
+        @if (motivoNoGuardarTope()) {
+          <p class="text-xs text-red-600">{{ motivoNoGuardarTope() }}</p>
+        }
+
+        <!-- Se explica el porqué del tope y no solo el rango: el número solo se sabe elegir si se
+             entiende que en REAL cada fila es una llamada que no se deshace. -->
+        <p class="text-xs leading-relaxed text-neutral-500">
+          Lo que sobra <b>no se pierde</b>: entra en la corrida siguiente. El tope existe porque en
+          modo REAL cada operación de la tanda es una llamada irreversible al origen, y una tanda
+          demasiado grande no la revisa nadie.
+        </p>
+
+        <p class="text-xs leading-relaxed text-neutral-400">
+          El máximo es {{ topeInformeMaximo() }} y no es arbitrario: el barrido del origen devuelve
+          como mucho esa cantidad de filas, así que una tanda mayor no cabría en una sola consulta.
+          El cambio se aplica en la próxima corrida — sin reiniciar nada.
+        </p>
+      </div>
+    </div>
+  }
+
   <!-- DIFERIDO FUERA DE VENTANA: qué hace el job cuando le toca turno y el canal está cerrado.
        Va aquí, entre los parámetros de despacho y la ventana del canal, porque es justo la
        bisagra entre los dos: decide cómo se comporta el despacho frente al horario. -->

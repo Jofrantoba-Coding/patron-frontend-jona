@@ -5,6 +5,7 @@ import { CalimacoViewComponent } from './calimaco-view.component';
 import type {
   GuardarCalimaco,
   GuardarConsultaCalimaco,
+  GuardarEnvioCalimaco,
   GuardarInterruptorCalimaco,
 } from './inter-calimaco';
 
@@ -30,6 +31,7 @@ export class CalimacoPage extends CalimacoViewComponent {
     super();
     this.cargar();
     this.cargarConsulta();
+    this.cargarEnvio();
   }
 
   /**
@@ -65,6 +67,39 @@ export class CalimacoPage extends CalimacoViewComponent {
       error: (err) => {
         this.guardandoConsulta.set(false);
         this.error.set(this.mensajeDe(err, 'No se pudo guardar cómo se consultan los pagos.'));
+      },
+    });
+  }
+
+  /** En cuántas peticiones avisa. Lectura aparte por lo mismo que la de consulta. */
+  private cargarEnvio(): void {
+    this.api.calimacoLeerEnvio().subscribe({
+      next: (data) => this.setEnvio(data),
+      error: (err) => this.error.set(
+        this.mensajeDe(err, 'No se pudo leer cómo se avisa del pago.')),
+    });
+  }
+
+  protected override guardarEnvio(valor: GuardarEnvioCalimaco): void {
+    this.guardandoEnvio.set(true);
+    this.aviso.set(null);
+    this.error.set(null);
+    this.api.calimacoGuardarEnvio(valor).subscribe({
+      next: (data) => {
+        this.guardandoEnvio.set(false);
+        // Se adopta lo que devuelve el servidor, no lo tecleado: es lo que quedó en el nodo.
+        this.setEnvio({ ...data, tieneNodo: true,
+          maximoTamanoLote: this.envio()?.maximoTamanoLote ?? 500,
+          plataforma: this.envio()?.plataforma ?? data });
+        this.aviso.set(data.estrategia === 'LOTE'
+          ? `A partir de ahora se avisará en lotes de hasta ${data.tamanoLote}. Aplica desde la`
+            + ' siguiente corrida del job.'
+          : 'A partir de ahora se avisará una operación por llamada. Aplica desde la siguiente'
+            + ' corrida del job.');
+      },
+      error: (err) => {
+        this.guardandoEnvio.set(false);
+        this.error.set(this.mensajeDe(err, 'No se pudo guardar cómo se avisa del pago.'));
       },
     });
   }
