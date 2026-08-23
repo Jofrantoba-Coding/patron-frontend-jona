@@ -30,8 +30,8 @@ export class RelojesJobsViewComponent {
   /**
    * Densidad compacta para la barra lateral, igual que el reloj del canal.
    *
-   * <p>En el sidebar los tres relojes son una linea cada uno: ahi la pregunta es "cuanto falta",
-   * no "que hace cada job". El detalle —descripcion y cron— vive en el panel de control.</p>
+   * <p>En el sidebar cada reloj es una linea: ahi la pregunta es "cuanto falta", no "que hace cada
+   * job". El detalle —descripcion y cron— vive en el panel de control.</p>
    */
   readonly compacta = input<boolean>(false);
 

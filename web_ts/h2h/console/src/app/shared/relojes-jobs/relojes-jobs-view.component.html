@@ -52,8 +52,8 @@
 
     <j-card-content>
       <!--
-        El interruptor global se avisa una sola vez y arriba: repetirlo en las tres tarjetas
-        haría ruido, y omitirlo dejaría tres cuentas atrás contando hacia disparos que no van
+        El interruptor global se avisa una sola vez y arriba: repetirlo en cada tarjeta
+        haría ruido, y omitirlo dejaría las cuentas atrás contando hacia disparos que no van
         a ocurrir.
       -->
       @if (todosApagados()) {
@@ -63,7 +63,9 @@
         </j-alert>
       }
 
-      <div class="mt-3 grid gap-3 sm:grid-cols-3">
+      <!-- Dos columnas y no tres: con cuatro relojes, `sm:grid-cols-3` dejaba el cuarto solo en
+           una fila. En pantalla ancha caben los cuatro en linea. -->
+      <div class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         @for (r of relojes(); track r.clave) {
           <div
             class="rounded-lg border p-3"
