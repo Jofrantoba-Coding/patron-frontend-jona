@@ -142,6 +142,21 @@ export class JobsConfiguracionPage extends JobsConfiguracionViewComponent implem
     );
   }
 
+  /**
+   * El máximo de intentos por operación.
+   *
+   * <p>Se manda SOLO `maxReintentos` y no el nodo entero: el backend mezcla con lo que ya hay, así
+   * que esto no puede pisar el `tope` ni el interruptor del job. Enviar el objeto completo sería
+   * la forma de borrar sin querer lo que otro acaba de guardar.</p>
+   */
+  protected override guardarMaxReintentosInforme(maxReintentos: number): void {
+    this.persistir(
+      'H2H#BCP#JOBS#INFORME_ORIGEN',
+      { maxReintentos },
+      `Cada operación se intentará informar hasta ${maxReintentos} vez/veces antes de aparcarla.`
+    );
+  }
+
   protected override guardarHorario(codigo: string, valor: HorarioSubtipo): void {
     this.persistir(codigo, valor, 'Programación horaria actualizada.');
   }

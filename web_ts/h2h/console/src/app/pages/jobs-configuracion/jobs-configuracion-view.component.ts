@@ -171,6 +171,84 @@ export class JobsConfiguracionViewComponent {
     this.guardarTopeInforme(this.topeInformeValor());
   }
 
+  // ── Reintentos por operación en el informe al origen ───────────────────
+  //
+  // Mismo nodo que el tope, control aparte: el tope es «cuántas caben en una tanda» y esto es
+  // «cuántas veces insisto con una que no sale». Mezclarlos en un solo control obligaría a
+  // explicar dos ideas en una etiqueta.
+
+  /** El backend anterior no manda el bloque: sin él no se pinta el control. */
+  protected readonly reintentosInformeDisponible = computed<boolean>(
+    () => !!this.config()?.reintentosInformeOrigen
+  );
+
+  protected readonly reintentosInformeEfectivo = computed<number>(
+    () => this.config()?.reintentosInformeOrigen?.efectivo ?? 3
+  );
+
+  protected readonly reintentosInformeHeredado = computed<boolean>(
+    () =>
+      typeof this.config()?.reintentosInformeOrigen?.organizacion?.maxReintentos !== 'number'
+  );
+
+  protected readonly reintentosInformeMinimo = computed<number>(
+    () => this.config()?.reintentosInformeOrigen?.minimo ?? 1
+  );
+
+  protected readonly reintentosInformeMaximo = computed<number>(
+    () => this.config()?.reintentosInformeOrigen?.maximo ?? 20
+  );
+
+  /** Lo tecleado. Arranca en el efectivo y se resincroniza al recargar la configuración. */
+  protected readonly maxReintentosInforme = signal<number | null>(null);
+
+  protected readonly maxReintentosInformeValor = computed<number>(
+    () => this.maxReintentosInforme() ?? this.reintentosInformeEfectivo()
+  );
+
+  protected readonly maxReintentosInformeCambiado = computed<boolean>(
+    () => this.maxReintentosInformeValor() !== this.reintentosInformeEfectivo()
+  );
+
+  /**
+   * Por qué no se puede guardar, o `null`.
+   *
+   * <p>Espeja el rango que valida el backend —que rechaza en vez de recortar— para explicarlo
+   * antes del viaje.</p>
+   */
+  protected readonly motivoNoGuardarReintentos = computed<string | null>(() => {
+    const v = this.maxReintentosInformeValor();
+    if (
+      !Number.isInteger(v) ||
+      v < this.reintentosInformeMinimo() ||
+      v > this.reintentosInformeMaximo()
+    ) {
+      return `Los intentos deben ser un entero entre ${this.reintentosInformeMinimo()} y ${this.reintentosInformeMaximo()}.`;
+    }
+    return null;
+  });
+
+  /**
+   * ¿Este cambio va a DEVOLVER operaciones a la cola?
+   *
+   * <p>Subir el máximo revive lo aparcado, y eso conviene decirlo ANTES de pulsar: es la
+   * diferencia entre ajustar un número y volver a poner en circulación operaciones que llevaban
+   * días paradas por un dato malo que quizá siga estando mal.</p>
+   */
+  protected readonly reintentosInformeRevive = computed<boolean>(
+    () => this.maxReintentosInformeValor() > this.reintentosInformeEfectivo()
+  );
+
+  protected onMaxReintentosInforme(evento: Event): void {
+    const crudo = (evento.target as HTMLInputElement).value;
+    this.maxReintentosInforme.set(crudo === '' ? null : Number(crudo));
+  }
+
+  protected onGuardarMaxReintentosInforme(): void {
+    if (!this.maxReintentosInformeCambiado() || this.motivoNoGuardarReintentos()) return;
+    this.guardarMaxReintentosInforme(this.maxReintentosInformeValor());
+  }
+
   protected readonly reintentos = computed<Reintentos>(
     () => (this.config()?.reintentos?.organizacion as Reintentos) ?? {}
   );
@@ -284,6 +362,7 @@ export class JobsConfiguracionViewComponent {
     // Lo tecleado se descarta al recargar: tras guardar, el campo tiene que reflejar lo que quedó
     // en el nodo. Sin esto, un valor rechazado por el backend seguiría en pantalla como si valiera.
     this.topeInforme.set(null);
+    this.maxReintentosInforme.set(null);
   }
 
   protected setError(mensaje: string): void {
@@ -822,6 +901,8 @@ export class JobsConfiguracionViewComponent {
   protected guardarDiferido(_habilitado: boolean): void {}
 
   protected guardarTopeInforme(_tope: number): void {}
+
+  protected guardarMaxReintentosInforme(_maxReintentos: number): void {}
 
   /** Traduce el `<select>` y persiste. El valor viaja como booleano, no como texto. */
   protected onDiferido(evento: Event): void {

@@ -48,6 +48,26 @@ export interface TopeInformeOrigen {
   maximo: number;
 }
 
+/**
+ * Cuántas veces se intenta informar UNA operación antes de aparcarla.
+ *
+ * <p>Vive en el mismo nodo que el tope (`H2H#BCP#JOBS#INFORME_ORIGEN`) y llega en un bloque
+ * aparte porque responde otra pregunta: el tope dice cuántas operaciones entran en una tanda;
+ * esto, cuántas veces se insiste con una que no sale.</p>
+ *
+ * <p>Sin este límite, una operación que no se puede informar volvía a la cola en cada corrida y se
+ * comía el tope de la tanda, dejando fuera a las sanas de detrás. **Subir el máximo devuelve a la
+ * cola lo aparcado**: es la válvula, y por eso no existe un valor de «sin límite».</p>
+ */
+export interface ReintentosInformeOrigen {
+  codigo: string;
+  organizacion: { maxReintentos?: number } | null;
+  plataforma: { maxReintentos?: number } | null;
+  efectivo: number;
+  minimo: number;
+  maximo: number;
+}
+
 /** Cantidad de operaciones por planilla. `porMoneda` gana sobre `maxOperaciones`. */
 export interface CantidadProgramable {
   maxOperaciones?: number;
@@ -224,6 +244,8 @@ export interface ConfiguracionJobs {
   cantidadProgramable: BloqueConfig;
   /** Tope de la tanda del informe al origen. Opcional: un backend anterior no lo manda. */
   topeInformeOrigen?: TopeInformeOrigen;
+  /** Máximo de intentos por operación. Opcional: un backend anterior no lo manda. */
+  reintentosInformeOrigen?: ReintentosInformeOrigen;
   reintentos: BloqueConfig;
   /** Interruptor del diferido. Opcional: un backend anterior no lo manda. */
   diferirFueraDeVentana?: BloqueConfig;
@@ -243,6 +265,8 @@ export interface JobsConfiguracionPageContract {
   guardarCantidad(valor: CantidadProgramable): void;
   /** Cuántas operaciones entran en una tanda del job de informe al origen. */
   guardarTopeInforme(tope: number): void;
+  /** Cuántas veces se intenta informar una operación antes de aparcarla. */
+  guardarMaxReintentosInforme(maxReintentos: number): void;
   guardarReintentos(valor: Reintentos): void;
   /** Enciende o apaga el diferido del job cuando el canal esta cerrado. */
   guardarDiferido(habilitado: boolean): void;
