@@ -19,9 +19,13 @@ import {
   ANULACION_NEGADA,
   ESTADO_OPE_ANULADA,
   ESTADO_OPE_CONFIRMADO,
+  ESTADO_OPE_ERROR,
   ESTADO_OPE_INFORMADO,
+  ESTADO_OPE_REGISTRADA,
+  MODOS_ENVIO,
   META,
   META_TODAS,
+  REACTIVACION_NEGADA,
   TIPOOP_GRUPO,
   modalidadDe,
   situacionOperacion,
@@ -690,6 +694,110 @@ export class OperacionesViewComponent {
 
   /** Hook de confirmación, sobrescrito por la Page (es la que tiene el ApiService). */
   protected confirmarAnular(): void {
+    return;
+  }
+
+  // ── Rescate de una operación detenida en ERROR ────────────────────────
+  protected readonly reactivarAbierto = signal<boolean>(false);
+  protected readonly reactivarMotivo = signal<string>('');
+  /** Sin preselección: elegir el modo es la mitad de la decisión que se le pide al operador. */
+  protected readonly reactivarModo = signal<string>('');
+  protected readonly reactivando = signal<boolean>(false);
+  /** Operación sobre la que se abrió el rescate: sobrevive al cierre del detalle. */
+  protected readonly reactivarId = signal<string | null>(null);
+  protected readonly reactivarCodigo = signal<string>('');
+  /** Los intentos de envío ya consumidos, para que se vea que el rescate NO los reinicia. */
+  protected readonly reactivarIntentos = signal<string>('-');
+
+  protected readonly modosEnvio = MODOS_ENVIO;
+
+  /**
+   * Por qué NO se puede rescatar la operación abierta, o `null` si se puede.
+   *
+   * <p>Se escribe al revés de lo habitual —se niega todo salvo `ERROR`— y es deliberado: `ERROR` es
+   * el único estado que significa «detenida, esperando que alguien decida». Los demás son hechos
+   * consumados o etapas en curso, y reabrirlos no reanuda un trámite: crea un segundo pago o
+   * contradice lo que el banco ya informó. Con una lista de prohibidos, cada alta en el catálogo de
+   * estados abriría una puerta que nadie decidió abrir.</p>
+   *
+   * <p>Como en anular, es una comprobación <b>optimista</b>: la autoridad es el backend, y su 422
+   * se muestra tal cual llegue.</p>
+   */
+  protected readonly bloqueoReactivar = computed<string | null>(() => {
+    const registro = this.opRegistro();
+    if (!registro) return null;
+    const estado = this.estadoOpDetalle();
+    if (estado !== ESTADO_OPE_ERROR) {
+      return (
+        REACTIVACION_NEGADA[estado] ??
+        `solo se reactiva una operación detenida en ${ESTADO_OPE_ERROR}, que es el estado en el que la deja el tope de reintentos; esta figura en ${estado}.`
+      );
+    }
+    // Las reservas NO bloquean: el backend las suelta como parte del rescate. Bloquear aquí
+    // encerraría justo el caso que motiva esta puerta —la operación excluida del archivo mientras
+    // su planilla salía y cerraba bien—, porque tener las dos reservas puestas es exactamente lo
+    // que la hace invisible al job y a la programación manual.
+    return null;
+  });
+
+  /** Si hay reserva colgada, qué se va a soltar. Se avisa en el diálogo, no se bloquea. */
+  protected readonly reservaColgada = computed<string | null>(() => {
+    const registro = this.opRegistro();
+    if (!registro || this.estadoOpDetalle() !== ESTADO_OPE_ERROR) return null;
+    const planilla = this.pv(registro, 'idPlanillaVigente');
+    const plan = this.pv(registro, 'idProgramacion');
+    if (planilla === '-' && plan === '-') return null;
+    const partes: string[] = [];
+    if (planilla !== '-') partes.push(`planilla ${planilla}`);
+    if (plan !== '-') partes.push(`plan ${plan}`);
+    return partes.join(' y ');
+  });
+
+  /** Las dos mitades de la decisión: con qué modo vuelve y por qué. Ninguna tiene defecto. */
+  protected readonly reactivarValido = computed(
+    () => this.reactivarMotivo().trim().length > 0 && this.reactivarModo().trim().length > 0
+  );
+
+  /**
+   * Abre el rescate y CIERRA el detalle, por lo mismo que en anular: apilar dos diálogos deja el de
+   * atrás inerte, y lo que hay que leer en ese momento es la decisión, no el snapshot.
+   */
+  protected abrirReactivar(): void {
+    const registro = this.opRegistro();
+    if (!registro || this.bloqueoReactivar()) return;
+    const id = this.pv(registro, 'id');
+    if (id === '-') return;
+    this.reactivarId.set(id);
+    this.reactivarCodigo.set(this.pv(registro, 'codigoOperacion'));
+    this.reactivarIntentos.set(this.pv(registro, 'intentosEnvio'));
+    this.reactivarMotivo.set('');
+    this.reactivarModo.set('');
+    this.avisoMensaje.set(null);
+    this.avisoError.set(false);
+    this.cerrarOpDetalle();
+    this.reactivarAbierto.set(true);
+  }
+
+  protected cerrarReactivar(): void {
+    this.reactivarAbierto.set(false);
+    this.reactivarId.set(null);
+    this.reactivarMotivo.set('');
+    this.reactivarModo.set('');
+  }
+
+  protected onReactivarMotivo(event: Event): void {
+    this.reactivarMotivo.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected onReactivarModo(modo: string): void {
+    this.reactivarModo.set(modo);
+  }
+
+  /** El estado al que vuelve, para no repetir la cadena en la plantilla. */
+  protected readonly estadoTrasReactivar = ESTADO_OPE_REGISTRADA;
+
+  /** Hook de confirmación, sobrescrito por la Page (es la que tiene el ApiService). */
+  protected confirmarReactivar(): void {
     return;
   }
 

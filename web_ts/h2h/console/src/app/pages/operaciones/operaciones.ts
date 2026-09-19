@@ -265,6 +265,50 @@ export class OperacionesPage extends OperacionesViewComponent implements OnInit 
   }
 
   /**
+   * Devuelve la operación al pool con el modo elegido.
+   *
+   * <p>Al terminar recarga el listado: la operación cambia de estado y de modo de envío a la vez, y
+   * dejar la fila vieja en pantalla invitaría a reactivar otra vez lo ya reactivado.</p>
+   */
+  protected override confirmarReactivar(): void {
+    const id = this.reactivarId();
+    const modo = this.reactivarModo().trim();
+    const motivo = this.reactivarMotivo().trim();
+    if (!id || !modo || !motivo || this.reactivando()) return;
+    // El código se captura ANTES de cerrar, igual que en anular: el mensaje no debe depender de qué
+    // limpia cerrarReactivar().
+    const codigo = this.reactivarCodigo();
+    this.reactivando.set(true);
+    this.api
+      .reactivarOperacionBackend(id, modo, motivo)
+      .pipe(finalize(() => this.reactivando.set(false)))
+      .subscribe({
+        next: (data) => {
+          this.cerrarReactivar();
+          this.avisoError.set(false);
+          this.avisoMensaje.set(this.mensajeReactivacion(data ?? {}, codigo));
+          this.load();
+        },
+        error: (err) => {
+          this.cerrarReactivar();
+          this.avisoError.set(true);
+          this.avisoMensaje.set(this.mensajeError(err));
+        },
+      });
+  }
+
+  /**
+   * El aviso de vuelta. Prefiere el mensaje del backend: es el que sabe con cuántos intentos quedó
+   * la operación, y ese dato es justamente lo que decide si hace falta corregir algo más.
+   */
+  private mensajeReactivacion(data: Record<string, unknown>, codigo: string): string {
+    const delBackend = typeof data['mensaje'] === 'string' ? (data['mensaje'] as string) : '';
+    return delBackend
+      ? `Operación ${codigo}: ${delBackend}`
+      : `Operación ${codigo} devuelta al pool con modo de envío ${String(data['modoEnvio'] ?? '')}.`;
+  }
+
+  /**
    * Convierte el lote marcado. El error se muestra <b>dentro del diálogo</b> y no se cierra:
    * el 422 enumera qué operaciones estorban, y cerrar la lista al mismo tiempo obligaría a
    * reconstruir la selección a ciegas para poder corregirla.

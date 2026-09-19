@@ -248,6 +248,9 @@
   [anularVisible]="true"
   [anularBloqueo]="bloqueoAnular()"
   [anulando]="anulando()"
+  [reactivarVisible]="true"
+  [reactivarBloqueo]="bloqueoReactivar()"
+  [reactivando]="reactivando()"
   [calimacoVisible]="true"
   [calimacoBloqueo]="bloqueoCalimaco()"
   [comparacion]="comparacion()"
@@ -259,6 +262,7 @@
   [verificandoEstado]="verificandoEstado()"
   (closed)="cerrarOpDetalle()"
   (anular)="abrirAnular()"
+  (reactivar)="abrirReactivar()"
   (verificarSesion)="verificarSesionCalimaco()"
   (comparar)="compararCalimaco()"
   (informar)="informarCalimaco()"
@@ -315,6 +319,106 @@
         [disabled]="!motivoAnularValido() || anulando()"
         (click)="confirmarAnular()"
       >{{ anulando() ? 'Anulando…' : 'Anular operación' }}</button>
+    </div>
+  </div>
+</j-dialog>
+
+<!--
+  Rescate de una operación detenida en ERROR. Es un paso aparte y no un botón directo porque pide
+  una decisión que la pantalla no puede tomar: con qué modo de envío vuelve al pool.
+-->
+<j-dialog
+  [open]="reactivarAbierto()"
+  size="md"
+  title="Reactivar operación"
+  [description]="reactivarCodigo()"
+  (closed)="cerrarReactivar()"
+  (cancel)="cerrarReactivar()"
+>
+  <div class="space-y-3 p-4">
+    <p class="text-sm text-neutral-700">
+      La operación volverá a <span class="font-medium">{{ estadoTrasReactivar }}</span>, es decir al
+      pool de operaciones programables. Es la salida de la revisión en la que la dejó el tope de
+      reintentos.
+    </p>
+
+    <div>
+      <span class="mb-1 block text-xs font-medium text-neutral-700">
+        Modo de envío <span class="text-red-600">*</span>
+      </span>
+      <div class="space-y-2">
+        @for (modo of modosEnvio; track modo.code) {
+          <label
+            class="flex cursor-pointer gap-2 rounded-md border p-2 transition"
+            [class.border-primary-500]="reactivarModo() === modo.code"
+            [class.bg-primary-50]="reactivarModo() === modo.code"
+            [class.border-neutral-300]="reactivarModo() !== modo.code"
+          >
+            <input
+              type="radio"
+              name="reactivar-op-modo"
+              class="mt-0.5"
+              [value]="modo.code"
+              [checked]="reactivarModo() === modo.code"
+              (change)="onReactivarModo(modo.code)"
+            />
+            <span>
+              <span class="block text-sm font-medium text-neutral-800">{{ modo.label }}</span>
+              <span class="block text-[11px] text-neutral-600">{{ modo.ayuda }}</span>
+            </span>
+          </label>
+        }
+      </div>
+      <p class="mt-1 text-[11px] text-neutral-500">
+        No hay opción por defecto: si el dato que hizo fallar la operación todavía no está
+        corregido, devolverla al barrido la haría rebotar sola.
+      </p>
+    </div>
+
+    @if (reservaColgada(); as reserva) {
+      <p class="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">
+        <span class="font-semibold">Se soltará una reserva que quedó colgada:</span> {{ reserva }}.
+        Mientras esa reserva siga puesta la operación es invisible tanto para el barrido como para
+        la programación manual, así que devolverla al pool sin soltarla no la devolvería a ninguna
+        parte.
+      </p>
+    }
+
+    <p class="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+      <span class="font-semibold">Conserva sus {{ reactivarIntentos() }} intento(s) de envío:</span>
+      el contador no se reinicia, porque cuenta envíos reales al banco. El rescate concede un
+      intento más, no un presupuesto nuevo: si vuelve a fallar, regresa a ERROR enseguida.
+    </p>
+
+    <div>
+      <label for="reactivar-op-motivo" class="mb-1 block text-xs font-medium text-neutral-700">
+        Motivo <span class="text-red-600">*</span>
+      </label>
+      <textarea
+        id="reactivar-op-motivo"
+        rows="3"
+        class="w-full rounded-md border border-neutral-300 p-2 text-sm focus:border-primary-500 focus:outline-none"
+        placeholder="Qué se corrigió o por qué se le da otra oportunidad"
+        [value]="reactivarMotivo()"
+        (input)="onReactivarMotivo($event)"
+      ></textarea>
+      <p class="mt-1 text-[11px] text-neutral-500">
+        Queda registrado en la operación: es la única constancia de por qué se la devolvió al pool.
+      </p>
+    </div>
+
+    <div class="flex justify-end gap-2 pt-1">
+      <button
+        type="button"
+        class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm text-neutral-700 transition hover:bg-neutral-50"
+        (click)="cerrarReactivar()"
+      >Cancelar</button>
+      <button
+        type="button"
+        class="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="!reactivarValido() || reactivando()"
+        (click)="confirmarReactivar()"
+      >{{ reactivando() ? 'Reactivando…' : 'Reactivar operación' }}</button>
     </div>
   </div>
 </j-dialog>

@@ -4,6 +4,8 @@
 
 *Jonathan Franchesco Torres Baca — @jofrantoba*
 
+🔗 **Live demo:** [jofrantoba-coding.github.io/patron-frontend-jona](https://jofrantoba-coding.github.io/patron-frontend-jona/)
+
 ---
 
 ## Abstract
@@ -240,3 +242,5 @@ What JONA adds is a **team-oriented convention**: a consistent file structure an
 JONA provides a robust and flexible structure for UI development across any platform. Its strength is not in the code — it's in the clarity of the contract between roles. When the Interface is agreed upon, the team can move in parallel, the codebase stays clean, and integration never bleeds into presentation.
 
 Source code: [github.com/Jofrantoba-Coding/patron-frontend-jona](https://github.com/Jofrantoba-Coding/patron-frontend-jona)
+
+Live demo: [jofrantoba-coding.github.io/patron-frontend-jona](https://jofrantoba-coding.github.io/patron-frontend-jona/)

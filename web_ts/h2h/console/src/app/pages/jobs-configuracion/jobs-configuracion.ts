@@ -4,6 +4,7 @@ import { JBadge, JProgress, JSectionHeading } from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
 import type {
   CantidadProgramable,
+  ModoRechazo,
   ConfiguracionJobs,
   HorarioSubtipo,
   Reintentos,
@@ -159,6 +160,17 @@ export class JobsConfiguracionPage extends JobsConfiguracionViewComponent implem
 
   protected override guardarHorario(codigo: string, valor: HorarioSubtipo): void {
     this.persistir(codigo, valor, 'Programación horaria actualizada.');
+  }
+
+  /**
+   * Fija el flujo TOTAL/PAR de un producto.
+   *
+   * <p>El aviso nombra el producto y no dice «guardado» a secas: son cuatro filas casi idénticas
+   * en pantalla y un mensaje genérico no deja saber cuál se acaba de tocar.</p>
+   */
+  protected override guardarModoRechazo(codigo: string, valor: ModoRechazo): void {
+    const producto = codigo.split('#').pop() ?? codigo;
+    this.persistir(codigo, valor, `Modo de rechazo de ${producto} actualizado.`);
   }
 
   /**

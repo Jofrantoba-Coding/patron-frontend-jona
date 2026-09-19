@@ -296,6 +296,55 @@
           </span>
         }
       </div>
+      <!-- FLUJO DE RECHAZO DEL BANCO. Solo en los productos a los que el BCP ofrece el Flujo PAR
+           —pagos masivos— y solo si esta organizacion lo tiene activado. En transferencias y
+           factoring el bloque no aparece: ahi cualquier error rechaza el lote completo y ofrecer
+           una opcion inexistente seria mentir. -->
+      @if (modoRechazoDisponible()) {
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium text-neutral-500" for="n-modo-rechazo">
+            Si el banco encuentra un error
+          </label>
+          <select
+            id="n-modo-rechazo"
+            class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm"
+            [value]="nuevoModoRechazo()"
+            (change)="onNuevoModoRechazo($event)"
+          >
+            <option [value]="FLUJO_TOTAL">TOTAL — rechaza el lote completo</option>
+            <option [value]="FLUJO_PARCIAL">PARCIAL — procesa las lineas validas</option>
+          </select>
+          @if (nuevoModoRechazo() === FLUJO_PARCIAL) {
+            <span class="text-[11px] text-neutral-500">
+              El BCP procesa los abonos correctos y devuelve los rechazados en un
+              <code class="font-mono">-RES-PAR</code>. <strong>El archivo va completo</strong>: la
+              excusion la hace el banco, no la plataforma.
+            </span>
+          } @else {
+            <span class="text-[11px] text-neutral-500">
+              Un solo abono con un dato invalido rechaza las
+              {{ seleccion().size }} operaciones del lote. Es el comportamiento historico.
+            </span>
+          }
+          <span class="text-[11px] text-neutral-400">
+            Se sella al crear el plan y no se puede cambiar despues: para corregirlo hay que
+            cancelarlo y volver a programar.
+          </span>
+        </div>
+      } @else if (modoRechazoApagado()) {
+        <div class="flex flex-col gap-1">
+          <span class="text-xs font-medium text-neutral-500">Si el banco encuentra un error</span>
+          <span class="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm text-neutral-500">
+            TOTAL — rechaza el lote completo
+          </span>
+          <span class="text-[11px] text-amber-700">
+            El Flujo PARCIAL esta disponible para este producto pero no activado en esta
+            organizacion. Se activa en <strong>Procesamiento automatico</strong>, y requiere
+            solicitud formal al BCP: sin ella los archivos en PARCIAL vuelven rechazados.
+          </span>
+        </div>
+      }
+
       <!-- Solo con TODAS las seleccionadas siendo del MISMO tipo convertible —terceros o
            interbancarias— y hacia el portal: el backend convierte todo o nada, y el canal del plan
            es uno solo. -->
@@ -340,6 +389,9 @@
         >
           @for (m of modos; track m) {<option [value]="m">{{ m }}</option>}
         </select>
+        <p class="text-[11px] text-neutral-500">
+          Tambien filtra las candidatas: solo se listan las operaciones selladas con este modo.
+        </p>
       </div>
       <div class="flex flex-col gap-1">
         <label class="text-xs font-medium text-neutral-500" for="n-destino">Tipo destino</label>

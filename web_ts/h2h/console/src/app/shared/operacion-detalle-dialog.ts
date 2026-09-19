@@ -384,6 +384,28 @@ type Registro = OperacionDetalleRegistro;
         Acciones. Solo aparece si el contenedor las habilita (anularVisible), de modo que las
         pantallas que usan este diálogo como consulta siguen siendo de solo lectura.
       -->
+      @if (reactivarVisible) {
+        <section class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
+          @if (reactivarBloqueo) {
+            <!-- Igual que en anular: el motivo del bloqueo se muestra en vez de esconder el botón. -->
+            <p class="text-xs text-amber-700"><span class="font-semibold">No se puede reactivar:</span> {{ reactivarBloqueo }}</p>
+          } @else {
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p class="text-xs text-neutral-600">
+                Está detenida en ERROR por haber agotado sus reintentos. Reactivar la devuelve al
+                pool; en el siguiente paso se elige si vuelve al barrido o solo a mano.
+              </p>
+              <button
+                type="button"
+                class="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                [disabled]="reactivando"
+                (click)="reactivar.emit()"
+              >Reactivar operación</button>
+            </div>
+          }
+        </section>
+      }
+
       @if (anularVisible) {
         <section class="rounded-md border border-neutral-200 bg-neutral-50 p-3">
           @if (anularBloqueo) {
@@ -422,6 +444,16 @@ export class OperacionDetalleDialog {
   /** Por qué NO se puede anular. Con valor, sustituye al botón por la explicación. */
   @Input() anularBloqueo: string | null = null;
   @Input() anulando = false;
+  /**
+   * Muestra el bloque de rescate. Apagado por defecto, por lo mismo que anular: este diálogo se usa
+   * también como consulta desde programaciones, y ahí no debe ofrecer mutaciones.
+   */
+  @Input() reactivarVisible = false;
+  /** Por qué NO se puede reactivar. Con valor, sustituye al botón por la explicación. */
+  @Input() reactivarBloqueo: string | null = null;
+  @Input() reactivando = false;
+  @Output() reactivar = new EventEmitter<void>();
+
   @Output() closed = new EventEmitter<void>();
   @Output() anular = new EventEmitter<void>();
 

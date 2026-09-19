@@ -886,4 +886,15 @@ export interface ProgramacionCrear {
   programacion?: Record<string, unknown>;
   /** Conversión de producto al meter las operaciones al plan. Sin valor, no convierte nada. */
   conversion?: ConversionProducto;
+  /**
+   * Flujo con el que el BANCO tratará los errores del lote: `TOTAL` o `PARCIAL`.
+   *
+   * <p>`TOTAL` — el BCP rechaza el lote completo ante un error en cualquier línea. `PARCIAL` —el
+   * «Flujo PAR» de su especificación— procesa las válidas y devuelve las rechazadas en un
+   * `-RES-PAR`. Quien excluye la línea es el banco: la plataforma envía el archivo entero.</p>
+   *
+   * <p>Sin valor, el backend lo resuelve desde la configuración de la organización y, en último
+   * término, lo sella en `TOTAL`. Se envía solo cuando el selector llegó a ofrecerse.</p>
+   */
+  modoRechazo?: string;
 }

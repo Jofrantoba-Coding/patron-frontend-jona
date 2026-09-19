@@ -237,6 +237,45 @@ export interface SubtipoHorarioConfig {
   banco: unknown;
 }
 
+/**
+ * Con qué FLUJO se le declara la planilla al banco.
+ *
+ * <p>`TOTAL` — el BCP rechaza el lote completo si encuentra un error en una línea. `PARCIAL` — el
+ * banco procesa las líneas válidas y devuelve las rechazadas en un `-RES-PAR`. <b>Quien rechaza la
+ * línea es el banco</b>: la plataforma no recorta el archivo, lo envía entero.</p>
+ *
+ * <p>`habilitado` no es una preferencia: espeja un hecho del convenio. El BCP exige solicitud
+ * formal para activar el flujo PAR y ningún cliente lo tiene por defecto, así que encenderlo aquí
+ * sin que el banco lo haya activado hace que los archivos PARCIAL vuelvan rechazados.</p>
+ *
+ * <p>`accionLineaRechazada` decide qué pasa con las operaciones que el banco rechazó cuando llega
+ * el `-RES-PAR`: `REVISION` las saca del barrido y espera a una persona, `LIBERAR` las devuelve a
+ * la cola. LIBERAR arriesga bucle si la causa es permanente —un tipo de cuenta inválido no se
+ * arregla solo—, y por eso el defecto es REVISION.</p>
+ */
+export interface ModoRechazo {
+  habilitado?: boolean;
+  /** TOTAL | PARCIAL. */
+  modoPorDefecto?: string;
+  /** REVISION | LIBERAR. */
+  accionLineaRechazada?: string;
+}
+
+/**
+ * El modo de rechazo de un producto, con su valor propio y el de plataforma.
+ *
+ * <p>Mismo par que `BloqueConfig` y por el mismo motivo: sin el contraste, un `TOTAL` no dice si
+ * alguien lo eligió para esta organización o es el defecto heredado, y de eso depende qué pasa si
+ * se borra el nodo.</p>
+ */
+export interface ModoRechazoProducto {
+  codigo: string;
+  producto?: string;
+  subtipo?: string;
+  organizacion: unknown;
+  plataforma: unknown;
+}
+
 export interface ConfiguracionJobs {
   interruptores: Record<string, InterruptorJob>;
   /** AUTOMATICO | MANUAL. Gobierna la INGESTA, no los jobs. */
@@ -253,6 +292,19 @@ export interface ConfiguracionJobs {
     /** Ventana del CANAL: es del banco. La organización no puede cambiarla. */
     ventanaCanal: unknown;
     subtipos: Record<string, SubtipoHorarioConfig>;
+  };
+  /**
+   * Flujo TOTAL/PAR por producto. Opcional: un backend anterior a esta rama no lo manda.
+   *
+   * <p>Solo pagos masivos —proveedores abono, cheque de gerencia, haberes y CTS—. Transferencias y
+   * factoring no aparecen porque el BCP no les ofrece el flujo PAR: cualquier error es rechazo
+   * total. No es una pantalla incompleta, es el alcance real del banco.</p>
+   */
+  modoRechazo?: {
+    /** Defecto de PLATAFORMA (`H2H#BCP#MODO_RECHAZO#DEFECTO`). Lo que aplica si no hay nodo propio. */
+    defecto: unknown;
+    /** Clave `<PRODUCTO>#<SUBTIPO>`, igual que en `horarios.subtipos`. */
+    productos: Record<string, ModoRechazoProducto>;
   };
   generado: string;
 }
@@ -271,8 +323,15 @@ export interface JobsConfiguracionPageContract {
   /** Enciende o apaga el diferido del job cuando el canal esta cerrado. */
   guardarDiferido(habilitado: boolean): void;
   guardarHorario(codigo: string, valor: HorarioSubtipo): void;
+  /** Fija el flujo TOTAL/PAR de un producto de pagos masivos. */
+  guardarModoRechazo(codigo: string, valor: ModoRechazo): void;
   cambiarInterruptor(job: string, habilitado: boolean): void;
 }
 
 export const MODO_AUTOMATICO = 'AUTOMATICO';
 export const MODO_MANUAL = 'MANUAL';
+
+export const RECHAZO_TOTAL = 'TOTAL';
+export const RECHAZO_PARCIAL = 'PARCIAL';
+export const ACCION_REVISION = 'REVISION';
+export const ACCION_LIBERAR = 'LIBERAR';

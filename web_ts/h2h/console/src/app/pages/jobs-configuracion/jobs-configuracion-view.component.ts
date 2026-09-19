@@ -1,10 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { JBadge, JProgress, JSectionHeading } from 'uijona-4ngular';
 import {
+  ACCION_REVISION,
   MODO_AUTOMATICO,
   MODO_MANUAL,
+  RECHAZO_PARCIAL,
+  RECHAZO_TOTAL,
   type CantidadProgramable,
   type ConfiguracionJobs,
+  type ModoRechazo,
+  type ModoRechazoProducto,
   type HorarioSubtipo,
   type InterruptorJob,
   type DiferirFueraDeVentana,
@@ -311,6 +316,73 @@ export class JobsConfiguracionViewComponent {
   private readonly ETIQUETA_PRODUCTO: Record<string, string> = {
     TRANSFERENCIAS: 'Transferencias',
     PAGOS_MASIVOS: 'Pagos masivos',
+  };
+
+  // ── Modo de rechazo: flujo TOTAL / PAR por producto ──────────────────────
+  //
+  // El bloque es opcional en el contrato porque un backend anterior no lo manda. Cuando falta, la
+  // sección entera no se pinta en vez de mostrarse vacía: una lista de productos sin valores se
+  // lee como «no hay nada configurado», que es distinto de «esta consola habla con un backend que
+  // todavía no conoce el flujo PAR».
+  protected readonly modoRechazoDisponible = computed<boolean>(() => !!this.config()?.modoRechazo);
+
+  protected readonly RECHAZO_TOTAL = RECHAZO_TOTAL;
+  protected readonly RECHAZO_PARCIAL = RECHAZO_PARCIAL;
+
+  /** Defecto de plataforma: lo que aplicaría si se borrara el nodo propio. */
+  protected readonly modoRechazoDefecto = computed<ModoRechazo>(
+    () => (this.config()?.modoRechazo?.defecto as ModoRechazo) ?? {}
+  );
+
+  protected readonly modosRechazo = computed<
+    {
+      clave: string;
+      subtipo: string;
+      codigo: string;
+      etiqueta: string;
+      valor: ModoRechazo;
+      plataforma: ModoRechazo;
+      heredado: boolean;
+    }[]
+  >(() => {
+    const p = this.config()?.modoRechazo?.productos ?? {};
+    return Object.keys(p)
+      .map((clave) => {
+        const nodo = p[clave] as ModoRechazoProducto;
+        const propio = (nodo.organizacion as ModoRechazo) ?? {};
+        const subtipo = nodo.subtipo ?? clave.split('#').pop() ?? clave;
+        return {
+          clave,
+          subtipo,
+          codigo: nodo.codigo,
+          etiqueta: this.ETIQUETA_SUBTIPO[subtipo] ?? subtipo,
+          valor: propio,
+          plataforma: (nodo.plataforma as ModoRechazo) ?? {},
+          // Un nodo sin `habilitado` propio no eligió: hereda. Distinguirlo importa porque borrar
+          // el nodo devuelve al defecto de plataforma, y sin esta marca el operador no sabe si
+          // está mirando su decisión o la heredada.
+          heredado: propio.habilitado === undefined,
+        };
+      })
+      .sort(
+        (a, b) => this.ORDEN_SUBTIPO.indexOf(a.subtipo) - this.ORDEN_SUBTIPO.indexOf(b.subtipo)
+      );
+  });
+
+  /**
+   * Orden fijo, no alfabético: las dos variantes de PROVEEDORES van juntas y primero.
+   *
+   * <p>Alfabéticamente saldría ABONO_PROVEEDOR, CHEQUE_GERENCIA, CTS, HABERES — que mete CTS entre
+   * medias y separa lo que el operador lee como un solo producto. Este orden espeja el de la
+   * parametría.</p>
+   */
+  private readonly ORDEN_SUBTIPO = ['ABONO_PROVEEDOR', 'CHEQUE_GERENCIA', 'HABERES', 'CTS'];
+
+  private readonly ETIQUETA_SUBTIPO: Record<string, string> = {
+    ABONO_PROVEEDOR: 'Proveedores — abono en cuenta',
+    CHEQUE_GERENCIA: 'Proveedores — cheque de gerencia',
+    HABERES: 'Haberes',
+    CTS: 'CTS',
   };
 
   /** Ventana publicada por el banco. Es de solo lectura: la organización no negocia el horario. */
@@ -913,6 +985,37 @@ export class JobsConfiguracionViewComponent {
   protected guardarCantidad(_valor: CantidadProgramable): void {}
   protected guardarReintentos(_valor: Reintentos): void {}
   protected guardarHorario(_codigo: string, _valor: HorarioSubtipo): void {}
+  protected guardarModoRechazo(_codigo: string, _valor: ModoRechazo): void {}
+
+  protected onGuardarModoRechazo(codigo: string): void {
+    const v = this.construirModoRechazo();
+    if (v) this.guardarModoRechazo(codigo, v);
+  }
+
+  /**
+   * Arma el valor con los TRES campos del borrador; los tres viajan siempre.
+   *
+   * <p>Nada se mezcla con lo guardado: el backend reemplaza el objeto entero, igual que ya hacen
+   * la cantidad programable y los reintentos. Mandar solo el campo tocado obligaría a fundir en el
+   * servidor, y la regla cruzada de abajo dejaría de poder comprobarse antes de escribir.</p>
+   */
+  private construirModoRechazo(): ModoRechazo | null {
+    const habilitado = this.campo('habilitado') === 'true';
+    const modoPorDefecto = this.campo('modoPorDefecto') || RECHAZO_TOTAL;
+    const accionLineaRechazada = this.campo('accionLineaRechazada') || ACCION_REVISION;
+    // Se comprueba también aquí, aunque el backend la impone. Dejar que el servidor la rechace
+    // funcionaría, pero el operador perdería el borrador y leería un 422 en vez de saber qué le
+    // falta. La autoridad sigue siendo el backend; esto es cortesía.
+    if (modoPorDefecto === RECHAZO_PARCIAL && !habilitado) {
+      this.errorCampo.set(
+        'Para dejar PARCIAL por defecto hay que habilitar antes el flujo PAR en este producto.' +
+          ' Con el flujo apagado el sistema envía TOTAL igual, y la pantalla estaría ofreciendo' +
+          ' una opción que no se aplica.'
+      );
+      return null;
+    }
+    return { habilitado, modoPorDefecto, accionLineaRechazada };
+  }
 
   protected onGuardarCantidad(): void {
     const v = this.construirCantidad();

@@ -704,6 +704,41 @@ export class ApiService {
   }
 
   /**
+   * Devuelve al pool una operación detenida en `ERROR`, con el modo de envío que se le indique.
+   *
+   * <p>Es la salida de la política `MARCAR_REVISION`: al agotar su tope de reintentos la operación
+   * queda en `ERROR`, fuera del barrido automático **y** del camino manual, esperando que una
+   * persona mire el dato que la hace fallar. Esto es lo que la pone otra vez en circulación cuando
+   * esa revisión termina.</p>
+   *
+   * <p>`modoEnvio` (`AUTOMATICO` o `MANUAL`) y `motivo` son obligatorios y no tienen valor por
+   * defecto: son las dos mitades de la decisión —si vuelve al barrido o solo se programa a mano, y
+   * por qué se le da otra oportunidad—. 400 si falta alguna.</p>
+   *
+   * <p>Devuelve 422 si la operación no está en `ERROR`: los demás estados son hechos consumados,
+   * no etapas.</p>
+   *
+   * <p>Suelta **las dos reservas** (`ope_u_id_planilla_vigente` y `ope_u_id_programacion`) como
+   * parte del cambio de estado. No es un extra: mientras cualquiera tenga valor la operación es
+   * invisible para el job y para la programación manual, así que sin soltarlas el rescate no
+   * devolvería la operación a ninguna parte. Si había algo colgado, llega en
+   * `data.reservasSoltadas`.</p>
+   *
+   * <p><b>No reinicia el contador de intentos de envío</b>: el rescate concede un intento más, no
+   * un presupuesto nuevo. `data.intentosEnvioConsumidos` dice cuántos lleva.</p>
+   */
+  reactivarOperacionBackend(
+    idOperacion: string,
+    modoEnvio: string,
+    motivo: string
+  ): Observable<Record<string, unknown>> {
+    return this.postBackend<ApiResponseEnvelope<Record<string, unknown>>>(
+      '/operaciones/reactivar',
+      this.buildEnvelope({ idOperacion, modoEnvio, motivo })
+    ).pipe(map((res) => (res?.data ?? {}) as Record<string, unknown>));
+  }
+
+  /**
    * Convierte transferencias a terceros en pagos masivos — abono a proveedores.
    *
    * <p>Por cada transferencia crea una operación de abono equivalente y deja la original

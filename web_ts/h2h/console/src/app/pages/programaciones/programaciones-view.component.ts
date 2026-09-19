@@ -15,7 +15,13 @@ import {
   type JDataTableRow,
 } from 'uijona-4ngular';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
-import { siguientePasoProgramacion } from './inter-programaciones';
+import {
+  FLUJO_PARCIAL,
+  FLUJO_TOTAL,
+  SUBTIPO_CON_FLUJO_PAR,
+  siguientePasoProgramacion,
+  type FlujoRechazoProducto,
+} from './inter-programaciones';
 import type {
   ConversionProducto,
   DiaVentana,
@@ -237,6 +243,39 @@ export class ProgramacionesViewComponent {
    * `MANTENER`: convertir anula las operaciones seleccionadas y revierte sus asientos.
    */
   protected readonly nuevoConversion = signal<ConversionProducto>('MANTENER');
+
+  // ── flujo de rechazo del banco: TOTAL o PARCIAL ──────────────────────────
+  //
+  // Lo que la organización tiene configurado, por abreviatura de producto. Lo inyecta la Page al
+  // entrar. Un mapa vacío —porque el servicio de jobs no respondió— deja el selector oculto y el
+  // plan sale en TOTAL: exactamente lo que hacía antes de que esto existiera.
+  protected readonly flujoPorProducto = signal<Record<string, FlujoRechazoProducto>>({});
+
+  protected readonly nuevoModoRechazo = signal<string>(FLUJO_TOTAL);
+  protected readonly FLUJO_TOTAL = FLUJO_TOTAL;
+  protected readonly FLUJO_PARCIAL = FLUJO_PARCIAL;
+
+  /** El producto elegido admite Flujo PAR según el BCP, con independencia de la configuración. */
+  protected readonly modoRechazoSoportado = computed<boolean>(
+    () => !!SUBTIPO_CON_FLUJO_PAR[this.productoAbrevSel()]
+  );
+
+  /**
+   * Se ofrece el selector: el producto lo admite Y la organización lo tiene activado.
+   *
+   * <p>Hacen falta las dos. Con el flujo apagado el backend resuelve TOTAL de todos modos y
+   * rechaza un PARCIAL explícito con un 422, así que ofrecerlo sería invitar al operador a
+   * rellenar un formulario que va a volver con error.</p>
+   */
+  protected readonly modoRechazoDisponible = computed<boolean>(() => {
+    const cfg = this.flujoPorProducto()[this.productoAbrevSel()];
+    return this.modoRechazoSoportado() && !!cfg?.habilitado;
+  });
+
+  /** Producto que admite parcial pero la empresa no tiene activado: se explica, no se oculta. */
+  protected readonly modoRechazoApagado = computed<boolean>(
+    () => this.modoRechazoSoportado() && !this.modoRechazoDisponible()
+  );
   protected readonly nuevoTipoDestino = signal<string>('');
   protected readonly nuevoCanal = signal<string>('');
 
@@ -739,6 +778,21 @@ export class ProgramacionesViewComponent {
     // Cada producto tiene su rama horaria: sin recargar, el formulario seguiría mostrando la
     // ventana del producto anterior mientras el backend valida contra la del nuevo.
     this.onProductoParaVentana(this.productoAbrevSel());
+    // Y su propio flujo por defecto. Arrastrar el del producto anterior haría que cambiar de
+    // producto dejara elegido un PARCIAL que nadie eligió para este.
+    const cfg = this.flujoPorProducto()[this.productoAbrevSel()];
+    this.nuevoModoRechazo.set(cfg?.habilitado ? cfg.modoPorDefecto : FLUJO_TOTAL);
+  }
+
+  protected onNuevoModoRechazo(e: Event): void {
+    this.nuevoModoRechazo.set((e.target as HTMLSelectElement).value);
+  }
+
+  /** La Page la invoca al recibir la configuración de la organización. */
+  protected setFlujoPorProducto(mapa: Record<string, FlujoRechazoProducto>): void {
+    this.flujoPorProducto.set(mapa);
+    const cfg = mapa[this.productoAbrevSel()];
+    this.nuevoModoRechazo.set(cfg?.habilitado ? cfg.modoPorDefecto : FLUJO_TOTAL);
   }
 
   /** La Page la sobrescribe: es quien tiene el servicio. */
@@ -766,8 +820,49 @@ export class ProgramacionesViewComponent {
   protected onNuevaFechaProgramadoValor(valor: string): void {
     this.nuevoFechaProgramado.set(valor);
   }
+  /**
+   * El modo no solo decide quién dispara el plan: decide QUÉ operaciones se buscan.
+   *
+   * <p>Por eso se limpia igual que producto, moneda y destino. Sin limpiarlo la selección
+   * sobreviviría invisible —fuera de la lista nueva— y el plan se llevaría operaciones del OTRO
+   * modo; peor que llevarse las de otro destino, porque son justo las que el job cree suyas.</p>
+   */
   protected onNuevoModo(e: Event): void {
     this.nuevoModo.set((e.target as HTMLSelectElement).value);
+    this.invalidarBusquedaDeOperaciones();
+  }
+
+  /**
+   * Los criterios con los que se piden las candidatas, sin los que dependen de los catálogos
+   * (moneda y destino, que resuelve la Page).
+   *
+   * <p>Los tres primeros describen juntos «se puede programar ahora» y son exactamente los que
+   * comprueba el backend en `problemaDeProgramable` antes de aceptar una operación en el plan.</p>
+   *
+   * <p>`modoEnvio` sale del combo y <b>no</b> es un literal. Lo era —`'MANUAL'` fijo— y con eso una
+   * organización sellada en AUTOMATICO, que es el caso normal, no veía ninguna operación nunca y
+   * sin ningún mensaje que lo explicara. El backend no lo impedía: `problemaDeProgramable` no mira
+   * el modo, así que aquel literal no reflejaba una regla del dominio, solo cerraba esta pantalla.</p>
+   *
+   * <p>Y no reabre el doble despacho: en cuanto el plan se crea la operación queda con su reserva
+   * `ope_u_id_programacion`, y el job exige esa reserva en NULL. Si el job se la lleva entre la
+   * búsqueda y el guardado, el alta falla con «ya está asignada al plan X» —un error explicable, no
+   * un pago repetido—.</p>
+   */
+  protected criteriosDeBusqueda(): Record<string, unknown> {
+    return {
+      estadoOperacion: 'REGISTRADA',
+      sinPlanillaVigente: true,
+      sinProgramacion: true,
+      modoEnvio: this.nuevoModo(),
+    };
+  }
+
+  /** Lo buscado deja de valer: la lista, lo marcado y el filtro por carga. */
+  private invalidarBusquedaDeOperaciones(): void {
+    this.opsRows.set([]);
+    this.seleccion.set(new Set());
+    this.loteFiltro.set('');
   }
   /**
    * Elegir H2W fuerza MANUAL: en ese canal no hay job que suba nada al portal, asi que un plan
@@ -779,6 +874,10 @@ export class ProgramacionesViewComponent {
     this.nuevoModalidad.set(valor);
     if (valor === 'H2W') {
       this.nuevoModo.set('MANUAL');
+      // Forzar el modo cambia el criterio de búsqueda por debajo, así que lo buscado con el modo
+      // anterior deja de valer. Volver a H2H NO fuerza nada —el operador pudo elegir MANUAL a
+      // propósito— y por eso tampoco borra.
+      this.invalidarBusquedaDeOperaciones();
     }
   }
   /**
@@ -1054,6 +1153,12 @@ export class ProgramacionesViewComponent {
     // selección que dejó de ser elegible no arrastre una conversión que el backend rechazaría.
     if (this.conversionNuevoDisponible() && this.nuevoConversion() !== 'MANTENER') {
       payload.conversion = this.nuevoConversion();
+    }
+    // Mismo criterio que la conversión: solo viaja si el selector llegó a ofrecerse. Mandar un
+    // PARCIAL sobre un producto que dejó de ser elegible —porque cambió el producto tras elegirlo—
+    // se lo comería el guard del backend con un 422 que el operador no esperaría.
+    if (this.modoRechazoDisponible()) {
+      payload.modoRechazo = this.nuevoModoRechazo();
     }
     if (this.nuevoTipoDestino()) payload.tipoDestino = this.nuevoTipoDestino();
     if (this.nuevoCanal()) payload.canalLiquidacion = this.nuevoCanal();

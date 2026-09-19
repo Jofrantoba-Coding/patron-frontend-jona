@@ -260,6 +260,112 @@
     </div>
   </div>
 
+  <!-- MODO DE RECHAZO: FLUJO TOTAL / PAR POR PRODUCTO.
+       Solo pagos masivos. Transferencias y factoring no aparecen porque el BCP no les ofrece el
+       flujo PAR: cualquier error es rechazo total. No es una pantalla incompleta. -->
+  @if (modoRechazoDisponible()) {
+    <div class="overflow-hidden rounded-xl border border-neutral-200">
+      <div class="border-b border-neutral-200 bg-neutral-50 px-4 py-2">
+        <p class="text-sm font-semibold text-neutral-800">Flujo de rechazo del banco</p>
+        <p class="text-xs text-neutral-500">
+          Qué hace el <b>BCP</b> si encuentra un error en una línea. En <b>TOTAL</b> rechaza el lote
+          completo; en <b>PARCIAL</b> procesa las líneas válidas y devuelve las rechazadas en un
+          archivo <code class="font-mono">-RES-PAR</code>. Quien excluye la línea es el banco: la
+          plataforma envía el archivo entero.
+        </p>
+      </div>
+
+      <div class="border-b border-amber-200 bg-amber-50 px-4 py-2">
+        <p class="text-[11px] text-amber-800">
+          <b>Habilitar aquí no lo habilita en el banco.</b> El BCP exige solicitud formal para
+          activar el flujo PAR y ningún cliente lo tiene por defecto. Si se enciende sin esa
+          activación, los archivos enviados en PARCIAL vuelven rechazados.
+        </p>
+      </div>
+
+      <div class="divide-y divide-neutral-200">
+        @for (m of modosRechazo(); track m.clave) {
+          <div class="px-4 py-3">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="text-sm font-semibold text-neutral-800">{{ m.etiqueta }}</p>
+                <p class="font-mono text-[11px] text-neutral-400">{{ m.codigo }}</p>
+              </div>
+              <div class="flex shrink-0 items-center gap-2">
+                <j-badge [variant]="tono(m.valor.habilitado)">
+                  {{ m.valor.habilitado ? 'flujo PAR disponible' : 'solo TOTAL' }}
+                </j-badge>
+                @if (editando() !== m.codigo) {
+                  <button type="button" class="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs hover:bg-neutral-100"
+                    [disabled]="cargando()"
+                    (click)="abrirEdicion(m.codigo, {
+                      habilitado: (m.valor.habilitado === true) + '',
+                      modoPorDefecto: m.valor.modoPorDefecto ?? RECHAZO_TOTAL,
+                      accionLineaRechazada: m.valor.accionLineaRechazada ?? 'REVISION'
+                    })">Editar</button>
+                }
+              </div>
+            </div>
+
+            @if (editando() === m.codigo) {
+              <div class="space-y-2 pt-2 text-xs">
+                <label class="flex items-center justify-between gap-2">Flujo PAR habilitado
+                  <select class="rounded border border-neutral-300 px-2 py-1"
+                    [value]="campo('habilitado')" (change)="onCampo('habilitado', $event)">
+                    <option value="false">no</option>
+                    <option value="true">sí</option>
+                  </select></label>
+                <label class="flex items-center justify-between gap-2">Por defecto (programación automática)
+                  <select class="rounded border border-neutral-300 px-2 py-1"
+                    [value]="campo('modoPorDefecto')" (change)="onCampo('modoPorDefecto', $event)">
+                    <option value="TOTAL">TOTAL</option>
+                    <option value="PARCIAL">PARCIAL</option>
+                  </select></label>
+                <label class="flex items-center justify-between gap-2">Lo que el banco rechace
+                  <select class="rounded border border-neutral-300 px-2 py-1"
+                    [value]="campo('accionLineaRechazada')" (change)="onCampo('accionLineaRechazada', $event)">
+                    <option value="REVISION">REVISION</option>
+                    <option value="LIBERAR">LIBERAR</option>
+                  </select></label>
+                <p class="text-[11px] text-neutral-400">
+                  <b>Por defecto</b> solo gobierna la programación <b>automática</b>: al programar a
+                  mano o al pedir la generación del TXT se elige en el momento.
+                  <b>LIBERAR</b> devuelve la operación a la cola y arriesga bucle si la causa es
+                  permanente — un tipo de cuenta inválido no se arregla solo—; por eso el defecto es
+                  REVISION.
+                </p>
+                @if (errorCampo()) { <p class="text-[11px] text-red-600">{{ errorCampo() }}</p> }
+                <div class="flex gap-2 pt-1">
+                  <button type="button" class="rounded-md bg-primary-600 px-3 py-1 text-xs font-semibold text-white hover:bg-primary-700"
+                    [disabled]="cargando()" (click)="onGuardarModoRechazo(m.codigo)">Guardar</button>
+                  <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1 text-xs hover:bg-neutral-100"
+                    (click)="cerrarEdicion()">Cancelar</button>
+                </div>
+              </div>
+            } @else {
+              <dl class="space-y-1 pt-1 text-xs">
+                <div class="flex justify-between"><dt class="text-neutral-500">Por defecto</dt>
+                  <dd class="font-mono">{{ m.valor.modoPorDefecto ?? '—' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-neutral-500">Lo que el banco rechace</dt>
+                  <dd class="font-mono">{{ m.valor.accionLineaRechazada ?? '—' }}</dd></div>
+                @if (m.heredado) {
+                  <p class="text-[11px] text-neutral-400">
+                    Sin valor propio: hereda de la plataforma
+                    (<span class="font-mono">{{ modoRechazoDefecto().modoPorDefecto ?? RECHAZO_TOTAL }}</span>).
+                  </p>
+                }
+              </dl>
+            }
+          </div>
+        } @empty {
+          <p class="px-4 py-3 text-xs text-neutral-500">
+            Esta organización no tiene ningún producto de pagos masivos configurado.
+          </p>
+        }
+      </div>
+    </div>
+  }
+
   <!-- TOPE DE LA TANDA DEL INFORME AL ORIGEN.
        Va aquí, con el resto de parámetros de despacho, y no junto a los interruptores: el
        interruptor dice SI el job corre; esto, DE CUÁNTO EN CUÁNTO avisa. -->

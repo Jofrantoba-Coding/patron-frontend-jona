@@ -93,6 +93,66 @@ export const ANULACION_NEGADA: Record<string, string> = {
 };
 
 /**
+ * Estado en el que el tope de reintentos deja una operación: detenida, esperando una decisión.
+ *
+ * <p>Es el único desde el que se reactiva, y la razón está en cómo la excluye el backend: `ERROR`
+ * la saca del barrido automático (`listarProgramables` exige `REGISTRADA`) y **también** del camino
+ * manual (`problemaDeProgramable` exige lo mismo). Nadie la puede mover, que es justo lo que pide
+ * la política `MARCAR_REVISION`; esta pantalla es la única salida de ahí.</p>
+ */
+export const ESTADO_OPE_ERROR = 'ERROR';
+
+/** Estado al que vuelve tras el rescate: de vuelta en el pool. */
+export const ESTADO_OPE_REGISTRADA = 'REGISTRADA';
+
+/**
+ * Los dos modos con los que una operación puede volver al pool.
+ *
+ * <p>No hay un tercero ni un valor por defecto. `AUTOMATICO` la devuelve al barrido —volverá a
+ * salir sola en cuanto un lote la tome— y `MANUAL` la deja programable solo a mano. Elegir por el
+ * operador sería decidir en su nombre si el dato que la hizo fallar ya está corregido.</p>
+ */
+export const MODOS_ENVIO: ReadonlyArray<{ code: string; label: string; ayuda: string }> = [
+  {
+    code: 'AUTOMATICO',
+    label: 'Automático',
+    ayuda: 'Vuelve al barrido: el job la tomará en el próximo lote que le corresponda.',
+  },
+  {
+    code: 'MANUAL',
+    label: 'Manual',
+    ayuda: 'Queda en el pool pero fuera del barrido: solo saldrá si alguien la programa a mano.',
+  },
+];
+
+/**
+ * Por qué NO se reactiva desde cada estado, con el hecho que lo bloquea.
+ *
+ * <p>Espeja `REACTIVACION_NEGADA` de `ProcessOperacionesH2h`. La autoridad sigue siendo el backend
+ * —el 422 se muestra tal cual llegue—; esto solo evita el viaje y explica en pantalla por qué la
+ * acción no está disponible.</p>
+ *
+ * <p>La regla real es más estricta que este mapa: se niega **todo salvo `ERROR`**. El mapa solo
+ * pone texto a los casos previsibles; un estado que no figure aquí también queda negado, con un
+ * texto genérico. Escrito al revés —lista de prohibidos— cada alta en el catálogo de estados
+ * abriría una puerta que nadie decidió abrir.</p>
+ */
+export const REACTIVACION_NEGADA: Record<string, string> = {
+  REGISTRADA:
+    'ya está en REGISTRADA, es decir en el pool: no hay nada que rescatar. Si no entra en ningún lote, el motivo está en su modo de envío o en sus reservas, no en su estado.',
+  PAGO_CONFIRMADO:
+    'el banco ya confirmó el pago. Volver a ponerla en el pool crearía un segundo pago al mismo beneficiario.',
+  PAGO_RECHAZADO:
+    'el banco la devolvió con un código de rechazo. Reintentarla sin corregir el dato que rechazó repetiría el mismo rechazo; corrija el dato y cargue una operación nueva.',
+  PAGO_INFORMADO:
+    'ya se le informó al sistema de origen. Reabrirla aquí dejaría a los dos sistemas contando cosas distintas.',
+  CONTABILIZADA:
+    'el asiento ya salió hacia afuera. Se corrige por la vía contable, no reabriendo el origen.',
+  ANULADA:
+    'está anulada, que es un estado final. Si el pago debe hacerse, es una operación nueva.',
+};
+
+/**
  * Situación de una operación dentro del flujo.
  *
  * <p>Es el hecho más operativo de una operación y hasta ahora no se veía: una

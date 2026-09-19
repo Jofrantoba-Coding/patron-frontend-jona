@@ -14,6 +14,12 @@ import { JBadge,
 import { ApiService } from '../../core/api.service';
 import type { ProgramacionRow } from '../../core/models';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
+import {
+  FLUJO_PARCIAL,
+  FLUJO_TOTAL,
+  SUBTIPO_CON_FLUJO_PAR,
+  type FlujoRechazoProducto,
+} from './inter-programaciones';
 import { ProgramacionesViewComponent } from './programaciones-view.component';
 
 /** Programación de envíos H2H: planes que agrupan operaciones/lotes, con detalle y acciones. */
@@ -30,6 +36,60 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
   ngOnInit(): void {
     this.load();
     this.cargarVentana();
+    this.cargarFlujoRechazo();
+  }
+
+  /**
+   * Qué productos tienen el Flujo PAR activado en esta organización, y con qué valor por defecto.
+   *
+   * <p>Sale del servicio de JOBS —`api/schedulers/.../configuracion/leer`, la misma respuesta que
+   * pinta la pantalla de Procesamiento automático—, no de un endpoint nuevo. Se pide una vez al
+   * entrar por el mismo motivo que la ventana del canal: no cambia durante una sesión, y tenerla
+   * antes evita que el formulario aparezca sin saber si puede ofrecer el selector.</p>
+   *
+   * <p><b>Un fallo aquí no rompe nada.</b> El mapa queda vacío, el selector no se ofrece y el plan
+   * sale en TOTAL — que es exactamente lo que hacía antes de que esto existiera. Es la misma
+   * degradación segura que aplica el backend en cada escalón de su cascada.</p>
+   */
+  private cargarFlujoRechazo(): void {
+    this.api.schedulersConfigLeer().subscribe({
+      next: (cfg) => this.setFlujoPorProducto(this.aplanarFlujoRechazo(cfg)),
+      error: () => this.setFlujoPorProducto({}),
+    });
+  }
+
+  /**
+   * Pasa `modoRechazo.productos['PAGOS_MASIVOS#<SUBTIPO>']` a un mapa por abreviatura.
+   *
+   * <p>La abreviatura es la clave porque es el discriminador que usa el backend
+   * (`para_v_abreviatura`), y el formulario ya la tiene a mano en `productoAbrevSel()`. Traducir
+   * aquí una sola vez evita que cada consumidor tenga que recomponer la clave del nodo.</p>
+   *
+   * <p>Se cae al valor de <b>plataforma</b> cuando la organización no tiene nodo propio: es la
+   * misma cascada del backend, y sin ella una empresa que hereda la configuración vería el
+   * selector oculto aunque el flujo esté disponible.</p>
+   */
+  private aplanarFlujoRechazo(cfg: Record<string, unknown>): Record<string, FlujoRechazoProducto> {
+    const bloque = cfg?.['modoRechazo'] as
+      | { productos?: Record<string, { organizacion?: unknown; plataforma?: unknown }> }
+      | undefined;
+    const productos = bloque?.productos ?? {};
+    const mapa: Record<string, FlujoRechazoProducto> = {};
+    for (const [abreviatura, subtipo] of Object.entries(SUBTIPO_CON_FLUJO_PAR)) {
+      const nodo = productos[`PAGOS_MASIVOS#${subtipo}`];
+      const valor = (nodo?.organizacion ?? nodo?.plataforma) as
+        | { habilitado?: unknown; modoPorDefecto?: unknown }
+        | undefined;
+      if (!valor) continue;
+      // `habilitado` puede llegar como booleano o como el texto de un <select>.
+      const habilitado = valor.habilitado === true || String(valor.habilitado) === 'true';
+      const modo = String(valor.modoPorDefecto ?? '').trim().toUpperCase();
+      mapa[abreviatura] = {
+        habilitado,
+        modoPorDefecto: modo === FLUJO_PARCIAL ? FLUJO_PARCIAL : FLUJO_TOTAL,
+      };
+    }
+    return mapa;
   }
 
   /**
@@ -250,16 +310,10 @@ export class ProgramacionesPage extends ProgramacionesViewComponent implements O
           // un plan declarado INTERBANCARIA solo puede llevar interbancarias. `undefined` cuando no
           // se eligio destino, o cuando el producto no es el de transferencias.
           tipoOperacion: this.tipoOperacionDestino(),
-          // Los cuatro filtros describen lo mismo: «se puede programar ahora».
-          //   REGISTRADA        una ANULADA no se programa, y sin esto salian en la lista
-          //   sinPlanillaVigente ya tiene archivo: la via es la planilla, no una programacion nueva
-          //   sinProgramacion    ya la reservo otra programacion
-          //   MANUAL             el complemento de lo que toma el job; los dos conjuntos deben ser
-          //                      disjuntos o deja de ser determinista quien la envia (HAB-08 §6.7)
-          estadoOperacion: 'REGISTRADA',
-          sinPlanillaVigente: true,
-          sinProgramacion: true,
-          modoEnvio: 'MANUAL',
+          // Estado, las dos reservas y el MODO salen de `criteriosDeBusqueda()`: estan en la
+          // View porque el modo viene de su combo, y el literal 'MANUAL' que habia aqui hacia que
+          // una organizacion sellada en AUTOMATICO no viera ninguna operacion nunca.
+          ...this.criteriosDeBusqueda(),
         },
       })
       .pipe(finalize(() => this.opsCargando.set(false)))
