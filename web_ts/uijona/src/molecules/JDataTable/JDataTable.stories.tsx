@@ -85,6 +85,20 @@ export const ClickableRows: Story = {
   args: { onRowClick: fn() },
 };
 
+/** Below md: each row becomes a labelled card with a full-width action. */
+export const CardsMode: Story = {
+  args: {
+    responsiveMode: 'cards',
+    mobileActionLabel: 'Ver usuario',
+    columns: COLUMNS.map((col) =>
+      col.key === 'name' ? { ...col, mobilePriority: 1 }
+        : col.key === 'status' ? { ...col, mobilePriority: 2 }
+          : col
+    ),
+  },
+  parameters: { viewport: { defaultViewport: 'mobile1' } },
+};
+
 export const Interactive: Story = {
   args: {
     onFilterChange: fn(),

@@ -1,7 +1,7 @@
 ﻿// JDataTableView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { JDataTableColumn, JDataTableSort, JDataTableSortDirection } from './InterJDataTable';
+import { JDataTableColumn, JDataTableResponsiveMode, JDataTableSort, JDataTableSortDirection } from './InterJDataTable';
 import { JTextBox } from '../../atoms/JTextBox';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
@@ -26,6 +26,8 @@ interface JDataTableViewProps<T> {
   filterPlaceholder: string;
   showFilter: boolean;
   stickyHeader: boolean;
+  responsiveMode: JDataTableResponsiveMode;
+  mobileActionLabel: string;
   className?: string;
   onSortChange?: (sort: JDataTableSort) => void;
   onFilterChange?: (value: string) => void;
@@ -34,9 +36,11 @@ interface JDataTableViewProps<T> {
 
 export function JDataTableView<T>({
   columns, rows, rowKey, sort, loading, emptyTitle, emptyDescription,
-  filterValue, filterPlaceholder, showFilter, stickyHeader, className,
+  filterValue, filterPlaceholder, showFilter, stickyHeader, responsiveMode, mobileActionLabel, className,
   onSortChange, onFilterChange, onRowClick,
 }: JDataTableViewProps<T>) {
+  const isCards = responsiveMode === 'cards';
+  const isScroll = responsiveMode === 'scroll';
   const handleHeaderClick = (col: JDataTableColumn<T>) => {
     if (!col.sortable || !onSortChange) return;
     const next: JDataTableSortDirection = sort?.key === col.key ? (sort.direction === 'asc' ? 'desc' : sort.direction === 'desc' ? null : 'asc') : 'asc';
@@ -58,16 +62,35 @@ export function JDataTableView<T>({
               onChange={(value) => onFilterChange?.(value)}
               placeholder={filterPlaceholder}
               aria-label={filterPlaceholder}
-              className="h-9 w-full rounded-md border border-neutral-300 bg-white pl-8 pr-3 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="h-11 w-full rounded-md border border-neutral-300 bg-white pl-8 pr-3 text-base placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 sm:h-9 sm:text-sm"
             />
           </JPanel>
         </JPanel>
       )}
 
-      {/* JTable wrapper */}
-      <JPanel variant="ghost" padding="none" radius="none" className="relative max-w-full overflow-auto rounded-md border border-neutral-200">
-        <table className="w-full min-w-max caption-bottom text-sm">
-          <thead className={cn('bg-neutral-50 [&_tr]:border-b', stickyHeader && 'sticky top-0 z-10')}>
+      {/* Scroll mode: phone-only hint that the table scrolls sideways */}
+      {isScroll && (
+        <p className="text-xs text-neutral-500 sm:hidden">
+          Deslice horizontalmente para consultar todas las columnas.
+        </p>
+      )}
+
+      {/* JTable wrapper — a focusable scroll region in scroll mode; in cards
+          mode the cards flow on the page below md: and the table returns at md: */}
+      <JPanel
+        variant="ghost"
+        padding="none"
+        radius="none"
+        role={isScroll ? 'region' : undefined}
+        tabIndex={isScroll ? 0 : undefined}
+        aria-label={isScroll ? 'Tabla de datos desplazable horizontalmente' : undefined}
+        className={cn(
+          'relative max-w-full rounded-md border border-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
+          isScroll ? 'overflow-auto' : 'overflow-visible border-0 md:overflow-auto md:border',
+        )}
+      >
+        <table className={isCards ? 'block w-full min-w-0 caption-bottom text-sm md:table' : 'w-full min-w-max caption-bottom text-sm'}>
+          <thead className={cn('bg-neutral-50 [&_tr]:border-b', isCards && 'max-md:hidden', stickyHeader && 'sticky top-0 z-10')}>
             <tr>
               {columns.map((col) => (
                 <th
@@ -92,7 +115,7 @@ export function JDataTableView<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="[&_tr:last-child]:border-0">
+          <tbody className={cn('[&_tr:last-child]:border-0', isCards && 'max-md:block')}>
             {/* Loading state */}
             {loading && (
               <tr>
@@ -128,24 +151,47 @@ export function JDataTableView<T>({
                 onClick={onRowClick ? () => onRowClick(row, ri) : undefined}
                 className={cn(
                   'border-b border-neutral-100 transition-colors',
-                  onRowClick && 'cursor-pointer hover:bg-neutral-50'
+                  onRowClick && 'cursor-pointer hover:bg-neutral-50',
+                  isCards && 'mb-3 grid min-w-0 grid-cols-1 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-x-0 md:border-t-0 md:bg-transparent md:p-0 md:shadow-none'
                 )}
               >
-                {columns.map((col) => {
+                {columns.map((col, ci) => {
                   const raw = (row as Record<string, unknown>)[col.key];
                   return (
                     <td
                       key={col.key}
+                      data-label={isCards ? col.header : undefined}
+                      style={isCards ? { order: col.mobilePriority ?? ci + 20 } : undefined}
                       className={cn(
                         'px-4 py-3 align-middle text-neutral-900',
                         col.align === 'center' && 'text-center',
-                        col.align === 'right' && 'text-right'
+                        col.align === 'right' && 'text-right',
+                        isCards && [
+                          'flex min-w-0 flex-col gap-1 border-b border-neutral-100 px-0 py-2 text-left last:border-b-0',
+                          'before:text-[10px] before:font-semibold before:uppercase before:tracking-wide before:text-neutral-500',
+                          'before:content-[attr(data-label)] md:table-cell md:border-0 md:px-4 md:py-3 md:before:content-none',
+                          col.align === 'center' && 'md:text-center',
+                          col.align === 'right' && 'md:text-right',
+                        ],
+                        isCards && (col.mobilePriority ?? 99) <= 4 && 'font-medium'
                       )}
                     >
                       {col.render ? col.render(raw, row, ri) : String(raw ?? '')}
                     </td>
                   );
                 })}
+                {/* Cards: a full-width 44px action, easier to hit than the whole card */}
+                {isCards && onRowClick && (
+                  <td className="order-[999] pt-3 md:hidden">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onRowClick(row, ri); }}
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                    >
+                      {mobileActionLabel}
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

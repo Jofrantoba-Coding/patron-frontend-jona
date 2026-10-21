@@ -23,10 +23,11 @@ export const JPaginationView: React.FC<InterJPagination> = ({
 }) => {
   if (totalPages <= 1) return null;
   const pages = buildRange(currentPage, totalPages, siblingCount);
-  const btnBase = cn('inline-flex items-center justify-center h-8 min-w-[2rem] px-2 rounded text-sm transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50');
+  // 44px touch targets below sm:, 36px from sm: up
+  const btnBase = cn('inline-flex items-center justify-center h-11 min-w-[2.75rem] px-2 rounded text-sm sm:h-9 sm:min-w-[2.25rem] transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50');
 
   return (
-    <nav aria-label="JPagination" className={cn('flex max-w-full items-center gap-1 overflow-x-auto', className)}>
+    <nav aria-label="JPagination" className={cn('flex w-full max-w-full items-center gap-1 overflow-x-auto py-1', className)}>
       <JButton variant="ghost" type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
         onClick={() => { if (currentPage <= 1) { onFirstPageReached?.(); return; } onPrevious?.(currentPage); onPageChange?.(currentPage - 1); }}
         className={cn(btnBase, 'gap-1 pr-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}>

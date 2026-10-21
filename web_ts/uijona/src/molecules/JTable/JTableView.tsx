@@ -18,7 +18,7 @@ const outerClasses: Record<JTableResponsiveMode, string> = {
 };
 
 const innerScrollClasses: Record<JTableResponsiveMode, string> = {
-  scroll: 'overflow-x-auto',
+  scroll: 'overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
   cards: '',
   none: 'overflow-x-auto',
 };
@@ -28,7 +28,22 @@ export const JTableView = React.forwardRef<HTMLTableElement, InterJTable>(
      columns: _columns, data: _data, caption: _caption, emptyMessage: _emptyMessage,
      ...props }, ref) => (
     <JPanel variant="ghost" padding="none" radius="none" className={cn(outerClasses[responsiveMode], wrapperClassName)}>
-      <JPanel variant="ghost" padding="none" radius="none" className={innerScrollClasses[responsiveMode]}>
+      {/* Scroll mode: tell phone users the table scrolls sideways, and make the
+          scroll container keyboard reachable (arrow keys scroll it once focused). */}
+      {responsiveMode === 'scroll' && (
+        <p className="px-1 pb-2 text-xs text-neutral-500 sm:hidden">
+          Deslice horizontalmente para consultar todas las columnas.
+        </p>
+      )}
+      <JPanel
+        variant="ghost"
+        padding="none"
+        radius="none"
+        role={responsiveMode === 'scroll' ? 'region' : undefined}
+        tabIndex={responsiveMode === 'scroll' ? 0 : undefined}
+        aria-label={responsiveMode === 'scroll' ? 'Tabla desplazable horizontalmente' : undefined}
+        className={innerScrollClasses[responsiveMode]}
+      >
         <table
           ref={ref}
           style={responsiveMode !== 'none' ? undefined : style}
@@ -76,7 +91,7 @@ function PaginationButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm font-medium transition-colors',
+        'flex h-11 min-w-[2.75rem] items-center justify-center rounded-md px-2 text-sm font-medium transition-colors sm:h-8 sm:min-w-[2rem]',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
         active ? 'bg-primary-600 text-white' : 'text-neutral-600 hover:bg-neutral-100',
         disabled && 'pointer-events-none opacity-40'
@@ -129,7 +144,7 @@ function TablePaginationView({
                 onPageSizeChange(Number(event.target.value));
                 onPageChange(1);
               }}
-              className="h-8 rounded-md border border-neutral-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="h-11 rounded-md border border-neutral-300 bg-white px-2 text-base focus:outline-none focus:ring-2 focus:ring-primary-500 sm:h-8 sm:text-sm"
             >
               {pageSizeOptions.map((size) => (
                 <option key={size} value={size}>{size}</option>
@@ -472,7 +487,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
               }}
               onBlur={filterInputOnBlur ? (_, event) => filterInputOnBlur(event) : undefined}
               className={cn(
-                'h-8 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-900 placeholder:text-neutral-400',
+                'h-11 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-base font-normal text-neutral-900 placeholder:text-neutral-400 sm:h-8 sm:text-xs',
                 'focus:outline-none focus:ring-2 focus:ring-primary-500',
                 filterInputClassName
               )}
