@@ -1,5 +1,7 @@
 import { createAuthServiceHttp } from './AuthServiceHttp';
 import type { InterAuthService } from './InterAuthService';
+import type { InterShellService } from './InterShellService';
+import { createShellServiceHttp } from './ShellServiceHttp';
 import { createHttpClient, type SessionContext } from './httpClient';
 import { lazyService } from './lazyService';
 import type { AppServicesMock } from './mock/AppServicesMock';
@@ -68,6 +70,7 @@ export interface ComposeDeps {
 
 export interface AppServices {
   auth: InterAuthService;
+  shell: InterShellService;
 }
 
 /** Validates the env and builds every service. Throws a configuration error at startup. */
@@ -85,6 +88,10 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession }: ComposeDep
     auth: composeService<InterAuthService>(config, {
       createHttp: (baseUrl) => createAuthServiceHttp(client(baseUrl)),
       loadMock: async (scenario) => (await loadMock(scenario)).auth,
+    }),
+    shell: composeService<InterShellService>(config, {
+      createHttp: (baseUrl) => createShellServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).shell,
     }),
   };
 }
