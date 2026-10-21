@@ -189,3 +189,25 @@ Mode: Strict TDD. Status: T7.1-T7.4 done (commits and PR left to the orchestrato
 ### Files (lines)
 `catalogs/CatalogConfig 28`; `services/{InterCatalogService 31, CatalogServiceHttp 20, CatalogServiceHttp.spec 46, catalogServiceContract 97}`; `domain/crud/{filterSort 29, filterSort.spec 68, listView 44, listView.spec 70, toolbarGate 49, toolbarGate.spec 63}`; `shared/ui/CrudToolbar/{InterCrudToolbar 33, CrudToolbarImpl 29, CrudToolbarView 22, CrudToolbar 9, index 3, CrudToolbar.spec 87}`; modified `serviceComposer.ts` +9, `AppServicesMock.ts` +14/-1, `AppServicesMock.spec.ts` +28, `composeServices.spec.ts` +27. Total about 800 changed lines (forecast 480, cap 800): production about 330, specs about 470; at the cap because the contract and wire specs are large.
 
+
+## Slice 8: W1c-2 list view (branch `feat/softcommerce-w1c-2-list-view`, base W1c-1 `fad11ff`)
+
+Mode: Strict TDD. Status: T8.1-T8.3 done (commits and PR left to the orchestrator). Gate (from `web_ts/softcommerce`): `npm test` 40 files / 330 tests passed (20 new); `npm run typecheck` exit 0; `npm run build` exit 0 (entry `index-*.js` 245.82 kB, unchanged). Running total of changed lines: T8.1 151, T8.2 437 (+286), T8.3 601 (+164), under the 800 cap (forecast 560).
+
+### TDD Cycle Evidence
+| Task | Test file | Layer | Safety net | RED observed | GREEN | Triangulate | Refactor |
+|------|-----------|-------|------------|--------------|-------|-------------|----------|
+| T8.1 | `shared/ui/CrudGrid/CrudGrid.spec.tsx` | Component (jsdom, user-event) | N/A (new) | suite failed: `./CrudGrid` not found | 5/5 (one fix: JPagination buttons are named `Page N`) | rows and columns render; row click selects id, `aria-selected` only on the selected row; double click opens id; sortable header is a button and calls `onSortChange(key)` with `aria-sort`, plain header has no control; footer page click | none |
+| T8.2 | `views/uicrudlist/UiCrudList.spec.tsx` | Hook (renderHook, fake service) | W1c-1 domain suites green | suite failed: `./UiCrudListImpl` not found | 9/9 | single `list({page:1,pageSize:1000})` across filter/page changes, 25 rows -> 20 + 5; sort asc then desc resets page; `it.each` re-select with page jump forward (26 -> page 2) and back (3 -> page 1); selection kept on refresh while row exists, cleared once gone (delete); truncation true/false; failure with trace id then retry; `refresh` action reloads, others go to owner | none |
+| T8.3 | `views/uicrudlist/UiCrudListStates.spec.tsx` | Component (jsdom, fake service) | T8.2 green | suite failed: `./UiCrudList` not found | 6/6 | S-CRUD-1 loading (no table), empty message, rows then empty after a non-matching filter, error with trace id and Reintentar, truncation warning true/false, toolbar enables Modificar on row select and filter narrows the grid | none |
+
+### Deviations
+- `CrudGrid` has no Impl layer: it is stateless (Inter + View/entry in `CrudGrid.tsx`); the list Impl owns selection, sort and page.
+- `useUiCrudListImpl(config, service, permissions, handlers?)` takes the service and permissions as arguments (the task said `(config)`), matching the FormHost/UiShell style where the entry receives services. `handlers = { onAction, onRowOpen }`: the list runs `refresh` itself and forwards every other toolbar action and the double click to the owner (slice 9 wires register/DETAIL and the `details` gate, S-CRUD-7).
+- `refresh({ select })` is the hook for slice 9: it re-selects by id and jumps to that row's page (new pure `pageOfRow` in `domain/crud/listView.ts`, covered through the hook tests); `refresh()` keeps the selection only while the row still exists, which clears it after a logical delete.
+- A refresh shows the loading state again (grid unmounts for the request); selection, filter, sort and page live in the Impl so nothing is lost.
+- Keyboard shortcut binding: not required by the slice 8 spec or design; stays deferred (the gated toolbar `onAction` remains the single path). `toFailure` left in `uilogin/UiLoginImpl.ts`.
+- JTableHead sort button is jona-ui's own; its touch target could not be raised via className (no passthrough). Toolbar and Reintentar use `min-h-11 sm:min-h-9`.
+
+### Files (lines)
+`shared/ui/CrudGrid/{InterCrudGrid 31, CrudGrid 47, index 2, CrudGrid.spec 71}`; `views/uicrudlist/{InterUiCrudList 57, UiCrudListImpl 96, UiCrudListView 44, UiCrudList 19, index 4, UiCrudList.spec 127, UiCrudListStates.spec 96}`; modified `domain/crud/listView.ts` +6. Total 601 changed lines: production about 300, specs about 295.

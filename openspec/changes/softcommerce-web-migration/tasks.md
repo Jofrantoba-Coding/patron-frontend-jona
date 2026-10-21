@@ -131,9 +131,9 @@ Commits: (1) `feat(softcommerce): add catalog service and config contract` T7.1;
 
 ## Slice 8: W1c-2 list view (branch `feat/softcommerce-w1c-2-list-view`, base: slice 7)
 
-- [ ] T8.1 CrudGrid. RED: `shared/ui/CrudGrid/CrudGrid.spec.tsx` (supporting: row `onClick` selects, `onDoubleClick` fires, header click toggles sort, `JPagination` footer pages). GREEN: `CrudGrid/*` over JTable/JTableRow/JTableHead + JPagination. REFACTOR: none.
-- [ ] T8.2 List Impl. RED: `views/uicrudlist/UiCrudList.spec.tsx` hook tests with fake service (supporting: single `list({page:1,pageSize:1000})` fetch, selection stored by id and re-selected after refresh with page jump, cleared after delete, truncation warning). GREEN: `InterUiCrudList.ts`, `UiCrudListImpl.ts` (`useUiCrudListImpl(config)`). REFACTOR: none.
-- [ ] T8.3 List view states. RED: (S-CRUD-1 loading, empty message, error with retry). GREEN: `UiCrudListView.tsx`, `UiCrudList.tsx`, `index.ts`. Gate, PR.
+- [x] T8.1 CrudGrid. RED: `shared/ui/CrudGrid/CrudGrid.spec.tsx` (supporting: row `onClick` selects, `onDoubleClick` fires, header click toggles sort, `JPagination` footer pages). GREEN: `CrudGrid/*` over JTable/JTableRow/JTableHead + JPagination. REFACTOR: none.
+- [x] T8.2 List Impl. RED: `views/uicrudlist/UiCrudList.spec.tsx` hook tests with fake service (supporting: single `list({page:1,pageSize:1000})` fetch, selection stored by id and re-selected after refresh with page jump, cleared after delete, truncation warning). GREEN: `InterUiCrudList.ts`, `UiCrudListImpl.ts` (`useUiCrudListImpl(config)`). REFACTOR: none.
+- [x] T8.3 List view states. RED: (S-CRUD-1 loading, empty message, error with retry). GREEN: `UiCrudListView.tsx`, `UiCrudList.tsx`, `index.ts`. Gate, PR.
 
 Commits: (1) `feat(softcommerce): add crud grid with pagination` T8.1; (2) `feat(softcommerce): add crud list view with load states` T8.2+T8.3.
 
