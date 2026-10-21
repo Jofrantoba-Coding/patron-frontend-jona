@@ -1,0 +1,10 @@
+{
+  "name": "softcommerce-mock-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zero-dependency SoftCommerce mock core and server (plain Node ESM).",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

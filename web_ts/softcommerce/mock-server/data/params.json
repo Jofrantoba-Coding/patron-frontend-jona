@@ -1,0 +1,14 @@
+{
+  "demo": {
+    "INICIO_ACTIVIDADES": "2020-01-01",
+    "IS_FACTURADOR_SUNAT": true,
+    "ISBOTICA": false,
+    "DESPACHO_AUTOMATICO": false
+  },
+  "botica": {
+    "INICIO_ACTIVIDADES": "2022-03-01",
+    "IS_FACTURADOR_SUNAT": true,
+    "ISBOTICA": true,
+    "DESPACHO_AUTOMATICO": true
+  }
+}

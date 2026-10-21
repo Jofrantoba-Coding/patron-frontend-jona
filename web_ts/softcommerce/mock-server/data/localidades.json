@@ -1,0 +1,13 @@
+{
+  "demo": [
+    { "id_localidad": "1", "id_empresa": "1", "descripcion": "LOCAL CENTRAL", "direccion": "AV. AREQUIPA 1000", "id_ubigeo": "150101", "activo": true },
+    { "id_localidad": "2", "id_empresa": "1", "descripcion": "LOCAL ATE", "direccion": "AV. NICOLAS AYLLON 500", "id_ubigeo": "150103", "activo": true },
+    { "id_localidad": "3", "id_empresa": "2", "descripcion": "ALMACEN CALLAO", "direccion": "AV. ARGENTINA 2000", "id_ubigeo": "070101", "activo": true },
+    { "id_localidad": "4", "id_empresa": "2", "descripcion": "SUCURSAL CUSCO", "direccion": "CALLE SOL 120", "id_ubigeo": "080101", "activo": true },
+    { "id_localidad": "5", "id_empresa": "1", "descripcion": "LOCAL CERRADO", "direccion": "JR. LAMPA 300", "id_ubigeo": "150101", "activo": false }
+  ],
+  "botica": [
+    { "id_localidad": "1", "id_empresa": "1", "descripcion": "BOTICA AREQUIPA", "direccion": "CALLE MERCADERES 200", "id_ubigeo": "040101", "activo": true },
+    { "id_localidad": "2", "id_empresa": "1", "descripcion": "BOTICA CAMANA", "direccion": "AV. LIMA 45", "id_ubigeo": "040201", "activo": true }
+  ]
+}
