@@ -122,10 +122,10 @@ Commits: (1) `feat(softcommerce): add guarded Esc dialog stack` T6.1; (2) `feat(
 
 ## Slice 7: W1c-1 list foundations (branch `feat/softcommerce-w1c-1-list-foundations`, base: slice 6)
 
-- [ ] T7.1 Catalog contract and composer. RED: `services/serviceComposer.spec.ts` additions (S-LOC-20 invalid mode or missing URL throws before any request for the catalog service); supporting: `CatalogServiceHttp` contract against live server, mock catalog service in `AppServicesMock`. GREEN: `catalogs/CatalogConfig.ts`, `services/{InterCatalogService,CatalogServiceHttp}.ts`, composer + mock extension. REFACTOR: none.
-- [ ] T7.2 Filter and sort. RED: `domain/crud/filterSort.spec.ts` (S-CRUD-5 "lim" shows LIMA, clearing restores; S-CRUD-6 asc then desc). GREEN: `filterSort.ts`. REFACTOR: none.
-- [ ] T7.3 List view model (supporting). RED: `domain/crud/listView.spec.ts` (`applyListView` filter -> sort -> page of 20; filter or sort change resets to page 1; truncation flag when `pagination.total > items.length`). GREEN: `listView.ts`. REFACTOR: none.
-- [ ] T7.4 Toolbar gate and component. RED: `toolbarGate.spec.ts` + `shared/ui/CrudToolbar/CrudToolbar.spec.tsx` (S-CRUD-2 flags, S-CRUD-3 row-dependent, S-CRUD-4 click or shortcut denied sends nothing, S-SHELL-8 table-driven over each flag false; supporting: `export` renders disabled with "not available" tooltip). GREEN: `toolbarGate.ts`, `CrudToolbar/*`. REFACTOR: none. Gate, PR.
+- [x] T7.1 Catalog contract and composer. RED: `services/serviceComposer.spec.ts` additions (S-LOC-20 invalid mode or missing URL throws before any request for the catalog service); supporting: `CatalogServiceHttp` contract against live server, mock catalog service in `AppServicesMock`. GREEN: `catalogs/CatalogConfig.ts`, `services/{InterCatalogService,CatalogServiceHttp}.ts`, composer + mock extension. REFACTOR: none.
+- [x] T7.2 Filter and sort. RED: `domain/crud/filterSort.spec.ts` (S-CRUD-5 "lim" shows LIMA, clearing restores; S-CRUD-6 asc then desc). GREEN: `filterSort.ts`. REFACTOR: none.
+- [x] T7.3 List view model (supporting). RED: `domain/crud/listView.spec.ts` (`applyListView` filter -> sort -> page of 20; filter or sort change resets to page 1; truncation flag when `pagination.total > items.length`). GREEN: `listView.ts`. REFACTOR: none.
+- [x] T7.4 Toolbar gate and component. RED: `toolbarGate.spec.ts` + `shared/ui/CrudToolbar/CrudToolbar.spec.tsx` (S-CRUD-2 flags, S-CRUD-3 row-dependent, S-CRUD-4 click or shortcut denied sends nothing, S-SHELL-8 table-driven over each flag false; supporting: `export` renders disabled with "not available" tooltip). GREEN: `toolbarGate.ts`, `CrudToolbar/*`. REFACTOR: none. Gate, PR.
 
 Commits: (1) `feat(softcommerce): add catalog service and config contract` T7.1; (2) `feat(softcommerce): add list filter, sort and paging rules` T7.2+T7.3; (3) `feat(softcommerce): add permission-gated crud toolbar` T7.4.
 

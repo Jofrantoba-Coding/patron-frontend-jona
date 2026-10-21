@@ -165,3 +165,27 @@ Mode: Strict TDD. Status: T6.1-T6.5 done (commits and PR left to the orchestrato
 
 ### Orchestrator split (applied)
 Auto-chain split at task boundaries, each half gated alone. W1b-2 `feat/softcommerce-w1b-2-shell-ui` = T6.1+T6.2 (`c629574`, `5eb9544`; 273 lines; 28 files / 236 tests, typecheck 0, build 0). W1b-2b `feat/softcommerce-w1b-2b-shell-workspace` (base W1b-2) = T6.3+T6.4 (`abde16f`; intermediate gate 31 files / 251 tests, typecheck 0, build 0) and T6.5 (`ac15199`); 767 lines; final gate 32 files / 256 tests, typecheck 0, build 0.
+
+## Slice 7: W1c-1 list foundations (branch `feat/softcommerce-w1c-1-list-foundations`, base W1b-2b `ac15199`)
+
+Mode: Strict TDD. Status: T7.1-T7.4 done (commits and PR left to the orchestrator). Gate (from `web_ts/softcommerce`): `npm test` 37 files / 310 tests passed (54 new); `npm run typecheck` exit 0; `npm run build` ok (`AppServicesMock-*.js` 10.24 kB lazy chunk; entry `index-*.js` 245.82 kB, +0.49 kB).
+
+### TDD Cycle Evidence
+| Task | Test file | Layer | Safety net | RED observed | GREEN | Triangulate | Refactor |
+|------|-----------|-------|------------|--------------|-------|-------------|----------|
+| T7.1 | `services/CatalogServiceHttp.spec.ts`, `services/mock/AppServicesMock.spec.ts`, `services/composeServices.spec.ts`; shared `services/catalogServiceContract.ts` | Integration (live mock server) + unit | services dir 8 files / 87 baseline | 12 failed: `./CatalogServiceHttp` not found, `createAppServicesMock(...).catalog is not a function`, `composeServices(...).catalog is not a function` | 98/98 services | same contract on http and in-browser mock (list/paging/filter/get/404/create/422/update/logical remove/tenant 400+404), vacio empty page, errorServidor 500 on all 5 calls, wire query + encoded paths, S-LOC-20 no fetch and no mock chunk on bad config, per-name catalog in both modes | `as Page<T>` cast instead of `never` |
+| T7.2 | `domain/crud/filterSort.spec.ts` | Unit | N/A (new) | suite failed: `./filterSort` not found | 8/8 | S-CRUD-5 `lim` keeps LIMA, clear/blank restores, column subset, no match; S-CRUD-6 asc then desc, no input mutation, numeric/accent collation, header toggle cycle | none |
+| T7.3 | `domain/crud/listView.spec.ts` | Unit | T7.2 green | suite failed: `./listView` not found | 7/7 | 45 rows -> 3 pages of 20/20/5, filter then sort then page, clamp + empty, filter/sort change resets to page 1 but page change does not, truncation flag true/false | none |
+| T7.4 | `domain/crud/toolbarGate.spec.ts`, `shared/ui/CrudToolbar/CrudToolbar.spec.tsx` | Unit + component (jsdom, user-event) | T7.3 green | both suites failed: `./toolbarGate` / `./CrudToolbar` not found | 8 + 7 | S-CRUD-2, S-CRUD-3 with and without row, S-SHELL-8 table-driven over the 7 default actions (flag false -> disabled with all others true), S-CRUD-4 click denied sends nothing, shortcut path via `useCrudToolbarImpl` handler, export disabled + `No disponible` tooltip even when granted | `CrudToolbarViewProps` alias |
+
+### Deviations
+- S-LOC-20 additions went to `composeServices.spec.ts` (where `composeServices` is tested), not `serviceComposer.spec.ts`; `parseApiEnv` rules there already cover the same invalid inputs.
+- `AppServices.catalog<T>(name)` is a factory (one lazy service per catalog) rather than a single instance; the mock exposes the same factory over one shared store. Mock `list` forwards `filters` as `<field>=` query entries, same as the server.
+- Shortcuts: no key bindings yet (the spec names no keys). The Impl's gated `onAction` is the single path for click and shortcut, tested through `useCrudToolbarImpl`; binding keys belongs to the list view (W1c-2) which owns focus.
+- `CrudToolbar` tooltip lives on a wrapping `<span title>` (JButton has no title/aria passthrough); the landmark is `role="toolbar"` with `aria-label`. Wrapping uses `flex-wrap` inline style; jsdom cannot assert layout.
+- `toFailure` extraction not needed in this slice; left in `uilogin/UiLoginImpl.ts`.
+- `ListViewState.filterKeys` are passed separately to `applyListView` (derived from `config.columns` by the W1c-2 Impl).
+
+### Files (lines)
+`catalogs/CatalogConfig 28`; `services/{InterCatalogService 31, CatalogServiceHttp 20, CatalogServiceHttp.spec 46, catalogServiceContract 97}`; `domain/crud/{filterSort 29, filterSort.spec 68, listView 44, listView.spec 70, toolbarGate 49, toolbarGate.spec 63}`; `shared/ui/CrudToolbar/{InterCrudToolbar 33, CrudToolbarImpl 29, CrudToolbarView 22, CrudToolbar 9, index 3, CrudToolbar.spec 87}`; modified `serviceComposer.ts` +9, `AppServicesMock.ts` +14/-1, `AppServicesMock.spec.ts` +28, `composeServices.spec.ts` +27. Total about 800 changed lines (forecast 480, cap 800): production about 330, specs about 470; at the cap because the contract and wire specs are large.
+
