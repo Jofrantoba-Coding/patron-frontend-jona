@@ -42,3 +42,9 @@ export function withListViewChange(state: ListViewState, change: Partial<ListVie
 export function isTruncated({ total }: Pagination, fetched: number): boolean {
   return total > fetched;
 }
+
+/** Page that holds the row with `id` under the current filter and sort; undefined when it is filtered out. */
+export function pageOfRow<T>(rows: readonly T[], state: ListViewState, filterKeys: readonly (keyof T)[], idKey: keyof T, id: string): number | undefined {
+  const index = sortRows(filterRows(rows, state.filterText, filterKeys), state.sort).findIndex((row) => String(row[idKey]) === id);
+  return index < 0 ? undefined : Math.floor(index / LIST_PAGE_SIZE) + 1;
+}
