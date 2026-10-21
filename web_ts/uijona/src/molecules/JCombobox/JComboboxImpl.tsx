@@ -1,7 +1,11 @@
 ﻿// JComboboxImpl.tsx — JONA Implementation
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { JComboboxOption, InterJCombobox, JCOMBOBOX_MOLECULE_DEFAULTS } from './InterJCombobox';
 import { JComboboxView } from './JComboboxView';
+import { computeFloatingPosition, floatingStyle } from '../../lib/floating';
+
+/** Matches the list's CSS cap: max-h-[min(16rem,...)]. */
+const LIST_MAX_HEIGHT = 256;
 
 export const JComboboxImpl: React.FC<InterJCombobox> = (props) => {
   const merged = { ...JCOMBOBOX_MOLECULE_DEFAULTS, ...props };
@@ -22,10 +26,16 @@ export const JComboboxImpl: React.FC<InterJCombobox> = (props) => {
     o.label.toLowerCase().includes(query.toLowerCase())
   );
 
+  // Opens below the trigger, or above it when the viewport has no room below
+  // (lower half of a phone screen, on-screen keyboard). Uses the measured list
+  // height once rendered, the CSS max height before that.
   const updatePosition = () => {
     if (!triggerRef.current) return;
     const r = triggerRef.current.getBoundingClientRect();
-    setListStyle({ position: 'fixed', top: r.bottom + 4, left: r.left, width: r.width, zIndex: 50 });
+    const viewport = { width: window.innerWidth, height: window.innerHeight };
+    const height = listRef.current?.getBoundingClientRect().height || Math.min(LIST_MAX_HEIGHT, viewport.height - 32);
+    const position = computeFloatingPosition(r, { width: Math.min(r.width, viewport.width - 16), height }, viewport);
+    setListStyle(floatingStyle(position, { width: r.width }));
   };
 
   const openList = () => {
@@ -52,6 +62,9 @@ export const JComboboxImpl: React.FC<InterJCombobox> = (props) => {
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIndex((i) => Math.max(i - 1, 0)); }
     else if (e.key === 'Enter' && filtered[activeIndex]) { e.preventDefault(); handleSelect(filtered[activeIndex]); }
   };
+
+  // Re-measure once the list is in the DOM (real height may change the side)
+  useLayoutEffect(() => { if (open) updatePosition(); }, [open]);
 
   useEffect(() => {
     if (!open) return;

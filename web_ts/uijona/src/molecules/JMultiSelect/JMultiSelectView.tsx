@@ -45,7 +45,7 @@ export const JMultiSelectView: React.FC<JMultiSelectViewProps> = ({
         aria-disabled={disabled}
         onClick={disabled ? undefined : onTriggerClick}
         className={cn(
-          'flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1 text-sm transition-colors',
+          'flex min-h-11 w-full flex-wrap items-center gap-1 rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1 text-base transition-colors sm:min-h-9 sm:text-sm',
           open && 'ring-2 ring-primary-500',
           disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
         )}
@@ -76,7 +76,7 @@ export const JMultiSelectView: React.FC<JMultiSelectViewProps> = ({
 
       {/* Dropdown */}
       {open && createPortal(
-        <JPanel variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
+        <JPanel variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-[min(16rem,calc(100dvh-2rem))] max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
           <JPanel variant="ghost" padding="none" radius="none" className="border-b border-neutral-100 p-2">
             <JTextBox
               ref={inputRef}
@@ -86,7 +86,7 @@ export const JMultiSelectView: React.FC<JMultiSelectViewProps> = ({
               onKeyDown={onInputKeyDown}
               placeholder={searchPlaceholder}
               aria-label={searchPlaceholder}
-              className="h-8 w-full rounded border border-neutral-200 bg-white px-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="h-8 w-full rounded border border-neutral-200 bg-white px-2 text-base placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:text-sm"
             />
           </JPanel>
           {atMax && (
@@ -109,7 +109,7 @@ export const JMultiSelectView: React.FC<JMultiSelectViewProps> = ({
                     disabled={isDisabled}
                     onClick={() => onToggle(opt)}
                     className={cn(
-                      'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors',
+                      'flex min-h-11 w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors sm:min-h-0 sm:py-1.5',
                       isDisabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer hover:bg-neutral-50',
                       isSelected && 'font-medium text-primary-600'
                     )}

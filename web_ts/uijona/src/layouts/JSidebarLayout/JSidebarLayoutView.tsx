@@ -77,11 +77,15 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
         />
       )}
 
-      {/* Sidebar — fixed on mobile (overlay), static on desktop (in-flow) */}
+      {/* Sidebar — fixed on mobile (overlay), static on desktop (in-flow).
+          While the mobile drawer is open it behaves as a modal dialog. */}
       <JPanel
         as="aside"
         layout="box"
         style={{ width: effectiveWidth }}
+        role={mobileOpen ? 'dialog' : undefined}
+        aria-modal={mobileOpen ? true : undefined}
+        aria-label={mobileOpen ? 'Menú de navegación' : undefined}
         className={cn(
           'fixed inset-y-0 left-0 z-40 shrink-0 border-r border-neutral-200 bg-white transition-all duration-300 ease-in-out',
           'lg:static lg:z-auto',
@@ -89,6 +93,18 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
           sidebarClassName
         )}
       >
+        {mobileOpen && (
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            aria-label="Cerrar menú"
+            className="absolute right-1 top-1 z-10 inline-flex h-11 w-11 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 lg:hidden"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
         {header && (
           <JPanel
             layout="box"
@@ -157,7 +173,7 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
             onClick={onToggleMobile}
             aria-label="Abrir menú"
             aria-expanded={mobileOpen}
-            className="mr-3 rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="-ml-1.5 mr-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>

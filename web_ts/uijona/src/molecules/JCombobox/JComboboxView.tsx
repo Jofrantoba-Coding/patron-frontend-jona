@@ -45,7 +45,7 @@ export const JComboboxView: React.FC<JComboboxViewProps> = ({
       onClick={onTriggerClick}
       onKeyDown={onKeyDown}
       className={cn(
-        'flex h-9 w-full items-center justify-between rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1 text-sm transition-colors',
+        'flex min-h-11 w-full items-center justify-between rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1 text-base transition-colors sm:min-h-9 sm:text-sm',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-0',
         'disabled:cursor-not-allowed disabled:opacity-50',
         open && 'ring-2 ring-primary-500 ring-offset-0'
@@ -62,7 +62,7 @@ export const JComboboxView: React.FC<JComboboxViewProps> = ({
 
     {/* Dropdown panel */}
     {open && createPortal(
-      <JPanel variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
+      <JPanel variant="ghost" padding="none" radius="none" ref={listRef} style={listStyle} className="z-50 flex max-h-[min(16rem,calc(100dvh-2rem))] max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-neutral-200 bg-white shadow-lg">
         {/* Search */}
         <JPanel variant="ghost" padding="none" radius="none" className="border-b border-neutral-100 p-2">
           <JTextBox
@@ -72,7 +72,7 @@ export const JComboboxView: React.FC<JComboboxViewProps> = ({
             onChange={onQueryChange}
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder}
-            className="h-8 w-full rounded border border-neutral-200 bg-white px-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="h-8 w-full rounded border border-neutral-200 bg-white px-2 text-base placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:text-sm"
           />
         </JPanel>
         {/* Options */}
@@ -90,7 +90,7 @@ export const JComboboxView: React.FC<JComboboxViewProps> = ({
                 disabled={opt.disabled}
                 onClick={() => onSelect(opt)}
                 className={cn(
-                  'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors',
+                  'flex min-h-11 w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors sm:min-h-0 sm:py-1.5',
                   'focus-visible:outline-none',
                   opt.disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer',
                   i === activeIndex && 'bg-neutral-100',

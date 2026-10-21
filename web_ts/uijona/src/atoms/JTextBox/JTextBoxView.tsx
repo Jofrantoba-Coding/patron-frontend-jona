@@ -8,9 +8,12 @@ const variantClasses: Record<JTextBoxVariant, string> = {
   ghost:   'border-0 bg-transparent text-neutral-900',
 };
 
+// Mobile first: 16px text (iOS zooms into smaller focused fields) and a 44px
+// floor below sm:; the desktop size is restored at sm:. min-h survives a
+// caller's h-* through twMerge.
 const sizeClasses: Record<JTextBoxSize, string> = {
-  sm: 'h-7 px-3 text-xs rounded',
-  md: 'h-9 px-3 text-sm rounded-md',
+  sm: 'h-7 min-h-11 sm:min-h-0 px-3 text-base sm:text-xs rounded',
+  md: 'h-9 min-h-11 sm:min-h-0 px-3 text-base sm:text-sm rounded-md',
   lg: 'h-11 px-4 text-base rounded-md',
 };
 

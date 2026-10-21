@@ -14,8 +14,9 @@ const resizeClasses: Record<JTextAreaResize, string> = {
 };
 
 const sizeClasses: Record<JTextAreaSize, string> = {
-  sm: 'min-h-[60px] text-xs px-2 py-1.5',
-  md: 'min-h-[80px] text-sm px-3 py-2',
+  // 16px text below sm: so iOS does not zoom on focus.
+  sm: 'min-h-[60px] text-base sm:text-xs px-2 py-1.5',
+  md: 'min-h-[80px] text-base sm:text-sm px-3 py-2',
   lg: 'min-h-[100px] text-base px-4 py-2.5',
 };
 

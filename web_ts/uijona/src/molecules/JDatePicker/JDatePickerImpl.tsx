@@ -1,7 +1,11 @@
 // JDatePickerImpl.tsx — JONA Implementation
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { InterJDatePicker, JDATEPICKER_DEFAULTS } from './InterJDatePicker';
 import { JDatePickerView } from './JDatePickerView';
+import { computeFloatingPosition, floatingStyle } from '../../lib/floating';
+
+/** Panel size estimate used before the first render (then the real size is measured). */
+const PANEL_FALLBACK = { width: 352, desktopWidth: 320, height: 360 };
 
 type MaskToken   = 'yyyy' | 'MM' | 'dd' | 'HH' | 'mm' | 'ss' | 'XXX' | 'z';
 type MaskSegment = { type: 'token'; value: MaskToken } | { type: 'literal'; value: string };
@@ -246,12 +250,21 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
     props.onChange?.(next);
   };
 
+  // Measures the rendered panel (its width depends on the breakpoint) and
+  // flips it above the trigger when there is no room below.
   const updatePosition = () => {
     if (!triggerRef.current) return;
-    const r      = triggerRef.current.getBoundingClientRect();
-    const panelW = 320;
-    const left   = Math.min(r.left, window.innerWidth - panelW - 8);
-    setPanelStyle({ position: 'fixed', top: r.bottom + 4, left: Math.max(8, left), zIndex: 50 });
+    const r        = triggerRef.current.getBoundingClientRect();
+    const viewport = { width: window.innerWidth, height: window.innerHeight };
+    const measured = panelRef.current?.getBoundingClientRect();
+    const fallbackWidth = viewport.width >= 640
+      ? PANEL_FALLBACK.desktopWidth
+      : Math.min(PANEL_FALLBACK.width, viewport.width - 16);
+    const size = {
+      width:  measured?.width  || fallbackWidth,
+      height: measured?.height || PANEL_FALLBACK.height,
+    };
+    setPanelStyle(floatingStyle(computeFloatingPosition(r, size, viewport)));
   };
 
   const openCalendar = () => {
@@ -288,6 +301,9 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
     const parts = selectedParts ?? partsFromDate(base, null, props.timezone);
     emitValue({ ...parts, timezone: value });
   };
+
+  // Re-measure once the panel is in the DOM
+  useLayoutEffect(() => { if (open) updatePosition(); }, [open]);
 
   useEffect(() => {
     if (!open) return;

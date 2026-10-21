@@ -51,11 +51,11 @@ export const JBUTTON_VARIANTS: Record<JButtonVariant, string> = {
 export const JBUTTON_SIZES: Record<JButtonSize, string> = {
   xs:      '24px min-height. Espacios muy comprimidos.',
   sm:      '28px min-height. Dentro de tablas o listas.',
-  md:      '36px min-height. Tamaño por defecto.',
-  default: '36px min-height. Alias de md para compat.',
+  md:      '44px min-height en móvil, 36px desde sm:. Tamaño por defecto.',
+  default: '44px min-height en móvil, 36px desde sm:. Alias de md para compat.',
   lg:      '44px min-height. Acciones destacadas.',
   xl:      '56px min-height. Hero o calls to action.',
-  icon:    '36×36 cuadrado. Solo icono, sin texto.',
+  icon:    '44×44 mínimo en móvil, 36×36 desde sm:. Solo icono, sin texto.',
 };
 
 export const JBUTTON_ICON_POSITIONS: Record<JButtonIconPosition, string> = {

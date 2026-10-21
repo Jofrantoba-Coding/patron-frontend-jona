@@ -21,14 +21,16 @@ const iconPositionClasses: Record<'left' | 'right' | 'top' | 'bottom', string> =
   bottom: 'flex-col-reverse',
 };
 
+// md/default/icon: 44px touch target below sm:, desktop density from sm: up.
+// min-* (not h-*/w-*) so the floor survives a caller's h-*/w-* through twMerge.
 const sizeClasses: Record<JButtonSize, string> = {
   xs:      'min-h-6 px-2 py-0.5 text-xs rounded',
   sm:      'min-h-7 px-3 py-1 text-xs rounded-md',
-  md:      'min-h-9 px-4 py-2 text-sm rounded-md',
-  default: 'min-h-9 px-4 py-2 text-sm rounded-md',
+  md:      'min-h-11 sm:min-h-9 px-4 py-2 text-sm rounded-md',
+  default: 'min-h-11 sm:min-h-9 px-4 py-2 text-sm rounded-md',
   lg:      'min-h-11 px-6 py-2 text-base rounded-md',
   xl:      'min-h-14 px-8 py-3 text-lg rounded-lg',
-  icon:    'h-9 w-9 p-0 rounded-md',
+  icon:    'h-9 w-9 min-h-11 min-w-11 sm:min-h-9 sm:min-w-9 p-0 rounded-md',
 };
 
 interface JButtonViewProps extends InterJButton {

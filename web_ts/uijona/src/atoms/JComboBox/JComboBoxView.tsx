@@ -6,9 +6,10 @@ interface JComboBoxViewProps extends InterJComboBox {
   forwardedRef?: React.Ref<HTMLSelectElement>;
 }
 
+// Mobile first: 16px text + 44px floor below sm: (see JTextBox).
 const sizeClasses: Record<JComboBoxSize, string> = {
-  sm: 'h-7 text-xs px-2 py-0.5',
-  md: 'h-9 text-sm px-3 py-1',
+  sm: 'h-7 min-h-11 sm:min-h-0 text-base sm:text-xs px-2 py-0.5',
+  md: 'h-9 min-h-11 sm:min-h-0 text-base sm:text-sm px-3 py-1',
   lg: 'h-11 text-base px-4 py-2',
 };
 

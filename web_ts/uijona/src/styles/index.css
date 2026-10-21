@@ -931,3 +931,15 @@
 @media (prefers-reduced-motion: reduce) {
   .jhero-word { animation: none; }
 }
+
+/* iOS zooms the page when a focused field is under 16px. Many call sites pass
+ * `text-sm`/`text-xs` to the input atoms, which twMerge lets win over the
+ * atoms' mobile `text-base`, so this unlayered rule (after the utilities, same
+ * specificity) restores 16px below sm:. Desktop sizes are untouched. */
+@media (max-width: 639.98px) {
+  .jtextbox,
+  .jcombobox,
+  .jtextarea {
+    font-size: 1rem;
+  }
+}

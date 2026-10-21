@@ -89,7 +89,7 @@ export const JTabsTriggerView: React.FC<JTabsTriggerViewProps> = ({
       }}
       onFocus={() => onTabFocus?.(value)}
       className={cn(
-        'inline-flex max-w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 text-sm font-medium transition-all duration-200',
+        'inline-flex min-h-11 max-w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 text-sm font-medium transition-all duration-200 sm:min-h-9',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
         'disabled:pointer-events-none disabled:opacity-50',
         variant === 'pill'

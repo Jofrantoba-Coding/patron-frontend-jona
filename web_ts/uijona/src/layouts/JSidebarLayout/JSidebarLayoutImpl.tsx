@@ -15,6 +15,14 @@ export const JSidebarLayoutImpl: React.FC<InterJSidebarLayout> = (props) => {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  // Escape closes the mobile drawer (it is a modal dialog while open)
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMobileOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [mobileOpen]);
+
   const handleItemClick = (item: SidebarNavItem) => {
     item.onClick?.();
     props.onNavItemClick?.(item);

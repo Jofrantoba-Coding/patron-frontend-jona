@@ -65,8 +65,13 @@ function pad(value: number): string {
   return String(value).padStart(2, '0');
 }
 
+// Mobile first: 44px / 16px below sm:, compact desktop size from sm: up.
 const inputClass =
-  'h-8 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm text-neutral-900 ' +
+  'h-11 w-full rounded-md border border-neutral-300 bg-white px-2 text-base text-neutral-900 sm:h-8 sm:text-sm ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500';
+
+const navButtonClass =
+  'flex h-11 w-11 items-center justify-center rounded hover:bg-neutral-100 disabled:opacity-30 sm:h-7 sm:w-7 ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500';
 
 export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
@@ -88,7 +93,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
       <div
         ref={triggerRef}
         className={cn(
-          'flex h-9 w-full flex-row items-center rounded-md border border-neutral-300 bg-neutral-50 text-sm transition-colors',
+          'flex h-11 w-full flex-row items-center rounded-md border border-neutral-300 bg-neutral-50 text-sm transition-colors sm:h-9',
           'focus-within:ring-2 focus-within:ring-primary-500',
           disabled && 'cursor-not-allowed opacity-50',
           open      && 'ring-2 ring-primary-500',
@@ -103,7 +108,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           placeholder={placeholder}
           aria-label={placeholder || 'Fecha'}
           className={cn(
-            'min-w-0 flex-1 rounded-l-md rounded-r-none border-0 bg-transparent px-3 py-1 text-sm text-neutral-900',
+            'h-full min-h-0 min-w-0 flex-1 rounded-l-md rounded-r-none border-0 bg-transparent px-3 py-1 text-base text-neutral-900 sm:text-sm',
             'placeholder:text-neutral-400 focus-visible:ring-0 disabled:cursor-not-allowed',
           )}
         />
@@ -115,7 +120,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           aria-haspopup="dialog"
           aria-expanded={open}
           className={cn(
-            'flex h-full w-9 shrink-0 items-center justify-center rounded-r-md text-neutral-500 transition-colors',
+            'flex h-full w-11 shrink-0 items-center justify-center rounded-r-md text-neutral-500 transition-colors sm:w-9',
             'hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
             'disabled:cursor-not-allowed disabled:opacity-50',
           )}
@@ -136,7 +141,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           role="dialog"
           aria-label="Calendario"
           style={panelStyle}
-          className="z-50 w-80 max-w-[calc(100vw-16px)] rounded-lg border border-neutral-200 bg-white p-3 shadow-xl"
+          className="z-50 max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[22rem] overflow-y-auto rounded-lg border border-neutral-200 bg-white p-3 shadow-xl sm:w-80"
         >
           {/* Navegación mes/año */}
           <div className="mb-2 flex flex-row items-center justify-between gap-2">
@@ -145,7 +150,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
               onClick={onPrevMonth}
               disabled={!canPrev}
               aria-label="Mes anterior"
-              className="flex h-7 w-7 items-center justify-center rounded hover:bg-neutral-100 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              className={navButtonClass}
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <polyline points="15 18 9 12 15 6" />
@@ -159,7 +164,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
               onClick={onNextMonth}
               disabled={!canNext}
               aria-label="Mes siguiente"
-              className="flex h-7 w-7 items-center justify-center rounded hover:bg-neutral-100 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              className={navButtonClass}
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <polyline points="9 18 15 12 9 6" />
@@ -192,7 +197,8 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                   })}
                   aria-pressed={isSelected}
                   className={cn(
-                    'mx-auto flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors',
+                    // Fills its 1/7 column up to 44px on phones (7 x 44px > 320px screens)
+                    'mx-auto flex h-11 w-full max-w-11 items-center justify-center rounded-full text-sm transition-colors sm:h-8 sm:w-8',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
                     isDisabled
                       ? 'cursor-not-allowed opacity-30'

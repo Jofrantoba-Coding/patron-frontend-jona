@@ -1,7 +1,11 @@
 ﻿// JMultiSelectImpl.tsx — JONA Implementation
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { InterJMultiSelect, JMultiSelectOption, JMULTI_SELECT_DEFAULTS } from './InterJMultiSelect';
 import { JMultiSelectView } from './JMultiSelectView';
+import { computeFloatingPosition, floatingStyle } from '../../lib/floating';
+
+/** Matches the list's CSS cap: max-h-[min(16rem,...)]. */
+const LIST_MAX_HEIGHT = 256;
 
 export const JMultiSelectImpl: React.FC<InterJMultiSelect> = (props) => {
   const merged = { ...JMULTI_SELECT_DEFAULTS, ...props };
@@ -17,10 +21,16 @@ export const JMultiSelectImpl: React.FC<InterJMultiSelect> = (props) => {
   const selected = props.options.filter((o) => currentValues.includes(o.value));
   const filtered = props.options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()));
 
+  // Opens below the trigger, or above it when the viewport has no room below
+  // (lower half of a phone screen, on-screen keyboard). Uses the measured list
+  // height once rendered, the CSS max height before that.
   const updatePosition = () => {
     if (!triggerRef.current) return;
     const r = triggerRef.current.getBoundingClientRect();
-    setListStyle({ position: 'fixed', top: r.bottom + 4, left: r.left, width: r.width, zIndex: 50 });
+    const viewport = { width: window.innerWidth, height: window.innerHeight };
+    const height = listRef.current?.getBoundingClientRect().height || Math.min(LIST_MAX_HEIGHT, viewport.height - 32);
+    const position = computeFloatingPosition(r, { width: Math.min(r.width, viewport.width - 16), height }, viewport);
+    setListStyle(floatingStyle(position, { width: r.width }));
   };
 
   const openList = () => { updatePosition(); setOpen(true); setQuery(''); setTimeout(() => inputRef.current?.focus(), 0); };
@@ -46,6 +56,9 @@ export const JMultiSelectImpl: React.FC<InterJMultiSelect> = (props) => {
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') { closeList(); }
   };
+
+  // Re-measure once the list is in the DOM (real height may change the side)
+  useLayoutEffect(() => { if (open) updatePosition(); }, [open]);
 
   useEffect(() => {
     if (!open) return;
