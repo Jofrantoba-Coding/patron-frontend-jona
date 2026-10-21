@@ -70,3 +70,39 @@ Scenario coverage: S-AUTH-22 (httpClient.spec, AuthServiceHttp.spec), S-AUTH-1/2
 
 ### Files (lines)
 `ApiError.ts` 54, `httpClient.ts` 85, `lazyService.ts` 25, `serviceComposer.ts` 90, `InterAuthService.ts` 53, `AuthServiceHttp.ts` 18, `mock/AppServicesMock.ts` 90, `mock/seed.ts` 18, `mock/fixtures/{types 6, exitoso 4, vacio 17, errorServidor 8}`, specs: `httpClient` 133, `lazyService` 58, `serviceComposer` 89, `composeServices` 73, `authServiceContract.ts` 97, `AuthServiceHttp` 39, `AppServicesMock` 47; `tsconfig.app.json` +1. Total 1004 lines (budget 800, forecast 430; over the 720 guard, see the split proposal in the hand-back).
+
+## Slice 4 (W1a-4) - branch `feat/softcommerce-w1a-4-auth-ui`
+
+Mode: Strict TDD. Status: T4.1-T4.5 done (commits and PR left to the orchestrator). Gate (from `web_ts/softcommerce`): `npm test` 20 files / 177 tests passed (44 new); `npm run typecheck` exit 0; `npm run build` exit 0 (342 modules; `dist/assets/AppServicesMock-*.js` 6.83 kB stays a separate lazy chunk and is the only file containing `admin123`/`COMERCIAL DEMO`/`mock-token`; entry `index-*.js` 227.73 kB). Runtime harness (http mode via inline env `VITE_API_MODE=http VITE_API_URL=http://localhost:4020`, no `.env.local` written): `PORT=4020 node mock-server/server.js` answered `GET /auth/session-options` 200, `POST /auth/login` (demo, admin) returned `{token,user}`, `GET /v1/empresas` returned the demo empresas; `vite --port 5199` served the index and `/src/main.tsx`, `/src/App.tsx`, `/src/views/uilogin/UiLogin.tsx`, `/src/views/uicontexto/UiContexto.tsx` with 200. Both processes stopped. No browser was available, so the end-to-end click path is covered by `App.spec.tsx` (real store + mock auth service) instead.
+
+### TDD Cycle Evidence
+| Task | Test file | Layer | Safety net | RED observed | GREEN | Triangulate | Refactor |
+|------|-----------|-------|------------|--------------|-------|-------------|----------|
+| T4.1 | `src/domain/period.spec.ts` | Unit (node) | 133/133 slice 1-3 tests green | suite failed: `./period` not found | 10/10 | each rule alone (valid/invalid + boundary), S-AUTH-11 (impossible, empty, either field), 12, 13, 14, 15, ordinary range | rules are independent exported functions; `validatePeriod` returns the first violation |
+| T4.2 | `src/session/session.spec.tsx` | Unit + component (jsdom) | T4.1 green | suite failed: `./sessionStore`, `./SessionProvider`, `./RequireSession` not found; after GREEN one test still failed (RTL auto-cleanup off, duplicate buttons) | 9/9 after adding `test/setup.ts` cleanup | persist + restore, pending memory-only, context precedence, corrupt JSON, clear, subscribe/unsubscribe, S-AUTH-19 redirect, protected render, S-AUTH-18 logout | none |
+| T4.3 | `src/views/uilogin/UiLogin.spec.tsx` | Component (jsdom, user-event, fake service) | T4.2 green | suite failed: `./UiLogin` not found | 10/10 | tenants load, S-AUTH-5 (one empty field; all empty), success to step 2 with memory-only result, S-AUTH-6/7/8 table, S-AUTH-20 Enter once, S-AUTH-21 message + traceId, tenants load failure | value-first callbacks; `validateLoginForm` and `toFailure` kept pure and exported |
+| T4.4 | `src/views/uicontexto/UiContexto.spec.tsx` | Component (jsdom, user-event, fake service) | T4.3 green | suite failed: `./UiContexto` not found | 12/12 | S-AUTH-9, S-AUTH-10 (clear + reload), required selections, S-AUTH-11 x2, 12, 13, 14, 15, 16 (full session shape + sessionStorage), params failure with traceId, A7 redirect | none |
+| T4.5 | `src/App.spec.tsx` | Integration (real store + real mock auth service, `delayMs: 0`) | T4.4 green | suite failed: `./App` not found | 3/3 | guard redirect, full login -> context -> placeholder, disabled account stays on step 1 | `main.tsx` wires store, `composeServices(import.meta.env, {getSession: store.getContext})`, `BrowserRouter`; config errors render as an alert |
+
+Scenario coverage: S-AUTH-11..15 (period.spec + UiContexto.spec), S-AUTH-18/19 (session.spec), S-AUTH-5..8, 20, 21 (UiLogin.spec), S-AUTH-9, 10, 16 (UiContexto.spec).
+
+### Work Unit Evidence
+| Evidence | Value |
+|---|---|
+| Focused test command | `npx vitest run src/domain/period src/session src/views/uilogin src/views/uicontexto src/App`: 5 files, 44 tests passed |
+| Runtime harness | See above (http mode, mock on 4020, dev on 5199) |
+| Rollback boundary | `src/{session,domain/period*,views/uilogin,views/uicontexto}`, `src/App*`, `src/main.tsx`, `test/setup.ts`, `vite.config.ts` (+1 line), `react-router-dom` in `package.json` |
+
+### Deviations
+- **New pinned dependency** `react-router-dom@6.30.6` (exact, same major as codex). Needed for the redirecting guard (S-AUTH-19) and the `/login` -> `/contexto` -> `/` flow. `package-lock.json` +43/-1.
+- **View is pure, entry wires the hook.** The RUP diagrams draw `UiLoginView` -> `useUiLoginImpl` -> `UiLogin`; apply follows `jona.md` and the user convention instead: `UiLoginView.tsx` is a pure render, `UiLogin.tsx` is the public entry that calls `useUiLoginImpl(service)` and renders the View. Same for `UiContexto`. Diagram labels for these two nodes should be swapped (View and visual roles).
+- **No `useServices()`.** `App` receives `services` and `store` as props and passes `services.auth` to `UiLogin`/`UiContexto`; the Impl hooks receive the service injected and read the session via `useSession()`.
+- **Params are loaded on confirm, before the period rules.** The CU-02 flow lists rules then params, but BR-02-2 needs `INICIO_ACTIVIDADES`, which only `params()` provides, so `params()` runs first. Params failure shows the server message and traceId, no session.
+- **Step-1 result in the store, memory only.** `sessionStore` holds `pending` (never written to storage) so `getContext()` returns the pending tenant/token for the step-2 requests; `setSession` clears it.
+- `test/setup.ts` (+ `setupFiles` in `vite.config.ts`) registers Testing Library `cleanup` because Vitest globals are off.
+- `toFailure` (error to message/traceId) lives in `UiLoginImpl.ts` and is reused by `UiContextoImpl.ts`; extract to a shared module if a third view needs it.
+- `ShellPlaceholder` (user name only, no logout button) stands in until W1b-2 (T6.5).
+- Router future flags set on `BrowserRouter` in `main.tsx`; tests use bare `MemoryRouter` and print the v6 future-flag warnings.
+
+### Files (lines; package-lock.json +43/-1 excluded)
+`domain/period.ts` 45, `period.spec.ts` 64; `session/{sessionStore 72, SessionProvider 34, RequireSession 9, session.spec 124}`; `views/uilogin/{InterUiLogin 35, UiLoginImpl 109, UiLoginView 75, UiLogin 10, index 2, UiLogin.spec 143}`; `views/uicontexto/{InterUiContexto 38, UiContextoImpl 131, UiContextoView 72, UiContexto 10, index 2, UiContexto.spec 164}`; `App.tsx` 27, `App.spec.tsx` 61, `test/setup.ts` 5; `main.tsx` +21/-6, `vite.config.ts` +1, `package.json` +2/-1. Total about 1263 changed lines (budget 800, forecast 600; over the 720 guard). Suggested split at a task boundary: 4a = T4.1+T4.2+T4.3 (about 731 lines incl. `package.json`/`vite.config.ts`/`test/setup.ts`), 4b = T4.4+T4.5 (about 532 lines).

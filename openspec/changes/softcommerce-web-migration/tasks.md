@@ -92,11 +92,11 @@ Commits: (1) `feat(softcommerce): add ApiError and http client` T3.1; (2) `feat(
 
 ## Slice 4: W1a-4 auth UI (branch `feat/softcommerce-w1a-4-auth-ui`, base: slice 3)
 
-- [ ] T4.1 Period rules. RED: `src/domain/period.spec.ts` (S-AUTH-11 invalid date, S-AUTH-12 before INICIO_ACTIVIDADES, S-AUTH-13 fin before inicio, S-AUTH-14 different accounting year, S-AUTH-15 boundary valid). GREEN: `domain/period.ts`. REFACTOR: per-rule independent functions.
-- [ ] T4.2 Session. RED: `src/session/session.spec.tsx` (S-AUTH-18 logout clears and login step 1 shows, S-AUTH-19 guard redirects; supporting: `sessionStorage` key `softcommerce.session.v1`, step-1 result memory-only). GREEN: `sessionStore.ts`, `SessionProvider.tsx`, `RequireSession.tsx`. REFACTOR: none.
-- [ ] T4.3 Login step 1 (JONA view unit). RED: `views/uilogin/UiLogin.spec.tsx` with injected fake service (S-AUTH-5 empty fields, S-AUTH-6 disabled user, S-AUTH-7 no desktop access, S-AUTH-8 bad credentials, S-AUTH-20 Enter submits once, S-AUTH-21 server message + `traceId` in details). GREEN: `InterUiLogin.ts` (DEFAULTS without state values), `UiLoginImpl.ts`, `UiLoginView.tsx`, `UiLogin.tsx`, `index.ts`. REFACTOR: value-first callbacks.
-- [ ] T4.4 Context step 2. RED: `views/uicontexto/UiContexto.spec.tsx` (S-AUTH-9 tenant-scoped empresas and puntos de venta, S-AUTH-10 punto de venta reloads and clears on empresa change, S-AUTH-16 session holds tenant/user/empresa/punto/period/params and navigates). GREEN: `views/uicontexto/*` same five files. REFACTOR: none.
-- [ ] T4.5 `src/App.tsx` routing (login, context, protected placeholder for the shell). Gate, PR.
+- [x] T4.1 Period rules. RED: `src/domain/period.spec.ts` (S-AUTH-11 invalid date, S-AUTH-12 before INICIO_ACTIVIDADES, S-AUTH-13 fin before inicio, S-AUTH-14 different accounting year, S-AUTH-15 boundary valid). GREEN: `domain/period.ts`. REFACTOR: per-rule independent functions.
+- [x] T4.2 Session. RED: `src/session/session.spec.tsx` (S-AUTH-18 logout clears and login step 1 shows, S-AUTH-19 guard redirects; supporting: `sessionStorage` key `softcommerce.session.v1`, step-1 result memory-only). GREEN: `sessionStore.ts`, `SessionProvider.tsx`, `RequireSession.tsx`. REFACTOR: none.
+- [x] T4.3 Login step 1 (JONA view unit). RED: `views/uilogin/UiLogin.spec.tsx` with injected fake service (S-AUTH-5 empty fields, S-AUTH-6 disabled user, S-AUTH-7 no desktop access, S-AUTH-8 bad credentials, S-AUTH-20 Enter submits once, S-AUTH-21 server message + `traceId` in details). GREEN: `InterUiLogin.ts` (DEFAULTS without state values), `UiLoginImpl.ts`, `UiLoginView.tsx`, `UiLogin.tsx`, `index.ts`. REFACTOR: value-first callbacks.
+- [x] T4.4 Context step 2. RED: `views/uicontexto/UiContexto.spec.tsx` (S-AUTH-9 tenant-scoped empresas and puntos de venta, S-AUTH-10 punto de venta reloads and clears on empresa change, S-AUTH-16 session holds tenant/user/empresa/punto/period/params and navigates). GREEN: `views/uicontexto/*` same five files. REFACTOR: none.
+- [x] T4.5 `src/App.tsx` routing (login, context, protected placeholder for the shell). Gate, PR.
 
 Commits: (1) `feat(softcommerce): add period validation rules` T4.1; (2) `feat(softcommerce): add session store and guard` T4.2; (3) `feat(softcommerce): add login step with account rejection` T4.3; (4) `feat(softcommerce): add context selection and routing` T4.4+T4.5.
 
