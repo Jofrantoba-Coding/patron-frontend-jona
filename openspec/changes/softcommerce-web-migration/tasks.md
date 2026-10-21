@@ -102,11 +102,11 @@ Commits: (1) `feat(softcommerce): add period validation rules` T4.1; (2) `feat(s
 
 ## Slice 5: W1b-1 shell domain (branch `feat/softcommerce-w1b-1-shell-domain`, base: slice 4)
 
-- [ ] T5.1 Menu tree. RED: `domain/menuTree.spec.ts` (S-SHELL-1 2-level nesting by `id_menu_padre`, S-SHELL-2 a different payload renders equal, nothing hardcoded). GREEN: `domain/menuTree.ts` (`buildMenuTree`). REFACTOR: none.
-- [ ] T5.2 MenuTree component. RED: `shared/ui/MenuTree/MenuTree.spec.tsx` (S-SHELL-3 submenu toggle; supporting: leaf click callback, `menu_item='N'` is a submenu). GREEN: `MenuTree/{InterMenuTree,MenuTreeImpl,MenuTreeView,MenuTree,index}`. REFACTOR: none.
-- [ ] T5.3 Workspace reducer. RED: `domain/workspace.spec.ts` (S-SHELL-12 closing the middle active tab activates a neighbor; supporting: `open` re-selects when present with no duplicate, `select`, close last gives empty). GREEN: `domain/workspace.ts`. REFACTOR: none.
-- [ ] T5.4 Permissions and dialog stack (supporting). RED: `domain/permissions.spec.ts` (13 flags parsed, failure yields all false), `domain/dialogStack.spec.ts` (push, pop, top, remove by id). GREEN: `permissions.ts`, `dialogStack.ts`. REFACTOR: none.
-- [ ] T5.5 Shell service. RED: `ShellServiceHttp.spec.ts` (live server: menu, permissions) and mock parity in `AppServicesMock.spec.ts`. GREEN: `InterShellService.ts`, `ShellServiceHttp.ts`, extend `mock/AppServicesMock.ts` and composer. Gate, PR.
+- [x] T5.1 Menu tree. RED: `domain/menuTree.spec.ts` (S-SHELL-1 2-level nesting by `id_menu_padre`, S-SHELL-2 a different payload renders equal, nothing hardcoded). GREEN: `domain/menuTree.ts` (`buildMenuTree`). REFACTOR: none.
+- [x] T5.2 MenuTree component. RED: `shared/ui/MenuTree/MenuTree.spec.tsx` (S-SHELL-3 submenu toggle; supporting: leaf click callback, `menu_item='N'` is a submenu). GREEN: `MenuTree/{InterMenuTree,MenuTreeImpl,MenuTreeView,MenuTree,index}`. REFACTOR: none.
+- [x] T5.3 Workspace reducer. RED: `domain/workspace.spec.ts` (S-SHELL-12 closing the middle active tab activates a neighbor; supporting: `open` re-selects when present with no duplicate, `select`, close last gives empty). GREEN: `domain/workspace.ts`. REFACTOR: none.
+- [x] T5.4 Permissions and dialog stack (supporting). RED: `domain/permissions.spec.ts` (13 flags parsed, failure yields all false), `domain/dialogStack.spec.ts` (push, pop, top, remove by id). GREEN: `permissions.ts`, `dialogStack.ts`. REFACTOR: none.
+- [x] T5.5 Shell service. RED: `ShellServiceHttp.spec.ts` (live server: menu, permissions) and mock parity in `AppServicesMock.spec.ts`. GREEN: `InterShellService.ts`, `ShellServiceHttp.ts`, extend `mock/AppServicesMock.ts` and composer. Gate, PR.
 
 Commits: (1) `feat(softcommerce): add menu tree builder and component` T5.1+T5.2; (2) `feat(softcommerce): add tab workspace reducer` T5.3; (3) `feat(softcommerce): add permissions, dialog stack and shell service` T5.4+T5.5.
 

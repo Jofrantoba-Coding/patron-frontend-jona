@@ -106,3 +106,28 @@ Scenario coverage: S-AUTH-11..15 (period.spec + UiContexto.spec), S-AUTH-18/19 (
 
 ### Files (lines; package-lock.json +43/-1 excluded)
 `domain/period.ts` 45, `period.spec.ts` 64; `session/{sessionStore 72, SessionProvider 34, RequireSession 9, session.spec 124}`; `views/uilogin/{InterUiLogin 35, UiLoginImpl 109, UiLoginView 75, UiLogin 10, index 2, UiLogin.spec 143}`; `views/uicontexto/{InterUiContexto 38, UiContextoImpl 131, UiContextoView 72, UiContexto 10, index 2, UiContexto.spec 164}`; `App.tsx` 27, `App.spec.tsx` 61, `test/setup.ts` 5; `main.tsx` +21/-6, `vite.config.ts` +1, `package.json` +2/-1. Total about 1263 changed lines (budget 800, forecast 600; over the 720 guard). Suggested split at a task boundary: 4a = T4.1+T4.2+T4.3 (about 731 lines incl. `package.json`/`vite.config.ts`/`test/setup.ts`), 4b = T4.4+T4.5 (about 532 lines).
+
+
+## Slice 5 (W1b-1) - branch `feat/softcommerce-w1b-1-shell-domain`
+
+Mode: Strict TDD. Status: T5.1-T5.5 done (commits and PR left to the orchestrator). Gate (from `web_ts/softcommerce`): `npm test` 26 files / 227 tests passed (50 new); `npm run typecheck` exit 0; `npm run build` exit 0 (`AppServicesMock-*.js` 7.23 kB stays the lazy mock chunk; entry `index-*.js` 230.03 kB). No `mock-server` change: `GET /menu` and `GET /forms/{id}/permissions` already existed with core and http specs.
+
+### TDD Cycle Evidence
+| Task | Test file | Layer | Safety net | RED observed | GREEN | Triangulate | Refactor |
+|------|-----------|-------|------------|--------------|-------|-------------|----------|
+| T5.1 | `src/domain/menuTree.spec.ts` | Unit (node) | N/A (new) | suite failed: `./menuTree` not found | 5/5 | S-SHELL-1 two levels, deeper nesting with child before parent, S-SHELL-2 other payload + empty, real seed file, orphan becomes root | none |
+| T5.2 | `src/shared/ui/MenuTree/MenuTree.spec.tsx` | Component (jsdom, user-event) | T5.1 green | suite failed: `./MenuTree` not found | 5/5 | S-SHELL-3 toggle open/close with `aria-expanded`, independent nested toggles, leaf callback at any depth, `N` without children is a submenu, other payload | none |
+| T5.3 | `src/domain/workspace.spec.ts` | Unit (node) | T5.2 green | suite failed: `./workspace` not found | 12/12 | open new/first/re-select, select known/unknown, S-SHELL-12 middle, last, first, inactive close, close last gives empty, unknown close, S-SHELL-14 reopen | none |
+| T5.4 | `src/domain/permissions.spec.ts`, `dialogStack.spec.ts` | Unit (node) | T5.3 green | both suites failed: modules not found | 13/13 | 13 flags order, full parse, strict `=== true` and extras dropped, 5 non-object payloads fail closed; push/pop/top/remove, immutability, duplicate push | none |
+| T5.5 | `src/services/ShellServiceHttp.spec.ts`, `mock/AppServicesMock.spec.ts`, `composeServices.spec.ts` | Integration (live mock server) + unit | 59/59 services tests green | 8 failures + `ShellServiceHttp` not found | 74/74 services | shared `shellServiceContract` runs on http and mock (menu, permissions, unknown form, 400/404), wire (url, headers, encoding, malformed payload), vacio keeps shell data, errorServidor 500, composer both modes | `tenantGate` reused in the mock; block bodies |
+
+### Deviations
+- **`MenuItem`/`MenuNode` live in `domain/menuTree.ts`** and `InterShellService` imports them (domain stays free of service imports).
+- **MenuTree props take the flat payload** (`items`, `onLeafSelect`); the Impl builds the tree with `buildMenuTree` and holds `expandedIds`. The View renders `JButton variant="ghost"` with `min-h-11 sm:min-h-9` floors and inline indent; submenus are `li[role=treeitem][aria-expanded]` (JButton exposes no aria props).
+- **Orphans surface as roots**, `pushDialog` ignores a duplicate id, `select`/`close` of an unknown id return the same state: the spec was silent; each is covered by a test.
+- **Neighbor rule on close**: the tab that takes the closed slot (next), else the previous.
+- **`ShellServiceHttp` parses permissions through `parsePermissions`**, so a malformed payload fails closed even over http. `encodeURIComponent` on the form id.
+- Shared test support `services/shellServiceContract.ts` follows `authServiceContract.ts`. No jest-dom in the project, so assertions use plain DOM (`getAttribute`).
+
+### Files (lines)
+`domain/{menuTree 31, menuTree.spec 59, workspace 42, workspace.spec 93, permissions 21, permissions.spec 36, dialogStack 22, dialogStack.spec 38}`; `shared/ui/MenuTree/{InterMenuTree 17, MenuTreeImpl 25, MenuTreeView 34, MenuTree 9, index 3, MenuTree.spec 75}`; `services/{InterShellService 13, ShellServiceHttp 13, ShellServiceHttp.spec 39, shellServiceContract 68}`; modified `serviceComposer.ts` +7, `mock/AppServicesMock.ts` +25/-2, `mock/AppServicesMock.spec.ts` +27, `composeServices.spec.ts` +18. Total about 717 changed lines (budget 800, forecast 450).
