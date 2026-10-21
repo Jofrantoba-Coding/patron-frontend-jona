@@ -1,0 +1,38 @@
+schema: spec-driven
+project: patron-frontend-jona
+artifact_store: hybrid
+execution_mode: auto
+delivery_strategy: auto-chain
+review_budget_lines: 800
+strict_tdd: true
+
+context: |
+  Monorepo of the JONA frontend pattern. web_ts/ holds multiple implementations
+  (React variants, Angular, Vue, pure TS), the uijona React design system
+  (J-prefixed components; atoms/molecules/organisms/layouts/pages/hooks/styles),
+  and h2h (Angular 21 console + node mock-server + openapi).
+  desktop_java/softcommerce-desktop is a legacy Java Swing app (~1549 java files).
+  appjona_codex_react_hooks uses a THC-C style service seam
+  (InterAuthService + authServiceComposer + AuthServiceHttp/AuthServiceMock + typed fixtures).
+  Conventions: DEFAULTS without state values, value-first normalized callbacks,
+  presentational ToastAtom. Technical artifacts in English.
+
+testing:
+  strict_tdd: true
+  note: per-subproject runners; no single root runner
+  projects:
+    web_ts/uijona:
+      runner: vitest ^1.6.0
+      command: npm test   # vitest run
+      typecheck: npm run lint   # tsc --noEmit
+      storybook: storybook 8.6
+    web_ts/appjona_codex_react_hooks:
+      runner: vitest 2.1.9 (jsdom, @testing-library/react)
+      command: npm test   # vitest run
+      typecheck: npm run typecheck   # tsc --noEmit
+    web_ts/h2h/console:
+      runner: ng test (Angular 21, vitest ^4.0.8)
+      command: npm test
+    desktop_java/softcommerce-desktop:
+      runner: not detected
+  ci: .github/workflows (deploy.yml, publish-npm.yml)
