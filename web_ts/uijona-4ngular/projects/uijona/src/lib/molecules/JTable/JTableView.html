@@ -3,7 +3,17 @@
   Sin logica: solo estructura y bindings.
 -->
 <div [class]="cn(outer(), wrapperClassName())">
-  <div [class]="inner()">
+  @if (responsiveMode() === 'scroll') {
+    <p class="px-1 pb-2 text-xs text-neutral-500 sm:hidden">
+      Deslice horizontalmente para consultar todas las columnas.
+    </p>
+  }
+  <div
+    [class]="inner()"
+    [attr.role]="responsiveMode() === 'scroll' ? 'region' : null"
+    [attr.tabindex]="responsiveMode() === 'scroll' ? 0 : null"
+    [attr.aria-label]="responsiveMode() === 'scroll' ? 'Tabla desplazable horizontalmente' : null"
+  >
     <table [class]="tableClasses()" [style]="style()"><ng-content /></table>
   </div>
 </div>

@@ -10,11 +10,15 @@
   "
 ></div>
 <div
-  role="dialog"
-  aria-modal="true"
-  [attr.aria-labelledby]="title() ? 'drawer-title' : null"
-  [attr.aria-describedby]="description() ? 'drawer-desc' : null"
+  #panel
+  [attr.role]="open() ? 'dialog' : null"
+  [attr.aria-modal]="open() ? 'true' : null"
+  [attr.inert]="open() ? null : ''"
+  [attr.aria-labelledby]="open() && title() ? 'drawer-title' : null"
+  [attr.aria-describedby]="open() && description() ? 'drawer-desc' : null"
+  tabindex="-1"
   [class]="panelClasses()"
+  (keydown)="onPanelKeydown($event)"
 >
   @if (title() || showCloseButton()) {
     <div class="flex shrink-0 items-start justify-between gap-4 border-b border-neutral-200 p-4 sm:p-5">

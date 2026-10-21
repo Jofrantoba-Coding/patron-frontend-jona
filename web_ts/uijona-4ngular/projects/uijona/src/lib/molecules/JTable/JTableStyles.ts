@@ -11,7 +11,7 @@ export const OUTER_CLASSES: Record<JTableResponsiveMode, string> = {
 };
 
 export const INNER_CLASSES: Record<JTableResponsiveMode, string> = {
-  scroll: 'overflow-x-auto',
+  scroll: 'overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
   cards: '',
   none: 'overflow-x-auto',
 };

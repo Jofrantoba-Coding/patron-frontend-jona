@@ -39,7 +39,7 @@ export class JPagination {
 
   protected readonly cn = cn;
   protected readonly btnBase =
-    'inline-flex items-center justify-center h-8 min-w-[2rem] px-2 rounded text-sm transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50';
+    'inline-flex h-11 min-w-[2.75rem] items-center justify-center rounded px-2 text-sm sm:h-9 sm:min-w-[2.25rem] transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50';
 
   protected readonly pages = computed(() =>
     buildRange(this.currentPage(), this.totalPages(), this.siblingCount())

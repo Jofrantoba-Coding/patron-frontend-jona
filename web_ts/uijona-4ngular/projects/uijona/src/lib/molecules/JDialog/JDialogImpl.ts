@@ -3,13 +3,16 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  type ElementRef,
   computed,
   effect,
   inject,
   input,
   output,
+  viewChild,
 } from '@angular/core';
 import { cn } from '../../core/cn';
+import { JFocusTrap } from '../../core/focus';
 import {
   SIZE_CLASS,
 } from './JDialogStyles';
@@ -43,11 +46,13 @@ export class JDialog {
 
   protected readonly cn = cn;
   private readonly document = inject(DOCUMENT);
+  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+  private readonly trap = new JFocusTrap();
 
   protected readonly panelClasses = computed(() =>
     cn(
       'relative z-10 w-full rounded-lg bg-white shadow-xl focus:outline-none overflow-hidden',
-      'max-h-[calc(100dvh-4rem)] flex flex-col',
+      'max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col',
       SIZE_CLASS[this.size()],
       this.className()
     )
@@ -59,10 +64,23 @@ export class JDialog {
       if (this.open()) body.style.overflow = 'hidden';
       else body.style.overflow = '';
     });
+
+    // El panel solo existe mientras open() es true, asi que se lee el viewChild
+    // dentro del efecto: al abrir ya esta renderizado, y al cerrar es undefined.
+    effect(() => {
+      const panel = this.panel()?.nativeElement;
+      if (this.open() && panel) this.trap.activar(panel);
+      else if (!this.open()) this.trap.liberar();
+    });
   }
 
   protected onEscape(): void {
     if (this.open()) this.requestClose('escape');
+  }
+
+  protected onPanelKeydown(event: KeyboardEvent): void {
+    const panel = this.panel()?.nativeElement;
+    if (panel) this.trap.alPulsarTecla(event, panel);
   }
 
   protected requestClose(reason: 'cancel' | 'escape'): void {

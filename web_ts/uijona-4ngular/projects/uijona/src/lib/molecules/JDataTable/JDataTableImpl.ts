@@ -1,4 +1,4 @@
-import type { JDataTableSortDirection, JDataTableRow, JDataTableColumn, JDataTableSort, InterJDataTable } from './InterJDataTable';
+import type { JDataTableResponsiveMode, JDataTableSortDirection, JDataTableRow, JDataTableColumn, JDataTableSort, InterJDataTable } from './InterJDataTable';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { cn } from '../../core/cn';
 /**
@@ -25,6 +25,8 @@ export class JDataTable {
   readonly showFilter = input<boolean>(false);
   readonly stickyHeader = input<boolean>(false);
   readonly className = input<string>('');
+  readonly responsiveMode = input<JDataTableResponsiveMode>('scroll');
+  readonly mobileActionLabel = input<string>('Ver detalle');
 
   readonly sortChange = output<JDataTableSort>();
   readonly filterChange = output<string>();
@@ -68,6 +70,12 @@ export class JDataTable {
     return d === 'asc' ? 'ascending' : d === 'desc' ? 'descending' : null;
   }
 
+  protected tableClasses(): string {
+    return this.responsiveMode() === 'cards'
+      ? 'block w-full min-w-0 caption-bottom text-sm md:table'
+      : 'w-full min-w-max caption-bottom text-sm';
+  }
+
   protected headerClasses(col: JDataTableColumn): string {
     return cn(
       'h-10 px-4 text-left align-middle text-xs font-semibold uppercase tracking-wide text-neutral-500 select-none',
@@ -80,8 +88,18 @@ export class JDataTable {
     return cn(
       'px-4 py-3 align-middle text-neutral-900',
       col.align === 'center' && 'text-center',
-      col.align === 'right' && 'text-right'
+      col.align === 'right' && 'text-right',
+      this.responsiveMode() === 'cards' && [
+        'flex min-w-0 flex-col gap-1 border-b border-neutral-100 px-0 py-2 text-left last:border-b-0',
+        'before:text-[10px] before:font-semibold before:uppercase before:tracking-wide before:text-neutral-500',
+        'before:content-[attr(data-label)] md:table-cell md:border-0 md:px-4 md:py-3 md:before:content-none',
+      ],
+      this.responsiveMode() === 'cards' && (col.mobilePriority ?? 99) <= 4 && 'font-medium text-neutral-950'
     );
+  }
+
+  protected mobileOrder(col: JDataTableColumn, index: number): number {
+    return col.mobilePriority ?? index + 20;
   }
   protected cellText(col: JDataTableColumn, row: JDataTableRow, ri: number): string {
     const raw = row[col.key];
@@ -106,5 +124,10 @@ export class JDataTable {
 
   protected onRowClick(row: JDataTableRow, index: number): void {
     this.rowClick.emit({ row, index });
+  }
+
+  protected onRowAction(event: MouseEvent, row: JDataTableRow, index: number): void {
+    event.stopPropagation();
+    this.onRowClick(row, index);
   }
 }

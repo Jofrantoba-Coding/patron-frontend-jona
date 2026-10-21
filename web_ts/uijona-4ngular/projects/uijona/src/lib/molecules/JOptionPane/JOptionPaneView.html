@@ -6,11 +6,14 @@
   <div class="fixed inset-0 z-[1050] flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/50" aria-hidden="true" (click)="cancel.emit()"></div>
     <div
+      #panel
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="joptionpane-title"
       [attr.aria-describedby]="description() ? 'joptionpane-desc' : null"
-      class="relative z-10 w-full max-w-sm rounded-lg bg-white shadow-xl sm:max-w-md sm:flex sm:items-start"
+      tabindex="-1"
+      class="relative z-10 w-full max-w-sm rounded-lg bg-white shadow-xl focus:outline-none sm:max-w-md sm:flex sm:items-start"
+      (keydown)="onPanelKeydown($event)"
     >
       <div class="flex justify-center pt-5 pb-3 sm:pl-5 sm:pr-3 sm:pb-0">
         <div [class]="cn('flex h-10 w-10 items-center justify-center rounded-full', iconBg())">

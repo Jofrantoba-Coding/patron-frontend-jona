@@ -3,13 +3,16 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  type ElementRef,
   computed,
   effect,
   inject,
   input,
   output,
+  viewChild,
 } from '@angular/core';
 import { cn } from '../../core/cn';
+import { JFocusTrap } from '../../core/focus';
 import {
   SIDE_HIDDEN,
   SIDE_OPEN,
@@ -55,13 +58,30 @@ export class JDrawer {
     );
   });
 
+  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+  private readonly trap = new JFocusTrap();
+
   constructor() {
     effect(() => {
       this.document.body.style.overflow = this.open() ? 'hidden' : '';
+    });
+
+    // A diferencia de JDialog, el panel del drawer SIEMPRE esta en el DOM: se
+    // desplaza con transform para animar. Por eso ademas de atrapar el foco hay
+    // que retirarlo del arbol accesible cuando esta cerrado (ver la View).
+    effect(() => {
+      const panel = this.panel()?.nativeElement;
+      if (this.open() && panel) this.trap.activar(panel);
+      else if (!this.open()) this.trap.liberar();
     });
   }
 
   protected onEscape(): void {
     if (this.open()) this.closed.emit();
+  }
+
+  protected onPanelKeydown(event: KeyboardEvent): void {
+    const panel = this.panel()?.nativeElement;
+    if (panel) this.trap.alPulsarTecla(event, panel);
   }
 }
