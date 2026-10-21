@@ -1,7 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { ActivatedRoute, Router } from '@angular/router';
+import { EMPTY, of } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApiService } from '../../core/api.service';
 import type { Operacion } from '../../core/models';
+import { SessionService } from '../../core/session.service';
 import { OperacionesViewComponent } from './operaciones-view.component';
+import { OperacionesPage } from './operaciones';
 
 /**
  * Selección de operaciones para convertir a pago masivo de proveedores.
@@ -22,8 +27,18 @@ describe('OperacionesViewComponent: conversión a pago masivo de proveedores', (
     seleccionConversionCount: () => number;
     motivoNoConvertible: (op: Operacion) => string | null;
     convertibles: () => Operacion[];
-    toggleConversion: (id: string) => void;
-    toggleTodasConvertibles: () => void;
+    convertiblesMoviles: () => Operacion[];
+    mobileList: {
+      items: () => Operacion[];
+      seed: (page: { items: Operacion[]; pagination: { page: number; pageSize: number; total: number } }) => void;
+      beginNext: () => { revision: number; page: number } | null;
+      resolve: (
+        token: { revision: number; page: number },
+        page: { items: Operacion[]; pagination: { page: number; pageSize: number; total: number } }
+      ) => boolean;
+    };
+    toggleConversion: (id: string, op?: Operacion) => void;
+    toggleTodasConvertibles: (rows?: readonly Operacion[]) => void;
     toggleModoConversion: () => void;
     seleccionadasParaConvertir: () => Operacion[];
     monedasEnConversion: () => string[];
@@ -199,5 +214,85 @@ describe('OperacionesViewComponent: conversión a pago masivo de proveedores', (
     vista.toggleTodasConvertibles();
 
     expect(vista.monedasEnConversion().sort()).toEqual(['PEN', 'USD']);
+  });
+  it('marca una tarjeta acumulada y conserva su objeto para la confirmación', () => {
+    const page1 = transferencia({ id: 'op-1', montoTotal: 10 });
+    const page2 = transferencia({ id: 'op-2', montoTotal: 20 });
+    vista.master.set([page1]);
+    vista.mobileList.seed({
+      items: [page1],
+      pagination: { page: 1, pageSize: 1, total: 2 },
+    });
+    const token = vista.mobileList.beginNext();
+    if (!token) throw new Error('La página acumulada debía admitir una segunda página.');
+    vista.mobileList.resolve(token, {
+      items: [page2],
+      pagination: { page: 2, pageSize: 1, total: 2 },
+    });
+    vista.toggleModoConversion();
+
+    vista.onRowClick({ row: page2, index: 1 });
+
+    expect(vista.seleccionConversion()).toEqual(new Set(['op-2']));
+    expect(vista.seleccionadasParaConvertir()).toEqual([page2]);
+  });
+
+  it('el marcado masivo de escritorio no incluye el backlog móvil oculto', () => {
+    const desktop = transferencia({ id: 'desktop-1' });
+    const mobileOnly = transferencia({ id: 'mobile-2' });
+    vista.master.set([desktop]);
+    vista.mobileList.seed({
+      items: [desktop],
+      pagination: { page: 1, pageSize: 1, total: 2 },
+    });
+    const token = vista.mobileList.beginNext();
+    if (!token) throw new Error('La página acumulada debía admitir una segunda página.');
+    vista.mobileList.resolve(token, {
+      items: [mobileOnly],
+      pagination: { page: 2, pageSize: 1, total: 2 },
+    });
+
+    vista.toggleTodasConvertibles();
+
+    expect(vista.seleccionadasParaConvertir().map((op) => op.id)).toEqual(['desktop-1']);
+  });
+
+  it('envía la tarjeta acumulada seleccionada en el payload de confirmación', () => {
+    const api = {
+      convertirOperacionesAPagoMasivoProveedores: vi.fn().mockReturnValue(EMPTY),
+    };
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ApiService, useValue: api },
+        { provide: ActivatedRoute, useValue: { data: of({}) } },
+        { provide: Router, useValue: { navigate: vi.fn() } },
+        { provide: SessionService, useValue: { can: () => true } },
+      ],
+    });
+    const fixture = TestBed.createComponent(OperacionesPage);
+    const pagina = fixture.componentInstance as unknown as Interna & {
+      confirmarConvertir: () => void;
+    };
+    const page1 = transferencia({ id: 'op-1' });
+    const page2 = transferencia({ id: 'op-2' });
+    pagina.master.set([page1]);
+    pagina.mobileList.seed({
+      items: [page1],
+      pagination: { page: 1, pageSize: 1, total: 2 },
+    });
+    const token = pagina.mobileList.beginNext();
+    if (!token) throw new Error('La página acumulada debía admitir una segunda página.');
+    pagina.mobileList.resolve(token, {
+      items: [page2],
+      pagination: { page: 2, pageSize: 1, total: 2 },
+    });
+    pagina.toggleModoConversion();
+    pagina.onRowClick({ row: page2, index: 1 });
+
+    pagina.confirmarConvertir();
+
+    expect(api.convertirOperacionesAPagoMasivoProveedores).toHaveBeenCalledWith(['op-2'], undefined);
+    fixture.destroy();
   });
 });

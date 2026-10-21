@@ -5,7 +5,6 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import { RouterOutlet } from '@angular/router';
 import {
   JBadge,
-  JSidebarLayout,
   JUserAvatar,
   type SidebarNavGroup,
   type SidebarNavItem,
@@ -21,13 +20,16 @@ type Usuario = Pick<AppUser, 'name' | 'email'> | null;
   selector: 'app-shell-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, JSidebarLayout, JUserAvatar, JBadge, RelojCanalComponent, RelojesJobsComponent],
+  imports: [RouterOutlet, JUserAvatar, JBadge, RelojCanalComponent, RelojesJobsComponent],
+  host: { '(document:keydown.escape)': 'closeMobile()' },
   templateUrl: './shell-view.component.html',
 })
 export class ShellViewComponent {
   protected readonly tenant = signal<Tenant | null>(null);
   protected readonly user = signal<Usuario>(null);
   protected readonly activeKey = signal('dashboard');
+  protected readonly mobileOpen = signal(false);
+  protected readonly collapsed = signal(false);
   protected readonly pendientes = signal<PendientesPorEtapa>({});
 
   /** Permisos efectivos; la Page la sobrescribe con los de la sesión. */
@@ -35,6 +37,10 @@ export class ShellViewComponent {
 
   protected readonly ambienteVariant = computed(() =>
     this.tenant()?.org_v_ambiente === 'PRODUCCION' ? 'destructive' : 'secondary'
+  );
+
+  protected readonly activeLabel = computed(() =>
+    this.nav().flatMap((group) => group.items).find((item) => item.key === this.activeKey())?.label ?? 'Consola H2H'
   );
 
   protected readonly nav = computed<SidebarNavGroup[]>(() => {
@@ -155,6 +161,23 @@ export class ShellViewComponent {
     ];
     return grupos.filter((g) => g.items.length > 0);
   });
+
+  protected toggleMobile(): void {
+    this.mobileOpen.update((open) => !open);
+  }
+
+  protected closeMobile(): void {
+    this.mobileOpen.set(false);
+  }
+
+  protected toggleCollapsed(): void {
+    this.collapsed.update((collapsed) => !collapsed);
+  }
+
+  protected onNavSelected(item: SidebarNavItem): void {
+    this.closeMobile();
+    this.onNav(item);
+  }
 
   /** La Page sobrescribe estos hooks. */
   protected onNav(_item: SidebarNavItem): void {}

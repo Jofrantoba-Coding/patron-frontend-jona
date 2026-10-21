@@ -12,7 +12,7 @@ const FECHA = new Intl.DateTimeFormat('es-PE', { dateStyle: 'short', timeStyle: 
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSectionHeading, JDataTable],
   template: `
-    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+    <div class="h2h-page mx-auto flex w-full max-w-7xl flex-col gap-6">
       <j-section-heading eyebrow="Trazabilidad" heading="Auditoría" description="Eventos y cambios registrados en el sistema H2H." />
       <j-data-table
         [columns]="columns"

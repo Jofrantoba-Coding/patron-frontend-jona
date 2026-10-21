@@ -6,6 +6,7 @@ import type {
   SesionCalimaco,
 } from '../pages/calimaco/inter-conciliacion';
 import type { OperacionDetalle, OperacionDetalleRegistro } from '../core/models';
+import { diagnosticoDe, type Diagnostico } from './inter-diagnostico';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
 const FDT = new Intl.DateTimeFormat('es-PE', { dateStyle: 'short', timeStyle: 'medium', hour12: false });
@@ -50,6 +51,75 @@ type Registro = OperacionDetalleRegistro;
           }
         </div>
       </section>
+
+      <!--
+        Por que se esta reintentando.
+
+        Solo aparece si la operacion dejo rastro de al menos una vuelta del ciclo SFTP; una recien
+        cargada no tiene nada que explicar y una seccion vacia solo estorba.
+
+        Va aqui, pegada a «Operacion», porque cuando alguien abre el detalle de algo que rebota
+        esta es LA pregunta. Debajo de Contabilidad se leeria cuando ya se dio por perdida.
+
+        El dato viaja en "atributos" desde siempre; entradas() descarta los objetos al pintar los
+        campos, asi que el historial llegaba a la pantalla y se tiraba en el ultimo paso.
+        (Sin acentos graves aqui dentro: esto vive en un template literal y lo cerrarian.)
+      -->
+      @if (diagnostico(d); as g) {
+        @if (g.hay) {
+          <section class="rounded-md border border-neutral-200 bg-white">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 px-3 py-2">
+              <h3 class="text-sm font-semibold text-neutral-800">Por que se esta reintentando</h3>
+              <span class="text-[11px] text-neutral-500">
+                {{ g.intentos }} {{ g.intentos === 1 ? 'vuelta del ciclo' : 'vueltas del ciclo' }}
+                · {{ g.delBanco }} del banco · {{ g.delValidador }} de nuestro validador
+              </span>
+            </div>
+
+            <!--
+              El veredicto de arriba es lo unico que decide algo: si la misma causa aparecio en dos
+              vueltas distintas, reactivar sin corregir el dato repite el rechazo. Si cada vuelta
+              fallo por algo distinto, la ultima pudo ser transitoria y reactivar tiene sentido.
+            -->
+            @if (g.repetida && g.causaPrincipal; as c) {
+              <p class="m-3 rounded border border-amber-300 bg-amber-50 px-2 py-1.5 text-xs text-amber-800">
+                Rebotó por lo mismo en {{ c.intentos.length }} intentos (el
+                {{ c.intentos.join(', el ') }}): <strong>{{ c.mensaje }}</strong>
+                Reintentar sin corregir el dato va a dar el mismo rechazo.
+              </p>
+            } @else if (g.causas.length > 1) {
+              <p class="m-3 rounded border border-neutral-300 bg-neutral-50 px-2 py-1.5 text-xs text-neutral-700">
+                Cada vuelta falló por algo distinto ({{ g.causas.length }} causas). Nada indica que
+                el problema sea permanente: la última pudo ser transitoria.
+              </p>
+            }
+
+            <!-- De la mas reciente a la mas vieja: lo ultimo explica el estado de ahora. -->
+            <ol class="divide-y divide-neutral-100">
+              @for (e of g.entradas; track $index) {
+                <li class="px-3 py-2 text-sm">
+                  <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span class="rounded-full border px-1.5 py-0.5 text-[11px] font-medium"
+                          [class]="e.origen === 'BCP' ? 'border-neutral-300 bg-neutral-100 text-neutral-700'
+                                                      : 'border-amber-300 bg-amber-50 text-amber-800'">
+                      {{ e.origen === 'BCP' ? 'Banco' : 'Validador (predicción)' }}
+                    </span>
+                    <span class="text-[11px] text-neutral-500">intento {{ e.intento }}</span>
+                    @if (e.codigo) {
+                      <code class="rounded bg-neutral-100 px-1 text-[11px] text-neutral-700">{{ e.codigo }}</code>
+                    }
+                    @if (e.planilla) {
+                      <span class="text-[11px] text-neutral-500">{{ e.planilla }}</span>
+                    }
+                    <span class="ml-auto text-[11px] text-neutral-400">{{ fechaDiag(e.fecha) }}</span>
+                  </div>
+                  <p class="mt-1 break-words text-neutral-800">{{ e.mensaje || '—' }}</p>
+                </li>
+              }
+            </ol>
+          </section>
+        }
+      }
 
       <div class="grid gap-4 md:grid-cols-2">
         <section class="rounded-md border border-neutral-200 bg-white">
@@ -555,6 +625,21 @@ export class OperacionDetalleDialog {
   }
   protected contablesOp(d: OperacionDetalle | null): Registro[] {
     return d?.operacionContables ?? [];
+  }
+
+  /**
+   * El historial de rebotes de la operación abierta.
+   *
+   * <p>Sale de `atributos`, que el endpoint de detalle ya devuelve: no hace falta ninguna llamada
+   * nueva. La derivación vive en `inter-diagnostico` y está probada aparte; aquí solo se enchufa.</p>
+   */
+  protected diagnostico(d: OperacionDetalle | null): Diagnostico {
+    return diagnosticoDe(d?.operacion?.['atributos']);
+  }
+
+  /** Fecha de una anotación. Siempre lleva hora: dos rebotes del mismo día se distinguen por ella. */
+  protected fechaDiag(valor: string): string {
+    return this.fdt(valor);
   }
 
   /** Pares label/valor de los campos escalares de un registro, formateando fechas y montos. */

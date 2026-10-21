@@ -27,7 +27,7 @@ interface KcUser {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JSectionHeading, JTable, JTableHeader, JTableBody, JTableRow, JTableHead, JTableCell, JBadge, JChip],
   template: `
-    <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+    <div class="h2h-page mx-auto flex w-full max-w-7xl flex-col gap-6">
       <j-section-heading
         eyebrow="Identidad"
         heading="Usuarios y RBAC"

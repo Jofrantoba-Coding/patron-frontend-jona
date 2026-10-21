@@ -1,11 +1,11 @@
-<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+<div class="h2h-page mx-auto flex w-full max-w-7xl flex-col gap-6">
   <j-section-heading
     eyebrow="4 · Banco"
     heading="Respuestas del banco"
     description="Acuses y resultados que devuelve BCP: VAL, RES, RES2 y PAR."
   />
 
-  <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+  <div class="h2h-filter-panel rounded-xl border border-neutral-200 bg-neutral-50 p-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <p class="text-sm font-semibold text-neutral-700">Filtros</p>
@@ -70,85 +70,190 @@
     </div>
   </div>
 
+  @if (errorCarga()) {
+    <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-danger-200 bg-danger-50 px-4 py-3" role="alert" aria-live="assertive">
+      <div>
+        <p class="text-sm font-semibold text-danger-800">No se pudo actualizar la bandeja</p>
+        <p class="text-xs text-danger-700">{{ errorCarga() }}</p>
+        @if (rows().length > 0) {
+          <p class="mt-1 text-xs text-danger-700">Se mantienen visibles los últimos resultados obtenidos.</p>
+        }
+      </div>
+      <j-button size="sm" variant="outline" (clicked)="reintentarCarga()">Reintentar</j-button>
+    </div>
+  }
   <!--
     Las respuestas se leen, no se «procesan» desde aquí: la decisión (aceptar el
     resultado, reintentar, anular) se toma sobre la PLANILLA, que es la que
     conoce el lote completo. Por eso cada fila lleva a su planilla en vez de
     ofrecer una acción propia que el backend no expone.
   -->
-  <j-table responsiveMode="scroll">
-    <j-table-header>
-      <j-table-row>
-        <j-table-head>Archivo</j-table-head>
-        <j-table-head>Tipo</j-table-head>
-        <j-table-head>Significado</j-table-head>
-        <j-table-head>Recepción</j-table-head>
-        <j-table-head className="text-right">Total</j-table-head>
-        <j-table-head className="text-right">OK</j-table-head>
-        <j-table-head className="text-right">Error</j-table-head>
-        <j-table-head>Planilla</j-table-head>
-      </j-table-row>
-    </j-table-header>
-    <j-table-body>
-      @for (r of rows(); track r.id) {
+  <div class="hidden md:block" data-testid="respuestas-desktop-table">
+    <j-table responsiveMode="scroll">
+      <j-table-header>
         <j-table-row>
-          <j-table-cell><span class="font-mono text-xs">{{ r.nombreArchivo }}</span></j-table-cell>
-          <j-table-cell>
-            <j-badge [variant]="badgeDe(r.tipoRespuestaCodigo)">{{ r.tipoRespuestaCodigo }}</j-badge>
-          </j-table-cell>
-          <j-table-cell>
-            <p class="text-xs font-medium text-neutral-700">{{ significado(r.tipoRespuestaCodigo).titulo }}</p>
-            <p class="text-[11px] text-neutral-500">{{ significado(r.tipoRespuestaCodigo).detalle }}</p>
-          </j-table-cell>
-          <j-table-cell>
-            <!--
-              Se ancla a la zona del canal, la misma que anuncian las etiquetas del filtro
-              ("hora de Lima"). Recortar los 16 primeros caracteres del texto crudo enseñaba
-              la hora de la JVM que corre la API: parecía limpio y podía ir 5 horas corrido
-              respecto al periodo que el usuario acababa de pedir.
-            -->
-            <span class="text-xs text-neutral-500">{{ horaCanal(r.fechaRecepcion) }}</span>
-          </j-table-cell>
-          <j-table-cell className="text-right tabular-nums">{{ r.totalOperaciones }}</j-table-cell>
-          <j-table-cell className="text-right tabular-nums text-success-600">{{ r.operacionesOk }}</j-table-cell>
-          <j-table-cell className="text-right tabular-nums text-danger-600">{{ r.operacionesError }}</j-table-cell>
-          <j-table-cell>
-            <j-button size="sm" variant="outline" (clicked)="verPlanilla(r.idPlanilla)">
-              Ver planilla
-            </j-button>
-          </j-table-cell>
+          <j-table-head>Archivo</j-table-head>
+          <j-table-head>Tipo</j-table-head>
+          <j-table-head>Significado</j-table-head>
+          <j-table-head>Recepción</j-table-head>
+          <j-table-head className="text-right">Total</j-table-head>
+          <j-table-head className="text-right">OK</j-table-head>
+          <j-table-head className="text-right">Error</j-table-head>
+          <j-table-head>Evidencia</j-table-head>
+          <j-table-head>Planilla</j-table-head>
         </j-table-row>
-      } @empty {
-        <j-table-row>
-          <j-table-cell [colSpan]="8">
-            @if (cargando()) {
-              <span class="text-sm text-neutral-400">Consultando…</span>
-            } @else if (hayFiltros()) {
-              <div class="py-2">
-                <p class="text-sm text-neutral-500">Ninguna respuesta coincide con el filtro.</p>
-                <p class="mt-0.5 text-xs text-neutral-400">
-                  Puede haber acuses fuera de este periodo o de otro tipo: prueba a limpiar los filtros.
-                </p>
-              </div>
-            } @else {
-              <div class="py-2">
-                <p class="text-sm text-neutral-500">Todavía no hay respuestas del banco.</p>
-                <p class="mt-0.5 text-xs text-neutral-400">
-                  Aparecerán aquí cuando se envíe una planilla y BCP deposite su acuse en el buzón.
-                </p>
-              </div>
-            }
-          </j-table-cell>
-        </j-table-row>
-      }
-    </j-table-body>
-  </j-table>
+      </j-table-header>
+      <j-table-body>
+        @for (r of rows(); track r.id) {
+          <j-table-row>
+            <j-table-cell><span class="font-mono text-xs">{{ r.nombreArchivo }}</span></j-table-cell>
+            <j-table-cell>
+              <j-badge [variant]="badgeDe(r.tipoRespuestaCodigo)">{{ r.tipoRespuestaCodigo }}</j-badge>
+            </j-table-cell>
+            <j-table-cell>
+              <p class="text-xs font-medium text-neutral-700">{{ significado(r.tipoRespuestaCodigo).titulo }}</p>
+              <p class="text-[11px] text-neutral-500">{{ significado(r.tipoRespuestaCodigo).detalle }}</p>
+            </j-table-cell>
+            <j-table-cell>
+              <!--
+                Se ancla a la zona del canal, la misma que anuncian las etiquetas del filtro
+                ("hora de Lima"). Recortar los 16 primeros caracteres del texto crudo enseñaba
+                la hora de la JVM que corre la API: parecía limpio y podía ir 5 horas corrido
+                respecto al periodo que el usuario acababa de pedir.
+              -->
+              <span class="text-xs text-neutral-500">{{ horaCanal(r.fechaRecepcion) }}</span>
+            </j-table-cell>
+            <j-table-cell className="text-right tabular-nums">{{ r.totalOperaciones }}</j-table-cell>
+            <j-table-cell className="text-right tabular-nums text-success-600">{{ r.operacionesOk }}</j-table-cell>
+            <j-table-cell className="text-right tabular-nums text-danger-600">{{ r.operacionesError }}</j-table-cell>
+            <j-table-cell>
+              <j-button size="sm" variant="outline" (clicked)="verRespuesta(r)">Ver evidencia</j-button>
+            </j-table-cell>
+            <j-table-cell>
+              <j-button size="sm" variant="ghost" (clicked)="verPlanilla(r.idPlanilla)">Ver planilla</j-button>
+            </j-table-cell>
+          </j-table-row>
+        } @empty {
+          <j-table-row>
+            <j-table-cell [colSpan]="9">
+              @if (cargando()) {
+                <span class="text-sm text-neutral-400">Consultando…</span>
+              } @else if (hayFiltros()) {
+                <div class="py-2">
+                  <p class="text-sm text-neutral-500">Ninguna respuesta coincide con el filtro.</p>
+                  <p class="mt-0.5 text-xs text-neutral-400">
+                    Puede haber acuses fuera de este periodo o de otro tipo: prueba a limpiar los filtros.
+                  </p>
+                </div>
+              } @else {
+                <div class="py-2">
+                  <p class="text-sm text-neutral-500">Todavía no hay respuestas del banco.</p>
+                  <p class="mt-0.5 text-xs text-neutral-400">
+                    Aparecerán aquí cuando se envíe una planilla y BCP deposite su acuse en el buzón.
+                  </p>
+                </div>
+              }
+            </j-table-cell>
+          </j-table-row>
+        }
+      </j-table-body>
+    </j-table>
 
-  @if (total() > pageSize()) {
-    <j-pagination
-      [currentPage]="page()"
-      [totalPages]="totalPaginas()"
-      (pageChange)="onPagina($event)"
-    />
-  }
+    @if (total() > pageSize()) {
+      <j-pagination
+        [currentPage]="page()"
+        [totalPages]="totalPaginas()"
+        (pageChange)="onPagina($event)"
+      />
+    }
+  </div>
+
+  <div class="md:hidden" data-testid="respuestas-mobile-list">
+    <j-table responsiveMode="cards">
+      <j-table-header>
+        <j-table-row>
+          <j-table-head>Archivo</j-table-head><j-table-head>Tipo</j-table-head><j-table-head>Significado</j-table-head>
+          <j-table-head>Recepción</j-table-head><j-table-head>Total</j-table-head><j-table-head>OK</j-table-head>
+          <j-table-head>Error</j-table-head><j-table-head>Evidencia</j-table-head><j-table-head>Planilla</j-table-head>
+        </j-table-row>
+      </j-table-header>
+      <j-table-body>
+        @for (r of mobileList.items(); track r.id) {
+          <j-table-row>
+            <j-table-cell dataLabel="Archivo" className="order-1"><span class="break-all font-mono text-xs font-semibold">{{ r.nombreArchivo }}</span></j-table-cell>
+            <j-table-cell dataLabel="Tipo" className="order-2"><j-badge [variant]="badgeDe(r.tipoRespuestaCodigo)">{{ r.tipoRespuestaCodigo }}</j-badge></j-table-cell>
+            <j-table-cell dataLabel="Significado" className="order-3"><p class="text-xs font-medium text-neutral-700">{{ significado(r.tipoRespuestaCodigo).titulo }}</p><p class="text-[11px] text-neutral-500">{{ significado(r.tipoRespuestaCodigo).detalle }}</p></j-table-cell>
+            <j-table-cell dataLabel="Resultado" className="order-4"><span class="tabular-nums">{{ r.totalOperaciones }} total · {{ r.operacionesOk }} OK · {{ r.operacionesError }} con error</span></j-table-cell>
+            <j-table-cell dataLabel="Recepción" className="order-5"><span class="text-xs text-neutral-500">{{ horaCanal(r.fechaRecepcion) }}</span></j-table-cell>
+            <j-table-cell dataLabel="Evidencia" className="order-6"><j-button size="sm" variant="outline" [attr.data-testid]="'respuestas-mobile-evidence-' + r.id" (clicked)="verRespuesta(r)">Ver evidencia</j-button></j-table-cell>
+            <j-table-cell dataLabel="Planilla" className="order-7"><j-button size="sm" variant="ghost" [attr.data-testid]="'respuestas-mobile-planilla-' + r.id" (clicked)="verPlanilla(r.idPlanilla)">Ver planilla</j-button></j-table-cell>
+          </j-table-row>
+        } @empty {
+          <j-table-row><j-table-cell [colSpan]="9">
+            @if (cargando()) { <span class="text-sm text-neutral-400">Consultando…</span> }
+            @else { <span class="text-sm text-neutral-500">No hay respuestas para el filtro actual.</span> }
+          </j-table-cell></j-table-row>
+        }
+      </j-table-body>
+    </j-table>
+
+    @if (mobileList.error(); as appendError) {
+      <div class="mt-3 rounded-lg border border-danger-200 bg-danger-50 p-3" role="alert" data-testid="respuestas-append-error">
+        <p class="text-sm font-medium text-danger-800">No se pudo cargar la siguiente página.</p>
+        <p class="mt-1 text-xs text-danger-700">{{ appendError }} Los respuestas ya cargados siguen disponibles.</p>
+      </div>
+    }
+    @if (mobileList.hasMore()) {
+      <button
+        type="button"
+        data-testid="respuestas-load-more"
+        class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-md border border-primary-300 bg-white px-4 py-2 text-sm font-semibold text-primary-700 hover:bg-primary-50 disabled:cursor-wait disabled:opacity-60"
+        [disabled]="mobileList.loading()"
+        [appProgressiveLoad]="!mobileList.loading() && !mobileList.error()"
+        (progressiveLoad)="cargarMas()"
+        (click)="cargarMas()"
+      >{{ mobileList.loading() ? 'Cargando…' : (mobileList.error() ? 'Reintentar carga' : 'Cargar más') }}</button>
+    } @else if (mobileList.items().length > 0) {
+      <p class="mt-3 text-center text-xs text-neutral-500" role="status">Se mostraron los {{ mobileList.items().length }} respuestas.</p>
+    }
+
+  </div>
+  <j-dialog
+    [open]="detalleSeleccionado() !== null"
+    size="2xl"
+    title="Evidencia recibida del banco"
+    [description]="detalleSeleccionado()?.nombreArchivo ?? ''"
+    contentClassName="p-0"
+    (closed)="cerrarDetalle()"
+    (cancel)="cerrarDetalle()"
+  >
+    @if (detalleSeleccionado(); as respuesta) {
+      <div class="space-y-4 p-4">
+        <div class="grid gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div><p class="text-[11px] font-medium uppercase text-neutral-500">Tipo</p><div class="mt-1"><j-badge [variant]="badgeDe(respuesta.tipoRespuestaCodigo)">{{ respuesta.tipoRespuestaCodigo }}</j-badge></div></div>
+          <div><p class="text-[11px] font-medium uppercase text-neutral-500">Recepción</p><p class="mt-1 text-sm text-neutral-800">{{ horaCanal(respuesta.fechaRecepcion) }}</p></div>
+          <div><p class="text-[11px] font-medium uppercase text-neutral-500">Operaciones</p><p class="mt-1 text-sm tabular-nums text-neutral-800">{{ respuesta.totalOperaciones }} total · {{ respuesta.operacionesOk }} OK · {{ respuesta.operacionesError }} con error</p></div>
+          <div><p class="text-[11px] font-medium uppercase text-neutral-500">Planilla vinculada</p><j-button className="mt-1" size="sm" variant="outline" (clicked)="verPlanilla(respuesta.idPlanilla)">Abrir planilla</j-button></div>
+        </div>
+        <div class="rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-xs text-warning-800" role="status">
+          Este archivo registra lo informado por el banco. Por sí solo no confirma que la planilla o sus operaciones estén pagadas o finalizadas.
+        </div>
+        @if (detalleCargando()) {
+          <div class="flex min-h-40 flex-col items-center justify-center gap-3 text-sm text-neutral-500" aria-live="polite">
+            <j-progress class="w-full" [value]="100" [animated]="true" size="sm" [showLabel]="false" label="Cargando evidencia…" />
+            <span>Cargando evidencia…</span>
+          </div>
+        } @else if (detalleError()) {
+          <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-danger-200 bg-danger-50 p-3" role="alert">
+            <p class="text-sm text-danger-800">{{ detalleError() }}</p>
+            <j-button size="sm" variant="outline" (clicked)="reintentarDetalle()">Reintentar</j-button>
+          </div>
+        } @else if (contenidoDetalle()) {
+          <div><h3 class="mb-2 text-sm font-semibold text-neutral-800">Contenido recibido</h3><pre class="max-h-[48vh] overflow-auto whitespace-pre-wrap break-all rounded-md bg-neutral-950 p-3 text-xs leading-relaxed text-neutral-100">{{ contenidoDetalle() }}</pre></div>
+        } @else {
+          <div class="rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-600" role="status">El backend no devolvió contenido TXT o XML para esta respuesta.</div>
+        }
+      </div>
+    }
+  </j-dialog>
 </div>

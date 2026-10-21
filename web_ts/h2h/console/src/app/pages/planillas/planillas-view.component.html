@@ -1,7 +1,7 @@
-<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+<div class="h2h-page mx-auto flex w-full max-w-7xl flex-col gap-6">
   <j-section-heading eyebrow="Archivos H2H" heading="Planillas" description="Consulta de archivos generados para BCP: listado, filtros y detalle del TXT con sus etapas." />
 
-  <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+  <div class="h2h-filter-panel rounded-xl border border-neutral-200 bg-neutral-50 p-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <p class="text-sm font-semibold text-neutral-700">Filtros</p>
@@ -77,26 +77,78 @@
     </div>
   </div>
 
-  <j-data-table
-    [columns]="columns"
-    [data]="rows()"
-    [rowKey]="rowKey"
-    [showFilter]="false"
-    (rowClick)="onRowClick($event)"
-    emptyTitle="Sin planillas"
-    emptyDescription="No hay planillas para el filtro actual."
-  />
+  @if (listError(); as error) {
+    <div class="h2h-async-state h2h-async-state--error" role="alert">
+      <div>
+        <strong>No se pudo actualizar la lista.</strong>
+        <p>{{ error }} @if (rows().length) { Se mantienen los últimos datos visibles. }</p>
+      </div>
+      <button type="button" class="h2h-secondary-action" (click)="retryLoad()">Reintentar</button>
+    </div>
+  }
+  <p class="sr-only" aria-live="polite">
+    {{ listLoading() ? 'Actualizando planillas.' : 'Lista de planillas actualizada.' }}
+  </p>
 
-  <div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 pt-4">
-    <p class="text-sm text-neutral-500">
-      Mostrando {{ rows().length }} de {{ total() }} planillas. Página {{ page() }} de {{ totalPages() }}. Tamaño de página: {{ pageSize() }}.
-    </p>
-    <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+  <div class="hidden md:block" data-testid="planillas-desktop-table">
+    <j-data-table
+      [columns]="columns"
+      [data]="rows()"
+      [rowKey]="rowKey"
+      [showFilter]="false"
+      [loading]="listLoading()"
+      (rowClick)="onRowClick($event)"
+      emptyTitle="Sin planillas"
+      emptyDescription="No hay planillas para el filtro actual."
+    />
+
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 pt-4">
+      <p class="text-sm text-neutral-500">
+        Mostrando {{ rows().length }} de {{ total() }} planillas. Página {{ page() }} de {{ totalPages() }}. Tamaño de página: {{ pageSize() }}.
+      </p>
+      <j-pagination [currentPage]="page()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
+    </div>
+  </div>
+
+  <div class="md:hidden" data-testid="planillas-mobile-list">
+    <j-data-table
+      responsiveMode="cards"
+      [columns]="columns"
+      [data]="mobileRows()"
+      [rowKey]="rowKey"
+      [showFilter]="false"
+      [loading]="listLoading() && mobileList.items().length === 0"
+      mobileActionLabel="Ver detalle"
+      (rowClick)="onRowClick($event)"
+      emptyTitle="Sin planillas"
+      emptyDescription="No hay planillas para el filtro actual."
+    />
+
+    @if (mobileList.error(); as appendError) {
+      <div class="mt-3 rounded-lg border border-danger-200 bg-danger-50 p-3" role="alert" data-testid="planillas-append-error">
+        <p class="text-sm font-medium text-danger-800">No se pudo cargar la siguiente página.</p>
+        <p class="mt-1 text-xs text-danger-700">{{ appendError }} Los planillas ya cargados siguen disponibles.</p>
+      </div>
+    }
+    @if (mobileList.hasMore()) {
+      <button
+        type="button"
+        data-testid="planillas-load-more"
+        class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-md border border-primary-300 bg-white px-4 py-2 text-sm font-semibold text-primary-700 hover:bg-primary-50 disabled:cursor-wait disabled:opacity-60"
+        [disabled]="mobileList.loading()"
+        [appProgressiveLoad]="!mobileList.loading() && !mobileList.error()"
+        (progressiveLoad)="cargarMas()"
+        (click)="cargarMas()"
+      >{{ mobileList.loading() ? 'Cargando…' : (mobileList.error() ? 'Reintentar carga' : 'Cargar más') }}</button>
+    } @else if (mobileList.items().length > 0) {
+      <p class="mt-3 text-center text-xs text-neutral-500" role="status">Se mostraron los {{ mobileList.items().length }} planillas.</p>
+    }
+
   </div>
 </div>
 
 <j-dialog
-  [open]="detalleLoading() !== null || detalle() !== null"
+  [open]="detalleSeleccionado() !== null"
   size="2xl"
   [title]="detalleTitle()"
   [description]="detalleDescription()"
@@ -105,7 +157,12 @@
   (cancel)="closeDetalle()"
 >
   @if (detalleLoading() !== null && detalle() === null) {
-    <div class="flex min-h-48 items-center justify-center text-sm text-neutral-500">Cargando detalle...</div>
+    <div class="flex min-h-48 items-center justify-center text-sm text-neutral-500" aria-live="polite">Cargando detalle...</div>
+  } @else if (detalleError() && detalle() === null) {
+    <div class="flex min-h-48 flex-col items-center justify-center gap-3 px-6 text-center" role="alert">
+      <p class="text-sm font-medium text-danger-700">{{ detalleError() }}</p>
+      <button type="button" class="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100" (click)="reintentarDetalle()">Reintentar</button>
+    </div>
   }
 
   @if (detalle(); as d) {

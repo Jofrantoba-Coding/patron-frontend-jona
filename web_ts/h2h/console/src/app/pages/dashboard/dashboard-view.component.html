@@ -1,4 +1,4 @@
-<div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+<div class="h2h-page mx-auto flex w-full max-w-7xl flex-col gap-6">
   <j-section-heading
     eyebrow="Operación del día"
     heading="Estado del canal"
@@ -12,7 +12,7 @@
     que el backend sabe aplicar de verdad: un control que no filtra es peor que
     su ausencia.
   -->
-  <div class="flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+  <div class="h2h-filter-panel flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
     <label class="flex min-w-[8rem] flex-col gap-1">
       <span class="text-xs font-medium text-neutral-500">Moneda</span>
       <select
@@ -114,6 +114,11 @@
     decisión del día no es "cuánto llevo" sino "¿llego al corte?". No depende de
     los filtros: la ventana del canal es la misma para todo.
   -->
+  <div class="h2h-section-intro">
+    <p>Control operativo</p>
+    <h2>Ventanas y automatización</h2>
+    <span>Revise el corte del canal y las próximas ejecuciones antes de operar.</span>
+  </div>
   <app-reloj-canal />
 
   <!--
@@ -131,6 +136,12 @@
   @for (a of avisos(); track a.titulo) {
     <j-alert [variant]="a.variante" [title]="a.titulo">{{ a.detalle }}</j-alert>
   }
+
+  <div class="h2h-section-intro">
+    <p>Prioridades</p>
+    <h2>Trabajo pendiente por etapa</h2>
+    <span>Abra una etapa para resolver los ítems que requieren intervención.</span>
+  </div>
 
   <!-- Pendientes por etapa: la lista de trabajo, clicable. -->
   <div class="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]">

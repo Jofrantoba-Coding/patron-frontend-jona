@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, type OnDestroy, type OnInit } from '@angular/core';
 import { finalize, type Observable } from 'rxjs';
 import { JBadge, JDataTable, JDatePicker, JDialog, JPagination, JProgress, JSectionHeading, JTabs, JTabsContent, JTabsList, JTabsTrigger } from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
-import type { PlanillaRow } from '../../core/models';
+import { LatestRequest } from '../../core/latest-request';
+import type { PlanillaFiltro, PlanillaRow } from '../../core/models';
+import { ProgressiveLoadDirective } from '../../core/progressive-load.directive';
 import { PlanillasViewComponent } from './planillas-view.component';
 
 /** Consulta de planillas H2H: listado paginado, filtros y detalle del archivo con sus etapas. */
@@ -10,44 +12,121 @@ import { PlanillasViewComponent } from './planillas-view.component';
   selector: 'app-planillas',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JDatePicker, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JDatePicker, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent, ProgressiveLoadDirective],
   templateUrl: './planillas-view.component.html',
 })
-export class PlanillasPage extends PlanillasViewComponent implements OnInit {
+export class PlanillasPage extends PlanillasViewComponent implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
+  private readonly listRequest = new LatestRequest();
+  private readonly detailRequest = new LatestRequest();
+  private readonly appendRequest = new LatestRequest();
+  private mobileQueryKey = '';
+  private appliedMobileQuery: { filters: PlanillaFiltro; pageSize: number } | null = null;
 
   ngOnInit(): void {
     this.load();
   }
 
   override load(): void {
-    this.api
-      .planillasBackend({ page: this.page(), pageSize: this.pageSize(), filters: this.buildBackendFilters() })
-      .subscribe((res) => this.setPagedResult(res));
+    const query = {
+      filters: { ...this.buildBackendFilters() },
+      pageSize: this.pageSize(),
+    };
+    if (this.page() === 1 || !this.appliedMobileQuery) {
+      this.appliedMobileQuery = query;
+      const queryKey = JSON.stringify(query);
+      if (queryKey !== this.mobileQueryKey) {
+        this.mobileQueryKey = queryKey;
+        this.appendRequest.cancel();
+        this.mobileList.reset();
+      }
+    }
+    this.listLoading.set(true);
+    this.listError.set(null);
+    this.listRequest.run(
+      this.api.planillasBackend({ page: this.page(), ...query }),
+      {
+        next: (res) => {
+          this.setPagedResult(res);
+          if (res.pagination.page === 1) this.mobileList.seed(res);
+        },
+        error: (error) => this.listError.set(this.mensajeListadoError(error)),
+        settled: () => this.listLoading.set(false),
+      }
+    );
+  }
+
+  protected override cargarMas(): void {
+    const query = this.appliedMobileQuery;
+    if (!query) return;
+    const token = this.mobileList.beginNext();
+    if (!token) return;
+    this.appendRequest.run(
+      this.api.planillasBackend({
+        page: token.page,
+        ...query,
+      }),
+      {
+        next: (res) => this.mobileList.resolve(token, res),
+        error: (error) => this.mobileList.reject(token, this.mensajeListadoError(error)),
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.listRequest.cancel();
+    this.detailRequest.cancel();
+    this.appendRequest.cancel();
+    this.mobileList.cancel();
+    this.appliedMobileQuery = null;
+  }
+
+  private mensajeListadoError(err: unknown): string {
+    const e = err as { error?: { message?: string; errors?: { message?: string }[] } };
+    return e?.error?.message ?? e?.error?.errors?.[0]?.message ?? 'No se pudo actualizar la lista de planillas.';
   }
 
   protected override openDetalle(planilla: PlanillaRow): void {
     this.detalleSeleccionado.set(planilla);
     this.detalle.set(null);
     this.detalleLoading.set(planilla.id);
+    this.detalleError.set(null);
     this.detalleTab.set('resumen');
     this.validarMensaje.set(null);
     this.validarError.set(false);
     this.validarHallazgos.set([]);
-    this.api
-      .planillaDetalleBackend(planilla.id)
-      .pipe(
-        finalize(() => {
-          if (this.detalleLoading() === planilla.id) {
-            this.detalleLoading.set(null);
-          }
-        })
-      )
-      .subscribe((res) => {
+    this.detailRequest.run(this.api.planillaDetalleBackend(planilla.id), {
+      next: (res) => {
         if (this.detalleSeleccionado()?.id === planilla.id) {
           this.setDetalle(res);
         }
-      });
+      },
+      error: (error) => {
+        if (this.detalleSeleccionado()?.id === planilla.id) {
+          this.detalleError.set(this.mensajeDetalleError(error));
+        }
+      },
+      settled: () => {
+        if (this.detalleLoading() === planilla.id) {
+          this.detalleLoading.set(null);
+        }
+      },
+    });
+  }
+
+  protected override reintentarDetalle(): void {
+    const planilla = this.detalleSeleccionado();
+    if (planilla) this.openDetalle(planilla);
+  }
+
+  protected override closeDetalle(): void {
+    this.detailRequest.cancel();
+    super.closeDetalle();
+  }
+
+  private mensajeDetalleError(error: unknown): string {
+    const e = error as { error?: { message?: string; errors?: { message?: string }[] } };
+    return e?.error?.message ?? e?.error?.errors?.[0]?.message ?? 'No se pudo obtener el detalle de la planilla.';
   }
 
   /** Despacha la acción de la etapa (estado destino) al endpoint del flujo correspondiente. */

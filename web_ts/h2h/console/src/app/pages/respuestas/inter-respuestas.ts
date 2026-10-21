@@ -1,18 +1,22 @@
 import type { RespuestaRow } from '../../core/models';
 
-/** Contrato de la página de respuestas del banco (listado + navegación a la planilla). */
+/** Contrato de la página de respuestas del banco (listado + evidencia + navegación a la planilla). */
 export interface RespuestasPageContract {
   rows: RespuestaRow[];
   page: number;
   pageSize: number;
   total: number;
   cargando: boolean;
+  errorCarga: string | null;
+  detalleSeleccionado: RespuestaRow | null;
+  detalleCargando: boolean;
+  detalleError: string | null;
 }
 
 /**
  * Qué significa cada tipo de respuesta del banco.
  *
- * <p>Los códigos por sí solos no dicen nada: `VAL` suena a «validada» y en
+ * <p>Los códigos por sí solos no dicen nada: VAL suena a «validada» y en
  * realidad es un rechazo por estructura. Traducirlos evita que alguien celebre
  * un archivo rechazado.</p>
  */
@@ -45,13 +49,6 @@ export const SIGNIFICADO_RESPUESTA: Record<string, SignificadoRespuesta> = {
   },
 };
 
-/**
- * Tipos de respuesta que ofrece el filtro.
- *
- * <p>Se deriva del catálogo de significados en vez de repetir la lista: si mañana el banco
- * añade un código, aparece en el desplegable el mismo día que se documenta qué quiere decir,
- * y no queda un filtro que esconde filas que sí existen.</p>
- */
 export const TIPOS_RESPUESTA: readonly string[] = Object.keys(SIGNIFICADO_RESPUESTA);
 
 export const significadoRespuesta = (codigo: string | null | undefined): SignificadoRespuesta =>
@@ -60,3 +57,13 @@ export const significadoRespuesta = (codigo: string | null | undefined): Signifi
     detalle: 'Tipo de respuesta no catalogado.',
     tono: 'neutral',
   };
+
+/** Extrae el contenido textual real que devuelve respuestas/detalle, sin interpretarlo. */
+export const contenidoRespuestaDetalle = (detalle: Record<string, unknown> | null): string => {
+  if (!detalle) return '';
+  const valor = (clave: string): unknown => detalle[clave] ?? detalle[clave.toLowerCase()];
+  const txt = valor('contenidoTxt');
+  if (typeof txt === 'string' && txt.length > 0) return txt;
+  const xml = valor('contenidoXml');
+  return typeof xml === 'string' ? xml : '';
+};

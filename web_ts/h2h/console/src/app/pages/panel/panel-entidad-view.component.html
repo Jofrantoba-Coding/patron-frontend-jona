@@ -1,17 +1,18 @@
-<app-nav-paneles />
-
+<div class="h2h-page mx-auto flex w-full max-w-7xl flex-col gap-6">
 <j-section-heading
   eyebrow="Panel de control"
   [heading]="voc().titulo"
   [description]="voc().descripcion"
 />
 
+<app-nav-paneles />
+
 <!--
   Mismos filtros que el panel general y con las mismas etiquetas: el periodo acota el
   INSTANTE de registro y el día de proceso el DÍA en que el banco trabaja el archivo.
   Son preguntas distintas y se pueden usar a la vez.
 -->
-<div class="mb-6 flex flex-wrap items-end gap-3">
+<div class="h2h-filter-panel flex flex-wrap items-end gap-3 p-4">
   <label class="flex min-w-[13rem] flex-col gap-1">
     <span class="text-xs font-medium text-neutral-500">Desde</span>
     <j-date-picker
@@ -62,7 +63,7 @@
 </div>
 
 @if (cargando()) {
-  <p class="text-sm text-neutral-500">Cargando…</p>
+  <p class="h2h-loading-note" role="status" aria-live="polite">Actualizando el panel…</p>
 } @else if (total() === 0) {
   <j-alert variant="info" [title]="hayFiltro() ? 'Nada en ese periodo' : 'Todavía no hay datos'">
     @if (hayFiltro()) {
@@ -229,3 +230,5 @@
     </j-card>
   }
 }
+
+</div>

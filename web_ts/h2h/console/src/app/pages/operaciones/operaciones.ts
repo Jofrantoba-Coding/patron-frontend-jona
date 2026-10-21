@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, type OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, type OnDestroy, type OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { JDataTable, JDatePicker, JDialog, JPagination, JSectionHeading } from 'uijona-4ngular';
 import { ApiService } from '../../core/api.service';
-import type { ProductoGrupo } from '../../core/models';
+import { LatestRequest } from '../../core/latest-request';
+import type { OperacionFiltro, ProductoGrupo } from '../../core/models';
+import { ProgressiveLoadDirective } from '../../core/progressive-load.directive';
 import { SessionService } from '../../core/session.service';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
 import { CATALOGO_ESTADO_OPERACION, OperacionesViewComponent } from './operaciones-view.component';
@@ -12,14 +14,23 @@ import { CATALOGO_ESTADO_OPERACION, OperacionesViewComponent } from './operacion
   selector: 'app-operaciones',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JDialog, JDatePicker, OperacionDetalleDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JDialog, JDatePicker, OperacionDetalleDialog, ProgressiveLoadDirective],
   templateUrl: './operaciones-view.component.html',
 })
-export class OperacionesPage extends OperacionesViewComponent implements OnInit {
+export class OperacionesPage extends OperacionesViewComponent implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly session = inject(SessionService);
+  private readonly listRequest = new LatestRequest();
+  private readonly appendRequest = new LatestRequest();
+  private mobileQueryKey = '';
+  private appliedMobileQuery: {
+    producto: ProductoGrupo | null;
+    subtipo: string;
+    filters: OperacionFiltro;
+    pageSize: number;
+  } | null = null;
 
   constructor() {
     super();
@@ -378,15 +389,71 @@ export class OperacionesPage extends OperacionesViewComponent implements OnInit 
   }
 
   override load(): void {
-    const producto = this.producto();
-    const filters = this.buildBackendFilters();
-    if (producto) {
-      const subtipo = this.subtipo() || undefined;
-      this.api
-        .operaciones({ producto, subtipo, page: this.page(), pageSize: this.pageSize(), filters })
-        .subscribe((res) => this.setPagedResult(res));
-    } else {
-      this.api.operaciones({ page: this.page(), pageSize: this.pageSize(), filters }).subscribe((res) => this.setPagedResult(res));
+    const query = {
+      producto: this.producto(),
+      subtipo: this.subtipo(),
+      filters: { ...this.buildBackendFilters() },
+      pageSize: this.pageSize(),
+    };
+    if (this.page() === 1 || !this.appliedMobileQuery) {
+      this.appliedMobileQuery = query;
+      const queryKey = JSON.stringify(query);
+      if (queryKey !== this.mobileQueryKey) {
+        this.mobileQueryKey = queryKey;
+        this.appendRequest.cancel();
+        this.mobileList.reset();
+      }
     }
+    const request = this.operacionesRequest(this.page(), query);
+
+    this.listLoading.set(true);
+    this.listError.set(null);
+    this.listRequest.run(request, {
+      next: (res) => {
+        this.setPagedResult(res);
+        if (res.pagination.page === 1) this.mobileList.seed(res);
+      },
+      error: (error) => this.listError.set(this.mensajeListadoError(error)),
+      settled: () => this.listLoading.set(false),
+    });
+  }
+
+  protected override cargarMas(): void {
+    const query = this.appliedMobileQuery;
+    if (!query) return;
+    const token = this.mobileList.beginNext();
+    if (!token) return;
+    this.appendRequest.run(this.operacionesRequest(token.page, query), {
+      next: (res) => this.mobileList.resolve(token, res),
+      error: (error) => this.mobileList.reject(token, this.mensajeListadoError(error)),
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.listRequest.cancel();
+    this.appendRequest.cancel();
+    this.mobileList.cancel();
+    this.appliedMobileQuery = null;
+  }
+
+  private operacionesRequest(
+    page: number,
+    query: { producto: ProductoGrupo | null; subtipo: string; filters: OperacionFiltro; pageSize: number }
+  ) {
+    const { producto, subtipo, filters, pageSize } = query;
+    return producto
+      ? this.api.operaciones({
+          producto,
+          subtipo: subtipo || undefined,
+          page,
+          pageSize,
+          filters,
+        })
+      : this.api.operaciones({ page, pageSize, filters });
+  }
+
+  private mensajeListadoError(err: unknown): string {
+    const e = err as { error?: { message?: string; errors?: { message?: string }[] } };
+    return e?.error?.message ?? e?.error?.errors?.[0]?.message ?? 'No se pudo actualizar la bandeja de operaciones.';
   }
 }

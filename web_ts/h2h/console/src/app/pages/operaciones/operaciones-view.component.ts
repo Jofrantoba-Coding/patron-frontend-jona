@@ -9,6 +9,8 @@ import type {
   ProductoGrupo,
 } from '../../core/models';
 import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
+import { ProgressiveLoadDirective } from '../../core/progressive-load.directive';
+import { ProgressivePagination } from '../../core/progressive-pagination';
 import { OperacionDetalleDialog } from '../../shared/operacion-detalle-dialog';
 import type {
   ComparacionCalimaco,
@@ -68,7 +70,7 @@ type Registro = OperacionDetalleRegistro;
   selector: 'app-operaciones-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JDialog, JDatePicker, OperacionDetalleDialog],
+  imports: [JSectionHeading, JDataTable, JPagination, JDialog, JDatePicker, OperacionDetalleDialog, ProgressiveLoadDirective],
   templateUrl: './operaciones-view.component.html',
 })
 export class OperacionesViewComponent {
@@ -100,6 +102,8 @@ export class OperacionesViewComponent {
   protected readonly page = signal<number>(1);
   protected readonly pageSize = signal<number>(50);
   protected readonly total = signal<number>(0);
+  protected readonly listLoading = signal<boolean>(false);
+  protected readonly listError = signal<string | null>(null);
 
   // Detalle de operación (diálogo compartido)
   protected readonly opDetalle = signal<OperacionDetalle | null>(null);
@@ -161,13 +165,18 @@ export class OperacionesViewComponent {
   protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
 
   protected readonly rows = computed<JDataTableRow[]>(() => this.master() as unknown as JDataTableRow[]);
+  protected readonly mobileList = new ProgressivePagination<Operacion>((item) => item.id);
+  protected readonly mobileRows = computed<JDataTableRow[]>(() =>
+    this.mobileList.items() as unknown as JDataTableRow[]
+  );
 
   private readonly columnasBase: JDataTableColumn[] = [
-    { key: 'codigoOperacion', header: 'Código', sortable: true },
+    { key: 'codigoOperacion', header: 'Código', sortable: true, mobilePriority: 1 },
     { key: 'tipoOperacionCodigo', header: 'Tipo', sortable: true },
     {
       key: 'beneficiario',
       header: 'Beneficiario',
+      mobilePriority: 2,
       render: (_value, row) => {
         const operacion = row as unknown as Operacion;
         const beneficiario = operacion.beneficiario ?? { titular: '-', tipoDocumentoCodigo: '-', numeroDocumento: '-' };
@@ -189,6 +198,7 @@ export class OperacionesViewComponent {
     {
       key: 'montoTotal',
       header: 'Monto',
+      mobilePriority: 3,
       sortable: true,
       align: 'right',
       render: (value) => NUM.format(Number(value ?? 0)),
@@ -220,7 +230,7 @@ export class OperacionesViewComponent {
       align: 'center',
       render: (value) => modalidadDe(value),
     },
-    { key: 'estadoOperacionCodigo', header: 'Estado', sortable: true },
+    { key: 'estadoOperacionCodigo', header: 'Estado', sortable: true, mobilePriority: 4 },
     // Si ya está en una planilla no se puede programar de nuevo. Sin esta
     // columna, el operador lo descubría al intentarlo y recibir el rechazo.
     {
@@ -278,6 +288,7 @@ export class OperacionesViewComponent {
   /** ¿Está la tabla en modo «marcar para convertir»? */
   protected readonly modoConversion = signal<boolean>(false);
   protected readonly seleccionConversion = signal<Set<string>>(new Set());
+  private readonly operacionesSeleccionadas = signal<Map<string, Operacion>>(new Map());
   protected readonly convertirAbierto = signal<boolean>(false);
   protected readonly convirtiendo = signal<boolean>(false);
   /** Opcional: sin fecha, cada operación conserva la suya (igual que el backend). */
@@ -312,47 +323,78 @@ export class OperacionesViewComponent {
     return this.seleccionConversion().has(id);
   }
 
-  /** Operaciones de la página que sí admiten conversión. */
+  /** Operaciones de la página de escritorio que sí admiten conversión. */
   protected readonly convertibles = computed<Operacion[]>(() =>
     this.master().filter((op) => !this.motivoNoConvertible(op))
   );
 
+  /** Operaciones acumuladas y visibles en móvil que sí admiten conversión. */
+  protected readonly convertiblesMoviles = computed<Operacion[]>(() =>
+    this.mobileList.items().filter((op) => !this.motivoNoConvertible(op))
+  );
+
   protected readonly seleccionConversionCount = computed(() => this.seleccionConversion().size);
+
+  protected resetSeleccionConversion(): void {
+    this.seleccionConversion.set(new Set());
+    this.operacionesSeleccionadas.set(new Map());
+    this.convertirAbierto.set(false);
+  }
 
   protected toggleModoConversion(): void {
     const entrando = !this.modoConversion();
     this.modoConversion.set(entrando);
-    // Salir del modo limpia la selección: dejarla viva la reaplicaría sobre otra página o otro
-    // filtro sin que se vea, que es como se convierte algo que no se estaba mirando.
-    if (!entrando) this.seleccionConversion.set(new Set());
+    // Salir del modo limpia ids y objetos: nunca debe sobrevivir una selección invisible.
+    if (!entrando) this.resetSeleccionConversion();
   }
 
-  protected toggleConversion(id: string): void {
-    const op = this.master().find((o) => String(o.id) === id);
-    if (!op || this.motivoNoConvertible(op)) return;
-    const s = new Set(this.seleccionConversion());
-    if (s.has(id)) s.delete(id);
-    else s.add(id);
-    this.seleccionConversion.set(s);
-  }
-
-  /** Marca o desmarca todas las convertibles de la página visible. */
-  protected toggleTodasConvertibles(): void {
-    const visibles = this.convertibles().map((op) => String(op.id));
-    const s = new Set(this.seleccionConversion());
-    const todasMarcadas = visibles.length > 0 && visibles.every((id) => s.has(id));
-    for (const id of visibles) {
-      if (todasMarcadas) s.delete(id);
-      else s.add(id);
+  protected toggleConversion(id: string, operacion?: Operacion): void {
+    const ids = new Set(this.seleccionConversion());
+    const seleccionadas = new Map(this.operacionesSeleccionadas());
+    if (ids.has(id)) {
+      ids.delete(id);
+      seleccionadas.delete(id);
+    } else {
+      const filaCompleta = operacion?.tipoOperacionCodigo ? operacion : undefined;
+      const op =
+        filaCompleta ??
+        this.mobileList.items().find((item) => String(item.id) === id) ??
+        this.master().find((item) => String(item.id) === id);
+      if (!op || this.motivoNoConvertible(op)) return;
+      ids.add(id);
+      seleccionadas.set(id, op);
     }
-    this.seleccionConversion.set(s);
+    this.seleccionConversion.set(ids);
+    this.operacionesSeleccionadas.set(seleccionadas);
   }
 
-  /** Las seleccionadas, en el orden en que se ven, para poder nombrarlas en la confirmación. */
-  protected readonly seleccionadasParaConvertir = computed<Operacion[]>(() =>
-    this.master().filter((op) => this.seleccionConversion().has(String(op.id)))
-  );
+  /** Marca o desmarca solo las convertibles de la fuente visible que entregue el layout. */
+  protected toggleTodasConvertibles(operaciones: readonly Operacion[] = this.convertibles()): void {
+    const visibles = operaciones.filter((op) => !this.motivoNoConvertible(op));
+    const ids = new Set(this.seleccionConversion());
+    const seleccionadas = new Map(this.operacionesSeleccionadas());
+    const todasMarcadas =
+      visibles.length > 0 && visibles.every((op) => ids.has(String(op.id)));
+    for (const op of visibles) {
+      const id = String(op.id);
+      if (todasMarcadas) {
+        ids.delete(id);
+        seleccionadas.delete(id);
+      } else {
+        ids.add(id);
+        seleccionadas.set(id, op);
+      }
+    }
+    this.seleccionConversion.set(ids);
+    this.operacionesSeleccionadas.set(seleccionadas);
+  }
 
+  /** Objetos retenidos para totales y payload aunque su página ya no esté en la tabla de escritorio. */
+  protected readonly seleccionadasParaConvertir = computed<Operacion[]>(() =>
+    Array.from(this.operacionesSeleccionadas().values()).filter((op) =>
+      this.seleccionConversion().has(String(op.id))
+    )
+  );
   /** Importe total de lo que se va a convertir: es la magnitud de lo que se está anulando. */
   protected readonly totalAConvertir = computed(() =>
     NUM.format(
@@ -384,6 +426,7 @@ export class OperacionesViewComponent {
   protected confirmarConvertir(): void {}
 
   protected onSubtipo(event: Event): void {
+    this.resetSeleccionConversion();
     this.subtipo.set((event.target as HTMLSelectElement).value);
     this.page.set(1);
     this.load();
@@ -447,11 +490,13 @@ export class OperacionesViewComponent {
   }
 
   protected onAplicarFiltros(): void {
+    this.resetSeleccionConversion();
     this.page.set(1);
     this.load();
   }
 
   protected onResetFiltros(): void {
+    this.resetSeleccionConversion();
     this.filtroProducto.set('');
     this.filtroEstado.set('');
     this.filtroId.set('');
@@ -475,6 +520,14 @@ export class OperacionesViewComponent {
   protected onPageChange(page: number): void {
     this.page.set(page);
     this.load();
+  }
+
+  protected retryLoad(): void {
+    this.load();
+  }
+
+  protected cargarMas(): void {
+    return;
   }
 
   protected buildBackendFilters(): OperacionFiltro {
@@ -535,7 +588,7 @@ export class OperacionesViewComponent {
     // En modo conversión el clic marca la fila. Abrir el detalle ahí obligaría a cerrarlo tras
     // cada marca, que con un lote de veinte operaciones es inusable.
     if (this.modoConversion()) {
-      this.toggleConversion(id);
+      this.toggleConversion(id, event.row as unknown as Operacion);
       return;
     }
     this.abrirOpDetalle(id);
@@ -816,6 +869,7 @@ export class OperacionesViewComponent {
   }
 
   protected setProducto(producto: ProductoGrupo | null): void {
+    this.resetSeleccionConversion();
     this.producto.set(producto);
     this.subtipo.set('');
     this.filtroProducto.set('');

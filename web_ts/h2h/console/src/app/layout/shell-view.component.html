@@ -1,87 +1,126 @@
-<!--
-  shell-view.component.html — JONA View del layout principal.
-  Solo estructura y bindings: la navegación y la sesión llegan resueltas.
--->
-<!--
-  `sidebarClassName` acota el panel a la altura de la ventana en escritorio.
+﻿<a class="h2h-skip-link" href="#main-content">Saltar al contenido principal</a>
 
-  Sin esto el aside es `lg:static` y, como fila flex, se estira a lo que mida su propio contenido:
-  con la cabecera que le metemos —marca, tenant, reloj del canal y los relojes de los jobs— más la
-  lista de secciones, pasa de la pantalla y quien acaba desplazándose es la PÁGINA entera. El `nav`
-  ya trae `overflow-y-auto`, pero nunca llegaba a activarse porque no tenía altura que respetar.
-
-  Con `lg:h-screen` la tiene y el menú se desplaza solo; `lg:sticky top-0` lo deja anclado si algún
-  día la página vuelve a crecer por otro motivo. En móvil no hacía falta: allí ya es `fixed
-  inset-y-0`. El orden importa —`sidebarClassName` va el último en el `cn` del componente— así que
-  `lg:sticky` gana sobre el `lg:static` de base por tailwind-merge (comprobado: lo elimina).
-
-  `lg:bottom-auto` suelta el `bottom:0` que trae `inset-y-0` para el caso móvil. Un sticky con top y
-  bottom a la vez se ata por arriba igual, pero dejarlo puesto sería pedirle al navegador que
-  resuelva una restricción que no queremos y que no aporta nada.
--->
-<j-sidebar-layout
-  [nav]="nav()"
-  [activeKey]="activeKey()"
-  [collapsible]="true"
-  sidebarClassName="lg:sticky lg:top-0 lg:bottom-auto lg:h-screen"
-  (navItemClick)="onNav($event)"
->
-  <div jHeader class="flex min-w-0 flex-col gap-2">
-    <div class="flex items-center gap-2">
-      <span
-        class="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary-600 text-sm font-black text-white"
-        >H2H</span
-      >
-      <div class="min-w-0">
-        <p class="truncate text-sm font-semibold leading-tight text-neutral-900">Consola H2H</p>
-        <p class="truncate text-[11px] leading-tight text-neutral-400">Jofrantoba Consulting TI</p>
-      </div>
-    </div>
-
-    <div class="flex min-w-0 items-center gap-1.5">
-      <span class="truncate text-xs font-medium text-neutral-600">{{
-        tenant()?.org_v_nombrecomercial
-      }}</span>
-      <j-badge [variant]="ambienteVariant()">{{ tenant()?.org_v_ambiente }}</j-badge>
-    </div>
-
-    <!--
-      Reloj del canal. En un canal por ventanas, la pregunta operativa más
-      frecuente no es "qué hay pendiente" sino "cuánto me queda para el corte".
-      Por eso vive en la cabecera, visible desde cualquier pantalla.
-    -->
-    <app-reloj-canal [compacta]="true" />
-
-    <!--
-      Relojes de los jobs, debajo del reloj del canal: aquel dice hasta cuando se puede enviar y
-      estos cuando el sistema va a mover algo por su cuenta. Aqui van en una linea por job; el
-      detalle (que hace cada uno, su cron) esta en el panel de control.
-    -->
-    <app-relojes-jobs [compacta]="true" />
-  </div>
-
-  <div jFooter class="flex flex-col gap-2">
-    <j-user-avatar [name]="user()?.name ?? ''" [email]="user()?.email" size="sm" />
+<div class="h2h-shell">
+  <header class="h2h-mobile-bar lg:hidden">
     <button
       type="button"
-      (click)="logout()"
-      class="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-danger-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+      class="h2h-icon-button"
+      aria-label="Abrir navegación"
+      aria-controls="h2h-sidebar"
+      [attr.aria-expanded]="mobileOpen()"
+      (click)="toggleMobile()"
     >
-      <svg
-        class="h-4 w-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        aria-hidden="true"
-      >
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <polyline points="16 17 21 12 16 7" />
-        <line x1="21" y1="12" x2="9" y2="12" />
-      </svg>
-      Cerrar sesión
+      <span aria-hidden="true">☰</span>
     </button>
-  </div>
+    <div class="min-w-0 flex-1">
+      <p class="truncate text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Consola H2H</p>
+      <p class="truncate text-sm font-semibold text-white">{{ activeLabel() }}</p>
+    </div>
+    <j-badge [variant]="ambienteVariant()">{{ tenant()?.org_v_ambiente }}</j-badge>
+  </header>
 
-  <router-outlet />
-</j-sidebar-layout>
+  @if (mobileOpen()) {
+    <button
+      type="button"
+      class="fixed inset-0 z-40 bg-slate-950/55 lg:hidden"
+      aria-label="Cerrar navegación"
+      (click)="closeMobile()"
+    ></button>
+  }
+
+  <aside
+    id="h2h-sidebar"
+    class="h2h-sidebar"
+    [class.h2h-sidebar--open]="mobileOpen()"
+    [class.h2h-sidebar--collapsed]="collapsed()"
+    aria-label="Navegación principal"
+  >
+    <div class="h2h-brand">
+      <span class="h2h-brand-mark" aria-hidden="true">H2H</span>
+      @if (!collapsed()) {
+        <div class="min-w-0">
+          <p class="truncate text-sm font-bold text-white">Consola H2H</p>
+          <p class="truncate text-[11px] text-slate-400">Jofrantoba Consulting TI</p>
+        </div>
+      }
+      <button type="button" class="h2h-icon-button ml-auto lg:hidden" aria-label="Cerrar navegación" (click)="closeMobile()">×</button>
+    </div>
+
+    @if (!collapsed()) {
+      <div class="h2h-tenant-card">
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-xs font-semibold text-slate-100">{{ tenant()?.org_v_nombrecomercial || 'Organización' }}</p>
+          <p class="mt-0.5 text-[11px] text-slate-400">Canal operativo BCP</p>
+        </div>
+        <j-badge [variant]="ambienteVariant()">{{ tenant()?.org_v_ambiente }}</j-badge>
+      </div>
+      <div class="h2h-sidebar-status">
+        <app-reloj-canal [compacta]="true" />
+        <app-relojes-jobs [compacta]="true" />
+      </div>
+    }
+
+    <nav class="h2h-nav" aria-label="Secciones de la consola">
+      @for (group of nav(); track group.label ?? $index) {
+        <div class="h2h-nav-group">
+          @if (group.label && !collapsed()) {
+            <p class="h2h-nav-label">{{ group.label }}</p>
+          }
+          @for (item of group.items; track item.key) {
+            <button
+              type="button"
+              class="h2h-nav-item"
+              [class.h2h-nav-item--active]="activeKey() === item.key"
+              [attr.aria-current]="activeKey() === item.key ? 'page' : null"
+              [attr.title]="collapsed() ? item.label : null"
+              (click)="onNavSelected(item)"
+            >
+              <span class="h2h-nav-icon" aria-hidden="true">{{ item.icon }}</span>
+              @if (!collapsed()) {
+                <span class="min-w-0 flex-1 truncate text-left">{{ item.label }}</span>
+                @if (item.badge) {
+                  <span class="h2h-nav-badge">{{ item.badge }}</span>
+                }
+              }
+            </button>
+          }
+        </div>
+      }
+    </nav>
+
+    <div class="h2h-sidebar-footer">
+      @if (!collapsed()) {
+        <j-user-avatar [name]="user()?.name ?? ''" [email]="user()?.email" size="sm" />
+        <button type="button" class="h2h-logout" (click)="logout()">
+          <span aria-hidden="true">↪</span><span>Cerrar sesión</span>
+        </button>
+      }
+      <button
+        type="button"
+        class="h2h-collapse hidden lg:inline-flex"
+        [attr.aria-label]="collapsed() ? 'Expandir navegación' : 'Contraer navegación'"
+        (click)="toggleCollapsed()"
+      >
+        <span aria-hidden="true">{{ collapsed() ? '›' : '‹' }}</span>
+        @if (!collapsed()) { <span>Contraer menú</span> }
+      </button>
+    </div>
+  </aside>
+
+  <div class="h2h-workspace">
+    <header class="h2h-topbar hidden lg:flex">
+      <div class="min-w-0">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Canal H2H · BCP</p>
+        <h1 class="truncate text-base font-semibold text-slate-950">{{ activeLabel() }}</h1>
+      </div>
+      <div class="ml-auto flex min-w-0 items-center gap-3">
+        <span class="max-w-64 truncate text-sm text-slate-600">{{ tenant()?.org_v_nombrecomercial }}</span>
+        <j-badge [variant]="ambienteVariant()">{{ tenant()?.org_v_ambiente }}</j-badge>
+      </div>
+    </header>
+
+    <main id="main-content" class="h2h-main" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+</div>

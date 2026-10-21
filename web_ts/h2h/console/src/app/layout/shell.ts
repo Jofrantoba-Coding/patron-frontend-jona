@@ -1,9 +1,10 @@
 // shell.ts — JONA Page/Impl del layout principal.
 // Conecta la View con el router y la sesión; no contiene marcado.
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { JBadge, JSidebarLayout, JUserAvatar, type SidebarNavItem } from 'uijona-4ngular';
+import { JBadge, JUserAvatar, type SidebarNavItem } from 'uijona-4ngular';
 import { environment } from '../../environments/environment';
 import { ApiService } from '../core/api.service';
 import { SessionService } from '../core/session.service';
@@ -15,13 +16,14 @@ import { ShellViewComponent } from './shell-view.component';
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, JSidebarLayout, JUserAvatar, JBadge, RelojCanalComponent, RelojesJobsComponent],
+  imports: [RouterOutlet, JUserAvatar, JBadge, RelojCanalComponent, RelojesJobsComponent],
   templateUrl: './shell-view.component.html',
 })
 export class Shell extends ShellViewComponent {
   private readonly router = inject(Router);
   private readonly session = inject(SessionService);
   private readonly api = inject(ApiService);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     super();
@@ -33,7 +35,10 @@ export class Shell extends ShellViewComponent {
     this.refrescarPendientes();
 
     this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe((e) => {
         this.sincronizarRuta(e.urlAfterRedirects);
         // Navegar suele venir después de actuar sobre una etapa (validar, generar,

@@ -17,6 +17,8 @@ import {
 } from 'uijona-4ngular';
 import type { OperacionDetalleRegistro, Paginated, PlanillaDetalleFull, PlanillaFiltro, PlanillaRow } from '../../core/models';
 import { instanteDeBackendAHoraDePared } from '../../core/zona-horaria';
+import { ProgressiveLoadDirective } from '../../core/progressive-load.directive';
+import { ProgressivePagination } from '../../core/progressive-pagination';
 import { esperaOperador, siguientePaso, type SiguientePaso } from './inter-planillas';
 
 const NUM = new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2 });
@@ -108,7 +110,7 @@ const BADGE: Record<string, JBadgeVariant> = {
   selector: 'app-planillas-view',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JDatePicker, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent],
+  imports: [JSectionHeading, JDataTable, JPagination, JBadge, JDialog, JDatePicker, JProgress, JTabs, JTabsList, JTabsTrigger, JTabsContent, ProgressiveLoadDirective],
   templateUrl: './planillas-view.component.html',
 })
 export class PlanillasViewComponent {
@@ -116,6 +118,8 @@ export class PlanillasViewComponent {
   protected readonly page = signal<number>(1);
   protected readonly pageSize = signal<number>(10);
   protected readonly total = signal<number>(0);
+  protected readonly listLoading = signal<boolean>(false);
+  protected readonly listError = signal<string | null>(null);
 
   protected readonly filtroNombre = signal<string>('');
   protected readonly filtroSecuencial = signal<string>('');
@@ -124,6 +128,7 @@ export class PlanillasViewComponent {
 
   protected readonly detalle = signal<PlanillaDetalleFull | null>(null);
   protected readonly detalleLoading = signal<string | null>(null);
+  protected readonly detalleError = signal<string | null>(null);
   protected readonly detalleSeleccionado = signal<PlanillaRow | null>(null);
   protected readonly detalleTab = signal<DetalleTab>('resumen');
 
@@ -134,6 +139,10 @@ export class PlanillasViewComponent {
   protected readonly estadosPlanilla = ESTADOS_PLANILLA;
 
   protected readonly rows = computed<JDataTableRow[]>(() => this.rowsSignal() as unknown as JDataTableRow[]);
+  protected readonly mobileList = new ProgressivePagination<PlanillaRow>((item) => item.id);
+  protected readonly mobileRows = computed<JDataTableRow[]>(() =>
+    this.mobileList.items() as unknown as JDataTableRow[]
+  );
   protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize())));
   protected readonly rowKey = (row: JDataTableRow) => String((row as unknown as PlanillaRow).id);
 
@@ -431,15 +440,15 @@ export class PlanillasViewComponent {
   }
 
   protected readonly columns: JDataTableColumn[] = [
-    { key: 'nombreArchivo', header: 'Archivo', sortable: true },
+    { key: 'nombreArchivo', header: 'Archivo', sortable: true, mobilePriority: 1 },
     { key: 'secuencial', header: 'Sec.', sortable: true, align: 'center' },
     { key: 'entidadFinCodigo', header: 'Entidad', sortable: true, align: 'center' },
-    { key: 'productoCodigo', header: 'Producto', sortable: true, render: (value) => productoLabel(value) },
+    { key: 'productoCodigo', header: 'Producto', sortable: true, mobilePriority: 2, render: (value) => productoLabel(value) },
     { key: 'cuentaCargo', header: 'Cuenta cargo', render: (value) => (value ? String(value) : '-') },
     { key: 'monedaCodigo', header: 'Mon.', align: 'center', render: (value) => String(value ?? '-') },
-    { key: 'montoTotal', header: 'Monto', align: 'right', sortable: true, render: (value) => NUM.format(Number(value ?? 0)) },
+    { key: 'montoTotal', header: 'Monto', align: 'right', sortable: true, mobilePriority: 3, render: (value) => NUM.format(Number(value ?? 0)) },
     { key: 'totalOperaciones', header: 'Ops.', align: 'right', sortable: true, render: (value) => String(value ?? 0) },
-    { key: 'estadoPlanillaCodigo', header: 'Estado', sortable: true },
+    { key: 'estadoPlanillaCodigo', header: 'Estado', sortable: true, mobilePriority: 4 },
     // Qué toca hacer, junto al estado. Sin esta columna hay que abrir el detalle
     // de cada fila para descubrir en qué punto del pipeline está.
     {
@@ -564,12 +573,25 @@ export class PlanillasViewComponent {
   protected load(): void {
     return;
   }
+  protected retryLoad(): void {
+    this.load();
+  }
+
+  protected cargarMas(): void {
+    return;
+  }
   protected openDetalle(_planilla: PlanillaRow): void {
     return;
   }
+  /** Hook de reintento del detalle (sobrescrito por la Page). */
+  protected reintentarDetalle(): void {
+    return;
+  }
+
   protected closeDetalle(): void {
     this.detalle.set(null);
     this.detalleLoading.set(null);
+    this.detalleError.set(null);
     this.detalleSeleccionado.set(null);
     this.detalleTab.set('resumen');
   }
