@@ -1,9 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import 'jona-ui/index.css';
+import { App } from './App';
+import { composeServices } from './services/serviceComposer';
+import { createSessionStore } from './session/sessionStore';
 
-// Placeholder entry. The app shell is wired in later slices (W1a-4 onward).
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <main>SoftCommerce</main>
-  </React.StrictMode>,
-);
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+
+try {
+  const store = createSessionStore(sessionStorage);
+  // A configuration error (bad VITE_API_*) throws here, before any request.
+  const services = composeServices(import.meta.env, { getSession: store.getContext });
+  root.render(
+    <React.StrictMode>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <App services={services} store={store} />
+      </BrowserRouter>
+    </React.StrictMode>,
+  );
+} catch (error) {
+  root.render(<pre role="alert">{error instanceof Error ? error.message : String(error)}</pre>);
+}
