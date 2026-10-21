@@ -83,9 +83,9 @@ Commits: (1) `feat(softcommerce-mock): add http app with tenant and correlation`
 
 ## Slice 3: W1a-3 service seam (branch `feat/softcommerce-w1a-3-service-seam`, base: slice 2)
 
-- [ ] T3.1 ApiError + httpClient. RED: `src/services/httpClient.spec.ts` (S-AUTH-22 `X-Tenant-Id` on post-login requests; supporting: `Authorization`, generated `X-Correlation-Id`, error body mapped to `ApiError{status,code,message,details,traceId}`). GREEN: `ApiError.ts`, `httpClient.ts`. REFACTOR: none.
-- [ ] T3.2 lazyService + serviceComposer. RED: `serviceComposer.spec.ts` (S-AUTH-1 mock mode loads via dynamic import using `vi.dynamicImportSettled`, S-AUTH-2 http mode does not load the mock, S-AUTH-3 invalid mode names `VITE_API_MODE`, S-AUTH-4 empty or `not-a-url` base URL). GREEN: `lazyService.ts`, `serviceComposer.ts`. REFACTOR: pure env parser.
-- [ ] T3.3 Auth service and mock. RED: `AuthServiceHttp.spec.ts` (contract against live mock server on port 0), `mock/AppServicesMock.spec.ts` (scenarios `exitoso|vacio|errorServidor` reject `ApiError` 500). GREEN: `InterAuthService.ts` (login, sessionOptions, empresas, puntosVenta, params), `AuthServiceHttp.ts`, `mock/{AppServicesMock,seed}.ts` importing `mock-server/core`, `mock/fixtures/*.fixture.ts`. REFACTOR: none.
+- [x] T3.1 ApiError + httpClient. RED: `src/services/httpClient.spec.ts` (S-AUTH-22 `X-Tenant-Id` on post-login requests; supporting: `Authorization`, generated `X-Correlation-Id`, error body mapped to `ApiError{status,code,message,details,traceId}`). GREEN: `ApiError.ts`, `httpClient.ts`. REFACTOR: none.
+- [x] T3.2 lazyService + serviceComposer. RED: `serviceComposer.spec.ts` (S-AUTH-1 mock mode loads via dynamic import using `vi.dynamicImportSettled`, S-AUTH-2 http mode does not load the mock, S-AUTH-3 invalid mode names `VITE_API_MODE`, S-AUTH-4 empty or `not-a-url` base URL). GREEN: `lazyService.ts`, `serviceComposer.ts`. REFACTOR: pure env parser.
+- [x] T3.3 Auth service and mock. RED: `AuthServiceHttp.spec.ts` (contract against live mock server on port 0), `mock/AppServicesMock.spec.ts` (scenarios `exitoso|vacio|errorServidor` reject `ApiError` 500). GREEN: `InterAuthService.ts` (login, sessionOptions, empresas, puntosVenta, params), `AuthServiceHttp.ts`, `mock/{AppServicesMock,seed}.ts` importing `mock-server/core`, `mock/fixtures/*.fixture.ts`. REFACTOR: none.
 - [ ] T3.4 Gate, PR.
 
 Commits: (1) `feat(softcommerce): add ApiError and http client` T3.1; (2) `feat(softcommerce): add service composer with lazy mock` T3.2; (3) `feat(softcommerce): add auth service http and mock` T3.3.
