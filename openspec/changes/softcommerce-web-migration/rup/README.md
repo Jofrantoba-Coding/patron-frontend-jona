@@ -174,7 +174,7 @@ Spec: [uc-04-mantener-localidad.md](uc-04-mantener-localidad.md#cu-04b-seleccion
 
 **GUI inventory script (`softcommerce-gui-inventory`).** Developer tooling that scans the Java tree to plan later waves. No end-user actor and no UI.
 
-**Build constraint.** Pins `jona-ui` to `1.3.0`. A dependency rule checked on `package.json`, not user behavior.
+**Build constraint.** Pins `jona-ui` to `1.4.0`. A dependency rule checked on `package.json`, not user behavior.
 
 **Template extensibility.** A second minimal config renders with no new template code. A maintainability quality attribute of the CRUD templates, not an operator goal (it proves CU-04's template is reusable).
 

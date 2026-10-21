@@ -35,7 +35,7 @@ Server errors on execute MUST keep the dialog open, show the message and keep en
 Enter submits the register form (not from a multiline field or when focused on a button other than submit); Esc closes the dialog without executing, asking confirmation if the form is dirty.
 
 ### R-CRUD-9 Local components
-Missing uijona components (permission toolbar, uppercase input, lookup combo) MUST be app-local under `src/shared/ui`, following InterUi/Impl/View, with value-first callbacks and DEFAULTS without state values; `jona-ui` is pinned to npm `1.3.0` exact.
+Missing uijona components (permission toolbar, uppercase input, lookup combo) MUST be app-local under `src/shared/ui`, following InterUi/Impl/View, with value-first callbacks and DEFAULTS without state values; `jona-ui` is pinned to npm `1.4.0` exact (mobile-first release; was `1.3.0`).
 
 ## Scenarios
 
@@ -79,6 +79,6 @@ Missing uijona components (permission toolbar, uppercase input, lookup combo) MU
 
 **S-CRUD-20 lookup load failure** — Given a lookup request fails on open, Then the dialog shows an error and submit is disabled.
 
-**S-CRUD-21 pinned dependency** — Given `package.json`, Then `jona-ui` equals `"1.3.0"` with no range operator.
+**S-CRUD-21 pinned dependency** — Given `package.json`, Then `jona-ui` equals `"1.4.0"` with no range operator.
 
 **S-CRUD-22 config-only catalog** — Given a second minimal catalog config, Then list and register render and function without new template code.

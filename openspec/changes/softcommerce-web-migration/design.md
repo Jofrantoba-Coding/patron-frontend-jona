@@ -2,7 +2,7 @@
 
 ## Technical Approach
 
-A Vite + React 18 app in `web_ts/softcommerce` that consumes npm `jona-ui@1.3.0` (exact pin). It has three parts:
+A Vite + React 18 app in `web_ts/softcommerce` that consumes npm `jona-ui@1.4.0` (exact pin; bumped from 1.3.0 for the mobile-first release). It has three parts:
 
 - Screens follow the JONA view-unit pattern from `appjona_codex_react_hooks` (`src/views/ui<caso>/`).
 - Catalogs are config objects rendered by two generic JONA units: `uicrudlist` and `uicrudregister`.
