@@ -74,10 +74,10 @@ Commits: (1) `chore(softcommerce): scaffold vite app with pinned jona-ui` T1.1; 
 
 ## Slice 2: W1a-2 mock HTTP (branch `feat/softcommerce-w1a-2-mock-http`, base: slice 1)
 
-- [ ] T2.1 Router, tenant, correlation, errors. RED: `mock-server/http/app.spec.ts`, server on port 0 with real `fetch`, reset between tests (S-MOCK-1, S-MOCK-2, S-MOCK-3, S-MOCK-4, S-MOCK-5, S-MOCK-6). GREEN: `http/app.js` (routes per design table, `X-Tenant-Id` gate with 400 `TENANT_REQUIRED` / 404 `TENANT_NOT_FOUND`, `X-Correlation-Id` echo or generate, `traceId` equals correlation id). REFACTOR: small route table.
-- [ ] T2.2 Catalog routes and physical delete rejection. RED: S-MOCK-11 (`?physical` and `/fisico` return 404/405 with error shape); supporting: 201/200/204 statuses, `/v1/ubigeo`, `/v1/empresas`, `/v1/puntos-venta?id_empresa=`, `/v1/params`, `POST /__mock/reset` HTTP smoke. GREEN: routes in `http/app.js`. REFACTOR: none.
-- [ ] T2.3 Seed swap. RED: S-MOCK-13 (start the app with a temp data dir holding another valid `menu.json`; `GET /menu` serves it, no code change). GREEN: `data` dir injectable into the app factory. REFACTOR: none.
-- [ ] T2.4 `mock-server/server.js` (reads JSON via `fs`, env `PORT`), `README.md` (routes, tenants, scenarios), npm script `mock`. Gate, PR.
+- [x] T2.1 Router, tenant, correlation, errors. RED: `mock-server/http/app.spec.ts`, server on port 0 with real `fetch`, reset between tests (S-MOCK-1, S-MOCK-2, S-MOCK-3, S-MOCK-4, S-MOCK-5, S-MOCK-6). GREEN: `http/app.js` (routes per design table, `X-Tenant-Id` gate with 400 `TENANT_REQUIRED` / 404 `TENANT_NOT_FOUND`, `X-Correlation-Id` echo or generate, `traceId` equals correlation id). REFACTOR: small route table.
+- [x] T2.2 Catalog routes and physical delete rejection. RED: S-MOCK-11 (`?physical` and `/fisico` return 404/405 with error shape); supporting: 201/200/204 statuses, `/v1/ubigeo`, `/v1/empresas`, `/v1/puntos-venta?id_empresa=`, `/v1/params`, `POST /__mock/reset` HTTP smoke. GREEN: routes in `http/app.js`. REFACTOR: none.
+- [x] T2.3 Seed swap. RED: S-MOCK-13 (start the app with a temp data dir holding another valid `menu.json`; `GET /menu` serves it, no code change). GREEN: `data` dir injectable into the app factory. REFACTOR: none.
+- [x] T2.4 `mock-server/server.js` (reads JSON via `fs`, env `PORT`), `README.md` (routes, tenants, scenarios), npm script `mock`. Gate, PR.
 
 Commits: (1) `feat(softcommerce-mock): add http app with tenant and correlation` T2.1+T2.3; (2) `feat(softcommerce-mock): add catalog and lookup routes` T2.2; (3) `feat(softcommerce-mock): add server entry and readme` T2.4.
 

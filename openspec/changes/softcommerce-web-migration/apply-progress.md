@@ -22,3 +22,21 @@ Mode: Strict TDD. Status: T1.0-T1.5 done (T1.6 gate/commit/PR left to the orches
 
 ### Files (lines; package-lock.json 3221 excluded)
 Total excluding lockfile: 1200 lines (exceeds the 800 budget; see risks).
+
+## Slice 2 (W1a-2) - branch `feat/softcommerce-w1a-2-mock-http`
+
+Mode: Strict TDD. Status: T2.1-T2.4 done (gate, commits and PR left to the orchestrator). Gate (from `web_ts/softcommerce`): `npm test` 9 files / 74 tests passed (23 new); `npm run typecheck` exit 0; `npm run build` exit 0. Runtime harness: `PORT=4021 node mock-server/server.js`; `GET /auth/session-options` returned 200 with a generated `X-Correlation-Id` and CORS headers; `GET /v1/localidades?pageSize=2` with `X-Tenant-Id: demo` returned 2 enriched items plus pagination; `GET /menu` without tenant returned 400 `TENANT_REQUIRED`. Process stopped afterwards.
+
+### TDD Cycle Evidence
+| Task | Test file | Layer | Safety net | RED observed | GREEN | Triangulate | Refactor |
+|------|-----------|-------|------------|--------------|-------|-------------|----------|
+| T2.1 | `mock-server/http/app.spec.ts` (+ `test-server.ts` helper) | Integration (real fetch, port 0) | 51 slice-1 tests green | suite failed: `./app.js` not found | 11/11 | echoed vs generated id, traceId follows echoed id, 400 vs 404 tenant, public route, login 401/403, unknown route, malformed JSON, CORS preflight | small route table (data array) |
+| T2.2 | `mock-server/http/routes.spec.ts` | Integration | app.spec green | 9/9 failed (routes missing, 404) | 9/9 | 201/200/204, 422 details, `?physical` 405 and `/fisico` 404, ubigeo 3 levels + unknown, empresas/puntos-venta filter, params, reset 204 | none (lookups ordered before generic catalog routes) |
+| T2.3 | `mock-server/http/seedSwap.spec.ts` | Integration | 20 http tests green | 2/2 failed: `createApp` without seed (`tenants` of undefined) | 3/3 | replaced menu served, other seed files intact, missing seed file names the path | `loadSeed.js` extracted |
+| T2.4 | none (entry wiring; covered by runtime harness) | Runtime | n/a | n/a | harness above | n/a | n/a |
+
+### Deviations
+- `createApp({seed|dataDir})` returns `{server, store}` unstarted (tests listen on port 0). `POST /__mock/reset` is public (no tenant). Added CORS headers and `OPTIONS` 204 so the browser app can call the server in slice 3+. `MOCK_DATA_DIR` env is an extra override. The npm script `mock` already existed from slice 1.
+
+### Files (lines)
+`mock-server/http/app.js` 115, `loadSeed.js` 35, `test-server.ts` 49, `app.spec.ts` 100, `routes.spec.ts` 83, `seedSwap.spec.ts` 37, `mock-server/server.js` 10, `mock-server/README.md` 57. Total 486 (budget 800, forecast 420).
