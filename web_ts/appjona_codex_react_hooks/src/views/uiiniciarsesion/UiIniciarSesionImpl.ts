@@ -1,16 +1,19 @@
 // Capa: Implementation
 // Responsabilidad: conectar el organismo con servicios, router y storage.
-// Restricciones: sin JSX ni estilos.
+// Restricciones: sin JSX ni estilos; depende del contrato InterAuthService, nunca de una implementacion concreta.
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { persistAuthenticatedSession } from '../../appStorage';
-import { AuthService } from '../../services/AuthService';
+import type { InterAuthService } from '../../services/InterAuthService';
+import { authService } from '../../services/authServiceComposer';
 import {
   useUiIniciarSesion,
   type UiIniciarSesionTemplateModel,
 } from './UiIniciarSesionTemplateModel';
 
-export function useUiIniciarSesionImpl(): UiIniciarSesionTemplateModel {
+export function useUiIniciarSesionImpl(
+  service: InterAuthService = authService,
+): UiIniciarSesionTemplateModel {
   const base = useUiIniciarSesion();
   const navigate = useNavigate();
 
@@ -18,7 +21,7 @@ export function useUiIniciarSesionImpl(): UiIniciarSesionTemplateModel {
     base.setIsSubmitting(true);
     base.setSubmitError('');
 
-    AuthService.login(email, password)
+    service.login(email, password)
       .then((session) => {
         persistAuthenticatedSession(session);
         navigate('/homesesion');

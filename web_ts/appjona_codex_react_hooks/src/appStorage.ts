@@ -1,4 +1,4 @@
-import type { AuthSession } from './services/AuthService';
+import type { AuthSession } from './services/InterAuthService';
 
 export const STORAGE_KEYS = {
   authenticated: 'appjona_codex_authenticated',
