@@ -50,6 +50,8 @@ interface JOptionPaneViewProps {
   isLoading:    boolean;
   onConfirm:    () => void;
   onCancel:     () => void;
+  panelRef:       React.RefObject<HTMLDivElement>;
+  onPanelKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 }
 
 // ── View ──────────────────────────────────────────────────────────────────────
@@ -64,6 +66,8 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
   isLoading,
   onConfirm,
   onCancel,
+  panelRef,
+  onPanelKeyDown,
 }) => {
   if (!open) return null;
 
@@ -72,7 +76,7 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
       variant="ghost"
       padding="none"
       radius="none"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
     >
       {/* Backdrop */}
       <JPanel
@@ -91,11 +95,14 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
         padding="none"
         radius="none"
         alignItems="start"
+        ref={panelRef}
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="joptionpane-title"
         aria-describedby={description ? 'joptionpane-desc' : undefined}
-        className="relative z-10 w-full max-w-sm rounded-lg bg-white shadow-xl sm:max-w-md"
+        tabIndex={-1}
+        onKeyDown={onPanelKeyDown}
+        className="relative z-10 max-h-[calc(100dvh-1rem)] w-full max-w-sm overflow-y-auto rounded-lg bg-white shadow-xl focus:outline-none sm:max-w-md"
       >
         {/* West: ícono con fondo semántico — mobile: centrado / tablet+: izquierda */}
         <JPanel

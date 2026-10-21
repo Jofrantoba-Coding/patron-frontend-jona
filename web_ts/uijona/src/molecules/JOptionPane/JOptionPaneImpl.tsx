@@ -1,10 +1,14 @@
 // JOptionPaneImpl.tsx — JONA Implementation
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { InterJOptionPane, JOPTIONPANE_DEFAULTS } from './InterJOptionPane';
 import { JOptionPaneView } from './JOptionPaneView';
+import { useFocusTrap } from '../../lib/focus';
 
 export const JOptionPaneImpl: React.FC<InterJOptionPane> = (props) => {
   const merged = { ...JOPTIONPANE_DEFAULTS, ...props };
+  const panelRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
+  // Focus goes to the panel (not "Confirm") so a stray Enter is not destructive
+  const onPanelKeyDown = useFocusTrap(panelRef, props.open);
 
   useEffect(() => {
     if (!props.open) return;
@@ -24,6 +28,8 @@ export const JOptionPaneImpl: React.FC<InterJOptionPane> = (props) => {
       isLoading={merged.isLoading}
       onConfirm={props.onConfirm}
       onCancel={props.onCancel}
+      panelRef={panelRef}
+      onPanelKeyDown={onPanelKeyDown}
     />
   );
 };

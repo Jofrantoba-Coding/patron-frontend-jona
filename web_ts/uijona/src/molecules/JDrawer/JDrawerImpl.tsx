@@ -1,10 +1,20 @@
 ﻿// JDrawerImpl.tsx — JONA Implementation
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { InterJDrawer, JDRAWER_DEFAULTS } from './InterJDrawer';
 import { JDrawerView } from './JDrawerView';
+import { useFocusTrap } from '../../lib/focus';
 
 export const JDrawerImpl: React.FC<InterJDrawer> = (props) => {
   const merged = { ...JDRAWER_DEFAULTS, ...props };
+  const panelRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
+  const onPanelKeyDown = useFocusTrap(panelRef, merged.open);
+
+  // Unlike JDialog, the drawer panel is ALWAYS in the DOM (it slides with a
+  // transform), so while closed it must also leave the tab order. Set
+  // imperatively: React 18 and 19 serialize the `inert` prop differently.
+  useLayoutEffect(() => {
+    panelRef.current?.toggleAttribute('inert', !merged.open);
+  }, [merged.open]);
 
   useEffect(() => {
     if (!merged.open) return;
@@ -29,6 +39,8 @@ export const JDrawerImpl: React.FC<InterJDrawer> = (props) => {
       footer={props.footer}
       onClose={props.onClose}
       onOverlayClick={props.onClose}
+      panelRef={panelRef}
+      onPanelKeyDown={onPanelKeyDown}
     >
       {props.children}
     </JDrawerView>

@@ -20,6 +20,7 @@ const SIZE_CLASS: Record<JDialogSize, string> = {
 interface JDialogViewProps extends InterJDialog {
   overlayRef:     React.RefObject<HTMLDivElement>;
   dialogRef:      React.RefObject<HTMLDivElement>;
+  onPanelKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
   onOverlayClick: () => void;
   onCloseClick:   () => void;
 }
@@ -41,6 +42,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
   footer,
   overlayRef,
   dialogRef,
+  onPanelKeyDown,
   onOverlayClick,
   onCloseClick,
 }) => {
@@ -53,7 +55,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
       radius="none"
       ref={overlayRef}
       role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
     >
       {/* Backdrop */}
       <JPanel
@@ -65,9 +67,10 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         onClick={onOverlayClick}
       />
 
-      {/* Dialog window — JBorderLayout principal */}
+      {/* Dialog window — flex column (JBoxLayout). A border-layout grid capped
+          only by max-height may not shrink its 1fr row, so the content would not
+          scroll on short phone screens; flex + min-h-0 does. */}
       <JPanel
-        layout="border"
         variant="ghost"
         padding="none"
         radius="none"
@@ -78,19 +81,18 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         aria-describedby={description ? 'jdialog-desc' : undefined}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={onPanelKeyDown}
         className={cn(
-          'relative z-10 w-full rounded-lg bg-white shadow-xl focus:outline-none overflow-hidden',
-          'max-h-[calc(100dvh-4rem)]',
+          'relative z-10 flex w-full flex-col rounded-lg bg-white shadow-xl focus:outline-none overflow-hidden',
+          'max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]',
           SIZE_CLASS[size],
           className,
         )}
       >
         {/* ── North: Barra de título ───────────────────────────────────── */}
-        {/* div nativo con data-panel-area para que el JBorderLayout padre lo posicione */}
         <div
-          data-panel-area="top"
           className={cn(
-            'flex flex-row items-center bg-neutral-50 border-b border-neutral-200',
+            'flex shrink-0 flex-row items-center bg-neutral-50 border-b border-neutral-200',
             titleBarClassName,
           )}
         >
@@ -135,7 +137,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
                 size="icon"
                 onClick={onCloseClick}
                 aria-label="Close dialog"
-                className="h-7 w-7 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-200"
+                className="h-11 w-11 sm:h-8 sm:w-8 sm:min-h-8 sm:min-w-8 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-200"
               >
                 <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -148,11 +150,10 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
 
         {/* ── Center: Área de controles ────────────────────────────────── */}
         <JPanel
-          area="center"
           variant="ghost"
           padding="none"
           radius="none"
-          className={cn('overflow-auto p-4 text-sm text-neutral-700', contentClassName)}
+          className={cn('min-h-0 min-w-0 flex-1 overflow-auto p-3 text-sm text-neutral-700 sm:p-4', contentClassName)}
         >
           {children}
         </JPanel>
@@ -160,7 +161,6 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         {/* ── South: Barra de botones (JFlowLayout) ─────────────────────── */}
         {footer && (
           <JPanel
-            area="bottom"
             layout="flow"
             variant="ghost"
             padding="none"
@@ -168,7 +168,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
             justifyContent="end"
             gap="sm"
             className={cn(
-              'px-4 py-3 bg-neutral-50 border-t border-neutral-200',
+              'flex shrink-0 flex-wrap px-4 py-3 bg-neutral-50 border-t border-neutral-200',
               footerClassName,
             )}
           >

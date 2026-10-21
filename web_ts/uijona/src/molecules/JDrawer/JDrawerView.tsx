@@ -34,11 +34,13 @@ interface JDrawerViewProps extends Required<Pick<InterJDrawer, 'open' | 'side' |
   children?: React.ReactNode;
   footer?: React.ReactNode;
   onOverlayClick: () => void;
+  panelRef: React.RefObject<HTMLDivElement>;
+  onPanelKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
 }
 
 export const JDrawerView: React.FC<JDrawerViewProps> = ({
   open, side, size, showCloseButton, title, description, className, children, footer,
-  onOverlayClick, onClose,
+  onOverlayClick, onClose, panelRef, onPanelKeyDown,
 }) => {
   const { panel } = sideStyles[side];
   const hiddenClass = sideHidden[side];
@@ -56,18 +58,22 @@ export const JDrawerView: React.FC<JDrawerViewProps> = ({
           open ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
       />
-      {/* Panel */}
+      {/* Panel — a modal dialog only while open (it stays mounted to animate) */}
       <JPanel variant="ghost" padding="none" radius="none"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={title ? 'drawer-title' : undefined}
-        aria-describedby={description ? 'drawer-desc' : undefined}
+        ref={panelRef}
+        role={open ? 'dialog' : undefined}
+        aria-modal={open ? true : undefined}
+        aria-labelledby={open && title ? 'drawer-title' : undefined}
+        aria-describedby={open && description ? 'drawer-desc' : undefined}
+        tabIndex={-1}
+        onKeyDown={onPanelKeyDown}
         className={cn(
-          'fixed z-50 flex bg-white shadow-xl transition-transform duration-300 ease-in-out',
+          'fixed z-50 flex bg-white shadow-xl transition-transform duration-300 ease-in-out focus:outline-none',
           panel,
           sizeClass,
           // Nunca exceder el viewport en pantallas más estrechas/bajas que el panel
-          isHorizontal ? 'max-w-[85vw]' : 'max-h-[85vh]',
+          // (dvh descuenta la barra del navegador móvil)
+          isHorizontal ? 'max-w-[85vw]' : 'max-h-[85dvh]',
           open ? sideStyles[side].open : hiddenClass,
           className
         )}

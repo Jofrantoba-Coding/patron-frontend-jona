@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { InterJDialog, JDIALOG_DEFAULTS } from './InterJDialog';
 import { JDialogView } from './JDialogView';
+import { useFocusTrap } from '../../lib/focus';
 
 export const JDialogImpl: React.FC<InterJDialog> = ({
   open, onClose, onOpened, onClosed, onCancel, ...props
@@ -37,7 +38,8 @@ export const JDialogImpl: React.FC<InterJDialog> = ({
     return undefined;
   }, [open, onOpened, onClosed]);
 
-  useEffect(() => { if (open) dialogRef.current?.focus(); }, [open]);
+  // Focus in on open, Tab/Shift+Tab cycle inside, back to the opener on close
+  const onPanelKeyDown = useFocusTrap(dialogRef, open);
 
   return (
     <JDialogView
@@ -46,6 +48,7 @@ export const JDialogImpl: React.FC<InterJDialog> = ({
       onClose={onClose}
       overlayRef={overlayRef}
       dialogRef={dialogRef}
+      onPanelKeyDown={onPanelKeyDown}
       onOverlayClick={() => onClose?.()}
       onCloseClick={() => { onCancel?.(); onClose?.(); }}
     />

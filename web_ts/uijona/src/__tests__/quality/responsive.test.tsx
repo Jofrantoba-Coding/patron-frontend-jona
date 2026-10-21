@@ -73,10 +73,10 @@ describe('Responsive — JDrawer never exceeds the viewport', () => {
     expect(panel.className).toContain('max-w-[85vw]');
   });
 
-  it('vertical (bottom) caps height at 85vh', () => {
+  it('vertical (bottom) caps height at 85dvh', () => {
     render(<JDrawer open side="bottom" size="md" onClose={() => {}}>body</JDrawer>);
     const panel = document.querySelector('[role="dialog"]') as HTMLElement;
-    expect(panel.className).toContain('max-h-[85vh]');
+    expect(panel.className).toContain('max-h-[85dvh]');
   });
 });
 
