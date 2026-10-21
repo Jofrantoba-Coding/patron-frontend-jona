@@ -7,10 +7,12 @@ import {
   login,
   sessionOptions,
 } from '../../../mock-server/core/auth.js';
+import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../../../mock-server/core/catalog.js';
 import { MockError } from '../../../mock-server/core/errors.js';
 import { createStore } from '../../../mock-server/core/store.js';
 import { ApiError } from '../ApiError';
 import type { InterAuthService } from '../InterAuthService';
+import type { InterCatalogService, Page } from '../InterCatalogService';
 import type { InterShellService } from '../InterShellService';
 import type { SessionContext } from '../httpClient';
 import type { ApiScenario } from '../serviceComposer';
@@ -36,6 +38,8 @@ export interface AppServicesMockOptions {
 export interface AppServicesMock {
   auth: InterAuthService;
   shell: InterShellService;
+  /** One service per catalog name, all over the same store. */
+  catalog<T>(catalog: string): InterCatalogService<T>;
 }
 
 type Store = ReturnType<typeof createStore>;
@@ -109,5 +113,14 @@ export function createAppServicesMock(
       }),
   };
 
-  return { auth, shell };
+  const catalog = <T>(name: string): InterCatalogService<T> => ({
+    list: ({ page, pageSize, filters } = {}) =>
+      call((s) => listCatalog(s, tenantGate(s), name, { page, pageSize, ...filters }) as Page<T>),
+    get: (id) => call((s) => getRecord(s, tenantGate(s), name, id) as T),
+    create: (values) => call((s) => createRecord(s, tenantGate(s), name, values) as T),
+    update: (id, values) => call((s) => updateRecord(s, tenantGate(s), name, id, values) as T),
+    remove: (id) => call((s) => deleteRecord(s, tenantGate(s), name, id)),
+  });
+
+  return { auth, shell, catalog };
 }

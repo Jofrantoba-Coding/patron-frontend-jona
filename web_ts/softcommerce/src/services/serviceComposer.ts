@@ -1,5 +1,7 @@
 import { createAuthServiceHttp } from './AuthServiceHttp';
 import type { InterAuthService } from './InterAuthService';
+import { createCatalogServiceHttp } from './CatalogServiceHttp';
+import type { InterCatalogService } from './InterCatalogService';
 import type { InterShellService } from './InterShellService';
 import { createShellServiceHttp } from './ShellServiceHttp';
 import { createHttpClient, type SessionContext } from './httpClient';
@@ -71,6 +73,8 @@ export interface ComposeDeps {
 export interface AppServices {
   auth: InterAuthService;
   shell: InterShellService;
+  /** A service for one catalog (`/v1/{catalog}`); cheap to build, nothing loads until a call. */
+  catalog<T>(catalog: string): InterCatalogService<T>;
 }
 
 /** Validates the env and builds every service. Throws a configuration error at startup. */
@@ -93,5 +97,10 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession }: ComposeDep
       createHttp: (baseUrl) => createShellServiceHttp(client(baseUrl)),
       loadMock: async (scenario) => (await loadMock(scenario)).shell,
     }),
+    catalog: <T>(name: string) =>
+      composeService<InterCatalogService<T>>(config, {
+        createHttp: (baseUrl) => createCatalogServiceHttp<T>(client(baseUrl), name),
+        loadMock: async (scenario) => (await loadMock(scenario)).catalog<T>(name),
+      }),
   };
 }

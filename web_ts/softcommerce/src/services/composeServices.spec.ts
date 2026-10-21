@@ -88,4 +88,31 @@ describe('composeServices', () => {
     expect(() => composeServices({ VITE_API_MODE: 'http', VITE_API_URL: 'not-a-url' })).toThrow(/VITE_API_URL/);
     expect(() => composeServices({ VITE_API_MODE: 'http' })).toThrow(/VITE_API_URL/);
   });
+
+  it('S-LOC-20: an invalid config throws before any request, and the catalog service is never built', () => {
+    const fetchFn = vi.fn<typeof fetch>();
+    for (const env of [{ VITE_API_MODE: 'staging' }, { VITE_API_MODE: 'http' }, { VITE_API_MODE: 'http', VITE_API_URL: 'nope' }]) {
+      expect(() => composeServices(env, { fetchFn })).toThrow(/VITE_API_(MODE|URL)/);
+    }
+    expect(fetchFn).not.toHaveBeenCalled();
+    expect(mockModuleLoaded).not.toHaveBeenCalled();
+  });
+
+  it('composes a catalog service per catalog name in both modes', async () => {
+    vi.useFakeTimers();
+    const mockCatalog = composeServices({ VITE_API_MODE: 'mock' }, { getSession: () => ({ tenantId: 'demo' }) }).catalog('localidades');
+    const pending = mockCatalog.list();
+    await vi.dynamicImportSettled();
+    await vi.runAllTimersAsync();
+    expect((await pending).pagination.total).toBe(4);
+    vi.useRealTimers();
+
+    const fetchFn = vi.fn<typeof fetch>(async () => new Response(JSON.stringify({ items: [], pagination: {} })));
+    const httpCatalog = composeServices(
+      { VITE_API_MODE: 'http', VITE_API_URL: 'https://api.test' },
+      { fetchFn, getSession: () => ({ tenantId: 'demo' }) },
+    ).catalog('localidades');
+    await httpCatalog.list();
+    expect(fetchFn.mock.calls[0][0]).toBe('https://api.test/v1/localidades');
+  });
 });
