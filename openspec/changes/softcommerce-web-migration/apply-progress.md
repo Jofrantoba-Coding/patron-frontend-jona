@@ -131,3 +131,37 @@ Mode: Strict TDD. Status: T5.1-T5.5 done (commits and PR left to the orchestrato
 
 ### Files (lines)
 `domain/{menuTree 31, menuTree.spec 59, workspace 42, workspace.spec 93, permissions 21, permissions.spec 36, dialogStack 22, dialogStack.spec 38}`; `shared/ui/MenuTree/{InterMenuTree 17, MenuTreeImpl 25, MenuTreeView 34, MenuTree 9, index 3, MenuTree.spec 75}`; `services/{InterShellService 13, ShellServiceHttp 13, ShellServiceHttp.spec 39, shellServiceContract 68}`; modified `serviceComposer.ts` +7, `mock/AppServicesMock.ts` +25/-2, `mock/AppServicesMock.spec.ts` +27, `composeServices.spec.ts` +18. Total about 717 changed lines (budget 800, forecast 450).
+
+
+## Slice 6 (W1b-2) - branch `feat/softcommerce-w1b-2-shell-ui`
+
+Mode: Strict TDD. Status: T6.1-T6.5 done (commits and PR left to the orchestrator). Gate (from `web_ts/softcommerce`): `npm test` 32 files / 256 tests passed (29 new); `npm run typecheck` exit 0; `npm run build` ok (`AppServicesMock-*.js` 7.23 kB stays the lazy mock chunk; entry `index-*.js` 245.33 kB, +15.3 kB).
+
+### TDD Cycle Evidence
+| Task | Test file | Layer | Safety net | RED observed | GREEN | Triangulate | Refactor |
+|------|-----------|-------|------------|--------------|-------|-------------|----------|
+| T6.1 | `views/uishell/DialogStack.spec.tsx` | Component (jsdom, user-event) | 227/227 baseline | suite failed: `./DialogStackProvider` not found | 5/5 | S-SHELL-16 topmost only, one per Esc then no-op, top by open order not declaration order, click on a lower dialog unguarded, Esc after a click-close; mutation (guard always true) failed 2 of 5 | none |
+| T6.2 | `views/uishell/FormHost.spec.tsx` | Component (jsdom) | T6.1 green | suite failed: `./FormHost` not found | 4/4 | S-SHELL-7 once + 13 flags in order + no refetch on rerender, other formId, loading state, S-SHELL-9 error + traceId + all denied | none |
+| T6.3 | `views/uishell/UiShell.spec.tsx`, `views/uidemostub/UiDemoStub.spec.tsx` | Component (jsdom, user-event) | T6.2 green | both suites failed: `../uidemostub` / `./UiDemoStub` not found | 10/10 + 3/3 (shell spec also holds T6.4) | S-SHELL-4, S-SHELL-11 two forms two states, S-SHELL-10 no refetch + filter kept, S-SHELL-13 empty at start and after last close, close active selects neighbor, S-SHELL-14 fresh state + permissions twice; stub: typing, granted list, none | spec helper only (hidden panels found by `aria-label`) |
+| T6.4 | `views/uishell/UiShell.spec.tsx` (menu states block), `uishell/formRegistry.spec.ts` | Component + unit | T6.3 green | same RED as T6.3 (tests written before the shell existed) | 4 + 2 | S-SHELL-5 notice + no tab + close button, S-SHELL-16 Esc closes the notice and keeps the open tab, loading, S-SHELL-6 error + traceId + retry + workspace message visible; registry ignores `constructor`/`toString` | `hasOwnProperty.call` instead of `Object.hasOwn` (tsconfig lib) |
+| T6.5 | `views/uishell/ShellHeader.spec.tsx`, `App.spec.tsx` | Component (jsdom) | App.spec 3/3 | header suite failed (`./ShellHeader` not found); App.spec 2 new tests failed on missing `banner`/logout button | 4/4; App 4/4 | S-SHELL-15 two sessions with different values, S-AUTH-17 only control is logout (no textbox/combobox), logout clears store; App: shell header + menu after context, S-AUTH-18 logout returns to step 1 | none |
+
+### Deviations
+- **No `JSidebarLayout`.** It only accepts a flat `nav` item list and closes its drawer on `onItemClick`, so it cannot host `MenuTree` nor close on a leaf. `UiShellView` builds its own responsive layout: a `lg:hidden` toggle button (`Mostrar menú`/`Ocultar menú`) opens the menu above the workspace on phones (`hidden lg:flex` aside otherwise) and the leaf click closes it; from `lg` it is a permanent 16rem sidebar. Only utility classes present in the jona-ui compiled CSS are used (`lg:hidden`, `lg:flex`, `hidden`, `min-h-11`, `sm:min-h-9`, `min-w-11`, `sm:min-w-9`); everything else is inline style. Touch targets: toggle, retry, tab close and logout use `min-h-11 sm:min-h-9` floors; tab triggers come from `JTabsTrigger` (already floored).
+- **Tab close is a plain `<button>`** next to `JTabsTrigger` (a trigger is itself a button and `JButton` takes no `aria-label`). Label `Cerrar pestaña <title>`.
+- **`GuardedOptionPane` + `useGuardedClose`** live in `DialogStackProvider.tsx` (task listed only the provider). The Esc snapshot is taken by a capture-phase `window` listener and released by a bubble-phase `window` listener, which runs after every `document` listener of the same event; outside an Esc dispatch the guard always allows closing (clicks unaffected).
+- **Provider placement.** `DialogStackProvider` is mounted inside the `UiShell` entry, so the shell is self-contained and every tab form is a descendant.
+- **`FormHost` is a render-prop component** (`children(permissions)`), not a JONA unit; on error it renders the alert plus `children(DENY_ALL)` (fail closed). Loading shows `Cargando permisos...` and no form. It reuses `toFailure` from `uilogin/UiLoginImpl` (third consumer now: `UiContextoImpl`, `FormHost`, `UiShellImpl`; extract to a shared module in a later slice).
+- **Registry lookup** goes through `findForm` (own keys only). `UiShell` takes an optional `registry` prop (default `formRegistry`) so specs register two forms.
+- **`UiShellImpl` returns `Omit<InterUiShell,'renderForm'>`**; the `UiShell` entry supplies `renderForm` (it needs JSX with `FormHost`).
+- **Unknown-leaf notice** reuses `JOptionPane` info with `Aceptar`/`Cerrar`, both closing; copy `<descripcion>` + `Esta opción aún no está disponible.`
+- **`ShellHeader`** flat in `views/uishell/` (Inter, Impl, View, entry, spec); `formatPeriod` is exported from `ShellHeaderImpl.ts`. Logout calls `session.logout`; the `RequireSession` guard redirects to step 1 (no explicit navigate).
+- **`UiDemoStub`** shows a `Filtro` input and `Acciones permitidas: ...` (granted flags) so S-SHELL-14 and permission delivery are observable.
+- jsdom drops the accessible name of `hidden` panels, so UiShell.spec finds inactive panels by `aria-label` attribute.
+- StrictMode (main.tsx, dev only) runs the FormHost and menu effects twice; tests render without it.
+
+### Files (lines)
+`views/uishell/{DialogStackProvider 72, DialogStack.spec 80, FormHost 46, FormHost.spec 75, InterUiShell 65, UiShellImpl 60, UiShellView 105, UiShell 25, UiShell.spec 177, formRegistry 14, formRegistry.spec 15, InterShellHeader 26, ShellHeaderImpl 20, ShellHeaderView 41, ShellHeader 9, ShellHeader.spec 76, index 6}`; `views/uidemostub/{InterUiDemoStub 15, UiDemoStubImpl 13, UiDemoStubView 12, UiDemoStub 11, index 2, UiDemoStub.spec 29}`; modified `App.tsx` +13/-8, `App.spec.tsx` +21/-4. Total about 1030 changed lines (budget 800, forecast 560): production about 560, specs about 470. Over the hard cap because the slice was completed in one pass; suggested split at a task boundary: 6a = T6.1+T6.2 (about 320 lines), 6b = T6.3+T6.4 (about 560), 6c = T6.5 (about 190).
+
+### Orchestrator split (applied)
+Auto-chain split at task boundaries, each half gated alone. W1b-2 `feat/softcommerce-w1b-2-shell-ui` = T6.1+T6.2 (`c629574`, `5eb9544`; 273 lines; 28 files / 236 tests, typecheck 0, build 0). W1b-2b `feat/softcommerce-w1b-2b-shell-workspace` (base W1b-2) = T6.3+T6.4 (`abde16f`; intermediate gate 31 files / 251 tests, typecheck 0, build 0) and T6.5 (`ac15199`); 767 lines; final gate 32 files / 256 tests, typecheck 0, build 0.
