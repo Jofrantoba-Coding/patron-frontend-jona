@@ -8,6 +8,7 @@ export default defineConfig({
     // Node by default (core, server, inventory); jsdom only for component specs.
     environment: 'node',
     environmentMatchGlobs: [['src/**/*.spec.tsx', 'jsdom']],
+    setupFiles: ['test/setup.ts'],
     include: ['{src,test,mock-server,scripts}/**/*.spec.{ts,tsx}'],
   },
 });
