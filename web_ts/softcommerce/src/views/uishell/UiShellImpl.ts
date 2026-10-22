@@ -15,7 +15,6 @@ export function useUiShellImpl(service: InterShellService, registry: FormRegistr
   const [attempt, setAttempt] = useState(0);
   const [workspace, dispatch] = useReducer(workspaceReducer, EMPTY_WORKSPACE);
   const [notice, setNotice] = useState<ShellNotice | undefined>();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -34,7 +33,6 @@ export function useUiShellImpl(service: InterShellService, registry: FormRegistr
 
   const onLeafSelect = useCallback(
     (item: MenuItem) => {
-      setIsMenuOpen(false);
       if (findForm(registry, item.nombre)) dispatch({ type: 'open', formId: item.nombre, title: item.descripcion });
       else setNotice({ title: item.descripcion, description: 'Esta opción aún no está disponible.' });
     },
@@ -43,7 +41,6 @@ export function useUiShellImpl(service: InterShellService, registry: FormRegistr
 
   return {
     ...menu,
-    isMenuOpen,
     tabs: workspace.tabs,
     activeId: workspace.activeId,
     notice,
@@ -54,7 +51,6 @@ export function useUiShellImpl(service: InterShellService, registry: FormRegistr
       setMenu(LOADING);
       setAttempt((current) => current + 1);
     },
-    onMenuToggle: () => setIsMenuOpen((open) => !open),
     onNoticeClose: () => setNotice(undefined),
   };
 }

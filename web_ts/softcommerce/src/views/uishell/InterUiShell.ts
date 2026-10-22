@@ -14,8 +14,6 @@ export interface InterUiShell {
   emptyMessage?: string;
   menuLoadingMessage?: string;
   retryLabel?: string;
-  showMenuLabel?: string;
-  hideMenuLabel?: string;
   closeTabLabel?: string;
   noticeConfirmLabel?: string;
   noticeCloseLabel?: string;
@@ -23,8 +21,6 @@ export interface InterUiShell {
   menuItems: MenuItem[];
   menuError?: string;
   menuErrorTraceId?: string;
-  /** Mobile only: whether the menu drawer is open. */
-  isMenuOpen: boolean;
   tabs: WorkspaceTab[];
   /** `formId` of the selected tab, `null` when the workspace is empty. */
   activeId: string | null;
@@ -36,7 +32,6 @@ export interface InterUiShell {
   onTabSelect?: (formId: string) => void;
   onTabClose?: (formId: string) => void;
   onMenuRetry?: () => void;
-  onMenuToggle?: () => void;
   onNoticeClose?: () => void;
 }
 
@@ -47,8 +42,6 @@ export const UISHELL_DEFAULTS: Required<
     | 'emptyMessage'
     | 'menuLoadingMessage'
     | 'retryLabel'
-    | 'showMenuLabel'
-    | 'hideMenuLabel'
     | 'closeTabLabel'
     | 'noticeConfirmLabel'
     | 'noticeCloseLabel'
@@ -57,8 +50,6 @@ export const UISHELL_DEFAULTS: Required<
   emptyMessage: 'Abra una opción del menú para comenzar.',
   menuLoadingMessage: 'Cargando menú...',
   retryLabel: 'Reintentar',
-  showMenuLabel: 'Mostrar menú',
-  hideMenuLabel: 'Ocultar menú',
   closeTabLabel: 'Cerrar pestaña',
   noticeConfirmLabel: 'Aceptar',
   noticeCloseLabel: 'Cerrar',
