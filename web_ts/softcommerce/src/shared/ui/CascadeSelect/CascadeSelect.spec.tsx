@@ -29,6 +29,20 @@ function Harness({ initial, loadChildren }: { initial: Record<string, string>; l
 
 const combo = (label: string) => screen.getByLabelText(label) as HTMLSelectElement;
 const optionNames = (label: string) => Array.from(combo(label).options).map((o) => o.text).filter((t) => t !== 'Seleccione');
+const alerts = () => screen.queryAllByRole('alert');
+/** The load-error alert the level's select points to through aria-describedby, if any. */
+const loadError = (label: string) => {
+  const id = combo(label).getAttribute('aria-describedby');
+  return id ? document.getElementById(id) : null;
+};
+type Deferred = { resolve: (items: CascadeOption[]) => void; reject: (error: Error) => void };
+/** Top level resolves at once; every other parent waits on a deferred kept per parent. */
+function deferredLoader() {
+  const pending: Record<string, Deferred> = {};
+  const loadChildren = (parent: string) =>
+    parent === '' ? Promise.resolve(TREE['']) : new Promise<CascadeOption[]>((resolve, reject) => (pending[parent] = { resolve, reject }));
+  return { pending, loadChildren };
+}
 
 describe('CascadeSelect', () => {
   it('S-LOC-6 starts with the lower levels disabled and empty, and a departamento enables and loads provincias only', async () => {
@@ -95,6 +109,62 @@ describe('CascadeSelect', () => {
     await act(async () => pending['08'](TREE['08']));
     await act(async () => pending['15'](TREE['15']));
 
+    expect(optionNames('Provincia')).toEqual(['CUSCO']);
+  });
+
+  it.each<{ label: string; parent: string; initial: Record<string, string>; expected: string[] }>([
+    { label: 'Provincia', parent: '15', initial: { dep: '15' }, expected: ['LIMA', 'CANETE'] },
+    { label: 'Departamento', parent: '', initial: {}, expected: ['LIMA', 'CUSCO'] },
+  ])('shows a retryable load error on $label when its options fail to load', async ({ label, parent, initial, expected }) => {
+    let failures = 1;
+    const loadChildren = vi.fn(async (p: string) => {
+      if (p === parent && failures-- > 0) throw new Error('network');
+      return TREE[p] ?? [];
+    });
+    render(<Harness initial={initial} loadChildren={loadChildren} />);
+
+    await waitFor(() => expect(loadError(label)?.textContent).toContain('No se pudieron cargar las opciones.'));
+    expect(loadError(label)?.getAttribute('role')).toBe('alert');
+    expect(combo(label).disabled).toBe(true);
+    expect(combo('Distrito').disabled).toBe(true);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
+
+    await waitFor(() => expect(optionNames(label)).toEqual(expected));
+    expect(alerts()).toHaveLength(0);
+    expect(combo(label).disabled).toBe(false);
+    expect(loadChildren.mock.calls.filter(([p]) => p === parent)).toHaveLength(2);
+  });
+
+  it.each([
+    { stale: 'rejection', settleOld: (d: Deferred) => d.reject(new Error('network')), settleNew: (d: Deferred) => d.resolve(TREE['08']), options: ['CUSCO'], errors: 0 },
+    { stale: 'success', settleOld: (d: Deferred) => d.resolve(TREE['15']), settleNew: (d: Deferred) => d.reject(new Error('network')), options: [], errors: 1 },
+  ])('S-LOC-10 ignores a stale $stale that arrives after a newer request', async ({ settleOld, settleNew, options, errors }) => {
+    const { pending, loadChildren } = deferredLoader();
+    render(<Harness initial={{}} loadChildren={loadChildren} />);
+    await waitFor(() => expect(optionNames('Departamento')).toHaveLength(2));
+
+    await userEvent.selectOptions(combo('Departamento'), '15');
+    await userEvent.selectOptions(combo('Departamento'), '08');
+    await act(async () => settleNew(pending['08']));
+    await act(async () => settleOld(pending['15']));
+
+    expect(optionNames('Provincia')).toEqual(options);
+    expect(alerts()).toHaveLength(errors);
+  });
+
+  it('clears a lower level load error when the level above changes', async () => {
+    const { pending, loadChildren } = deferredLoader();
+    render(<Harness initial={{}} loadChildren={loadChildren} />);
+    await waitFor(() => expect(optionNames('Departamento')).toHaveLength(2));
+    await userEvent.selectOptions(combo('Departamento'), '15');
+    await act(async () => pending['15'].reject(new Error('network')));
+    expect(loadError('Provincia')).not.toBeNull();
+
+    await userEvent.selectOptions(combo('Departamento'), '08');
+
+    expect(alerts()).toHaveLength(0);
+    await act(async () => pending['08'].resolve(TREE['08']));
     expect(optionNames('Provincia')).toEqual(['CUSCO']);
   });
 });
