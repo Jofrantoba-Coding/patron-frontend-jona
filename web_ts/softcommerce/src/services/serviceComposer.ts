@@ -1,4 +1,8 @@
+import { createAuthServiceHttp } from './AuthServiceHttp';
+import type { InterAuthService } from './InterAuthService';
+import { createHttpClient, type SessionContext } from './httpClient';
 import { lazyService } from './lazyService';
+import type { AppServicesMock } from './mock/AppServicesMock';
 
 export const API_MODES = ['mock', 'http'] as const;
 export const API_SCENARIOS = ['exitoso', 'vacio', 'errorServidor'] as const;
@@ -54,4 +58,33 @@ export function composeService<T extends object>(config: ApiConfig, sources: Ser
   return config.mode === 'http'
     ? sources.createHttp(config.baseUrl)
     : lazyService(() => sources.loadMock(config.scenario));
+}
+
+export interface ComposeDeps {
+  fetchFn?: typeof fetch;
+  /** Live session (tenant and token) read by every post-login request. */
+  getSession?: () => SessionContext;
+}
+
+export interface AppServices {
+  auth: InterAuthService;
+}
+
+/** Validates the env and builds every service. Throws a configuration error at startup. */
+export function composeServices(env: ApiEnv, { fetchFn, getSession }: ComposeDeps = {}): AppServices {
+  const config = parseApiEnv(env);
+  const client = (baseUrl: string) => createHttpClient({ baseUrl, fetchFn, getSession });
+
+  // One mock instance (one store) shared by every domain's lazy proxy.
+  let mock: Promise<AppServicesMock> | undefined;
+  const loadMock = (scenario: ApiScenario) =>
+    (mock ??= import('./mock/AppServicesMock').then((m) => m.createAppServicesMock(scenario, { getSession })));
+
+  return {
+    // Dynamic import: fixtures, seed and core land in a separate chunk, never in the entry.
+    auth: composeService<InterAuthService>(config, {
+      createHttp: (baseUrl) => createAuthServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).auth,
+    }),
+  };
 }
