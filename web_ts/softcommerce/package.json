@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.app.json && vite build",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
-    "mock": "node mock-server/server.js"
+    "mock": "node mock-server/server.js",
+    "inventory": "node scripts/inventory/inventory.mjs"
   },
   "dependencies": {
     "jona-ui": "1.4.0",
