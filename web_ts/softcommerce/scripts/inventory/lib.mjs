@@ -50,6 +50,23 @@ export function categorize(name, chain) {
 const inPackage = (pkg, segments) => pkg.split('.').some((s) => segments.includes(s));
 const LISTED = ['list frame', 'register dialog', 'search/lookup'];
 
+// Sales screens live in the generic view.formularios package, so W4 also matches by class-name tokens.
+const SALES_TOKENS = ['Venta', 'Ventas', 'Pedido', 'Cotizacion', 'Boleta', 'Factura', 'Facturar', 'Facturacion', 'Despacho', 'Reparto'];
+const SALES_PAIRS = [['Nota', 'Credito'], ['Nota', 'Debito'], ['Guia', 'Remision']];
+// Catalogs such as PuntoVenta, TipoDocVenta or MotivoNotaCredito stay with the simple catalogs.
+const CATALOG_TOKENS = ['Punto', 'Tipo', 'Motivo'];
+
+/** @param {string} name */
+const nameTokens = (name) => name.match(/[A-Z][a-z0-9]*/g) ?? [];
+
+/** @param {string} name */
+function isSalesTransaction(name) {
+  const tokens = nameTokens(name);
+  if (tokens.some((t) => CATALOG_TOKENS.includes(t))) return false;
+  if (tokens.some((t) => SALES_TOKENS.includes(t))) return true;
+  return tokens.some((t, i) => SALES_PAIRS.some(([a, b]) => t === a && tokens[i + 1] === b));
+}
+
 /**
  * Approximate wave, first match wins (design: Inventory Rules 5).
  * @type {{ wave: string, test: (c: { name: string, pkg: string, category: string }) => boolean }[]}
@@ -60,6 +77,7 @@ export const WAVE_RULES = [
   { wave: 'W5', test: (c) => inPackage(c.pkg, ['compras', 'inventario', 'importar']) },
   { wave: 'W6', test: (c) => inPackage(c.pkg, ['conta', 'tesoreria', 'cxc', 'cxp']) },
   { wave: 'W7', test: (c) => inPackage(c.pkg, ['reportes', 'libros', 'sunat', 'ple']) },
+  { wave: 'W4', test: (c) => isSalesTransaction(c.name) },
   { wave: 'W2', test: (c) => LISTED.includes(c.category) },
   { wave: 'W3', test: () => true },
 ];
