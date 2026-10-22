@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import type { AppServices } from './services/serviceComposer';
+import { ServicesProvider } from './services/ServicesContext';
 import { RequireSession } from './session/RequireSession';
 import { SessionProvider } from './session/SessionProvider';
 import type { SessionStore } from './session/sessionStore';
@@ -20,7 +21,7 @@ export function App({ services, store }: { services: AppServices; store: Session
             <RequireSession>
               <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
                 <ShellHeader />
-                <UiShell service={services.shell} />
+                <ServicesProvider services={services}><UiShell service={services.shell} /></ServicesProvider>
               </div>
             </RequireSession>
           }

@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import type { CatalogConfig, CrudAction } from '../../catalogs/CatalogConfig';
 import type { Permissions } from '../../domain/permissions';
 import type { InterCatalogService } from '../../services/InterCatalogService';
+import type { InterLookupService } from '../../services/InterLookupService';
 import { UiCrudRegister } from '../uicrudregister';
 import type { RegisterMode } from '../uicrudregister/InterUiCrudRegister';
 import { UICRUDLIST_DEFAULTS } from './InterUiCrudList';
@@ -15,6 +16,8 @@ export interface UiCrudListProps<T> {
   permissions: Permissions;
   /** Loads the register's select options; a rejection blocks its form. */
   lookups?: () => Promise<unknown>;
+  /** Option source for the register's `select` and `cascade` fields. */
+  lookup?: InterLookupService;
 }
 
 const ACTION_MODES: Partial<Record<CrudAction, RegisterMode>> = {
@@ -26,7 +29,7 @@ const ACTION_MODES: Partial<Record<CrudAction, RegisterMode>> = {
 };
 
 /** Generic list for any catalog config: toolbar, filter, sortable paged grid, load states and its register dialog. */
-export function UiCrudList<T>({ config, service, permissions, lookups }: UiCrudListProps<T>) {
+export function UiCrudList<T>({ config, service, permissions, lookups, lookup }: UiCrudListProps<T>) {
   const [register, setRegister] = useState<{ mode: RegisterMode; id?: string }>();
   const selected = useRef<string | undefined>();
   const impl = useUiCrudListImpl(config, service, permissions, {
@@ -45,6 +48,7 @@ export function UiCrudList<T>({ config, service, permissions, lookups }: UiCrudL
           config={config}
           service={service}
           lookups={lookups}
+          lookup={lookup}
           {...register}
           onDone={({ id }) => void impl.refresh(id ? { select: id } : undefined)}
           onClose={() => setRegister(undefined)}

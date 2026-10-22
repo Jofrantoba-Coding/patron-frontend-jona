@@ -2,7 +2,9 @@ import { createAuthServiceHttp } from './AuthServiceHttp';
 import type { InterAuthService } from './InterAuthService';
 import { createCatalogServiceHttp } from './CatalogServiceHttp';
 import type { InterCatalogService } from './InterCatalogService';
+import type { InterLookupService } from './InterLookupService';
 import type { InterShellService } from './InterShellService';
+import { createLookupServiceHttp } from './LookupServiceHttp';
 import { createShellServiceHttp } from './ShellServiceHttp';
 import { createHttpClient, type SessionContext } from './httpClient';
 import { lazyService } from './lazyService';
@@ -73,6 +75,7 @@ export interface ComposeDeps {
 export interface AppServices {
   auth: InterAuthService;
   shell: InterShellService;
+  lookup: InterLookupService;
   /** A service for one catalog (`/v1/{catalog}`); cheap to build, nothing loads until a call. */
   catalog<T>(catalog: string): InterCatalogService<T>;
 }
@@ -96,6 +99,10 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession }: ComposeDep
     shell: composeService<InterShellService>(config, {
       createHttp: (baseUrl) => createShellServiceHttp(client(baseUrl)),
       loadMock: async (scenario) => (await loadMock(scenario)).shell,
+    }),
+    lookup: composeService<InterLookupService>(config, {
+      createHttp: (baseUrl) => createLookupServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).lookup,
     }),
     catalog: <T>(name: string) =>
       composeService<InterCatalogService<T>>(config, {

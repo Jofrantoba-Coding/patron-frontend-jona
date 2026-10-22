@@ -4,6 +4,7 @@ import type { CatalogConfig, FieldConfig } from '../../catalogs/CatalogConfig';
 import { normalize } from '../../domain/crud/normalize';
 import { validate, type FormValues } from '../../domain/crud/validate';
 import type { InterCatalogService } from '../../services/InterCatalogService';
+import type { InterLookupService, LookupItem } from '../../services/InterLookupService';
 import { toFailure } from '../../shared/toFailure';
 import { useGuardedClose } from '../uishell/DialogStackProvider';
 import type { InterUiCrudRegister, RegisterConfirm, RegisterMode } from './InterUiCrudRegister';
@@ -11,6 +12,8 @@ import type { InterUiCrudRegister, RegisterConfirm, RegisterMode } from './Inter
 export interface CrudRegisterHandlers {
   /** Loads whatever the fields need (select options, ubigeo roots); a rejection blocks the form. */
   lookups?: () => Promise<unknown>;
+  /** Option source for the `select` and `cascade` fields. */
+  lookup?: InterLookupService;
   /** Called after a successful execute; `id` is the created or edited row, absent after a delete. */
   onDone: (result: { id?: string }) => void;
   onClose: () => void;
@@ -23,7 +26,21 @@ const blank = (fields: FieldConfig[]): FormValues => Object.fromEntries(fieldNam
 
 function fromRecord(fields: FieldConfig[], record: unknown): FormValues {
   const source = record as Record<string, unknown>;
-  return Object.fromEntries(fieldNames(fields).map((name) => [name, String(source[name] ?? '')]));
+  const values = Object.fromEntries(fieldNames(fields).map((name) => [name, String(source[name] ?? '')]));
+  // A cascade stores only its leaf; the levels above come from the leaf's ancestors.
+  for (const field of fields) {
+    if (field.kind !== 'cascade') continue;
+    const leaf = values[field.levels[field.levels.length - 1].name];
+    const ids = leaf ? [...field.ancestorsOf(leaf), leaf] : [];
+    field.levels.forEach((level, index) => (values[level.name] = ids[index] ?? ''));
+  }
+  return values;
+}
+
+async function loadSelectOptions(fields: FieldConfig[], lookup?: InterLookupService) {
+  const selects = fields.flatMap((field) => (field.kind === 'select' && lookup ? [field] : []));
+  const loaded = await Promise.all(selects.map(async (field) => [field.name, await lookup![field.lookup]()] as const));
+  return Object.fromEntries(loaded);
 }
 
 export function useUiCrudRegisterImpl<T>(
@@ -31,24 +48,32 @@ export function useUiCrudRegisterImpl<T>(
   service: InterCatalogService<T>,
   mode: RegisterMode,
   id: string | undefined,
-  { lookups, onDone, onClose }: CrudRegisterHandlers,
+  { lookups, lookup, onDone, onClose }: CrudRegisterHandlers,
 ): InterUiCrudRegister {
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [values, setValues] = useState<FormValues>(() => blank(config.fields));
+  const [selectOptions, setSelectOptions] = useState<Record<string, LookupItem[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirm, setConfirm] = useState<RegisterConfirm | undefined>();
   const [submitting, setSubmitting] = useState(false);
   const [submitFailure, setSubmitFailure] = useState<ReturnType<typeof toFailure> | undefined>();
   const baseline = useRef<FormValues>(values);
-  const fieldRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const fieldRefs = useRef<Record<string, HTMLElement | null>>({});
   const lookupsRef = useRef(lookups);
   lookupsRef.current = lookups;
+  const lookupRef = useRef(lookup);
+  lookupRef.current = lookup;
 
   useEffect(() => {
     let active = true;
-    Promise.all([lookupsRef.current?.(), mode === 'INSERT' ? undefined : service.get(id as string)])
-      .then(([, record]) => {
+    Promise.all([
+      lookupsRef.current?.(),
+      mode === 'INSERT' ? undefined : service.get(id as string),
+      loadSelectOptions(config.fields, lookupRef.current),
+    ])
+      .then(([, record, options]) => {
         if (!active) return;
+        setSelectOptions(options);
         if (record) {
           baseline.current = fromRecord(config.fields, record);
           setValues(baseline.current);
@@ -97,6 +122,8 @@ export function useUiCrudRegisterImpl<T>(
     canSubmit: mode !== 'DETAIL' && load.status === 'ready' && !submitting,
     submitting,
     confirm,
+    selectOptions,
+    loadChildren: async (parent) => (await lookupRef.current?.ubigeoChildren(parent)) ?? [],
     registerField: (name) => (element) => {
       fieldRefs.current[name] = element;
     },
