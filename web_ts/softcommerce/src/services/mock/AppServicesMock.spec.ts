@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ApiError } from '../ApiError';
 import { describeAuthServiceContract } from '../authServiceContract';
 import { describeCatalogServiceContract, type LocalidadRow } from '../catalogServiceContract';
+import { describeLookupServiceContract } from '../lookupServiceContract';
 import { describeShellServiceContract } from '../shellServiceContract';
 import { createAppServicesMock } from './AppServicesMock';
 
@@ -15,6 +16,10 @@ describeAuthServiceContract('AppServicesMock exitoso', (getSession) =>
 
 describeShellServiceContract('AppServicesMock exitoso', (getSession) =>
   createAppServicesMock('exitoso', { getSession, delayMs: 0 }).shell,
+);
+
+describeLookupServiceContract('AppServicesMock exitoso', (getSession) =>
+  createAppServicesMock('exitoso', { getSession, delayMs: 0 }).lookup,
 );
 
 describeCatalogServiceContract('AppServicesMock exitoso', (getSession) =>

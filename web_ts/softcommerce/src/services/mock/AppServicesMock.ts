@@ -10,9 +10,11 @@ import {
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../../../mock-server/core/catalog.js';
 import { MockError } from '../../../mock-server/core/errors.js';
 import { createStore } from '../../../mock-server/core/store.js';
+import { childrenOf } from '../../../mock-server/core/ubigeo.js';
 import { ApiError } from '../ApiError';
 import type { InterAuthService } from '../InterAuthService';
 import type { InterCatalogService, Page } from '../InterCatalogService';
+import type { InterLookupService } from '../InterLookupService';
 import type { InterShellService } from '../InterShellService';
 import type { SessionContext } from '../httpClient';
 import type { ApiScenario } from '../serviceComposer';
@@ -38,6 +40,7 @@ export interface AppServicesMockOptions {
 export interface AppServicesMock {
   auth: InterAuthService;
   shell: InterShellService;
+  lookup: InterLookupService;
   /** One service per catalog name, all over the same store. */
   catalog<T>(catalog: string): InterCatalogService<T>;
 }
@@ -113,6 +116,11 @@ export function createAppServicesMock(
       }),
   };
 
+  const lookup: InterLookupService = {
+    empresas: () => call((s) => listEmpresas(s, tenantGate(s)).items),
+    ubigeoChildren: (parent) => call((s) => childrenOf(s, parent).items),
+  };
+
   const catalog = <T>(name: string): InterCatalogService<T> => ({
     list: ({ page, pageSize, filters } = {}) =>
       call((s) => listCatalog(s, tenantGate(s), name, { page, pageSize, ...filters }) as Page<T>),
@@ -122,5 +130,5 @@ export function createAppServicesMock(
     remove: (id) => call((s) => deleteRecord(s, tenantGate(s), name, id)),
   });
 
-  return { auth, shell, catalog };
+  return { auth, shell, lookup, catalog };
 }
