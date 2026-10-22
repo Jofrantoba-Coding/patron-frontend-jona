@@ -30,6 +30,11 @@ function toField(entry: CatalogDef, field: any): FieldConfig {
       maxLength: field.max, range: field.range, normalize: field.normalize ?? [],
     };
   }
+  if (field.kind === 'select') {
+    // The lookup filters travel as query strings, so a boolean or numeric `where` value is sent as its text.
+    const where = field.source.where && Object.fromEntries(Object.entries(field.source.where).map(([key, value]) => [key, String(value)]));
+    return { kind: 'select', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, where } };
+  }
   throw new Error(`${entry.slug}.${field.name}: the UI does not support kind "${field.kind}" yet`);
 }
 

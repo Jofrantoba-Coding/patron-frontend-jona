@@ -49,7 +49,10 @@ function fromRecord(fields: FieldConfig[], record: unknown, mode: RegisterMode):
 
 async function loadSelectOptions(fields: FieldConfig[], lookup?: InterLookupService) {
   const selects = fields.flatMap((field) => (field.kind === 'select' && lookup ? [field] : []));
-  const loaded = await Promise.all(selects.map(async (field) => [field.name, await lookup![field.lookup]()] as const));
+  // A registry select asks its catalog for active options, forwarding the static `where`; a W1 select names its lookup.
+  const loaded = await Promise.all(
+    selects.map(async (field) => [field.name, field.source ? await lookup!.options(field.source.catalog, field.source.where) : await lookup![field.lookup!]()] as const),
+  );
   return Object.fromEntries(loaded);
 }
 
