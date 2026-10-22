@@ -40,6 +40,18 @@ export type FieldConfig =
       default?: string | Partial<Record<CrudMode, string>>;
       readOnlyOn?: readonly CrudMode[];
     }
+  | {
+      /** An integer (scale 0, G4): digits only, `maxLength` digits; `range` bounds the value on submit (R-MOCK-10). */
+      kind: 'number';
+      name: string;
+      label: string;
+      required?: boolean;
+      scale: 0;
+      maxLength?: number;
+      range?: { min?: number; max?: number };
+      /** Registry `normalize` steps (`digits`, `padLeft:n`); `padLeft` is applied on blur and on submit. */
+      normalize?: string[];
+    }
   | { kind: 'select'; name: string; label: string; required?: boolean; lookup: 'empresas' }
   | {
       kind: 'cascade';

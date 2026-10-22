@@ -43,8 +43,8 @@ describe('toCatalogConfig (G15 UI adapter)', () => {
   });
 
   it('fails loudly for a field kind that has no UI yet instead of rendering nothing', () => {
-    const entry = entryOf({ fields: [{ name: 'cantidad', kind: 'number', label: 'Cantidad', scale: 0 }] });
-    expect(() => toCatalogConfig(entry)).toThrow('cosas.cantidad: the UI does not support kind "number" yet');
+    const entry = entryOf({ fields: [{ name: 'cantidad', kind: 'date', label: 'Cantidad' }] });
+    expect(() => toCatalogConfig(entry)).toThrow('cosas.cantidad: the UI does not support kind "date" yet');
   });
 });
 

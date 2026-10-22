@@ -2,6 +2,7 @@
 import { JAlert, JButton, JComboBox, JDialog } from 'jona-ui';
 import { BooleanField } from '../../shared/ui/BooleanField';
 import { CascadeSelect } from '../../shared/ui/CascadeSelect';
+import { NumberField } from '../../shared/ui/NumberField';
 import { OptionsField } from '../../shared/ui/OptionsField';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
@@ -58,9 +59,25 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                       readOnly={props.readOnly}
                       hasError={Boolean(props.errors[field.name])}
                       onEnterPress={props.readOnly ? undefined : () => props.onSubmit()}
+                      onBlur={() => props.onFieldBlur(field.name)}
                       onChange={(value) => props.onFieldChange(field.name, value)}
                     />
                   </label>
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : field.kind === 'number' ? (
+                <div key={field.name}>
+                  <NumberField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    value={props.values[field.name]}
+                    max={field.maxLength}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                    onBlur={() => props.onFieldBlur(field.name)}
+                  />
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
                 </div>
               ) : field.kind === 'boolean' ? (

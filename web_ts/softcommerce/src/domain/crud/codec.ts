@@ -8,9 +8,17 @@ export function decodeValue(field: FieldConfig, wire: unknown): string {
   return wire === undefined || wire === null ? '' : String(wire);
 }
 
-/** Form string -> wire value: a boolean field becomes a real boolean; everything else stays a string. */
+const hasPad = (field: FieldConfig) => field.kind === 'number' && (field.normalize ?? []).some((step) => step.startsWith('padLeft:'));
+
+/**
+ * Form string -> wire value: a boolean field becomes a real boolean; an integer becomes a number unless it is
+ * padded (a padded integer such as hora `05` is identifier-like and stays the string it shows); a blank number
+ * stays blank; everything else stays a string.
+ */
 export function encodeValue(field: FieldConfig, value: string): unknown {
-  return field.kind === 'boolean' ? value === 'true' : value;
+  if (field.kind === 'boolean') return value === 'true';
+  if (field.kind === 'number' && value.trim() !== '' && !hasPad(field)) return Number(value);
+  return value;
 }
 
 /** The typed payload of a form: encodes the known fields and keeps any other key as it is. */
