@@ -116,3 +116,37 @@ describe('tipos-cambio register form (R-REF-6, R-REF-7, S-REF-19)', () => {
     expect(field('Monto de Venta').value).toBe('3.7234');
   });
 });
+
+describe('promociones register form (R-REF-7, S-REF-20)', () => {
+  it('S-REF-20 a fresh INSERT defaults both dates to today and estado to true, read-only', async () => {
+    await open('promociones');
+    expect([field('Fecha Ini').value, field('Fecha Fin').value]).toEqual(['15/06/2026', '15/06/2026']);
+    expect((field('Activo') as HTMLInputElement).checked).toBe(true);
+  });
+
+  it('S-REF-20 only the descripcion is validated, and a reversed range is sent as it is', async () => {
+    const create = vi.fn(async (values: object) => ({ id_promocion: '4', ...values }));
+    const { user } = await open('promociones', 'INSERT', undefined, { create } as unknown as InterCatalogService<Record<string, unknown>>);
+    await submit(user);
+    expect(screen.getByText('Para agregar una Promocion, debes especificar su Descripcion.')).toBeTruthy();
+    expect(create).not.toHaveBeenCalled();
+    await user.type(field('Descripción'), 'verano');
+    await retype(user, 'Fecha Ini', '01022026');
+    await retype(user, 'Fecha Fin', '01012026');
+    await confirm(user);
+    await waitFor(() => expect(create).toHaveBeenCalledWith({ descripcion: 'VERANO', fecha_ini: '2026-02-01', fecha_fin: '2026-01-01', estado: true }));
+  });
+
+  it('a future date is accepted', async () => {
+    const { user, onDone } = await open('promociones');
+    await user.type(field('Descripción'), 'futuro');
+    await retype(user, 'Fecha Fin', '31122999');
+    await confirm(user);
+    await waitFor(() => expect(onDone).toHaveBeenCalled());
+  });
+
+  it('UPDATE shows the stored dates as dd/MM/yyyy', async () => {
+    await open('promociones', 'UPDATE', '1');
+    expect([field('Fecha Ini').value, field('Fecha Fin').value]).toEqual(['01/12/2025', '31/12/2025']);
+  });
+});

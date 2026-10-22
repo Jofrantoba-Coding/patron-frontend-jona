@@ -33,6 +33,7 @@ export const ENTITIES: Record<string, string> = {
   'modelos-vehiculo': 'un Modelo Vehiculo',
   subfamilias: 'una SubFamilia',
   'tipos-cambio': 'un Tipo de Cambio',
+  promociones: 'una Promocion',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
@@ -297,6 +298,14 @@ const BASE_CASES: CatalogCase[] = [
   { name: 'S-REF-8 subfamilias the list is tenant-wide: both empresas show', slug: 'subfamilias', steps: [{ op: 'list' }], expect: { ok: true, total: 6 } },
   // R-REF-6 / R-REF-7 tipos-cambio (S-MOCK-22, S-REF-18, S-REF-19, S-MOCK-19): unique per (empresa, fecha, moneda), amounts above zero, the desktop texts in order.
   ...tipoCambioCases(),
+  // R-REF-6 / R-REF-7 promociones (S-REF-20): only the descripcion is validated; the dates carry no range, blank or not-future rule.
+  { name: 'S-REF-20 promociones a blank descripcion says the desktop text', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para agregar una Promocion, debes especificar su Descripcion.']) },
+  { name: 'S-REF-20 promociones fecha_fin before fecha_ini is accepted (no range rule)', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'verano', fecha_ini: '2026-02-01', fecha_fin: '2026-01-01' } }], expect: { ok: true, match: { fecha_ini: '2026-02-01', fecha_fin: '2026-01-01' } } },
+  { name: 'S-REF-20 promociones both dates default to today when the body omits them', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'hoy' } }], expect: { ok: true, match: { fecha_ini: todayIso(), fecha_fin: todayIso(), estado: true } } },
+  { name: 'S-REF-20 promociones a date in the future is accepted (no not-future rule)', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'x', fecha_ini: '2999-01-01', fecha_fin: '2999-12-31' } }], expect: { ok: true, match: { fecha_fin: '2999-12-31' } } },
+  { name: 'S-REF-20 promociones a blank date is accepted (the desktop validates only the descripcion)', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'x', fecha_ini: '', fecha_fin: '' } }], expect: { ok: true, match: { fecha_ini: '', fecha_fin: '' } } },
+  { name: 'S-MOCK-19 promociones a date that does not exist is a 422 on it', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'x', fecha_ini: '2026-02-31' } }], expect: invalid(['fecha_ini']) },
+  { name: 'S-REF-7 promociones estado can be switched off on UPDATE and the row stays listed', slug: 'promociones', steps: [{ op: 'update', id: '1', body: { descripcion: 'NAVIDAD', estado: false } }, { op: 'list' }], expect: { ok: true, total: 2 } },
 ];
 
 function tipoCambioCases(): CatalogCase[] {

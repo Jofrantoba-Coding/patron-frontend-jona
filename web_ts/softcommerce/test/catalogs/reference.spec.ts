@@ -43,6 +43,7 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'familias.descripcion': [100, true],
   'modelos-vehiculo.descripcion': [100, true],
   'subfamilias.descripcion': [100, true],
+  'promociones.descripcion': [100, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -63,8 +64,8 @@ const CODE_WIDTH: Record<string, number> = {
   familias: 3, 'modelos-vehiculo': 3,
   // PanelTFSubFamilia pads the code to three ("000" + id).
   subfamilias: 3,
-  // The tipo de cambio id is a string with no pad evidence (inferred 3, flagged for W6).
-  'tipos-cambio': 3,
+  // The tipo de cambio id is a string with no pad evidence (inferred 3, flagged for W6); the promocion id is an int.
+  'tipos-cambio': 3, promociones: 0,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -89,8 +90,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   'motivos-descuento': 'tenant', 'motivos-nc': 'tenant', 'tipos-trabajador-perfil': 'tenant', familias: 'empresa', 'modelos-vehiculo': 'stamp',
   // DAOSubFamilia.mantSubFamilia passes the empresa on every write; listar passes '' for it, so the list stays tenant-wide.
   subfamilias: 'stamp',
-  // DaoTipoCambio.listTipoCambio takes (id, fecha, moneda) and no empresa; mantTipoCambio passes empresa and user on every write.
-  'tipos-cambio': 'stamp',
+  // DaoTipoCambio.listTipoCambio takes (id, fecha, moneda) and no empresa; mantTipoCambio passes empresa and user on every write. The Promocion bean carries neither.
+  'tipos-cambio': 'stamp', promociones: 'tenant',
 };
 
 describe('W2 reference catalogs are registered', () => {
