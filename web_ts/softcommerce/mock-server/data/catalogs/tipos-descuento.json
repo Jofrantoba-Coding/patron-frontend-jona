@@ -1,0 +1,22 @@
+{
+  "demo": [
+    {
+      "id_tipo_descuento": "1",
+      "descripcion": "PORCENTAJE",
+      "abrev": "PCT",
+      "activo": true
+    },
+    {
+      "id_tipo_descuento": "2",
+      "descripcion": "MONTO FIJO",
+      "abrev": "MON",
+      "activo": true
+    },
+    {
+      "id_tipo_descuento": "3",
+      "descripcion": "PROMOCION",
+      "abrev": "PRO",
+      "activo": false
+    }
+  ]
+}

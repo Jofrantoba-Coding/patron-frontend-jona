@@ -13,5 +13,9 @@
   { "id_menu": 12, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Marca", "nombre": "miMarca" },
   { "id_menu": 13, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Nacionalidad", "nombre": "miNacionalidad" },
   { "id_menu": 14, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Motivo Traslado", "nombre": "miMotivoTraslado" },
-  { "id_menu": 15, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Clasificacion Cliente", "nombre": "miClasifCliente" }
+  { "id_menu": 15, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Clasificacion Cliente", "nombre": "miClasifCliente" },
+  { "id_menu": 16, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tamano", "nombre": "miTamano" },
+  { "id_menu": 17, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo Anexo", "nombre": "miTipoAnexo" },
+  { "id_menu": 18, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo Descuento", "nombre": "miTipoDescuento" },
+  { "id_menu": 19, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo de Movimiento de Inventario", "nombre": "miClasifInventario" }
 ]

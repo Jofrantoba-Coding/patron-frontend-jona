@@ -1,5 +1,6 @@
 import { aduanas } from './catalogs/aduanas.js';
 import { clasifClientes } from './catalogs/clasif-clientes.js';
+import { clasifInventarios } from './catalogs/clasif-inventarios.js';
 import { colores } from './catalogs/colores.js';
 import { estadosDocumento } from './catalogs/estados-documento.js';
 import { laboratorios } from './catalogs/laboratorios.js';
@@ -7,6 +8,9 @@ import { localidades } from './catalogs/localidades.js';
 import { marcas } from './catalogs/marcas.js';
 import { motivosTraslado } from './catalogs/motivos-traslado.js';
 import { nacionalidades } from './catalogs/nacionalidades.js';
+import { tamanos } from './catalogs/tamanos.js';
+import { tiposAnexo } from './catalogs/tipos-anexo.js';
+import { tiposDescuento } from './catalogs/tipos-descuento.js';
 import { validateRegistry } from './schema.js';
 
 /**
@@ -15,4 +19,5 @@ import { validateRegistry } from './schema.js';
  */
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
+  clasifInventarios, tamanos, tiposAnexo, tiposDescuento,
 ]);
