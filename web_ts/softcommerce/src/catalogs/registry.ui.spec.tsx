@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { REGISTRY } from '../../mock-server/registry/index.js';
-import { ENTITIES } from '../../test/catalogs/reference.cases';
+import { descripcionText, ENTITIES } from '../../test/catalogs/reference.cases';
 import type { InterCatalogService } from '../services/InterCatalogService';
 import { DialogStackProvider } from '../views/uishell/DialogStackProvider';
 import { UiCrudRegister } from '../views/uicrudregister';
@@ -22,11 +22,11 @@ async function openInsert(slug: string) {
 const input = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
 
 // The UI half of the table-driven rules (R-REF-4): the same registry entries, rendered.
-describe.each(Object.entries(ENTITIES))('%s register form', (slug, entity) => {
+describe.each(Object.keys(ENTITIES))('%s register form', (slug) => {
   it('S-REF-2 a blank descripcion sends nothing and shows the desktop message', async () => {
     const { service } = await openInsert(slug);
     await userEvent.setup().click(screen.getByRole('button', { name: 'Aceptar' }));
-    expect(screen.getByText(`Para agregar ${entity}, debes especificar su Descripcion.`)).toBeTruthy();
+    expect(screen.getByText(descripcionText(slug, 'agregar'))).toBeTruthy();
     expect(screen.queryByText('Confirmar')).toBeNull();
     expect(service.create).not.toHaveBeenCalled();
   });

@@ -21,6 +21,19 @@ export const ENTITIES: Record<string, string> = {
   tamanos: 'un Tamano',
   'tipos-anexo': 'un Tipo Anexo',
   'tipos-descuento': 'un Tipo Descuento',
+  'condiciones-pago': 'una Condición de Pago',
+  'tipos-trabajador': 'un Tipo Trabajador',
+  'marcas-vehiculo': 'una Marca Vehiculo',
+};
+
+/** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
+const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo']);
+const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción' };
+
+/** The desktop sentence for a blank descripcion in `modo` (agregar, modificar, ...). */
+export const descripcionText = (slug: string, modo: string) => {
+  const label = DESCRIPCION[slug] ?? 'su Descripcion';
+  return M2.has(slug) ? `Para ${modo}, debes especificar ${label}.` : `Para ${modo} ${ENTITIES[slug]}, debes especificar ${label}.`;
 };
 
 const files = import.meta.glob<Record<string, any[]>>('../../mock-server/data/catalogs/*.json', { eager: true, import: 'default' });
@@ -40,9 +53,10 @@ function genericCases(entry: any): CatalogCase[] {
   const { slug, idKey, codeWidth } = entry;
   const config = toCatalogConfig(entry);
   const texts = config.fields.flatMap((f) => (f.kind === 'text' ? [f] : []));
-  // A valid body: every required text, and the first option of every required options field.
+  // A valid body: every required text, every required integer (1), and the first option of every required options field.
   const valid = {
     ...Object.fromEntries(texts.filter((f) => f.required).map((f) => [f.name, 'x'])),
+    ...Object.fromEntries(config.fields.filter((f) => f.kind === 'number' && f.required).map((f) => [f.name, '1'])),
     ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value])),
   };
   const rows = seedRows(entry.seed);
@@ -77,9 +91,8 @@ function genericCases(entry: any): CatalogCase[] {
 
 /** Exact desktop texts and deviations per slug (R-REF-3, R-REF-4). */
 function slugCases(slug: string, deviation = false): CatalogCase[] {
-  const entity = ENTITIES[slug];
   const first = seedRows(REGISTRY.bySlug.get(slug).seed)[0][REGISTRY.bySlug.get(slug).idKey];
-  const text = (mode: string) => `Para ${mode} ${entity}, debes especificar su Descripcion.`;
+  const text = (modo: string) => descripcionText(slug, modo);
   return [
     { name: `${slug} S-REF-2 INSERT words the desktop message`, slug, ctx: WRITER, deviation, steps: [{ op: 'create', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], [text('agregar')]) },
     { name: `${slug} S-REF-2 UPDATE says modificar`, slug, ctx: WRITER, deviation, steps: [{ op: 'update', id: first, body: { descripcion: ' ' } }], expect: invalid(['descripcion'], [text('modificar')]) },
@@ -124,4 +137,24 @@ export const REFERENCE_CASES: CatalogCase[] = [
   // R-REF-4 tipos-anexo: abreviatura is optional.
   { name: 'tipos-anexo abreviatura is optional', slug: 'tipos-anexo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'principal' } }], expect: { ok: true, match: { descripcion: 'PRINCIPAL' } } },
   { name: 'tipos-anexo abreviatura is uppercased and capped at 100', slug: 'tipos-anexo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: 'a'.repeat(101) } }], expect: invalid(['abreviatura']) },
+  // R-REF-5 condiciones-pago (S-REF-5): dias_pago is a required integer where 0 is valid, tipo is a required option with no default.
+  { name: 'S-REF-5 condiciones-pago a blank dias_pago says sus Dias de Pago', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', tipo: 'CR' } }], expect: invalid(['dias_pago'], ['Para agregar una Condición de Pago, debes especificar sus Dias de Pago.']) },
+  { name: 'S-REF-5 condiciones-pago dias_pago 0 with a tipo is accepted', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'contado', dias_pago: 0, tipo: 'CO' } }], expect: { ok: true, match: { dias_pago: 0, tipo: 'CO', tipo_label: 'Contado' } } },
+  { name: 'S-REF-5 condiciones-pago without a tipo says su Tipo de Pago', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: 30 } }], expect: invalid(['tipo'], ['Para agregar una Condición de Pago, debes especificar su Tipo de Pago.']) },
+  { name: 'S-REF-5 condiciones-pago a non-digit dias_pago is a 422 on dias_pago', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: 'abc', tipo: 'CR' } }], expect: invalid(['dias_pago']) },
+  { name: 'R-CRUD-11 condiciones-pago dias_pago rejects 3 digits', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: '100', tipo: 'CR' } }], expect: invalid(['dias_pago']) },
+  { name: 'R-CRUD-11 condiciones-pago dias_pago 99 is accepted', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: 99, tipo: 'CR' } }], expect: { ok: true, match: { dias_pago: 99 } } },
+  { name: 'R-MOCK-10 condiciones-pago tipo outside the four codes is a 422 on tipo', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: 1, tipo: 'XX' } }], expect: invalid(['tipo']) },
+  { name: 'S-REF-5 condiciones-pago checks descripcion, then dias_pago, then tipo (declared order)', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: {} }], expect: invalid(['descripcion']) },
+  { name: 'S-MOCK-37 condiciones-pago tipo OB is labelled Operación Bancaria on get', slug: 'condiciones-pago', steps: [{ op: 'get', id: '003' }], expect: { ok: true, match: { tipo: 'OB', tipo_label: 'Operación Bancaria' } } },
+  { name: 'condiciones-pago a stored dias_pago 0 reads back as 0', slug: 'condiciones-pago', steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { dias_pago: 0, tipo: 'CO' } } },
+  // R-REF-5 tipos-trabajador: style M2, abreviatura* U <=5 labelled Abrev, estado preset.
+  { name: 'tipos-trabajador a blank abreviatura says su Abrev (M2)', slug: 'tipos-trabajador', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: ' ' } }], expect: invalid(['abreviatura'], ['Para agregar, debes especificar su Abrev.']) },
+  { name: 'tipos-trabajador abreviatura of 6 characters is a 422', slug: 'tipos-trabajador', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: 'abcdef' } }], expect: invalid(['abreviatura']) },
+  { name: 'tipos-trabajador abreviatura is trimmed and uppercased', slug: 'tipos-trabajador', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: ' ab1 ' } }], expect: { ok: true, match: { abreviatura: 'AB1' } } },
+  { name: 'S-REF-7 tipos-trabajador estado is true when the body omits it', slug: 'tipos-trabajador', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: 'x' } }], expect: { ok: true, match: { estado: true, activo: true } } },
+  { name: 'S-REF-7 tipos-trabajador an estado-false row stays listed', slug: 'tipos-trabajador', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
+  // R-REF-5 marcas-vehiculo: style M2 and the estado preset.
+  { name: 'S-REF-7 marcas-vehiculo estado is true when the body omits it', slug: 'marcas-vehiculo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'toyota' } }], expect: { ok: true, match: { descripcion: 'TOYOTA', estado: true } } },
+  { name: 'S-REF-7 marcas-vehiculo an estado-false row stays listed', slug: 'marcas-vehiculo', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
 ];

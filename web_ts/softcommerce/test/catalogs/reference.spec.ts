@@ -31,11 +31,22 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'tipos-anexo.abreviatura': [100, true],
   'tipos-descuento.descripcion': [100, true],
   'tipos-descuento.abrev': [5, true],
+  'condiciones-pago.descripcion': [255, true],
+  'tipos-trabajador.descripcion': [100, true],
+  'tipos-trabajador.abreviatura': [5, true],
+  'marcas-vehiculo.descripcion': [100, true],
+};
+
+/** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
+const INTEGERS: Record<string, [number, boolean, { min?: number; max?: number } | undefined]> = {
+  'condiciones-pago.dias_pago': [2, false, undefined],
 };
 
 /** Code width per slug: string ids pad to three digits (PanelTF focusLost "000"; clasif-inventarios is inferred), integer beans print unpadded. */
 const CODE_WIDTH: Record<string, number> = {
   'motivos-traslado': 3, 'clasif-clientes': 0, 'clasif-inventarios': 3, tamanos: 3, 'tipos-anexo': 3, 'tipos-descuento': 0,
+  // String ids with no pad evidence in the desktop are inferred as 3 (flagged for W6).
+  'condiciones-pago': 3, 'tipos-trabajador': 3, 'marcas-vehiculo': 3,
 };
 
 describe('W2 reference catalogs are registered', () => {
@@ -43,6 +54,12 @@ describe('W2 reference catalogs are registered', () => {
     const [slug, name] = path.split('.');
     const field = REGISTRY.bySlug.get(slug).fields.find((f: any) => f.name === name);
     expect([field.max, field.normalize.includes('upper')]).toEqual([max, upper]);
+  });
+
+  it.each(Object.entries(INTEGERS))('R-CRUD-11 %s keeps the desktop digits, padding and range', (path, [digits, padded, range]) => {
+    const [slug, name] = path.split('.');
+    const field = REGISTRY.bySlug.get(slug).fields.find((f: any) => f.name === name);
+    expect([field.kind, field.scale, field.max, field.normalize.some((s: string) => s.startsWith('padLeft:')), field.range]).toEqual(['number', 0, digits, padded, range]);
   });
 
   it.each(Object.entries(CODE_WIDTH))('%s keeps the desktop code width %i', (slug, width) => {
