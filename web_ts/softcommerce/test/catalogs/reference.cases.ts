@@ -25,6 +25,9 @@ export const ENTITIES: Record<string, string> = {
   'tipos-trabajador': 'un Tipo Trabajador',
   'marcas-vehiculo': 'una Marca Vehiculo',
   turnos: 'un Turno',
+  'motivos-descuento': 'un Motivo Descuento',
+  'motivos-nc': 'un Motivo de Nota de Crédito',
+  'tipos-trabajador-perfil': 'un Perfil',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
@@ -32,6 +35,8 @@ const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto). */
 export const NO_DESCRIPCION = new Set(['turnos']);
+/** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
+export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc']);
 
 /** The desktop sentence for a blank descripcion in `modo` (agregar, modificar, ...). */
 export const descripcionText = (slug: string, modo: string) => {
@@ -41,10 +46,20 @@ export const descripcionText = (slug: string, modo: string) => {
 
 const files = import.meta.glob<Record<string, any[]>>('../../mock-server/data/catalogs/*.json', { eager: true, import: 'default' });
 /** Demo seed rows of a catalog file. */
-export const seedRows = (seed: string): any[] => files[`../../mock-server/data/catalogs/${seed}.json`]?.demo ?? [];
+export const seedRows = (seed: string): any[] => {
+  const data = files[`../../mock-server/data/catalogs/${seed}.json`];
+  return Array.isArray(data) ? data : (data?.demo ?? []);
+};
 
 /** Slugs whose desktop message names the wrong entity or gender; the web port words the real one. */
 const DEVIATIONS = new Set(['marcas', 'motivos-traslado', 'tamanos', 'tipos-anexo']);
+
+/** A ref id the server accepts for a select field: the first active seed row of its source that meets the static where. */
+const refId = (field: any): string => {
+  const source = REGISTRY.bySlug.get(field.source.catalog);
+  const row = seedRows(source.seed).find((r) => r.activo !== false && Object.entries(field.source.where ?? {}).every(([k, v]) => String(r[k]) === String(v)));
+  return String(row[source.idKey]);
+};
 
 const invalid = (fields: string[], messages?: string[]): Outcome => ({ status: 422, code: 'VALIDATION_ERROR', fields, messages });
 const WRITER = { userId: '7' };
@@ -61,6 +76,7 @@ function genericCases(entry: any): CatalogCase[] {
     ...Object.fromEntries(texts.filter((f) => f.required).map((f) => [f.name, 'x'])),
     ...Object.fromEntries(config.fields.filter((f) => f.kind === 'number' && f.required).map((f) => [f.name, '1'])),
     ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value])),
+    ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'select' && f.required).map((f: any) => [f.name, refId(f)])),
   };
   const rows = seedRows(entry.seed);
   const active = rows.filter((r) => r.activo !== false);
@@ -94,6 +110,17 @@ function genericCases(entry: any): CatalogCase[] {
     }
     cases.push({ ...create({ ...valid, [name]: '  rojo ' }, { ok: true, match: { [name]: uppercase ? 'ROJO' : 'rojo' } }), name: at(`S-REF-4 ${name} is trimmed${uppercase ? ' and uppercased' : ' and keeps its case'}`) });
   }
+  // S-REF-34: a required ref that is blank, unknown or inactive is a 422 on that field, for every catalog with a select.
+  for (const { name, required, source } of entry.fields.filter((f: any) => f.kind === 'select')) {
+    if (required) {
+      const { [name]: _omitted, ...without } = valid;
+      cases.push({ ...create(without, invalid([name])), name: at(`S-REF-34 a missing ${name} is a 422 on it`) });
+    }
+    cases.push({ ...create({ ...valid, [name]: '99999' }, invalid([name])), name: at(`S-REF-34 an unknown ${name} is a 422 on it`) });
+    const target = REGISTRY.bySlug.get(source.catalog);
+    const retired = seedRows(target.seed).find((r) => r.activo === false);
+    if (retired) cases.push({ ...create({ ...valid, [name]: String(retired[target.idKey]) }, invalid([name])), name: at(`S-REF-34 an inactive ${name} is a 422 on it`) });
+  }
   return cases;
 }
 
@@ -109,7 +136,7 @@ function slugCases(slug: string, deviation = false): CatalogCase[] {
 
 export const REFERENCE_CASES: CatalogCase[] = [
   ...referenceEntries().flatMap(genericCases),
-  ...Object.keys(ENTITIES).filter((slug) => !NO_DESCRIPCION.has(slug)).flatMap((slug) => slugCases(slug, DEVIATIONS.has(slug))),
+  ...Object.keys(ENTITIES).filter((slug) => !NO_DESCRIPCION.has(slug) && !DESCRIPCION_NOT_FIRST.has(slug)).flatMap((slug) => slugCases(slug, DEVIATIONS.has(slug))),
   // R-REF-4 laboratorios: pais is optional, uppercased and capped at 100.
   { name: 'laboratorios pais is optional', slug: 'laboratorios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'abbott' } }], expect: { ok: true, match: { descripcion: 'ABBOTT' } } },
   { name: 'laboratorios pais is uppercased', slug: 'laboratorios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'abbott', pais: ' suiza ' } }], expect: { ok: true, match: { pais: 'SUIZA' } } },
@@ -179,4 +206,26 @@ export const REFERENCE_CASES: CatalogCase[] = [
   { name: 'R-MOCK-10 turnos tipo outside AM|PM is a 422 on tipo', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '5', minuto: '7', tipo: 'XX' } }], expect: invalid(['tipo']) },
   { name: 'R-MOCK-10 turnos three digits are a 422 on hora', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '123', minuto: '30' } }], expect: invalid(['hora']) },
   { name: 'S-REF-7 turnos an estado-false row stays listed', slug: 'turnos', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
+  // R-REF-5 motivos-descuento (S-REF-9, S-MOCK-28): abrev <= 5 and a required ref to tipos-descuento; the desktop texts are wrong or empty [DEVIATION].
+  { name: 'S-REF-9 motivos-descuento without a tipo says su Tipo Dscto on id_tipo_descuento [DEVIATION]', slug: 'motivos-descuento', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x' } }], expect: invalid(['id_tipo_descuento'], ['Para agregar un Motivo Descuento, debes especificar su Tipo Dscto.']) },
+  { name: 'S-REF-9 motivos-descuento an unknown tipo id is a 422 on id_tipo_descuento', slug: 'motivos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x', id_tipo_descuento: '99' } }], expect: invalid(['id_tipo_descuento']) },
+  { name: 'motivos-descuento a blank abrev says Abrev, not Descripcion [DEVIATION]', slug: 'motivos-descuento', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { descripcion: 'x', abrev: ' ', id_tipo_descuento: '1' } }], expect: invalid(['abrev'], ['Para agregar un Motivo Descuento, debes especificar su Abrev.']) },
+  { name: 'motivos-descuento checks descripcion, then abrev, then tipo (desktop order)', slug: 'motivos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x' } }], expect: invalid(['abrev']) },
+  { name: 'S-MOCK-28 motivos-descuento get joins the tipo description', slug: 'motivos-descuento', steps: [{ op: 'get', id: '1' }], expect: { ok: true, match: { id_tipo_descuento: '1', tipo_descuento: 'PORCENTAJE' } } },
+  { name: 'S-MOCK-28 motivos-descuento a deactivated tipo joins as an empty string, without error', slug: 'motivos-descuento', steps: [{ op: 'get', id: '3' }], expect: { ok: true, match: { id_tipo_descuento: '3', tipo_descuento: '' } } },
+  { name: 'S-MOCK-28 motivos-descuento list carries the joined name on every item', slug: 'motivos-descuento', steps: [{ op: 'list' }], expect: { ok: true, match: { items: [{ tipo_descuento: 'PORCENTAJE' }, { tipo_descuento: 'MONTO FIJO' }, { tipo_descuento: '' }] } } },
+  // R-REF-5 motivos-nc: the tipo is checked first; the desktop tipo message says "Familia" [DEVIATION].
+  { name: 'motivos-nc checks tipo first: an empty body is a 422 on tipo with the real entity [DEVIATION]', slug: 'motivos-nc', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: {} }], expect: invalid(['tipo'], ['Para agregar un Motivo de Nota de Crédito, debes especificar su Tipo.']) },
+  { name: 'motivos-nc a blank descripcion after a valid tipo says su Descripcion [DEVIATION]', slug: 'motivos-nc', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { tipo: 'P', descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para agregar un Motivo de Nota de Crédito, debes especificar su Descripcion.']) },
+  { name: 'motivos-nc UPDATE words the tipo message with modificar', slug: 'motivos-nc', ctx: WRITER, deviation: true, steps: [{ op: 'update', id: '001', body: { tipo: '' } }], expect: invalid(['tipo'], ['Para modificar un Motivo de Nota de Crédito, debes especificar su Tipo.']) },
+  { name: 'R-MOCK-10 motivos-nc tipo outside P|C|Y is a 422 on tipo', slug: 'motivos-nc', ctx: WRITER, steps: [{ op: 'create', body: { tipo: 'Z', descripcion: 'x' } }], expect: invalid(['tipo']) },
+  { name: 'S-MOCK-37 motivos-nc stores tipo C and labels it NOTA CREDITO VENTA', slug: 'motivos-nc', ctx: WRITER, steps: [{ op: 'create', body: { tipo: 'C', descripcion: 'x' } }], expect: { ok: true, match: { tipo: 'C', tipo_label: 'NOTA CREDITO VENTA' } } },
+  { name: 'S-MOCK-37 motivos-nc get carries the label of tipo Y', slug: 'motivos-nc', steps: [{ op: 'get', id: '003' }], expect: { ok: true, match: { tipo: 'Y', tipo_label: 'NOTA DEBITO VENTA' } } },
+  // R-REF-5 tipos-trabajador-perfil: descripcion first, then a tipo trabajador whose estado is active (the desktop lists estado A).
+  { name: 'tipos-trabajador-perfil without a tipo says su Tipo Trabajador [DEVIATION]', slug: 'tipos-trabajador-perfil', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { descripcion: 'x' } }], expect: invalid(['id_tipo_trabajador'], ['Para agregar un Perfil, debes especificar su Tipo Trabajador.']) },
+  { name: 'tipos-trabajador-perfil checks descripcion before the tipo trabajador', slug: 'tipos-trabajador-perfil', ctx: WRITER, steps: [{ op: 'create', body: {} }], expect: invalid(['descripcion']) },
+  { name: 'tipos-trabajador-perfil rejects a tipo trabajador whose estado is false (active only)', slug: 'tipos-trabajador-perfil', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', id_tipo_trabajador: '003' } }], expect: invalid(['id_tipo_trabajador']) },
+  { name: 'tipos-trabajador-perfil accepts an active tipo trabajador', slug: 'tipos-trabajador-perfil', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'cajero', id_tipo_trabajador: '002' } }], expect: { ok: true, match: { descripcion: 'CAJERO', id_tipo_trabajador: '002', tipo_trabajador: 'VENDEDOR' } } },
+  { name: 'S-MOCK-28 tipos-trabajador-perfil get joins the tipo trabajador name', slug: 'tipos-trabajador-perfil', steps: [{ op: 'get', id: '1' }], expect: { ok: true, match: { tipo_trabajador: 'ADMINISTRATIVO' } } },
+  { name: 'S-MOCK-30 the active-only filter keeps estado-false tipos out of the options', slug: 'tipos-trabajador', steps: [{ op: 'options', filters: { estado: 'true' } }], expect: { ok: true, items: [{ id: '001', name: 'ADMINISTRATIVO' }, { id: '002', name: 'VENDEDOR' }] } },
 ];
