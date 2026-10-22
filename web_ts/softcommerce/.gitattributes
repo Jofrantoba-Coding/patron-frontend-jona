@@ -1,0 +1,2 @@
+# The inventory CLI has a shebang; CRLF after it breaks vitest imports on Windows checkouts.
+*.mjs text eol=lf
