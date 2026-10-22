@@ -11,8 +11,8 @@ const pkg = JSON.parse(
 const EXACT_VERSION = /^\d+\.\d+\.\d+$/;
 
 describe('S-CRUD-21 pinned dependencies', () => {
-  it('pins jona-ui to exactly 1.4.0 with no range operator', () => {
-    expect(pkg.dependencies['jona-ui']).toBe('1.4.0');
+  it('pins jona-ui to exactly 1.5.0 with no range operator', () => {
+    expect(pkg.dependencies['jona-ui']).toBe('1.5.0');
   });
 
   it('pins every dependency to an exact version', () => {

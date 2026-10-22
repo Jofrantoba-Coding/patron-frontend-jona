@@ -119,6 +119,57 @@ describe('UiShell tab workspace', () => {
   });
 });
 
+describe('UiShell sidebar layout', () => {
+  const drawer = () => screen.queryByRole('dialog', { name: 'Menú de navegación' });
+  const openDrawer = (user: ReturnType<typeof userEvent.setup>) =>
+    user.click(screen.getByRole('button', { name: 'Abrir menú' }));
+
+  it('renders the menu inside the sidebar and the workspace in the single main landmark', async () => {
+    await renderShell();
+
+    expect(within(screen.getByRole('complementary')).getByRole('button', { name: 'Alfa' })).toBeTruthy();
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+    expect(within(screen.getByRole('main')).getByText(EMPTY_MESSAGE)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Colapsar sidebar' })).toBeNull();
+  });
+
+  it('selecting a leaf from the mobile drawer opens its tab and closes the drawer', async () => {
+    const { user } = await renderShell();
+    await openDrawer(user);
+    const open = drawer();
+    expect(open).not.toBeNull();
+
+    await user.click(within(open!).getByRole('button', { name: 'Alfa' }));
+
+    expect(drawer()).toBeNull();
+    expect(tabNames()).toEqual(['Alfa']);
+    expect(screen.getByRole('button', { name: 'Abrir menú' }).getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('Esc closes the mobile drawer', async () => {
+    const { user } = await renderShell();
+    await openDrawer(user);
+    expect(drawer()).not.toBeNull();
+
+    await user.keyboard('{Escape}');
+
+    expect(drawer()).toBeNull();
+  });
+
+  it('the menu retry button lives inside the sidebar', async () => {
+    const failure = new ApiError(500, { code: 'INTERNAL_ERROR', message: 'Menu unavailable', details: [], traceId: 'trace-9' });
+    const menuFn = vi.fn<InterShellService['menu']>().mockRejectedValueOnce(failure).mockResolvedValue(menu);
+    const user = userEvent.setup();
+    render(<UiShell service={fakeShell({ menu: menuFn })} registry={registry} />);
+    const sidebar = () => within(screen.getByRole('complementary'));
+
+    expect(await sidebar().findByRole('alert')).toBeTruthy();
+    await user.click(sidebar().getByRole('button', { name: 'Reintentar' }));
+
+    expect(await sidebar().findByRole('button', { name: 'Maestros' })).toBeTruthy();
+  });
+});
+
 describe('UiShell menu states', () => {
   it('S-SHELL-5 an unknown leaf shows a not-available notice and opens no tab', async () => {
     const { user } = await renderShell();
