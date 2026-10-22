@@ -211,3 +211,30 @@ Mode: Strict TDD. Status: T8.1-T8.3 done (commits and PR left to the orchestrato
 
 ### Files (lines)
 `shared/ui/CrudGrid/{InterCrudGrid 31, CrudGrid 47, index 2, CrudGrid.spec 71}`; `views/uicrudlist/{InterUiCrudList 57, UiCrudListImpl 96, UiCrudListView 44, UiCrudList 19, index 4, UiCrudList.spec 127, UiCrudListStates.spec 96}`; modified `domain/crud/listView.ts` +6. Total 601 changed lines: production about 300, specs about 295.
+
+
+## Slice 9: W1c-3 register template (branch `feat/softcommerce-w1c-3-register-template`, base W1c-2 `b5ba9ed`)
+
+Mode: Strict TDD. Status: T9.1-T9.7 all done (commits and PR left to the orchestrator). Gate (from `web_ts/softcommerce`): `npm test` 44 files / 359 tests passed (29 new); `npm run typecheck` exit 0; `npm run build` exit 0. Running total of changed lines (diff ins+del plus untracked): T9.1 99, T9.2 185, T9.3 615 (incl. the `toFailure` extraction), T9.6 708 (T9.4 and T9.5 were not measured separately), T9.7 797 after trimming blank lines and one redundant test; under the 800 cap (forecast 650).
+
+### TDD Cycle Evidence
+| Task | Test file | Layer | Safety net | RED observed | GREEN | Triangulate | Refactor |
+|------|-----------|-------|------------|--------------|-------|-------------|----------|
+| T9.1 | `domain/crud/validate.spec.ts` | Unit (pure) | N/A (new) | suite failed: `./normalize` / `./validate` not found | 7/7 | complete form gives no errors; errors in `fields` order; server value over `maxLength`; `it.each` cascade first unset level (3 cases); uppercase only on flagged fields | none |
+| T9.2 | `shared/ui/UppercaseTextField/UppercaseTextField.spec.tsx` | Component (jsdom, user-event) | N/A (new) | suite failed: `./UppercaseTextField` not found | 5/5 (one test fix: focus before `setSelectionRange`) | typing at 100 ignored; paste at 95+10 ignored whole; paste over 5 selected chars accepted at 100; `it.each` uppercase on/off | none |
+| T9.3 | `views/uicrudregister/UiCrudRegister.spec.tsx` | Component (fake service, DialogStackProvider) | N/A (new) | suite failed: `./UiCrudRegister` not found | 6/6 (one test fix: wait for the form after load) | INSERT/UPDATE/CLONE/DELETE each assert the exact service call; DELETE cancel then confirm; declined confirm; 500 keeps dialog and values | extracted `toFailure` to `shared/toFailure.ts` (5 consumers re-pointed), full suite 349 green |
+| T9.4 | same | Component | T9.3 green | 2 cases failed: no field error, no focus (submit went straight to confirm) | 8/8 | `it.each`: both empty focuses Codigo, only Codigo filled focuses Nombre | none |
+| T9.5 | same | Component | T9.4 green | Enter submit and dirty-Esc failed; DETAIL and untouched Esc passed at once because the guards existed from T9.3 | 12/12 | DETAIL no button/Enter nothing; Enter once; untouched Esc; dirty Esc: decline keeps value, confirm closes, no write | none |
+| T9.6 | same | Component | T9.5 green | none: the load-failure path was already part of the T9.3 Impl (one catch for lookups and record). Mutation check instead: dropping the `status === 'ready'` term of `canSubmit` fails S-CRUD-20 | 14/14 | rejecting lookup (alert, submit disabled) vs resolving lookup (called once, enabled) | none |
+| T9.7 | `views/uicrudlist/UiCrudListRegister.spec.tsx` | Component | list suites green | 2 cases failed: no dialog opened | list suites 18/18 | `it.each` details true opens DETAIL / false opens nothing; S-CRUD-22 second minimal config adds a row and it is selected | none |
+
+### Deviations
+- `lookups?: () => Promise<unknown>` is a prop of `UiCrudRegister`/`UiCrudList` (no `InterLookupService` exists until W1c-4); select and cascade fields are validated and normalized but not rendered yet (the view renders `kind: 'text'` only). W1c-4 adds `CascadeSelect`, the select control and the lookup service.
+- `UppercaseTextField` checks the resulting length on `onChange` instead of intercepting beforeinput: a change is the previous value with the selection replaced, so the outcome equals the design's rule (typing and paste identical, no truncation).
+- Confirmation is shown for every non-DETAIL mode; DELETE skips validation. Esc and the Cancel button both go through `useGuardedClose`; a dirty INSERT/UPDATE/CLONE asks "Descartar cambios" first, via a `GuardedOptionPane` stacked above the dialog.
+- `UiCrudList` no longer extends `CrudListHandlers`: it owns `onAction`/`onRowOpen` (action to mode map; double click opens DETAIL only when `permissions.details`). `search` has no register mode and does nothing.
+- `toFailure` extracted to `src/shared/toFailure.ts` (as requested) and 5 consumers re-pointed.
+- Tests do not assert the dialog's focus trap; `JDialog` closes through `onClose` only (the guarded handler), `onCancel` is not passed.
+
+### Files (lines)
+`domain/crud/{validate 29, normalize 11, validate.spec 58}`; `shared/toFailure 22`; `shared/ui/UppercaseTextField/{UppercaseTextField 29, index 2, spec 43}`; `views/uicrudregister/{InterUiCrudRegister 49, UiCrudRegisterImpl 118, UiCrudRegisterView 72, UiCrudRegister 20, index 4, spec 193}`; `views/uicrudlist/UiCrudListRegister.spec 64`; modified `UiCrudList.tsx` +44/-8, `UiLoginImpl.ts` +1/-22, four one-line import changes. Total 797 changed lines.
