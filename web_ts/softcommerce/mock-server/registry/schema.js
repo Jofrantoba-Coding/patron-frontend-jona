@@ -1,4 +1,5 @@
 import { NORMALIZE_STEP } from '../core/normalize.js';
+import { isIsoDate } from '../core/dates.js';
 import { DECIMAL_TEXT } from '../core/numbers.js';
 import { applyPreset } from './presets.js';
 import { BUILTIN_SOURCES } from './sources.js';
@@ -22,7 +23,7 @@ const ENTRY_RULES = ['docIdentidad'];
 const FILTER_RULES = ['ubigeoChildren', 'ubigeoHasActive'];
 const CONDITIONS = ['visibleWhen', 'enabledWhen', 'requiredWhen'];
 /** Column renderings beyond plain text; each lands with the first catalog that shows it. */
-const COLUMN_TYPES = ['bool', 'dec'];
+const COLUMN_TYPES = ['bool', 'dec', 'date'];
 const DISPLAYS = ['select', 'radio'];
 
 export class RegistryError extends Error {
@@ -76,6 +77,18 @@ function assertNumber(at, f) {
   if (!f.messages?.range) fail(at, 'range needs messages.range');
 }
 
+/**
+ * A date default is `today` or an ISO date (a per-mode map holds one per mode); `min` is an ISO date and `notFuture`
+ * a flag. `afterField` is checked once every field name is known.
+ * @param {string} at @param {any} f
+ */
+function assertDate(at, f) {
+  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  for (const value of defaults) if (value !== 'today' && !isIsoDate(value)) fail(at, `default "${value}" is not today or an ISO date`);
+  if (f.min !== undefined && !isIsoDate(f.min)) fail(at, `min "${f.min}" is not an ISO date`);
+  if (f.notFuture !== undefined && typeof f.notFuture !== 'boolean') fail(at, 'notFuture must be a boolean');
+}
+
 /** @param {string} where @param {any[]} fields */
 function assertAcyclic(where, fields) {
   const parents = new Map(fields.map((f) => [f.name, (f.dependsOn ?? []).map((/** @type {any} */ d) => d.field)]));
@@ -121,6 +134,8 @@ function resolveEntry(raw, slugs, sources) {
       if (!slugs.has(f.source.catalog) && !Object.hasOwn(sources, f.source.catalog)) fail(at, `unknown catalog "${f.source.catalog}"`);
     }
     if (f.kind === 'options') assertOptions(at, f);
+    if (f.kind === 'date') assertDate(at, f);
+    else if (f.notFuture !== undefined) fail(at, 'notFuture needs a date field');
     if (f.kind === 'number') assertNumber(at, f);
     else if (f.range !== undefined) fail(at, 'range needs a number field');
     if (f.min !== undefined && f.kind !== 'number' && f.kind !== 'date') fail(at, 'min needs a number or date field');
@@ -131,7 +146,11 @@ function resolveEntry(raw, slugs, sources) {
     for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
     for (const parent of f.dependsOn ?? []) known(`field "${f.name}" dependsOn`, parent.field);
     for (const key of CONDITIONS) if (f[key]) known(`field "${f.name}" ${key}`, f[key].field);
-    if (f.afterField) known(`field "${f.name}" afterField`, f.afterField);
+    if (f.afterField !== undefined && f.kind !== 'date') fail(at, 'afterField needs a date field');
+    if (f.afterField) {
+      known(`field "${f.name}" afterField`, f.afterField);
+      if (entry.fields.find((/** @type {any} */ other) => other.name === f.afterField).kind !== 'date') fail(at, 'afterField must name a date field');
+    }
   }
   assertAcyclic(where, entry.fields);
   for (const column of entry.columns) {

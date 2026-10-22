@@ -32,10 +32,17 @@ function toField(entry: CatalogDef, field: any): FieldConfig {
       ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}),
     };
   }
+  if (field.kind === 'date') {
+    return {
+      kind: 'date', name: field.name, label: field.label, required: Boolean(field.required),
+      ...(field.default !== undefined ? { default: field.default } : {}), ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}),
+      ...(field.notFuture ? { notFuture: true } : {}), ...(field.min !== undefined ? { min: field.min } : {}), ...(field.afterField ? { afterField: field.afterField } : {}),
+    };
+  }
   if (field.kind === 'select') {
     // The lookup filters travel as query strings, so a boolean or numeric `where` value is sent as its text.
     const where = field.source.where && Object.fromEntries(Object.entries(field.source.where).map(([key, value]) => [key, String(value)]));
-    return { kind: 'select', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, where }, ...(field.dependsOn?.length ? { dependsOn: field.dependsOn } : {}) };
+    return { kind: 'select', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, where }, ...(field.dependsOn?.length ? { dependsOn: field.dependsOn } : {}), ...(field.default !== undefined ? { default: field.default } : {}), ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}) };
   }
   throw new Error(`${entry.slug}.${field.name}: the UI does not support kind "${field.kind}" yet`);
 }
@@ -47,7 +54,7 @@ export function toCatalogConfig(entry: CatalogDef): CatalogConfig<Row> {
     title: entry.title ?? entry.slug,
     catalog: entry.slug,
     idKey: entry.idKey,
-    columns: entry.columns.map(({ key, header, type }) => ({ key, header, sortable: true, ...(type === 'bool' || type === 'dec' ? { format: type as 'bool' | 'dec' } : {}) })),
+    columns: entry.columns.map(({ key, header, type }) => ({ key, header, sortable: true, ...(type === 'bool' || type === 'dec' || type === 'date' ? { format: type as 'bool' | 'dec' | 'date' } : {}) })),
     fields: entry.fields.map((field) => toField(entry, field)),
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,

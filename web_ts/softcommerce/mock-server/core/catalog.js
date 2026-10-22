@@ -1,6 +1,7 @@
 import { methodNotAllowed, modeNotSupported, notFound } from './errors.js';
 import { isModeMap } from '../registry/schema.js';
 import { scopeFilter, stampsOf } from './context.js';
+import { todayIso } from './dates.js';
 import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
 
 export const DEFAULT_PAGE_SIZE = 20;
@@ -76,7 +77,8 @@ export function listCatalog(store, tenantId, catalog, query = {}, ctx) {
 
 /**
  * Declared defaults for the fields a create body leaves out: a scalar `default`, or the
- * INSERT entry of a per-mode map (R-CRUD-15). Updates never re-apply them.
+ * INSERT entry of a per-mode map (R-CRUD-15). A date default `today` is the server day; a decimal default is
+ * stored as the number it spells. Updates never re-apply them.
  * @param {any} entry @param {Record<string, any>} record
  */
 function withDefaults(entry, record) {
@@ -84,7 +86,7 @@ function withDefaults(entry, record) {
   for (const f of entry.fields) {
     if (f.name in out || f.default === undefined) continue;
     const value = isModeMap(f.default) ? f.default.INSERT : f.default;
-    if (value !== undefined) out[f.name] = value;
+    if (value !== undefined) out[f.name] = f.kind === 'date' && value === 'today' ? todayIso() : f.kind === 'number' && typeof value === 'string' ? Number(value) : value;
   }
   return out;
 }

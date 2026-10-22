@@ -3,6 +3,7 @@ import { JAlert, JButton, JComboBox, JDialog } from 'jona-ui';
 import { BooleanField } from '../../shared/ui/BooleanField';
 import { CascadeSelect } from '../../shared/ui/CascadeSelect';
 import { CatalogSelect } from '../../shared/ui/CatalogSelect';
+import { DateField } from '../../shared/ui/DateField';
 import { DependentSelect } from '../../shared/ui/DependentSelect';
 import { NumberField } from '../../shared/ui/NumberField';
 import { OptionsField } from '../../shared/ui/OptionsField';
@@ -80,6 +81,19 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                     hasError={Boolean(props.errors[field.name])}
                     onChange={(value) => props.onFieldChange(field.name, value)}
                     onBlur={() => props.onFieldBlur(field.name)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : field.kind === 'date' ? (
+                <div key={field.name}>
+                  <DateField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    value={props.values[field.name]}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
                   />
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
                 </div>

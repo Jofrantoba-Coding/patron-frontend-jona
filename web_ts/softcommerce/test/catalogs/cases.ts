@@ -55,6 +55,15 @@ export const REGISTRY_UNDER_TEST = validateRegistry([
   entry('notas', { scope: 'empresa', stamp: ['id_usuario', 'id_empresa'] }),
   entry('declarado', { fields: [text('a', { max: 5 }), text('b', { max: 5 })], validation: ['a', { unique: 0 }, 'b'], unique: [{ fields: ['a'], errorField: 'a', message: 'Ya existe.' }] }),
   entry('colores', { fields: [text('descripcion', { normalize: ['upper'] })] }),
+  // W2-7: dates (test-only `notFuture` and `afterField`, S-CRUD-28).
+  entry('agenda', {
+    fields: [
+      { name: 'fecha', kind: 'date', label: 'Fecha', required: true, messages: { date: 'La fecha de la Cita no es válida.' }, message: 'La fecha de la Cita no es válida.' },
+      { name: 'fecha_ini', kind: 'date', label: 'Fecha Ini' },
+      { name: 'fecha_fin', kind: 'date', label: 'Fecha Fin', afterField: 'fecha_ini', messages: { afterField: 'Fecha Fin no puede ser menor que Fecha Ini.' } },
+      { name: 'limite', kind: 'date', label: 'Límite', notFuture: true, messages: { notFuture: 'El límite no puede ser futuro.' } },
+    ],
+  }),
 ]);
 
 const row = (slug: string, id: string, extra: Record<string, unknown> = {}) => ({ [`id_${slug}`]: id, descripcion: `R${id}`, activo: true, ...extra });
@@ -69,6 +78,7 @@ export const SEED_UNDER_TEST = {
   notas: { demo: [row('notas', '1', { id_empresa: '1' }), row('notas', '2', { id_empresa: '2' })] },
   declarado: { demo: [{ id_declarado: '1', a: 'X', b: 'Y', activo: true }] },
   colores: { demo: [] },
+  agenda: { demo: [{ id_agenda: '1', fecha: '2026-01-15', activo: true }] },
 };
 
 const invalid = (fields: string[], messages?: string[]): Outcome => ({ status: 422, code: 'VALIDATION_ERROR', fields, messages });
@@ -107,5 +117,10 @@ export const CASES: CatalogCase[] = [
   { name: 'S-REF-2 the required message names the entity and the mode', slug: 'things', steps: [{ op: 'create', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para agregar un item, debes especificar su descripcion.']) },
   { name: 'S-REF-2 update words the same message with modificar', slug: 'things', steps: [{ op: 'update', id: '0007', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para modificar un item, debes especificar su descripcion.']) },
   { name: 'S-REG-17 the unique error is returned before a later field', slug: 'declarado', steps: [{ op: 'create', body: { a: 'X', b: '' } }], expect: { status: 409, code: 'DUPLICATE', fields: ['a'], messages: ['Ya existe.'] } },
+  { name: 'S-MOCK-19 a date that does not exist is a 422 on the date with its literal', slug: 'agenda', steps: [{ op: 'create', body: { fecha: '2026-02-31' } }], expect: invalid(['fecha'], ['La fecha de la Cita no es válida.']) },
+  { name: 'S-CRUD-27 a valid ISO date is stored as sent', slug: 'agenda', steps: [{ op: 'create', body: { fecha: '2026-01-15' } }], expect: { ok: true, match: { fecha: '2026-01-15' } } },
+  { name: 'S-CRUD-28 afterField: an earlier end is a 422 on the end date', slug: 'agenda', steps: [{ op: 'create', body: { fecha: '2026-01-15', fecha_ini: '2026-02-01', fecha_fin: '2026-01-01' } }], expect: invalid(['fecha_fin'], ['Fecha Fin no puede ser menor que Fecha Ini.']) },
+  { name: 'S-CRUD-28 afterField: equal dates are accepted', slug: 'agenda', steps: [{ op: 'create', body: { fecha: '2026-01-15', fecha_ini: '2026-02-01', fecha_fin: '2026-02-01' } }], expect: { ok: true, match: { fecha_fin: '2026-02-01' } } },
+  { name: 'S-CRUD-28 notFuture: a date far in the future is a 422 with the configured message', slug: 'agenda', steps: [{ op: 'create', body: { fecha: '2026-01-15', limite: '2999-01-01' } }], expect: invalid(['limite'], ['El límite no puede ser futuro.']) },
   { name: 'D10 a W2 entry reports only the first failing step', slug: 'things', steps: [{ op: 'create', body: { descripcion: ' ', tipo: 'Z' } }], expect: invalid(['descripcion']) },
 ];

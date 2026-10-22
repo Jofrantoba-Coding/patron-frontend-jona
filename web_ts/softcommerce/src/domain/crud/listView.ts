@@ -1,5 +1,6 @@
 import type { Pagination } from '../../services/InterCatalogService';
-import { filterRows, sortRows, type SortState } from './filterSort';
+import { isoToDisplay } from '../../../mock-server/core/dates.js';
+import { filterRows, sortKeyOf, sortRows, type SortState } from './filterSort';
 
 export const LIST_PAGE_SIZE = 20;
 
@@ -20,18 +21,21 @@ export interface ListViewResult<T> {
 }
 
 /**
- * Rows as the grid shows them: a `bool` column reads Sí / No and a `dec` column the stored number as text, with no
- * rounding (a missing value is empty), so the filter and the sort work on the rendered text (R-CRUD-1). Rows come back
+ * Rows as the grid shows them: a `bool` column reads Sí / No, a `dec` column the stored number as text, with no
+ * rounding, and a `date` column dd/MM/yyyy (a missing value is empty), so the filter and the sort work on the rendered text (R-CRUD-1). Rows come back
  * untouched when no column needs formatting.
  */
-export function formatRows<T>(columns: readonly { key: keyof T & string; format?: 'bool' | 'dec' }[], rows: readonly T[]): T[] {
+export function formatRows<T>(columns: readonly { key: keyof T & string; format?: 'bool' | 'dec' | 'date' }[], rows: readonly T[]): T[] {
   const formatted = columns.filter((column) => column.format !== undefined);
   if (formatted.length === 0) return rows as T[];
   return rows.map((row) => {
     const shown = { ...row } as Record<string, unknown>;
     for (const { key, format } of formatted) {
       const value = row[key];
-      shown[key] = format === 'bool' ? (value === true ? 'Sí' : value === false ? 'No' : '') : value === undefined || value === null ? '' : String(value);
+      if (format === 'date') {
+        shown[key] = isoToDisplay(value);
+        shown[sortKeyOf(key)] = typeof value === 'string' ? value : '';
+      } else shown[key] = format === 'bool' ? (value === true ? 'Sí' : value === false ? 'No' : '') : value === undefined || value === null ? '' : String(value);
     }
     return shown as T;
   });
