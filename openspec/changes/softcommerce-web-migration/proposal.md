@@ -36,7 +36,7 @@
 |---|---|---|
 | Mock server | Copy the h2h zero-dependency Node pattern | Proven and has no dependencies, but more hand-written code than MSW or json-server |
 | uijona gaps | App-local JONA components in `src/shared/ui`, promoted to `jona-ui` later in separate versioned PRs | Some duplication for a while, but W1 does not depend on npm publish cycles |
-| uijona consumption | Pinned npm `jona-ui@1.3.0` (exact) | Reproducible and CI does not have to build `uijona`; `file:../uijona` (as in `website-develtrex`) is only for the promotion step. Note: local `web_ts/uijona` is 1.3.1 but npm's latest is 1.3.0 (verified with `npm view jona-ui versions`), so `~1.3.1` would not install |
+| uijona consumption | Pinned npm `jona-ui@1.4.0` (exact; bumped from the original `1.3.0` pin for the mobile-first release) | Reproducible and CI does not have to build `uijona`; `file:../uijona` (as in `website-develtrex`) is only for the promotion step |
 | MDI | Tabs (`JTabs`), one per form | No floating windows |
 | Multi-DB | `BdEmpresa` becomes a tenant option from `/auth/session-options`, sent as `X-Tenant-Id` | Hides ip, port and schema |
 
@@ -65,7 +65,7 @@ Everything new lives under `web_ts/softcommerce`. To roll back, revert the chain
 
 ## Dependencies
 
-- `jona-ui@1.3.0` on npm (latest published; local 1.3.1 is unpublished). Node 20 or newer.
+- `jona-ui@1.4.0` on npm (exact pin; mobile-first release, published 2026-10-21; was `1.3.0`). Node 20 or newer.
 
 ## Success Criteria
 

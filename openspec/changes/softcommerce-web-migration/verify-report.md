@@ -49,3 +49,8 @@ None.
 - Services injected: no non-test, non-composer import of Http/Mock services; `main.tsx` composes, `ServicesProvider`/`useServices` and `service` props inject. `testkit.tsx` imports the mock (test support only).
 - Domain free of React/session/views; only `domain/crud/listView.ts:1` has a type-only import of `Pagination` from services (minor coupling, no runtime import).
 - `jona-ui` pinned exactly 1.4.0 (package.json, lockfile, `test/pinned-deps.spec.ts`).
+
+## Doc drift resolved (after verify)
+- WARNING 1: `proposal.md` (decision row, Dependencies) and `tasks.md` T1.1 now state the exact `jona-ui` pin `1.4.0` (bumped from 1.3.0, commit 04f0652); `design.md` JPagination note also names 1.4.0.
+- WARNING 2: S-LOC-1 in `specs/softcommerce-localidad-catalog/spec.md` now states the shared seed (5 rows, 1 inactive, 4 shown); `tasks.md` T10.3 text aligned.
+- WARNING 5: `rup/uc-01-iniciar-sesion.md`, `rup/uc-02-seleccionar-contexto.md` and the six uc-01/uc-02 `.drawio` files relabeled in place: `UiLogin`/`UiContexto` «entry» calls the Impl with the `service` prop (from `App`, services composed in `main.tsx`), `UiLoginView`/`UiContextoView` «visual» is the pure render; layout untouched.

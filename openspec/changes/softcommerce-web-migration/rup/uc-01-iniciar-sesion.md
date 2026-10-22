@@ -13,7 +13,7 @@ The operator picks a tenant (BdEmpresa), enters user and password, and the syste
 
 ## Participants (JONA)
 
-`UiLoginView` «view» → `useUiLoginImpl` «impl» → `UiLogin` «visual». The Impl gets `InterAuthService` from `serviceComposer` (`useServices()`), which resolves to `AuthServiceHttp` (http) or `AppServicesMock` (mock, lazy `import()`).
+`UiLogin` «entry» (`UiLogin.tsx`) → `useUiLoginImpl` «impl» (`UiLoginImpl.ts`) → `UiLoginView` «visual» (pure render: no hooks, no services). The entry calls `useUiLoginImpl(service)` and renders `UiLoginView` with `UILOGIN_DEFAULTS` plus the Impl model. `InterAuthService` is injected, not looked up: `main.tsx` builds the services once with `composeServices()` (`serviceComposer`), passes them to `App`, and the `/login` route renders `<UiLogin service={services.auth} />`; the entry forwards that `service` prop as the Impl argument. It resolves to `AuthServiceHttp` (http) or `AppServicesMock` (mock, lazy `import()`). The only context hooks in the Impl are `useSession()` and `useNavigate()`.
 
 ## Preconditions
 

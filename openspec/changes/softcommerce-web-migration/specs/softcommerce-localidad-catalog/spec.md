@@ -30,7 +30,7 @@ The slice MUST run identically against the mock implementation of `InterCatalogS
 
 ## Scenarios
 
-**S-LOC-1 list columns** — Given 3 seeded localidades (one inactive), Then 2 rows show with empresa and ubigeo names resolved.
+**S-LOC-1 list columns** — Given the seeded localidades of the demo tenant (5 rows, 1 inactive), When the list loads, Then only the 4 active rows show, with empresa and ubigeo (departamento, provincia, distrito) names resolved, and the inactive row is hidden.
 
 **S-LOC-2 INSERT happy path** — Given add=true, When Empresa, "sede lima" and "av. x 123" are entered with a full ubigeo and submitted, Then create is called with uppercase "SEDE LIMA", "AV. X 123" and the distrito id as `id_ubigeo`; the new row is selected.
 

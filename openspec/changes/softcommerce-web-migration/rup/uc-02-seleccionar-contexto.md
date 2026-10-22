@@ -13,7 +13,7 @@ Step 2 of login, included by CU-01. The operator picks empresa, punto de venta (
 
 ## Participants (JONA)
 
-`UiContextoView` «view» → `useUiContextoImpl` «impl» → `UiContexto` «visual». The Impl uses `InterAuthService` (`empresas`, `puntosVenta`, `params`), the pure period rules in `src/domain/period.ts` «domain», and `SessionProvider`/`sessionStore` «session».
+`UiContexto` «entry» (`UiContexto.tsx`) → `useUiContextoImpl` «impl» (`UiContextoImpl.ts`) → `UiContextoView` «visual» (pure render: no hooks, no services). The entry calls `useUiContextoImpl(service)` and renders `UiContextoView` with `UICONTEXTO_DEFAULTS` plus the Impl model. `InterAuthService` (`empresas`, `puntosVenta`, `params`) is injected as the `service` prop by `App` (`<UiContexto service={services.auth} />`, services composed in `main.tsx`) and forwarded as the Impl argument; it is not read from `useServices()`. The Impl also uses the pure period rules in `src/domain/period.ts` «domain» and `SessionProvider`/`sessionStore` «session» (`useSession()`).
 
 ## Preconditions
 
@@ -63,7 +63,7 @@ Each rule is enforced on its own (R-AUTH-5):
 
 - **Keyboard:** Enter submits the active login step form [ASSUMPTION R-AUTH-8].
 - **Header:** after this use case the shell shows the period as `dd/MM/yyyy – dd/MM/yyyy`, read-only (CU-03, S-SHELL-15).
-- **Hard rule:** `UiContexto` never calls a service; it raises value-first callbacks (`onEmpresaChange(idEmpresa)`) to the Impl.
+- **Hard rule:** `UiContexto` and `UiContextoView` never call a service; `UiContextoView` raises value-first callbacks (`onEmpresaChange(idEmpresa)`) to the Impl.
 
 ## Assumptions
 
