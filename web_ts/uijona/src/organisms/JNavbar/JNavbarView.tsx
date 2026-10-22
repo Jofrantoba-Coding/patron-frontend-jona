@@ -49,7 +49,7 @@ export const JNavbarView: React.FC<JNavbarViewProps> = ({
         <button
           onClick={onMobileToggle}
           aria-label="Abrir menú"
-          className="grid h-10 w-10 place-items-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100 lg:hidden"
+          className="grid h-11 w-11 place-items-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100 lg:hidden"
         >
           <MenuIcon />
         </button>
@@ -65,7 +65,7 @@ export const JNavbarView: React.FC<JNavbarViewProps> = ({
         <JPanel variant="ghost" padding="none" radius="none" className="absolute left-0 top-0 flex h-full w-[85vw] max-w-sm flex-col overflow-y-auto bg-white shadow-2xl">
           <JPanel variant="ghost" padding="none" radius="none" className="flex h-16 shrink-0 items-center justify-between border-b border-neutral-200 px-5">
             {brand}
-            <button onClick={onMobileClose} aria-label="Cerrar menú" className="grid h-10 w-10 place-items-center rounded-lg text-neutral-600 hover:bg-neutral-100">
+            <button onClick={onMobileClose} aria-label="Cerrar menú" className="grid h-11 w-11 place-items-center rounded-lg text-neutral-600 hover:bg-neutral-100">
               <CloseIcon />
             </button>
           </JPanel>

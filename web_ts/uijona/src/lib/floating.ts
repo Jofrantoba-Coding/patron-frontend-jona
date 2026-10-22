@@ -1,5 +1,6 @@
 /**
- * Viewport-aware placement for portal panels (JCombobox, JMultiSelect, JDatePicker).
+ * Viewport-aware placement for portal panels (JCombobox, JMultiSelect, JDatePicker,
+ * JDropdown, JPopover).
  *
  * Pure function: the Impl measures the trigger and the panel, this decides where
  * the panel goes. On a phone the trigger is often in the lower half of the
@@ -40,18 +41,21 @@ export interface FloatingOptions {
   gap?: number;
   /** Minimum distance between panel and viewport edges. */
   margin?: number;
+  /** Preferred side; the panel flips to the other one only when it has more room there. */
+  prefer?: 'bottom' | 'top';
 }
 
 export function computeFloatingPosition(
   anchor: FloatingAnchor,
   floating: FloatingSize,
   viewport: FloatingViewport,
-  { gap = 4, margin = 8 }: FloatingOptions = {},
+  { gap = 4, margin = 8, prefer = 'bottom' }: FloatingOptions = {},
 ): FloatingPosition {
   const spaceBelow = viewport.height - anchor.bottom - gap - margin;
   const spaceAbove = anchor.top - gap - margin;
-  const fitsBelow = floating.height <= spaceBelow;
-  const placement = fitsBelow || spaceBelow >= spaceAbove ? 'bottom' : 'top';
+  const placement = prefer === 'top'
+    ? (floating.height <= spaceAbove || spaceAbove >= spaceBelow ? 'top' : 'bottom')
+    : (floating.height <= spaceBelow || spaceBelow >= spaceAbove ? 'bottom' : 'top');
 
   const maxLeft = viewport.width - floating.width - margin;
   const left = Math.max(margin, Math.min(anchor.left, maxLeft));

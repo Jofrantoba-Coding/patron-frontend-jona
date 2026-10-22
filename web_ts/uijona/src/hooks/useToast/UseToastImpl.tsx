@@ -41,7 +41,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position
       <div
         aria-label="Notifications"
         className={cn(
-          'pointer-events-none fixed z-[100] flex w-80 flex-col gap-2',
+          // Phone: viewport width minus the 1rem gutters of every position; 20rem from sm:.
+          'pointer-events-none fixed z-[100] flex w-[calc(100vw-2rem)] flex-col gap-2 sm:w-80',
           POSITION_CLASSES[position],
         )}
       >

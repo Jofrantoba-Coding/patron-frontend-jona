@@ -9,6 +9,7 @@ export interface JTooltipViewProps extends InterJTooltip {
   visible:      boolean;
   style:        React.CSSProperties;
   triggerRef:   React.RefObject<HTMLSpanElement>;
+  tooltipRef?:  React.RefObject<HTMLDivElement>;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   onFocus:      () => void;
@@ -16,7 +17,7 @@ export interface JTooltipViewProps extends InterJTooltip {
 }
 
 export const JTooltipView: React.FC<JTooltipViewProps> = ({
-  tooltipId, content, className, children, visible, style, triggerRef,
+  tooltipId, content, className, children, visible, style, triggerRef, tooltipRef,
   onMouseEnter, onMouseLeave, onFocus, onBlur,
 }) => (
   <>
@@ -36,6 +37,7 @@ export const JTooltipView: React.FC<JTooltipViewProps> = ({
     {/* Tooltip: div nativo — evita CSS variables de JPanel que rompen el layout */}
     {visible && createPortal(
       <div
+        ref={tooltipRef}
         id={tooltipId}
         role="tooltip"
         style={style}

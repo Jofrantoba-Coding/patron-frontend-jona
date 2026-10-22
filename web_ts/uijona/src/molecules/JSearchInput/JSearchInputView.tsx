@@ -64,7 +64,7 @@ export const JSearchInputView: React.FC<JSearchInputViewProps> = ({
         onBlur={(_, event) => onInputBlur(event)}
         onKeyDown={onInputKeyDown}
         className={cn(
-          'flex h-9 w-full min-w-0 rounded-md border border-neutral-300 bg-neutral-50 py-1 pl-9 pr-9 text-sm text-neutral-900',
+          'flex h-9 w-full min-w-0 rounded-md border border-neutral-300 bg-neutral-50 py-1 pl-9 pr-12 text-sm sm:pr-9 text-neutral-900',
           'placeholder:text-neutral-400 transition-colors duration-200',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
           'disabled:cursor-not-allowed disabled:opacity-50',
@@ -76,7 +76,7 @@ export const JSearchInputView: React.FC<JSearchInputViewProps> = ({
           type="button"
           aria-label="Clear search"
           onClick={onClearClick}
-          className="absolute right-2 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          className="absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 sm:right-2 sm:h-6 sm:w-6 items-center justify-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           <XIcon />
         </button>
@@ -86,7 +86,7 @@ export const JSearchInputView: React.FC<JSearchInputViewProps> = ({
       type="button"
       disabled={disabled}
       onClick={onSearchClick}
-      className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-md bg-primary-600 px-3 text-sm font-medium text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50"
+      className="inline-flex min-h-11 shrink-0 sm:min-h-9 items-center justify-center rounded-md bg-primary-600 px-3 text-sm font-medium text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50"
     >
       Search
     </button>

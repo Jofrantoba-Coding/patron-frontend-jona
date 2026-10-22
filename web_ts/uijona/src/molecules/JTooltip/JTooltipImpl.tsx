@@ -1,17 +1,28 @@
 // JTooltipImpl.tsx — JONA Implementation
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { InterJTooltip, JTooltipSide, JTOOLTIP_DEFAULTS } from './InterJTooltip';
 import { JTooltipView } from './JTooltipView';
+import { computeFloatingPosition } from '../../lib/floating';
 
 const GAP     = 6;
 const PADDING = 8;
 
 function computeStyle(
   ref: React.RefObject<HTMLSpanElement | null>,
-  side: JTooltipSide,
+  requestedSide: JTooltipSide,
+  tooltipHeight = 0,
 ): React.CSSProperties {
   if (!ref.current) return {};
   const r        = ref.current.getBoundingClientRect();
+  // Top/bottom flip to the other side when the tooltip has no room (phones).
+  const side: JTooltipSide = requestedSide === 'top' || requestedSide === 'bottom'
+    ? computeFloatingPosition(
+      r,
+      { width: 0, height: tooltipHeight },
+      { width: window.innerWidth, height: window.innerHeight },
+      { gap: GAP, margin: PADDING, prefer: requestedSide },
+    ).placement
+    : requestedSide;
   const maxWidth = Math.min(320, window.innerWidth - PADDING * 2);
   const centerX  = Math.min(
     Math.max(r.left + r.width / 2, PADDING + maxWidth / 2),
@@ -48,6 +59,7 @@ export const JTooltipImpl: React.FC<InterJTooltip> = ({ onShow, onHide, ...props
   const [visible, setVisible]   = useState(false);
   const [style, setStyle]       = useState<React.CSSProperties>({});
   const triggerRef = useRef<HTMLSpanElement>(null) as React.RefObject<HTMLSpanElement>;
+  const tooltipRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const show = () => {
@@ -64,6 +76,12 @@ export const JTooltipImpl: React.FC<InterJTooltip> = ({ onShow, onHide, ...props
     onHide?.();
   };
 
+  // Re-measure once the tooltip is in the DOM (its height decides top vs bottom)
+  useLayoutEffect(() => {
+    if (!visible) return;
+    setStyle(computeStyle(triggerRef, resolved.side, tooltipRef.current?.getBoundingClientRect().height));
+  }, [visible, resolved.side]);
+
   // Cerrar con Escape
   useEffect(() => {
     if (!visible) return;
@@ -79,6 +97,7 @@ export const JTooltipImpl: React.FC<InterJTooltip> = ({ onShow, onHide, ...props
       visible={visible}
       style={style}
       triggerRef={triggerRef}
+      tooltipRef={tooltipRef}
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}

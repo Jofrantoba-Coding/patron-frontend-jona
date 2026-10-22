@@ -1,7 +1,8 @@
 // JDropdownImpl.tsx — JONA Implementation (gestiona estado y posición)
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { InterJDropdown, JDROPDOWN_DEFAULTS } from './InterJDropdown';
 import { JDropdownView } from './JDropdownView';
+import { computeFloatingPosition, floatingStyle } from '../../lib/floating';
 
 export const JDropdownImpl: React.FC<InterJDropdown> = ({
   align = JDROPDOWN_DEFAULTS.align, onOpen, onClose, onItemSelect, ...props
@@ -11,23 +12,27 @@ export const JDropdownImpl: React.FC<InterJDropdown> = ({
   const triggerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const menuRef    = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
 
+  // Opens below the trigger, or above it when the viewport has no room below
+  // (lower half of a phone screen). Uses the measured menu height once rendered.
   const updatePosition = () => {
     if (!triggerRef.current) return;
-    const rect            = triggerRef.current.getBoundingClientRect();
-    const vPad            = 8;
-    const vw              = window.innerWidth;
-    const width           = Math.min(Math.max(rect.width, 160), vw - vPad * 2);
-    const desiredLeft     = align === 'end' ? rect.right - width : rect.left;
-    const left            = Math.min(Math.max(desiredLeft, vPad), vw - width - vPad);
-    setMenuStyle({
-      position: 'fixed',
-      top:      rect.bottom + 4,
-      left,
-      width,
-      maxWidth: `calc(100vw - ${vPad * 2}px)`,
-      zIndex:   50,
-    });
+    const rect        = triggerRef.current.getBoundingClientRect();
+    const vPad        = 8;
+    const viewport    = { width: window.innerWidth, height: window.innerHeight };
+    const width       = Math.min(Math.max(rect.width, 160), viewport.width - vPad * 2);
+    const height      = menuRef.current?.getBoundingClientRect().height || 0;
+    const desiredLeft = align === 'end' ? rect.right - width : rect.left;
+    const position    = computeFloatingPosition(
+      { top: rect.top, bottom: rect.bottom, left: desiredLeft, width: rect.width },
+      { width, height },
+      viewport,
+      { margin: vPad },
+    );
+    setMenuStyle({ ...floatingStyle(position, { width }), maxWidth: `calc(100vw - ${vPad * 2}px)` });
   };
+
+  // Re-measure once the menu is in the DOM (its real height may change the side)
+  useLayoutEffect(() => { if (open) updatePosition(); }, [open]);
 
   useEffect(() => {
     if (!open) return;
