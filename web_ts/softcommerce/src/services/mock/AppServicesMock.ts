@@ -35,6 +35,9 @@ export interface AppServicesMockOptions {
   getSession?: () => SessionContext;
   /** Simulated latency; tests pass 0. */
   delayMs?: number;
+  /** Registry and seed under test; default to the real ones (the same the HTTP server loads). */
+  registry?: Store['registry'];
+  seed?: Record<string, any>;
 }
 
 export interface AppServicesMock {
@@ -64,10 +67,10 @@ function toApiError(error: unknown): ApiError {
  */
 export function createAppServicesMock(
   scenario: ApiScenario,
-  { getSession = () => ({}), delayMs = DEFAULT_DELAY_MS }: AppServicesMockOptions = {},
+  { getSession = () => ({}), delayMs = DEFAULT_DELAY_MS, registry, seed }: AppServicesMockOptions = {},
 ): AppServicesMock {
   const fixture = FIXTURES[scenario];
-  const store = fixture.kind === 'data' ? createStore(fixture.seed) : undefined;
+  const store = fixture.kind === 'data' ? createStore(seed ?? fixture.seed, registry) : undefined;
 
   /** One simulated request: latency, scenario failure, then the core rule mapped to ApiError. */
   const call = async <T>(rule: (store: Store) => T): Promise<T> => {
