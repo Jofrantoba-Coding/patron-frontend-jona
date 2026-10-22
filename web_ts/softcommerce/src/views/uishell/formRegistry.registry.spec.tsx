@@ -26,7 +26,7 @@ describe('formRegistry derived from the catalog registry (G15)', () => {
   });
 
   it('keeps unregistered names unknown', () => {
-    expect(findForm(formRegistry, 'miTipoCambio')).toBeUndefined();
+    expect(findForm(formRegistry, 'miFormularioInexistente')).toBeUndefined();
   });
 });
 

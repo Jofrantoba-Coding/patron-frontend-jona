@@ -1,0 +1,52 @@
+{
+  "demo": [
+    {
+      "id_tipo_cambio": "001",
+      "fecha": "2026-01-15",
+      "id_moneda": "00004",
+      "monto_compra": 3.71,
+      "monto_venta": 3.75,
+      "monto_comercial": 3.73,
+      "monto_especial": 3.74,
+      "id_usuario": 7,
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_tipo_cambio": "002",
+      "fecha": "2026-01-16",
+      "id_moneda": "00004",
+      "monto_compra": 3.72,
+      "monto_venta": 3.76,
+      "monto_comercial": 3.74,
+      "monto_especial": 3.75,
+      "id_usuario": 7,
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_tipo_cambio": "003",
+      "fecha": "2026-01-17",
+      "id_moneda": "00004",
+      "monto_compra": 3.7123,
+      "monto_venta": 3.7234,
+      "monto_comercial": 3.7345,
+      "monto_especial": 3.7456,
+      "id_usuario": 7,
+      "id_empresa": "2",
+      "activo": true
+    },
+    {
+      "id_tipo_cambio": "004",
+      "fecha": "2026-01-10",
+      "id_moneda": "00004",
+      "monto_compra": 3.7,
+      "monto_venta": 3.74,
+      "monto_comercial": 3.72,
+      "monto_especial": 3.73,
+      "id_usuario": 7,
+      "id_empresa": "1",
+      "activo": false
+    }
+  ]
+}

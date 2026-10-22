@@ -27,6 +27,8 @@ const FAMILIAS_SUNAT = [
 // subfamilias-sunat (RegisterSubFamilia.loadSubFamiliaSunat): the options of a familia are the SUNAT rows keyed by that familia's SUNAT code.
 const SUBFAMILIAS_SUNAT_FRUTAS = [{ id: '501015', name: 'FRUTAS FRESCAS' }, { id: '501016', name: 'VERDURAS FRESCAS' }, { id: '501017', name: 'TUBERCULOS Y RAICES' }];
 const SUBS = 'subfamilias-sunat';
+// monedas (DaoMoneda.listarMoneda, R-REF-11): the read-only list behind the Moneda select of a Tipo de Cambio; ids are 5-digit strings (MonedaEnum 00001, 00004).
+const MONEDAS = [{ id: '00001', name: 'SOLES' }, { id: '00004', name: 'DOLAR AMERICANO' }, { id: '00005', name: 'EURO' }];
 const LOOKUP_CASES: CatalogCase[] = [
   { name: 'familias-sunat S-REG-14 create is 405 METHOD_NOT_ALLOWED', slug: 'familias-sunat', steps: [{ op: 'create', body: { descripcion: 'X' } }], expect: notAllowed },
   { name: 'familias-sunat S-REG-14 update is 405 METHOD_NOT_ALLOWED', slug: 'familias-sunat', steps: [{ op: 'update', id: '5010', body: { descripcion: 'X' } }], expect: notAllowed },
@@ -35,6 +37,12 @@ const LOOKUP_CASES: CatalogCase[] = [
   { name: 'familias-sunat S-MOCK-15 lists the active rows without any session context', slug: 'familias-sunat', steps: [{ op: 'list' }], expect: { ok: true, total: 5 } },
   { name: 'familias-sunat S-MOCK-15 get resolves a retired row', slug: 'familias-sunat', steps: [{ op: 'get', id: '9999' }], expect: { ok: true, match: { activo: false } } },
   { name: 'familias-sunat options carry the SUNAT code as id and the description as name', slug: 'familias-sunat', steps: [{ op: 'options' }], expect: { ok: true, items: FAMILIAS_SUNAT } },
+  { name: 'monedas S-MOCK-29 create is 405 METHOD_NOT_ALLOWED', slug: 'monedas', steps: [{ op: 'create', body: { descripcion: 'X' } }], expect: notAllowed },
+  { name: 'monedas S-MOCK-29 update is 405 METHOD_NOT_ALLOWED', slug: 'monedas', steps: [{ op: 'update', id: '00004', body: { descripcion: 'X' } }], expect: notAllowed },
+  { name: 'monedas S-MOCK-29 remove is 405 METHOD_NOT_ALLOWED', slug: 'monedas', steps: [{ op: 'remove', id: '00004' }], expect: notAllowed },
+  { name: 'monedas S-REF-35 lists the active rows without any session context', slug: 'monedas', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
+  { name: 'monedas S-MOCK-15 get resolves a retired row', slug: 'monedas', steps: [{ op: 'get', id: '00009' }], expect: { ok: true, match: { activo: false } } },
+  { name: 'monedas options carry the id and the description as name', slug: 'monedas', steps: [{ op: 'options' }], expect: { ok: true, items: MONEDAS } },
   { name: `${SUBS} S-REG-14 create is 405 METHOD_NOT_ALLOWED`, slug: SUBS, steps: [{ op: 'create', body: { descripcion: 'X' } }], expect: notAllowed },
   { name: `${SUBS} S-REG-14 update is 405 METHOD_NOT_ALLOWED`, slug: SUBS, steps: [{ op: 'update', id: '501015', body: { descripcion: 'X' } }], expect: notAllowed },
   { name: `${SUBS} S-REG-14 remove is 405 and the row stays`, slug: SUBS, steps: [{ op: 'remove', id: '501015' }], expect: notAllowed },
@@ -94,6 +102,18 @@ describe('S-REG-18 a shared lookup is one global dataset', () => {
     const store = createStore(seed);
     expect(listCatalog(store, 'demo', SUBS).items).toEqual(listCatalog(store, 'botica', SUBS).items);
     expect(listCatalog(store, 'botica', SUBS).items).toHaveLength(11);
+  });
+
+  it('monedas is declared shared and read-only, with no screen of its own and 5-digit ids', () => {
+    const entry = REGISTRY.bySlug.get('monedas');
+    expect([entry.scope, entry.readOnly, entry.formId, entry.menu, entry.codeWidth]).toEqual(['shared', true, undefined, undefined, 5]);
+    expect(Array.isArray(seed.monedas)).toBe(true);
+  });
+
+  it('S-MOCK-38 every tenant sees the same monedas, DOLAR AMERICANO among them', () => {
+    const store = createStore(seed);
+    expect(listCatalog(store, 'demo', 'monedas').items).toEqual(listCatalog(store, 'botica', 'monedas').items);
+    expect(listCatalog(store, 'botica', 'monedas').items.map((r: any) => r.descripcion)).toEqual(['SOLES', 'DOLAR AMERICANO', 'EURO']);
   });
 
   it('every tenant sees the same rows', () => {
