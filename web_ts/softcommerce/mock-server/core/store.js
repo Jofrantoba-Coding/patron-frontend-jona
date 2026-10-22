@@ -7,8 +7,8 @@ import { MockError } from './errors.js';
  * @typedef {{ users: any[], menu: any[], permissions: Record<string, any>, ubigeo: any[], [section: string]: any }} SharedData
  */
 
-/** W1 seed sections keyed by tenant id; registry entries add theirs by scope. */
-const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'localidades', 'params'];
+/** W1 seed sections keyed by tenant id; registry entries (Localidad included) add theirs by scope. */
+const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'params'];
 
 /** @param {ReturnType<typeof import('../registry/schema.js').validateRegistry>} registry @param {boolean} shared */
 const sectionsOf = (registry, shared) =>

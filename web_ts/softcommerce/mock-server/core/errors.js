@@ -3,7 +3,7 @@
  * `traceId` (equal to the response correlation id); the core never invents one.
  */
 
-/** @typedef {{ field: string, message: string }} FieldDetail */
+/** @typedef {{ field: string, message: string, code?: string }} FieldDetail */
 
 export class MockError extends Error {
   /**
@@ -27,6 +27,15 @@ export const notFound = (message) => new MockError(404, 'NOT_FOUND', message);
 /** @param {FieldDetail[]} details */
 export const validationError = (details) =>
   new MockError(422, 'VALIDATION_ERROR', 'Validation failed', details);
+
+/** A unique-key violation (R-MOCK-11). @param {FieldDetail[]} details */
+export const duplicateError = (details) => new MockError(409, 'DUPLICATE', 'Duplicate record', details);
+
+/** A write outside the entry `modes` (R-MOCK-17). @param {string} message */
+export const modeNotSupported = (message) => new MockError(405, 'MODE_NOT_SUPPORTED', message);
+
+/** A write to a read-only lookup (R-MOCK-15). @param {string} message */
+export const methodNotAllowed = (message) => new MockError(405, 'METHOD_NOT_ALLOWED', message);
 
 /**
  * Builds the public error body `{ code, message, details, traceId }`.

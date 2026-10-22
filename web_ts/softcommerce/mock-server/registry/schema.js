@@ -6,7 +6,7 @@ import { BUILTIN_SOURCES } from './sources.js';
  * reads in this slice are enforced here; later slices extend the checks.
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
- *   modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
+ *   title?: string, modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
  *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any }} CatalogDef
  */
 
