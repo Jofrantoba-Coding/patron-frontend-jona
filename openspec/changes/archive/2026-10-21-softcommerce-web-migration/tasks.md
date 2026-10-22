@@ -68,7 +68,7 @@ Run from `web_ts/softcommerce`: `npm test`, `npm run typecheck`, `npm run build`
 - [x] T1.3 Catalog rules. RED: `core/catalog.spec.ts` (S-MOCK-7 envelope/paging, S-MOCK-10 logical delete, S-MOCK-12 validation 422 with `details`; plus inactive excluded, display names resolved, `pageSize` default 20 / max 1000). GREEN: `core/catalog.js`. REFACTOR: extract validators.
 - [x] T1.4 Ubigeo. RED: `core/ubigeo.spec.ts` (S-MOCK-8 children by level from code length, S-MOCK-9 unknown parent returns `[]`). GREEN: `core/ubigeo.js`. REFACTOR: none.
 - [x] T1.5 Auth/lookup rules (supporting, no new S-*). RED: `core/auth.spec.ts` (login 200/401/403 `USER_DISABLED`/`NO_DESKTOP_ACCESS`, session-options, menu flat list, permissions 13 flags with unknown form all false, puntos-venta filtered by `id_empresa`, params). GREEN: `core/auth.js`. REFACTOR: none.
-- [ ] T1.6 Gate (`npm test`, `npm run typecheck`, `npm run build`), commit plan below, push, open PR against `feat/softcommerce-w1`.
+- [x] T1.6 Gate (`npm test`, `npm run typecheck`, `npm run build`), commit plan below, push, open PR against `feat/softcommerce-w1`. Done: gates recorded in apply-progress Slice 1; split into PR #1 (`w1a-1`) and PR #2 (`w1a-1b`), both merged into the tracker.
 
 Commits: (1) `chore(softcommerce): scaffold vite app with pinned jona-ui` T1.1; (2) `feat(softcommerce-mock): add store, errors and seed with reset` T1.2; (3) `feat(softcommerce-mock): add catalog and ubigeo rules` T1.3+T1.4; (4) `feat(softcommerce-mock): add auth, menu and lookup rules` T1.5.
 
@@ -86,7 +86,7 @@ Commits: (1) `feat(softcommerce-mock): add http app with tenant and correlation`
 - [x] T3.1 ApiError + httpClient. RED: `src/services/httpClient.spec.ts` (S-AUTH-22 `X-Tenant-Id` on post-login requests; supporting: `Authorization`, generated `X-Correlation-Id`, error body mapped to `ApiError{status,code,message,details,traceId}`). GREEN: `ApiError.ts`, `httpClient.ts`. REFACTOR: none.
 - [x] T3.2 lazyService + serviceComposer. RED: `serviceComposer.spec.ts` (S-AUTH-1 mock mode loads via dynamic import using `vi.dynamicImportSettled`, S-AUTH-2 http mode does not load the mock, S-AUTH-3 invalid mode names `VITE_API_MODE`, S-AUTH-4 empty or `not-a-url` base URL). GREEN: `lazyService.ts`, `serviceComposer.ts`. REFACTOR: pure env parser.
 - [x] T3.3 Auth service and mock. RED: `AuthServiceHttp.spec.ts` (contract against live mock server on port 0), `mock/AppServicesMock.spec.ts` (scenarios `exitoso|vacio|errorServidor` reject `ApiError` 500). GREEN: `InterAuthService.ts` (login, sessionOptions, empresas, puntosVenta, params), `AuthServiceHttp.ts`, `mock/{AppServicesMock,seed}.ts` importing `mock-server/core`, `mock/fixtures/*.fixture.ts`. REFACTOR: none.
-- [ ] T3.4 Gate, PR.
+- [x] T3.4 Gate, PR. Done: gates recorded in apply-progress Slice 3; split into PR #4 (`w1a-3a`) and PR #5 (`w1a-3b`), both merged into the tracker.
 
 Commits: (1) `feat(softcommerce): add ApiError and http client` T3.1; (2) `feat(softcommerce): add service composer with lazy mock` T3.2; (3) `feat(softcommerce): add auth service http and mock` T3.3.
 
