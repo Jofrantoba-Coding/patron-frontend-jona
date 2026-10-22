@@ -38,7 +38,7 @@ function enrich(store, tenantId, entry, row, ctx) {
   const out = { ...row };
   for (const join of entry.joins ?? []) {
     const ref = entry.refs.find((/** @type {any} */ r) => r.field === join.ref);
-    const target = targetOf(store, tenantId, ref.catalog, ctx);
+    const target = targetOf(store, tenantId, ref.catalog, ctx, false);
     const value = String(row[join.ref] ?? '');
     const key = join.prefixLen ? value.slice(0, join.prefixLen) : value;
     const found = target.rows.find((/** @type {any} */ r) => String(r[target.idKey]) === key);

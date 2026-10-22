@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { loadSeed } from '../../mock-server/http/loadSeed.js';
 import { useTestServer } from '../../mock-server/http/test-server';
 import { REGISTRY } from '../../mock-server/registry/index.js';
+import { toCatalogConfig } from '../../src/catalogs/registry';
 import { createCatalogServiceHttp } from '../../src/services/CatalogServiceHttp';
 import { createLookupServiceHttp } from '../../src/services/LookupServiceHttp';
 import { createHttpClient } from '../../src/services/httpClient';
@@ -41,6 +42,7 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'tipos-trabajador-perfil.descripcion': [100, true],
   'familias.descripcion': [100, true],
   'modelos-vehiculo.descripcion': [100, true],
+  'subfamilias.descripcion': [100, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -59,6 +61,8 @@ const CODE_WIDTH: Record<string, number> = {
   'motivos-descuento': 0, 'motivos-nc': 3, 'tipos-trabajador-perfil': 0,
   // PanelTFFamilia pads to three; the modelo id has no pad evidence (inferred, flagged for W6).
   familias: 3, 'modelos-vehiculo': 3,
+  // PanelTFSubFamilia pads the code to three ("000" + id).
+  subfamilias: 3,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -66,6 +70,8 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   'motivos-descuento.id_tipo_descuento': ['tipos-descuento', {}],
   'tipos-trabajador-perfil.id_tipo_trabajador': ['tipos-trabajador', { estado: true }],
   'familias.id_familia_sunat': ['familias-sunat', {}],
+  'subfamilias.id_familia': ['familias', {}],
+  'subfamilias.id_subfamilia_sunat': ['subfamilias-sunat', {}],
 };
 
 /**
@@ -78,6 +84,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   'motivos-traslado': 'tenant', 'clasif-clientes': 'tenant', 'clasif-inventarios': 'tenant', tamanos: 'stamp', 'tipos-anexo': 'tenant',
   'tipos-descuento': 'tenant', 'condiciones-pago': 'tenant', 'tipos-trabajador': 'tenant', 'marcas-vehiculo': 'stamp', turnos: 'tenant',
   'motivos-descuento': 'tenant', 'motivos-nc': 'tenant', 'tipos-trabajador-perfil': 'tenant', familias: 'empresa', 'modelos-vehiculo': 'stamp',
+  // DAOSubFamilia.mantSubFamilia passes the empresa on every write; listar passes '' for it, so the list stays tenant-wide.
+  subfamilias: 'stamp',
 };
 
 describe('W2 reference catalogs are registered', () => {
@@ -116,6 +124,12 @@ describe('W2 reference catalogs are registered', () => {
   it('registers the reference catalogs, each with seed rows and one inactive row', () => {
     expect(referenceEntries().map((e: any) => e.slug).sort()).toEqual(Object.keys(ENTITIES).sort());
     expect(REFERENCE_CASES.length).toBeGreaterThan(40);
+  });
+
+  it('R-CRUD-12 / S-REF-39 subfamilias: the SUNAT select depends on the familia and no nested-create field exists', () => {
+    const fields = toCatalogConfig(REGISTRY.bySlug.get('subfamilias')).fields;
+    expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_sub_familia', 'select:id_familia', 'text:descripcion', 'select:id_subfamilia_sunat']);
+    expect(fields.map((f: any) => f.dependsOn)).toEqual([undefined, undefined, undefined, [{ field: 'id_familia', filterKey: 'id_familia' }]]);
   });
 
   it('S-REG-6 every one of them seeds demo only: botica starts empty', () => {

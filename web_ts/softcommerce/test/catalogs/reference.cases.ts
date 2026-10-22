@@ -30,6 +30,7 @@ export const ENTITIES: Record<string, string> = {
   'tipos-trabajador-perfil': 'un Perfil',
   familias: 'una Familia',
   'modelos-vehiculo': 'un Modelo Vehiculo',
+  subfamilias: 'una SubFamilia',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
@@ -38,11 +39,13 @@ const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su DescripciÃ
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto). */
 export const NO_DESCRIPCION = new Set(['turnos']);
 /** The Motivo de Nota de CrÃ©dito checks its tipo before the descripcion (R-REF-5). */
-export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc']);
+export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias']);
 
 /** The desktop sentence for a blank descripcion in `modo` (agregar, modificar, ...). */
 export const descripcionText = (slug: string, modo: string) => {
   const label = DESCRIPCION[slug] ?? 'su Descripcion';
+  // The desktop descripcion message of the SubFamilia has a stray space before its comma (RegisterSubFamilia.isRegisterValid).
+  if (slug === 'subfamilias') return `Para ${modo} ${ENTITIES[slug]} , debes especificar ${label}.`;
   return M2.has(slug) ? `Para ${modo}, debes especificar ${label}.` : `Para ${modo} ${ENTITIES[slug]}, debes especificar ${label}.`;
 };
 
@@ -57,9 +60,10 @@ export const seedRows = (seed: string): any[] => {
 const DEVIATIONS = new Set(['marcas', 'motivos-traslado', 'tamanos', 'tipos-anexo']);
 
 /** A ref id the server accepts for a select field: the first active seed row of its source that meets the static where. */
-const refId = (field: any): string => {
+const refId = (field: any, empresa?: string): string => {
   const source = REGISTRY.bySlug.get(field.source.catalog);
-  const row = seedRows(source.seed).find((r) => r.activo !== false && Object.entries(field.source.where ?? {}).every(([k, v]) => String(r[k]) === String(v)));
+  // An empresa-scope source only offers (and the server only accepts) the rows of the session empresa.
+  const row = seedRows(source.seed).find((r) => r.activo !== false && (empresa === undefined || source.scope !== 'empresa' || String(r.id_empresa) === empresa) && Object.entries(field.source.where ?? {}).every(([k, v]) => String(r[k]) === String(v)));
   return String(row[source.idKey]);
 };
 
@@ -86,6 +90,8 @@ function genericCases(entry: any): CatalogCase[] {
     ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value])),
     ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'select' && f.required).map((f: any) => [f.name, refId(f)])),
   };
+  /** Required refs that exist in the session empresa: an empresa-scope source (the familia) differs per empresa. */
+  const refsOf = (empresa: string) => Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'select' && f.required).map((f: any) => [f.name, refId(f, empresa)]));
   const rows = seedRows(entry.seed);
   const scoped = inEmpresa(entry, rows);
   const active = scoped.filter((r) => r.activo !== false);
@@ -125,7 +131,7 @@ function genericCases(entry: any): CatalogCase[] {
     const count = (empresa: string) => rows.filter((r) => String(r.id_empresa) === empresa && r.activo !== false).length;
     const list = (what: string, empresaId: string, expect: Outcome): CatalogCase => ({ name: at(what), slug, ctx: as(empresaId), steps: [{ op: 'list' }], expect });
     cases.push(
-      { ...create({ ...valid, id_empresa: '9' }, { ok: true, match: { id_empresa: '2' } }, as('2')), name: at('S-MOCK-26 a write records the session empresa, not the body') },
+      { ...create({ ...valid, ...refsOf('2'), id_empresa: '9' }, { ok: true, match: { id_empresa: '2' } }, as('2')), name: at('S-MOCK-26 a write records the session empresa, not the body') },
       { ...create({ ...valid }, { status: 400, code: 'MISSING_SESSION_CONTEXT' }, as('')), name: at('S-MOCK-36 a write without the empresa header is a 400') },
       { ...create({ ...valid }, { status: 400, code: 'INVALID_SESSION_CONTEXT' }, as('999')), name: at('S-MOCK-36 a write with an empresa outside the tenant is a 400') },
     );
@@ -258,6 +264,23 @@ const BASE_CASES: CatalogCase[] = [
   { name: 'tipos-trabajador-perfil accepts an active tipo trabajador', slug: 'tipos-trabajador-perfil', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'cajero', id_tipo_trabajador: '002' } }], expect: { ok: true, match: { descripcion: 'CAJERO', id_tipo_trabajador: '002', tipo_trabajador: 'VENDEDOR' } } },
   { name: 'S-MOCK-28 tipos-trabajador-perfil get joins the tipo trabajador name', slug: 'tipos-trabajador-perfil', steps: [{ op: 'get', id: '1' }], expect: { ok: true, match: { tipo_trabajador: 'ADMINISTRATIVO' } } },
   { name: 'S-MOCK-30 the active-only filter keeps estado-false tipos out of the options', slug: 'tipos-trabajador', steps: [{ op: 'options', filters: { estado: 'true' } }], expect: { ok: true, items: [{ id: '001', name: 'ADMINISTRATIVO' }, { id: '002', name: 'VENDEDOR' }] } },
+  // R-REF-5 subfamilias (S-REF-8, S-MOCK-23, S-MOCK-28): the familia is checked first, then the descripcion; the SUNAT code is optional and follows the familia.
+  { name: 'subfamilias an empty body is a 422 on id_familia with the desktop text', slug: 'subfamilias', steps: [{ op: 'create', body: {} }], expect: invalid(['id_familia'], ['Para agregar una SubFamilia, debes especificar su Familia.']) },
+  { name: 'subfamilias UPDATE words the familia message with modificar', slug: 'subfamilias', steps: [{ op: 'update', id: '001', body: { id_familia: '' } }], expect: invalid(['id_familia'], ['Para modificar una SubFamilia, debes especificar su Familia.']) },
+  { name: 'subfamilias a blank descripcion keeps the desktop spacing before the comma', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '001', descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para agregar una SubFamilia , debes especificar su Descripcion.']) },
+  { name: 'subfamilias UPDATE words the descripcion message with modificar', slug: 'subfamilias', steps: [{ op: 'update', id: '001', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para modificar una SubFamilia , debes especificar su Descripcion.']) },
+  { name: 'S-MOCK-23 subfamilias an unknown familia is a 422 on id_familia', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '999', descripcion: 'x' } }], expect: invalid(['id_familia']) },
+  { name: 'S-MOCK-23 subfamilias an inactive familia is a 422 on id_familia', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '004', descripcion: 'x' } }], expect: invalid(['id_familia']) },
+  { name: 'S-MOCK-23 subfamilias a familia of another empresa is a 422 on id_familia', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '005', descripcion: 'x' } }], expect: invalid(['id_familia']) },
+  { name: 'S-REF-8 subfamilias the SUNAT code is optional', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '001', descripcion: 'frutas' } }], expect: { ok: true, match: { descripcion: 'FRUTAS', subfamilia_sunat: '' } } },
+  { name: 'S-REF-8 subfamilias accepts a SUNAT code of the familia SUNAT code', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '001', descripcion: 'frutas', id_subfamilia_sunat: '501015' } }], expect: { ok: true, match: { id_subfamilia_sunat: '501015', familia: 'ABARROTES', subfamilia_sunat: 'FRUTAS FRESCAS' } } },
+  { name: 'S-REF-8 subfamilias rejects a SUNAT code that belongs to another familia', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '001', descripcion: 'x', id_subfamilia_sunat: '501315' } }], expect: invalid(['id_subfamilia_sunat']) },
+  { name: 'S-REF-8 subfamilias rejects any SUNAT code under a familia that has none', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '003', descripcion: 'x', id_subfamilia_sunat: '501015' } }], expect: invalid(['id_subfamilia_sunat']) },
+  { name: 'S-REF-8 subfamilias a familia change with the old SUNAT code is a 422 on it', slug: 'subfamilias', steps: [{ op: 'update', id: '001', body: { id_familia: '002' } }], expect: invalid(['id_subfamilia_sunat']) },
+  { name: 'S-MOCK-28 subfamilias get joins the familia and the SUNAT descriptions', slug: 'subfamilias', steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { id_familia: '001', familia: 'ABARROTES', id_subfamilia_sunat: '501015', subfamilia_sunat: 'FRUTAS FRESCAS' } } },
+  { name: 'S-MOCK-28 subfamilias a row without a SUNAT code joins it as an empty string', slug: 'subfamilias', steps: [{ op: 'get', id: '004' }], expect: { ok: true, match: { familia: 'LIMPIEZA', subfamilia_sunat: '' } } },
+  { name: 'S-MOCK-28 subfamilias a tenant-wide row of another empresa still joins its familia', slug: 'subfamilias', steps: [{ op: 'get', id: '005' }], expect: { ok: true, match: { familia: 'BEBIDAS', subfamilia_sunat: 'GASEOSAS' } } },
+  { name: 'S-REF-8 subfamilias the list is tenant-wide: both empresas show', slug: 'subfamilias', steps: [{ op: 'list' }], expect: { ok: true, total: 6 } },
 ];
 
 /** A case of an empresa catalog acts in the session empresa unless it names its own (an empty one is a missing header). */

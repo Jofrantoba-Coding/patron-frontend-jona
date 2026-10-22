@@ -22,5 +22,6 @@
   "miMotivoNotaCredito": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "miTipoTrabajadorPerfil": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "miFamilia": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
-  "miModeloVehiculo": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true }
+  "miModeloVehiculo": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "miSubFamilia": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true }
 }

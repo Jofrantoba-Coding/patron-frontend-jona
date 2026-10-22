@@ -1,7 +1,7 @@
 import { resolveWhere, scopeFilter } from './context.js';
 import { MockError, notFound } from './errors.js';
 import { LOOKUP_RULES } from './rules.js';
-import { ACTIVE_KEY, rowsOf } from './validators.js';
+import { ACTIVE_KEY, rowsOf, viaValue } from './validators.js';
 
 /**
  * Filter keys the options endpoint accepts for a target: its own ref fields, the
@@ -45,9 +45,7 @@ export function lookupOptions(store, tenantId, slug, filters = {}, ctx) {
       exact.push([key, value]);
       continue;
     }
-    const source = store.registry.bySlug.get(via.catalog);
-    const chosen = rowsOf(store, tenantId, source).find((/** @type {any} */ r) => String(r[source.idKey]) === String(value));
-    const held = String(chosen?.[via.key] ?? '');
+    const held = viaValue(store, tenantId, via, value);
     // No such row, or a row that holds no value: nothing can match.
     if (held === '') return { items: [] };
     exact.push([via.as, held]);

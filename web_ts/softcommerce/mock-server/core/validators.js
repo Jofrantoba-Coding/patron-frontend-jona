@@ -20,18 +20,30 @@ export function rowsOf(store, tenantId, entry) {
 }
 
 /**
- * What a ref or join points to: a registry catalog or a W1 builtin source. An
- * `empresa`-scope catalog shows only the session empresa rows.
- * @param {any} store @param {string} tenantId @param {string} catalog @param {import('./context.js').RequestContext} [ctx] @returns {Target}
+ * The value a `via` lookup filter matches: what the row of `via.catalog` chosen by `value` holds in `via.key`
+ * ('' when there is no such row or it holds none). The chosen row is found without the session scope: it is only read for its key.
+ * @param {any} store @param {string} tenantId @param {{ catalog: string, key: string }} via @param {unknown} value
  */
-export function targetOf(store, tenantId, catalog, ctx) {
+export function viaValue(store, tenantId, via, value) {
+  const source = store.registry.bySlug.get(via.catalog);
+  const chosen = rowsOf(store, tenantId, source).find((/** @type {any} */ r) => same(r[source.idKey], value));
+  return String(chosen?.[via.key] ?? '');
+}
+
+/**
+ * What a ref or join points to: a registry catalog or a W1 builtin source. An
+ * `empresa`-scope catalog shows only the session empresa rows, unless `scoped` is false (a join only reads the name of the
+ * row a record already points to, so a tenant-wide list still names the familia of another empresa).
+ * @param {any} store @param {string} tenantId @param {string} catalog @param {import('./context.js').RequestContext} [ctx] @param {boolean} [scoped] @returns {Target}
+ */
+export function targetOf(store, tenantId, catalog, ctx, scoped = true) {
   const { sources, bySlug } = store.registry;
   if (Object.hasOwn(sources, catalog)) {
     const { idKey, rows, refFilter, refMessage } = sources[catalog];
     return { idKey, rows: rows(store, tenantId), refFilter, refMessage };
   }
   const entry = bySlug.get(catalog);
-  return { idKey: entry.idKey, activeKey: ACTIVE_KEY, rows: rowsOf(store, tenantId, entry).filter(scopeFilter(store, tenantId, entry, ctx)) };
+  return { idKey: entry.idKey, activeKey: ACTIVE_KEY, rows: scoped ? rowsOf(store, tenantId, entry).filter(scopeFilter(store, tenantId, entry, ctx)) : rowsOf(store, tenantId, entry) };
 }
 
 /**
@@ -93,7 +105,15 @@ function refDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /**
   if (!row) return missing;
   if (ref.activeOnly && target.activeKey && row[target.activeKey] === false) return missing;
   if (Object.entries(resolveWhere(store, tenantId, ref.where, ctx)).some(([key, expected]) => String(row[key]) !== String(expected))) return missing;
-  const parent = ref.parents.find((/** @type {any} */ p) => String(row[p.filterKey] ?? '') !== String(record[p.field] ?? '').trim());
+  const lookupFilters = store.registry.bySlug.get(ref.catalog)?.lookupFilters ?? {};
+  /** A parent is matched on the filter key, or through its `via` when the target declares one (the SUNAT code of a familia). */
+  const belongs = (/** @type {any} */ p) => {
+    const via = lookupFilters[p.filterKey]?.via;
+    if (!via) return same(row[p.filterKey], record[p.field]);
+    const held = viaValue(store, tenantId, via, record[p.field]);
+    return held !== '' && same(row[via.as], held);
+  };
+  const parent = ref.parents.find((/** @type {any} */ p) => !belongs(p));
   return parent ? { ...missing, message: `${ref.field} does not belong to ${parent.field}` } : null;
 }
 
