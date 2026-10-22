@@ -1,0 +1,1 @@
+export { UiLocalidad } from './UiLocalidad';

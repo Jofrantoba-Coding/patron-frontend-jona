@@ -87,6 +87,10 @@ export function describeCatalogServiceContract(label: string, make: CatalogServi
       await expect(service.get('2')).resolves.toMatchObject({ id_localidad: '2' });
     });
 
+    it('S-LOC-17 exposes logical remove only: no physical-delete method', () => {
+      expect(Object.keys(demo()).sort()).toEqual(['create', 'get', 'list', 'remove', 'update']);
+    });
+
     it('rejects without a tenant (400) or with an unknown one (404)', async () => {
       const call = (tenantId?: string) => make(() => ({ tenantId })).list().then(() => undefined, (e: unknown) => e);
 

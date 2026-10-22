@@ -1,5 +1,6 @@
 // Layer: View. Pure render of props already resolved by the Impl; no state, effects or services.
-import { JAlert, JButton, JDialog } from 'jona-ui';
+import { JAlert, JButton, JComboBox, JDialog } from 'jona-ui';
+import { CascadeSelect } from '../../shared/ui/CascadeSelect';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { UICRUDREGISTER_DEFAULTS, type InterUiCrudRegister } from './InterUiCrudRegister';
@@ -52,7 +53,34 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                   </label>
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
                 </div>
-              ) : null,
+              ) : field.kind === 'select' ? (
+                <div key={field.name}>
+                  <label style={{ display: 'grid', gap: 4 }}>
+                    <span>{field.label}</span>
+                    <JComboBox
+                      ref={props.registerField(field.name)}
+                      placeholder={props.selectPlaceholder}
+                      value={props.values[field.name]}
+                      options={(props.selectOptions[field.name] ?? []).map((o) => ({ value: o.id, label: o.name }))}
+                      disabled={props.readOnly}
+                      hasError={Boolean(props.errors[field.name])}
+                      onChange={(value) => props.onFieldChange(field.name, value)}
+                    />
+                  </label>
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : (
+                <CascadeSelect
+                  key={field.name}
+                  levels={field.levels}
+                  values={props.values}
+                  loadChildren={props.loadChildren}
+                  readOnly={props.readOnly}
+                  errors={props.errors}
+                  registerField={props.registerField}
+                  onChange={props.onFieldChange}
+                />
+              ),
             )}
         </div>
       </JDialog>

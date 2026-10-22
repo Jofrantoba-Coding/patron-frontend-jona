@@ -1,6 +1,7 @@
 // Layer: Interface. Public contract of the generic crud register dialog: shapes and defaults only, no logic.
 import type { FieldConfig } from '../../catalogs/CatalogConfig';
 import type { FormValues } from '../../domain/crud/validate';
+import type { LookupItem } from '../../services/InterLookupService';
 
 export type RegisterMode = 'INSERT' | 'UPDATE' | 'DELETE' | 'CLONE' | 'DETAIL';
 export type RegisterStatus = 'loading' | 'ready' | 'failed';
@@ -26,8 +27,12 @@ export interface InterUiCrudRegister {
   confirm?: RegisterConfirm;
   /** Callbacks are value-first. */
   onFieldChange: (name: string, value: string) => void;
+  /** Options per select field name, loaded with the form. */
+  selectOptions: Record<string, LookupItem[]>;
+  /** Children of a cascade parent id; '' asks for the top level. */
+  loadChildren: (parent: string) => Promise<LookupItem[]>;
   /** Ref callback per field name, so a blocked submit can focus the first invalid one. */
-  registerField: (name: string) => (element: HTMLInputElement | null) => void;
+  registerField: (name: string) => (element: HTMLElement | null) => void;
   onSubmit: () => void;
   onConfirm: () => void;
   onConfirmCancel: () => void;
@@ -38,6 +43,7 @@ export interface InterUiCrudRegister {
 /** Presentation defaults only; values, status and errors are state and never defaulted. */
 export const UICRUDREGISTER_DEFAULTS = {
   loadingLabel: 'Cargando...',
+  selectPlaceholder: 'Seleccione',
   submitLabel: 'Aceptar',
   cancelLabel: 'Cancelar',
   confirmLabel: 'Confirmar',
