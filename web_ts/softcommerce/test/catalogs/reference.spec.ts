@@ -75,7 +75,8 @@ describe('W2 reference catalogs are registered', () => {
 
   it('S-REG-6 every one of them seeds demo only: botica starts empty', () => {
     const seed = loadSeed(fileURLToPath(new URL('../../mock-server/data', import.meta.url)));
-    for (const entry of REGISTRY.entries.filter((e: any) => !e.compat)) expect(Object.keys(seed[entry.section]), entry.slug).toEqual(['demo']);
+    // A shared lookup is one global list (S-REG-18, lookups.spec.ts), not a section keyed by tenant.
+    for (const entry of REGISTRY.entries.filter((e: any) => !e.compat && e.scope !== 'shared')) expect(Object.keys(seed[entry.section]), entry.slug).toEqual(['demo']);
   });
 });
 

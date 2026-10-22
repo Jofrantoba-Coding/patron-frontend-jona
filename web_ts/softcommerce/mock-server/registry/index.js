@@ -4,6 +4,7 @@ import { clasifInventarios } from './catalogs/clasif-inventarios.js';
 import { colores } from './catalogs/colores.js';
 import { condicionesPago } from './catalogs/condiciones-pago.js';
 import { estadosDocumento } from './catalogs/estados-documento.js';
+import { familiasSunat } from './catalogs/familias-sunat.js';
 import { laboratorios } from './catalogs/laboratorios.js';
 import { localidades } from './catalogs/localidades.js';
 import { marcas } from './catalogs/marcas.js';
@@ -23,5 +24,5 @@ import { validateRegistry } from './schema.js';
  */
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
-  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos,
+  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat,
 ]);

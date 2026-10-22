@@ -8,7 +8,8 @@ export function findDrift(config: CatalogConfig<any>, entry: any): string[] {
   const drift: string[] = [];
   const at = (field: string, what: string) => drift.push(`${entry.slug}.${field}: ${what}`);
   if (config.catalog !== entry.slug || config.idKey !== entry.idKey) at('(entry)', 'catalog or idKey differ');
-  if (config.formId !== entry.formId) at('(entry)', `formId ${entry.formId} != ${config.formId}`);
+  // A lookup has no screen, so the adapter falls back to the slug.
+  if (config.formId !== (entry.formId ?? entry.slug)) at('(entry)', `formId ${entry.formId} != ${config.formId}`);
   if (config.columns.map((c) => c.key).join() !== entry.columns.map((c: any) => c.key).join()) at('(columns)', 'column keys differ');
   for (const field of entry.fields) {
     const ui: any = config.fields.find((f) => f.name === field.name);

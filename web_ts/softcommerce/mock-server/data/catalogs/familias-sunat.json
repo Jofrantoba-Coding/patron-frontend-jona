@@ -1,0 +1,32 @@
+[
+  {
+    "codigo": "5010",
+    "descripcion": "FRUTAS Y VERDURAS FRESCAS",
+    "activo": true
+  },
+  {
+    "codigo": "5011",
+    "descripcion": "CARNES Y AVES",
+    "activo": true
+  },
+  {
+    "codigo": "5013",
+    "descripcion": "LACTEOS Y HUEVOS",
+    "activo": true
+  },
+  {
+    "codigo": "5018",
+    "descripcion": "PANADERIA Y PASTELERIA",
+    "activo": true
+  },
+  {
+    "codigo": "5020",
+    "descripcion": "BEBIDAS",
+    "activo": true
+  },
+  {
+    "codigo": "9999",
+    "descripcion": "FAMILIA RETIRADA",
+    "activo": false
+  }
+]
