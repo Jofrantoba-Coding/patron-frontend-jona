@@ -1,0 +1,22 @@
+{
+  "demo": [
+    {
+      "id_clasif_cliente": "1",
+      "descripcion": "MAYORISTA",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_clasif_cliente": "2",
+      "descripcion": "MINORISTA",
+      "estado": false,
+      "activo": true
+    },
+    {
+      "id_clasif_cliente": "3",
+      "descripcion": "CORPORATIVO",
+      "estado": true,
+      "activo": false
+    }
+  ]
+}
