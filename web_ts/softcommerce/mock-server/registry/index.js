@@ -15,6 +15,7 @@ import { motivosDescuento } from './catalogs/motivos-descuento.js';
 import { motivosNc } from './catalogs/motivos-nc.js';
 import { motivosTraslado } from './catalogs/motivos-traslado.js';
 import { nacionalidades } from './catalogs/nacionalidades.js';
+import { subfamiliasSunat } from './catalogs/subfamilias-sunat.js';
 import { tamanos } from './catalogs/tamanos.js';
 import { tiposAnexo } from './catalogs/tipos-anexo.js';
 import { tiposDescuento } from './catalogs/tipos-descuento.js';
@@ -29,5 +30,5 @@ import { validateRegistry } from './schema.js';
  */
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
-  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo,
+  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo, subfamiliasSunat,
 ]);
