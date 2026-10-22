@@ -13,7 +13,7 @@ With an active session, the operator browses the menu tree built from `GET /menu
 
 ## Participants (JONA)
 
-`UiShellView` «view» → `useUiShellImpl` «impl» → `UiShell` «visual» (`MenuTree`, `JTabsList`/`JTabsTrigger`, `ShellHeader`). Pure domain: `buildMenuTree` (`menuTree.ts`), the `workspace` reducer, `permissions.ts`, `formRegistry`. `FormHost` (one per tab) has the Impl role: it loads permissions through `InterShellService`. `DialogStackProvider` holds the dialog id stack.
+`UiShell` «entry» (`UiShell.tsx`) → `useUiShellImpl(service, registry)` «impl» → `UiShellView` «visual» (pure render: `MenuTree`, `JTabsList`/`JTabsTrigger`; each tab panel calls the entry's `renderForm(formId)`). `InterShellService` is injected: `App` renders the shell route inside `ServicesProvider` and passes `services.shell` as the `service` prop (services composed once in `main.tsx` with `composeServices()`); the entry forwards it to the Impl and to every `FormHost`. `ShellHeader` is rendered by `App` above the shell. Pure domain: `buildMenuTree` (`menuTree.ts`), the `workspace` reducer, `permissions.ts`, `formRegistry`. `FormHost` (one per tab, mounted by the entry's `renderForm`) has the Impl role: it loads permissions through that `InterShellService` prop. `DialogStackProvider` (provided by the entry) holds the dialog id stack.
 
 ## Preconditions
 
@@ -60,7 +60,7 @@ With an active session, the operator browses the menu tree built from `GET /menu
 
 - **Keyboard:** Esc closes the topmost dialog only [ASSUMPTION R-SHELL-6]. The `DialogStackProvider` listens on `window` in the capture phase, snapshots the top id, and each dialog's guarded `onClose` acts only when its id equals that snapshot. Clicks are not guarded (design: jona-ui dialogs each add their own Esc listener).
 - **State preservation:** tab panels are rendered by the shell and stay mounted (`JTabsContent` is not used because it unmounts inactive panels).
-- **Hard rule:** `UiShell` and `MenuTree` raise value-first callbacks (`onLeafClick(nombre, descripcion)`); only Impl-role units (`useUiShellImpl`, `FormHost`) reach `InterShellService`.
+- **Hard rule:** `UiShellView` and `MenuTree` raise value-first callbacks (`onLeafSelect(item)`); `UiShell` only passes `service` through; only Impl-role units (`useUiShellImpl`, `FormHost`) reach `InterShellService`.
 
 ## Assumptions
 

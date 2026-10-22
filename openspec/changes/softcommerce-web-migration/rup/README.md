@@ -2,7 +2,7 @@
 
 This folder adds the RUP artifacts that SDD does not produce: a use-case model, use-case specifications, and robustness, collaboration and sequence diagrams per use case. Nothing in `proposal.md`, `design.md`, `specs/` or `tasks.md` is redone. The use cases organize and trace the existing `S-*` scenarios.
 
-Wave 1 has no real backend. The diagrams model the React frontend (JONA view units + service seam) and the Node mock server as an external system. Frontend stereotypes (`«view»`, `«visual»`, `«impl»`, `«template»`, `«composer»`, `«service-contract»`, `«service-http»`, `«service-mock»`, `«mock-server»`, `«domain»`, `«session»`) are an explicit extension of the JONAxMPC vocabulary, declared in every legend. No frontend or mock-server element is drawn as controller, process, service or repository.
+Wave 1 has no real backend. The diagrams model the React frontend (JONA view units + service seam) and the Node mock server as an external system. Frontend stereotypes (`«entry»` for the `Ui<U>` entry that calls the Impl, `«visual»` for the pure `Ui<U>View` render, `«impl»`, `«template»`, `«composer»`, `«service-contract»`, `«service-http»`, `«service-mock»`, `«mock-server»`, `«domain»`, `«session»`) are an explicit extension of the JONAxMPC vocabulary, declared in every legend. No frontend or mock-server element is drawn as controller, process, service or repository.
 
 ## RUP ↔ SDD phase mapping
 
@@ -230,7 +230,7 @@ User-facing capabilities (`auth-session`, `shell-workspace`, `crud-templates`, `
 
 ## Naming notes and deviations
 
-- Composer: `design.md` names it `serviceComposer` (with `useServices()` and `lazyService`). The diagrams use that name; `appServicesComposer` does not appear in the design.
+- Composer: `design.md` names it `serviceComposer` (`composeServices()`, called once in `main.tsx`, with `lazyService`; inside the shell, `useServices()` reads the composed services from `ServicesProvider`). The diagrams use that name; `appServicesComposer` does not appear in the design.
 - Impl hooks: `design.md` fixes `useUiCrudListImpl(config)`; `tasks.md` fixes the files `UiLoginImpl.ts`, `UiCrudRegisterImpl`, `views/uicontexto/*` and `views/uishell/*`. The hook names `useUiLoginImpl`, `useUiContextoImpl`, `useUiShellImpl` and `useUiCrudRegisterImpl` follow the same `use<File>` convention (as in codex `useUiIniciarSesionImpl`). The view files `UiContextoView`, `UiShellView` and `UiCrudRegisterView` follow the five-file unit that T4.3/T4.4 fix for login and context (`Inter`, `Impl`, `View`, entry, `index`). Rename them in the diagrams if apply chooses differently.
 - Template: wave 1 file lists have no separate `*TemplateModel` file. The class view shows the template role where the design puts it: `useUiCrudListImpl(config)` is the override point that a wave-3 Impl wraps.
 - Seam reading: in every collaboration diagram a «service-contract» node is a dispatch point (a TS interface with no runtime). Returns go from the implementation back to the calling Impl, labeled with the type.

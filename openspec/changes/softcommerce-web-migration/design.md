@@ -30,10 +30,12 @@ A Vite + React 18 app in `web_ts/softcommerce` that consumes npm `jona-ui@1.4.0`
 
 ## Data Flow
 
-    View ─► Impl(hook) ─► useServices() ─► serviceComposer
+    Entry ─► Impl(hook, service arg) ─► serviceComposer proxy
                                    ├─ http: httpClient(fetch) ─► mock-server/http ─┐
                                    └─ mock: lazy import AppServicesMock ───────────┤
                                                                      mock-server/core + data/*.json
+
+`main.tsx` composes the services once with `composeServices()`. Each entry (`Ui<U>.tsx`) passes its service to the Impl as an argument: `UiLogin`, `UiContexto` and `UiShell` receive it as a `service` prop from `App`; form entries inside the shell (for example `UiLocalidad`) read it with `useServices()` from `ServicesProvider` and pass it down as a prop. Views never touch services.
 
 `httpClient` injects `X-Tenant-Id` (from the session, or explicitly at login), a generated `X-Correlation-Id`, and `Authorization: Bearer`. It maps the error body to `ApiError{status,code,message,details,traceId}`. Mock mode throws the same `ApiError`.
 
