@@ -3,17 +3,26 @@
     {
       "id_tamano": "001",
       "descripcion": "PEQUENO",
-      "activo": true
+      "activo": true,
+      "id_empresa": "1"
     },
     {
       "id_tamano": "002",
       "descripcion": "MEDIANO",
-      "activo": true
+      "activo": true,
+      "id_empresa": "1"
     },
     {
       "id_tamano": "003",
       "descripcion": "GRANDE",
-      "activo": false
+      "activo": false,
+      "id_empresa": "1"
+    },
+    {
+      "id_tamano": "004",
+      "descripcion": "UNICO",
+      "id_empresa": "2",
+      "activo": true
     }
   ]
 }

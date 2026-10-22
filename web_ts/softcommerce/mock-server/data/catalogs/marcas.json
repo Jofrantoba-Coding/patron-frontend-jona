@@ -3,17 +3,26 @@
     {
       "id_marca": "001",
       "descripcion": "SONY",
-      "activo": true
+      "activo": true,
+      "id_empresa": "1"
     },
     {
       "id_marca": "002",
       "descripcion": "SAMSUNG",
-      "activo": true
+      "activo": true,
+      "id_empresa": "1"
     },
     {
       "id_marca": "003",
       "descripcion": "LG",
-      "activo": false
+      "activo": false,
+      "id_empresa": "1"
+    },
+    {
+      "id_marca": "004",
+      "descripcion": "APPLE",
+      "id_empresa": "2",
+      "activo": true
     }
   ]
 }

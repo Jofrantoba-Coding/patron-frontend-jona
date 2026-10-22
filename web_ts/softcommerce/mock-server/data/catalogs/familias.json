@@ -1,0 +1,46 @@
+{
+  "demo": [
+    {
+      "id_familia": "001",
+      "descripcion": "ABARROTES",
+      "id_familia_sunat": "5010",
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_familia": "002",
+      "descripcion": "LACTEOS",
+      "id_familia_sunat": "5013",
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_familia": "003",
+      "descripcion": "LIMPIEZA",
+      "id_familia_sunat": "",
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_familia": "004",
+      "descripcion": "FAMILIA RETIRADA",
+      "id_familia_sunat": "5010",
+      "id_empresa": "1",
+      "activo": false
+    },
+    {
+      "id_familia": "005",
+      "descripcion": "BEBIDAS",
+      "id_familia_sunat": "5020",
+      "id_empresa": "2",
+      "activo": true
+    },
+    {
+      "id_familia": "006",
+      "descripcion": "PANADERIA",
+      "id_familia_sunat": "5018",
+      "id_empresa": "2",
+      "activo": true
+    }
+  ]
+}

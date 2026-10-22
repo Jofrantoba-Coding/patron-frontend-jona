@@ -11,6 +11,7 @@ import { toCatalogConfig } from './registry';
 const OPTIONS: Record<string, { id: string; name: string }[]> = {
   'tipos-descuento': [{ id: '1', name: 'PORCENTAJE' }, { id: '2', name: 'MONTO FIJO' }],
   'tipos-trabajador': [{ id: '001', name: 'ADMINISTRATIVO' }, { id: '002', name: 'VENDEDOR' }],
+  'familias-sunat': [{ id: '5010', name: 'FRUTAS Y VERDURAS FRESCAS' }, { id: '5011', name: 'CARNES Y AVES' }],
 };
 
 async function openInsert(slug: string) {
@@ -87,5 +88,25 @@ describe('tipos-trabajador-perfil register form', () => {
     await user.type(field('Descripción'), 'cajero');
     await submit(user);
     expect(screen.getByText('Para agregar un Perfil, debes especificar su Tipo Trabajador.')).toBeTruthy();
+  });
+});
+
+describe('familias register form', () => {
+  it('the SUNAT code is optional: a descripcion alone is sent with an empty code', async () => {
+    const { user, service } = await openInsert('familias');
+    await user.type(field('Descripción'), 'lacteos');
+    await submit(user);
+    await user.click(screen.getByRole('button', { name: 'Confirmar' }));
+    await waitFor(() => expect(service.create).toHaveBeenCalledWith({ descripcion: 'LACTEOS', id_familia_sunat: '' }));
+  });
+
+  it('lists the familias SUNAT by description and sends the chosen code', async () => {
+    const { user, service, options } = await openInsert('familias');
+    expect(options).toHaveBeenCalledWith('familias-sunat', undefined);
+    await user.type(field('Descripción'), 'carnes');
+    await user.selectOptions(field('Codigo Sunat'), 'CARNES Y AVES');
+    await submit(user);
+    await user.click(screen.getByRole('button', { name: 'Confirmar' }));
+    await waitFor(() => expect(service.create).toHaveBeenCalledWith({ descripcion: 'CARNES', id_familia_sunat: '5011' }));
   });
 });

@@ -28,10 +28,12 @@ export const ENTITIES: Record<string, string> = {
   'motivos-descuento': 'un Motivo Descuento',
   'motivos-nc': 'un Motivo de Nota de Crédito',
   'tipos-trabajador-perfil': 'un Perfil',
+  familias: 'una Familia',
+  'modelos-vehiculo': 'un Modelo Vehiculo',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
-const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos']);
+const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto). */
 export const NO_DESCRIPCION = new Set(['turnos']);
@@ -61,6 +63,12 @@ const refId = (field: any): string => {
   return String(row[source.idKey]);
 };
 
+/** Session empresa of the table: the demo seed has rows of empresas 1 and 2 (5.3, 5.6b). */
+const EMPRESA = '1';
+/** Entries whose writes record the session empresa: `scope: 'empresa'` also limits list and get to it, a stamp-only entry does not. */
+const usesEmpresa = (entry: any) => entry.scope === 'empresa' || (entry.stamp ?? []).includes('id_empresa');
+const inEmpresa = (entry: any, rows: any[]) => (entry.scope === 'empresa' ? rows.filter((r) => String(r.id_empresa) === EMPRESA) : rows);
+
 const invalid = (fields: string[], messages?: string[]): Outcome => ({ status: 422, code: 'VALIDATION_ERROR', fields, messages });
 const WRITER = { userId: '7' };
 
@@ -79,8 +87,9 @@ function genericCases(entry: any): CatalogCase[] {
     ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'select' && f.required).map((f: any) => [f.name, refId(f)])),
   };
   const rows = seedRows(entry.seed);
-  const active = rows.filter((r) => r.activo !== false);
-  const inactive = rows.find((r) => r.activo === false);
+  const scoped = inEmpresa(entry, rows);
+  const active = scoped.filter((r) => r.activo !== false);
+  const inactive = scoped.find((r) => r.activo === false);
   const next = String(Math.max(...rows.map((r) => Number(r[idKey]))) + 1).padStart(codeWidth, '0');
   const at = (what: string) => `${slug} ${what}`;
   const create = (body: Record<string, unknown>, expect: Outcome, ctx: CatalogCase['ctx'] = WRITER): CatalogCase => ({ name: '', slug, ctx, steps: [{ op: 'create', body }], expect });
@@ -110,6 +119,27 @@ function genericCases(entry: any): CatalogCase[] {
     }
     cases.push({ ...create({ ...valid, [name]: '  rojo ' }, { ok: true, match: { [name]: uppercase ? 'ROJO' : 'rojo' } }), name: at(`S-REF-4 ${name} is trimmed${uppercase ? ' and uppercased' : ' and keeps its case'}`) });
   }
+  // S-MOCK-26/27/36 on the real catalogs of an empresa: writes record the session empresa, an `empresa` scope limits reads to it.
+  if (usesEmpresa(entry)) {
+    const as = (empresaId: string) => ({ userId: '7', empresaId });
+    const count = (empresa: string) => rows.filter((r) => String(r.id_empresa) === empresa && r.activo !== false).length;
+    const list = (what: string, empresaId: string, expect: Outcome): CatalogCase => ({ name: at(what), slug, ctx: as(empresaId), steps: [{ op: 'list' }], expect });
+    cases.push(
+      { ...create({ ...valid, id_empresa: '9' }, { ok: true, match: { id_empresa: '2' } }, as('2')), name: at('S-MOCK-26 a write records the session empresa, not the body') },
+      { ...create({ ...valid }, { status: 400, code: 'MISSING_SESSION_CONTEXT' }, as('')), name: at('S-MOCK-36 a write without the empresa header is a 400') },
+      { ...create({ ...valid }, { status: 400, code: 'INVALID_SESSION_CONTEXT' }, as('999')), name: at('S-MOCK-36 a write with an empresa outside the tenant is a 400') },
+    );
+    if (entry.scope === 'empresa') {
+      const other = rows.find((r) => String(r.id_empresa) !== EMPRESA);
+      cases.push(
+        list('S-MOCK-27 empresa 1 lists only its own rows', '1', { ok: true, total: count('1') }),
+        list('S-MOCK-27 empresa 2 lists only its own rows', '2', { ok: true, total: count('2') }),
+        list('S-MOCK-36 a list without the empresa header is a 400', '', { status: 400, code: 'MISSING_SESSION_CONTEXT' }),
+        list('S-MOCK-36 a list with an empresa outside the tenant is a 400', '999', { status: 400, code: 'INVALID_SESSION_CONTEXT' }),
+        { name: at('S-MOCK-27 a row of another empresa is not found'), slug, ctx: as('1'), steps: [{ op: 'get', id: other[idKey] }], expect: { status: 404, code: 'NOT_FOUND' } },
+      );
+    } else cases.push(list('the list stays tenant-wide: it needs no empresa header', '', { ok: true, total: active.length }));
+  }
   // S-REF-34: a required ref that is blank, unknown or inactive is a 422 on that field, for every catalog with a select.
   for (const { name, required, source } of entry.fields.filter((f: any) => f.kind === 'select')) {
     if (required) {
@@ -134,7 +164,7 @@ function slugCases(slug: string, deviation = false): CatalogCase[] {
   ];
 }
 
-export const REFERENCE_CASES: CatalogCase[] = [
+const BASE_CASES: CatalogCase[] = [
   ...referenceEntries().flatMap(genericCases),
   ...Object.keys(ENTITIES).filter((slug) => !NO_DESCRIPCION.has(slug) && !DESCRIPCION_NOT_FIRST.has(slug)).flatMap((slug) => slugCases(slug, DEVIATIONS.has(slug))),
   // R-REF-4 laboratorios: pais is optional, uppercased and capped at 100.
@@ -229,3 +259,8 @@ export const REFERENCE_CASES: CatalogCase[] = [
   { name: 'S-MOCK-28 tipos-trabajador-perfil get joins the tipo trabajador name', slug: 'tipos-trabajador-perfil', steps: [{ op: 'get', id: '1' }], expect: { ok: true, match: { tipo_trabajador: 'ADMINISTRATIVO' } } },
   { name: 'S-MOCK-30 the active-only filter keeps estado-false tipos out of the options', slug: 'tipos-trabajador', steps: [{ op: 'options', filters: { estado: 'true' } }], expect: { ok: true, items: [{ id: '001', name: 'ADMINISTRATIVO' }, { id: '002', name: 'VENDEDOR' }] } },
 ];
+
+/** A case of an empresa catalog acts in the session empresa unless it names its own (an empty one is a missing header). */
+const inSessionEmpresa = (c: CatalogCase): CatalogCase =>
+  usesEmpresa(REGISTRY.bySlug.get(c.slug)) && c.ctx?.empresaId === undefined ? { ...c, ctx: { ...c.ctx, empresaId: EMPRESA } } : c;
+export const REFERENCE_CASES: CatalogCase[] = BASE_CASES.map(inSessionEmpresa);
