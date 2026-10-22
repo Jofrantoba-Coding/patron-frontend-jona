@@ -1,9 +1,9 @@
 // Layer: Interface. Public contract of the generic crud register dialog: shapes and defaults only, no logic.
-import type { FieldConfig } from '../../catalogs/CatalogConfig';
+import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
 import type { FormValues } from '../../domain/crud/validate';
 import type { LookupItem } from '../../services/InterLookupService';
 
-export type RegisterMode = 'INSERT' | 'UPDATE' | 'DELETE' | 'CLONE' | 'DETAIL';
+export type RegisterMode = CrudMode;
 export type RegisterStatus = 'loading' | 'ready' | 'failed';
 /** Which confirmation is on screen, if any. */
 export type RegisterConfirm = 'submit' | 'discard';

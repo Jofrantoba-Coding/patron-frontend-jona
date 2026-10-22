@@ -10,6 +10,7 @@ export interface FieldError {
 const isBlank = (value: string | undefined) => !value?.trim();
 
 function fieldError(field: FieldConfig, values: FormValues): FieldError | undefined {
+  if (field.kind === 'code') return undefined;
   if (field.kind === 'cascade') {
     // The first unset level is the one to fix (and to focus).
     const unset = field.levels.find((level) => isBlank(values[level.name]));

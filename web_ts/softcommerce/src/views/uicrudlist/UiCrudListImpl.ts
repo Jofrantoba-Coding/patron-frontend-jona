@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CatalogConfig, CrudAction } from '../../catalogs/CatalogConfig';
 import { nextSort } from '../../domain/crud/filterSort';
+import { actionsForModes } from '../../domain/crud/toolbarGate';
 import { applyListView, isTruncated, pageOfRow, withListViewChange, type ListViewState } from '../../domain/crud/listView';
 import type { Permissions } from '../../domain/permissions';
 import type { InterCatalogService } from '../../services/InterCatalogService';
@@ -37,6 +38,7 @@ export function useUiCrudListImpl<T>(
   const shortcutScope = useRef<HTMLElement>(null);
   const shortcutsBlocked = useDialogOpen();
   const filterKeys = useMemo(() => config.columns.map((column) => column.key), [config.columns]);
+  const actions = useMemo(() => actionsForModes(config.actions, config.modes), [config.actions, config.modes]);
 
   const refresh = useCallback(
     async ({ select }: { select?: string } = {}) => {
@@ -75,7 +77,7 @@ export function useUiCrudListImpl<T>(
     truncated: load.status === 'ready' && load.truncated,
     columns: config.columns,
     idKey: config.idKey,
-    actions: config.actions,
+    actions,
     permissions,
     filterText: view.filterText,
     sort: view.sort,

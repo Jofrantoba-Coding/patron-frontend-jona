@@ -37,7 +37,7 @@ export function UiCrudList<T>({ config, service, permissions, lookups, lookup }:
       const mode = ACTION_MODES[action];
       if (mode) setRegister({ mode, id: mode === 'INSERT' ? undefined : selected.current });
     },
-    onRowOpen: (id) => permissions.details && setRegister({ mode: 'DETAIL', id }),
+    onRowOpen: (id) => permissions.details && (config.modes?.includes('DETAIL') ?? true) && setRegister({ mode: 'DETAIL', id }),
   });
   selected.current = impl.selectedId;
   return (

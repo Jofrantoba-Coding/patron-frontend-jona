@@ -1,4 +1,4 @@
-import type { CrudAction } from '../../catalogs/CatalogConfig';
+import type { CrudAction, CrudMode } from '../../catalogs/CatalogConfig';
 import type { PermissionFlag, Permissions } from '../permissions';
 import { shortcutOf } from './toolbarShortcuts';
 
@@ -10,6 +10,21 @@ const ROW_DEPENDENT: ReadonlySet<CrudAction> = new Set(['modify', 'eliminate', '
 
 /** Out of scope for W1: shown disabled, never triggered. */
 const UNIMPLEMENTED: ReadonlySet<CrudAction> = new Set(['export']);
+
+/** The register mode each row action opens; search, refresh and export have none. */
+const MODE_OF: Partial<Record<CrudAction, CrudMode>> = { add: 'INSERT', modify: 'UPDATE', eliminate: 'DELETE', clone: 'CLONE', details: 'DETAIL' };
+
+/**
+ * Drops the actions of unsupported modes (R-CRUD-16). It runs BEFORE permission gating, so an
+ * unsupported action is neither rendered nor triggerable. Without `modes` the list is untouched.
+ */
+export function actionsForModes(actions: readonly CrudAction[] | undefined, modes: readonly CrudMode[] | undefined) {
+  if (!modes) return actions;
+  return (actions ?? DEFAULT_ACTIONS).filter((action) => {
+    const mode = MODE_OF[action];
+    return mode === undefined || modes.includes(mode);
+  });
+}
 
 /** Each action is granted by the permission flag of the same name. */
 const flagOf = (action: CrudAction): PermissionFlag => action;

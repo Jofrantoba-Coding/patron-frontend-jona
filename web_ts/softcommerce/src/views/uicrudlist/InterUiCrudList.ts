@@ -22,7 +22,7 @@ export interface InterUiCrudList<T> {
   truncated: boolean;
   columns: GridColumn<T>[];
   idKey: keyof T & string;
-  actions?: CrudAction[];
+  actions?: readonly CrudAction[];
   permissions: Permissions;
   filterText: string;
   sort?: SortState<string>;
