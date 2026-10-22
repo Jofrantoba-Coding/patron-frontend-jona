@@ -8,6 +8,8 @@ interface JSidebarLayoutViewProps extends Omit<InterJSidebarLayout, 'defaultColl
   collapsed: boolean;
   mobileOpen: boolean;
   collapsible: boolean;
+  sidebarRef: React.RefObject<HTMLElement>;
+  onSidebarKeyDown: (event: React.KeyboardEvent<HTMLElement>) => void;
   onToggleCollapse: () => void;
   onToggleMobile: () => void;
   onCloseMobile: () => void;
@@ -59,7 +61,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
 export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
   nav = [], renderSidebar, header, footer, children, activeKey, collapsible, collapsed, mobileOpen,
   sidebarWidth = '16rem', className, sidebarClassName,
-  onToggleCollapse, onToggleMobile, onCloseMobile, onItemClick,
+  sidebarRef, onSidebarKeyDown, onToggleCollapse, onToggleMobile, onCloseMobile, onItemClick,
 }) => {
   const effectiveWidth = collapsed ? '3.5rem' : sidebarWidth;
 
@@ -81,11 +83,14 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
           While the mobile drawer is open it behaves as a modal dialog. */}
       <JPanel
         as="aside"
+        ref={sidebarRef}
         layout="box"
         style={{ width: effectiveWidth }}
         role={mobileOpen ? 'dialog' : undefined}
         aria-modal={mobileOpen ? true : undefined}
         aria-label={mobileOpen ? 'Menú de navegación' : undefined}
+        tabIndex={mobileOpen ? -1 : undefined}
+        onKeyDown={onSidebarKeyDown}
         className={cn(
           'fixed inset-y-0 left-0 z-40 shrink-0 border-r border-neutral-200 bg-white transition-all duration-300 ease-in-out',
           'lg:static lg:z-auto',
