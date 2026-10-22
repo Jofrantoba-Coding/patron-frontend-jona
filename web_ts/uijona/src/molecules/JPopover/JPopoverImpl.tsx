@@ -1,7 +1,11 @@
 ﻿// JPopoverImpl.tsx — JONA Implementation
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { InterJPopover, JPOPOVER_DEFAULTS } from './InterJPopover';
 import { JPopoverView } from './JPopoverView';
+import { computeFloatingPosition, floatingStyle } from '../../lib/floating';
+
+/** Matches the panel's CSS min width: min-w-[12rem]. */
+const PANEL_MIN_WIDTH = 192;
 
 export const JPopoverImpl: React.FC<InterJPopover> = (props) => {
   const merged = { ...JPOPOVER_DEFAULTS, ...props };
@@ -17,25 +21,30 @@ export const JPopoverImpl: React.FC<InterJPopover> = (props) => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    let top: number;
-    let left: number;
+    // Top/bottom: resolve the alignment against the measured panel width, keep
+    // it inside the viewport and flip to the other side when it has no room.
+    if (merged.side === 'top' || merged.side === 'bottom') {
+      const panel = panelRef.current?.getBoundingClientRect();
+      const width = Math.min(panel?.width || PANEL_MIN_WIDTH, vw - vp * 2);
+      const desiredLeft = merged.align === 'end'
+        ? r.right - width
+        : merged.align === 'center' ? r.left + r.width / 2 - width / 2 : r.left;
+      const position = computeFloatingPosition(
+        { top: r.top, bottom: r.bottom, left: desiredLeft, width: r.width },
+        { width, height: panel?.height || 0 },
+        { width: vw, height: vh },
+        { margin: vp, prefer: merged.side },
+      );
+      setPanelStyle(floatingStyle(position));
+      return;
+    }
 
-    if (merged.side === 'bottom') top = r.bottom + 4;
-    else if (merged.side === 'top') top = r.top - 4;
-    else top = r.top;
-
-    if (merged.side === 'right') left = r.right + 4;
-    else if (merged.side === 'left') left = r.left - 4;
-    else if (merged.align === 'end') left = r.right;
-    else if (merged.align === 'center') left = r.left + r.width / 2;
-    else left = r.left;
-
-    left = Math.min(Math.max(left, vp), vw - vp);
+    // Left/right: unchanged placement next to the trigger.
+    const left = Math.min(Math.max(merged.side === 'right' ? r.right + 4 : r.left - 4, vp), vw - vp);
 
     setPanelStyle({
       position: 'fixed',
-      top: merged.side === 'top' ? undefined : top,
-      bottom: merged.side === 'top' ? vh - top : undefined,
+      top: r.top,
       left,
       transform: merged.align === 'center' ? 'translateX(-50%)' : merged.align === 'end' ? 'translateX(-100%)' : undefined,
       zIndex: 50,
@@ -61,6 +70,9 @@ export const JPopoverImpl: React.FC<InterJPopover> = (props) => {
       window.removeEventListener('scroll', updatePosition, true);
     };
   }, [open]);
+
+  // Re-measure once the panel is in the DOM (real size may change side and offset)
+  useLayoutEffect(() => { if (open) updatePosition(); }, [open]);
 
   return (
     <JPopoverView

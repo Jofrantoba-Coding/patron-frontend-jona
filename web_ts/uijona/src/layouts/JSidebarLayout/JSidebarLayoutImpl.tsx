@@ -32,6 +32,7 @@ export const JSidebarLayoutImpl: React.FC<InterJSidebarLayout> = (props) => {
   return (
     <JSidebarLayoutView
       nav={props.nav}
+      renderSidebar={props.renderSidebar}
       header={props.header}
       footer={props.footer}
       activeKey={props.activeKey}

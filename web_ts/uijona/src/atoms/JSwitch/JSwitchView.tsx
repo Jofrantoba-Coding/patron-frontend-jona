@@ -67,6 +67,8 @@ export const JSwitchView: React.FC<JSwitchViewProps> = ({
         'relative inline-flex items-center rounded-full transition-colors duration-200 cursor-pointer',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500',
         'disabled:pointer-events-none disabled:opacity-50',
+        // Invisible 44px hit area around the track below sm: (the visual size is unchanged).
+        "before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-full before:min-w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] sm:before:content-none",
         trackSize[size],
         effectiveChecked
           ? hasError ? 'bg-danger-500'  : 'bg-primary-600'

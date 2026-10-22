@@ -57,7 +57,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
 }
 
 export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
-  nav, header, footer, children, activeKey, collapsible, collapsed, mobileOpen,
+  nav = [], renderSidebar, header, footer, children, activeKey, collapsible, collapsed, mobileOpen,
   sidebarWidth = '16rem', className, sidebarClassName,
   onToggleCollapse, onToggleMobile, onCloseMobile, onItemClick,
 }) => {
@@ -117,16 +117,27 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
           </JPanel>
         )}
 
-        <JPanel
-          as="nav"
-          layout="box"
-          gap="xs"
-          className="min-h-0 flex-1 overflow-y-auto p-2"
-        >
-          {nav.map((group, i) => (
-            <NavGroup key={i} group={group} activeKey={activeKey} collapsed={collapsed} onItemClick={onItemClick} />
-          ))}
-        </JPanel>
+        {renderSidebar ? (
+          /* Custom content brings its own semantics (it may contain its own <nav>). */
+          <JPanel
+            layout="box"
+            gap="xs"
+            className="min-h-0 flex-1 overflow-y-auto p-2"
+          >
+            {renderSidebar({ close: onCloseMobile, collapsed, mobileOpen })}
+          </JPanel>
+        ) : (
+          <JPanel
+            as="nav"
+            layout="box"
+            gap="xs"
+            className="min-h-0 flex-1 overflow-y-auto p-2"
+          >
+            {nav.map((group, i) => (
+              <NavGroup key={i} group={group} activeKey={activeKey} collapsed={collapsed} onItemClick={onItemClick} />
+            ))}
+          </JPanel>
+        )}
 
         <JPanel
           layout="box"

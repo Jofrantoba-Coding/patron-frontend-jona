@@ -349,6 +349,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
       sortable = false,
       sortDirection = null,
       sortLabel,
+      sortButtonClassName,
       sortCycle = ['asc', 'desc', null],
       onSortChange,
       filterable = false,
@@ -456,7 +457,10 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
           {canSort ? (
             <button
               type="button"
-              className="inline-flex min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none hover:text-neutral-800 focus-visible:ring-2 focus-visible:ring-primary-500"
+              className={cn(
+                'inline-flex min-h-11 min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none hover:text-neutral-800 focus-visible:ring-2 focus-visible:ring-primary-500 sm:min-h-9',
+                sortButtonClassName
+              )}
               onClick={handleSortClick}
               aria-label={sortLabel}
             >

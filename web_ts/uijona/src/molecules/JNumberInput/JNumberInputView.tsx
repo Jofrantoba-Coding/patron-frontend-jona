@@ -48,7 +48,7 @@ export const JNumberInputView: React.FC<JNumberInputViewProps> = ({
       aria-label="Decrement"
       disabled={disabled || !canDecrement}
       onClick={onDecrementClick}
-      className="inline-flex min-h-9 w-9 shrink-0 items-center justify-center border-r border-neutral-200 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40"
+      className="inline-flex min-h-11 w-11 shrink-0 items-center justify-center border-r sm:min-h-9 sm:w-9 border-neutral-200 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40"
     >
       <MinusIcon />
     </button>
@@ -68,7 +68,7 @@ export const JNumberInputView: React.FC<JNumberInputViewProps> = ({
       aria-label="Increment"
       disabled={disabled || !canIncrement}
       onClick={onIncrementClick}
-      className="inline-flex min-h-9 w-9 shrink-0 items-center justify-center border-l border-neutral-200 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40"
+      className="inline-flex min-h-11 w-11 shrink-0 items-center justify-center border-l sm:min-h-9 sm:w-9 border-neutral-200 text-neutral-600 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-40"
     >
       <PlusIcon />
     </button>

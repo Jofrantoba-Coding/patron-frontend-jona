@@ -15,8 +15,24 @@ export interface SidebarNavGroup {
   items: SidebarNavItem[];
 }
 
+/** What custom sidebar content receives from the layout. */
+export interface SidebarRenderApi {
+  /** Closes the mobile drawer. Call it after navigating from custom content. */
+  close: () => void;
+  /** Desktop rail state: render a compact variant when true. */
+  collapsed: boolean;
+  /** True while the mobile drawer is open. */
+  mobileOpen: boolean;
+}
+
 export interface InterJSidebarLayout {
-  nav: SidebarNavGroup[];
+  /** Flat navigation groups. Ignored when `renderSidebar` is provided. */
+  nav?: SidebarNavGroup[];
+  /**
+   * Custom sidebar content (a tree menu, filters...). Replaces the `nav` list
+   * inside the same scrollable area, between `header` and `footer`.
+   */
+  renderSidebar?: (api: SidebarRenderApi) => React.ReactNode;
   header?: React.ReactNode;
   footer?: React.ReactNode;
   children: React.ReactNode;

@@ -69,8 +69,9 @@ export const JRadioButtonView: React.FC<JRadioButtonViewProps> = ({
   if (!label) return input;
 
   return (
+    // The label is the hit box: 44px tall below sm:, compact from sm: up.
     <label className={cn(
-      'inline-flex',
+      'inline-flex min-h-11 sm:min-h-0',
       wrapperClasses[labelPosition],
       disabled ? 'cursor-not-allowed' : 'cursor-pointer',
     )}>

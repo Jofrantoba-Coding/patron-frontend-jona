@@ -193,3 +193,53 @@ export const Interactive: Story = {
     );
   },
 };
+
+const TREE = [
+  { key: 'sales', label: 'Ventas', children: [{ key: 'orders', label: 'Pedidos' }, { key: 'invoices', label: 'Facturas' }] },
+  { key: 'stock', label: 'Inventario', children: [{ key: 'products', label: 'Productos' }] },
+];
+
+export const CustomSidebarContent: Story = {
+  name: 'Custom sidebar content (renderSidebar)',
+  parameters: {
+    docs: {
+      description: { story: '`renderSidebar` replaces the flat `nav` list with custom content (here a two-level tree). It receives `close`, `collapsed` and `mobileOpen`: call `close()` after navigating so the mobile drawer closes.' },
+    },
+  },
+  render: () => {
+    const [activeKey, setActiveKey] = useState('orders');
+    return (
+      <JSidebarLayout
+        renderSidebar={({ close, collapsed }) => (
+          <nav aria-label="Menú principal">
+            <ul className="flex flex-col gap-1">
+              {TREE.map((branch) => (
+                <li key={branch.key}>
+                  <p className="px-3 pt-2 text-xs font-semibold uppercase text-neutral-400">{collapsed ? branch.label[0] : branch.label}</p>
+                  <ul>
+                    {branch.children.map((leaf) => (
+                      <li key={leaf.key}>
+                        <button
+                          type="button"
+                          aria-current={leaf.key === activeKey ? 'page' : undefined}
+                          onClick={() => { setActiveKey(leaf.key); close(); }}
+                          className="flex min-h-11 w-full items-center rounded-md px-5 text-left text-sm text-neutral-700 hover:bg-neutral-100 sm:min-h-9"
+                        >
+                          {collapsed ? leaf.label[0] : leaf.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      >
+        <JPanel layout="box" gap="sm" className="p-6">
+          <JLabel as="h1" size="xl" className="font-semibold text-neutral-800">Sección: {activeKey}</JLabel>
+        </JPanel>
+      </JSidebarLayout>
+    );
+  },
+};

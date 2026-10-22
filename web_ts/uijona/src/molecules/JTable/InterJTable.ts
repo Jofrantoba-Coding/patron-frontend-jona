@@ -16,6 +16,8 @@ export interface InterTableHeadProps extends React.ThHTMLAttributes<HTMLTableCel
   sortable?: boolean;
   sortDirection?: JTableSortDirection;
   sortLabel?: string;
+  /** Extra classes for the sort button. It keeps a 44px touch floor below sm: (min-h survives a caller's h-*). */
+  sortButtonClassName?: string;
   sortCycle?: JTableSortDirection[];
   onSortChange?: (direction: JTableSortDirection) => void;
   filterable?: boolean;
