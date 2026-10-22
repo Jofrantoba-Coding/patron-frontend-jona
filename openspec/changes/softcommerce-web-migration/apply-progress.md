@@ -266,3 +266,29 @@ Mode: Strict TDD. Status: T10.1-T10.6 all done except the manual smoke of T10.6 
 
 ### Files (lines)
 New: `services/{InterLookupService 15, LookupServiceHttp 11, LookupServiceHttp.spec 21, lookupServiceContract 31, ServicesContext 15}`; `shared/ui/CascadeSelect/{InterCascadeSelect 28, CascadeSelectImpl 59, CascadeSelectView 29, CascadeSelect 10, index 3, CascadeSelect.spec 100}`; `catalogs/localidad/{localidad.config 50, testkit 31, localidad.config.spec 77, localidad.modes.spec 101}`; `views/uilocalidad/{UiLocalidad 13, UiLocalidad.spec 33, index 1}`; `test/parity.spec 34`. Modified (113 ins / 19 del): `App.tsx`, `domain/crud/normalize.ts`, `services/{catalogServiceContract, serviceComposer, mock/AppServicesMock, mock/AppServicesMock.spec}`, `views/uicrudlist/UiCrudList.tsx`, `views/uicrudregister/{InterUiCrudRegister, UiCrudRegisterImpl, UiCrudRegisterView}`, `views/uishell/{formRegistry, formRegistry.spec}`. Total 794 changed lines.
+
+
+## Slice 11: W1c-5 inventory (branch `feat/softcommerce-w1c-5-inventory`, base W1c-4 `6a1d811`)
+
+Mode: Strict TDD. Status: T11.1-T11.6 all done. Gate (from `web_ts/softcommerce`): `npm test` 51 files / 413 tests passed (23 new); `npm run typecheck` exit 0; `npm run build` exit 0. Running total of changed lines (excluding generated `inventory.csv`): T11.1 about 215, T11.2 about 300, T11.3 about 420, T11.4 about 490, T11.5 570 (cap 800, forecast 320).
+
+### TDD Cycle Evidence
+| Task | Test file | Layer | Safety net | RED observed | GREEN | Triangulate | Refactor |
+|------|-----------|-------|------------|--------------|-------|-------------|----------|
+| T11.1 | `scripts/inventory/inventory.spec.ts` | Unit + temp-dir fixtures (Latin-1) | N/A (new) | suite failed: `./lib.mjs` not found | 7/7 | header-only extends/implements, generics, comments/strings/chars ignored, two classes per file, S-INV-1, S-INV-2, non-GUI chain skipped, transitive chain | none |
+| T11.2 | same | Unit + fixtures | 7/7 | 4 failed (S-INV-3/4/5/6 listed excluded classes) | 11/11 | base classes keep their subclasses; `PnlRenderer*` excluded only under `shared/util/render/`; combo model by path, name prefix, own implements and inherited implements | `isExcluded` kept as one pure function |
+| T11.3 | same | Unit + fixtures | 11/11 | 4 failed (`categorize`/`WAVE_RULES`/`waveFor` missing) | 15/15 | S-INV-1 category, S-INV-8 three names, category rule order, wave rule order (W1 beats W4, package segments beat list/register W2) | JSDoc types so `checkJs` stays green |
+| T11.4 | same | Unit + fixtures | 15/15 | 3 failed (`toCsv`/`writeInventory` missing) | 18/18 | S-INV-7 accented name and comment, S-INV-9 byte-identical reruns with reversed creation order, quoting; mutation check: decoding as utf8 fails S-INV-7; `\w` identifiers replaced by `\p{L}` for accented class names | none |
+| T11.5 | same | Unit + child process | 18/18 | suite failed: `./inventory.mjs` not found | 22/22 | S-INV-10 real child process (exit and stderr naming the path), usage exit 2, S-INV-11 injected throwing reader (stderr once, other rows written), S-INV-12 hash before/after; mutation check: writing a file into `src` fails S-INV-12 | none |
+| T11.5b | same | Unit | 22/22 | 1 failed: root alone (no `--out`) was rejected as usage; found when running the real tree | 23/23 | root alone, `--out` before the root | none |
+| T11.6 | none (generation) | Generated artifact | all green | n/a | n/a | rerun on the real tree is byte-identical | none |
+
+### Deviations
+- The GUI filter treats the 8 base classes as GUI roots in addition to the Swing roots, since fixtures (and `JHDialog` itself) do not resolve to Swing within a single scanned tree; they are excluded from rows by name.
+- `isExcluded` also checks the `implements` of every class in the chain (not only the row's own) for combo models.
+- `path` in the CSV is relative to `<root>/src`; the CLI scans `<root>/src`.
+- CLI is `npm run inventory -- <root> [--out <file>]`; default output `scripts/inventory/inventory.csv`. npm on Windows splits unquoted paths with spaces: pass a path without spaces (relative) or call `node scripts/inventory/inventory.mjs` directly.
+- Real tree: `JHInternal` (not one of the 8 exclusions) is listed as a screen with base `JInternalFrame` per spec. No `W4` rows because the sales screens live in `view.formularios`, not a `ventas` package, so they land in W2/W3 (design rule is by package segment).
+
+### Files (lines)
+New: `scripts/inventory/{lib.mjs 234, inventory.mjs 39, inventory.spec.ts 294}`, generated `scripts/inventory/inventory.csv` (410 lines, excluded). Modified: `package.json` (+2/-1, script `inventory`). Total 570 changed lines.

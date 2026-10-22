@@ -162,12 +162,12 @@ Commits: (1) `feat(softcommerce): add lookup service` T10.1; (2) `feat(softcomme
 
 ## Slice 11: W1c-5 inventory (branch `feat/softcommerce-w1c-5-inventory`, base: slice 10)
 
-- [ ] T11.1 Scanner. RED: `scripts/inventory/inventory.spec.ts` with Latin-1 fixtures in a temp dir (S-INV-1 `RegisterLocalidad extends JHDialog` is a register dialog, S-INV-2 multi-line extends; supporting: two classes in one file with no cross-attribution). GREEN: `lib.mjs` header scanner (strip comments/strings, header up to `{`). REFACTOR: none.
-- [ ] T11.2 Exclusions. RED: (S-INV-3 eight base classes, S-INV-4 `PnlRenderer*` under `shared/util/render/`, S-INV-5 `view/tablemodel` and `view/conta/tablas`, S-INV-6 combo models). GREEN: exclusion rules. REFACTOR: none.
-- [ ] T11.3 Category and wave. RED: (S-INV-8 `BuscarCliente` and `FormBuscarItem` search/lookup, `FormVentas` process/detail form; supporting: `WAVE_RULES` order). GREEN: category and `WAVE_RULES` in `lib.mjs`. REFACTOR: none.
-- [ ] T11.4 Encoding and determinism. RED: (S-INV-7 "Descripción" intact as UTF-8, S-INV-9 two runs byte-identical). GREEN: `readFileSync().toString('latin1')`, sorted rows, stable quoting. REFACTOR: none.
-- [ ] T11.5 CLI failure handling. RED: (S-INV-10 missing root non-zero exit naming the path, S-INV-11 unreadable file reported on stderr and skipped, S-INV-12 Java tree unmodified, checked by hash before/after). GREEN: `inventory.mjs`, npm script `inventory`. REFACTOR: none.
-- [ ] T11.6 Generate `inventory.csv` from `desktop_java/softcommerce-desktop` (generated, excluded from the line count). Gate, PR. Then mark the tracker PR ready.
+- [x] T11.1 Scanner. RED: `scripts/inventory/inventory.spec.ts` with Latin-1 fixtures in a temp dir (S-INV-1 `RegisterLocalidad extends JHDialog` is a register dialog, S-INV-2 multi-line extends; supporting: two classes in one file with no cross-attribution). GREEN: `lib.mjs` header scanner (strip comments/strings, header up to `{`). REFACTOR: none.
+- [x] T11.2 Exclusions. RED: (S-INV-3 eight base classes, S-INV-4 `PnlRenderer*` under `shared/util/render/`, S-INV-5 `view/tablemodel` and `view/conta/tablas`, S-INV-6 combo models). GREEN: exclusion rules. REFACTOR: none.
+- [x] T11.3 Category and wave. RED: (S-INV-8 `BuscarCliente` and `FormBuscarItem` search/lookup, `FormVentas` process/detail form; supporting: `WAVE_RULES` order). GREEN: category and `WAVE_RULES` in `lib.mjs`. REFACTOR: none.
+- [x] T11.4 Encoding and determinism. RED: (S-INV-7 "Descripción" intact as UTF-8, S-INV-9 two runs byte-identical). GREEN: `readFileSync().toString('latin1')`, sorted rows, stable quoting. REFACTOR: none.
+- [x] T11.5 CLI failure handling. RED: (S-INV-10 missing root non-zero exit naming the path, S-INV-11 unreadable file reported on stderr and skipped, S-INV-12 Java tree unmodified, checked by hash before/after). GREEN: `inventory.mjs`, npm script `inventory`. REFACTOR: none.
+- [x] T11.6 Generate `inventory.csv` from `desktop_java/softcommerce-desktop` (generated, excluded from the line count). Gate, PR. Then mark the tracker PR ready.
 
 Commits: (1) `feat(softcommerce-inventory): add class scanner and exclusions` T11.1+T11.2; (2) `feat(softcommerce-inventory): add category, wave and csv output` T11.3+T11.4; (3) `feat(softcommerce-inventory): add cli failure handling and generated csv` T11.5+T11.6.
 
