@@ -118,10 +118,14 @@ describe('field validation', () => {
     expect(fieldsOf(caught(() => create(store(), 'things', { descripcion: '   ' })))).toEqual(['descripcion']);
   });
 
-  it('checks max length, options membership, integer digits and booleans', () => {
-    const err = caught(() => create(store(), 'things', { descripcion: 'X'.repeat(11), tipo: 'Z', cantidad: '1.5', flag: 'yes' }));
-    expect(err.status).toBe(422);
-    expect(fieldsOf(err)).toEqual(['descripcion', 'tipo', 'cantidad', 'flag']);
+  it('checks max length, options membership, integer digits and booleans, one failing step at a time (D10)', () => {
+    const bad = { descripcion: 'X'.repeat(11), tipo: 'Z', cantidad: '1.5', flag: 'yes' };
+    const ok = { descripcion: 'OK', tipo: 'A', cantidad: 1, flag: true };
+    for (const field of Object.keys(bad)) {
+      const err = caught(() => create(store(), 'things', { ...ok, [field]: bad[field as keyof typeof bad] }));
+      expect([err.status, fieldsOf(err)]).toEqual([422, [field]]);
+    }
+    expect(fieldsOf(caught(() => create(store(), 'things', bad)))).toEqual(['descripcion']);
     expect(create(store(), 'things', { descripcion: 'OK', tipo: 'A', cantidad: 12, flag: false })).toMatchObject({ flag: false, cantidad: 12 });
   });
 
