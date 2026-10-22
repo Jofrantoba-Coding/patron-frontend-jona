@@ -7,7 +7,7 @@ import { BUILTIN_SOURCES } from './sources.js';
  * reads in this slice are enforced here; later slices extend the checks.
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
- *   title?: string, optionLabel?: string, modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
+ *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string, modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
  *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any }} CatalogDef
  */
 
@@ -55,6 +55,10 @@ function resolveEntry(raw, slugs, sources) {
   if (!STYLES.includes(entry.messages?.style)) fail(where, `unknown messages style "${entry.messages?.style}"`);
   if (entry.seed !== null && typeof entry.seed !== 'string') fail(where, 'seed must be a file name or null (W1 section)');
   for (const mode of entry.modes) if (!MODES.includes(mode)) fail(where, `unknown mode "${mode}"`);
+  if (entry.menu !== undefined) {
+    if (!entry.formId) fail(where, 'menu needs a formId');
+    if (!entry.menu.parent || !entry.menu.label) fail(where, 'menu needs a parent and a label');
+  }
   for (const stamp of entry.stamp ?? []) if (!STAMPS.includes(stamp)) fail(where, `unknown stamp "${stamp}"`);
 
   const names = new Set(entry.fields.map((/** @type {any} */ f) => f.name));

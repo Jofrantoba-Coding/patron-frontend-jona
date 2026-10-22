@@ -1,0 +1,19 @@
+{
+  "demo": [
+    {
+      "id_aduana": "001",
+      "descripcion": "Aduana Marítima del Callao",
+      "activo": true
+    },
+    {
+      "id_aduana": "002",
+      "descripcion": "Aduana Aérea y Postal",
+      "activo": true
+    },
+    {
+      "id_aduana": "003",
+      "descripcion": "Aduana de Paita",
+      "activo": false
+    }
+  ]
+}

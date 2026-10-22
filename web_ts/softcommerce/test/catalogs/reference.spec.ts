@@ -1,0 +1,62 @@
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import { loadSeed } from '../../mock-server/http/loadSeed.js';
+import { useTestServer } from '../../mock-server/http/test-server';
+import { REGISTRY } from '../../mock-server/registry/index.js';
+import { createCatalogServiceHttp } from '../../src/services/CatalogServiceHttp';
+import { createLookupServiceHttp } from '../../src/services/LookupServiceHttp';
+import { createHttpClient } from '../../src/services/httpClient';
+import { createAppServicesMock } from '../../src/services/mock/AppServicesMock';
+import { describeRegistryContract } from './registryContract';
+import { ENTITIES, REFERENCE_CASES, textEntries } from './reference.cases';
+
+const session = () => ({ tenantId: 'demo' });
+
+/** R-REF-4 as read from the `Register*.java` documents: `[max, uppercased]` per slug.field. */
+const DESKTOP: Record<string, [number, boolean]> = {
+  'aduanas.descripcion': [100, false],
+  'colores.descripcion': [100, true],
+  'estados-documento.descripcion': [100, true],
+  'laboratorios.descripcion': [100, true],
+  'laboratorios.pais': [100, true],
+  'marcas.descripcion': [100, true],
+  'nacionalidades.descripcion': [100, true],
+};
+
+describe('W2-2 reference catalogs are registered', () => {
+  it.each(Object.entries(DESKTOP))('R-REF-4 %s keeps the desktop max and case rule', (path, [max, upper]) => {
+    const [slug, name] = path.split('.');
+    const field = REGISTRY.bySlug.get(slug).fields.find((f: any) => f.name === name);
+    expect([field.max, field.normalize.includes('upper')]).toEqual([max, upper]);
+  });
+
+  it('registers the six text catalogs, each with seed rows and one inactive row', () => {
+    expect(textEntries().map((e: any) => e.slug).sort()).toEqual(Object.keys(ENTITIES).sort());
+    expect(REFERENCE_CASES.length).toBeGreaterThan(40);
+  });
+
+  it('S-REG-6 every one of them seeds demo only: botica starts empty', () => {
+    const seed = loadSeed(fileURLToPath(new URL('../../mock-server/data', import.meta.url)));
+    for (const entry of REGISTRY.entries.filter((e: any) => !e.compat)) expect(Object.keys(seed[entry.section]), entry.slug).toEqual(['demo']);
+  });
+});
+
+// S-REF-37 / R-MOCK-18: the same table against the in-browser mock and the HTTP mock.
+describeRegistryContract(
+  'in-browser mock',
+  (slug, ctx) => {
+    const mock = createAppServicesMock('exitoso', { getSession: session, getRequestContext: () => ctx, delayMs: 0 });
+    return { catalog: mock.catalog(slug), lookup: mock.lookup };
+  },
+  REFERENCE_CASES,
+);
+
+const server = useTestServer({ seed: loadSeed(fileURLToPath(new URL('../../mock-server/data', import.meta.url))) });
+describeRegistryContract(
+  'http mock server',
+  (slug, ctx) => {
+    const client = createHttpClient({ baseUrl: server.url(), getSession: session, getRequestContext: () => ctx });
+    return { catalog: createCatalogServiceHttp(client, slug), lookup: createLookupServiceHttp(client) };
+  },
+  REFERENCE_CASES,
+);

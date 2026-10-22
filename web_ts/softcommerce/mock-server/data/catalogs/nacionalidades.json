@@ -1,0 +1,19 @@
+{
+  "demo": [
+    {
+      "id_nacionalidad": "001",
+      "descripcion": "PERUANA",
+      "activo": true
+    },
+    {
+      "id_nacionalidad": "002",
+      "descripcion": "EXTRANJERA",
+      "activo": true
+    },
+    {
+      "id_nacionalidad": "003",
+      "descripcion": "CHILENA",
+      "activo": false
+    }
+  ]
+}

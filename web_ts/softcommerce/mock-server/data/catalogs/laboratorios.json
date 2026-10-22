@@ -1,0 +1,22 @@
+{
+  "demo": [
+    {
+      "id_laboratorio": "001",
+      "descripcion": "BAYER",
+      "pais": "ALEMANIA",
+      "activo": true
+    },
+    {
+      "id_laboratorio": "002",
+      "descripcion": "PFIZER",
+      "pais": "ESTADOS UNIDOS",
+      "activo": true
+    },
+    {
+      "id_laboratorio": "003",
+      "descripcion": "GENFAR",
+      "pais": "COLOMBIA",
+      "activo": false
+    }
+  ]
+}

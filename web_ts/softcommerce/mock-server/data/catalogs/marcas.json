@@ -1,0 +1,19 @@
+{
+  "demo": [
+    {
+      "id_marca": "001",
+      "descripcion": "SONY",
+      "activo": true
+    },
+    {
+      "id_marca": "002",
+      "descripcion": "SAMSUNG",
+      "activo": true
+    },
+    {
+      "id_marca": "003",
+      "descripcion": "LG",
+      "activo": false
+    }
+  ]
+}
