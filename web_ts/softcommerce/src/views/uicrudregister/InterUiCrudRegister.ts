@@ -1,0 +1,49 @@
+// Layer: Interface. Public contract of the generic crud register dialog: shapes and defaults only, no logic.
+import type { FieldConfig } from '../../catalogs/CatalogConfig';
+import type { FormValues } from '../../domain/crud/validate';
+
+export type RegisterMode = 'INSERT' | 'UPDATE' | 'DELETE' | 'CLONE' | 'DETAIL';
+export type RegisterStatus = 'loading' | 'ready' | 'failed';
+/** Which confirmation is on screen, if any. */
+export type RegisterConfirm = 'submit' | 'discard';
+
+export interface InterUiCrudRegister {
+  title: string;
+  mode: RegisterMode;
+  fields: FieldConfig[];
+  values: FormValues;
+  /** Field name -> message. */
+  errors: Record<string, string>;
+  status: RegisterStatus;
+  /** Why the lookups or the record could not load. */
+  loadError?: string;
+  /** Message of a failed submit; the dialog stays open. */
+  submitError?: string;
+  submitTraceId?: string;
+  readOnly: boolean;
+  canSubmit: boolean;
+  submitting: boolean;
+  confirm?: RegisterConfirm;
+  /** Callbacks are value-first. */
+  onFieldChange: (name: string, value: string) => void;
+  /** Ref callback per field name, so a blocked submit can focus the first invalid one. */
+  registerField: (name: string) => (element: HTMLInputElement | null) => void;
+  onSubmit: () => void;
+  onConfirm: () => void;
+  onConfirmCancel: () => void;
+  /** Close request, already guarded by the dialog stack. */
+  onClose: () => void;
+}
+
+/** Presentation defaults only; values, status and errors are state and never defaulted. */
+export const UICRUDREGISTER_DEFAULTS = {
+  loadingLabel: 'Cargando...',
+  submitLabel: 'Aceptar',
+  cancelLabel: 'Cancelar',
+  confirmLabel: 'Confirmar',
+  declineLabel: 'No',
+  modeLabels: { INSERT: 'Nuevo', UPDATE: 'Modificar', DELETE: 'Eliminar', CLONE: 'Clonar', DETAIL: 'Detalle' } as Record<RegisterMode, string>,
+  confirmMessage: '¿Desea continuar con esta operación?',
+  discardTitle: 'Descartar cambios',
+  discardMessage: '¿Descartar los cambios sin guardar?',
+};

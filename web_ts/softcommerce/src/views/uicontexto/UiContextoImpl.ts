@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { validatePeriod, type PeriodError } from '../../domain/period';
 import type { Empresa, InterAuthService, PuntoVenta } from '../../services/InterAuthService';
 import { useSession } from '../../session/SessionProvider';
-import { toFailure } from '../uilogin/UiLoginImpl';
+import { toFailure } from '../../shared/toFailure';
 import type { InterUiContexto } from './InterUiContexto';
 
 const PERIOD_MESSAGES: Record<PeriodError, string> = {

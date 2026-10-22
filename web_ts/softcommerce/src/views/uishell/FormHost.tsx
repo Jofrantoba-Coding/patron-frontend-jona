@@ -3,7 +3,7 @@ import { JAlert } from 'jona-ui';
 import { useEffect, useState, type ReactNode } from 'react';
 import { DENY_ALL, type Permissions } from '../../domain/permissions';
 import type { InterShellService } from '../../services/InterShellService';
-import { toFailure } from '../uilogin/UiLoginImpl';
+import { toFailure } from '../../shared/toFailure';
 
 type Load =
   | { status: 'loading' }

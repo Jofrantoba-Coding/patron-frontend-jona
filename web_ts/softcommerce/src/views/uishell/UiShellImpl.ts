@@ -3,7 +3,7 @@ import { useCallback, useEffect, useReducer, useState } from 'react';
 import type { MenuItem } from '../../domain/menuTree';
 import { EMPTY_WORKSPACE, workspaceReducer } from '../../domain/workspace';
 import type { InterShellService } from '../../services/InterShellService';
-import { toFailure } from '../uilogin/UiLoginImpl';
+import { toFailure } from '../../shared/toFailure';
 import { findForm, type FormRegistry } from './formRegistry';
 import type { InterUiShell, ShellNotice } from './InterUiShell';
 

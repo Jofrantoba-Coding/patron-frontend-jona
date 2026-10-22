@@ -5,7 +5,7 @@ import { nextSort } from '../../domain/crud/filterSort';
 import { applyListView, isTruncated, pageOfRow, withListViewChange, type ListViewState } from '../../domain/crud/listView';
 import type { Permissions } from '../../domain/permissions';
 import type { InterCatalogService } from '../../services/InterCatalogService';
-import { toFailure } from '../uilogin/UiLoginImpl';
+import { toFailure } from '../../shared/toFailure';
 import type { InterUiCrudList } from './InterUiCrudList';
 
 /** W1 catalogs are small: one fetch brings them all and the client filters, sorts and pages. */

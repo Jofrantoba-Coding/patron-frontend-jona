@@ -1,9 +1,9 @@
 // Layer: Implementation. State, validation, service calls and navigation of login step 1.
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ApiError } from '../../services/ApiError';
 import type { InterAuthService } from '../../services/InterAuthService';
 import { useSession } from '../../session/SessionProvider';
+import { toFailure, type Failure } from '../../shared/toFailure';
 import type { InterUiLogin } from './InterUiLogin';
 
 export interface LoginForm {
@@ -21,27 +21,6 @@ export function validateLoginForm({ tenantId, usuario, clave }: LoginForm): Logi
     usuarioError: usuario.trim() ? undefined : 'El usuario es obligatorio.',
     claveError: clave ? undefined : 'La contraseña es obligatoria.',
   };
-}
-
-/** R-AUTH-4: each account rejection has its own message; wrong credentials stay generic. */
-const REJECTION_MESSAGES: Record<string, string> = {
-  USER_DISABLED: 'El usuario está deshabilitado.',
-  NO_DESKTOP_ACCESS: 'El usuario no tiene acceso a escritorio.',
-  INVALID_CREDENTIALS: 'Usuario o contraseña incorrectos.',
-};
-
-interface Failure {
-  message: string;
-  traceId?: string;
-}
-
-/** R-AUTH-9: server message plus traceId; a known rejection shows its own text. */
-export function toFailure(error: unknown): Failure {
-  if (error instanceof ApiError) {
-    const known = REJECTION_MESSAGES[error.code];
-    return known ? { message: known } : { message: error.message, traceId: error.traceId };
-  }
-  return { message: error instanceof Error ? error.message : 'No fue posible completar la operación.' };
 }
 
 const hasErrors = (errors: LoginFieldErrors) => Object.values(errors).some(Boolean);
