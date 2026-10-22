@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import menuSeed from '../../../mock-server/data/menu.json';
 import { ApiError } from '../ApiError';
 import { describeAuthServiceContract } from '../authServiceContract';
 import { describeCatalogServiceContract, type LocalidadRow } from '../catalogServiceContract';
@@ -56,7 +57,7 @@ describe('AppServicesMock shell scenarios', () => {
   it('vacio keeps the menu and permissions (only catalogs and lookups are emptied)', async () => {
     const shell = mockShell('vacio');
 
-    expect((await shell.menu()).length).toBe(7);
+    expect((await shell.menu()).length).toBe(menuSeed.length);
     expect((await shell.permissions('mi_localidad')).add).toBe(true);
   });
 

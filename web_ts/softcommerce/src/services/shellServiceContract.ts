@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import menuSeed from '../../mock-server/data/menu.json';
 import { ApiError } from './ApiError';
 import type { InterShellService } from './InterShellService';
 import type { SessionContext } from './httpClient';
@@ -18,7 +19,7 @@ export function describeShellServiceContract(label: string, make: ShellServiceFa
     it('returns the flat menu list from the seed with the MenuDinamico columns', async () => {
       const items = await inTenant('demo').menu();
 
-      expect(items.map((m) => m.id_menu)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+      expect(items.map((m) => m.id_menu)).toEqual(menuSeed.map((m) => m.id_menu));
       expect(items[2]).toEqual({
         id_menu: 3,
         id_menu_padre: 2,
