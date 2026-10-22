@@ -181,6 +181,31 @@ public class ${n} extends JInternalFrame { }`;
     expect(wave('PanelTFMarca', 'com.x.view.catalogos', 'list frame')).toBe('W2');
     expect(wave('FormOtro', 'com.x.view.catalogos', 'process/detail form')).toBe('W3');
   });
+
+  it.each([
+    ['PnlPedido', 'other'],
+    ['RegisterBoleta', 'register dialog'],
+    ['PanelTFNotaCredito', 'list frame'],
+    ['PnlCotizacionBuscar', 'search/lookup'],
+    ['FormVentasProgramada', 'process/detail form'],
+    ['FacturarServicioTransporte', 'process/detail form'],
+    ['RegisterGuiaRemision', 'register dialog'],
+    ['PnlReparto', 'other'],
+  ])('sales transaction %s in a generic package is W4', (name, category) => {
+    expect(waveFor({ name, pkg: 'com.x.view.formularios', category })).toBe('W4');
+  });
+
+  it.each([
+    ['PanelTFPuntoVenta', 'com.x.view.formularios', 'list frame', 'W2'],
+    ['RegisterTipoDocVenta', 'com.x.view.formularios', 'register dialog', 'W2'],
+    ['RegisterMotivoNotaCredito', 'com.x.view.formularios', 'register dialog', 'W2'],
+    ['PanelTFVendedor', 'com.x.view.formularios', 'list frame', 'W2'],
+    ['FrmRetencionVenta', 'com.x.view.conta.formularios', 'process/detail form', 'W6'],
+    ['RegisterFacturaCompraDirecta', 'com.x.view.compras.formularios', 'register dialog', 'W5'],
+    ['RptVenta', 'com.x.reportfiles.reportes', 'process/detail form', 'W7'],
+  ])('%s keeps its catalog or package wave', (name, pkg, category, expected) => {
+    expect(waveFor({ name, pkg, category })).toBe(expected);
+  });
 });
 
 describe('encoding and determinism', () => {
