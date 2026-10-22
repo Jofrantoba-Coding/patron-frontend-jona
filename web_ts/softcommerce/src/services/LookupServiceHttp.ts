@@ -7,5 +7,6 @@ export function createLookupServiceHttp(client: HttpClient): InterLookupService 
   return {
     empresas: () => items('/v1/empresas'),
     ubigeoChildren: (parent) => items('/v1/ubigeo', { parent }),
+    options: (slug, filters) => items(`/v1/lookups/${slug}`, filters),
   };
 }

@@ -1,12 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../../src/services/ApiError';
 import type { InterCatalogService } from '../../src/services/InterCatalogService';
+import type { InterLookupService } from '../../src/services/InterLookupService';
+import type { RequestContext } from '../../src/services/httpClient';
 import { CASES, type CatalogCase, type Outcome, type Step } from './cases';
 
-export type RegistryServiceFactory = (slug: string) => InterCatalogService<Record<string, any>>;
+/** The services of one source for a catalog, acting with the given session context. */
+export type RegistryServiceFactory = (
+  slug: string,
+  ctx: RequestContext,
+) => { catalog: InterCatalogService<Record<string, any>>; lookup: InterLookupService };
 
-async function run(service: InterCatalogService<Record<string, any>>, step: Step): Promise<any> {
+async function run(
+  { catalog: service, lookup }: ReturnType<RegistryServiceFactory>,
+  slug: string,
+  step: Step,
+): Promise<any> {
   switch (step.op) {
+    case 'options': return lookup.options(slug, step.filters);
     case 'list': return service.list({ filters: step.filters });
     case 'get': return service.get(step.id!);
     case 'create': return service.create(step.body ?? {});
@@ -16,13 +27,13 @@ async function run(service: InterCatalogService<Record<string, any>>, step: Step
 }
 
 /** Runs every step; the last one is checked against the expected outcome. */
-async function check(make: RegistryServiceFactory, { slug, steps, expect: outcome }: CatalogCase): Promise<void> {
-  const service = make(slug);
+async function check(make: RegistryServiceFactory, { slug, steps, ctx = {}, expect: outcome }: CatalogCase): Promise<void> {
+  const service = make(slug, ctx);
   let result: unknown;
   let error: unknown;
   for (const step of steps) {
     try {
-      result = await run(service, step);
+      result = await run(service, slug, step);
       error = undefined;
     } catch (e) {
       error = e;
@@ -36,6 +47,7 @@ function assertOutcome(outcome: Outcome, result: any, error: unknown): void {
     expect(error).toBeUndefined();
     if (outcome.match) expect(result).toMatchObject(outcome.match);
     if (outcome.total !== undefined) expect(result.pagination.total).toBe(outcome.total);
+    if (outcome.items) expect(result).toEqual(outcome.items);
     return;
   }
   expect(error).toBeInstanceOf(ApiError);

@@ -55,6 +55,7 @@ const REJECTED: [string, Record<string, any>[], RegExp][] = [
   ['unknown lookup filter rule', [base({ lookupFilters: { k: { rule: 'nope' } } })], /unknown rule "nope"/],
   ['bad seed', [base({ seed: 7 })], /seed/],
   ['unknown normalize step', [withFields({ name: 'x', kind: 'text', label: 'X', normalize: ['upper', 'title'] })], /field "x".*unknown normalize step "title"/],
+  ['unknown optionLabel field', [base({ optionLabel: 'ghost' })], /optionLabel.*unknown field "ghost"/],
   ['padLeft needs a width', [withFields({ name: 'x', kind: 'text', label: 'X', normalize: ['padLeft'] })], /unknown normalize step "padLeft"/],
 ];
 
