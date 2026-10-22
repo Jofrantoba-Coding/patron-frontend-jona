@@ -36,7 +36,7 @@ Esc MUST close the topmost open dialog.
 
 **S-SHELL-7 permissions loaded** — Given a form opens, Then `/forms/{formId}/permissions` is requested once and the 13 flags are available to that form.
 
-**S-SHELL-8 permission denied action** — Given `add=false`, Then the Add action is disabled or hidden and activating it (click or shortcut) does nothing; same for each flag set false.
+**S-SHELL-8 permission denied action** — Given `add=false`, Then the Add action is disabled or hidden and activating it (click or shortcut — the Alt+letter map of R-CRUD-10) does nothing; same for each flag set false.
 
 **S-SHELL-9 permission fetch fails** — Given the permissions request fails, Then the form shows an error and all actions stay disabled (fail closed).
 
