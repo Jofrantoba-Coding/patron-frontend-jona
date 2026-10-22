@@ -1,4 +1,5 @@
 import { methodNotAllowed, modeNotSupported, notFound } from './errors.js';
+import { isModeMap } from '../registry/schema.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
 
@@ -73,6 +74,21 @@ export function listCatalog(store, tenantId, catalog, query = {}, ctx) {
   return { items: rows.slice(start, start + pageSize), pagination: { page, pageSize, total: rows.length } };
 }
 
+/**
+ * Declared defaults for the fields a create body leaves out: a scalar `default`, or the
+ * INSERT entry of a per-mode map (R-CRUD-15). Updates never re-apply them.
+ * @param {any} entry @param {Record<string, any>} record
+ */
+function withDefaults(entry, record) {
+  const out = { ...record };
+  for (const f of entry.fields) {
+    if (f.name in out || f.default === undefined) continue;
+    const value = isModeMap(f.default) ? f.default.INSERT : f.default;
+    if (value !== undefined) out[f.name] = value;
+  }
+  return out;
+}
+
 /** Finds one record, active or not, within the session scope. Throws 404 when missing. */
 function findRow(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {string} */ id, /** @type {any} */ ctx) {
   const inScope = scopeFilter(store, tenantId, entry, ctx);
@@ -92,7 +108,7 @@ export function createRecord(store, tenantId, catalog, body, ctx) {
   const entry = writableEntry(store, catalog, 'POST');
   // Session values come from the context, never from the body (R-MOCK-13).
   const stamps = stampsOf(store, tenantId, entry, ctx);
-  const record = pickWritable(entry, body);
+  const record = withDefaults(entry, pickWritable(entry, body));
   validateRecord(store, tenantId, entry, record, { ctx, mode: 'INSERT' });
   const rows = rowsOf(store, tenantId, entry);
   // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.

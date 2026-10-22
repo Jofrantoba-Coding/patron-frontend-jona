@@ -19,6 +19,20 @@ export interface ListViewResult<T> {
   matchCount: number;
 }
 
+/**
+ * Rows as the grid shows them: a `bool` column reads Sí / No (a missing value is empty), so the filter and the sort
+ * work on the rendered text (R-CRUD-1). Rows come back untouched when no column needs formatting.
+ */
+export function formatRows<T>(columns: readonly { key: keyof T & string; format?: 'bool' }[], rows: readonly T[]): T[] {
+  const boolKeys = columns.filter((column) => column.format === 'bool').map((column) => column.key);
+  if (boolKeys.length === 0) return rows as T[];
+  return rows.map((row) => {
+    const shown = { ...row } as Record<string, unknown>;
+    for (const key of boolKeys) shown[key] = row[key] === true ? 'Sí' : row[key] === false ? 'No' : '';
+    return shown as T;
+  });
+}
+
 /** Client-side list pipeline: filter, then sort, then take one page of 20. */
 export function applyListView<T>(
   rows: readonly T[],

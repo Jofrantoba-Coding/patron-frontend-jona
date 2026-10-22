@@ -7,6 +7,8 @@
 export const PRESETS = {
   // `descripcion` of the reference catalogs; the desktop message says "su Descripcion" (no accent).
   descripcion: { kind: 'text', label: 'Descripción', required: true, max: 100, msgLabel: 'su Descripcion' },
+  // R-REF-3: INSERT is true and read-only; UPDATE is editable; CLONE copies the source value read-only (D15).
+  estado: { kind: 'boolean', label: 'Activo', default: { INSERT: true }, readOnlyOn: ['INSERT', 'CLONE', 'DETAIL', 'DELETE'] },
 };
 
 /** @param {Record<string, any>} field */

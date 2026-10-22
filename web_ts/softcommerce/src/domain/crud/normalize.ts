@@ -1,13 +1,14 @@
 import { normalizeValue } from '../../../mock-server/core/normalize.js';
 import type { FieldConfig } from '../../catalogs/CatalogConfig';
+import { encodeValues } from './codec';
 import type { FormValues } from './validate';
 
 /**
  * On submit: re-applies uppercase to the `uppercase` fields, trims and normalizes the registry fields with
  * the same steps as the server, never sends the server `code`, and drops the cascade levels above the leaf
- * (only the leaf id is stored).
+ * (only the leaf id is stored). The result is the typed payload: the codec turns each boolean field into a boolean.
  */
-export function normalize(fields: FieldConfig[], values: FormValues): FormValues {
+export function normalize(fields: FieldConfig[], values: FormValues): Record<string, unknown> {
   const result = { ...values };
   for (const field of fields) {
     if (field.kind === 'code') delete result[field.name];
@@ -17,5 +18,5 @@ export function normalize(fields: FieldConfig[], values: FormValues): FormValues
   for (const field of fields) {
     if (field.kind === 'cascade') field.levels.slice(0, -1).forEach((level) => delete result[level.name]);
   }
-  return result;
+  return encodeValues(fields, result);
 }

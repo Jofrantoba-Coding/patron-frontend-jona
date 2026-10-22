@@ -19,6 +19,16 @@ export type FieldConfig =
       /** Registry `normalize` steps, applied (after a trim) to the payload; absent for the W1 configs. */
       normalize?: string[];
     }
+  | {
+      /** A checkbox; the form state is 'true' | 'false' and the payload a boolean (codec, D7). */
+      kind: 'boolean';
+      name: string;
+      label: string;
+      /** A value for INSERT, or per mode; a per-mode entry also overrides a cloned value (R-CRUD-15). */
+      default?: boolean | Partial<Record<CrudMode, boolean>>;
+      /** Modes in which the value is shown but not editable. */
+      readOnlyOn?: readonly CrudMode[];
+    }
   | { kind: 'select'; name: string; label: string; required?: boolean; lookup: 'empresas' }
   | {
       kind: 'cascade';
@@ -37,7 +47,7 @@ export interface CatalogConfig<T> {
   /** Catalog name in `/v1/{catalog}`. */
   catalog: string;
   idKey: keyof T & string;
-  columns: { key: keyof T & string; header: string; sortable?: boolean }[];
+  columns: { key: keyof T & string; header: string; sortable?: boolean; /** `bool` renders Sí / No (R-CRUD-1). */ format?: 'bool' }[];
   fields: FieldConfig[];
   /** Toolbar order; defaults to every action but `export`. */
   actions?: CrudAction[];
