@@ -11,6 +11,7 @@ import { JFocusTrap, focusableIn } from '../../lib/focus';
 import { JDialog } from '../../molecules/JDialog';
 import { JDrawer } from '../../molecules/JDrawer';
 import { JOptionPane } from '../../molecules/JOptionPane';
+import { JSidebarLayout } from '../../layouts/JSidebarLayout';
 
 const tab = (target: Element, shiftKey = false) =>
   fireEvent.keyDown(target, { key: 'Tab', shiftKey });
@@ -256,6 +257,57 @@ describe('JOptionPane focus management', () => {
     const opener = openFromOpener();
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('alertdialog')).toBeNull();
+    expect(document.activeElement).toBe(opener);
+  });
+});
+
+describe('JSidebarLayout mobile drawer focus management', () => {
+  const renderLayout = () =>
+    render(
+      <JSidebarLayout
+        collapsible={false}
+        renderSidebar={() => (
+          <>
+            <button type="button">First item</button>
+            <button type="button">Last item</button>
+          </>
+        )}
+      >
+        <button type="button">Workspace action</button>
+      </JSidebarLayout>,
+    );
+  const openDrawer = () => {
+    const opener = screen.getByRole('button', { name: 'Abrir menú' });
+    opener.focus();
+    fireEvent.click(opener);
+    return opener;
+  };
+
+  it('moves focus into the drawer on open', () => {
+    renderLayout();
+    openDrawer();
+    expect(screen.getByRole('dialog')).toContainElement(document.activeElement as HTMLElement);
+  });
+
+  it('keeps Tab and Shift+Tab inside the open drawer', () => {
+    renderLayout();
+    openDrawer();
+    const close = screen.getByRole('button', { name: 'Cerrar menú' });
+    const last = screen.getByRole('button', { name: 'Last item' });
+
+    last.focus();
+    tab(last);
+    expect(document.activeElement).toBe(close);
+
+    tab(close, true);
+    expect(document.activeElement).toBe(last);
+  });
+
+  it('returns focus to the menu button when it closes', () => {
+    renderLayout();
+    const opener = openDrawer();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.activeElement).toBe(opener);
   });
 });

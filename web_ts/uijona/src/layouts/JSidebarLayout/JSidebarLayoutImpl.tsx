@@ -1,5 +1,6 @@
 ﻿// JSidebarLayoutImpl.tsx — JONA Implementation
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useFocusTrap } from '../../lib/focus';
 import { InterJSidebarLayout, JSIDEBAR_LAYOUT_DEFAULTS, SidebarNavItem } from './InterJSidebarLayout';
 import { JSidebarLayoutView } from './JSidebarLayoutView';
 
@@ -7,6 +8,9 @@ export const JSidebarLayoutImpl: React.FC<InterJSidebarLayout> = (props) => {
   const merged = { ...JSIDEBAR_LAYOUT_DEFAULTS, ...props };
   const [collapsed, setCollapsed] = useState(merged.defaultCollapsed);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null) as React.RefObject<HTMLElement>;
+  // While open on mobile the drawer is modal: Tab must not reach the page behind it.
+  const onSidebarKeyDown = useFocusTrap(sidebarRef, mobileOpen);
 
   // Close mobile sidebar on resize to desktop
   useEffect(() => {
@@ -39,6 +43,8 @@ export const JSidebarLayoutImpl: React.FC<InterJSidebarLayout> = (props) => {
       collapsible={merged.collapsible}
       collapsed={collapsed}
       mobileOpen={mobileOpen}
+      sidebarRef={sidebarRef}
+      onSidebarKeyDown={onSidebarKeyDown}
       sidebarWidth={merged.sidebarWidth}
       className={props.className}
       sidebarClassName={props.sidebarClassName}
