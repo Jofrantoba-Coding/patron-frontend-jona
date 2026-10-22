@@ -63,7 +63,11 @@ export function createDependentChain(nodes: ChainNode[], load: ChainLoader, onUp
   const start = (name: string, values: Values) => {
     const state = states.get(name)!;
     const token = ++state.token;
-    state.failed = false;
+    // A retry or a new parent value clears the failure at once, not when the response arrives.
+    if (state.failed) {
+      state.failed = false;
+      onUpdate();
+    }
     const apply = (options: ChainOption[], failed: boolean) => {
       if (state.token !== token) return;
       state.options = options;
