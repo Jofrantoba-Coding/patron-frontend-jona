@@ -4,7 +4,7 @@ import { decodeValue } from './codec';
 import type { FormValues } from './validate';
 
 type Defaultable = Extract<FieldConfig, { default?: unknown }>;
-const hasDefault = (field: FieldConfig): field is Defaultable => field.kind === 'boolean';
+const hasDefault = (field: FieldConfig): field is Defaultable => field.kind === 'boolean' || field.kind === 'options';
 
 /** A `default` as a form string for `mode`: a per-mode map answers its own entry, a scalar answers INSERT only. */
 function defaultFor(field: FieldConfig, mode: CrudMode): string | undefined {

@@ -2,6 +2,7 @@
 import { JAlert, JButton, JComboBox, JDialog } from 'jona-ui';
 import { BooleanField } from '../../shared/ui/BooleanField';
 import { CascadeSelect } from '../../shared/ui/CascadeSelect';
+import { OptionsField } from '../../shared/ui/OptionsField';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { UICRUDREGISTER_DEFAULTS, type InterUiCrudRegister } from './InterUiCrudRegister';
@@ -71,6 +72,22 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                   readOnly={props.isFieldReadOnly(field.name)}
                   onChange={(checked) => props.onFieldChange(field.name, String(checked))}
                 />
+              ) : field.kind === 'options' ? (
+                <div key={field.name}>
+                  <OptionsField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    display={field.display}
+                    options={field.options}
+                    value={props.values[field.name]}
+                    placeholder={props.selectPlaceholder}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
               ) : field.kind === 'select' ? (
                 <div key={field.name}>
                   <label style={{ display: 'grid', gap: 4 }}>

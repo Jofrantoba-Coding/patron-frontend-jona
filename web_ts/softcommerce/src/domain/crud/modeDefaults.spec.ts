@@ -52,3 +52,21 @@ describe('per-mode defaults (R-CRUD-15)', () => {
     expect(isFieldReadOnly(descripcion, 'INSERT', false)).toBe(false);
   });
 });
+
+describe('options defaults and read-only (G7)', () => {
+  const tipo: FieldConfig = {
+    kind: 'options', name: 'tipo', label: 'Tipo', display: 'select', default: 'A', readOnlyOn: ['UPDATE'],
+    options: [{ value: 'A', label: 'Activo' }, { value: 'I', label: 'Inactivo' }],
+  };
+
+  it('starts at the default on INSERT; with no default it starts empty', () => {
+    expect(initialValues([tipo], 'INSERT')).toEqual({ tipo: 'A' });
+    expect(initialValues([{ ...tipo, default: undefined }], 'INSERT')).toEqual({ tipo: '' });
+  });
+
+  it('keeps the record value on UPDATE and honours readOnlyOn', () => {
+    expect(applyModeDefaults([tipo], { tipo: 'I' }, 'UPDATE')).toEqual({ tipo: 'I' });
+    expect(isFieldReadOnly(tipo, 'UPDATE', false)).toBe(true);
+    expect(isFieldReadOnly(tipo, 'INSERT', false)).toBe(false);
+  });
+});
