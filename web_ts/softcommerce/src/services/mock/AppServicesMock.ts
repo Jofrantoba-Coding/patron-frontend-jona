@@ -16,7 +16,7 @@ import type { InterAuthService } from '../InterAuthService';
 import type { InterCatalogService, Page } from '../InterCatalogService';
 import type { InterLookupService } from '../InterLookupService';
 import type { InterShellService } from '../InterShellService';
-import type { SessionContext } from '../httpClient';
+import type { RequestContext, SessionContext } from '../httpClient';
 import type { ApiScenario } from '../serviceComposer';
 import { errorServidorFixture } from './fixtures/errorServidor.fixture';
 import { exitosoFixture } from './fixtures/exitoso.fixture';
@@ -33,6 +33,8 @@ const DEFAULT_DELAY_MS = 150;
 
 export interface AppServicesMockOptions {
   getSession?: () => SessionContext;
+  /** Live user and empresa, the same values the HTTP client sends as headers (D13). */
+  getRequestContext?: () => RequestContext;
   /** Simulated latency; tests pass 0. */
   delayMs?: number;
   /** Registry and seed under test; default to the real ones (the same the HTTP server loads). */
@@ -67,7 +69,7 @@ function toApiError(error: unknown): ApiError {
  */
 export function createAppServicesMock(
   scenario: ApiScenario,
-  { getSession = () => ({}), delayMs = DEFAULT_DELAY_MS, registry, seed }: AppServicesMockOptions = {},
+  { getSession = () => ({}), getRequestContext = () => ({}), delayMs = DEFAULT_DELAY_MS, registry, seed }: AppServicesMockOptions = {},
 ): AppServicesMock {
   const fixture = FIXTURES[scenario];
   const store = fixture.kind === 'data' ? createStore(seed ?? fixture.seed, registry) : undefined;
@@ -126,11 +128,11 @@ export function createAppServicesMock(
 
   const catalog = <T>(name: string): InterCatalogService<T> => ({
     list: ({ page, pageSize, filters } = {}) =>
-      call((s) => listCatalog(s, tenantGate(s), name, { page, pageSize, ...filters }) as Page<T>),
-    get: (id) => call((s) => getRecord(s, tenantGate(s), name, id) as T),
-    create: (values) => call((s) => createRecord(s, tenantGate(s), name, values) as T),
-    update: (id, values) => call((s) => updateRecord(s, tenantGate(s), name, id, values) as T),
-    remove: (id) => call((s) => deleteRecord(s, tenantGate(s), name, id)),
+      call((s) => listCatalog(s, tenantGate(s), name, { page, pageSize, ...filters }, getRequestContext()) as Page<T>),
+    get: (id) => call((s) => getRecord(s, tenantGate(s), name, id, getRequestContext()) as T),
+    create: (values) => call((s) => createRecord(s, tenantGate(s), name, values, getRequestContext()) as T),
+    update: (id, values) => call((s) => updateRecord(s, tenantGate(s), name, id, values, getRequestContext()) as T),
+    remove: (id) => call((s) => deleteRecord(s, tenantGate(s), name, id, getRequestContext())),
   });
 
   return { auth, shell, lookup, catalog };

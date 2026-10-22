@@ -6,7 +6,7 @@ import type { InterLookupService } from './InterLookupService';
 import type { InterShellService } from './InterShellService';
 import { createLookupServiceHttp } from './LookupServiceHttp';
 import { createShellServiceHttp } from './ShellServiceHttp';
-import { createHttpClient, type SessionContext } from './httpClient';
+import { createHttpClient, type RequestContext, type SessionContext } from './httpClient';
 import { lazyService } from './lazyService';
 import type { AppServicesMock } from './mock/AppServicesMock';
 
@@ -70,6 +70,8 @@ export interface ComposeDeps {
   fetchFn?: typeof fetch;
   /** Live session (tenant and token) read by every post-login request. */
   getSession?: () => SessionContext;
+  /** Live user and empresa sent as session headers (D13). */
+  getRequestContext?: () => RequestContext;
 }
 
 export interface AppServices {
@@ -81,14 +83,14 @@ export interface AppServices {
 }
 
 /** Validates the env and builds every service. Throws a configuration error at startup. */
-export function composeServices(env: ApiEnv, { fetchFn, getSession }: ComposeDeps = {}): AppServices {
+export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestContext }: ComposeDeps = {}): AppServices {
   const config = parseApiEnv(env);
-  const client = (baseUrl: string) => createHttpClient({ baseUrl, fetchFn, getSession });
+  const client = (baseUrl: string) => createHttpClient({ baseUrl, fetchFn, getSession, getRequestContext });
 
   // One mock instance (one store) shared by every domain's lazy proxy.
   let mock: Promise<AppServicesMock> | undefined;
   const loadMock = (scenario: ApiScenario) =>
-    (mock ??= import('./mock/AppServicesMock').then((m) => m.createAppServicesMock(scenario, { getSession })));
+    (mock ??= import('./mock/AppServicesMock').then((m) => m.createAppServicesMock(scenario, { getSession, getRequestContext })));
 
   return {
     // Dynamic import: fixtures, seed and core land in a separate chunk, never in the entry.

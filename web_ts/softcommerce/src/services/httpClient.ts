@@ -6,11 +6,19 @@ export interface SessionContext {
   token?: string;
 }
 
+/** Who is acting, when known: sent as `X-User-Id` / `X-Empresa-Id` (D13). Never required by W1 routes. */
+export interface RequestContext {
+  userId?: string;
+  empresaId?: string;
+}
+
 export interface HttpClientOptions {
   baseUrl: string;
   fetchFn?: typeof fetch;
   /** Reads the live session at request time (tenant and token). */
   getSession?: () => SessionContext;
+  /** Reads the live user and empresa at request time; each header is sent only when present. */
+  getRequestContext?: () => RequestContext;
   newCorrelationId?: () => string;
 }
 
@@ -48,6 +56,7 @@ export function createHttpClient({
   baseUrl,
   fetchFn = (...args) => fetch(...args),
   getSession = () => ({}),
+  getRequestContext = () => ({}),
   newCorrelationId = () => crypto.randomUUID(),
 }: HttpClientOptions): HttpClient {
   return {
@@ -59,6 +68,9 @@ export function createHttpClient({
       const headers: Record<string, string> = { 'X-Correlation-Id': correlationId };
       if (tenantId) headers['X-Tenant-Id'] = tenantId;
       if (session.token) headers.Authorization = `Bearer ${session.token}`;
+      const { userId, empresaId } = getRequestContext();
+      if (userId) headers['X-User-Id'] = userId;
+      if (empresaId) headers['X-Empresa-Id'] = empresaId;
       if (options.body !== undefined) headers['Content-Type'] = 'application/json';
 
       let response: Response;

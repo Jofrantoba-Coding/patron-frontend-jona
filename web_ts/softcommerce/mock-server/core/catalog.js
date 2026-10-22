@@ -1,4 +1,5 @@
 import { methodNotAllowed, modeNotSupported, notFound } from './errors.js';
+import { scopeFilter, stampsOf } from './context.js';
 import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
 
 export const DEFAULT_PAGE_SIZE = 20;
@@ -30,12 +31,13 @@ function writableEntry(store, catalog, verb) {
  * Adds the joined display names (R-REG-8) and `<name>_label` for options fields
  * (R-MOCK-14). A join over a missing or inactive target is an empty string.
  * @param {any} store @param {string} tenantId @param {any} entry @param {any} row
+ * @param {import('./context.js').RequestContext} [ctx]
  */
-function enrich(store, tenantId, entry, row) {
+function enrich(store, tenantId, entry, row, ctx) {
   const out = { ...row };
   for (const join of entry.joins ?? []) {
     const ref = entry.refs.find((/** @type {any} */ r) => r.field === join.ref);
-    const target = targetOf(store, tenantId, ref.catalog);
+    const target = targetOf(store, tenantId, ref.catalog, ctx);
     const value = String(row[join.ref] ?? '');
     const key = join.prefixLen ? value.slice(0, join.prefixLen) : value;
     const found = target.rows.find((/** @type {any} */ r) => String(r[target.idKey]) === key);
@@ -52,15 +54,17 @@ function enrich(store, tenantId, entry, row) {
  * Lists active records with field filters and paging (R-MOCK-3).
  * @param {any} store @param {string} tenantId @param {string} catalog
  * @param {Record<string, any>} [query] `page`, `pageSize` and `<field>=` filters.
+ * @param {import('./context.js').RequestContext} [ctx] Session context; `empresa`-scope entries need it.
  */
-export function listCatalog(store, tenantId, catalog, query = {}) {
+export function listCatalog(store, tenantId, catalog, query = {}, ctx) {
   const entry = entryOf(store, catalog);
   const { page: rawPage, pageSize: rawSize, ...filters } = query;
   const page = positiveInt(rawPage, 1);
   const pageSize = positiveInt(rawSize, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
   let rows = rowsOf(store, tenantId, entry)
+    .filter(scopeFilter(store, tenantId, entry, ctx))
     .filter((/** @type {any} */ r) => r[ACTIVE_KEY] !== false)
-    .map((/** @type {any} */ r) => enrich(store, tenantId, entry, r));
+    .map((/** @type {any} */ r) => enrich(store, tenantId, entry, r, ctx));
   for (const [field, value] of Object.entries(filters)) {
     const needle = String(value).toLowerCase();
     rows = rows.filter((/** @type {any} */ r) => String(r[field] ?? '').toLowerCase().includes(needle));
@@ -69,44 +73,48 @@ export function listCatalog(store, tenantId, catalog, query = {}) {
   return { items: rows.slice(start, start + pageSize), pagination: { page, pageSize, total: rows.length } };
 }
 
-/** Finds one record, active or not. Throws 404 when missing. */
-function findRow(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {string} */ id) {
-  const row = rowsOf(store, tenantId, entry).find((/** @type {any} */ r) => r[entry.idKey] === id);
+/** Finds one record, active or not, within the session scope. Throws 404 when missing. */
+function findRow(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {string} */ id, /** @type {any} */ ctx) {
+  const inScope = scopeFilter(store, tenantId, entry, ctx);
+  const row = rowsOf(store, tenantId, entry).find((/** @type {any} */ r) => r[entry.idKey] === id && inScope(r));
   if (!row) throw notFound(`${entry.slug} ${id} not found`);
   return row;
 }
 
-/** @param {any} store @param {string} tenantId @param {string} catalog @param {string} id */
-export function getRecord(store, tenantId, catalog, id) {
+/** @param {any} store @param {string} tenantId @param {string} catalog @param {string} id @param {import('./context.js').RequestContext} [ctx] */
+export function getRecord(store, tenantId, catalog, id, ctx) {
   const entry = entryOf(store, catalog);
-  return enrich(store, tenantId, entry, findRow(store, tenantId, entry, id));
+  return enrich(store, tenantId, entry, findRow(store, tenantId, entry, id, ctx), ctx);
 }
 
-/** @param {any} store @param {string} tenantId @param {string} catalog @param {Record<string, any>} body */
-export function createRecord(store, tenantId, catalog, body) {
+/** @param {any} store @param {string} tenantId @param {string} catalog @param {Record<string, any>} body @param {import('./context.js').RequestContext} [ctx] */
+export function createRecord(store, tenantId, catalog, body, ctx) {
   const entry = writableEntry(store, catalog, 'POST');
+  // Session values come from the context, never from the body (R-MOCK-13).
+  const stamps = stampsOf(store, tenantId, entry, ctx);
   const record = pickWritable(entry, body);
-  validateRecord(store, tenantId, entry, record);
+  validateRecord(store, tenantId, entry, record, { ctx });
   const rows = rowsOf(store, tenantId, entry);
   // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.
   const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[entry.idKey]) || 0), 0) + 1;
-  const created = { [entry.idKey]: String(next).padStart(entry.codeWidth, '0'), ...record, [ACTIVE_KEY]: true };
+  const created = { [entry.idKey]: String(next).padStart(entry.codeWidth, '0'), ...record, ...stamps, [ACTIVE_KEY]: true };
   rows.push(created);
-  return enrich(store, tenantId, entry, created);
+  return enrich(store, tenantId, entry, created, ctx);
 }
 
-/** @param {any} store @param {string} tenantId @param {string} catalog @param {string} id @param {Record<string, any>} body */
-export function updateRecord(store, tenantId, catalog, id, body) {
+/** @param {any} store @param {string} tenantId @param {string} catalog @param {string} id @param {Record<string, any>} body @param {import('./context.js').RequestContext} [ctx] */
+export function updateRecord(store, tenantId, catalog, id, body, ctx) {
   const entry = writableEntry(store, catalog, 'PUT');
-  const row = findRow(store, tenantId, entry, id);
+  const stamps = stampsOf(store, tenantId, entry, ctx);
+  const row = findRow(store, tenantId, entry, id, ctx);
   const merged = { ...row, ...pickWritable(entry, body) };
-  validateRecord(store, tenantId, entry, merged, id);
-  Object.assign(row, merged);
-  return enrich(store, tenantId, entry, row);
+  validateRecord(store, tenantId, entry, merged, { selfId: id, ctx });
+  Object.assign(row, merged, stamps);
+  return enrich(store, tenantId, entry, row, ctx);
 }
 
 /** Logical delete (R-MOCK-7): flags the record inactive, never removes it. */
-export function deleteRecord(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {string} */ catalog, /** @type {string} */ id) {
+export function deleteRecord(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {string} */ catalog, /** @type {string} */ id, /** @type {import('./context.js').RequestContext} */ ctx = {}) {
   const entry = writableEntry(store, catalog, 'DELETE');
-  findRow(store, tenantId, entry, id)[ACTIVE_KEY] = false;
+  findRow(store, tenantId, entry, id, ctx)[ACTIVE_KEY] = false;
 }
