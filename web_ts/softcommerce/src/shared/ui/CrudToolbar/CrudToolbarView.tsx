@@ -9,9 +9,13 @@ export function CrudToolbarView({ ariaLabel, labels, unavailableLabel, items, on
   return (
     // Wraps onto several rows at phone width instead of overflowing.
     <div role="toolbar" aria-label={ariaLabel} style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-      {items.map(({ action, enabled, implemented }) => (
-        // JButton has no title passthrough: the tooltip lives on the wrapper.
-        <span key={action} title={implemented ? undefined : unavailableLabel}>
+      {items.map(({ action, enabled, implemented, shortcut }) => (
+        // JButton has no title/aria passthrough: the tooltip and the shortcut live on the wrapper.
+        <span
+          key={action}
+          aria-keyshortcuts={shortcut}
+          title={implemented ? (shortcut && `${labels[action]} (${shortcut})`) : unavailableLabel}
+        >
           {/* Floors, not fixed heights: 44px touch target on mobile, compact from `sm`. */}
           <JButton variant="outline" className="min-h-11 sm:min-h-9" disabled={!enabled} onClick={() => onAction?.(action)}>
             {labels[action]}

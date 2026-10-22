@@ -37,6 +37,9 @@ Enter submits the register form (not from a multiline field or when focused on a
 ### R-CRUD-9 Local components
 Missing uijona components (permission toolbar, uppercase input, lookup combo) MUST be app-local under `src/shared/ui`, following InterUi/Impl/View, with value-first callbacks and DEFAULTS without state values; `jona-ui` is pinned to npm `1.4.0` exact (mobile-first release; was `1.3.0`).
 
+### R-CRUD-10 Toolbar shortcuts
+Toolbar actions MUST have the desktop Alt+letter shortcuts (`PanelControlView`), defined once as data: add Alt+A, modify Alt+M, eliminate Alt+E, clone Alt+N, details Alt+Z, search Alt+B, refresh Alt+R, export Alt+X, print Alt+I, printFast Alt+F, close Alt+S; nullify and report have none. A shortcut MUST fire only for an action shown in the current toolbar and through the same gate as a click (permission, selected row). Keys MUST match by physical key (`KeyA`…) with Alt and without Ctrl/Meta/Shift, and the browser default MUST be prevented only when a shortcut is handled. The listener MUST be scoped to the list's container (never `window`), so an inactive hidden tab never reacts, and MUST stay quiet while any dialog is open. Each button MUST expose its shortcut (`aria-keyshortcuts`, title "Agregar (Alt+A)").
+
 ## Scenarios
 
 **S-CRUD-1 list states** — Given pending request, Then loading shows; Given empty items, Then an empty message; Given failure, Then an error with retry.
@@ -45,7 +48,7 @@ Missing uijona components (permission toolbar, uppercase input, lookup combo) MU
 
 **S-CRUD-3 row-dependent actions** — Given `modify=true` and no selected row, Then Modify is disabled; after selecting a row it is enabled.
 
-**S-CRUD-4 permission-denied activation** — Given `eliminate=false`, When the user triggers Delete by click or shortcut, Then no dialog opens and no request is sent.
+**S-CRUD-4 permission-denied activation** — Given `eliminate=false`, When the user triggers Delete by click or shortcut (Alt+E, R-CRUD-10), Then no dialog opens and no request is sent.
 
 **S-CRUD-5 filter** — Given rows "LIMA", "CUSCO", When typing "lim", Then only LIMA shows; clearing restores both.
 
@@ -82,3 +85,5 @@ Missing uijona components (permission toolbar, uppercase input, lookup combo) MU
 **S-CRUD-21 pinned dependency** — Given `package.json`, Then `jona-ui` equals `"1.4.0"` with no range operator.
 
 **S-CRUD-22 config-only catalog** — Given a second minimal catalog config, Then list and register render and function without new template code.
+
+**S-CRUD-23 toolbar shortcuts** — Given a list with focus anywhere inside it and no dialog open, When Alt+A is pressed with `add=true`, Then the register opens once; Given a denied action, a row-dependent action without a selection, an open dialog, focus outside the list, or Ctrl/Shift/Meta held, Then nothing fires.

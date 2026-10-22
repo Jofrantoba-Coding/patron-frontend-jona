@@ -43,7 +43,7 @@ describe('resolveToolbar', () => {
 
   it('export is never enabled, not even with its flag and a row, and is marked unimplemented', () => {
     const [item] = resolveToolbar(['export'], only('export'), '7');
-    expect(item).toEqual({ action: 'export', enabled: false, implemented: false });
+    expect(item).toEqual({ action: 'export', enabled: false, implemented: false, shortcut: 'Alt+X' });
     expect(resolveToolbar(['add'], only('add'))[0].implemented).toBe(true);
   });
 });

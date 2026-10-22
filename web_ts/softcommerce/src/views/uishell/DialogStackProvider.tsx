@@ -8,6 +8,8 @@ interface DialogStackApi {
   register(id: string): () => void;
   /** True unless an Esc is being dispatched whose topmost dialog is another one. */
   mayClose(id: string): boolean;
+  /** True while any dialog is open. */
+  hasOpen(): boolean;
 }
 
 const DialogStackContext = createContext<DialogStackApi | null>(null);
@@ -43,6 +45,7 @@ export function DialogStackProvider({ children }: { children: ReactNode }) {
         };
       },
       mayClose: (id) => escTop.current === undefined || escTop.current === id,
+      hasOpen: () => topDialog(stack.current) !== undefined,
     }),
     [],
   );
@@ -61,6 +64,12 @@ export function useGuardedClose(open: boolean, onClose: () => void): () => void 
   return useCallback(() => {
     if (api.mayClose(id)) latest.current();
   }, [api, id]);
+}
+
+/** Reads, at call time, whether any dialog is open; always false outside a provider. */
+export function useDialogOpen(): () => boolean {
+  const api = useContext(DialogStackContext);
+  return useCallback(() => api?.hasOpen() ?? false, [api]);
 }
 
 export type GuardedOptionPaneProps = Omit<InterJOptionPane, 'onCancel'> & { onClose: () => void };

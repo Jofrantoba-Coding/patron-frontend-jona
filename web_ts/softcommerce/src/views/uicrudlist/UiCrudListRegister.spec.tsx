@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { CatalogConfig } from '../../catalogs/CatalogConfig';
@@ -37,7 +37,7 @@ function mount(permissions: Partial<Permissions>) {
       <UiCrudList config={config} service={service} permissions={{ ...DENY_ALL, ...permissions }} />
     </DialogStackProvider>,
   );
-  return { user: userEvent.setup() };
+  return { user: userEvent.setup(), service };
 }
 
 describe('UiCrudList to register wiring', () => {
@@ -60,5 +60,16 @@ describe('UiCrudList to register wiring', () => {
     await user.click(screen.getByRole('button', { name: 'Confirmar' }));
     await waitFor(() => expect(screen.getByText('BETA').closest('tr')?.getAttribute('aria-selected')).toBe('true'));
     expect(screen.queryByText('Nuevo: Otra')).toBeNull();
+  });
+
+  it('Alt+A opens the register from the filter; while it is open, list shortcuts do not fire', async () => {
+    const { user, service } = mount({ add: true, refresh: true });
+    await screen.findByText('ALFA');
+    await user.click(screen.getByLabelText('Filtro'));
+    await user.keyboard('{Alt>}a{/Alt}');
+    expect(await screen.findByText('Nuevo: Otra')).toBeTruthy();
+
+    fireEvent.keyDown(screen.getByLabelText('Filtro'), { altKey: true, code: 'KeyR' });
+    expect(service.list).toHaveBeenCalledTimes(1);
   });
 });

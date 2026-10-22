@@ -6,6 +6,7 @@ import { applyListView, isTruncated, pageOfRow, withListViewChange, type ListVie
 import type { Permissions } from '../../domain/permissions';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import { toFailure } from '../../shared/toFailure';
+import { useDialogOpen } from '../uishell/DialogStackProvider';
 import type { InterUiCrudList } from './InterUiCrudList';
 
 /** W1 catalogs are small: one fetch brings them all and the client filters, sorts and pages. */
@@ -33,6 +34,8 @@ export function useUiCrudListImpl<T>(
   const [view, setView] = useState<ListViewState>({ filterText: '', page: 1 });
   const [selectedId, setSelectedId] = useState<string | undefined>();
   const latest = useRef(0);
+  const shortcutScope = useRef<HTMLElement>(null);
+  const shortcutsBlocked = useDialogOpen();
   const filterKeys = useMemo(() => config.columns.map((column) => column.key), [config.columns]);
 
   const refresh = useCallback(
@@ -91,6 +94,8 @@ export function useUiCrudListImpl<T>(
     },
     onAction: (action) => (action === 'refresh' ? void refresh() : onAction?.(action)),
     onRetry: () => void refresh(),
+    shortcutScope,
+    shortcutsBlocked,
     refresh,
   };
 }

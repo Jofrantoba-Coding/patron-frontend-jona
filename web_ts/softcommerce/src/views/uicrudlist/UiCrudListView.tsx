@@ -9,8 +9,15 @@ type UiCrudListViewProps<T> = InterUiCrudList<T> & typeof UICRUDLIST_DEFAULTS;
 export function UiCrudListView<T>(props: UiCrudListViewProps<T>) {
   const { title, filterLabel, loadingLabel, emptyLabel, retryLabel, truncatedLabel, status, matchCount } = props;
   return (
-    <section style={{ display: 'grid', gap: 12 }} aria-label={title}>
-      <CrudToolbar actions={props.actions} permissions={props.permissions} selectedId={props.selectedId} onAction={props.onAction} />
+    <section ref={props.shortcutScope} style={{ display: 'grid', gap: 12 }} aria-label={title}>
+      <CrudToolbar
+        actions={props.actions}
+        permissions={props.permissions}
+        selectedId={props.selectedId}
+        onAction={props.onAction}
+        shortcutScope={props.shortcutScope}
+        shortcutsBlocked={props.shortcutsBlocked}
+      />
       <JTextBox aria-label={filterLabel} value={props.filterText} onChange={props.onFilterChange} />
       {status === 'loading' && <p>{loadingLabel}</p>}
       {status === 'failed' && (
