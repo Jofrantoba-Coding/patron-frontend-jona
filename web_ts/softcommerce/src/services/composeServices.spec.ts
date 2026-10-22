@@ -65,6 +65,24 @@ describe('composeServices', () => {
     expect(mockModuleLoaded).not.toHaveBeenCalled();
   });
 
+  it('composes the shell service in both modes over the same single mock chunk', async () => {
+    vi.useFakeTimers();
+    const mockShell = composeServices({ VITE_API_MODE: 'mock' }, { getSession: () => ({ tenantId: 'demo' }) }).shell;
+    const pending = mockShell.permissions('demo_stub');
+    await vi.dynamicImportSettled();
+    await vi.runAllTimersAsync();
+    expect((await pending).eliminate).toBe(false);
+    vi.useRealTimers();
+
+    const fetchFn = vi.fn<typeof fetch>(async () => new Response(JSON.stringify({ items: [] })));
+    const httpShell = composeServices(
+      { VITE_API_MODE: 'http', VITE_API_URL: 'https://api.test' },
+      { fetchFn, getSession: () => ({ tenantId: 'demo' }) },
+    ).shell;
+    await httpShell.menu();
+    expect(fetchFn.mock.calls[0][0]).toBe('https://api.test/menu');
+  });
+
   it('S-AUTH-3 and S-AUTH-4: invalid configuration throws at compose time', () => {
     expect(() => composeServices({ VITE_API_MODE: 'staging' })).toThrow(/VITE_API_MODE/);
     expect(() => composeServices({ VITE_API_MODE: 'http', VITE_API_URL: 'not-a-url' })).toThrow(/VITE_API_URL/);

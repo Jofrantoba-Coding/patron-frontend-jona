@@ -1,8 +1,17 @@
-import { getParams, listEmpresas, listPuntosVenta, login, sessionOptions } from '../../../mock-server/core/auth.js';
+import {
+  getMenu,
+  getParams,
+  getPermissions,
+  listEmpresas,
+  listPuntosVenta,
+  login,
+  sessionOptions,
+} from '../../../mock-server/core/auth.js';
 import { MockError } from '../../../mock-server/core/errors.js';
 import { createStore } from '../../../mock-server/core/store.js';
 import { ApiError } from '../ApiError';
 import type { InterAuthService } from '../InterAuthService';
+import type { InterShellService } from '../InterShellService';
 import type { SessionContext } from '../httpClient';
 import type { ApiScenario } from '../serviceComposer';
 import { errorServidorFixture } from './fixtures/errorServidor.fixture';
@@ -26,6 +35,7 @@ export interface AppServicesMockOptions {
 
 export interface AppServicesMock {
   auth: InterAuthService;
+  shell: InterShellService;
 }
 
 type Store = ReturnType<typeof createStore>;
@@ -86,5 +96,18 @@ export function createAppServicesMock(
     params: () => call((s) => getParams(s, tenantGate(s))),
   };
 
-  return { auth };
+  const shell: InterShellService = {
+    menu: () =>
+      call((s) => {
+        tenantGate(s);
+        return getMenu(s).items;
+      }),
+    permissions: (formId) =>
+      call((s) => {
+        tenantGate(s);
+        return getPermissions(s, formId);
+      }),
+  };
+
+  return { auth, shell };
 }

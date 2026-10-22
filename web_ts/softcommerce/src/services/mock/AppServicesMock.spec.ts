@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../ApiError';
 import { describeAuthServiceContract } from '../authServiceContract';
+import { describeShellServiceContract } from '../shellServiceContract';
 import { createAppServicesMock } from './AppServicesMock';
 
 const mockAuth = (scenario: 'exitoso' | 'vacio' | 'errorServidor', tenantId?: string) =>
@@ -10,6 +11,32 @@ const mockAuth = (scenario: 'exitoso' | 'vacio' | 'errorServidor', tenantId?: st
 describeAuthServiceContract('AppServicesMock exitoso', (getSession) =>
   createAppServicesMock('exitoso', { getSession, delayMs: 0 }).auth,
 );
+
+describeShellServiceContract('AppServicesMock exitoso', (getSession) =>
+  createAppServicesMock('exitoso', { getSession, delayMs: 0 }).shell,
+);
+
+describe('AppServicesMock shell scenarios', () => {
+  const mockShell = (scenario: 'vacio' | 'errorServidor') =>
+    createAppServicesMock(scenario, { getSession: () => ({ tenantId: 'demo' }), delayMs: 0 }).shell;
+
+  it('vacio keeps the menu and permissions (only catalogs and lookups are emptied)', async () => {
+    const shell = mockShell('vacio');
+
+    expect((await shell.menu()).length).toBe(7);
+    expect((await shell.permissions('mi_localidad')).add).toBe(true);
+  });
+
+  it('errorServidor rejects menu and permissions with ApiError 500 and a traceId', async () => {
+    const shell = mockShell('errorServidor');
+
+    for (const error of [await shell.menu().catch((e: unknown) => e), await shell.permissions('x').catch((e: unknown) => e)]) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect(error).toMatchObject({ status: 500, code: 'INTERNAL_ERROR' });
+      expect((error as ApiError).traceId).not.toBe('');
+    }
+  });
+});
 
 describe('AppServicesMock scenario vacio', () => {
   it('returns empty catalogs but still serves tenants and login', async () => {
