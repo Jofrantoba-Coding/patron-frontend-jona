@@ -93,7 +93,7 @@ export function createRecord(store, tenantId, catalog, body, ctx) {
   // Session values come from the context, never from the body (R-MOCK-13).
   const stamps = stampsOf(store, tenantId, entry, ctx);
   const record = pickWritable(entry, body);
-  validateRecord(store, tenantId, entry, record, { ctx });
+  validateRecord(store, tenantId, entry, record, { ctx, mode: 'INSERT' });
   const rows = rowsOf(store, tenantId, entry);
   // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.
   const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[entry.idKey]) || 0), 0) + 1;
@@ -108,7 +108,7 @@ export function updateRecord(store, tenantId, catalog, id, body, ctx) {
   const stamps = stampsOf(store, tenantId, entry, ctx);
   const row = findRow(store, tenantId, entry, id, ctx);
   const merged = { ...row, ...pickWritable(entry, body) };
-  validateRecord(store, tenantId, entry, merged, { selfId: id, ctx });
+  validateRecord(store, tenantId, entry, merged, { selfId: id, ctx, mode: 'UPDATE' });
   Object.assign(row, merged, stamps);
   return enrich(store, tenantId, entry, row, ctx);
 }

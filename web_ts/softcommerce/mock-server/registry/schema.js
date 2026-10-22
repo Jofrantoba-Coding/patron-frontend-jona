@@ -1,3 +1,4 @@
+import { NORMALIZE_STEP } from '../core/normalize.js';
 import { applyPreset } from './presets.js';
 import { BUILTIN_SOURCES } from './sources.js';
 
@@ -75,6 +76,7 @@ function resolveEntry(raw, slugs, sources) {
     }
     if (f.kind === 'options' && !(Array.isArray(f.options) && f.options.length > 0)) fail(at, 'options needs options');
     if (f.kind === 'number' && !Number.isInteger(f.scale)) fail(at, 'number needs a scale');
+    for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
     for (const parent of f.dependsOn ?? []) known(`field "${f.name}" dependsOn`, parent.field);
     for (const key of CONDITIONS) if (f[key]) known(`field "${f.name}" ${key}`, f[key].field);
     if (f.afterField) known(`field "${f.name}" afterField`, f.afterField);

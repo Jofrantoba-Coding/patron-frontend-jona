@@ -54,6 +54,8 @@ const REJECTED: [string, Record<string, any>[], RegExp][] = [
   ['unknown preset', [withFields({ name: 'x', kind: 'boolean', label: 'X', preset: 'nope' })], /unknown preset "nope"/],
   ['unknown lookup filter rule', [base({ lookupFilters: { k: { rule: 'nope' } } })], /unknown rule "nope"/],
   ['bad seed', [base({ seed: 7 })], /seed/],
+  ['unknown normalize step', [withFields({ name: 'x', kind: 'text', label: 'X', normalize: ['upper', 'title'] })], /field "x".*unknown normalize step "title"/],
+  ['padLeft needs a width', [withFields({ name: 'x', kind: 'text', label: 'X', normalize: ['padLeft'] })], /unknown normalize step "padLeft"/],
 ];
 
 describe('validateRegistry (R-REG-4 fail fast at load)', () => {
