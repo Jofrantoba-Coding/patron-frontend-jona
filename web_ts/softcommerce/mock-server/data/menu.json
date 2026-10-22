@@ -20,5 +20,6 @@
   { "id_menu": 19, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo de Movimiento de Inventario", "nombre": "miClasifInventario" },
   { "id_menu": 20, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Condicion de Pago", "nombre": "miCondicionPago" },
   { "id_menu": 21, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo Trabajador", "nombre": "miTipoTrabajador" },
-  { "id_menu": 22, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Marca Vehiculo", "nombre": "miMarcaVehiculo" }
+  { "id_menu": 22, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Marca Vehiculo", "nombre": "miMarcaVehiculo" },
+  { "id_menu": 23, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Turno", "nombre": "miTurno" }
 ]

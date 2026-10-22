@@ -24,11 +24,14 @@ export const ENTITIES: Record<string, string> = {
   'condiciones-pago': 'una Condición de Pago',
   'tipos-trabajador': 'un Tipo Trabajador',
   'marcas-vehiculo': 'una Marca Vehiculo',
+  turnos: 'un Turno',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
-const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo']);
+const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción' };
+/** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto). */
+export const NO_DESCRIPCION = new Set(['turnos']);
 
 /** The desktop sentence for a blank descripcion in `modo` (agregar, modificar, ...). */
 export const descripcionText = (slug: string, modo: string) => {
@@ -71,9 +74,14 @@ function genericCases(entry: any): CatalogCase[] {
     { name: at('S-REF-1 the list hides inactive rows'), slug, steps: [{ op: 'list' }], expect: { ok: true, total: active.length } },
     { name: at('S-MOCK-15 get resolves an inactive row'), slug, steps: [{ op: 'get', id: inactive[idKey] }], expect: { ok: true, match: { activo: false } } },
     { name: at('R-MOCK-7 a deleted row leaves the list'), slug, steps: [{ op: 'remove', id: active[0][idKey] }, { op: 'list' }], expect: { ok: true, total: active.length - 1 } },
-    { ...create({ ...valid, id_usuario: '9' }, { ok: true, match: { id_usuario: 7 } }), name: at('S-MOCK-26 stamps the session user, not the body') },
-    { ...create({ ...valid }, { status: 400, code: 'MISSING_SESSION_CONTEXT' }, {}), name: at('S-MOCK-36 a write without the user header is a 400') },
   ];
+  // The Turno desktop never passes the user to its DAO, so it stamps nothing and needs no session header.
+  if (entry.stamp?.includes('id_usuario')) {
+    cases.push(
+      { ...create({ ...valid, id_usuario: '9' }, { ok: true, match: { id_usuario: 7 } }), name: at('S-MOCK-26 stamps the session user, not the body') },
+      { ...create({ ...valid }, { status: 400, code: 'MISSING_SESSION_CONTEXT' }, {}), name: at('S-MOCK-36 a write without the user header is a 400') },
+    );
+  }
   for (const { name, required, maxLength, uppercase } of texts) {
     if (required) {
       cases.push({ ...create({ ...valid, [name]: '  ' }, invalid([name])), name: at(`S-REF-34 a blank ${name} is a 422 on it`) });
@@ -101,7 +109,7 @@ function slugCases(slug: string, deviation = false): CatalogCase[] {
 
 export const REFERENCE_CASES: CatalogCase[] = [
   ...referenceEntries().flatMap(genericCases),
-  ...Object.keys(ENTITIES).flatMap((slug) => slugCases(slug, DEVIATIONS.has(slug))),
+  ...Object.keys(ENTITIES).filter((slug) => !NO_DESCRIPCION.has(slug)).flatMap((slug) => slugCases(slug, DEVIATIONS.has(slug))),
   // R-REF-4 laboratorios: pais is optional, uppercased and capped at 100.
   { name: 'laboratorios pais is optional', slug: 'laboratorios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'abbott' } }], expect: { ok: true, match: { descripcion: 'ABBOTT' } } },
   { name: 'laboratorios pais is uppercased', slug: 'laboratorios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'abbott', pais: ' suiza ' } }], expect: { ok: true, match: { pais: 'SUIZA' } } },
@@ -157,4 +165,18 @@ export const REFERENCE_CASES: CatalogCase[] = [
   // R-REF-5 marcas-vehiculo: style M2 and the estado preset.
   { name: 'S-REF-7 marcas-vehiculo estado is true when the body omits it', slug: 'marcas-vehiculo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'toyota' } }], expect: { ok: true, match: { descripcion: 'TOYOTA', estado: true } } },
   { name: 'S-REF-7 marcas-vehiculo an estado-false row stays listed', slug: 'marcas-vehiculo', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
+  // R-REF-5 turnos (S-REF-12, S-MOCK-19): two padded integers with ranges, checked in the R-REF-7 order, AM default.
+  { name: 'S-MOCK-19 turnos hora 13 is a 422 on hora with the desktop text', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '13', minuto: '30' } }], expect: invalid(['hora'], ['Para agregar, debes Insertar Hora Correcto.']) },
+  { name: 'S-REF-12 turnos minuto 60 is a 422 on minuto with the desktop text', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '12', minuto: '60' } }], expect: invalid(['minuto'], ['Para agregar, debes Insertar Minutos Correcto.']) },
+  { name: 'S-REF-12 turnos hora 0 minuto 0 is accepted and stored padded', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '0', minuto: '0' } }], expect: { ok: true, match: { hora: '00', minuto: '00', tipo: 'AM', estado: true } } },
+  { name: 'S-REF-12 turnos hora 12 minuto 59 are the accepted upper bounds', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '12', minuto: '59', tipo: 'PM' } }], expect: { ok: true, match: { hora: '12', minuto: '59', tipo: 'PM', tipo_label: 'PM' } } },
+  { name: 'S-CRUD-35 turnos pads a single digit on the server too', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '5', minuto: '7' } }], expect: { ok: true, match: { hora: '05', minuto: '07' } } },
+  { name: 'R-REF-7 turnos a blank hora says su Hora (M2)', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: ' ', minuto: '30' } }], expect: invalid(['hora'], ['Para agregar, debes especificar su Hora.']) },
+  { name: 'R-REF-7 turnos a blank minuto says su Minutos', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '5', minuto: '' } }], expect: invalid(['minuto'], ['Para agregar, debes especificar su Minutos.']) },
+  { name: 'R-REF-7 turnos checks both blanks before the ranges: blank minuto beats hora 13', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '13', minuto: '' } }], expect: invalid(['minuto'], ['Para agregar, debes especificar su Minutos.']) },
+  { name: 'R-REF-7 turnos checks the hora range before the minuto range', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '13', minuto: '60' } }], expect: invalid(['hora']) },
+  { name: 'R-REF-7 turnos UPDATE words the range text with modificar', slug: 'turnos', ctx: WRITER, steps: [{ op: 'update', id: '1', body: { hora: '13', minuto: '30' } }], expect: invalid(['hora'], ['Para modificar, debes Insertar Hora Correcto.']) },
+  { name: 'R-MOCK-10 turnos tipo outside AM|PM is a 422 on tipo', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '5', minuto: '7', tipo: 'XX' } }], expect: invalid(['tipo']) },
+  { name: 'R-MOCK-10 turnos three digits are a 422 on hora', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '123', minuto: '30' } }], expect: invalid(['hora']) },
+  { name: 'S-REF-7 turnos an estado-false row stays listed', slug: 'turnos', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
 ];

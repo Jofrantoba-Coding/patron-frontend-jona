@@ -40,13 +40,15 @@ const DESKTOP: Record<string, [number, boolean]> = {
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
 const INTEGERS: Record<string, [number, boolean, { min?: number; max?: number } | undefined]> = {
   'condiciones-pago.dias_pago': [2, false, undefined],
+  'turnos.hora': [2, true, { min: 0, max: 12 }],
+  'turnos.minuto': [2, true, { min: 0, max: 59 }],
 };
 
 /** Code width per slug: string ids pad to three digits (PanelTF focusLost "000"; clasif-inventarios is inferred), integer beans print unpadded. */
 const CODE_WIDTH: Record<string, number> = {
   'motivos-traslado': 3, 'clasif-clientes': 0, 'clasif-inventarios': 3, tamanos: 3, 'tipos-anexo': 3, 'tipos-descuento': 0,
-  // String ids with no pad evidence in the desktop are inferred as 3 (flagged for W6).
-  'condiciones-pago': 3, 'tipos-trabajador': 3, 'marcas-vehiculo': 3,
+  // String ids with no pad evidence in the desktop are inferred as 3 (flagged for W6); the Turno id is an int.
+  'condiciones-pago': 3, 'tipos-trabajador': 3, 'marcas-vehiculo': 3, turnos: 0,
 };
 
 describe('W2 reference catalogs are registered', () => {

@@ -14,6 +14,7 @@ import { tamanos } from './catalogs/tamanos.js';
 import { tiposAnexo } from './catalogs/tipos-anexo.js';
 import { tiposDescuento } from './catalogs/tipos-descuento.js';
 import { tiposTrabajador } from './catalogs/tipos-trabajador.js';
+import { turnos } from './catalogs/turnos.js';
 import { validateRegistry } from './schema.js';
 
 /**
@@ -22,5 +23,5 @@ import { validateRegistry } from './schema.js';
  */
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
-  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo,
+  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos,
 ]);
