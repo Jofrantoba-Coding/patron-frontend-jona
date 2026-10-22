@@ -2,6 +2,7 @@ import { resolveWhere, scopeFilter, sessionEmpresa } from './context.js';
 import { duplicateError, validationError } from './errors.js';
 import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
+import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
 
 /** Logical-delete flag shared by every registry catalog (R-MOCK-7). */
 export const ACTIVE_KEY = 'activo';
@@ -85,11 +86,13 @@ function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
   if (f.kind === 'options' && !f.options.some((/** @type {any} */ o) => o.value === text)) {
     return bad('INVALID');
   }
-  if (f.kind === 'number' && !(f.scale === 0 ? /^\d+$/ : /^-?\d+(\.\d+)?$/).test(text)) {
+  if (f.kind === 'number' && !(f.scale === 0 ? /^\d+$/ : DECIMAL_TEXT).test(text)) {
     return bad('INVALID');
   }
   // At scale 0 `max` counts digits (R-CRUD-11).
   if (f.kind === 'number' && f.scale === 0 && f.max !== undefined && text.length > f.max) return bad('MAX_LENGTH');
+  // `min` and `exclusiveMin` speak with the wording of the field (the desktop says "especificar" for a zero amount).
+  if (f.kind === 'number' && outOfBounds(f, text)) return { field: f.name, code: 'RANGE', message: fieldMessage(entry, f, 'RANGE', mode) };
   if (f.kind === 'number' && !skipRange) return rangeDetail(entry, f, record, mode);
   if (f.kind === 'boolean' && typeof value !== 'boolean') return bad('INVALID');
   return null;

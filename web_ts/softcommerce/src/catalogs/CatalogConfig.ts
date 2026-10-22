@@ -41,14 +41,23 @@ export type FieldConfig =
       readOnlyOn?: readonly CrudMode[];
     }
   | {
-      /** An integer (scale 0, G4): digits only, `maxLength` digits; `range` bounds the value on submit (R-MOCK-10). */
+      /**
+       * An integer (scale 0, G4): digits only, `maxLength` digits; `range` bounds the value on submit (R-MOCK-10). A decimal
+       * (scale > 0) takes the pattern `-?[0-9]*(\.[0-9]*)?` with no precision limit; `min` / `exclusiveMin` reject on submit.
+       */
       kind: 'number';
       name: string;
       label: string;
       required?: boolean;
-      scale: 0;
+      scale: number;
       maxLength?: number;
       range?: { min?: number; max?: number };
+      min?: number;
+      exclusiveMin?: number;
+      /** The text a decimal starts with on INSERT (or per mode) and the one `blankToDefault` restores on blur (S-CRUD-26). */
+      default?: string | Partial<Record<CrudMode, string>>;
+      blankToDefault?: boolean;
+      readOnlyOn?: readonly CrudMode[];
       /** Registry `normalize` steps (`digits`, `padLeft:n`); `padLeft` is applied on blur and on submit. */
       normalize?: string[];
     }
@@ -80,7 +89,7 @@ export interface CatalogConfig<T> {
   /** Catalog name in `/v1/{catalog}`. */
   catalog: string;
   idKey: keyof T & string;
-  columns: { key: keyof T & string; header: string; sortable?: boolean; /** `bool` renders Sí / No (R-CRUD-1). */ format?: 'bool' }[];
+  columns: { key: keyof T & string; header: string; sortable?: boolean; /** `bool` renders Sí / No, `dec` the stored number as text (R-CRUD-1). */ format?: 'bool' | 'dec' }[];
   fields: FieldConfig[];
   /** Toolbar order; defaults to every action but `export`. */
   actions?: CrudAction[];

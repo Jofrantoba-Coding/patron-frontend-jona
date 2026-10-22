@@ -7,6 +7,8 @@ export interface InterNumberField {
   value: string;
   /** Most digits accepted (scale 0). An edit that would pass it is ignored whole. */
   max?: number;
+  /** 0 (the default) is an integer; above 0 the field takes the decimal pattern `-?[0-9]*(\.[0-9]*)?` with no precision limit. */
+  scale?: number;
   /** Shown but not editable (the register is read-only or the field is `readOnlyOn` this mode). */
   readOnly?: boolean;
   hasError?: boolean;
@@ -18,6 +20,7 @@ export interface InterNumberField {
 
 /** Presentation defaults only; the value is state and never defaulted. */
 export const NUMBERFIELD_DEFAULTS = {
+  scale: 0,
   readOnly: false,
   hasError: false,
 };

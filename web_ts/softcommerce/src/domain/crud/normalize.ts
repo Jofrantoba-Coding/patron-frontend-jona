@@ -7,9 +7,11 @@ const hasPad = (steps: string[] | undefined) => (steps ?? []).some((step) => ste
 
 /**
  * On blur (S-CRUD-35): a text or integer field with a `padLeft` step shows its full normalization (trim, case,
- * digits, pad); an empty value stays empty. Any other field is returned exactly as typed.
+ * digits, pad); an empty value stays empty. A decimal with `blankToDefault` shows its default when left blank
+ * (S-CRUD-26). Any other field is returned exactly as typed.
  */
 export function blurNormalize(field: FieldConfig, value: string): string {
+  if (field.kind === 'number' && field.blankToDefault && value.trim() === '' && typeof field.default === 'string') return field.default;
   if ((field.kind !== 'text' && field.kind !== 'number') || !hasPad(field.normalize)) return value;
   return normalizeValue(value, field.normalize) as string;
 }

@@ -1,4 +1,5 @@
 import { NORMALIZE_STEP } from '../core/normalize.js';
+import { DECIMAL_TEXT } from '../core/numbers.js';
 import { applyPreset } from './presets.js';
 import { BUILTIN_SOURCES } from './sources.js';
 
@@ -21,7 +22,7 @@ const ENTRY_RULES = ['docIdentidad'];
 const FILTER_RULES = ['ubigeoChildren', 'ubigeoHasActive'];
 const CONDITIONS = ['visibleWhen', 'enabledWhen', 'requiredWhen'];
 /** Column renderings beyond plain text; each lands with the first catalog that shows it. */
-const COLUMN_TYPES = ['bool'];
+const COLUMN_TYPES = ['bool', 'dec'];
 const DISPLAYS = ['select', 'radio'];
 
 export class RegistryError extends Error {
@@ -65,6 +66,9 @@ function assertOptions(at, f) {
 function assertNumber(at, f) {
   if (!Number.isInteger(f.scale)) fail(at, 'number needs a scale');
   if (f.max !== undefined && !(Number.isInteger(f.max) && f.max > 0)) fail(at, 'number max must be a positive integer');
+  for (const bound of ['min', 'exclusiveMin']) if (f[bound] !== undefined && typeof f[bound] !== 'number') fail(at, `${bound} must be a number`);
+  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  for (const value of defaults) if (!DECIMAL_TEXT.test(String(value))) fail(at, `default "${value}" is not a number`);
   if (f.range === undefined) return;
   const { min, max } = f.range;
   for (const bound of [min, max]) if (bound !== undefined && typeof bound !== 'number') fail(at, 'range bounds must be numbers');
@@ -119,6 +123,9 @@ function resolveEntry(raw, slugs, sources) {
     if (f.kind === 'options') assertOptions(at, f);
     if (f.kind === 'number') assertNumber(at, f);
     else if (f.range !== undefined) fail(at, 'range needs a number field');
+    if (f.min !== undefined && f.kind !== 'number' && f.kind !== 'date') fail(at, 'min needs a number or date field');
+    if (f.exclusiveMin !== undefined && f.kind !== 'number') fail(at, 'exclusiveMin needs a number field');
+    if (f.blankToDefault && f.default === undefined) fail(at, 'blankToDefault needs a default');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
     for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
