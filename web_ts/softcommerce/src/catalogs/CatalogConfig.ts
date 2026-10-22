@@ -60,6 +60,8 @@ export type FieldConfig =
       required?: boolean;
       lookup?: 'empresas';
       source?: { catalog: string; where?: Record<string, string> };
+      /** Parent fields (G2): the options are asked with their values as `filterKey` and the select clears when one changes. */
+      dependsOn?: { field: string; filterKey: string }[];
     }
   | {
       kind: 'cascade';

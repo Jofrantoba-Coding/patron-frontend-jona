@@ -34,6 +34,8 @@ export interface InterUiCrudRegister {
   onFieldBlur: (name: string) => void;
   /** Options per select field name, loaded with the form. */
   selectOptions: Record<string, LookupItem[]>;
+  /** Options of a catalog for the given filters, for the selects that depend on other fields (G2). */
+  loadOptions: (catalog: string, filters: Record<string, string>) => Promise<LookupItem[]>;
   /** Children of a cascade parent id; '' asks for the top level. */
   loadChildren: (parent: string) => Promise<LookupItem[]>;
   /** Ref callback per field name, so a blocked submit can focus the first invalid one. */
