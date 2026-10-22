@@ -34,11 +34,10 @@ describe('App routing', () => {
     renderApp('/');
 
     expect(await screen.findByLabelText('Usuario')).toBeTruthy();
-    expect(screen.queryByText(/Sesión de/)).toBeNull();
+    expect(screen.queryByRole('banner')).toBeNull();
   });
 
-  it('runs login, context selection and lands on the protected placeholder', async () => {
-    const { user, store } = renderApp('/login');
+  async function reachShell(user: User) {
     await login(user, 'admin', 'admin123');
     await user.selectOptions(await screen.findByLabelText('Empresa'), '1');
     await screen.findByRole('option', { name: 'TIENDA CENTRAL' });
@@ -46,9 +45,27 @@ describe('App routing', () => {
     await user.type(screen.getByPlaceholderText('Fecha inicio'), '20260101');
     await user.type(screen.getByPlaceholderText('Fecha fin'), '20261231');
     await user.click(screen.getByRole('button', { name: 'Confirmar' }));
+  }
 
-    expect(await screen.findByText('Sesión de Administrador')).toBeTruthy();
+  it('runs login, context selection and lands on the shell with its header and the menu', async () => {
+    const { user, store } = renderApp('/login');
+    await reachShell(user);
+
+    const header = await screen.findByRole('banner');
+    expect(header.textContent).toContain('Administrador');
+    expect(header.textContent).toContain('01/01/2026 – 31/12/2026');
+    expect(await screen.findByRole('button', { name: 'Maestros' })).toBeTruthy();
     expect(store.getSnapshot().session?.tenantId).toBe('demo');
+  });
+
+  it('S-AUTH-18 logout clears the session and returns to login step 1', async () => {
+    const { user, store } = renderApp('/login');
+    await reachShell(user);
+
+    await user.click(await screen.findByRole('button', { name: 'Cerrar sesión' }));
+
+    expect(await screen.findByLabelText('Usuario')).toBeTruthy();
+    expect(store.getSnapshot().session).toBeNull();
   });
 
   it('keeps a disabled account on step 1 with its own message', async () => {
