@@ -70,14 +70,14 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
 
 /**
  * Empresa-scope audit (5.6b), read from each `DAO<X>.java`: `empresa` when the list and the writes take the session empresa
- * (colores, marcas, familias; tamanos and modelos-vehiculo by the spec although their list passes ''), `stamp` when only the
- * writes do (marcas-vehiculo), `tenant` when the DAO never sees an empresa.
+ * (colores, marcas, familias), `stamp` when only the writes do (tamanos, marcas-vehiculo, modelos-vehiculo: their desktop list
+ * passes '' or null), `tenant` when the DAO never sees an empresa.
  */
 const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   aduanas: 'tenant', colores: 'empresa', 'estados-documento': 'tenant', laboratorios: 'tenant', marcas: 'empresa', nacionalidades: 'tenant',
-  'motivos-traslado': 'tenant', 'clasif-clientes': 'tenant', 'clasif-inventarios': 'tenant', tamanos: 'empresa', 'tipos-anexo': 'tenant',
+  'motivos-traslado': 'tenant', 'clasif-clientes': 'tenant', 'clasif-inventarios': 'tenant', tamanos: 'stamp', 'tipos-anexo': 'tenant',
   'tipos-descuento': 'tenant', 'condiciones-pago': 'tenant', 'tipos-trabajador': 'tenant', 'marcas-vehiculo': 'stamp', turnos: 'tenant',
-  'motivos-descuento': 'tenant', 'motivos-nc': 'tenant', 'tipos-trabajador-perfil': 'tenant', familias: 'empresa', 'modelos-vehiculo': 'empresa',
+  'motivos-descuento': 'tenant', 'motivos-nc': 'tenant', 'tipos-trabajador-perfil': 'tenant', familias: 'empresa', 'modelos-vehiculo': 'stamp',
 };
 
 describe('W2 reference catalogs are registered', () => {
