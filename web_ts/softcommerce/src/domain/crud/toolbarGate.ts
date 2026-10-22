@@ -1,5 +1,6 @@
 import type { CrudAction } from '../../catalogs/CatalogConfig';
 import type { PermissionFlag, Permissions } from '../permissions';
+import { shortcutOf } from './toolbarShortcuts';
 
 /** Toolbar order when a catalog configures none; `export` is opt-in. */
 export const DEFAULT_ACTIONS: readonly CrudAction[] = ['add', 'modify', 'eliminate', 'clone', 'details', 'search', 'refresh'];
@@ -17,6 +18,8 @@ export interface ToolbarItem {
   action: CrudAction;
   enabled: boolean;
   implemented: boolean;
+  /** `aria-keyshortcuts` form, e.g. "Alt+A"; absent when the action has none. */
+  shortcut?: string;
 }
 
 function isEnabled(action: CrudAction, permissions: Permissions, selectedId: string | undefined): boolean {
@@ -34,6 +37,7 @@ export function resolveToolbar(
     action,
     enabled: isEnabled(action, permissions, selectedId),
     implemented: !UNIMPLEMENTED.has(action),
+    shortcut: shortcutOf(action),
   }));
 }
 

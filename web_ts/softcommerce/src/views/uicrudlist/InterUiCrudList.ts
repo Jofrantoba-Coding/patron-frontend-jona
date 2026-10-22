@@ -1,4 +1,5 @@
 // Layer: Interface. Public contract of the generic crud list: shapes and defaults only, no logic.
+import type { RefObject } from 'react';
 import type { CrudAction } from '../../catalogs/CatalogConfig';
 import type { SortState } from '../../domain/crud/filterSort';
 import type { Permissions } from '../../domain/permissions';
@@ -41,6 +42,10 @@ export interface InterUiCrudList<T> {
   /** Gate-free: the toolbar already gates. `refresh` is handled here, the rest goes to the owner. */
   onAction: (action: CrudAction) => void;
   onRetry: () => void;
+  /** The list's container: its toolbar shortcuts only listen inside it. */
+  shortcutScope: RefObject<HTMLElement>;
+  /** True while a dialog is open, so the list's shortcuts stay quiet. */
+  shortcutsBlocked: () => boolean;
   /** Reloads the list; `select` re-selects that id and jumps to its page, else the selection stays while the row exists. */
   refresh: (options?: { select?: string }) => Promise<void>;
 }
