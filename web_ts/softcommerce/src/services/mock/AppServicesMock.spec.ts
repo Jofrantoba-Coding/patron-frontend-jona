@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../ApiError';
 import { describeAuthServiceContract } from '../authServiceContract';
+import { describeCatalogServiceContract, type LocalidadRow } from '../catalogServiceContract';
 import { describeShellServiceContract } from '../shellServiceContract';
 import { createAppServicesMock } from './AppServicesMock';
 
@@ -15,6 +16,33 @@ describeAuthServiceContract('AppServicesMock exitoso', (getSession) =>
 describeShellServiceContract('AppServicesMock exitoso', (getSession) =>
   createAppServicesMock('exitoso', { getSession, delayMs: 0 }).shell,
 );
+
+describeCatalogServiceContract('AppServicesMock exitoso', (getSession) =>
+  createAppServicesMock('exitoso', { getSession, delayMs: 0 }).catalog<LocalidadRow>('localidades'),
+);
+
+describe('AppServicesMock catalog scenarios', () => {
+  const mockCatalog = (scenario: 'vacio' | 'errorServidor') =>
+    createAppServicesMock(scenario, { getSession: () => ({ tenantId: 'demo' }), delayMs: 0 }).catalog('localidades');
+
+  it('vacio lists an empty page with total 0', async () => {
+    await expect(mockCatalog('vacio').list()).resolves.toEqual({
+      items: [],
+      pagination: { page: 1, pageSize: 20, total: 0 },
+    });
+  });
+
+  it('errorServidor rejects every catalog call with ApiError 500 and a traceId', async () => {
+    const catalog = mockCatalog('errorServidor');
+
+    for (const call of [catalog.list(), catalog.get('1'), catalog.create({}), catalog.update('1', {}), catalog.remove('1')]) {
+      const error = await call.catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(ApiError);
+      expect(error).toMatchObject({ status: 500, code: 'INTERNAL_ERROR' });
+      expect((error as ApiError).traceId).not.toBe('');
+    }
+  });
+});
 
 describe('AppServicesMock shell scenarios', () => {
   const mockShell = (scenario: 'vacio' | 'errorServidor') =>
