@@ -1,0 +1,10 @@
+{
+  "demo": [
+    { "id": "1", "name": "TIENDA CENTRAL", "id_empresa": "1" },
+    { "id": "2", "name": "TIENDA MIRAFLORES", "id_empresa": "1" },
+    { "id": "3", "name": "ALMACEN SUR", "id_empresa": "2" }
+  ],
+  "botica": [
+    { "id": "1", "name": "BOTICA PRINCIPAL", "id_empresa": "1" }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "demo": [
+    { "id": "1", "name": "COMERCIAL DEMO SAC" },
+    { "id": "2", "name": "DISTRIBUIDORA DEMO SRL" }
+  ],
+  "botica": [
+    { "id": "1", "name": "BOTICA SALUD EIRL" }
+  ]
+}

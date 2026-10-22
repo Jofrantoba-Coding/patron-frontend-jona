@@ -1,0 +1,6 @@
+[
+  { "id_usuario": 1, "usuario": "admin", "clave": "admin123", "nombre": "Administrador", "flaghabilitado": "A", "flagEscritorio": "S", "tenants": ["demo", "botica"] },
+  { "id_usuario": 2, "usuario": "cajero", "clave": "cajero123", "nombre": "Cajero Uno", "flaghabilitado": "A", "flagEscritorio": "S", "tenants": ["demo"] },
+  { "id_usuario": 3, "usuario": "bloqueado", "clave": "bloq123", "nombre": "Usuario Deshabilitado", "flaghabilitado": "D", "flagEscritorio": "S", "tenants": ["demo"] },
+  { "id_usuario": 4, "usuario": "soloweb", "clave": "web123", "nombre": "Sin Acceso Escritorio", "flaghabilitado": "A", "flagEscritorio": "N", "tenants": ["demo"] }
+]
