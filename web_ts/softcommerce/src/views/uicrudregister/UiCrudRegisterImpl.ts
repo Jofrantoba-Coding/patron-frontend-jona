@@ -2,10 +2,11 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogConfig, FieldConfig } from '../../catalogs/CatalogConfig';
 import { normalize } from '../../domain/crud/normalize';
+import { mapServerError } from '../../domain/crud/serverErrors';
 import { validate, type FormValues } from '../../domain/crud/validate';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import type { InterLookupService, LookupItem } from '../../services/InterLookupService';
-import { toFailure } from '../../shared/toFailure';
+import { toFailure, type Failure } from '../../shared/toFailure';
 import { useGuardedClose } from '../uishell/DialogStackProvider';
 import type { InterUiCrudRegister, RegisterConfirm, RegisterMode } from './InterUiCrudRegister';
 
@@ -58,7 +59,9 @@ export function useUiCrudRegisterImpl<T>(
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirm, setConfirm] = useState<RegisterConfirm | undefined>();
   const [submitting, setSubmitting] = useState(false);
-  const [submitFailure, setSubmitFailure] = useState<ReturnType<typeof toFailure> | undefined>();
+  const [submitFailure, setSubmitFailure] = useState<Failure | undefined>();
+  // Field to focus once the confirm pane is gone (a server error names it).
+  const [focusName, setFocusName] = useState<string | undefined>();
   const baseline = useRef<FormValues>(values);
   const fieldRefs = useRef<Record<string, HTMLElement | null>>({});
   const lookupsRef = useRef(lookups);
@@ -88,6 +91,13 @@ export function useUiCrudRegisterImpl<T>(
     };
   }, [service, mode, id, config.fields]);
 
+  useEffect(() => {
+    if (focusName && !confirm) {
+      fieldRefs.current[focusName]?.focus();
+      setFocusName(undefined);
+    }
+  }, [focusName, confirm]);
+
   const dirty = Object.keys(values).some((name) => values[name] !== baseline.current[name]);
   // A dirty editable form asks before discarding; anything else just closes.
   const guardedClose = useGuardedClose(true, () => (dirty && mode !== 'DELETE' && mode !== 'DETAIL' ? setConfirm('discard') : onClose()));
@@ -104,7 +114,10 @@ export function useUiCrudRegisterImpl<T>(
       onDone(mode === 'DELETE' ? {} : { id: resultId });
       onClose();
     } catch (error) {
-      setSubmitFailure(toFailure(error));
+      const mapped = mapServerError(error, fieldNames(config.fields));
+      setErrors(mapped.fields);
+      setFocusName(mapped.first);
+      setSubmitFailure(mapped.form);
       setSubmitting(false);
       setConfirm(undefined);
     }
@@ -135,7 +148,7 @@ export function useUiCrudRegisterImpl<T>(
     },
     onSubmit: () => {
       if (mode === 'DETAIL' || load.status !== 'ready' || submitting || confirm) return;
-      const found = mode === 'DELETE' ? [] : validate(config.fields, values);
+      const found = mode === 'DELETE' ? [] : validate(config.fields, values, config.entry && { entry: config.entry, mode });
       setErrors(Object.fromEntries(found.map((e) => [e.name, e.message])));
       if (found.length > 0) fieldRefs.current[found[0].name]?.focus();
       else setConfirm('submit');
