@@ -4,14 +4,14 @@ import { forwardRef } from 'react';
 import type { NumberFieldViewProps } from './NumberFieldImpl';
 
 export const NumberFieldView = forwardRef<HTMLInputElement, NumberFieldViewProps>(
-  ({ name, label, value, readOnly, hasError, onInputChange, onInputBlur }, ref) => (
+  ({ name, label, value, inputMode, readOnly, hasError, onInputChange, onInputBlur }, ref) => (
     <label style={{ display: 'grid', gap: 4 }}>
       <span>{label}</span>
-      {/* A text input, not type=number: the value is a digit string that keeps its leading zeros (hora 05). */}
+      {/* A text input, not type=number: the value is a digit string that keeps its leading zeros (hora 05) or its typed decimals. */}
       <JTextBox
         ref={ref}
         name={name}
-        inputMode="numeric"
+        inputMode={inputMode}
         autoComplete="off"
         value={value}
         readOnly={readOnly}

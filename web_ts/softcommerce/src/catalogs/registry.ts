@@ -23,11 +23,13 @@ function toField(entry: CatalogDef, field: any): FieldConfig {
     };
   }
   if (field.kind === 'number') {
-    // Decimals (scale > 0) arrive with the decimal field in W2-7.
-    if (field.scale !== 0) throw new Error(`${entry.slug}.${field.name}: the UI does not support decimal numbers yet`);
     return {
-      kind: 'number', name: field.name, label: field.label, required: Boolean(field.required), scale: 0,
+      kind: 'number', name: field.name, label: field.label, required: Boolean(field.required), scale: field.scale,
       maxLength: field.max, range: field.range, normalize: field.normalize ?? [],
+      // A decimal's amount rules and its starting text (the integer fields declare none of these).
+      ...(field.min !== undefined ? { min: field.min } : {}), ...(field.exclusiveMin !== undefined ? { exclusiveMin: field.exclusiveMin } : {}),
+      ...(field.default !== undefined ? { default: field.default } : {}), ...(field.blankToDefault ? { blankToDefault: true } : {}),
+      ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}),
     };
   }
   if (field.kind === 'select') {
@@ -45,7 +47,7 @@ export function toCatalogConfig(entry: CatalogDef): CatalogConfig<Row> {
     title: entry.title ?? entry.slug,
     catalog: entry.slug,
     idKey: entry.idKey,
-    columns: entry.columns.map(({ key, header, type }) => ({ key, header, sortable: true, ...(type === 'bool' ? { format: 'bool' as const } : {}) })),
+    columns: entry.columns.map(({ key, header, type }) => ({ key, header, sortable: true, ...(type === 'bool' || type === 'dec' ? { format: type as 'bool' | 'dec' } : {}) })),
     fields: entry.fields.map((field) => toField(entry, field)),
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,

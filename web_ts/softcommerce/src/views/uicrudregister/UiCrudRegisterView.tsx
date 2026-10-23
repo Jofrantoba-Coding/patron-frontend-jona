@@ -75,6 +75,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                     label={field.label}
                     value={props.values[field.name]}
                     max={field.maxLength}
+                    scale={field.scale}
                     readOnly={props.isFieldReadOnly(field.name)}
                     hasError={Boolean(props.errors[field.name])}
                     onChange={(value) => props.onFieldChange(field.name, value)}

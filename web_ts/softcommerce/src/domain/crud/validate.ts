@@ -1,5 +1,6 @@
 /** Register-form rules driven by `config.fields`. Pure. */
 import { fieldMessage } from '../../../mock-server/core/messages.js';
+import { DECIMAL_TEXT, outOfBounds } from '../../../mock-server/core/numbers.js';
 import { firstServerOnlyStep } from '../../../mock-server/core/validators.js';
 import type { CatalogDef } from '../../../mock-server/registry/schema.js';
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
@@ -41,7 +42,15 @@ function fieldError(field: FieldConfig, values: FormValues, requiredMessage?: (n
   if (field.kind === 'text' && field.maxLength !== undefined && (value?.length ?? 0) > field.maxLength) {
     return { name: field.name, message: `${field.label} no puede superar ${field.maxLength} caracteres.` };
   }
-  return skipRange || isBlank(value) ? undefined : rangeError(field, values, rangeMessage);
+  if (isBlank(value)) return undefined;
+  if (field.kind === 'number' && field.scale > 0) return decimalError(field, value.trim(), requiredMessage, rangeMessage);
+  return skipRange ? undefined : rangeError(field, values, rangeMessage);
+}
+
+/** A decimal must be complete (`1.` and `-` are not amounts) and inside `min` / `exclusiveMin`; both failures read like a missing amount. */
+function decimalError(field: Extract<FieldConfig, { kind: 'number' }>, text: string, requiredMessage?: (name: string) => string, rangeMessage?: (name: string) => string): FieldError | undefined {
+  if (!DECIMAL_TEXT.test(text)) return { name: field.name, message: requiredMessage?.(field.name) ?? `${field.label} no es un número válido.` };
+  return outOfBounds(field, text) ? { name: field.name, message: rangeMessage?.(field.name) ?? `${field.label} está fuera de rango.` } : undefined;
 }
 
 /**

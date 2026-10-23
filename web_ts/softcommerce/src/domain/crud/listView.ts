@@ -20,15 +20,19 @@ export interface ListViewResult<T> {
 }
 
 /**
- * Rows as the grid shows them: a `bool` column reads Sí / No (a missing value is empty), so the filter and the sort
- * work on the rendered text (R-CRUD-1). Rows come back untouched when no column needs formatting.
+ * Rows as the grid shows them: a `bool` column reads Sí / No and a `dec` column the stored number as text, with no
+ * rounding (a missing value is empty), so the filter and the sort work on the rendered text (R-CRUD-1). Rows come back
+ * untouched when no column needs formatting.
  */
-export function formatRows<T>(columns: readonly { key: keyof T & string; format?: 'bool' }[], rows: readonly T[]): T[] {
-  const boolKeys = columns.filter((column) => column.format === 'bool').map((column) => column.key);
-  if (boolKeys.length === 0) return rows as T[];
+export function formatRows<T>(columns: readonly { key: keyof T & string; format?: 'bool' | 'dec' }[], rows: readonly T[]): T[] {
+  const formatted = columns.filter((column) => column.format !== undefined);
+  if (formatted.length === 0) return rows as T[];
   return rows.map((row) => {
     const shown = { ...row } as Record<string, unknown>;
-    for (const key of boolKeys) shown[key] = row[key] === true ? 'Sí' : row[key] === false ? 'No' : '';
+    for (const { key, format } of formatted) {
+      const value = row[key];
+      shown[key] = format === 'bool' ? (value === true ? 'Sí' : value === false ? 'No' : '') : value === undefined || value === null ? '' : String(value);
+    }
     return shown as T;
   });
 }
