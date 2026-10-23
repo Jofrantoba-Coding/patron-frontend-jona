@@ -24,10 +24,19 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'motivos-traslado.descripcion': [100, true],
   'motivos-traslado.abrev': [100, true],
   'clasif-clientes.descripcion': [100, true],
+  'clasif-inventarios.descripcion': [100, true],
+  'clasif-inventarios.abrev': [100, true],
+  'tamanos.descripcion': [100, true],
+  'tipos-anexo.descripcion': [100, true],
+  'tipos-anexo.abreviatura': [100, true],
+  'tipos-descuento.descripcion': [100, true],
+  'tipos-descuento.abrev': [5, true],
 };
 
-/** Code width per slug: three-digit string ids pad (PanelTF focusLost "000"), integer beans print unpadded. */
-const CODE_WIDTH: Record<string, number> = { 'motivos-traslado': 3, 'clasif-clientes': 0 };
+/** Code width per slug: string ids pad to three digits (PanelTF focusLost "000"; clasif-inventarios is inferred), integer beans print unpadded. */
+const CODE_WIDTH: Record<string, number> = {
+  'motivos-traslado': 3, 'clasif-clientes': 0, 'clasif-inventarios': 3, tamanos: 3, 'tipos-anexo': 3, 'tipos-descuento': 0,
+};
 
 describe('W2 reference catalogs are registered', () => {
   it.each(Object.entries(DESKTOP))('R-REF-4 %s keeps the desktop max and case rule', (path, [max, upper]) => {

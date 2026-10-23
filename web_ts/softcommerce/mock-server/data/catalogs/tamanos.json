@@ -1,0 +1,19 @@
+{
+  "demo": [
+    {
+      "id_tamano": "001",
+      "descripcion": "PEQUENO",
+      "activo": true
+    },
+    {
+      "id_tamano": "002",
+      "descripcion": "MEDIANO",
+      "activo": true
+    },
+    {
+      "id_tamano": "003",
+      "descripcion": "GRANDE",
+      "activo": false
+    }
+  ]
+}

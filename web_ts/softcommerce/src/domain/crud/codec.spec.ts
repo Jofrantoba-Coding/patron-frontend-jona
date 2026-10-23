@@ -25,6 +25,13 @@ describe('per-kind codec (D7): form state is a string, the wire is typed', () =>
     expect(encodeValue(text, 'ROJO')).toBe('ROJO');
   });
 
+  it('an options field keeps its code as a string both ways', () => {
+    const tipo: FieldConfig = { kind: 'options', name: 'tipo', label: 'Tipo', display: 'radio', options: [{ value: 'E', label: 'Entrada' }] };
+    expect(decodeValue(tipo, 'E')).toBe('E');
+    expect(decodeValue(tipo, undefined)).toBe('');
+    expect(encodeValue(tipo, 'E')).toBe('E');
+  });
+
   it('encodes a whole form, leaving unknown keys alone', () => {
     expect(encodeValues([text, flag], { descripcion: 'X', hab_guia: 'true', extra: 'e' })).toEqual({ descripcion: 'X', hab_guia: true, extra: 'e' });
   });

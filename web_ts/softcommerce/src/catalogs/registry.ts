@@ -16,6 +16,12 @@ function toField(entry: CatalogDef, field: any): FieldConfig {
   if (field.kind === 'boolean') {
     return { kind: 'boolean', name: field.name, label: field.label, default: field.default, readOnlyOn: field.readOnlyOn };
   }
+  if (field.kind === 'options') {
+    return {
+      kind: 'options', name: field.name, label: field.label, required: Boolean(field.required), options: field.options,
+      display: field.display, default: field.default, readOnlyOn: field.readOnlyOn,
+    };
+  }
   throw new Error(`${entry.slug}.${field.name}: the UI does not support kind "${field.kind}" yet`);
 }
 

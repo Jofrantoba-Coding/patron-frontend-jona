@@ -17,6 +17,10 @@ export const ENTITIES: Record<string, string> = {
   nacionalidades: 'una Nacionalidad',
   'motivos-traslado': 'un Motivo Traslado',
   'clasif-clientes': 'una Clasif Cliente',
+  'clasif-inventarios': 'un Tipo de Movimiento de Inventario',
+  tamanos: 'un Tamano',
+  'tipos-anexo': 'un Tipo Anexo',
+  'tipos-descuento': 'un Tipo Descuento',
 };
 
 const files = import.meta.glob<Record<string, any[]>>('../../mock-server/data/catalogs/*.json', { eager: true, import: 'default' });
@@ -24,7 +28,7 @@ const files = import.meta.glob<Record<string, any[]>>('../../mock-server/data/ca
 export const seedRows = (seed: string): any[] => files[`../../mock-server/data/catalogs/${seed}.json`]?.demo ?? [];
 
 /** Slugs whose desktop message names the wrong entity or gender; the web port words the real one. */
-const DEVIATIONS = new Set(['marcas', 'motivos-traslado']);
+const DEVIATIONS = new Set(['marcas', 'motivos-traslado', 'tamanos', 'tipos-anexo']);
 
 const invalid = (fields: string[], messages?: string[]): Outcome => ({ status: 422, code: 'VALIDATION_ERROR', fields, messages });
 const WRITER = { userId: '7' };
@@ -36,7 +40,11 @@ function genericCases(entry: any): CatalogCase[] {
   const { slug, idKey, codeWidth } = entry;
   const config = toCatalogConfig(entry);
   const texts = config.fields.flatMap((f) => (f.kind === 'text' ? [f] : []));
-  const valid = Object.fromEntries(texts.filter((f) => f.required).map((f) => [f.name, 'x']));
+  // A valid body: every required text, and the first option of every required options field.
+  const valid = {
+    ...Object.fromEntries(texts.filter((f) => f.required).map((f) => [f.name, 'x'])),
+    ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value])),
+  };
   const rows = seedRows(entry.seed);
   const active = rows.filter((r) => r.activo !== false);
   const inactive = rows.find((r) => r.activo === false);
@@ -100,4 +108,20 @@ export const REFERENCE_CASES: CatalogCase[] = [
   { name: 'S-REF-7 clasif-clientes estado can be set to false on UPDATE and the row stays listed', slug: 'clasif-clientes', ctx: WRITER, steps: [{ op: 'update', id: '1', body: { descripcion: 'MAYORISTA', estado: false } }, { op: 'list' }], expect: { ok: true, total: 2 } },
   { name: 'S-REF-7 clasif-clientes estado must be a boolean', slug: 'clasif-clientes', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', estado: 'A' } }], expect: invalid(['estado']) },
   { name: 'S-REF-7 clasif-clientes get returns the stored estado of an inactive-estado row', slug: 'clasif-clientes', steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { estado: false, activo: true } } },
+  // R-REF-4 clasif-inventarios: tipo is a required E|S option, checked after descripcion and abrev.
+  { name: 'S-REF-6 clasif-inventarios without a tipo says so with the desktop text', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x' } }], expect: invalid(['tipo'], ['Para agregar un Tipo de Movimiento de Inventario, debes especificar su Tipo de Movimiento.']) },
+  { name: 'clasif-inventarios abrev is required and says Abreviatura', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', tipo: 'E' } }], expect: invalid(['abrev'], ['Para agregar un Tipo de Movimiento de Inventario, debes especificar su Abreviatura.']) },
+  { name: 'S-REF-6 clasif-inventarios stores tipo S and labels it', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x', tipo: 'S' } }], expect: { ok: true, match: { tipo: 'S', tipo_label: 'Salida' } } },
+  { name: 'R-MOCK-10 clasif-inventarios tipo outside E|S is a 422 on tipo', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x', tipo: 'Z' } }], expect: invalid(['tipo']) },
+  { name: 'S-MOCK-37 clasif-inventarios get carries tipo and tipo_label', slug: 'clasif-inventarios', steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { tipo: 'E', tipo_label: 'Entrada' } } },
+  { name: 'S-MOCK-37 clasif-inventarios list carries tipo and tipo_label on every item', slug: 'clasif-inventarios', steps: [{ op: 'list' }], expect: { ok: true, match: { items: [{ tipo: 'E', tipo_label: 'Entrada' }, { tipo: 'S', tipo_label: 'Salida' }] } } },
+  { name: 'clasif-inventarios tipo can change on UPDATE', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'update', id: '001', body: { descripcion: 'COMPRA', abrev: 'COM', tipo: 'S' } }], expect: { ok: true, match: { tipo: 'S', tipo_label: 'Salida' } } },
+  // R-REF-4 tipos-descuento: abrev is required, at most 5. S-MOCK-17 lists both fields, but D10 stops at the first failing step.
+  { name: 'S-MOCK-17 tipos-descuento blank descripcion and a 6-character abrev fail on descripcion first (D10)', slug: 'tipos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: ' ', abrev: 'abcdef' } }], expect: invalid(['descripcion']) },
+  { name: 'S-MOCK-17 tipos-descuento abrev of 6 characters is a 422 on abrev', slug: 'tipos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'abcdef' } }], expect: invalid(['abrev']) },
+  { name: 'tipos-descuento abrev accepts 5 characters, uppercased', slug: 'tipos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: ' ab12c ' } }], expect: { ok: true, match: { abrev: 'AB12C' } } },
+  { name: 'tipos-descuento blank abrev says Abrev, not Descripcion [DEVIATION]', slug: 'tipos-descuento', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { descripcion: 'x', abrev: ' ' } }], expect: invalid(['abrev'], ['Para agregar un Tipo Descuento, debes especificar su Abrev.']) },
+  // R-REF-4 tipos-anexo: abreviatura is optional.
+  { name: 'tipos-anexo abreviatura is optional', slug: 'tipos-anexo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'principal' } }], expect: { ok: true, match: { descripcion: 'PRINCIPAL' } } },
+  { name: 'tipos-anexo abreviatura is uppercased and capped at 100', slug: 'tipos-anexo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: 'a'.repeat(101) } }], expect: invalid(['abreviatura']) },
 ];

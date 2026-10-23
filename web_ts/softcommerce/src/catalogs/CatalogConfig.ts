@@ -29,6 +29,17 @@ export type FieldConfig =
       /** Modes in which the value is shown but not editable. */
       readOnlyOn?: readonly CrudMode[];
     }
+  | {
+      /** A static list: the form state and the payload carry the option code; the label is shown (G7). */
+      kind: 'options';
+      name: string;
+      label: string;
+      required?: boolean;
+      options: readonly { value: string; label: string }[];
+      display: 'select' | 'radio';
+      default?: string | Partial<Record<CrudMode, string>>;
+      readOnlyOn?: readonly CrudMode[];
+    }
   | { kind: 'select'; name: string; label: string; required?: boolean; lookup: 'empresas' }
   | {
       kind: 'cascade';

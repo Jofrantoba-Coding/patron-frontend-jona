@@ -22,6 +22,7 @@ const FILTER_RULES = ['ubigeoChildren', 'ubigeoHasActive'];
 const CONDITIONS = ['visibleWhen', 'enabledWhen', 'requiredWhen'];
 /** Column renderings beyond plain text; each lands with the first catalog that shows it. */
 const COLUMN_TYPES = ['bool'];
+const DISPLAYS = ['select', 'radio'];
 
 export class RegistryError extends Error {
   /** @param {string} message */
@@ -36,8 +37,25 @@ function fail(where, message) {
   throw new RegistryError(`${where}: ${message}`);
 }
 
+/** An `options` field renders as a select unless it asks for radios. @param {any} field */
+const withDisplay = (field) => (field.kind === 'options' && field.display === undefined ? { ...field, display: 'select' } : field);
+
 /** A `default` given per mode (`{ INSERT: true }`) rather than as one value. @param {unknown} value */
 export const isModeMap = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/** An options field needs a list of `{value,label}` without repeats, a known display and a default from the list. @param {string} at @param {any} f */
+function assertOptions(at, f) {
+  if (!(Array.isArray(f.options) && f.options.length > 0)) fail(at, 'options needs options');
+  if (!DISPLAYS.includes(f.display)) fail(at, `unknown display "${f.display}"`);
+  const seen = new Set();
+  for (const option of f.options) {
+    if (typeof option.value !== 'string' || typeof option.label !== 'string') fail(at, 'every option needs a value and a label');
+    if (seen.has(option.value)) fail(at, `duplicate option value "${option.value}"`);
+    seen.add(option.value);
+  }
+  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  for (const value of defaults) if (!seen.has(value)) fail(at, `default "${value}" is not one of the options`);
+}
 
 /** @param {string} where @param {any[]} fields */
 function assertAcyclic(where, fields) {
@@ -55,7 +73,7 @@ function assertAcyclic(where, fields) {
  */
 function resolveEntry(raw, slugs, sources) {
   const where = `entry "${raw.slug}"`;
-  const entry = { section: raw.slug, modes: MODES, ...raw, fields: raw.fields.map(applyPreset) };
+  const entry = { section: raw.slug, modes: MODES, ...raw, fields: raw.fields.map(applyPreset).map(withDisplay) };
   if (!SCOPES.includes(entry.scope)) fail(where, `unknown scope "${entry.scope}"`);
   if (!STYLES.includes(entry.messages?.style)) fail(where, `unknown messages style "${entry.messages?.style}"`);
   if (entry.seed !== null && typeof entry.seed !== 'string') fail(where, 'seed must be a file name or null (W1 section)');
@@ -83,7 +101,7 @@ function resolveEntry(raw, slugs, sources) {
       if (!f.source?.catalog) fail(at, 'select needs a source');
       if (!slugs.has(f.source.catalog) && !Object.hasOwn(sources, f.source.catalog)) fail(at, `unknown catalog "${f.source.catalog}"`);
     }
-    if (f.kind === 'options' && !(Array.isArray(f.options) && f.options.length > 0)) fail(at, 'options needs options');
+    if (f.kind === 'options') assertOptions(at, f);
     if (f.kind === 'number' && !Number.isInteger(f.scale)) fail(at, 'number needs a scale');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
@@ -94,6 +112,11 @@ function resolveEntry(raw, slugs, sources) {
   }
   assertAcyclic(where, entry.fields);
   for (const column of entry.columns) {
+    // `<name>_label` is the label the server adds beside an options field (R-MOCK-14).
+    const base = column.key.endsWith('_label') ? column.key.slice(0, -'_label'.length) : undefined;
+    if (base !== undefined && !entry.fields.some((/** @type {any} */ f) => f.name === base && f.kind === 'options')) {
+      fail(where, `column "${column.key}" has no options field "${base}"`);
+    }
     if (column.type !== undefined && !COLUMN_TYPES.includes(column.type)) fail(where, `column "${column.key}" has unknown type "${column.type}"`);
   }
 
