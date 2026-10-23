@@ -99,6 +99,8 @@ const CODE_WIDTH: Record<string, number> = {
   vehiculos: 3,
   // PanelTFUsuarioCorrelativo.focusLost pads the code filter to five digits ("00000" + code).
   'usuario-correlativos': 5,
+  // The zona distancia id is an int bean (Integer.parseInt(txt_Codigo)).
+  'zonas-distancia': 0,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -138,6 +140,11 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   'usuario-correlativos.id_punto_venta': ['punto-venta', {}],
   'usuario-correlativos.id_tipo_doc': ['tipos-doc-venta', {}],
   'usuario-correlativos.id_correlativo': ['correlativos', { estado: 'A' }],
+  // RegisterZonaDistancia: the zonas of the distrito, the localidades of the session empresa, the puntos de venta of the localidad, the almacenes of the punto de venta.
+  'zonas-distancia.id_zona': ['zonas', {}],
+  'zonas-distancia.id_localidad': ['localidades', { id_empresa: '$session.empresa' }],
+  'zonas-distancia.id_punto_venta': ['punto-venta', {}],
+  'zonas-distancia.id_almacen': ['almacenes', {}],
 };
 
 /**
@@ -168,6 +175,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   vehiculos: 'tenant',
   // PanelTFUsuarioCorrelativo.cargarTabla lists with usuario.getCodempresa() and insertar / modificar pass it with the session user.
   'usuario-correlativos': 'empresa',
+  // DAOZonaDistancia: rn_ZonaDistancia.listar(0) and mantZonaDistancia(bean, op) see the user (bean.setId_usuario) and no empresa.
+  'zonas-distancia': 'tenant',
 };
 /**
  * The entries over the W1 sections (empresa, punto-venta; no seed file, so no generic table rows): `DAOEmpresa.listar("")` passes no empresa
@@ -303,6 +312,30 @@ describe('W2 reference catalogs are registered', () => {
     expect(entry.unique).toMatchObject([{ fields: ['id_usuario', 'id_correlativo'], errorField: 'id_correlativo', message: 'Ya existe una asignacion del documento con la serie elegida al mismo usuario, por favor elija otra serie u otro usuario disponible.' }]);
     // The field named id_usuario is the assigned user, so the session user is not stamped over it.
     expect([entry.stamp, entry.scope, field('habilitar').default]).toEqual([[], 'empresa', true]);
+  });
+
+  it('S-REF-22 zonas-distancia has two independent chains, the cascade one transient and filtered to the zonas, and the desktop order', () => {
+    const entry = REGISTRY.bySlug.get('zonas-distancia');
+    const field = (name: string) => entry.fields.find((f: any) => f.name === name);
+    expect(entry.fields.map((f: any) => f.name)).toEqual(['id_zona_distancia', 'id_distrito', 'id_zona', 'id_localidad', 'id_punto_venta', 'id_almacen', 'distancia', 'estado']);
+    expect(entry.validation).toEqual(['id_distrito', 'id_zona', 'id_localidad', 'id_punto_venta', 'id_almacen', 'distancia', 'estado']);
+    expect(entry.messages.style).toBe('MS');
+    expect([field('id_distrito').transient, field('id_distrito').filter, field('id_distrito').restoreFrom]).toEqual([true, { has: 'zonas' }, { field: 'id_ubigeo', prefixLen: 6 }]);
+    expect(entry.joins.find((j: any) => j.as === 'id_ubigeo')).toEqual({ as: 'id_ubigeo', ref: 'id_zona', display: 'id_ubigeo' });
+    expect(field('id_zona').dependsOn).toEqual([{ field: 'id_distrito', filterKey: 'id_ubigeo' }]);
+    expect(field('id_punto_venta').dependsOn).toEqual([{ field: 'id_localidad', filterKey: 'id_localidad' }]);
+    expect(field('id_almacen').dependsOn).toEqual([{ field: 'id_punto_venta', filterKey: 'id_punto_venta' }]);
+    expect(entry.fields.filter((f: any) => f.article).map((f: any) => [f.name, f.article, f.label])).toEqual([
+      ['id_distrito', 'un', 'Distrito'], ['id_zona', 'una', 'Zona'], ['id_localidad', 'una', 'Localidad'], ['id_punto_venta', 'un', 'Pto Vta'], ['id_almacen', 'un', 'Almacen'],
+    ]);
+    // The server only sees the zona: the transient distrito is no ref and the zona has no parent it can check.
+    expect(entry.refs.map((r: any) => r.field)).toEqual(['id_zona', 'id_localidad', 'id_punto_venta', 'id_almacen']);
+    expect(entry.refs[0].parents).toEqual([]);
+  });
+
+  it('S-REF-22 the distancia is a decimal above zero with the Zona Distancia sentence for blank, zero and negative', () => {
+    const f = REGISTRY.bySlug.get('zonas-distancia').fields.find((x: any) => x.name === 'distancia');
+    expect([f.kind, f.required, f.exclusiveMin, f.message, f.label]).toEqual(['number', true, 0, 'Para {modo} una Zona Distancia, debes especificar su Distancia.', 'Distancia(Km)']);
   });
 
   it('S-REF-17 the correlativos lookup shows each serie, so the Serie select reads F001', () => {
