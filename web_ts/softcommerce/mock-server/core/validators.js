@@ -4,6 +4,7 @@ import { isIsoDate, todayIso } from './dates.js';
 import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
+import { minLengthOf } from './predicates.js';
 
 /** Logical-delete flag shared by every registry catalog (R-MOCK-7). */
 export const ACTIVE_KEY = 'activo';
@@ -75,7 +76,7 @@ function rangeDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
 /** Required, length, option, number and boolean checks of one field. A `skipRange` field leaves its range to a `{range}` step. @returns {Detail|null} */
 function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode, skipRange = false) {
   const value = record[f.name];
-  const bad = (/** @type {'REQUIRED'|'MAX_LENGTH'|'INVALID'|'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD'} */ code) => ({ field: f.name, code, message: fieldMessage(entry, f, code, mode) });
+  const bad = (/** @type {'REQUIRED'|'MAX_LENGTH'|'MIN_LENGTH'|'INVALID'|'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD'} */ code) => ({ field: f.name, code, message: fieldMessage(entry, f, code, mode) });
   if (isBlank(value)) {
     const optional = (entry.compat?.serverOptional ?? []).includes(f.name);
     return f.required && !optional ? bad('REQUIRED') : null;
@@ -84,6 +85,8 @@ function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
   if ((f.kind === 'text' || f.kind === 'code') && f.max !== undefined && text.length > f.max) {
     return bad('MAX_LENGTH');
   }
+  // `minLen` / `minLenWhen` (R-REG-4): a value shorter than the length that applies is judged like a missing one.
+  if (f.kind === 'text' && text.length < (minLengthOf(f, record) ?? 0)) return bad('MIN_LENGTH');
   if (f.kind === 'options' && !f.options.some((/** @type {any} */ o) => o.value === text)) {
     return bad('INVALID');
   }

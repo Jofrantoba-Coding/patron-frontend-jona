@@ -170,3 +170,50 @@ describe('clearsOnChange for fields that are not selects', () => {
     expect(fieldsToClear(nodes, 'tipo')).toEqual(['serie', 'nro', 'sub']);
   });
 });
+
+describe('R-CRUD-12 a cascade as the parent of a select (W2-8)', () => {
+  /** The ubigeo cascade is three chained nodes, its leaf `ubigeo` is the parent of the `zona` select. */
+  const CASCADE_PARENT: ChainNode[] = [
+    { name: 'dep', parents: [] },
+    { name: 'prov', parents: [{ field: 'dep', filterKey: 'parent' }] },
+    { name: 'ubigeo', parents: [{ field: 'prov', filterKey: 'parent' }] },
+    { name: 'zona', parents: [{ field: 'ubigeo', filterKey: 'id_ubigeo' }] },
+  ];
+
+  it('changing a level empties the levels below it and the select that hangs off the leaf', () => {
+    expect(fieldsToClear(CASCADE_PARENT, 'dep')).toEqual(['prov', 'ubigeo', 'zona']);
+    expect(fieldsToClear(CASCADE_PARENT, 'prov')).toEqual(['ubigeo', 'zona']);
+    expect(fieldsToClear(CASCADE_PARENT, 'ubigeo')).toEqual(['zona']);
+  });
+
+  it('the select is blocked until the leaf has a value (an unset optional cascade leaves it empty), the cascade levels are not', async () => {
+    const { load, calls } = deferredLoader();
+    const chain = createDependentChain(CASCADE_PARENT, load, () => undefined);
+    chain.sync({ dep: '15', prov: '1501' });
+    expect(calls.map((c) => c.name)).toEqual(['dep', 'prov', 'ubigeo']);
+    expect([chain.blocked('dep', {}), chain.blocked('zona', { dep: '15', prov: '1501' })]).toEqual([false, true]);
+    expect(chain.options('zona')).toEqual([]);
+  });
+
+  it('choosing the leaf loads the select with the leaf under its filterKey; restoring all levels loads it at once (UPDATE)', async () => {
+    const { load, calls } = deferredLoader();
+    const chain = createDependentChain(CASCADE_PARENT, load, () => undefined);
+    chain.sync({ dep: '15', prov: '1501', ubigeo: '150101' });
+    expect(calls.find((c) => c.name === 'zona')?.filters).toEqual({ id_ubigeo: '150101' });
+    calls.find((c) => c.name === 'zona')!.resolve(items('1'));
+    await flush();
+    expect(chain.options('zona')).toEqual(items('1'));
+  });
+
+  it('a stale zona response for a superseded distrito is ignored', async () => {
+    const { load, calls } = deferredLoader();
+    const chain = createDependentChain(CASCADE_PARENT, load, () => undefined);
+    chain.sync({ dep: '15', prov: '1501', ubigeo: '150101' });
+    chain.sync({ dep: '15', prov: '1501', ubigeo: '150102' });
+    const [first, second] = calls.filter((c) => c.name === 'zona');
+    second.resolve(items('2'));
+    first.resolve(items('1'));
+    await flush();
+    expect(chain.options('zona')).toEqual(items('2'));
+  });
+});

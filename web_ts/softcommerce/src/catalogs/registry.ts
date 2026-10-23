@@ -11,6 +11,7 @@ function toField(entry: CatalogDef, field: any): FieldConfig {
     return {
       kind: 'text', name: field.name, label: field.label, required: Boolean(field.required),
       maxLength: field.max, uppercase: normalize.includes('upper'), normalize,
+      ...(field.minLen !== undefined ? { minLen: field.minLen } : {}), ...(field.minLenWhen ? { minLenWhen: field.minLenWhen } : {}),
     };
   }
   if (field.kind === 'boolean') {

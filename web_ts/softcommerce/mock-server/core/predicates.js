@@ -27,3 +27,13 @@ export function fieldState(field, values) {
   const required = enabled && (field.required === true || (field.requiredWhen !== undefined && matches(field.requiredWhen, values)));
   return { visible, enabled, required };
 }
+
+/**
+ * The minimum length a text field must have for `values` (R-REG-4): its plain `minLen`, or the `len` of the first
+ * `minLenWhen` rule whose condition holds. `undefined` when no length applies.
+ * @param {{ minLen?: number, minLenWhen?: { when: Cond, len: number }[] }} field
+ * @param {Record<string, unknown>} values
+ */
+export function minLengthOf(field, values) {
+  return field.minLen ?? field.minLenWhen?.find((rule) => matches(rule.when, values))?.len;
+}

@@ -89,6 +89,28 @@ function assertDate(at, f) {
   if (f.notFuture !== undefined && typeof f.notFuture !== 'boolean') fail(at, 'notFuture must be a boolean');
 }
 
+/**
+ * `minLen` (a plain exact or minimum length) and `minLenWhen` (a list of `{ when: Cond, len }`, the first match decides) belong to text
+ * fields and never exceed `max`. Field names in a condition are checked by the caller.
+ * @param {string} at @param {any} f
+ */
+function assertMinLength(at, f) {
+  if (f.minLen === undefined && f.minLenWhen === undefined) return;
+  if (f.kind !== 'text') fail(at, `${f.minLen === undefined ? 'minLenWhen' : 'minLen'} needs a text field`);
+  /** @param {string} what @param {unknown} len */
+  const check = (what, len) => {
+    if (!Number.isInteger(len) || /** @type {number} */ (len) < 1) fail(at, `${what} must be a positive integer`);
+    if (f.max !== undefined && /** @type {number} */ (len) > f.max) fail(at, `${what === 'minLen' ? 'minLen' : 'minLenWhen len'} ${len} is above max ${f.max}`);
+  };
+  if (f.minLen !== undefined) check('minLen', f.minLen);
+  if (f.minLenWhen === undefined) return;
+  if (!Array.isArray(f.minLenWhen)) fail(at, 'minLenWhen must be a list');
+  for (const rule of f.minLenWhen) {
+    if (!rule.when?.field || !Array.isArray(rule.when.in)) fail(at, 'minLenWhen needs a condition { field, in }');
+    check('minLenWhen len', rule.len);
+  }
+}
+
 /** @param {string} where @param {any[]} fields */
 function assertAcyclic(where, fields) {
   const parents = new Map(fields.map((f) => [f.name, (f.dependsOn ?? []).map((/** @type {any} */ d) => d.field)]));
@@ -140,6 +162,8 @@ function resolveEntry(raw, slugs, sources) {
     else if (f.range !== undefined) fail(at, 'range needs a number field');
     if (f.min !== undefined && f.kind !== 'number' && f.kind !== 'date') fail(at, 'min needs a number or date field');
     if (f.exclusiveMin !== undefined && f.kind !== 'number') fail(at, 'exclusiveMin needs a number field');
+    assertMinLength(at, f);
+    for (const rule of f.minLenWhen ?? []) known(`field "${f.name}" minLenWhen`, rule.when.field);
     if (f.blankToDefault && f.default === undefined) fail(at, 'blankToDefault needs a default');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
