@@ -5,6 +5,7 @@ import {
 } from '../core/auth.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../core/catalog.js';
 import { MockError, notFound, toErrorBody } from '../core/errors.js';
+import { lookupOptions } from '../core/lookups.js';
 import { createStore } from '../core/store.js';
 import { REGISTRY } from '../registry/index.js';
 import { childrenOf } from '../core/ubigeo.js';
@@ -35,6 +36,7 @@ const ROUTES = [
   { method: 'GET', pattern: /^\/forms\/([^/]+)\/permissions$/, handle: ({ store, params }) => ({ body: getPermissions(store, params[0]) }) },
   // Lookups come before the generic catalog routes so they win the match.
   { method: 'GET', pattern: /^\/v1\/ubigeo$/, handle: ({ store, query }) => ({ body: childrenOf(store, query.parent) }) },
+  { method: 'GET', pattern: /^\/v1\/lookups\/([^/]+)$/, handle: ({ store, tenant, params, query, ctx }) => ({ body: lookupOptions(store, tenant, params[0], query, ctx) }) },
   { method: 'GET', pattern: /^\/v1\/empresas$/, handle: ({ store, tenant }) => ({ body: listEmpresas(store, tenant) }) },
   { method: 'GET', pattern: /^\/v1\/puntos-venta$/, handle: ({ store, tenant, query }) => ({ body: listPuntosVenta(store, tenant, query) }) },
   { method: 'GET', pattern: /^\/v1\/params$/, handle: ({ store, tenant }) => ({ body: getParams(store, tenant) }) },

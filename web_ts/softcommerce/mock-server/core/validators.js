@@ -99,35 +99,62 @@ function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, 
 }
 
 /**
- * Runs the entry `steps` (D10). Field and ref failures are collected into one 422
- * in step order; a unique violation is checked afterwards and answers 409.
+ * Runs the entry `steps` in their declared order (D10). A W2 entry stops at the
+ * first failing step, like the desktop: one detail, 409 for a unique key and 422
+ * for anything else. A `compat` entry (Localidad) keeps the W1 behavior: every
+ * field and ref failure in one 422, uniqueness checked afterwards. `{rule}` steps
+ * are skipped until a named rule exists.
  * @param {any} store @param {string} tenantId @param {any} entry @param {Record<string, any>} record
  * @param {{ selfId?: string, ctx?: import('./context.js').RequestContext, mode?: keyof typeof import('./messages.js').MODO }} [options]
  * `mode` words the messages: INSERT on create, UPDATE on update.
  */
 export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mode = 'INSERT' } = {}) {
-  /** @type {Detail[]} */
-  const details = [];
   const failed = new Set();
   const fields = new Map(entry.fields.map((/** @type {any} */ f) => [f.name, f]));
   const inlineRefs = !entry.steps.some((/** @type {any} */ s) => typeof s === 'object' && 'ref' in s);
-  /** @param {string} name */
-  const checkRef = (name) => {
-    const detail = failed.has(name) ? null : refDetail(store, tenantId, entry.refs.find((/** @type {any} */ r) => r.field === name), record, ctx);
-    if (detail) { details.push(detail); failed.add(name); }
+  const isUnique = (/** @type {any} */ step) => typeof step === 'object' && 'unique' in step;
+  /** The failure of a field or ref step, if any. @param {any} step @returns {Detail|null} */
+  const stepDetail = (step) => {
+    const name = typeof step === 'string' ? step : step.ref;
+    let detail = typeof step === 'string' ? fieldDetail(entry, fields.get(name), record, mode) : null;
+    if (!detail && !failed.has(name) && (typeof step === 'object' ? 'ref' in step : inlineRefs && fields.get(name).kind === 'select')) {
+      detail = refDetail(store, tenantId, entry.refs.find((/** @type {any} */ r) => r.field === name), record, ctx);
+    }
+    if (detail) failed.add(name);
+    return detail;
   };
+  /** @param {any} step */
+  const uniqueOf = (step) => uniqueDetail(store, tenantId, entry, entry.unique[step.unique], record, selfId, ctx);
+
+  /** @type {Detail[]} */
+  const details = [];
   for (const step of entry.steps) {
-    if (typeof step === 'string') {
-      const detail = fieldDetail(entry, fields.get(step), record, mode);
-      if (detail) { details.push(detail); failed.add(step); } else if (inlineRefs && fields.get(step).kind === 'select') checkRef(step);
-    } else if ('ref' in step) checkRef(step.ref);
+    if (isUnique(step)) {
+      const duplicate = entry.compat ? null : uniqueOf(step);
+      if (duplicate) throw duplicateError([duplicate]);
+      continue;
+    }
+    if (typeof step === 'object' && 'rule' in step) continue;
+    const detail = stepDetail(step);
+    if (detail && !entry.compat) throw validationError([detail]);
+    if (detail) details.push(detail);
   }
   if (details.length > 0) throw validationError(details);
-  for (const step of entry.steps) {
-    if (typeof step === 'string' || !('unique' in step)) continue;
-    const detail = uniqueDetail(store, tenantId, entry, entry.unique[step.unique], record, selfId, ctx);
+  for (const step of entry.compat ? entry.steps.filter(isUnique) : []) {
+    const detail = uniqueOf(step);
     if (detail) throw duplicateError([detail]);
   }
+}
+
+/**
+ * Index of the first server-only step (`{unique}` or `{ref}`), or `steps.length`
+ * when none: the client validates the steps before it and leaves the rest to the
+ * server (S-REG-17). Named `{rule}` steps are shared code, so the client runs them.
+ * @param {any} entry
+ */
+export function firstServerOnlyStep(entry) {
+  const index = entry.steps.findIndex((/** @type {any} */ s) => typeof s === 'object' && ('unique' in s || 'ref' in s));
+  return index === -1 ? entry.steps.length : index;
 }
 
 /**

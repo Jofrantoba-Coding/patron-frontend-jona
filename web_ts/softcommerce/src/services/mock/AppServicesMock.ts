@@ -9,6 +9,7 @@ import {
 } from '../../../mock-server/core/auth.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../../../mock-server/core/catalog.js';
 import { MockError } from '../../../mock-server/core/errors.js';
+import { lookupOptions } from '../../../mock-server/core/lookups.js';
 import { createStore } from '../../../mock-server/core/store.js';
 import { childrenOf } from '../../../mock-server/core/ubigeo.js';
 import { ApiError } from '../ApiError';
@@ -124,6 +125,7 @@ export function createAppServicesMock(
   const lookup: InterLookupService = {
     empresas: () => call((s) => listEmpresas(s, tenantGate(s)).items),
     ubigeoChildren: (parent) => call((s) => childrenOf(s, parent).items),
+    options: (slug, filters) => call((s) => lookupOptions(s, tenantGate(s), slug, filters, getRequestContext()).items),
   };
 
   const catalog = <T>(name: string): InterCatalogService<T> => ({
