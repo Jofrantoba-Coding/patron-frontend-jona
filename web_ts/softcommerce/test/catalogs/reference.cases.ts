@@ -41,13 +41,16 @@ export const ENTITIES: Record<string, string> = {
   'tipos-mov-inventario': 'un Tipo de Movimiento de Inventario',
   'unidades-medida': 'una Unidad de Medida',
   vehiculos: 'un Vehiculo',
+  // The desktop spells the entity "Asignasion" in every message of RegisterUsuarioCorrelativo.
+  'usuario-correlativos': 'una Asignasion de Usuario - Correlativo',
+  'zonas-distancia': 'una Zona Distancia',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
 const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo', 'vehiculos']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción', almacenes: 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto, the Tipo de Cambio its fecha and moneda). */
-export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones', 'vehiculos']);
+export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones', 'vehiculos', 'usuario-correlativos', 'zonas-distancia']);
 /** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
 /** The Almacen checks its localidad and punto de venta before the descripcion (RegisterAlmacen.isRegisterValid). */
 export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias', 'almacenes']);
@@ -75,7 +78,7 @@ const FREE_DATE = '2030-06-15';
 
 const w1Files = import.meta.glob<any>('../../mock-server/data/*.json', { eager: true, import: 'default' });
 /** The W1 file of an entry or source with no seed file of its own: a W1 section (R-REG-12) or a builtin source. */
-const W1_FILE: Record<string, string> = { localidades: 'localidades', empresa: 'empresas', 'punto-venta': 'puntos-venta', empresas: 'empresas', ubigeo: 'ubigeo' };
+const W1_FILE: Record<string, string> = { localidades: 'localidades', empresa: 'empresas', 'punto-venta': 'puntos-venta', empresas: 'empresas', ubigeo: 'ubigeo', usuarios: 'users' };
 const w1Rows = (file: string) => {
   const data = w1Files[`../../mock-server/data/${file}.json`];
   return Array.isArray(data) ? data : (data?.demo ?? []);
@@ -88,6 +91,16 @@ function sourceOf(catalog: string): { rows: any[]; idKey: string; scope?: string
   return { rows: entry.seed === null ? w1Rows(W1_FILE[catalog]) : seedRows(entry.seed), idKey: entry.idKey, scope: entry.scope, accepts: () => true };
 }
 
+/** Whether `row` of a source belongs to the parent value chosen: a column match, or an `exists` lookup filter (tipos-doc-venta by punto de venta). */
+const belongsTo = (catalog: string, row: any, parent: { field: string; filterKey: string }, chosen: Record<string, string>): boolean => {
+  const target = REGISTRY.bySlug.get(catalog);
+  const exists = target?.lookupFilters?.[parent.filterKey]?.exists;
+  if (!exists) return String(row[parent.filterKey]) === chosen[parent.field];
+  return seedRows(REGISTRY.bySlug.get(exists.catalog).seed).some(
+    (r) => r.activo !== false && String(r[exists.local]) === String(row[target.idKey]) && String(r[exists.key ?? parent.filterKey]) === chosen[parent.field] && Object.entries(exists.where ?? {}).every(([k, v]) => String(r[k]) === String(v)),
+  );
+};
+
 /**
  * A ref id the server accepts for a select field: the first active row of its source that meets the static where (`$session.empresa`
  * is the session empresa) and belongs to the parents already chosen (`chosen`, by field name).
@@ -99,7 +112,7 @@ const refId = (field: any, empresa: string | undefined, chosen: Record<string, s
   const row = source.rows.find(
     (r) =>
       r.activo !== false && source.accepts(r) && (empresa === undefined || source.scope !== 'empresa' || String(r.id_empresa) === empresa) &&
-      where.every(([k, v]) => String(r[k]) === String(v)) && (field.dependsOn ?? []).every((p: any) => String(r[p.filterKey]) === chosen[p.field]),
+      where.every(([k, v]) => String(r[k]) === String(v)) && (field.dependsOn ?? []).every((p: any) => chosen[p.field] === undefined || belongsTo(field.source.catalog, r, p, chosen)),
   );
   return String(row[source.idKey]);
 };
@@ -107,7 +120,8 @@ const refId = (field: any, empresa: string | undefined, chosen: Record<string, s
 /** The required selects of an entry filled in declared order, each child with an id of the parent chosen before it. */
 const refsFor = (entry: any, empresa?: string): Record<string, string> => {
   const chosen: Record<string, string> = Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value]));
-  for (const f of entry.fields.filter((f: any) => f.kind === 'select' && f.required)) chosen[f.name] = refId(f, empresa, chosen);
+  // A transient select (the ubigeo cascade of a ZonaDistancia) is a form-only level: a body never carries it.
+  for (const f of entry.fields.filter((f: any) => f.kind === 'select' && f.required && !f.transient)) chosen[f.name] = refId(f, empresa, chosen);
   return chosen;
 };
 
@@ -136,8 +150,10 @@ function genericCases(entry: any): CatalogCase[] {
     ...refsFor(entry),
     ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'date' && f.required).map((f: any) => [f.name, FREE_DATE])),
   };
-  /** Required refs that exist in the session empresa: an empresa-scope source (the familia) differs per empresa. */
-  const refsOf = (empresa: string) => refsFor(entry, empresa);
+  /** Required refs that exist in the session empresa: an empresa-scope source (the familia) differs per empresa. None when the demo data has no valid chain there. */
+  const refsOf = (empresa: string): Record<string, string> | undefined => {
+    try { return refsFor(entry, empresa); } catch { return undefined; }
+  };
   const rows = seedRows(entry.seed);
   const scoped = inEmpresa(entry, rows);
   const active = scoped.filter((r) => r.activo !== false);
@@ -176,8 +192,11 @@ function genericCases(entry: any): CatalogCase[] {
     const as = (empresaId: string) => ({ userId: '7', empresaId });
     const count = (empresa: string) => rows.filter((r) => String(r.id_empresa) === empresa && r.activo !== false).length;
     const list = (what: string, empresaId: string, expect: Outcome): CatalogCase => ({ name: at(what), slug, ctx: as(empresaId), steps: [{ op: 'list' }], expect });
+    // The usuario-correlativos demo data offers no tipo de documento under the punto de venta of empresa 2 (its only correlativo is deleted), so
+    // it has no valid body there; its own rows prove the empresa stamp under empresa 1.
+    const inTwo = refsOf('2');
+    if (inTwo) cases.push({ ...create({ ...valid, ...inTwo, id_empresa: '9' }, { ok: true, match: { id_empresa: '2' } }, as('2')), name: at('S-MOCK-26 a write records the session empresa, not the body') });
     cases.push(
-      { ...create({ ...valid, ...refsOf('2'), id_empresa: '9' }, { ok: true, match: { id_empresa: '2' } }, as('2')), name: at('S-MOCK-26 a write records the session empresa, not the body') },
       { ...create({ ...valid }, { status: 400, code: 'MISSING_SESSION_CONTEXT' }, as('')), name: at('S-MOCK-36 a write without the empresa header is a 400') },
       { ...create({ ...valid }, { status: 400, code: 'INVALID_SESSION_CONTEXT' }, as('999')), name: at('S-MOCK-36 a write with an empresa outside the tenant is a 400') },
     );
@@ -193,7 +212,7 @@ function genericCases(entry: any): CatalogCase[] {
     } else cases.push(list('the list stays tenant-wide: it needs no empresa header', '', { ok: true, total: active.length }));
   }
   // S-REF-34: a required ref that is blank, unknown or inactive is a 422 on that field, for every catalog with a select.
-  for (const { name, required, source, default: starts } of entry.fields.filter((f: any) => f.kind === 'select')) {
+  for (const { name, required, source, default: starts } of entry.fields.filter((f: any) => f.kind === 'select' && !f.transient)) {
     if (required) {
       const { [name]: _omitted, ...without } = valid;
       // A select with a default (the moneda of a tipo de cambio) is filled when the body omits it; a blank one is still a 422.
@@ -228,6 +247,7 @@ const UBICACION_TEXT = { id_localidad: 'Seleccione Localidad', id_punto_venta: '
 
 const TIPO_MOV = 'un Tipo de Movimiento de Inventario';
 
+const USUARIO_CORRELATIVO_DUPLICATE = 'Ya existe una asignacion del documento con la serie elegida al mismo usuario, por favor elija otra serie u otro usuario disponible.';
 const CORRELATIVO_DUPLICATE = 'Ya existe una asignacion de la serie al mismo tipo de documento, por favor digite otra serie.';
 
 const BASE_CASES: CatalogCase[] = [
@@ -364,7 +384,88 @@ const BASE_CASES: CatalogCase[] = [
   ...unidadCases(),
   // R-REF-6 vehiculos (S-REF-31): style M2 messages, peso 0 by default, marca and modelo over the estado-A rows.
   ...vehiculoCases(),
+  // R-REF-6 usuario-correlativos (S-REF-17, S-CRUD-40): the label style, the multi-parent chain, the (usuario, correlativo) key.
+  ...usuarioCorrelativoCases(),
+  // R-REF-6 / R-REF-7 zonas-distancia (S-REF-22, S-MOCK-31): two chains, the MS sentences, distancia above zero.
+  ...zonaDistanciaCases(),
 ];
+
+function usuarioCorrelativoCases(): CatalogCase[] {
+  const slug = 'usuario-correlativos';
+  const as = (empresaId = '1') => ({ userId: '7', empresaId });
+  const text = (modo: string, label: string) => `Para ${modo} una Asignasion de Usuario - Correlativo, debes especificar ${label}.`;
+  const body = (over: Record<string, unknown> = {}) => ({ id_usuario: '1', id_localidad: '1', id_punto_venta: '1', id_tipo_doc: '01', id_correlativo: '00001', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, deviation = false): CatalogCase => ({ name: '', slug, ctx: as(), deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: as(), steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const dup: Outcome = { status: 409, code: 'DUPLICATE', fields: ['id_correlativo'], messages: [USUARIO_CORRELATIVO_DUPLICATE] };
+  return [
+    row('desktop order: an empty body fails first on the usuario, worded el Usuario', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: {} }], expect: invalid(['id_usuario'], [text('agregar', 'el Usuario')]) }),
+    row('then the localidad, worded la Localidad', create({ id_localidad: '', id_punto_venta: '', id_tipo_doc: '', id_correlativo: '' }, invalid(['id_localidad'], [text('agregar', 'la Localidad')]))),
+    row('then the punto de venta, worded el Punto de Venta', create({ id_punto_venta: '', id_tipo_doc: '', id_correlativo: '' }, invalid(['id_punto_venta'], [text('agregar', 'el Punto de Venta')]))),
+    row('then the tipo de documento, worded el Tipo de documento', create({ id_tipo_doc: '', id_correlativo: '' }, invalid(['id_tipo_doc'], [text('agregar', 'el Tipo de documento')]))),
+    row('then the serie, worded su serie', create({ id_correlativo: '' }, invalid(['id_correlativo'], [text('agregar', 'su serie')]))),
+    row('UPDATE words the messages with modificar', update('00001', { id_usuario: '' }, invalid(['id_usuario'], [text('modificar', 'el Usuario')]))),
+    row('S-REF-17 the same (usuario, correlativo) pair is a 409 on id_correlativo with the desktop text', create({ id_usuario: '2' }, dup)),
+    row('S-REF-17 another usuario with the same correlativo is accepted', create({ id_usuario: '1' }, { ok: true, match: { id_usuario: '1', id_correlativo: '00001', id_empresa: '1' } })),
+    row('S-REF-17 UPDATE keeping its own pair is accepted', update('00001', { habilitar: false }, { ok: true, match: { habilitar: false } })),
+    row('S-REF-17 UPDATE onto the pair of another record is a 409 on id_correlativo', update('00002', { id_tipo_doc: '01', id_correlativo: '00001' }, dup)),
+    row('S-REF-17 CLONE keeping the pair is rejected [DEVIATION: the desktop skips the check on CLONE]', create({ id_usuario: '2' }, dup, true)),
+    row('S-REF-17 a deleted assignment frees its pair', create({ id_usuario: '4' }, { ok: true, match: { id_usuario: '4' } })),
+    row('S-CRUD-40 a tipo with no active correlativo in the punto de venta is a 422 on id_tipo_doc', create({ id_tipo_doc: '09' }, invalid(['id_tipo_doc'], ['id_tipo_doc does not belong to id_punto_venta']))),
+    row('S-CRUD-40 a tipo whose only correlativo there is inactive is a 422 on id_tipo_doc', create({ id_tipo_doc: '03', id_correlativo: '00003' }, invalid(['id_tipo_doc']))),
+    row('S-CRUD-40 a correlativo of another punto de venta is a 422 on id_correlativo naming the parent', create({ id_correlativo: '00004' }, invalid(['id_correlativo'], ['id_correlativo does not belong to id_punto_venta']))),
+    row('S-CRUD-40 a correlativo of another tipo is a 422 on id_correlativo', create({ id_tipo_doc: 'TI', id_correlativo: '00001' }, invalid(['id_correlativo']))),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '2' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-REF-6 a localidad of another empresa is a 422 on id_localidad (the where is the session empresa)', create({ id_localidad: '3', id_punto_venta: '3', id_tipo_doc: '03', id_correlativo: '00005' }, invalid(['id_localidad']))),
+    row('S-MOCK-38 a usuario of another tenant is a 422 on id_usuario', create({ id_usuario: '99' }, invalid(['id_usuario']))),
+    row('R-REF-6 habilitar defaults to true and the stored usuario is the assigned one, not the session user', create({ id_usuario: '1' }, { ok: true, match: { habilitar: true, id_usuario: '1' } })),
+    row('R-REF-6 habilitar false is stored as sent', create({ id_usuario: '1', habilitar: false }, { ok: true, match: { habilitar: false } })),
+    row('R-REF-6 habilitar must be a boolean', create({ id_usuario: '1', habilitar: 'S' }, invalid(['habilitar']))),
+    row('S-MOCK-28 get joins the localidad, punto de venta, usuario, tipo de documento and serie', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '00001' }], expect: { ok: true, match: { localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL', usuario: 'Cajero Uno', tipo_documento: 'FACTURA', serie: 'F001' } } }),
+    row('S-MOCK-30 the serie options of a punto de venta and tipo are shown by serie and only the active ones', { name: '', slug: 'correlativos', steps: [{ op: 'options', filters: { id_punto_venta: '1', id_tipo_doc: '01', estado: 'A' } }], expect: { ok: true, items: [{ id: '00001', name: 'F001' }] } }),
+    row('S-MOCK-30 an inactive correlativo (estado I) is not offered as a serie', { name: '', slug: 'correlativos', steps: [{ op: 'options', filters: { id_punto_venta: '1', id_tipo_doc: '03', estado: 'A' } }], expect: { ok: true, items: [] } }),
+  ];
+}
+
+function zonaDistanciaCases(): CatalogCase[] {
+  const slug = 'zonas-distancia';
+  const as = (empresaId = '1') => ({ userId: '7', empresaId });
+  const text = (modo: string, what: string) => `Para ${modo} una Zona Distancia, debes ${what}.`;
+  const distancia = (modo: string) => text(modo, 'especificar su Distancia');
+  const body = (over: Record<string, unknown> = {}) => ({ id_zona: '1', id_localidad: '1', id_punto_venta: '1', id_almacen: '001', distancia: 5, ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, deviation = false): CatalogCase => ({ name: '', slug, ctx: as(), deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: as(), steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-22 desktop order: an empty body fails first on the zona (the cascade levels above it are the client\'s)', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: {} }], expect: invalid(['id_zona'], [text('agregar', 'Seleccionar una Zona')]) }),
+    row('then the localidad, worded una Localidad', create({ id_localidad: '', id_punto_venta: '', id_almacen: '' }, invalid(['id_localidad'], [text('agregar', 'Seleccionar una Localidad')]))),
+    row('then the punto de venta, worded un Pto Vta', create({ id_punto_venta: '', id_almacen: '' }, invalid(['id_punto_venta'], [text('agregar', 'Seleccionar un Pto Vta')]))),
+    row('then the almacen, worded un Almacen', create({ id_almacen: '' }, invalid(['id_almacen'], [text('agregar', 'Seleccionar un Almacen')]))),
+    row('then the distancia', create({ distancia: '' }, invalid(['distancia'], [distancia('agregar')]))),
+    row('UPDATE words the messages with modificar', update('1', { id_zona: '' }, invalid(['id_zona'], [text('modificar', 'Seleccionar una Zona')]))),
+    row('S-REF-22 distancia 0 says Para agregar una Zona Distancia, debes especificar su Distancia.', create({ distancia: 0 }, invalid(['distancia'], [distancia('agregar')]))),
+    row('S-REF-22 distancia -5 says the same [DEVIATION: the desktop rejected only 0]', create({ distancia: -5 }, invalid(['distancia'], [distancia('agregar')]), true)),
+    row('S-REF-22 distancia as text 0 and -5 are rejected the same way', create({ distancia: '-5' }, invalid(['distancia'], [distancia('agregar')]), true)),
+    row('S-REF-22 a missing distancia is rejected', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: { id_zona: '1', id_localidad: '1', id_punto_venta: '1', id_almacen: '001' } }], expect: invalid(['distancia'], [distancia('agregar')]) }),
+    row('R-CRUD-11 a distancia with letters is a 422 on distancia', create({ distancia: 'abc' }, invalid(['distancia']))),
+    row('R-CRUD-11 a fractional distancia is stored as sent, with no rounding', create({ distancia: 0.125 }, { ok: true, match: { distancia: 0.125 } })),
+    row('R-REF-6 the zona is any active zona: the distrito is not stored, so the form is the only one that narrows it', create({ id_zona: '2' }, { ok: true, match: { id_zona: '2' } })),
+    row('R-REF-6 a transient cascade value in the body is ignored, never stored', create({ id_distrito: '150101', id_departamento: '15' }, { ok: true })),
+    row('S-REF-22 a deleted zona is a 422 on id_zona', create({ id_zona: '4' }, invalid(['id_zona']))),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '2' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-MOCK-12 an almacen of another punto de venta is a 422 on id_almacen', create({ id_almacen: '002' }, invalid(['id_almacen'], ['id_almacen does not belong to id_punto_venta']))),
+    row('R-REF-6 a localidad of another empresa is a 422 on id_localidad (the where is the session empresa)', create({ id_localidad: '3', id_punto_venta: '3', id_almacen: '003' }, invalid(['id_localidad']))),
+    row('S-REF-7 estado is true when the body omits it and the stamped user is the session one', create({}, { ok: true, match: { estado: true, id_usuario: 7 } })),
+    row('S-REF-7 estado can be switched off on UPDATE and the row stays listed', { name: '', slug, ctx: as(), steps: [{ op: 'update', id: '1', body: { estado: false } }, { op: 'list' }], expect: { ok: true, total: 3 } }),
+    row('S-REF-7 estado must be a boolean', create({ estado: 'A' }, invalid(['estado']))),
+    row('S-MOCK-28 get joins the zona, localidad, punto de venta and almacen names', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { zona: 'ATE ESTE', localidad: 'LOCAL ATE', punto_venta: 'TIENDA MIRAFLORES', almacen: 'ALMACEN ATE' } } }),
+    row('11.0 get carries the ubigeo of the zona, the code the form restores its cascade from', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { id_ubigeo: '150103' } } }),
+    row('11.0 the ubigeo of the zona follows a zona change on UPDATE', update('2', { id_zona: '1' }, { ok: true, match: { id_zona: '1', id_ubigeo: '150101' } })),
+    row('R-REF-6 the list is tenant-wide and hides the inactive row', { name: '', slug, ctx: as(), steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+    row('S-MOCK-31 the zona options of a distrito are only the zonas there', { name: '', slug: 'zonas', steps: [{ op: 'options', filters: { id_ubigeo: '150103' } }], expect: { ok: true, items: [{ id: '2', name: 'ATE ESTE' }] } }),
+  ];
+}
 
 function vehiculoCases(): CatalogCase[] {
   const slug = 'vehiculos';

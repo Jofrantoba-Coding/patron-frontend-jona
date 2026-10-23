@@ -1,0 +1,8 @@
+{
+  "demo": [
+    { "id_zona_distancia": "1", "id_zona": "1", "id_localidad": "1", "id_punto_venta": "1", "id_almacen": "001", "distancia": 12.5, "estado": true, "id_usuario": 1, "activo": true },
+    { "id_zona_distancia": "2", "id_zona": "2", "id_localidad": "2", "id_punto_venta": "2", "id_almacen": "002", "distancia": 30, "estado": true, "id_usuario": 1, "activo": true },
+    { "id_zona_distancia": "3", "id_zona": "3", "id_localidad": "1", "id_punto_venta": "1", "id_almacen": "001", "distancia": 8, "estado": false, "id_usuario": 1, "activo": true },
+    { "id_zona_distancia": "4", "id_zona": "1", "id_localidad": "1", "id_punto_venta": "1", "id_almacen": "001", "distancia": 99, "estado": true, "id_usuario": 1, "activo": false }
+  ]
+}

@@ -22,6 +22,8 @@ const ticket = (name, label, phrase) => ({
  */
 export const correlativos = referenceCatalog({
   slug: 'correlativos', idKey: 'id_correlativo', codeWidth: 5, entity: 'un Correlativo', formId: 'PanelTFCorrelativo', title: 'Correlativo', descripcion: false,
+  // The Serie select of a UsuarioCorrelativo shows each correlativo by its serie (`loadCorrelativo`).
+  optionLabel: 'serie',
   fields: [
     { name: 'id_tipo_doc', kind: 'select', label: 'Tipo de Documento', required: true, source: { catalog: 'tipos-doc-venta' } },
     { name: 'serie', kind: 'text', label: 'Serie', required: true, max: 4, normalize: ['upper', 'padLeft:4'] },
