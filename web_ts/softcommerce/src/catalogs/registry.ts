@@ -40,6 +40,19 @@ function toField(entry: CatalogDef, field: any): FieldConfig {
       ...(field.notFuture ? { notFuture: true } : {}), ...(field.min !== undefined ? { min: field.min } : {}), ...(field.afterField ? { afterField: field.afterField } : {}),
     };
   }
+  // A select over `ubigeo` is the departamento > provincia > distrito cascade (R-REF-6, D8): the leaf carries the field name, the
+  // levels above are not stored (INEI codes nest by prefix: departamento 2 digits, provincia 4, distrito 6).
+  if (field.kind === 'select' && field.source.catalog === 'ubigeo') {
+    return {
+      kind: 'cascade', name: field.name, lookup: 'ubigeo', required: Boolean(field.required),
+      levels: [
+        { name: 'id_departamento', label: 'Departamento', article: 'un' },
+        { name: 'id_provincia', label: 'Provincia', article: 'una' },
+        { name: field.name, label: 'Distrito', article: 'un' },
+      ],
+      ancestorsOf: (leafId) => [leafId.slice(0, 2), leafId.slice(0, 4)],
+    };
+  }
   if (field.kind === 'select') {
     // The lookup filters travel as query strings, so a boolean or numeric `where` value is sent as its text.
     const where = field.source.where && Object.fromEntries(Object.entries(field.source.where).map(([key, value]) => [key, String(value)]));

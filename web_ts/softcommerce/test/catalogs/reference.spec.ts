@@ -93,9 +93,14 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   // DaoTipoCambio.listTipoCambio takes (id, fecha, moneda) and no empresa; mantTipoCambio passes empresa and user on every write. The Promocion bean carries neither.
   'tipos-cambio': 'stamp', promociones: 'tenant',
 };
+/**
+ * The entries over the W1 sections (empresa, punto-venta; no seed file, so no generic table rows): `DAOEmpresa.listar("")` passes no empresa
+ * and `modificar` only the user; `DAOPuntoVenta.insertar/modificar/eliminar` pass the user and no empresa, and the web list stays tenant-wide.
+ */
+const W1_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { empresa: 'tenant', 'punto-venta': 'tenant' };
 
 describe('W2 reference catalogs are registered', () => {
-  it.each(Object.entries(SCOPE))('5.6b %s keeps its audited empresa scope', (slug, scope) => {
+  it.each(Object.entries({ ...SCOPE, ...W1_SCOPE }))('5.6b %s keeps its audited empresa scope', (slug, scope) => {
     const entry = REGISTRY.bySlug.get(slug);
     const decided = entry.scope === 'empresa' ? 'empresa' : (entry.stamp ?? []).includes('id_empresa') ? 'stamp' : 'tenant';
     expect(decided).toBe(scope);
@@ -103,6 +108,8 @@ describe('W2 reference catalogs are registered', () => {
 
   it('5.6b the audit covers every reference catalog', () => {
     expect(Object.keys(SCOPE).sort()).toEqual(Object.keys(ENTITIES).sort());
+    // Every other entry is Localidad (compat), a shared lookup or one of the two W1-section entries.
+    expect(REGISTRY.entries.filter((e: any) => e.scope !== 'shared' && !e.compat && !(e.slug in SCOPE)).map((e: any) => e.slug).sort()).toEqual(Object.keys(W1_SCOPE).sort());
   });
 
   it.each(Object.entries(REFS))('R-REG-6 %s refs its desktop source', (path, [catalog, where]) => {
@@ -152,7 +159,8 @@ describe('W2 reference catalogs are registered', () => {
   it('S-REG-6 every one of them seeds demo only: botica starts empty', () => {
     const seed = loadSeed(fileURLToPath(new URL('../../mock-server/data', import.meta.url)));
     // A shared lookup is one global list (S-REG-18, lookups.spec.ts), not a section keyed by tenant.
-    for (const entry of REGISTRY.entries.filter((e: any) => !e.compat && e.scope !== 'shared')) expect(Object.keys(seed[entry.section]), entry.slug).toEqual(['demo']);
+    // The W1-section entries (`seed: null`) keep the W1 seed, which also feeds the botica tenant.
+    for (const entry of REGISTRY.entries.filter((e: any) => !e.compat && e.scope !== 'shared' && e.seed !== null)) expect(Object.keys(seed[entry.section]), entry.slug).toEqual(['demo']);
   });
 });
 

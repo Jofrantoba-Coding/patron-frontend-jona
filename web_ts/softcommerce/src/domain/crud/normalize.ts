@@ -17,6 +17,16 @@ export function blurNormalize(field: FieldConfig, value: string): string {
 }
 
 /**
+ * On every typed or pasted edit (R-CRUD-6, S-REF-4, S-REF-10): a text field applies its `upper`, `lower` and `digits` steps as the
+ * characters arrive, so a digits field ignores letters and a lower-case field never shows capitals. Nothing is trimmed or padded
+ * here: an edit in progress keeps its spaces, `padLeft` waits for blur and the full normalization for submit.
+ */
+export function typedNormalize(field: FieldConfig, value: string): string {
+  if (field.kind !== 'text') return value;
+  return (field.normalize ?? []).reduce((out, step) => (step === 'upper' ? out.toUpperCase() : step === 'lower' ? out.toLowerCase() : step === 'digits' ? out.replace(/\D/g, '') : out), value);
+}
+
+/**
  * On submit: re-applies uppercase to the `uppercase` fields, trims and normalizes the registry fields with
  * the same steps as the server, never sends the server `code`, and drops the cascade levels above the leaf
  * (only the leaf id is stored). The result is the typed payload: the codec turns each boolean field into a boolean.

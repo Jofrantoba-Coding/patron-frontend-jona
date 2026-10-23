@@ -48,7 +48,8 @@ function rangeError(field: FieldConfig, values: FormValues, rangeMessage?: (name
 
 /** The shared wording of each rule (`fieldMessage`); without it a rule falls back to plain Spanish text. */
 interface Messages {
-  required?: (name: string) => string;
+  /** `level` is the cascade level that is unset: its label and article word the message instead of the field's. */
+  required?: (name: string, level?: { label: string; article?: string }) => string;
   range?: (name: string) => string;
   date?: DateMessage;
   minLen?: (name: string) => string;
@@ -60,7 +61,7 @@ function fieldError(field: FieldConfig, values: FormValues, { required: required
   if (field.kind === 'cascade') {
     // The first unset level is the one to fix (and to focus).
     const unset = field.levels.find((level) => isBlank(values[level.name]));
-    return field.required && unset ? { name: unset.name, message: `${unset.label} es obligatorio.` } : undefined;
+    return field.required && unset ? { name: unset.name, message: requiredMessage?.(field.name, unset) ?? `${unset.label} es obligatorio.` } : undefined;
   }
   const value = values[field.name];
   if (field.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? `${field.label} es obligatorio.` };
@@ -90,7 +91,8 @@ export function validate(fields: FieldConfig[], values: FormValues, rules?: Vali
   const { entry, mode } = rules;
   const byName = new Map(fields.map((field) => [field.name, field]));
   const entryFields = new Map(entry.fields.map((field: any) => [field.name, field]));
-  const required = (name: string) => fieldMessage(entry, entryFields.get(name), 'REQUIRED', mode as 'INSERT');
+  const required = (name: string, level?: { label: string; article?: string }) =>
+    fieldMessage(entry, level ? { ...entryFields.get(name), label: level.label, msgLabel: undefined, article: level.article } : entryFields.get(name), 'REQUIRED', mode as 'INSERT');
   const messages: Messages = {
     required,
     range: (name) => fieldMessage(entry, entryFields.get(name), 'RANGE', mode as 'INSERT'),

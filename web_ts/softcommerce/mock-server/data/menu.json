@@ -28,5 +28,7 @@
   { "id_menu": 27, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Familia", "nombre": "miFamilia" },
   { "id_menu": 28, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Modelo Vehiculo", "nombre": "miModeloVehiculo" },
   { "id_menu": 29, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Sub-Familia", "nombre": "miSubFamilia" },
-  { "id_menu": 30, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Promocion", "nombre": "miPromocion" }
+  { "id_menu": 30, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Promocion", "nombre": "miPromocion" },
+  { "id_menu": 31, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Empresa", "nombre": "mi_principal" },
+  { "id_menu": 32, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Punto de Venta", "nombre": "mi_puntoventa" }
 ]
