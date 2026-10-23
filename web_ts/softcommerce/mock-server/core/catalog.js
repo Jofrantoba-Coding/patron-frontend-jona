@@ -1,72 +1,51 @@
-import { notFound } from './errors.js';
-import { assertValid, positiveInt } from './validators.js';
+import { methodNotAllowed, modeNotSupported, notFound } from './errors.js';
+import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
 
 export const DEFAULT_PAGE_SIZE = 20;
 export const MAX_PAGE_SIZE = 1000;
 
-/**
- * Catalog registry. Wave 1 only ships `localidades`; each entry describes how
- * the generic rules (list, paging, logical delete, validation) apply to it.
- */
-const CATALOGS = {
-  localidades: {
-    idKey: 'id_localidad',
-    activeKey: 'activo',
-    required: ['id_empresa', 'descripcion', 'id_ubigeo'],
-    maxLength: { descripcion: 100, direccion: 100 },
-    writable: ['id_empresa', 'descripcion', 'direccion', 'id_ubigeo'],
-  },
-};
+/** Modes that permit each write verb (CLONE is a create). */
+const WRITE_MODES = { POST: ['INSERT', 'CLONE'], PUT: ['UPDATE'], DELETE: ['DELETE'] };
 
-/** @param {string} catalog */
-function definitionOf(catalog) {
-  if (!Object.hasOwn(CATALOGS, catalog)) throw notFound(`Unknown catalog: ${catalog}`);
-  return CATALOGS[/** @type {keyof typeof CATALOGS} */ (catalog)];
-}
-
-/** @param {any} store @param {string} tenantId @param {string} catalog */
-function rowsOf(store, tenantId, catalog) {
-  definitionOf(catalog);
-  return store.data(tenantId)[catalog];
-}
-
-/** @param {any[]} ubigeo @param {string} id */
-function ubigeoName(ubigeo, id) {
-  return ubigeo.find((u) => u.id === id)?.name ?? '';
+/** The registry entry behind a route slug; unknown slugs are a 404. @param {any} store @param {string} catalog */
+function entryOf(store, catalog) {
+  const entry = store.registry.bySlug.get(catalog);
+  if (!entry) throw notFound(`Unknown catalog: ${catalog}`);
+  return entry;
 }
 
 /**
- * Adds the display names the desktop UI shows (empresa, departamento,
- * provincia, distrito) to a localidad row.
- * @param {any} store @param {string} tenantId @param {any} row
+ * The entry for a write: read-only lookups answer 405 `METHOD_NOT_ALLOWED`, and a
+ * verb outside `modes` answers 405 `MODE_NOT_SUPPORTED` (R-REG-10, R-REG-11).
+ * @param {any} store @param {string} catalog @param {keyof typeof WRITE_MODES} verb
  */
-function enrich(store, tenantId, row) {
-  const empresa = store.data(tenantId).empresas.find((/** @type {any} */ e) => e.id === row.id_empresa);
-  const code = String(row.id_ubigeo ?? '');
-  const ubigeo = store.shared.ubigeo;
-  return {
-    ...row,
-    empresa: empresa?.name ?? '',
-    departamento: ubigeoName(ubigeo, code.slice(0, 2)),
-    provincia: ubigeoName(ubigeo, code.slice(0, 4)),
-    distrito: ubigeoName(ubigeo, code.slice(0, 6)),
-  };
+function writableEntry(store, catalog, verb) {
+  const entry = entryOf(store, catalog);
+  if (entry.readOnly) throw methodNotAllowed(`${catalog} is read-only`);
+  if (!WRITE_MODES[verb].some((mode) => entry.modes.includes(mode))) throw modeNotSupported(`${catalog} does not support ${verb}`);
+  return entry;
 }
 
 /**
- * Validates a (merged) record and throws a 422 with per-field details.
- * @param {any} store @param {string} tenantId @param {string} catalog @param {Record<string, any>} record
+ * Adds the joined display names (R-REG-8) and `<name>_label` for options fields
+ * (R-MOCK-14). A join over a missing or inactive target is an empty string.
+ * @param {any} store @param {string} tenantId @param {any} entry @param {any} row
  */
-function validate(store, tenantId, catalog, record) {
-  assertValid(definitionOf(catalog), record, {
-    empresaIds: store.data(tenantId).empresas.map((/** @type {any} */ e) => e.id),
-    districtIds: store.shared.ubigeo.map((/** @type {any} */ u) => u.id).filter((/** @type {string} */ id) => id.length === 6),
-  });
-}
-
-/** @param {Record<string, any>} body @param {string[]} writable */
-function pickWritable(body, writable) {
-  return Object.fromEntries(writable.filter((k) => k in body).map((k) => [k, body[k]]));
+function enrich(store, tenantId, entry, row) {
+  const out = { ...row };
+  for (const join of entry.joins ?? []) {
+    const ref = entry.refs.find((/** @type {any} */ r) => r.field === join.ref);
+    const target = targetOf(store, tenantId, ref.catalog);
+    const value = String(row[join.ref] ?? '');
+    const key = join.prefixLen ? value.slice(0, join.prefixLen) : value;
+    const found = target.rows.find((/** @type {any} */ r) => String(r[target.idKey]) === key);
+    const active = found && (!target.activeKey || found[target.activeKey] !== false);
+    out[join.as] = active ? String(found[join.display] ?? '') : '';
+  }
+  for (const f of entry.fields.filter((/** @type {any} */ f) => f.kind === 'options')) {
+    out[`${f.name}_label`] = f.options.find((/** @type {any} */ o) => o.value === String(row[f.name]))?.label ?? '';
+  }
+  return out;
 }
 
 /**
@@ -75,59 +54,59 @@ function pickWritable(body, writable) {
  * @param {Record<string, any>} [query] `page`, `pageSize` and `<field>=` filters.
  */
 export function listCatalog(store, tenantId, catalog, query = {}) {
-  const def = definitionOf(catalog);
+  const entry = entryOf(store, catalog);
   const { page: rawPage, pageSize: rawSize, ...filters } = query;
   const page = positiveInt(rawPage, 1);
   const pageSize = positiveInt(rawSize, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
-  let rows = rowsOf(store, tenantId, catalog).filter((/** @type {any} */ r) => r[def.activeKey] !== false);
+  let rows = rowsOf(store, tenantId, entry)
+    .filter((/** @type {any} */ r) => r[ACTIVE_KEY] !== false)
+    .map((/** @type {any} */ r) => enrich(store, tenantId, entry, r));
   for (const [field, value] of Object.entries(filters)) {
     const needle = String(value).toLowerCase();
     rows = rows.filter((/** @type {any} */ r) => String(r[field] ?? '').toLowerCase().includes(needle));
   }
   const start = (page - 1) * pageSize;
-  return {
-    items: rows.slice(start, start + pageSize).map((/** @type {any} */ r) => enrich(store, tenantId, r)),
-    pagination: { page, pageSize, total: rows.length },
-  };
+  return { items: rows.slice(start, start + pageSize), pagination: { page, pageSize, total: rows.length } };
 }
 
 /** Finds one record, active or not. Throws 404 when missing. */
-function findRow(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {string} */ catalog, /** @type {string} */ id) {
-  const def = definitionOf(catalog);
-  const row = rowsOf(store, tenantId, catalog).find((/** @type {any} */ r) => r[def.idKey] === id);
-  if (!row) throw notFound(`${catalog} ${id} not found`);
+function findRow(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {string} */ id) {
+  const row = rowsOf(store, tenantId, entry).find((/** @type {any} */ r) => r[entry.idKey] === id);
+  if (!row) throw notFound(`${entry.slug} ${id} not found`);
   return row;
 }
 
 /** @param {any} store @param {string} tenantId @param {string} catalog @param {string} id */
 export function getRecord(store, tenantId, catalog, id) {
-  return enrich(store, tenantId, findRow(store, tenantId, catalog, id));
+  const entry = entryOf(store, catalog);
+  return enrich(store, tenantId, entry, findRow(store, tenantId, entry, id));
 }
 
 /** @param {any} store @param {string} tenantId @param {string} catalog @param {Record<string, any>} body */
 export function createRecord(store, tenantId, catalog, body) {
-  const def = definitionOf(catalog);
-  const record = pickWritable(body, def.writable);
-  validate(store, tenantId, catalog, record);
-  const rows = rowsOf(store, tenantId, catalog);
-  const nextId = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[def.idKey]) || 0), 0) + 1;
-  const created = { [def.idKey]: String(nextId), ...record, [def.activeKey]: true };
+  const entry = writableEntry(store, catalog, 'POST');
+  const record = pickWritable(entry, body);
+  validateRecord(store, tenantId, entry, record);
+  const rows = rowsOf(store, tenantId, entry);
+  // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.
+  const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[entry.idKey]) || 0), 0) + 1;
+  const created = { [entry.idKey]: String(next).padStart(entry.codeWidth, '0'), ...record, [ACTIVE_KEY]: true };
   rows.push(created);
-  return enrich(store, tenantId, created);
+  return enrich(store, tenantId, entry, created);
 }
 
 /** @param {any} store @param {string} tenantId @param {string} catalog @param {string} id @param {Record<string, any>} body */
 export function updateRecord(store, tenantId, catalog, id, body) {
-  const def = definitionOf(catalog);
-  const row = findRow(store, tenantId, catalog, id);
-  const merged = { ...row, ...pickWritable(body, def.writable) };
-  validate(store, tenantId, catalog, merged);
+  const entry = writableEntry(store, catalog, 'PUT');
+  const row = findRow(store, tenantId, entry, id);
+  const merged = { ...row, ...pickWritable(entry, body) };
+  validateRecord(store, tenantId, entry, merged, id);
   Object.assign(row, merged);
-  return enrich(store, tenantId, row);
+  return enrich(store, tenantId, entry, row);
 }
 
 /** Logical delete (R-MOCK-7): flags the record inactive, never removes it. */
 export function deleteRecord(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {string} */ catalog, /** @type {string} */ id) {
-  const def = definitionOf(catalog);
-  findRow(store, tenantId, catalog, id)[def.activeKey] = false;
+  const entry = writableEntry(store, catalog, 'DELETE');
+  findRow(store, tenantId, entry, id)[ACTIVE_KEY] = false;
 }

@@ -6,11 +6,12 @@ import {
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../core/catalog.js';
 import { MockError, notFound, toErrorBody } from '../core/errors.js';
 import { createStore } from '../core/store.js';
+import { REGISTRY } from '../registry/index.js';
 import { childrenOf } from '../core/ubigeo.js';
 import { loadSeed } from './loadSeed.js';
 
 /**
- * @typedef {{ seed?: Record<string, any>, dataDir?: string }} AppOptions
+ * @typedef {{ seed?: Record<string, any>, dataDir?: string, registry?: ReturnType<typeof import('../registry/schema.js').validateRegistry> }} AppOptions
  * @typedef {{ store: ReturnType<typeof createStore>, tenant: string, params: string[], query: Record<string, string>, body: any }} Context
  * @typedef {{ method: string, pattern: RegExp, isPublic?: boolean, handle: (ctx: Context) => { status?: number, body?: unknown } }} Route
  */
@@ -22,7 +23,11 @@ const CORS_HEADERS = {
   'Access-Control-Expose-Headers': 'X-Correlation-Id',
 };
 
-/** Route table. Handlers delegate to `mock-server/core`; no business rule lives here. @type {Route[]} */
+/**
+ * Route table. Handlers delegate to `mock-server/core`; no business rule lives here.
+ * The generic `/v1/{slug}` routes serve every registry entry (R-MOCK-9): the core resolves the slug.
+ * @type {Route[]}
+ */
 const ROUTES = [
   { method: 'GET', pattern: /^\/auth\/session-options$/, isPublic: true, handle: ({ store }) => ({ body: sessionOptions(store) }) },
   { method: 'POST', pattern: /^\/auth\/login$/, handle: ({ store, tenant, body }) => ({ body: login(store, tenant, body) }) },
@@ -68,9 +73,9 @@ async function readJson(req) {
  * so tests can listen on port 0.
  * @param {AppOptions} options
  */
-export function createApp({ seed, dataDir }) {
+export function createApp({ seed, dataDir, registry = REGISTRY }) {
   if (!seed && !dataDir) throw new Error('createApp needs a seed or a dataDir');
-  const store = createStore(seed ?? loadSeed(/** @type {string} */ (dataDir)));
+  const store = createStore(seed ?? loadSeed(/** @type {string} */ (dataDir), registry), registry);
 
   const server = createServer(async (req, res) => {
     const correlationId = String(req.headers['x-correlation-id'] || randomUUID());

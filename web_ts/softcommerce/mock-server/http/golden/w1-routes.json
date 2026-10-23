@@ -1,0 +1,14 @@
+{
+  "/v1/empresas": {
+    "status": 200,
+    "body": "{\"items\":[{\"id\":\"1\",\"name\":\"COMERCIAL DEMO SAC\"},{\"id\":\"2\",\"name\":\"DISTRIBUIDORA DEMO SRL\"}]}"
+  },
+  "/v1/puntos-venta?id_empresa=1": {
+    "status": 200,
+    "body": "{\"items\":[{\"id\":\"1\",\"name\":\"TIENDA CENTRAL\",\"id_empresa\":\"1\"},{\"id\":\"2\",\"name\":\"TIENDA MIRAFLORES\",\"id_empresa\":\"1\"}]}"
+  },
+  "/v1/puntos-venta": {
+    "status": 200,
+    "body": "{\"items\":[{\"id\":\"1\",\"name\":\"TIENDA CENTRAL\",\"id_empresa\":\"1\"},{\"id\":\"2\",\"name\":\"TIENDA MIRAFLORES\",\"id_empresa\":\"1\"},{\"id\":\"3\",\"name\":\"ALMACEN SUR\",\"id_empresa\":\"2\"}]}"
+  }
+}
