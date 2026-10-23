@@ -56,6 +56,7 @@ export const W1_SECTION_CASES: CatalogCase[] = [
 
   // punto-venta: S-REF-32, S-MOCK-24 chain, S-MOCK-30, R-REF-6
   named('punto-venta S-MOCK-25 creates the next W1 id, uppercased, stamping the session user', createPv(pv(), { ok: true, match: { id: '4', name: 'CAJA UNO', direccion: 'AV. UNO 100', id_usuario: 7, empresa: 'COMERCIAL DEMO SAC', localidad: 'LOCAL CENTRAL', departamento: 'LIMA' } })),
+  named('punto-venta R-REF-9 the estado A of the desktop insert is stored on create (a constant, not a body value)', createPv(pv({ estado: 'I' }), { ok: true, match: { estado: 'A' } })),
   named('punto-venta the empresa message names the Punto de Venta, not the Localidad [DEVIATION]', createPv({}, invalid(['id_empresa'], [pvText('agregar', 'Empresa')]), true)),
   named('punto-venta then the localidad', createPv(pv({ id_localidad: '' }), invalid(['id_localidad'], [pvText('agregar', 'Localidad')]))),
   named('punto-venta then the descripcion with its accent', createPv(pv({ name: ' ' }), invalid(['name'], [pvText('agregar', 'Descripción')]))),

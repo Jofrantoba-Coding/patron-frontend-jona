@@ -7,7 +7,7 @@
  * of them, so the list shows all with its Empresa column. [DEVIATION] the desktop empresa message says "un Localidad"; the web
  * port names the Punto de Venta. The form field `Descripción` is stored as the W1 `name`. The checks are empresa, localidad,
  * descripcion, direccion, telefono (no max, no document) and the departamento > provincia > distrito cascade, in that order.
- * The desktop also sends the estado `A` on insert; it carries no field and no screen, so it waits for `constants` (W2-9).
+ * The desktop also sends the estado `A` on insert; it carries no field and no screen, so it is a `constants` entry (R-REF-9).
  * @type {import('../schema.js').CatalogDef}
  */
 export const puntoVenta = {
@@ -23,6 +23,7 @@ export const puntoVenta = {
   menu: { parent: 'mnGenerales', label: 'Punto de Venta' },
   optionLabel: 'name',
   stamp: ['id_usuario'],
+  constants: { estado: 'A' },
   messages: { style: 'M1' },
   fields: [
     { name: 'id', kind: 'code', label: 'Código' },
