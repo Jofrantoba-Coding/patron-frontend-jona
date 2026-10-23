@@ -1,0 +1,58 @@
+{
+  "demo": [
+    {
+      "id_chofer": "0000000001",
+      "id_tipo_doc_iden": "01",
+      "numero_doc": "45871236",
+      "ap_paterno": "RAMOS",
+      "ap_materno": "DIAZ",
+      "nombres": "LUIS",
+      "descripcion": "RAMOS DIAZ LUIS",
+      "nro_licencia": "Q45871236",
+      "direccion": "AV. LOS OLIVOS 123",
+      "sexo": "M",
+      "telefono": "014567890",
+      "celular": "987654321",
+      "id_nacionalidad": "001",
+      "flag_tipo_persona": "N",
+      "id_usuario": 7,
+      "activo": true
+    },
+    {
+      "id_chofer": "0000000002",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20512345678",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "TRANSPORTES ANDINOS SAC",
+      "nro_licencia": "",
+      "direccion": "JR. UNION 45",
+      "sexo": "",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "002",
+      "flag_tipo_persona": "N",
+      "id_usuario": 7,
+      "activo": true
+    },
+    {
+      "id_chofer": "0000000003",
+      "id_tipo_doc_iden": "01",
+      "numero_doc": "12345678",
+      "ap_paterno": "TORRES",
+      "ap_materno": "VEGA",
+      "nombres": "ANA",
+      "descripcion": "TORRES VEGA ANA",
+      "nro_licencia": "",
+      "direccion": "",
+      "sexo": "F",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "flag_tipo_persona": "N",
+      "id_usuario": 7,
+      "activo": false
+    }
+  ]
+}

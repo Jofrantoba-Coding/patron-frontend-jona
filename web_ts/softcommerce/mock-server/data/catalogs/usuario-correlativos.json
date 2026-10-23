@@ -1,0 +1,9 @@
+{
+  "demo": [
+    { "id_usuario_correlativo": "00001", "id_usuario": "2", "id_localidad": "1", "id_punto_venta": "1", "id_tipo_doc": "01", "id_correlativo": "00001", "habilitar": true, "id_empresa": "1", "activo": true },
+    { "id_usuario_correlativo": "00002", "id_usuario": "2", "id_localidad": "1", "id_punto_venta": "1", "id_tipo_doc": "TI", "id_correlativo": "00002", "habilitar": true, "id_empresa": "1", "activo": true },
+    { "id_usuario_correlativo": "00003", "id_usuario": "1", "id_localidad": "2", "id_punto_venta": "2", "id_tipo_doc": "01", "id_correlativo": "00004", "habilitar": false, "id_empresa": "1", "activo": true },
+    { "id_usuario_correlativo": "00004", "id_usuario": "1", "id_localidad": "3", "id_punto_venta": "3", "id_tipo_doc": "03", "id_correlativo": "00005", "habilitar": true, "id_empresa": "2", "activo": true },
+    { "id_usuario_correlativo": "00005", "id_usuario": "4", "id_localidad": "1", "id_punto_venta": "1", "id_tipo_doc": "01", "id_correlativo": "00001", "habilitar": true, "id_empresa": "1", "activo": false }
+  ]
+}

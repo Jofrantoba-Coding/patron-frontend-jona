@@ -1,0 +1,40 @@
+{
+  "demo": [
+    {
+      "id_socio": "1",
+      "id_tipo_doc_iden": "01",
+      "numero_doc": "45871236",
+      "ap_paterno": "RAMOS",
+      "ap_materno": "DIAZ",
+      "nombres": "LUIS",
+      "descripcion": "RAMOS DIAZ LUIS",
+      "flag_tipo_persona": "N",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_socio": "2",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20512345678",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "TRANSPORTES ANDINOS SAC",
+      "flag_tipo_persona": "J",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_socio": "3",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "10458712369",
+      "ap_paterno": "SOTO",
+      "ap_materno": "PAZ",
+      "nombres": "RUTH",
+      "descripcion": "SOTO PAZ RUTH",
+      "flag_tipo_persona": "N",
+      "estado": true,
+      "activo": false
+    }
+  ]
+}

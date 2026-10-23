@@ -1,0 +1,752 @@
+/// <reference types="vite/client" />
+import { todayIso } from '../../mock-server/core/dates.js';
+import { REGISTRY } from '../../mock-server/registry/index.js';
+import { toCatalogConfig } from '../../src/catalogs/registry';
+import type { CatalogCase, Outcome } from './cases';
+
+/**
+ * Table-driven cases of the text-only reference catalogs (R-REF-4). Generic rows are generated from the
+ * UI config derived from the registry, so UI, HTTP mock and in-browser mock must all meet them (R-REG-3,
+ * S-REF-37); per-slug rows pin the exact desktop texts and the documented [DEVIATION]s.
+ */
+export const ENTITIES: Record<string, string> = {
+  aduanas: 'un Aduana',
+  colores: 'un Color',
+  'estados-documento': 'un Estado de Documento',
+  laboratorios: 'un Laboratorio',
+  marcas: 'una Marca',
+  nacionalidades: 'una Nacionalidad',
+  'motivos-traslado': 'un Motivo Traslado',
+  'clasif-clientes': 'una Clasif Cliente',
+  'clasif-inventarios': 'un Tipo de Movimiento de Inventario',
+  tamanos: 'un Tamano',
+  'tipos-anexo': 'un Tipo Anexo',
+  'tipos-descuento': 'un Tipo Descuento',
+  'condiciones-pago': 'una Condición de Pago',
+  'tipos-trabajador': 'un Tipo Trabajador',
+  'marcas-vehiculo': 'una Marca Vehiculo',
+  turnos: 'un Turno',
+  'motivos-descuento': 'un Motivo Descuento',
+  'motivos-nc': 'un Motivo de Nota de Crédito',
+  'tipos-trabajador-perfil': 'un Perfil',
+  familias: 'una Familia',
+  'modelos-vehiculo': 'un Modelo Vehiculo',
+  subfamilias: 'una SubFamilia',
+  'tipos-cambio': 'un Tipo de Cambio',
+  promociones: 'una Promocion',
+  almacenes: 'un Almacen',
+  zonas: 'una Zona',
+  correlativos: 'un Correlativo',
+  ubicaciones: 'una Ubicación',
+  'tipos-mov-inventario': 'un Tipo de Movimiento de Inventario',
+  'unidades-medida': 'una Unidad de Medida',
+  vehiculos: 'un Vehiculo',
+  // The desktop spells the entity "Asignasion" in every message of RegisterUsuarioCorrelativo.
+  'usuario-correlativos': 'una Asignasion de Usuario - Correlativo',
+  'zonas-distancia': 'una Zona Distancia',
+  // The desktop sentences of RegisterTrabajadorPuntoVenta say "un Correlativo" for the empresa, localidad and punto de venta [DEVIATION]; the web names the Trabajador.
+  'trabajador-punto-venta': 'un Trabajador',
+};
+
+/** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
+const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo', 'vehiculos']);
+const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción', almacenes: 'su Descripción' };
+/** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto, the Tipo de Cambio its fecha and moneda). */
+export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones', 'vehiculos', 'usuario-correlativos', 'zonas-distancia', 'trabajador-punto-venta']);
+/** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
+/** The Almacen checks its localidad and punto de venta before the descripcion (RegisterAlmacen.isRegisterValid). */
+export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias', 'almacenes']);
+
+/** The desktop sentence for a blank descripcion in `modo` (agregar, modificar, ...). */
+export const descripcionText = (slug: string, modo: string) => {
+  const label = DESCRIPCION[slug] ?? 'su Descripcion';
+  // The desktop descripcion message of the SubFamilia has a stray space before its comma (RegisterSubFamilia.isRegisterValid).
+  if (slug === 'subfamilias') return `Para ${modo} ${ENTITIES[slug]} , debes especificar ${label}.`;
+  return M2.has(slug) ? `Para ${modo}, debes especificar ${label}.` : `Para ${modo} ${ENTITIES[slug]}, debes especificar ${label}.`;
+};
+
+const files = import.meta.glob<Record<string, any[]>>('../../mock-server/data/catalogs/*.json', { eager: true, import: 'default' });
+/** Demo seed rows of a catalog file. */
+export const seedRows = (seed: string): any[] => {
+  const data = files[`../../mock-server/data/catalogs/${seed}.json`];
+  return Array.isArray(data) ? data : (data?.demo ?? []);
+};
+
+/** Slugs whose desktop message names the wrong entity or gender; the web port words the real one. */
+const DEVIATIONS = new Set(['marcas', 'motivos-traslado', 'tamanos', 'tipos-anexo']);
+
+/** A date no seed row uses, so a valid body never meets the (empresa, fecha, moneda) key of a seeded tipo de cambio. */
+const FREE_DATE = '2030-06-15';
+
+const w1Files = import.meta.glob<any>('../../mock-server/data/*.json', { eager: true, import: 'default' });
+/** The W1 file of an entry or source with no seed file of its own: a W1 section (R-REG-12) or a builtin source. */
+const W1_FILE: Record<string, string> = { localidades: 'localidades', empresa: 'empresas', 'punto-venta': 'puntos-venta', empresas: 'empresas', ubigeo: 'ubigeo', usuarios: 'users' };
+const w1Rows = (file: string) => {
+  const data = w1Files[`../../mock-server/data/${file}.json`];
+  return Array.isArray(data) ? data : (data?.demo ?? []);
+};
+
+/** What a select points to: its rows, id key and, for ubigeo, the rule that only a distrito (6 digits) is a valid ref. */
+function sourceOf(catalog: string): { rows: any[]; idKey: string; scope?: string; accepts: (row: any) => boolean } {
+  const entry = REGISTRY.bySlug.get(catalog);
+  if (!entry) return { rows: w1Rows(W1_FILE[catalog]), idKey: 'id', accepts: (row) => catalog !== 'ubigeo' || row.id.length === 6 };
+  return { rows: entry.seed === null ? w1Rows(W1_FILE[catalog]) : seedRows(entry.seed), idKey: entry.idKey, scope: entry.scope, accepts: () => true };
+}
+
+/** Whether `row` of a source belongs to the parent value chosen: a column match, or an `exists` lookup filter (tipos-doc-venta by punto de venta). */
+const belongsTo = (catalog: string, row: any, parent: { field: string; filterKey: string }, chosen: Record<string, string>): boolean => {
+  const target = REGISTRY.bySlug.get(catalog);
+  const exists = target?.lookupFilters?.[parent.filterKey]?.exists;
+  if (!exists) return String(row[parent.filterKey]) === chosen[parent.field];
+  return seedRows(REGISTRY.bySlug.get(exists.catalog).seed).some(
+    (r) => r.activo !== false && String(r[exists.local]) === String(row[target.idKey]) && String(r[exists.key ?? parent.filterKey]) === chosen[parent.field] && Object.entries(exists.where ?? {}).every(([k, v]) => String(r[k]) === String(v)),
+  );
+};
+
+/**
+ * A ref id the server accepts for a select field: the first active row of its source that meets the static where (`$session.empresa`
+ * is the session empresa) and belongs to the parents already chosen (`chosen`, by field name).
+ */
+const refId = (field: any, empresa: string | undefined, chosen: Record<string, string>): string => {
+  const source = sourceOf(field.source.catalog);
+  const where = Object.entries(field.source.where ?? {}).map(([k, v]) => [k, v === '$session.empresa' ? (empresa ?? EMPRESA) : v] as const);
+  // An empresa-scope source only offers (and the server only accepts) the rows of the session empresa.
+  const row = source.rows.find(
+    (r) =>
+      r.activo !== false && source.accepts(r) && (empresa === undefined || source.scope !== 'empresa' || String(r.id_empresa) === empresa) &&
+      where.every(([k, v]) => String(r[k]) === String(v)) && (field.dependsOn ?? []).every((p: any) => chosen[p.field] === undefined || belongsTo(field.source.catalog, r, p, chosen)),
+  );
+  return String(row[source.idKey]);
+};
+
+/** The required selects of an entry filled in declared order, each child with an id of the parent chosen before it. */
+const refsFor = (entry: any, empresa?: string): Record<string, string> => {
+  const chosen: Record<string, string> = Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value]));
+  // A transient select (the ubigeo cascade of a ZonaDistancia) is a form-only level: a body never carries it.
+  for (const f of entry.fields.filter((f: any) => f.kind === 'select' && f.required && !f.transient)) chosen[f.name] = refId(f, empresa, chosen);
+  return chosen;
+};
+
+/** Session empresa of the table: the demo seed has rows of empresas 1 and 2 (5.3, 5.6b). */
+const EMPRESA = '1';
+/** Entries whose writes record the session empresa: `scope: 'empresa'` also limits list and get to it, a stamp-only entry does not. */
+const usesEmpresa = (entry: any) => entry.scope === 'empresa' || (entry.stamp ?? []).includes('id_empresa');
+const inEmpresa = (entry: any, rows: any[]) => (entry.scope === 'empresa' ? rows.filter((r) => String(r.id_empresa) === EMPRESA) : rows);
+
+const invalid = (fields: string[], messages?: string[]): Outcome => ({ status: 422, code: 'VALIDATION_ERROR', fields, messages });
+const WRITER = { userId: '7' };
+
+/** The reference catalogs of ENTITIES: the generic rows below cover their code and text fields. */
+export const referenceEntries = () => REGISTRY.entries.filter((e: any) => e.slug in ENTITIES);
+
+function genericCases(entry: any): CatalogCase[] {
+  const { slug, idKey, codeWidth } = entry;
+  const config = toCatalogConfig(entry);
+  // A conditional text (the ticket fields of a Correlativo) has its own rows: it only exists for some values of another field.
+  const texts = config.fields.flatMap((f) => (f.kind === 'text' && !f.visibleWhen ? [f] : []));
+  // A valid body: every required text, every required integer (1), and the first option of every required options field.
+  const valid = {
+    ...Object.fromEntries(texts.filter((f) => f.required).map((f) => [f.name, 'x'])),
+    ...Object.fromEntries(config.fields.filter((f) => f.kind === 'number' && f.required).map((f) => [f.name, '1'])),
+    ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value])),
+    ...refsFor(entry),
+    ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'date' && f.required).map((f: any) => [f.name, FREE_DATE])),
+  };
+  /** Required refs that exist in the session empresa: an empresa-scope source (the familia) differs per empresa. None when the demo data has no valid chain there. */
+  const refsOf = (empresa: string): Record<string, string> | undefined => {
+    try { return refsFor(entry, empresa); } catch { return undefined; }
+  };
+  const rows = seedRows(entry.seed);
+  const scoped = inEmpresa(entry, rows);
+  const active = scoped.filter((r) => r.activo !== false);
+  const inactive = scoped.find((r) => r.activo === false);
+  const next = String(Math.max(...rows.map((r) => Number(r[idKey]))) + 1).padStart(codeWidth, '0');
+  const at = (what: string) => `${slug} ${what}`;
+  const create = (body: Record<string, unknown>, expect: Outcome, ctx: CatalogCase['ctx'] = WRITER): CatalogCase => ({ name: '', slug, ctx, steps: [{ op: 'create', body }], expect });
+
+  const cases: CatalogCase[] = [
+    { ...create({ ...valid }, { ok: true, match: { [idKey]: next, activo: true } }), name: at('S-MOCK-25 the server issues the next code padded to codeWidth') },
+    { name: at('S-REF-1 the list hides inactive rows'), slug, steps: [{ op: 'list' }], expect: { ok: true, total: active.length } },
+    { name: at('S-MOCK-15 get resolves an inactive row'), slug, steps: [{ op: 'get', id: inactive[idKey] }], expect: { ok: true, match: { activo: false } } },
+    { name: at('R-MOCK-7 a deleted row leaves the list'), slug, steps: [{ op: 'remove', id: active[0][idKey] }, { op: 'list' }], expect: { ok: true, total: active.length - 1 } },
+  ];
+  // The Turno desktop never passes the user to its DAO, so it stamps nothing and needs no session header.
+  if (entry.stamp?.includes('id_usuario')) {
+    cases.push(
+      { ...create({ ...valid, id_usuario: '9' }, { ok: true, match: { id_usuario: 7 } }), name: at('S-MOCK-26 stamps the session user, not the body') },
+      { ...create({ ...valid }, { status: 400, code: 'MISSING_SESSION_CONTEXT' }, {}), name: at('S-MOCK-36 a write without the user header is a 400') },
+    );
+  }
+  for (const { name, required, maxLength, uppercase } of texts) {
+    if (required) {
+      cases.push({ ...create({ ...valid, [name]: '  ' }, invalid([name])), name: at(`S-REF-34 a blank ${name} is a 422 on it`) });
+      const { [name]: _omitted, ...without } = valid;
+      cases.push({ ...create(without, invalid([name])), name: at(`S-REF-34 a missing ${name} is a 422 on it`) });
+    }
+    if (maxLength !== undefined) {
+      cases.push({ ...create({ ...valid, [name]: 'x'.repeat(maxLength) }, { ok: true }), name: at(`S-REF-3 ${name} accepts ${maxLength} characters`) });
+      cases.push({ ...create({ ...valid, [name]: 'x'.repeat(maxLength + 1) }, invalid([name])), name: at(`S-REF-3 ${name} rejects ${maxLength + 1} characters`) });
+    }
+    cases.push({ ...create({ ...valid, [name]: '  rojo ' }, { ok: true, match: { [name]: uppercase ? 'ROJO' : 'rojo' } }), name: at(`S-REF-4 ${name} is trimmed${uppercase ? ' and uppercased' : ' and keeps its case'}`) });
+  }
+  // S-MOCK-26/27/36 on the real catalogs of an empresa: writes record the session empresa, an `empresa` scope limits reads to it.
+  if (usesEmpresa(entry)) {
+    const as = (empresaId: string) => ({ userId: '7', empresaId });
+    const count = (empresa: string) => rows.filter((r) => String(r.id_empresa) === empresa && r.activo !== false).length;
+    const list = (what: string, empresaId: string, expect: Outcome): CatalogCase => ({ name: at(what), slug, ctx: as(empresaId), steps: [{ op: 'list' }], expect });
+    // The usuario-correlativos demo data offers no tipo de documento under the punto de venta of empresa 2 (its only correlativo is deleted), so
+    // it has no valid body there; its own rows prove the empresa stamp under empresa 1.
+    const inTwo = refsOf('2');
+    if (inTwo) cases.push({ ...create({ ...valid, ...inTwo, id_empresa: '9' }, { ok: true, match: { id_empresa: '2' } }, as('2')), name: at('S-MOCK-26 a write records the session empresa, not the body') });
+    cases.push(
+      { ...create({ ...valid }, { status: 400, code: 'MISSING_SESSION_CONTEXT' }, as('')), name: at('S-MOCK-36 a write without the empresa header is a 400') },
+      { ...create({ ...valid }, { status: 400, code: 'INVALID_SESSION_CONTEXT' }, as('999')), name: at('S-MOCK-36 a write with an empresa outside the tenant is a 400') },
+    );
+    if (entry.scope === 'empresa') {
+      const other = rows.find((r) => String(r.id_empresa) !== EMPRESA);
+      cases.push(
+        list('S-MOCK-27 empresa 1 lists only its own rows', '1', { ok: true, total: count('1') }),
+        list('S-MOCK-27 empresa 2 lists only its own rows', '2', { ok: true, total: count('2') }),
+        list('S-MOCK-36 a list without the empresa header is a 400', '', { status: 400, code: 'MISSING_SESSION_CONTEXT' }),
+        list('S-MOCK-36 a list with an empresa outside the tenant is a 400', '999', { status: 400, code: 'INVALID_SESSION_CONTEXT' }),
+        { name: at('S-MOCK-27 a row of another empresa is not found'), slug, ctx: as('1'), steps: [{ op: 'get', id: other[idKey] }], expect: { status: 404, code: 'NOT_FOUND' } },
+      );
+    } else cases.push(list('the list stays tenant-wide: it needs no empresa header', '', { ok: true, total: active.length }));
+  }
+  // S-REF-34: a required ref that is blank, unknown or inactive is a 422 on that field, for every catalog with a select.
+  for (const { name, required, source, default: starts } of entry.fields.filter((f: any) => f.kind === 'select' && !f.transient)) {
+    if (required) {
+      const { [name]: _omitted, ...without } = valid;
+      // A select with a default (the moneda of a tipo de cambio) is filled when the body omits it; a blank one is still a 422.
+      if (starts === undefined) cases.push({ ...create(without, invalid([name])), name: at(`S-REF-34 a missing ${name} is a 422 on it`) });
+      else cases.push({ ...create({ ...valid, [name]: '' }, invalid([name])), name: at(`S-REF-34 a blank ${name} is a 422 on it`) });
+    }
+    cases.push({ ...create({ ...valid, [name]: '99999' }, invalid([name])), name: at(`S-REF-34 an unknown ${name} is a 422 on it`) });
+    const target = sourceOf(source.catalog);
+    const retired = target.rows.find((r) => r.activo === false);
+    if (retired) cases.push({ ...create({ ...valid, [name]: String(retired[target.idKey]) }, invalid([name])), name: at(`S-REF-34 an inactive ${name} is a 422 on it`) });
+  }
+  return cases;
+}
+
+/** Exact desktop texts and deviations per slug (R-REF-3, R-REF-4). */
+function slugCases(slug: string, deviation = false): CatalogCase[] {
+  const first = seedRows(REGISTRY.bySlug.get(slug).seed)[0][REGISTRY.bySlug.get(slug).idKey];
+  const text = (modo: string) => descripcionText(slug, modo);
+  return [
+    { name: `${slug} S-REF-2 INSERT words the desktop message`, slug, ctx: WRITER, deviation, steps: [{ op: 'create', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], [text('agregar')]) },
+    { name: `${slug} S-REF-2 UPDATE says modificar`, slug, ctx: WRITER, deviation, steps: [{ op: 'update', id: first, body: { descripcion: ' ' } }], expect: invalid(['descripcion'], [text('modificar')]) },
+  ];
+}
+
+const DATE_MSG = 'La fecha del Tipo de Cambio que has especificado no es válida. Compruébala e inténtalo de nuevo.';
+const DUPLICATE_MSG = 'La fecha del Tipo Cambio ya se encuentra registrado para esa moneda, por favor ingrese otra fecha o seleccione otra moneda.';
+/** Stray space before the comma: the desktop spells its monto messages `un Tipo de Cambio , debes ...` (RegisterTipoCambio.isRegisterValid). */
+const montoText = (modo: string, label: string) => `Para ${modo} un Tipo de Cambio , debes especificar su ${label}.`;
+const AMOUNTS = { monto_compra: 1, monto_venta: 1, monto_comercial: 1, monto_especial: 1 };
+
+const UBICACION_TEXT = { id_localidad: 'Seleccione Localidad', id_punto_venta: 'Seleccione Punto de Venta', id_almacen: 'Seleccione Almacen', descripcion: 'Ingrese Descripcion' };
+
+const TIPO_MOV = 'un Tipo de Movimiento de Inventario';
+
+const USUARIO_CORRELATIVO_DUPLICATE = 'Ya existe una asignacion del documento con la serie elegida al mismo usuario, por favor elija otra serie u otro usuario disponible.';
+const TRABAJADOR_PV_DUPLICATE = 'El Trabajador ya se encuentra asignado al punto de venta especificado. Compruébala e inténtalo de nuevo';
+const CORRELATIVO_DUPLICATE = 'Ya existe una asignacion de la serie al mismo tipo de documento, por favor digite otra serie.';
+
+const BASE_CASES: CatalogCase[] = [
+  ...referenceEntries().flatMap(genericCases),
+  ...Object.keys(ENTITIES).filter((slug) => !NO_DESCRIPCION.has(slug) && !DESCRIPCION_NOT_FIRST.has(slug)).flatMap((slug) => slugCases(slug, DEVIATIONS.has(slug))),
+  // R-REF-4 laboratorios: pais is optional, uppercased and capped at 100.
+  { name: 'laboratorios pais is optional', slug: 'laboratorios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'abbott' } }], expect: { ok: true, match: { descripcion: 'ABBOTT' } } },
+  { name: 'laboratorios pais is uppercased', slug: 'laboratorios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'abbott', pais: ' suiza ' } }], expect: { ok: true, match: { pais: 'SUIZA' } } },
+  { name: 'laboratorios pais over 100 characters is a 422', slug: 'laboratorios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', pais: 'p'.repeat(101) } }], expect: invalid(['pais']) },
+  // R-REF-4 nacionalidades: PERUANA and EXTRANJERA are seeded for the docIdentidad rule (W2-12).
+  { name: 'nacionalidades seeds PERUANA', slug: 'nacionalidades', steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { descripcion: 'PERUANA' } } },
+  { name: 'nacionalidades seeds EXTRANJERA', slug: 'nacionalidades', steps: [{ op: 'get', id: '002' }], expect: { ok: true, match: { descripcion: 'EXTRANJERA' } } },
+  // R-REF-5 motivos-traslado: hab_guia is a boolean (default false), abrev is optional.
+  { name: 'motivos-traslado abrev is optional and hab_guia defaults to false', slug: 'motivos-traslado', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'venta' } }], expect: { ok: true, match: { descripcion: 'VENTA', hab_guia: false } } },
+  { name: 'motivos-traslado abrev is uppercased', slug: 'motivos-traslado', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: ' vta ' } }], expect: { ok: true, match: { abrev: 'VTA' } } },
+  { name: 'motivos-traslado abrev over 100 characters is a 422', slug: 'motivos-traslado', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'a'.repeat(101) } }], expect: invalid(['abrev']) },
+  { name: 'S-CRUD-24 motivos-traslado stores the boolean it is sent', slug: 'motivos-traslado', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', hab_guia: true } }], expect: { ok: true, match: { hab_guia: true } } },
+  { name: 'motivos-traslado hab_guia can be switched on UPDATE', slug: 'motivos-traslado', ctx: WRITER, steps: [{ op: 'update', id: '002', body: { descripcion: 'ENTRE ALMACENES', hab_guia: true } }], expect: { ok: true, match: { hab_guia: true } } },
+  { name: 'motivos-traslado hab_guia must be a boolean', slug: 'motivos-traslado', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', hab_guia: 'S' } }], expect: invalid(['hab_guia']) },
+  // R-REF-3 estado (S-REF-7): true on create, editable afterwards; it is not the logical-delete flag.
+  { name: 'S-REF-7 clasif-clientes estado is true when the body omits it', slug: 'clasif-clientes', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x' } }], expect: { ok: true, match: { estado: true, activo: true } } },
+  { name: 'S-REF-7 clasif-clientes estado can be set to false on UPDATE and the row stays listed', slug: 'clasif-clientes', ctx: WRITER, steps: [{ op: 'update', id: '1', body: { descripcion: 'MAYORISTA', estado: false } }, { op: 'list' }], expect: { ok: true, total: 2 } },
+  { name: 'S-REF-7 clasif-clientes estado must be a boolean', slug: 'clasif-clientes', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', estado: 'A' } }], expect: invalid(['estado']) },
+  { name: 'S-REF-7 clasif-clientes get returns the stored estado of an inactive-estado row', slug: 'clasif-clientes', steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { estado: false, activo: true } } },
+  // R-REF-4 clasif-inventarios: tipo is a required E|S option, checked after descripcion and abrev.
+  { name: 'S-REF-6 clasif-inventarios without a tipo says so with the desktop text', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x' } }], expect: invalid(['tipo'], ['Para agregar un Tipo de Movimiento de Inventario, debes especificar su Tipo de Movimiento.']) },
+  { name: 'clasif-inventarios abrev is required and says Abreviatura', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', tipo: 'E' } }], expect: invalid(['abrev'], ['Para agregar un Tipo de Movimiento de Inventario, debes especificar su Abreviatura.']) },
+  { name: 'S-REF-6 clasif-inventarios stores tipo S and labels it', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x', tipo: 'S' } }], expect: { ok: true, match: { tipo: 'S', tipo_label: 'Salida' } } },
+  { name: 'R-MOCK-10 clasif-inventarios tipo outside E|S is a 422 on tipo', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x', tipo: 'Z' } }], expect: invalid(['tipo']) },
+  { name: 'S-MOCK-37 clasif-inventarios get carries tipo and tipo_label', slug: 'clasif-inventarios', steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { tipo: 'E', tipo_label: 'Entrada' } } },
+  { name: 'S-MOCK-37 clasif-inventarios list carries tipo and tipo_label on every item', slug: 'clasif-inventarios', steps: [{ op: 'list' }], expect: { ok: true, match: { items: [{ tipo: 'E', tipo_label: 'Entrada' }, { tipo: 'S', tipo_label: 'Salida' }] } } },
+  { name: 'clasif-inventarios tipo can change on UPDATE', slug: 'clasif-inventarios', ctx: WRITER, steps: [{ op: 'update', id: '001', body: { descripcion: 'COMPRA', abrev: 'COM', tipo: 'S' } }], expect: { ok: true, match: { tipo: 'S', tipo_label: 'Salida' } } },
+  // R-REF-4 tipos-descuento: abrev is required, at most 5. S-MOCK-17 lists both fields, but D10 stops at the first failing step.
+  { name: 'S-MOCK-17 tipos-descuento blank descripcion and a 6-character abrev fail on descripcion first (D10)', slug: 'tipos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: ' ', abrev: 'abcdef' } }], expect: invalid(['descripcion']) },
+  { name: 'S-MOCK-17 tipos-descuento abrev of 6 characters is a 422 on abrev', slug: 'tipos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'abcdef' } }], expect: invalid(['abrev']) },
+  { name: 'tipos-descuento abrev accepts 5 characters, uppercased', slug: 'tipos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: ' ab12c ' } }], expect: { ok: true, match: { abrev: 'AB12C' } } },
+  { name: 'tipos-descuento blank abrev says Abrev, not Descripcion [DEVIATION]', slug: 'tipos-descuento', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { descripcion: 'x', abrev: ' ' } }], expect: invalid(['abrev'], ['Para agregar un Tipo Descuento, debes especificar su Abrev.']) },
+  // R-REF-4 tipos-anexo: abreviatura is optional.
+  { name: 'tipos-anexo abreviatura is optional', slug: 'tipos-anexo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'principal' } }], expect: { ok: true, match: { descripcion: 'PRINCIPAL' } } },
+  { name: 'tipos-anexo abreviatura is uppercased and capped at 100', slug: 'tipos-anexo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: 'a'.repeat(101) } }], expect: invalid(['abreviatura']) },
+  // R-REF-5 condiciones-pago (S-REF-5): dias_pago is a required integer where 0 is valid, tipo is a required option with no default.
+  { name: 'S-REF-5 condiciones-pago a blank dias_pago says sus Dias de Pago', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', tipo: 'CR' } }], expect: invalid(['dias_pago'], ['Para agregar una Condición de Pago, debes especificar sus Dias de Pago.']) },
+  { name: 'S-REF-5 condiciones-pago dias_pago 0 with a tipo is accepted', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'contado', dias_pago: 0, tipo: 'CO' } }], expect: { ok: true, match: { dias_pago: 0, tipo: 'CO', tipo_label: 'Contado' } } },
+  { name: 'S-REF-5 condiciones-pago without a tipo says su Tipo de Pago', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: 30 } }], expect: invalid(['tipo'], ['Para agregar una Condición de Pago, debes especificar su Tipo de Pago.']) },
+  { name: 'S-REF-5 condiciones-pago a non-digit dias_pago is a 422 on dias_pago', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: 'abc', tipo: 'CR' } }], expect: invalid(['dias_pago']) },
+  { name: 'R-CRUD-11 condiciones-pago dias_pago rejects 3 digits', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: '100', tipo: 'CR' } }], expect: invalid(['dias_pago']) },
+  { name: 'R-CRUD-11 condiciones-pago dias_pago 99 is accepted', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: 99, tipo: 'CR' } }], expect: { ok: true, match: { dias_pago: 99 } } },
+  { name: 'R-MOCK-10 condiciones-pago tipo outside the four codes is a 422 on tipo', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', dias_pago: 1, tipo: 'XX' } }], expect: invalid(['tipo']) },
+  { name: 'S-REF-5 condiciones-pago checks descripcion, then dias_pago, then tipo (declared order)', slug: 'condiciones-pago', ctx: WRITER, steps: [{ op: 'create', body: {} }], expect: invalid(['descripcion']) },
+  { name: 'S-MOCK-37 condiciones-pago tipo OB is labelled Operación Bancaria on get', slug: 'condiciones-pago', steps: [{ op: 'get', id: '003' }], expect: { ok: true, match: { tipo: 'OB', tipo_label: 'Operación Bancaria' } } },
+  { name: 'condiciones-pago a stored dias_pago 0 reads back as 0', slug: 'condiciones-pago', steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { dias_pago: 0, tipo: 'CO' } } },
+  // R-REF-5 tipos-trabajador: style M2, abreviatura* U <=5 labelled Abrev, estado preset.
+  { name: 'tipos-trabajador a blank abreviatura says su Abrev (M2)', slug: 'tipos-trabajador', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: ' ' } }], expect: invalid(['abreviatura'], ['Para agregar, debes especificar su Abrev.']) },
+  { name: 'tipos-trabajador abreviatura of 6 characters is a 422', slug: 'tipos-trabajador', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: 'abcdef' } }], expect: invalid(['abreviatura']) },
+  { name: 'tipos-trabajador abreviatura is trimmed and uppercased', slug: 'tipos-trabajador', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: ' ab1 ' } }], expect: { ok: true, match: { abreviatura: 'AB1' } } },
+  { name: 'S-REF-7 tipos-trabajador estado is true when the body omits it', slug: 'tipos-trabajador', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abreviatura: 'x' } }], expect: { ok: true, match: { estado: true, activo: true } } },
+  { name: 'S-REF-7 tipos-trabajador an estado-false row stays listed', slug: 'tipos-trabajador', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
+  // R-REF-5 marcas-vehiculo: style M2 and the estado preset.
+  { name: 'S-REF-7 marcas-vehiculo estado is true when the body omits it', slug: 'marcas-vehiculo', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'toyota' } }], expect: { ok: true, match: { descripcion: 'TOYOTA', estado: true } } },
+  { name: 'S-REF-7 marcas-vehiculo an estado-false row stays listed', slug: 'marcas-vehiculo', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
+  // R-REF-5 turnos (S-REF-12, S-MOCK-19): two padded integers with ranges, checked in the R-REF-7 order, AM default.
+  { name: 'S-MOCK-19 turnos hora 13 is a 422 on hora with the desktop text', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '13', minuto: '30' } }], expect: invalid(['hora'], ['Para agregar, debes Insertar Hora Correcto.']) },
+  { name: 'S-REF-12 turnos minuto 60 is a 422 on minuto with the desktop text', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '12', minuto: '60' } }], expect: invalid(['minuto'], ['Para agregar, debes Insertar Minutos Correcto.']) },
+  { name: 'S-REF-12 turnos hora 0 minuto 0 is accepted and stored padded', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '0', minuto: '0' } }], expect: { ok: true, match: { hora: '00', minuto: '00', tipo: 'AM', estado: true } } },
+  { name: 'S-REF-12 turnos hora 12 minuto 59 are the accepted upper bounds', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '12', minuto: '59', tipo: 'PM' } }], expect: { ok: true, match: { hora: '12', minuto: '59', tipo: 'PM', tipo_label: 'PM' } } },
+  { name: 'S-CRUD-35 turnos pads a single digit on the server too', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '5', minuto: '7' } }], expect: { ok: true, match: { hora: '05', minuto: '07' } } },
+  { name: 'R-REF-7 turnos a blank hora says su Hora (M2)', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: ' ', minuto: '30' } }], expect: invalid(['hora'], ['Para agregar, debes especificar su Hora.']) },
+  { name: 'R-REF-7 turnos a blank minuto says su Minutos', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '5', minuto: '' } }], expect: invalid(['minuto'], ['Para agregar, debes especificar su Minutos.']) },
+  { name: 'R-REF-7 turnos checks both blanks before the ranges: blank minuto beats hora 13', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '13', minuto: '' } }], expect: invalid(['minuto'], ['Para agregar, debes especificar su Minutos.']) },
+  { name: 'R-REF-7 turnos checks the hora range before the minuto range', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '13', minuto: '60' } }], expect: invalid(['hora']) },
+  { name: 'R-REF-7 turnos UPDATE words the range text with modificar', slug: 'turnos', ctx: WRITER, steps: [{ op: 'update', id: '1', body: { hora: '13', minuto: '30' } }], expect: invalid(['hora'], ['Para modificar, debes Insertar Hora Correcto.']) },
+  { name: 'R-MOCK-10 turnos tipo outside AM|PM is a 422 on tipo', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '5', minuto: '7', tipo: 'XX' } }], expect: invalid(['tipo']) },
+  { name: 'R-MOCK-10 turnos three digits are a 422 on hora', slug: 'turnos', ctx: WRITER, steps: [{ op: 'create', body: { hora: '123', minuto: '30' } }], expect: invalid(['hora']) },
+  { name: 'S-REF-7 turnos an estado-false row stays listed', slug: 'turnos', steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
+  // R-REF-5 motivos-descuento (S-REF-9, S-MOCK-28): abrev <= 5 and a required ref to tipos-descuento; the desktop texts are wrong or empty [DEVIATION].
+  { name: 'S-REF-9 motivos-descuento without a tipo says su Tipo Dscto on id_tipo_descuento [DEVIATION]', slug: 'motivos-descuento', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x' } }], expect: invalid(['id_tipo_descuento'], ['Para agregar un Motivo Descuento, debes especificar su Tipo Dscto.']) },
+  { name: 'S-REF-9 motivos-descuento an unknown tipo id is a 422 on id_tipo_descuento', slug: 'motivos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', abrev: 'x', id_tipo_descuento: '99' } }], expect: invalid(['id_tipo_descuento']) },
+  { name: 'motivos-descuento a blank abrev says Abrev, not Descripcion [DEVIATION]', slug: 'motivos-descuento', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { descripcion: 'x', abrev: ' ', id_tipo_descuento: '1' } }], expect: invalid(['abrev'], ['Para agregar un Motivo Descuento, debes especificar su Abrev.']) },
+  { name: 'motivos-descuento checks descripcion, then abrev, then tipo (desktop order)', slug: 'motivos-descuento', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x' } }], expect: invalid(['abrev']) },
+  { name: 'S-MOCK-28 motivos-descuento get joins the tipo description', slug: 'motivos-descuento', steps: [{ op: 'get', id: '1' }], expect: { ok: true, match: { id_tipo_descuento: '1', tipo_descuento: 'PORCENTAJE' } } },
+  { name: 'S-MOCK-28 motivos-descuento a deactivated tipo joins as an empty string, without error', slug: 'motivos-descuento', steps: [{ op: 'get', id: '3' }], expect: { ok: true, match: { id_tipo_descuento: '3', tipo_descuento: '' } } },
+  { name: 'S-MOCK-28 motivos-descuento list carries the joined name on every item', slug: 'motivos-descuento', steps: [{ op: 'list' }], expect: { ok: true, match: { items: [{ tipo_descuento: 'PORCENTAJE' }, { tipo_descuento: 'MONTO FIJO' }, { tipo_descuento: '' }] } } },
+  // R-REF-5 motivos-nc: the tipo is checked first; the desktop tipo message says "Familia" [DEVIATION].
+  { name: 'motivos-nc checks tipo first: an empty body is a 422 on tipo with the real entity [DEVIATION]', slug: 'motivos-nc', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: {} }], expect: invalid(['tipo'], ['Para agregar un Motivo de Nota de Crédito, debes especificar su Tipo.']) },
+  { name: 'motivos-nc a blank descripcion after a valid tipo says su Descripcion [DEVIATION]', slug: 'motivos-nc', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { tipo: 'P', descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para agregar un Motivo de Nota de Crédito, debes especificar su Descripcion.']) },
+  { name: 'motivos-nc UPDATE words the tipo message with modificar', slug: 'motivos-nc', ctx: WRITER, deviation: true, steps: [{ op: 'update', id: '001', body: { tipo: '' } }], expect: invalid(['tipo'], ['Para modificar un Motivo de Nota de Crédito, debes especificar su Tipo.']) },
+  { name: 'R-MOCK-10 motivos-nc tipo outside P|C|Y is a 422 on tipo', slug: 'motivos-nc', ctx: WRITER, steps: [{ op: 'create', body: { tipo: 'Z', descripcion: 'x' } }], expect: invalid(['tipo']) },
+  { name: 'S-MOCK-37 motivos-nc stores tipo C and labels it NOTA CREDITO VENTA', slug: 'motivos-nc', ctx: WRITER, steps: [{ op: 'create', body: { tipo: 'C', descripcion: 'x' } }], expect: { ok: true, match: { tipo: 'C', tipo_label: 'NOTA CREDITO VENTA' } } },
+  { name: 'S-MOCK-37 motivos-nc get carries the label of tipo Y', slug: 'motivos-nc', steps: [{ op: 'get', id: '003' }], expect: { ok: true, match: { tipo: 'Y', tipo_label: 'NOTA DEBITO VENTA' } } },
+  // R-REF-5 tipos-trabajador-perfil: descripcion first, then a tipo trabajador whose estado is active (the desktop lists estado A).
+  { name: 'tipos-trabajador-perfil without a tipo says su Tipo Trabajador [DEVIATION]', slug: 'tipos-trabajador-perfil', ctx: WRITER, deviation: true, steps: [{ op: 'create', body: { descripcion: 'x' } }], expect: invalid(['id_tipo_trabajador'], ['Para agregar un Perfil, debes especificar su Tipo Trabajador.']) },
+  { name: 'tipos-trabajador-perfil checks descripcion before the tipo trabajador', slug: 'tipos-trabajador-perfil', ctx: WRITER, steps: [{ op: 'create', body: {} }], expect: invalid(['descripcion']) },
+  { name: 'tipos-trabajador-perfil rejects a tipo trabajador whose estado is false (active only)', slug: 'tipos-trabajador-perfil', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'x', id_tipo_trabajador: '003' } }], expect: invalid(['id_tipo_trabajador']) },
+  { name: 'tipos-trabajador-perfil accepts an active tipo trabajador', slug: 'tipos-trabajador-perfil', ctx: WRITER, steps: [{ op: 'create', body: { descripcion: 'cajero', id_tipo_trabajador: '002' } }], expect: { ok: true, match: { descripcion: 'CAJERO', id_tipo_trabajador: '002', tipo_trabajador: 'VENDEDOR' } } },
+  { name: 'S-MOCK-28 tipos-trabajador-perfil get joins the tipo trabajador name', slug: 'tipos-trabajador-perfil', steps: [{ op: 'get', id: '1' }], expect: { ok: true, match: { tipo_trabajador: 'ADMINISTRATIVO' } } },
+  { name: 'S-MOCK-30 the active-only filter keeps estado-false tipos out of the options', slug: 'tipos-trabajador', steps: [{ op: 'options', filters: { estado: 'true' } }], expect: { ok: true, items: [{ id: '001', name: 'ADMINISTRATIVO' }, { id: '002', name: 'VENDEDOR' }] } },
+  // R-REF-5 subfamilias (S-REF-8, S-MOCK-23, S-MOCK-28): the familia is checked first, then the descripcion; the SUNAT code is optional and follows the familia.
+  { name: 'subfamilias an empty body is a 422 on id_familia with the desktop text', slug: 'subfamilias', steps: [{ op: 'create', body: {} }], expect: invalid(['id_familia'], ['Para agregar una SubFamilia, debes especificar su Familia.']) },
+  { name: 'subfamilias UPDATE words the familia message with modificar', slug: 'subfamilias', steps: [{ op: 'update', id: '001', body: { id_familia: '' } }], expect: invalid(['id_familia'], ['Para modificar una SubFamilia, debes especificar su Familia.']) },
+  { name: 'subfamilias a blank descripcion keeps the desktop spacing before the comma', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '001', descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para agregar una SubFamilia , debes especificar su Descripcion.']) },
+  { name: 'subfamilias UPDATE words the descripcion message with modificar', slug: 'subfamilias', steps: [{ op: 'update', id: '001', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para modificar una SubFamilia , debes especificar su Descripcion.']) },
+  { name: 'S-MOCK-23 subfamilias an unknown familia is a 422 on id_familia', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '999', descripcion: 'x' } }], expect: invalid(['id_familia']) },
+  { name: 'S-MOCK-23 subfamilias an inactive familia is a 422 on id_familia', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '004', descripcion: 'x' } }], expect: invalid(['id_familia']) },
+  { name: 'S-MOCK-23 subfamilias a familia of another empresa is a 422 on id_familia', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '005', descripcion: 'x' } }], expect: invalid(['id_familia']) },
+  { name: 'S-REF-8 subfamilias the SUNAT code is optional', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '001', descripcion: 'frutas' } }], expect: { ok: true, match: { descripcion: 'FRUTAS', subfamilia_sunat: '' } } },
+  { name: 'S-REF-8 subfamilias accepts a SUNAT code of the familia SUNAT code', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '001', descripcion: 'frutas', id_subfamilia_sunat: '501015' } }], expect: { ok: true, match: { id_subfamilia_sunat: '501015', familia: 'ABARROTES', subfamilia_sunat: 'FRUTAS FRESCAS' } } },
+  { name: 'S-REF-8 subfamilias rejects a SUNAT code that belongs to another familia', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '001', descripcion: 'x', id_subfamilia_sunat: '501315' } }], expect: invalid(['id_subfamilia_sunat']) },
+  { name: 'S-REF-8 subfamilias rejects any SUNAT code under a familia that has none', slug: 'subfamilias', steps: [{ op: 'create', body: { id_familia: '003', descripcion: 'x', id_subfamilia_sunat: '501015' } }], expect: invalid(['id_subfamilia_sunat']) },
+  { name: 'S-REF-8 subfamilias a familia change with the old SUNAT code is a 422 on it', slug: 'subfamilias', steps: [{ op: 'update', id: '001', body: { id_familia: '002' } }], expect: invalid(['id_subfamilia_sunat']) },
+  { name: 'S-MOCK-28 subfamilias get joins the familia and the SUNAT descriptions', slug: 'subfamilias', steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { id_familia: '001', familia: 'ABARROTES', id_subfamilia_sunat: '501015', subfamilia_sunat: 'FRUTAS FRESCAS' } } },
+  { name: 'S-MOCK-28 subfamilias a row without a SUNAT code joins it as an empty string', slug: 'subfamilias', steps: [{ op: 'get', id: '004' }], expect: { ok: true, match: { familia: 'LIMPIEZA', subfamilia_sunat: '' } } },
+  { name: 'S-MOCK-28 subfamilias a tenant-wide row of another empresa still joins its familia', slug: 'subfamilias', steps: [{ op: 'get', id: '005' }], expect: { ok: true, match: { familia: 'BEBIDAS', subfamilia_sunat: 'GASEOSAS' } } },
+  { name: 'S-REF-8 subfamilias the list is tenant-wide: both empresas show', slug: 'subfamilias', steps: [{ op: 'list' }], expect: { ok: true, total: 6 } },
+  // R-REF-6 / R-REF-7 tipos-cambio (S-MOCK-22, S-REF-18, S-REF-19, S-MOCK-19): unique per (empresa, fecha, moneda), amounts above zero, the desktop texts in order.
+  ...tipoCambioCases(),
+  // R-REF-6 / R-REF-7 promociones (S-REF-20): only the descripcion is validated; the dates carry no range, blank or not-future rule.
+  { name: 'S-REF-20 promociones a blank descripcion says the desktop text', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], ['Para agregar una Promocion, debes especificar su Descripcion.']) },
+  { name: 'S-REF-20 promociones fecha_fin before fecha_ini is accepted (no range rule)', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'verano', fecha_ini: '2026-02-01', fecha_fin: '2026-01-01' } }], expect: { ok: true, match: { fecha_ini: '2026-02-01', fecha_fin: '2026-01-01' } } },
+  { name: 'S-REF-20 promociones both dates default to today when the body omits them', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'hoy' } }], expect: { ok: true, match: { fecha_ini: todayIso(), fecha_fin: todayIso(), estado: true } } },
+  { name: 'S-REF-20 promociones a date in the future is accepted (no not-future rule)', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'x', fecha_ini: '2999-01-01', fecha_fin: '2999-12-31' } }], expect: { ok: true, match: { fecha_fin: '2999-12-31' } } },
+  { name: 'S-REF-20 promociones a blank date is accepted (the desktop validates only the descripcion)', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'x', fecha_ini: '', fecha_fin: '' } }], expect: { ok: true, match: { fecha_ini: '', fecha_fin: '' } } },
+  { name: 'S-MOCK-19 promociones a date that does not exist is a 422 on it', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'x', fecha_ini: '2026-02-31' } }], expect: invalid(['fecha_ini']) },
+  { name: 'S-REF-7 promociones estado can be switched off on UPDATE and the row stays listed', slug: 'promociones', steps: [{ op: 'update', id: '1', body: { descripcion: 'NAVIDAD', estado: false } }, { op: 'list' }], expect: { ok: true, total: 2 } },
+  // R-REF-6 almacenes (S-REF-13, S-MOCK-24): localidad, punto de venta, descripcion, direccion, then the cascade; the M1 sentences, the empresa of the session.
+  ...almacenCases(),
+  // R-REF-6 zonas (S-REF-7, S-REF-33): descripcion first, then the cascade in the MS style; estado is the shared preset.
+  ...zonaCases(),
+  // R-REF-6 / R-REF-7 / R-REF-8 / R-REF-9 correlativos (S-MOCK-20, S-MOCK-21, S-REF-14, S-REF-15, S-REF-16).
+  ...correlativoCases(),
+  // R-REF-6 ubicaciones (S-REF-30): literal messages, localidad > punto de venta > almacen chain.
+  ...ubicacionCases(),
+  // R-REF-6 tipos-mov-inventario and unidades-medida (S-REF-23, S-REF-24): the clasificacion follows the tipo, the SUNAT detalle follows its tabla.
+  ...tipoMovCases(),
+  ...unidadCases(),
+  // R-REF-6 vehiculos (S-REF-31): style M2 messages, peso 0 by default, marca and modelo over the estado-A rows.
+  ...vehiculoCases(),
+  // R-REF-6 usuario-correlativos (S-REF-17, S-CRUD-40): the label style, the multi-parent chain, the (usuario, correlativo) key.
+  ...usuarioCorrelativoCases(),
+  // R-REF-6 / R-REF-7 zonas-distancia (S-REF-22, S-MOCK-31): two chains, the MS sentences, distancia above zero.
+  ...zonaDistanciaCases(),
+  // R-REF-6 / R-REF-7 trabajador-punto-venta (S-REF-21): the label sentences, the empresa > localidad > punto de venta chain, the (trabajador, punto de venta) key.
+  ...trabajadorPuntoVentaCases(),
+];
+
+function usuarioCorrelativoCases(): CatalogCase[] {
+  const slug = 'usuario-correlativos';
+  const as = (empresaId = '1') => ({ userId: '7', empresaId });
+  const text = (modo: string, label: string) => `Para ${modo} una Asignasion de Usuario - Correlativo, debes especificar ${label}.`;
+  const body = (over: Record<string, unknown> = {}) => ({ id_usuario: '1', id_localidad: '1', id_punto_venta: '1', id_tipo_doc: '01', id_correlativo: '00001', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, deviation = false): CatalogCase => ({ name: '', slug, ctx: as(), deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: as(), steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const dup: Outcome = { status: 409, code: 'DUPLICATE', fields: ['id_correlativo'], messages: [USUARIO_CORRELATIVO_DUPLICATE] };
+  return [
+    row('desktop order: an empty body fails first on the usuario, worded el Usuario', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: {} }], expect: invalid(['id_usuario'], [text('agregar', 'el Usuario')]) }),
+    row('then the localidad, worded la Localidad', create({ id_localidad: '', id_punto_venta: '', id_tipo_doc: '', id_correlativo: '' }, invalid(['id_localidad'], [text('agregar', 'la Localidad')]))),
+    row('then the punto de venta, worded el Punto de Venta', create({ id_punto_venta: '', id_tipo_doc: '', id_correlativo: '' }, invalid(['id_punto_venta'], [text('agregar', 'el Punto de Venta')]))),
+    row('then the tipo de documento, worded el Tipo de documento', create({ id_tipo_doc: '', id_correlativo: '' }, invalid(['id_tipo_doc'], [text('agregar', 'el Tipo de documento')]))),
+    row('then the serie, worded su serie', create({ id_correlativo: '' }, invalid(['id_correlativo'], [text('agregar', 'su serie')]))),
+    row('UPDATE words the messages with modificar', update('00001', { id_usuario: '' }, invalid(['id_usuario'], [text('modificar', 'el Usuario')]))),
+    row('S-REF-17 the same (usuario, correlativo) pair is a 409 on id_correlativo with the desktop text', create({ id_usuario: '2' }, dup)),
+    row('S-REF-17 another usuario with the same correlativo is accepted', create({ id_usuario: '1' }, { ok: true, match: { id_usuario: '1', id_correlativo: '00001', id_empresa: '1' } })),
+    row('S-REF-17 UPDATE keeping its own pair is accepted', update('00001', { habilitar: false }, { ok: true, match: { habilitar: false } })),
+    row('S-REF-17 UPDATE onto the pair of another record is a 409 on id_correlativo', update('00002', { id_tipo_doc: '01', id_correlativo: '00001' }, dup)),
+    row('S-REF-17 CLONE keeping the pair is rejected [DEVIATION: the desktop skips the check on CLONE]', create({ id_usuario: '2' }, dup, true)),
+    row('S-REF-17 a deleted assignment frees its pair', create({ id_usuario: '4' }, { ok: true, match: { id_usuario: '4' } })),
+    row('S-CRUD-40 a tipo with no active correlativo in the punto de venta is a 422 on id_tipo_doc', create({ id_tipo_doc: '09' }, invalid(['id_tipo_doc'], ['id_tipo_doc does not belong to id_punto_venta']))),
+    row('S-CRUD-40 a tipo whose only correlativo there is inactive is a 422 on id_tipo_doc', create({ id_tipo_doc: '03', id_correlativo: '00003' }, invalid(['id_tipo_doc']))),
+    row('S-CRUD-40 a correlativo of another punto de venta is a 422 on id_correlativo naming the parent', create({ id_correlativo: '00004' }, invalid(['id_correlativo'], ['id_correlativo does not belong to id_punto_venta']))),
+    row('S-CRUD-40 a correlativo of another tipo is a 422 on id_correlativo', create({ id_tipo_doc: 'TI', id_correlativo: '00001' }, invalid(['id_correlativo']))),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '2' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-REF-6 a localidad of another empresa is a 422 on id_localidad (the where is the session empresa)', create({ id_localidad: '3', id_punto_venta: '3', id_tipo_doc: '03', id_correlativo: '00005' }, invalid(['id_localidad']))),
+    row('S-MOCK-38 a usuario of another tenant is a 422 on id_usuario', create({ id_usuario: '99' }, invalid(['id_usuario']))),
+    row('R-REF-6 habilitar defaults to true and the stored usuario is the assigned one, not the session user', create({ id_usuario: '1' }, { ok: true, match: { habilitar: true, id_usuario: '1' } })),
+    row('R-REF-6 habilitar false is stored as sent', create({ id_usuario: '1', habilitar: false }, { ok: true, match: { habilitar: false } })),
+    row('R-REF-6 habilitar must be a boolean', create({ id_usuario: '1', habilitar: 'S' }, invalid(['habilitar']))),
+    row('S-MOCK-28 get joins the localidad, punto de venta, usuario, tipo de documento and serie', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '00001' }], expect: { ok: true, match: { localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL', usuario: 'Cajero Uno', tipo_documento: 'FACTURA', serie: 'F001' } } }),
+    row('S-MOCK-30 the serie options of a punto de venta and tipo are shown by serie and only the active ones', { name: '', slug: 'correlativos', steps: [{ op: 'options', filters: { id_punto_venta: '1', id_tipo_doc: '01', estado: 'A' } }], expect: { ok: true, items: [{ id: '00001', name: 'F001' }] } }),
+    row('S-MOCK-30 an inactive correlativo (estado I) is not offered as a serie', { name: '', slug: 'correlativos', steps: [{ op: 'options', filters: { id_punto_venta: '1', id_tipo_doc: '03', estado: 'A' } }], expect: { ok: true, items: [] } }),
+  ];
+}
+
+function trabajadorPuntoVentaCases(): CatalogCase[] {
+  const slug = 'trabajador-punto-venta';
+  const text = (modo: string, label: string) => `Para ${modo} un Trabajador, debes especificar ${label}.`;
+  const body = (over: Record<string, unknown> = {}) => ({ id_trabajador: '001', id_empresa: '1', id_localidad: '1', id_punto_venta: '1', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, deviation = false): CatalogCase => ({ name: '', slug, ctx: WRITER, deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const dup: Outcome = { status: 409, code: 'DUPLICATE', fields: ['id_trabajador'], messages: [TRABAJADOR_PV_DUPLICATE] };
+  return [
+    row('desktop order: an empty body fails first on the trabajador, worded su Nombre', { name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: {} }], expect: invalid(['id_trabajador'], [text('agregar', 'su Nombre')]) }),
+    row('then the empresa, worded la Empresa (the desktop says Correlativo [DEVIATION])', create({ id_empresa: '', id_localidad: '', id_punto_venta: '' }, invalid(['id_empresa'], [text('agregar', 'la Empresa')]), true)),
+    row('then the localidad, worded la Localidad', create({ id_localidad: '', id_punto_venta: '' }, invalid(['id_localidad'], [text('agregar', 'la Localidad')]), true)),
+    row('then the punto de venta, worded su Punto de Venta', create({ id_punto_venta: '' }, invalid(['id_punto_venta'], [text('agregar', 'su Punto de Venta')]), true)),
+    row('UPDATE words the messages with modificar', update('00001', { id_trabajador: '' }, invalid(['id_trabajador'], [text('modificar', 'su Nombre')]))),
+    row('S-REF-21 the same (trabajador, punto de venta) pair is a 409 on id_trabajador with the desktop text', create({ id_trabajador: '002' }, dup)),
+    row('S-REF-21 the same trabajador in another punto de venta is accepted', create({ id_trabajador: '002', id_localidad: '2', id_punto_venta: '2' }, { ok: true, match: { id_trabajador: '002', id_punto_venta: '2' } })),
+    row('S-REF-21 another trabajador in that punto de venta is accepted', create({ id_trabajador: '003' }, { ok: true, match: { id_trabajador: '003', id_punto_venta: '1' } })),
+    row('S-REF-21 UPDATE keeping its own pair is accepted', update('00001', { habilitar: false }, { ok: true, match: { habilitar: false } })),
+    row('S-REF-21 UPDATE onto the pair of another record is a 409 on id_trabajador', update('00002', { id_trabajador: '002', id_localidad: '1', id_punto_venta: '1' }, dup)),
+    row('S-REF-21 CLONE keeping the pair is rejected [DEVIATION: the desktop skips the check on CLONE]', create({ id_trabajador: '002' }, dup, true)),
+    row('S-REF-21 a deleted assignment frees its pair', create({ id_trabajador: '001' }, { ok: true, match: { id_trabajador: '001', id_punto_venta: '1' } })),
+    row('S-REF-21 habilitar untouched is saved as false', create({}, { ok: true, match: { habilitar: false, id_usuario: 7 } })),
+    row('S-REF-21 habilitar true is stored as sent', create({ habilitar: true }, { ok: true, match: { habilitar: true } })),
+    row('S-REF-21 habilitar must be a boolean', create({ habilitar: 'S' }, invalid(['habilitar']))),
+    row('R-MOCK-12 a localidad of another empresa is a 422 on id_localidad naming the parent', create({ id_localidad: '3', id_punto_venta: '3' }, invalid(['id_localidad'], ['id_localidad does not belong to id_empresa']))),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_punto_venta: '2' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-MOCK-12 changing the empresa on UPDATE re-checks the localidad', update('00001', { id_empresa: '2' }, invalid(['id_localidad']))),
+    row('R-REF-12 a deleted trabajador is a 422 on id_trabajador', create({ id_trabajador: '004' }, invalid(['id_trabajador']))),
+    row('S-MOCK-28 get joins the trabajador, empresa, localidad and punto de venta names', { name: '', slug, steps: [{ op: 'get', id: '00001' }], expect: { ok: true, match: { trabajador: 'MARIA GARCIA RAMOS', empresa: 'COMERCIAL DEMO SAC', localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL' } } }),
+    row('R-REF-6 the list is tenant-wide and hides the deleted assignment', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+  ];
+}
+
+function zonaDistanciaCases(): CatalogCase[] {
+  const slug = 'zonas-distancia';
+  const as = (empresaId = '1') => ({ userId: '7', empresaId });
+  const text = (modo: string, what: string) => `Para ${modo} una Zona Distancia, debes ${what}.`;
+  const distancia = (modo: string) => text(modo, 'especificar su Distancia');
+  const body = (over: Record<string, unknown> = {}) => ({ id_zona: '1', id_localidad: '1', id_punto_venta: '1', id_almacen: '001', distancia: 5, ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, deviation = false): CatalogCase => ({ name: '', slug, ctx: as(), deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: as(), steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-22 desktop order: an empty body fails first on the zona (the cascade levels above it are the client\'s)', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: {} }], expect: invalid(['id_zona'], [text('agregar', 'Seleccionar una Zona')]) }),
+    row('then the localidad, worded una Localidad', create({ id_localidad: '', id_punto_venta: '', id_almacen: '' }, invalid(['id_localidad'], [text('agregar', 'Seleccionar una Localidad')]))),
+    row('then the punto de venta, worded un Pto Vta', create({ id_punto_venta: '', id_almacen: '' }, invalid(['id_punto_venta'], [text('agregar', 'Seleccionar un Pto Vta')]))),
+    row('then the almacen, worded un Almacen', create({ id_almacen: '' }, invalid(['id_almacen'], [text('agregar', 'Seleccionar un Almacen')]))),
+    row('then the distancia', create({ distancia: '' }, invalid(['distancia'], [distancia('agregar')]))),
+    row('UPDATE words the messages with modificar', update('1', { id_zona: '' }, invalid(['id_zona'], [text('modificar', 'Seleccionar una Zona')]))),
+    row('S-REF-22 distancia 0 says Para agregar una Zona Distancia, debes especificar su Distancia.', create({ distancia: 0 }, invalid(['distancia'], [distancia('agregar')]))),
+    row('S-REF-22 distancia -5 says the same [DEVIATION: the desktop rejected only 0]', create({ distancia: -5 }, invalid(['distancia'], [distancia('agregar')]), true)),
+    row('S-REF-22 distancia as text 0 and -5 are rejected the same way', create({ distancia: '-5' }, invalid(['distancia'], [distancia('agregar')]), true)),
+    row('S-REF-22 a missing distancia is rejected', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: { id_zona: '1', id_localidad: '1', id_punto_venta: '1', id_almacen: '001' } }], expect: invalid(['distancia'], [distancia('agregar')]) }),
+    row('R-CRUD-11 a distancia with letters is a 422 on distancia', create({ distancia: 'abc' }, invalid(['distancia']))),
+    row('R-CRUD-11 a fractional distancia is stored as sent, with no rounding', create({ distancia: 0.125 }, { ok: true, match: { distancia: 0.125 } })),
+    row('R-REF-6 the zona is any active zona: the distrito is not stored, so the form is the only one that narrows it', create({ id_zona: '2' }, { ok: true, match: { id_zona: '2' } })),
+    row('R-REF-6 a transient cascade value in the body is ignored, never stored', create({ id_distrito: '150101', id_departamento: '15' }, { ok: true })),
+    row('S-REF-22 a deleted zona is a 422 on id_zona', create({ id_zona: '4' }, invalid(['id_zona']))),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '2' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-MOCK-12 an almacen of another punto de venta is a 422 on id_almacen', create({ id_almacen: '002' }, invalid(['id_almacen'], ['id_almacen does not belong to id_punto_venta']))),
+    row('R-REF-6 a localidad of another empresa is a 422 on id_localidad (the where is the session empresa)', create({ id_localidad: '3', id_punto_venta: '3', id_almacen: '003' }, invalid(['id_localidad']))),
+    row('S-REF-7 estado is true when the body omits it and the stamped user is the session one', create({}, { ok: true, match: { estado: true, id_usuario: 7 } })),
+    row('S-REF-7 estado can be switched off on UPDATE and the row stays listed', { name: '', slug, ctx: as(), steps: [{ op: 'update', id: '1', body: { estado: false } }, { op: 'list' }], expect: { ok: true, total: 3 } }),
+    row('S-REF-7 estado must be a boolean', create({ estado: 'A' }, invalid(['estado']))),
+    row('S-MOCK-28 get joins the zona, localidad, punto de venta and almacen names', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { zona: 'ATE ESTE', localidad: 'LOCAL ATE', punto_venta: 'TIENDA MIRAFLORES', almacen: 'ALMACEN ATE' } } }),
+    row('11.0 get carries the ubigeo of the zona, the code the form restores its cascade from', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { id_ubigeo: '150103' } } }),
+    row('11.0 the ubigeo of the zona follows a zona change on UPDATE', update('2', { id_zona: '1' }, { ok: true, match: { id_zona: '1', id_ubigeo: '150101' } })),
+    row('R-REF-6 the list is tenant-wide and hides the inactive row', { name: '', slug, ctx: as(), steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+    row('S-MOCK-31 the zona options of a distrito are only the zonas there', { name: '', slug: 'zonas', steps: [{ op: 'options', filters: { id_ubigeo: '150103' } }], expect: { ok: true, items: [{ id: '2', name: 'ATE ESTE' }] } }),
+  ];
+}
+
+function vehiculoCases(): CatalogCase[] {
+  const slug = 'vehiculos';
+  const body = (over: Record<string, unknown> = {}) => ({ placa: 'abc123', constancia_inscripcion: 'ci-9', peso: 1200, id_marca: '001', id_modelo: '001', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const { peso: _peso, ...withoutPeso } = body();
+  return [
+    row('S-REF-31 peso is 0 and estado true when the body omits them', { name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: withoutPeso }], expect: { ok: true, match: { peso: 0, estado: true } } }),
+    row('S-REF-31 a blank placa says the M2 text', create({ placa: ' ' }, invalid(['placa'], ['Para agregar, debes especificar su Placa.']))),
+    row('S-REF-31 a blank constancia keeps the desktop spelling Constacia', create({ constancia_inscripcion: ' ' }, invalid(['constancia_inscripcion'], ['Para agregar, debes especificar su Constacia.']))),
+    row('S-REF-31 a blank peso says su Peso', create({ peso: '' }, invalid(['peso'], ['Para agregar, debes especificar su Peso.']))),
+    row('S-REF-31 a blank marca says Seleccionar Marca', create({ id_marca: '' }, invalid(['id_marca'], ['Para agregar, debes Seleccionar Marca.']))),
+    row('S-REF-31 a blank modelo says Seleccionar Modelo', create({ id_modelo: '' }, invalid(['id_modelo'], ['Para agregar, debes Seleccionar Modelo.']))),
+    row('S-REF-31 the desktop order is placa, constancia, peso, marca, modelo', create({ placa: ' ', constancia_inscripcion: ' ', peso: '', id_marca: '', id_modelo: '' }, invalid(['placa']))),
+    row('S-REF-31 after a valid placa the constancia is next', create({ constancia_inscripcion: ' ', peso: '', id_marca: '', id_modelo: '' }, invalid(['constancia_inscripcion']))),
+    row('S-REF-31 then the peso, then the marca', create({ peso: '', id_marca: '', id_modelo: '' }, invalid(['peso']))),
+    row('S-REF-31 then the marca before the modelo', create({ id_marca: '', id_modelo: '' }, invalid(['id_marca']))),
+    row('S-REF-31 UPDATE words the text with modificar', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '001', body: { placa: ' ' } }], expect: invalid(['placa'], ['Para modificar, debes especificar su Placa.']) }),
+    row('S-REF-31 an inactive marca sent directly is a 422 on id_marca', create({ id_marca: '003' }, invalid(['id_marca']))),
+    row('S-REF-31 an inactive modelo sent directly is a 422 on id_modelo', create({ id_modelo: '002' }, invalid(['id_modelo']))),
+    row('R-REF-6 peso accepts 10 digits and 0', create({ peso: 1234567890 }, { ok: true, match: { peso: 1234567890 } })),
+    row('R-REF-6 peso 0 is a value, not a blank', create({ peso: 0 }, { ok: true, match: { peso: 0 } })),
+    row('R-REF-6 peso rejects 11 digits', create({ peso: '12345678901' }, invalid(['peso']))),
+    row('R-REF-6 peso keeps only digits (IntegerDocument): letters leave it blank', create({ peso: 'abc' }, invalid(['peso'], ['Para agregar, debes especificar su Peso.']))),
+    row('S-MOCK-28 get joins the marca and the modelo names', { name: '', slug, steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { marca: 'TOYOTA', modelo: 'HILUX', placa: 'ABC123' } } }),
+    row('R-REF-6 the list is tenant-wide and shows the three active rows', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+    { name: 'marcas-vehiculo S-REF-31 the vehiculo select asks for estado true: VOLVO (estado false) is left out', slug: 'marcas-vehiculo', steps: [{ op: 'options', filters: { estado: 'true' } }], expect: { ok: true, items: [{ id: '001', name: 'TOYOTA' }, { id: '002', name: 'HYUNDAI' }] } },
+    { name: 'marcas-vehiculo S-REF-31 the options offer the active marcas, whatever their estado', slug: 'marcas-vehiculo', steps: [{ op: 'options' }], expect: { ok: true, items: [{ id: '001', name: 'TOYOTA' }, { id: '002', name: 'HYUNDAI' }, { id: '003', name: 'VOLVO' }] } },
+  ];
+}
+
+function tipoMovCases(): CatalogCase[] {
+  const slug = 'tipos-mov-inventario';
+  const body = (over: Record<string, unknown> = {}) => ({ tipo: 'E', id_clasif_inventario: '001', descripcion: 'compra local', abrev: 'cl', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const { tipo: _tipo, ...withoutTipo } = body();
+  return [
+    row('S-REF-23 tipo is E when the body omits it', { name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: withoutTipo }], expect: { ok: true, match: { tipo: 'E', tipo_label: 'E' } } }),
+    row('R-MOCK-10 a tipo outside E|S is a 422 on tipo', create({ tipo: 'Z' }, invalid(['tipo']))),
+    row('S-REF-23 a clasificacion of the other tipo is a 422 on id_clasif_inventario', create({ tipo: 'S', id_clasif_inventario: '001' }, invalid(['id_clasif_inventario'], ['id_clasif_inventario does not belong to tipo']))),
+    row('S-REF-23 the clasificacion of tipo S is accepted and joined', create({ tipo: 'S', id_clasif_inventario: '002' }, { ok: true, match: { tipo: 'S', clasif_inventario: 'VENTA' } })),
+    row('R-REF-6 estado is stored A on create and hab_ingreso defaults to false', create({}, { ok: true, match: { estado: 'A', hab_ingreso: false } })),
+    row('R-REF-6 hab_ingreso true is stored', create({ hab_ingreso: true }, { ok: true, match: { hab_ingreso: true } })),
+    row('R-REF-6 hab_ingreso must be a boolean', create({ hab_ingreso: 'S' }, invalid(['hab_ingreso']))),
+    row('R-REF-6 the desktop checks the descripcion before the abreviatura', create({ descripcion: ' ', abrev: ' ' }, invalid(['descripcion']))),
+    row('R-REF-6 a blank abreviatura says Abreviatura with the desktop text', create({ abrev: ' ' }, invalid(['abrev'], [`Para agregar ${TIPO_MOV}, debes especificar su Abreviatura.`]))),
+    row('S-REF-23 both SUNAT fields blank save with no code', create({ id_tabla_sunat: '', id_detalle_sunat: '' }, { ok: true, match: { id_tabla_sunat: '', id_detalle_sunat: '' } })),
+    row('S-REF-23 a detalle of the chosen tabla is accepted', create({ id_tabla_sunat: '12', id_detalle_sunat: '10' }, { ok: true, match: { id_tabla_sunat: '12', id_detalle_sunat: '10' } })),
+    row('S-REF-23 a detalle of another tabla is a 422 on id_detalle_sunat', create({ id_tabla_sunat: '6', id_detalle_sunat: '10' }, invalid(['id_detalle_sunat'], ['id_detalle_sunat does not belong to id_tabla_sunat']))),
+    row('S-REF-23 a detalle with no tabla is a 422 on id_detalle_sunat', create({ id_detalle_sunat: '10' }, invalid(['id_detalle_sunat']))),
+    row('S-REF-23 changing the tipo on UPDATE re-checks the clasificacion', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '001', body: { tipo: 'S' } }], expect: invalid(['id_clasif_inventario']) }),
+    row('S-MOCK-28 get joins the clasificacion and keeps the SUNAT ids', { name: '', slug, steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { clasif_inventario: 'COMPRA', id_tabla_sunat: '12', id_detalle_sunat: '11', hab_ingreso: true, estado: 'A' } } }),
+    { name: 'clasif-inventarios S-REF-23 the options of tipo E are its clasificaciones only', slug: 'clasif-inventarios', steps: [{ op: 'options', filters: { tipo: 'E' } }], expect: { ok: true, items: [{ id: '001', name: 'COMPRA' }] } },
+    { name: 'clasif-inventarios S-REF-23 the options reload for tipo S', slug: 'clasif-inventarios', steps: [{ op: 'options', filters: { tipo: 'S' } }], expect: { ok: true, items: [{ id: '002', name: 'VENTA' }] } },
+  ];
+}
+
+function unidadCases(): CatalogCase[] {
+  const slug = 'unidades-medida';
+  const ctx = { userId: '7', empresaId: '1' };
+  const body = (over: Record<string, unknown> = {}) => ({ descripcion: 'bolsa', abreviatura: 'bl', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx, steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-24 a body without SUNAT fields starts on tabla 6, the 6th seeded one', create({}, { ok: true, match: { id_tabla_sunat: '6' } })),
+    row('S-REF-24 both SUNAT fields cleared save with no code', create({ id_tabla_sunat: '', id_detalle_sunat: '' }, { ok: true, match: { id_tabla_sunat: '', id_detalle_sunat: '' } })),
+    row('S-REF-24 a detalle of tabla 6 is accepted and joined', create({ id_tabla_sunat: '6', id_detalle_sunat: '5' }, { ok: true, match: { id_detalle_sunat: '5' } })),
+    row('S-REF-24 a detalle of another tabla is a 422 on id_detalle_sunat', create({ id_tabla_sunat: '6', id_detalle_sunat: '1' }, invalid(['id_detalle_sunat']))),
+    row('R-REF-6 a blank abreviatura says Abreviatura with the desktop text', create({ abreviatura: ' ' }, invalid(['abreviatura'], ['Para agregar una Unidad de Medida, debes especificar su Abreviatura.']))),
+    row('R-REF-6 the desktop checks the descripcion before the abreviatura', create({ descripcion: ' ', abreviatura: ' ' }, invalid(['descripcion']))),
+    row('R-REF-6 the list is limited to the session empresa: empresa 1 sees three active rows', { name: '', slug, ctx, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+    row('R-REF-6 empresa 2 sees only its own unit', { name: '', slug, ctx: { ...ctx, empresaId: '2' }, steps: [{ op: 'list' }], expect: { ok: true, total: 1 } }),
+  ];
+}
+
+function ubicacionCases(): CatalogCase[] {
+  const slug = 'ubicaciones';
+  const as = (empresaId = '1') => ({ empresaId });
+  const body = (over: Record<string, unknown> = {}) => ({ id_localidad: '1', id_punto_venta: '1', id_almacen: '001', descripcion: 'pasillo b', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, empresaId = '1'): CatalogCase => ({ name: '', slug, ctx: as(empresaId), steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: as(), steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-30 a blank form says Seleccione Localidad', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: {} }], expect: invalid(['id_localidad'], [UBICACION_TEXT.id_localidad]) }),
+    row('S-REF-30 then Seleccione Punto de Venta', create({ id_punto_venta: '', id_almacen: '' }, invalid(['id_punto_venta'], [UBICACION_TEXT.id_punto_venta]))),
+    row('S-REF-30 then Seleccione Almacen', create({ id_almacen: '' }, invalid(['id_almacen'], [UBICACION_TEXT.id_almacen]))),
+    row('S-REF-30 then Ingrese Descripcion', create({ descripcion: ' ' }, invalid(['descripcion'], [UBICACION_TEXT.descripcion]))),
+    row('S-REF-30 the messages are literal: UPDATE does not word them with modificar', update('1', { descripcion: ' ' }, invalid(['descripcion'], [UBICACION_TEXT.descripcion]))),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '2', id_punto_venta: '1', id_almacen: '002' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-MOCK-12 an almacen of another punto de venta is a 422 on id_almacen', create({ id_almacen: '002' }, invalid(['id_almacen'], ['id_almacen does not belong to id_punto_venta']))),
+    row('R-MOCK-12 changing the almacen on UPDATE re-checks its punto de venta', update('1', { id_almacen: '002' }, invalid(['id_almacen']))),
+    row('R-REF-6 an almacen of another empresa is a 422 on id_almacen (DAO listarAlmacen passes the session empresa)', create({ id_localidad: '3', id_punto_venta: '3', id_almacen: '003' }, invalid(['id_almacen']))),
+    row('R-REF-6 the same almacen is accepted under its own empresa 2', create({ id_localidad: '3', id_punto_venta: '3', id_almacen: '003' }, { ok: true, match: { almacen: 'ALMACEN CALLAO' } }, '2')),
+    row('S-REF-30 a complete form stores the next id and the uppercased descripcion', create({}, { ok: true, match: { id_ubicacion: '5', descripcion: 'PASILLO B', id_almacen: '001', almacen: 'ALMACEN CENTRAL', punto_venta: 'TIENDA CENTRAL', localidad: 'LOCAL CENTRAL' } })),
+    row('R-REF-6 a write needs no user: the desktop never passes it', create({}, { ok: true })),
+    row('S-REF-3 descripcion rejects 51 characters and accepts 50', create({ descripcion: 'd'.repeat(51) }, invalid(['descripcion']))),
+    row('S-MOCK-28 get joins the almacen, punto de venta and localidad names', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '1' }], expect: { ok: true, match: { almacen: 'ALMACEN CENTRAL', punto_venta: 'TIENDA CENTRAL', localidad: 'LOCAL CENTRAL', descripcion: 'PASILLO A' } } }),
+    row('R-REF-6 the list is tenant-wide: three active rows', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+  ];
+}
+
+function correlativoCases(): CatalogCase[] {
+  const slug = 'correlativos';
+  const as = (empresaId = '1') => ({ userId: '7', empresaId });
+  const text = (modo: string, label: string) => `Para ${modo} un Correlativo, debes especificar ${label}.`;
+  const body = (over: Record<string, unknown> = {}) => ({ id_tipo_doc: '01', serie: 'F009', correlativo: '1', estado: 'A', id_localidad: '1', id_punto_venta: '1', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, deviation = false): CatalogCase => ({ name: '', slug, ctx: as(), deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: as(), steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const dup: Outcome = { status: 409, code: 'DUPLICATE', fields: ['serie'], messages: [CORRELATIVO_DUPLICATE] };
+  return [
+    row('desktop order: an empty body fails first on the tipo de documento', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: {} }], expect: invalid(['id_tipo_doc'], [text('agregar', 'su Tipo de Documento')]) }),
+    row('then the serie', create({ serie: ' ' }, invalid(['serie'], [text('agregar', 'su Serie')]))),
+    row('then the correlativo', create({ correlativo: '' }, invalid(['correlativo'], [text('agregar', 'su Correlativo')]))),
+    row('then the estado', create({ estado: '' }, invalid(['estado'], [text('agregar', 'su Estado')]))),
+    row('then the localidad, worded la Localidad', create({ id_localidad: '', id_punto_venta: '' }, invalid(['id_localidad'], [text('agregar', 'la Localidad')]))),
+    row('then the punto de venta', create({ id_punto_venta: '' }, invalid(['id_punto_venta'], [text('agregar', 'su Punto de Venta')]))),
+    row('UPDATE words the messages with modificar', update('00001', { serie: ' ' }, invalid(['serie'], [text('modificar', 'su Serie')]))),
+    row('S-MOCK-21 a duplicate (punto de venta, tipo, serie) is a 409 on serie with the desktop text', create({ serie: 'F001' }, dup)),
+    row('S-MOCK-21 the serie is compared after the pad and the case: f1 is stored as 00F1', create({ serie: 'f1' }, { ok: true, match: { serie: '00F1' } })),
+    row('S-REF-14 the same serie on another punto de venta is accepted', create({ serie: 'F001', id_localidad: '2', id_punto_venta: '2' }, { ok: true, match: { id_punto_venta: '2' } })),
+    row('S-REF-14 the same serie under another tipo de documento is accepted', create({ serie: 'F001', id_tipo_doc: '03' }, { ok: true, match: { id_tipo_doc: '03' } })),
+    row('S-MOCK-21 UPDATE keeping its own triple is accepted', update('00001', { correlativo: '0000000200' }, { ok: true, match: { correlativo: '0000000200' } })),
+    row('S-REF-14 UPDATE onto the triple of another record is a 409 on serie', update('00004', { id_localidad: '1', id_punto_venta: '1', serie: 'F001' }, dup)),
+    row('S-REF-14 CLONE keeping the triple is rejected [DEVIATION: the desktop skips the check on CLONE]', create({ serie: 'F001' }, dup, true)),
+    row('S-MOCK-21 a deleted correlativo frees its triple', { name: '', slug, ctx: as(), steps: [{ op: 'remove', id: '00001' }, { op: 'create', body: body({ serie: 'F001' }) }], expect: { ok: true, match: { serie: 'F001' } } }),
+    row('S-MOCK-21 an inactive (estado I) correlativo still holds its triple', create({ id_tipo_doc: '03', serie: 'B001' }, dup)),
+    row('S-MOCK-20 a ticket without the authorization number is a 422 on it, with the desktop text', create({ id_tipo_doc: 'TI', serie: 'T009' }, invalid(['nro_autorizacion'], [text('agregar', 'su Numero de Autorizacion')]))),
+    row('S-REF-15 a ticket with only the authorization number fails on codigo_maquina, after a passing unique', create({ id_tipo_doc: 'TI', serie: 'T009', nro_autorizacion: 'a1' }, invalid(['codigo_maquina'], [text('agregar', 'su Codigo de Maquina')]))),
+    row('S-REF-15 the duplicate is reported before the ticket fields', create({ id_tipo_doc: 'TI', serie: 'T001' }, dup)),
+    row('S-REF-15 a ticket with both fields stores them uppercased', create({ id_tipo_doc: 'TI', serie: 'T009', nro_autorizacion: 'a1', codigo_maquina: 'mq9' }, { ok: true, match: { nro_autorizacion: 'A1', codigo_maquina: 'MQ9' } })),
+    row('S-MOCK-20 another tipo stores both ticket fields as empty strings even when typed', create({ nro_autorizacion: 'a1', codigo_maquina: 'mq9' }, { ok: true, match: { nro_autorizacion: '', codigo_maquina: '' } })),
+    row('R-CRUD-13 the UI sends null for the hidden fields: stored as empty strings', create({ nro_autorizacion: null, codigo_maquina: null }, { ok: true, match: { nro_autorizacion: '', codigo_maquina: '' } })),
+    row('S-REF-15 UPDATE from ticket to another tipo empties the ticket fields', update('00002', { id_tipo_doc: '01', serie: 'T001' }, { ok: true, match: { id_tipo_doc: '01', nro_autorizacion: '', codigo_maquina: '' } })),
+    row('S-REF-16 serie 1 is stored as 0001', create({ serie: '1' }, { ok: true, match: { serie: '0001' } })),
+    row('S-REF-16 a fifth character in the serie is a 422 on serie', create({ serie: 'abcde' }, invalid(['serie']))),
+    row('S-REF-16 correlativo 25 is stored as 0000000025', create({ correlativo: '25' }, { ok: true, match: { correlativo: '0000000025' } })),
+    row('S-REF-16 an 11-digit correlativo is a 422 on correlativo', create({ correlativo: '12345678901' }, invalid(['correlativo']))),
+    row('S-REF-16 a correlativo with letters is a 422 on correlativo', create({ correlativo: 'abc' }, invalid(['correlativo']))),
+    row('S-REF-16 the constants and linea_impresion 12 (imprime defaults to Sí) are stored', create({}, { ok: true, match: { imprime: 'S', num_inicial: '0000000001', num_final: '9999999999', flag_cond_pago: 'N', linea_impresion: 12 } })),
+    row('S-REF-16 imprime No stores linea_impresion 0', create({ imprime: 'N' }, { ok: true, match: { imprime: 'N', linea_impresion: 0, num_final: '9999999999' } })),
+    row('S-REF-16 UPDATE re-derives linea_impresion', update('00001', { imprime: 'N' }, { ok: true, match: { linea_impresion: 0, num_inicial: '0000000001' } })),
+    row('S-REF-16 the constants cannot be sent in the body', create({ num_inicial: '5', num_final: '6', flag_cond_pago: 'S', linea_impresion: 99 }, { ok: true, match: { num_inicial: '0000000001', num_final: '9999999999', flag_cond_pago: 'N', linea_impresion: 12 } })),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '2', id_punto_venta: '1' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-REF-6 a localidad of another empresa is a 422 on id_localidad (the where is the session empresa)', create({ id_localidad: '3', id_punto_venta: '3' }, invalid(['id_localidad']))),
+    row('S-MOCK-28 get joins the tipo, localidad and punto de venta names and labels the estado', { name: '', slug, steps: [{ op: 'get', id: '00001' }], expect: { ok: true, match: { tipo_documento: 'FACTURA', localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL', estado_label: 'Activo' } } }),
+    row('R-REF-6 the list is tenant-wide and needs no session header', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 4 } }),
+  ];
+}
+
+function almacenCases(): CatalogCase[] {
+  const slug = 'almacenes';
+  const as = (empresaId: string) => ({ userId: '7', empresaId });
+  const text = (modo: string, label: string) => `Para ${modo} un Almacen, debes especificar su ${label}.`;
+  const body = (over: Record<string, unknown> = {}) => ({ id_localidad: '1', id_punto_venta: '1', descripcion: 'caja', direccion: 'av. uno', id_ubigeo: '150101', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, empresaId = '1'): CatalogCase => ({ name: '', slug, ctx: as(empresaId), steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-13 a blank form fails first on id_localidad with the desktop text', { name: '', slug, ctx: as('1'), steps: [{ op: 'create', body: {} }], expect: invalid(['id_localidad'], [text('agregar', 'Localidad')]) }),
+    row('S-REF-13 a localidad alone fails next on the punto de venta', create({ id_punto_venta: '' }, invalid(['id_punto_venta'], [text('agregar', 'Punto de Venta')]))),
+    row('S-REF-13 then the descripcion, with its accent', create({ descripcion: ' ' }, invalid(['descripcion'], [text('agregar', 'Descripción')]))),
+    row('S-REF-13 then the direccion', create({ direccion: ' ' }, invalid(['direccion'], [text('agregar', 'Dirección')]))),
+    row('S-REF-13 the cascade without a distrito says su Distrito', create({ id_ubigeo: '' }, invalid(['id_ubigeo'], [text('agregar', 'Distrito')]))),
+    row('S-REF-13 UPDATE words the messages with modificar', { name: '', slug, ctx: as('1'), steps: [{ op: 'update', id: '001', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], [text('modificar', 'Descripción')]) }),
+    row('S-MOCK-24 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '1', id_punto_venta: '2' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('S-MOCK-24 a punto de venta of its own localidad is accepted', create({ id_localidad: '2', id_punto_venta: '2' }, { ok: true, match: { id_almacen: '005', punto_venta: 'TIENDA MIRAFLORES', localidad: 'LOCAL ATE' } })),
+    row('S-MOCK-24 changing the localidad on UPDATE re-checks the punto de venta', { name: '', slug, ctx: as('1'), steps: [{ op: 'update', id: '001', body: { id_localidad: '2' } }], expect: invalid(['id_punto_venta']) }),
+    row('R-REF-6 a localidad of another empresa is a 422 on id_localidad (the where is the session empresa)', create({ id_localidad: '3', id_punto_venta: '3' }, invalid(['id_localidad']))),
+    row('R-REF-6 the same localidad is accepted under empresa 2', create({ id_localidad: '3', id_punto_venta: '3' }, { ok: true, match: { id_empresa: '2', localidad: 'ALMACEN CALLAO', id_usuario: 7 } }, '2')),
+    row('R-REF-6 the three booleans default to false', create({}, { ok: true, match: { direccionamiento: false, habilita_despacho: false, habilita_venta: false } })),
+    row('R-REF-6 the booleans are stored as sent', create({ direccionamiento: true, habilita_despacho: true, habilita_venta: true }, { ok: true, match: { direccionamiento: true, habilita_despacho: true, habilita_venta: true } })),
+    row('R-REF-6 a boolean must be a boolean', create({ habilita_venta: 'S' }, invalid(['habilita_venta']))),
+    row('R-REF-6 a ubigeo that is not a distrito is a 422 on id_ubigeo', create({ id_ubigeo: '15' }, invalid(['id_ubigeo']))),
+    row('S-MOCK-28 get joins the localidad, punto de venta and ubigeo names', { name: '', slug, ctx: as('1'), steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL', departamento: 'LIMA', provincia: 'LIMA', distrito: 'LIMA' } } }),
+    row('S-MOCK-30 the localidad options carry the session empresa through the where: empresa 1', { name: '', slug: 'localidades', ctx: as('1'), steps: [{ op: 'options', filters: { id_empresa: '$session.empresa' } }], expect: { ok: true, items: [{ id: '1', name: 'LOCAL CENTRAL' }, { id: '2', name: 'LOCAL ATE' }] } }),
+    row('S-MOCK-30 the localidad options carry the session empresa through the where: empresa 2', { name: '', slug: 'localidades', ctx: as('2'), steps: [{ op: 'options', filters: { id_empresa: '$session.empresa' } }], expect: { ok: true, items: [{ id: '3', name: 'ALMACEN CALLAO' }, { id: '4', name: 'SUCURSAL CUSCO' }] } }),
+  ];
+}
+
+function zonaCases(): CatalogCase[] {
+  const slug = 'zonas';
+  const text = (modo: string, what: string) => `Para ${modo} una Zona, debes ${what}.`;
+  const create = (body: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'create', body }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-33 descripcion first: the desktop M1 sentence', create({}, invalid(['descripcion'], [text('agregar', 'especificar su Descripcion')]))),
+    row('S-REF-33 a descripcion and no distrito says Seleccionar un Distrito (the server only sees the leaf)', create({ descripcion: 'norte' }, invalid(['id_ubigeo'], [text('agregar', 'Seleccionar un Distrito')]))),
+    row('S-REF-33 UPDATE words it with modificar', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '1', body: { id_ubigeo: '' } }], expect: invalid(['id_ubigeo'], [text('modificar', 'Seleccionar un Distrito')]) }),
+    row('R-REF-6 a ubigeo that is not a distrito is a 422 on id_ubigeo', create({ descripcion: 'norte', id_ubigeo: '1501' }, invalid(['id_ubigeo']))),
+    row('S-REF-7 estado is true when the body omits it, and the id is the next int', create({ descripcion: 'norte', id_ubigeo: '150101' }, { ok: true, match: { id_zona: '5', descripcion: 'NORTE', estado: true, id_usuario: 7 } })),
+    row('S-REF-7 estado can be switched off on UPDATE and the row stays listed', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '1', body: { descripcion: 'LIMA CENTRO', id_ubigeo: '150101', estado: false } }, { op: 'list' }], expect: { ok: true, total: 3 } }),
+    row('S-REF-7 an estado-false row is listed and keeps its stored estado', { name: '', slug, steps: [{ op: 'get', id: '3' }], expect: { ok: true, match: { estado: false, activo: true } } }),
+    row('S-REF-7 estado must be a boolean', create({ descripcion: 'norte', id_ubigeo: '150101', estado: 'A' }, invalid(['estado']))),
+    row('S-MOCK-28 get joins the departamento, provincia and distrito names', { name: '', slug, steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { departamento: 'LIMA', provincia: 'LIMA', distrito: 'ATE' } } }),
+    row('R-REF-6 the list is tenant-wide and needs no empresa header', { name: '', slug, ctx: { userId: '7' }, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+  ];
+}
+
+function tipoCambioCases(): CatalogCase[] {
+  const slug = 'tipos-cambio';
+  const as = (empresaId: string) => ({ userId: '7', empresaId });
+  const body = (over: Record<string, unknown> = {}) => ({ fecha: FREE_DATE, id_moneda: '00004', ...AMOUNTS, ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, empresaId = '1', deviation = false): Omit<CatalogCase, 'name'> => ({ slug, ctx: as(empresaId), deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): Omit<CatalogCase, 'name'> => ({ slug, ctx: as('1'), steps: [{ op: 'update', id, body: over }], expect });
+  const dup: Outcome = { status: 409, code: 'DUPLICATE', fields: ['fecha'], messages: [DUPLICATE_MSG] };
+  const row = (name: string, c: Omit<CatalogCase, 'name'>): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-MOCK-22 a duplicate (empresa, fecha, moneda) under empresa 1 is a 409 on fecha with the desktop text', create({ fecha: '2026-01-15' }, dup)),
+    row('S-MOCK-22 the same date and moneda under empresa 2 is accepted', create({ fecha: '2026-01-15' }, { ok: true, match: { id_empresa: '2', fecha: '2026-01-15' } }, '2')),
+    row('S-REF-18 the next date is accepted', create({ fecha: '2026-01-18' }, { ok: true })),
+    row('S-REF-18 the same date with another moneda is accepted: uniqueness is keyed on the moneda [DEVIATION]', create({ fecha: '2026-01-15', id_moneda: '00005' }, { ok: true, match: { moneda: 'EURO' } }, '1', true)),
+    row('S-REG-10 a deleted tipo de cambio frees its key', create({ fecha: '2026-01-10' }, { ok: true })),
+    row('S-REF-18 UPDATE keeping its own date and moneda is accepted', update('001', { monto_compra: 3.8 }, { ok: true, match: { monto_compra: 3.8 } })),
+    row('S-REF-18 UPDATE onto the date and moneda of another record is a 409 on fecha', update('002', { fecha: '2026-01-15' }, dup)),
+    row('S-REF-19 an empty date says the invalid-date message first', create({ fecha: ' ', id_moneda: '', monto_compra: 0 }, invalid(['fecha'], [DATE_MSG]))),
+    row('S-REF-19 a date that does not exist says the invalid-date message', create({ fecha: '2026-02-31' }, invalid(['fecha'], [DATE_MSG]))),
+    row('S-MOCK-19 a date outside the ISO format is a 422 on fecha', create({ fecha: '31/01/2026' }, invalid(['fecha'], [DATE_MSG]))),
+    row('R-REF-7 a blank moneda says su Moneda (M1), after the date', create({ id_moneda: '' }, invalid(['id_moneda'], ['Para agregar un Tipo de Cambio, debes especificar su Moneda.']))),
+    row('S-REF-19 an omitted moneda is DOLAR AMERICANO, an omitted date is today', { slug, ctx: as('1'), steps: [{ op: 'create', body: AMOUNTS }], expect: { ok: true, match: { id_moneda: '00004', moneda: 'DOLAR AMERICANO', fecha: todayIso() } } }),
+    row('S-REF-19 a body with no amounts fails on the first one: the 0.0 default is not a positive amount', { slug, ctx: as('1'), steps: [{ op: 'create', body: {} }], expect: invalid(['monto_compra'], [montoText('agregar', 'Monto de Compra')]) }),
+    row('S-REF-19 monto_compra 0 says su Monto de Compra', create({ monto_compra: 0 }, invalid(['monto_compra'], [montoText('agregar', 'Monto de Compra')]))),
+    row('S-MOCK-19 monto_venta 0 is a 422 on monto_venta with the desktop text (monto de Venta)', create({ monto_venta: 0 }, invalid(['monto_venta'], [montoText('agregar', 'monto de Venta')]))),
+    row('S-MOCK-19 monto_venta -1 is a 422 on monto_venta', create({ monto_venta: -1 }, invalid(['monto_venta'], [montoText('agregar', 'monto de Venta')]))),
+    row('R-REF-7 monto_comercial 0 says su Monto Comercial', create({ monto_comercial: 0 }, invalid(['monto_comercial'], [montoText('agregar', 'Monto Comercial')]))),
+    row('R-REF-7 monto_especial 0 says su Monto Especial, not Comercial [DEVIATION]', create({ monto_especial: 0 }, invalid(['monto_especial'], [montoText('agregar', 'Monto Especial')]), '1', true)),
+    row('R-REF-7 the amounts are checked in order: compra before venta', create({ monto_compra: 0, monto_venta: 0 }, invalid(['monto_compra']))),
+    row('R-REF-7 the duplicate is reported before a zero amount', create({ fecha: '2026-01-15', monto_compra: 0 }, dup)),
+    row('R-REF-7 UPDATE words the amount text with modificar', update('001', { monto_compra: 0 }, invalid(['monto_compra'], [montoText('modificar', 'Monto de Compra')]))),
+    row('S-CRUD-25 an amount with letters is a 422 on it', create({ monto_compra: 'abc' }, invalid(['monto_compra']))),
+    row('S-CRUD-25 the amounts are stored as sent, with no rounding', create({ monto_compra: 3.456789, monto_venta: '3.1' }, { ok: true, match: { monto_compra: 3.456789 } })),
+    row('S-MOCK-28 get joins the moneda name', { slug, ctx: as('1'), steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { id_moneda: '00004', moneda: 'DOLAR AMERICANO', monto_compra: 3.71 } } }),
+    row('S-MOCK-23 a retired moneda is a 422 on id_moneda', create({ id_moneda: '00009' }, invalid(['id_moneda']))),
+    row('R-REF-6 the list is tenant-wide: both empresas show', { slug, ctx: as('1'), steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+  ];
+}
+
+/** An entry that stamps or scopes by the empresa, or whose select asks for the localidades of the session empresa (the Correlativo). */
+const needsEmpresa = (entry: any) =>
+  usesEmpresa(entry) ||
+  entry.fields.some((f: any) => (f.source?.where && Object.values(f.source.where).includes('$session.empresa')) || REGISTRY.bySlug.get(f.source?.catalog)?.scope === 'empresa');
+/** A case of an empresa catalog acts in the session empresa unless it names its own (an empty one is a missing header). */
+const inSessionEmpresa = (c: CatalogCase): CatalogCase =>
+  needsEmpresa(REGISTRY.bySlug.get(c.slug)) && c.ctx?.empresaId === undefined ? { ...c, ctx: { ...c.ctx, empresaId: EMPRESA } } : c;
+export const REFERENCE_CASES: CatalogCase[] = BASE_CASES.map(inSessionEmpresa);

@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CatalogConfig, CrudAction } from '../../catalogs/CatalogConfig';
 import { nextSort } from '../../domain/crud/filterSort';
-import { applyListView, isTruncated, pageOfRow, withListViewChange, type ListViewState } from '../../domain/crud/listView';
+import { actionsForModes } from '../../domain/crud/toolbarGate';
+import { applyListView, formatRows, isTruncated, pageOfRow, withListViewChange, type ListViewState } from '../../domain/crud/listView';
 import type { Permissions } from '../../domain/permissions';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import { toFailure } from '../../shared/toFailure';
@@ -37,14 +38,16 @@ export function useUiCrudListImpl<T>(
   const shortcutScope = useRef<HTMLElement>(null);
   const shortcutsBlocked = useDialogOpen();
   const filterKeys = useMemo(() => config.columns.map((column) => column.key), [config.columns]);
+  const actions = useMemo(() => actionsForModes(config.actions, config.modes), [config.actions, config.modes]);
 
   const refresh = useCallback(
     async ({ select }: { select?: string } = {}) => {
       const request = ++latest.current;
       setLoad({ status: 'loading' });
       try {
-        const { items, pagination } = await service.list(FETCH_ALL);
+        const { items: fetched, pagination } = await service.list(FETCH_ALL);
         if (request !== latest.current) return;
+        const items = formatRows(config.columns, fetched);
         setLoad({ status: 'ready', items, truncated: isTruncated(pagination, items.length) });
         setSelectedId((current) => select ?? (items.some((row) => String(row[config.idKey]) === current) ? current : undefined));
         if (select !== undefined) {
@@ -54,7 +57,7 @@ export function useUiCrudListImpl<T>(
         if (request === latest.current) setLoad({ status: 'failed', ...toFailure(error) });
       }
     },
-    [service, config.idKey, filterKeys],
+    [service, config.idKey, config.columns, filterKeys],
   );
 
   useEffect(() => {
@@ -75,7 +78,7 @@ export function useUiCrudListImpl<T>(
     truncated: load.status === 'ready' && load.truncated,
     columns: config.columns,
     idKey: config.idKey,
-    actions: config.actions,
+    actions,
     permissions,
     filterText: view.filterText,
     sort: view.sort,

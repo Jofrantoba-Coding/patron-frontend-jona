@@ -1,0 +1,25 @@
+{
+  "demo": [
+    {
+      "id_motivo_traslado": "001",
+      "descripcion": "VENTA",
+      "abrev": "VTA",
+      "hab_guia": true,
+      "activo": true
+    },
+    {
+      "id_motivo_traslado": "002",
+      "descripcion": "TRASLADO ENTRE ALMACENES",
+      "abrev": "TEA",
+      "hab_guia": false,
+      "activo": true
+    },
+    {
+      "id_motivo_traslado": "003",
+      "descripcion": "CONSIGNACION",
+      "abrev": "CON",
+      "hab_guia": true,
+      "activo": false
+    }
+  ]
+}

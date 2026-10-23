@@ -1,0 +1,6 @@
+[
+  { "id_moneda": "00001", "descripcion": "SOLES", "abreviatura": "S/", "activo": true },
+  { "id_moneda": "00004", "descripcion": "DOLAR AMERICANO", "abreviatura": "US$", "activo": true },
+  { "id_moneda": "00005", "descripcion": "EURO", "abreviatura": "EUR", "activo": true },
+  { "id_moneda": "00009", "descripcion": "LIBRA ESTERLINA", "abreviatura": "GBP", "activo": false }
+]

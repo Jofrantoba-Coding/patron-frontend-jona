@@ -1,0 +1,8 @@
+{
+  "demo": [
+    { "id_ubicacion": "1", "id_localidad": "1", "id_punto_venta": "1", "id_almacen": "001", "descripcion": "PASILLO A", "activo": true },
+    { "id_ubicacion": "2", "id_localidad": "2", "id_punto_venta": "2", "id_almacen": "002", "descripcion": "ESTANTE 1", "activo": true },
+    { "id_ubicacion": "3", "id_localidad": "1", "id_punto_venta": "1", "id_almacen": "001", "descripcion": "ZONA FRIA", "activo": true },
+    { "id_ubicacion": "4", "id_localidad": "1", "id_punto_venta": "1", "id_almacen": "001", "descripcion": "OBSOLETA", "activo": false }
+  ]
+}

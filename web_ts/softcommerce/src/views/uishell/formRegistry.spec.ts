@@ -9,7 +9,7 @@ describe('formRegistry', () => {
   });
 
   it('has no form for an unregistered name, including names inherited from Object', () => {
-    expect(findForm(formRegistry, 'miTipoCambio')).toBeUndefined();
+    expect(findForm(formRegistry, 'miFormularioInexistente')).toBeUndefined();
     expect(findForm(formRegistry, 'constructor')).toBeUndefined();
     expect(findForm(formRegistry, 'toString')).toBeUndefined();
   });

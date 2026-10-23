@@ -1,6 +1,14 @@
 // Layer: View. Pure render of props already resolved by the Impl; no state, effects or services.
 import { JAlert, JButton, JComboBox, JDialog } from 'jona-ui';
+import { BooleanField } from '../../shared/ui/BooleanField';
 import { CascadeSelect } from '../../shared/ui/CascadeSelect';
+import { CatalogSelect } from '../../shared/ui/CatalogSelect';
+import { DateField } from '../../shared/ui/DateField';
+import { DependentSelect } from '../../shared/ui/DependentSelect';
+import { NumberField } from '../../shared/ui/NumberField';
+import { OptionsField } from '../../shared/ui/OptionsField';
+import { maxLengthOf } from '../../../mock-server/core/predicates.js';
+import { typedNormalize } from '../../domain/crud/normalize';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { UICRUDREGISTER_DEFAULTS, type InterUiCrudRegister } from './InterUiCrudRegister';
@@ -28,6 +36,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
         <div style={{ display: 'grid', gap: 12 }}>
           {status === 'loading' && <p>{props.loadingLabel}</p>}
           {status === 'failed' && <JAlert variant="danger" role="alert">{props.loadError}</JAlert>}
+          {props.alert && <JAlert variant="warning" role="alert">{props.alert}</JAlert>}
           {props.submitError && (
             <JAlert variant="danger" role="alert">
               {props.submitError}
@@ -35,22 +44,117 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
             </JAlert>
           )}
           {status === 'ready' &&
-            props.fields.map((field) =>
-              field.kind === 'text' ? (
+            props.fields.filter((field) => props.isFieldVisible(field.name)).map((field) =>
+              field.kind === 'code' ? (
+                // The server issues the code: shown read-only once the record exists, never in INSERT or CLONE.
+                mode !== 'INSERT' && mode !== 'CLONE' && (
+                  <label key={field.name} style={{ display: 'grid', gap: 4 }}>
+                    <span>{field.label}</span>
+                    <UppercaseTextField value={props.values[field.name]} readOnly onChange={() => undefined} />
+                  </label>
+                )
+              ) : field.kind === 'text' ? (
                 <div key={field.name}>
                   <label style={{ display: 'grid', gap: 4 }}>
                     <span>{field.label}</span>
                     <UppercaseTextField
                       ref={props.registerField(field.name)}
                       value={props.values[field.name]}
-                      maxLength={field.maxLength}
+                      maxLength={maxLengthOf(field, props.values)}
                       uppercase={field.uppercase}
-                      readOnly={props.readOnly}
+                      transform={(typed) => typedNormalize(field, typed)}
+                      readOnly={props.isFieldReadOnly(field.name)}
                       hasError={Boolean(props.errors[field.name])}
                       onEnterPress={props.readOnly ? undefined : () => props.onSubmit()}
+                      onBlur={() => props.onFieldBlur(field.name)}
                       onChange={(value) => props.onFieldChange(field.name, value)}
                     />
                   </label>
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : field.kind === 'number' ? (
+                <div key={field.name}>
+                  <NumberField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    value={props.values[field.name]}
+                    max={field.maxLength}
+                    scale={field.scale}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                    onBlur={() => props.onFieldBlur(field.name)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : field.kind === 'date' ? (
+                <div key={field.name}>
+                  <DateField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    value={props.values[field.name]}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : field.kind === 'boolean' ? (
+                <BooleanField
+                  key={field.name}
+                  ref={props.registerField(field.name)}
+                  label={field.label}
+                  checked={props.values[field.name] === 'true'}
+                  readOnly={props.isFieldReadOnly(field.name)}
+                  onChange={(checked) => props.onFieldChange(field.name, String(checked))}
+                />
+              ) : field.kind === 'options' ? (
+                <div key={field.name}>
+                  <OptionsField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    display={field.display}
+                    options={field.options}
+                    value={props.values[field.name]}
+                    placeholder={props.selectPlaceholder}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : field.kind === 'select' && field.source && field.dependsOn?.length ? (
+                <div key={field.name}>
+                  <DependentSelect
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    parents={field.dependsOn}
+                    values={props.values}
+                    load={(filters) => props.loadOptions(field.source!.catalog, { ...field.source!.where, ...filters })}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    defaultOption={field.defaultOption}
+                    onDefault={(value) => props.onFieldDefault(field.name, value)}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : field.kind === 'select' && field.source ? (
+                <div key={field.name}>
+                  <CatalogSelect
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    options={props.selectOptions[field.name] ?? []}
+                    value={props.values[field.name]}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                  />
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
                 </div>
               ) : field.kind === 'select' ? (
@@ -75,6 +179,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                   levels={field.levels}
                   values={props.values}
                   loadChildren={props.loadChildren}
+                  filter={field.filter}
                   readOnly={props.readOnly}
                   errors={props.errors}
                   registerField={props.registerField}

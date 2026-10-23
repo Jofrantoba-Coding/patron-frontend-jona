@@ -1,0 +1,74 @@
+[
+  {
+    "id_subfamilia_sunat": "501015",
+    "descripcion": "FRUTAS FRESCAS",
+    "codigo_familia": "5010",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "501016",
+    "descripcion": "VERDURAS FRESCAS",
+    "codigo_familia": "5010",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "501017",
+    "descripcion": "TUBERCULOS Y RAICES",
+    "codigo_familia": "5010",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "501115",
+    "descripcion": "CARNE DE RES",
+    "codigo_familia": "5011",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "501116",
+    "descripcion": "AVES DE CORRAL",
+    "codigo_familia": "5011",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "501315",
+    "descripcion": "LECHE Y CREMA",
+    "codigo_familia": "5013",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "501316",
+    "descripcion": "HUEVOS",
+    "codigo_familia": "5013",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "501815",
+    "descripcion": "PAN",
+    "codigo_familia": "5018",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "501816",
+    "descripcion": "PASTELES",
+    "codigo_familia": "5018",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "502015",
+    "descripcion": "GASEOSAS",
+    "codigo_familia": "5020",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "502016",
+    "descripcion": "AGUA EMBOTELLADA",
+    "codigo_familia": "5020",
+    "activo": true
+  },
+  {
+    "id_subfamilia_sunat": "999901",
+    "descripcion": "SUBFAMILIA RETIRADA",
+    "codigo_familia": "9999",
+    "activo": false
+  }
+]

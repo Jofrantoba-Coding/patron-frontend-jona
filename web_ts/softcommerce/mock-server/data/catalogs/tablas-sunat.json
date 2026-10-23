@@ -1,0 +1,10 @@
+[
+  { "id_tabla_sunat": "1", "nombre": "TABLA 1", "descripcion": "TIPO DE COMPROBANTE DE PAGO O DOCUMENTO", "activo": true },
+  { "id_tabla_sunat": "2", "nombre": "TABLA 2", "descripcion": "TIPO DE MONEDA", "activo": true },
+  { "id_tabla_sunat": "3", "nombre": "TABLA 3", "descripcion": "TIPO DE DOCUMENTO DE IDENTIDAD", "activo": true },
+  { "id_tabla_sunat": "4", "nombre": "TABLA 4", "descripcion": "MEDIOS DE PAGO", "activo": true },
+  { "id_tabla_sunat": "5", "nombre": "TABLA 5", "descripcion": "TIPO DE EXISTENCIA", "activo": true },
+  { "id_tabla_sunat": "6", "nombre": "TABLA 6", "descripcion": "UNIDAD DE MEDIDA", "activo": true },
+  { "id_tabla_sunat": "12", "nombre": "TABLA 12", "descripcion": "TIPO DE OPERACION", "activo": true },
+  { "id_tabla_sunat": "99", "nombre": "TABLA 99", "descripcion": "TABLA RETIRADA", "activo": false }
+]

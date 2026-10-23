@@ -1,0 +1,25 @@
+{
+  "demo": [
+    {
+      "id_clasif_inventario": "001",
+      "descripcion": "COMPRA",
+      "abrev": "COM",
+      "tipo": "E",
+      "activo": true
+    },
+    {
+      "id_clasif_inventario": "002",
+      "descripcion": "VENTA",
+      "abrev": "VTA",
+      "tipo": "S",
+      "activo": true
+    },
+    {
+      "id_clasif_inventario": "003",
+      "descripcion": "AJUSTE",
+      "abrev": "AJU",
+      "tipo": "E",
+      "activo": false
+    }
+  ]
+}

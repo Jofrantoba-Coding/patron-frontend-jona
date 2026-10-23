@@ -1,0 +1,22 @@
+{
+  "demo": [
+    {
+      "id_tipo_anexo": "001",
+      "descripcion": "PRINCIPAL",
+      "abreviatura": "PRI",
+      "activo": true
+    },
+    {
+      "id_tipo_anexo": "002",
+      "descripcion": "SECUNDARIO",
+      "abreviatura": "SEC",
+      "activo": true
+    },
+    {
+      "id_tipo_anexo": "003",
+      "descripcion": "TEMPORAL",
+      "abreviatura": "",
+      "activo": false
+    }
+  ]
+}

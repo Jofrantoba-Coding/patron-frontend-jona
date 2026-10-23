@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import menuSeed from '../data/menu.json';
 import {
   getMenu,
   getParams,
@@ -77,7 +78,7 @@ describe('login', () => {
 describe('menu', () => {
   it('returns the flat MenuDinamico list from the seed', () => {
     const { items } = getMenu(store);
-    expect(items).toHaveLength(7);
+    expect(items).toHaveLength(menuSeed.length);
     expect(items[2]).toEqual({
       id_menu: 3,
       id_menu_padre: 2,

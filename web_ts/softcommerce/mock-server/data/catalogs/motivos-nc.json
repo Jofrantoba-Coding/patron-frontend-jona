@@ -1,0 +1,32 @@
+{
+  "demo": [
+    {
+      "id_motivo_nc": "001",
+      "descripcion": "DEVOLUCION DE MERCADERIA",
+      "tipo": "P",
+      "id_usuario": 1,
+      "activo": true
+    },
+    {
+      "id_motivo_nc": "002",
+      "descripcion": "ANULACION DE LA OPERACION",
+      "tipo": "C",
+      "id_usuario": 1,
+      "activo": true
+    },
+    {
+      "id_motivo_nc": "003",
+      "descripcion": "INTERES POR MORA",
+      "tipo": "Y",
+      "id_usuario": 1,
+      "activo": true
+    },
+    {
+      "id_motivo_nc": "004",
+      "descripcion": "ERROR EN EL RUC",
+      "tipo": "C",
+      "id_usuario": 1,
+      "activo": false
+    }
+  ]
+}

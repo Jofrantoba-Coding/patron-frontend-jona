@@ -1,5 +1,5 @@
 import type { AppParams, Empresa, LoginResult, LoginUser, PuntoVenta } from '../services/InterAuthService';
-import type { SessionContext } from '../services/httpClient';
+import type { RequestContext, SessionContext } from '../services/httpClient';
 
 export const SESSION_STORAGE_KEY = 'softcommerce.session.v1';
 
@@ -64,6 +64,12 @@ export function createSessionStore(storage: Storage) {
     getContext(): SessionContext {
       if (snapshot.session) return { tenantId: snapshot.session.tenantId, token: snapshot.session.token };
       if (snapshot.pending) return { tenantId: snapshot.pending.tenantId, token: snapshot.pending.result.token };
+      return {};
+    },
+    /** Acting user and empresa for the session headers: the user from step 1, the empresa once chosen (D13). */
+    getRequestContext(): RequestContext {
+      if (snapshot.session) return { userId: String(snapshot.session.user.id_usuario), empresaId: snapshot.session.empresa.id };
+      if (snapshot.pending) return { userId: String(snapshot.pending.result.user.id_usuario) };
       return {};
     },
   };

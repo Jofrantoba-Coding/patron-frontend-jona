@@ -1,25 +1,37 @@
+import { REGISTRY } from '../registry/index.js';
+import { PROJECTIONS } from '../registry/project.js';
 import { MockError } from './errors.js';
 
 /**
  * @typedef {{ id: string, name: string }} Tenant
- * @typedef {{ empresas: any[], puntosVenta: any[], localidades: any[], params: Record<string, any> }} TenantData
- * @typedef {{ users: any[], menu: any[], permissions: Record<string, any>, ubigeo: any[] }} SharedData
+ * @typedef {{ empresas: any[], puntosVenta: any[], localidades: any[], params: Record<string, any>, [section: string]: any }} TenantData
+ * @typedef {{ users: any[], menu: any[], permissions: Record<string, any>, ubigeo: any[], [section: string]: any }} SharedData
  */
 
-/** Seed sections that are keyed by tenant id. */
-const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'localidades', 'params'];
+/** W1 seed sections keyed by tenant id; registry entries (Localidad included) add theirs by scope. */
+const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'params'];
+
+/** @param {ReturnType<typeof import('../registry/schema.js').validateRegistry>} registry @param {boolean} shared */
+const sectionsOf = (registry, shared) =>
+  registry.entries.filter((e) => (e.scope === 'shared') === shared).map((e) => e.section);
 
 /**
- * Builds an independent mutable copy of the seed.
+ * Builds an independent mutable copy of the seed. Store sections come from the
+ * registry `scope`: `tenant`/`empresa` per tenant (a missing tenant gets `[]`),
+ * `shared` once globally (R-REG-5).
  * @param {Record<string, any>} seed
+ * @param {ReturnType<typeof import('../registry/schema.js').validateRegistry>} registry
  */
-function snapshot(seed) {
+function snapshot(seed, registry) {
+  const tenantSections = [...new Set([...TENANT_SECTIONS, ...sectionsOf(registry, false)])];
   /** @type {Record<string, TenantData>} */
   const tenants = {};
   for (const { id } of seed.tenants) {
     tenants[id] = /** @type {TenantData} */ (
-      Object.fromEntries(TENANT_SECTIONS.map((s) => [s, structuredClone(seed[s][id])]))
+      Object.fromEntries(tenantSections.map((s) => [s, structuredClone(seed[s]?.[id] ?? [])]))
     );
+    // A projected entry (the auth users) takes its rows from another seed section, so there is one source (R-REG-2).
+    for (const entry of registry.entries.filter((e) => e.project !== undefined)) tenants[id][entry.section] = PROJECTIONS[entry.project].rows(seed, id);
   }
   return {
     tenantList: /** @type {Tenant[]} */ (structuredClone(seed.tenants)),
@@ -28,6 +40,7 @@ function snapshot(seed) {
       menu: structuredClone(seed.menu),
       permissions: structuredClone(seed.permissions),
       ubigeo: structuredClone(seed.ubigeo),
+      ...Object.fromEntries(sectionsOf(registry, true).map((s) => [s, structuredClone(seed[s] ?? [])])),
     }),
     tenants,
   };
@@ -37,15 +50,17 @@ function snapshot(seed) {
  * In-memory store over a JSON seed. The seed is cloned on creation and on
  * every reset, so callers can never mutate it (S-MOCK-14).
  * @param {Record<string, any>} seed
+ * @param {ReturnType<typeof import('../registry/schema.js').validateRegistry>} [registry]
  */
-export function createStore(seed) {
+export function createStore(seed, registry = REGISTRY) {
   const pristine = structuredClone(seed);
-  let state = snapshot(pristine);
+  let state = snapshot(pristine, registry);
 
   return {
+    registry,
     /** Restores every dataset to the seed. */
     reset() {
-      state = snapshot(pristine);
+      state = snapshot(pristine, registry);
     },
     tenants: () => structuredClone(state.tenantList),
     /** @param {string} id */

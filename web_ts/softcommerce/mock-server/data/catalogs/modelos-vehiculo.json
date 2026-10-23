@@ -1,0 +1,44 @@
+{
+  "demo": [
+    {
+      "id_modelo": "001",
+      "descripcion": "HILUX",
+      "estado": true,
+      "id_usuario": 1,
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_modelo": "002",
+      "descripcion": "COROLLA",
+      "estado": false,
+      "id_usuario": 1,
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_modelo": "003",
+      "descripcion": "MODELO RETIRADO",
+      "estado": true,
+      "id_usuario": 1,
+      "id_empresa": "1",
+      "activo": false
+    },
+    {
+      "id_modelo": "004",
+      "descripcion": "ACCENT",
+      "estado": true,
+      "id_usuario": 1,
+      "id_empresa": "2",
+      "activo": true
+    },
+    {
+      "id_modelo": "005",
+      "descripcion": "RIO",
+      "estado": true,
+      "id_usuario": 1,
+      "id_empresa": "2",
+      "activo": true
+    }
+  ]
+}
