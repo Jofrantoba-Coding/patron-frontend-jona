@@ -4,11 +4,11 @@
  * Each catalog stays a one-line declaration; the rules live in the registry, not here.
  * @param {{ slug: string, idKey: string, entity: string, formId: string, title: string, upper?: boolean,
  *   codeWidth?: number, style?: 'M1'|'M2'|'MS'|'label', scope?: 'tenant'|'empresa', stamp?: string[], descripcion?: any|false, fields?: any[], columns?: any[], joins?: any[], unique?: any[], validation?: any[],
- *   constants?: Record<string, string|number|boolean>, derive?: any[], optionLabel?: string|string[] }} def
+ *   constants?: Record<string, string|number|boolean>, derive?: any[], optionLabel?: string|string[], modes?: string[], rules?: any[] }} def
  * @returns {import('../schema.js').CatalogDef}
  */
 export function referenceCatalog({
-  slug, idKey, entity, formId, title, upper = true, codeWidth = 3, style = 'M1', scope = 'tenant', stamp = ['id_usuario'], descripcion = {}, fields = [], columns = [], joins, unique, validation, constants, derive, optionLabel,
+  slug, idKey, entity, formId, title, upper = true, codeWidth = 3, style = 'M1', scope = 'tenant', stamp = ['id_usuario'], descripcion = {}, fields = [], columns = [], joins, unique, validation, constants, derive, optionLabel, modes, rules,
 }) {
   return {
     slug,
@@ -36,6 +36,9 @@ export function referenceCatalog({
     ...(validation ? { validation } : {}),
     ...(constants ? { constants } : {}),
     ...(derive ? { derive } : {}),
+    // Writes outside `modes` answer 405 `MODE_NOT_SUPPORTED`; `rules` name the entry rules (`docIdentidad`).
+    ...(modes ? { modes } : {}),
+    ...(rules ? { rules } : {}),
     // The name a select shows for a row when it is not the `descripcion` (a correlativo is shown by its serie).
     ...(optionLabel ? { optionLabel } : {}),
   };

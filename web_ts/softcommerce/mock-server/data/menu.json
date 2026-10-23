@@ -40,5 +40,7 @@
   { "id_menu": 39, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Vehiculo", "nombre": "miVehiculo" },
   { "id_menu": 40, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Correlativo de Usuario", "nombre": "mi_usuariocorrelativo" },
   { "id_menu": 41, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Zona Distancia", "nombre": "miZonaDistancia" },
-  { "id_menu": 42, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Trabajador - PuntoVenta", "nombre": "miTrabajadorPuntoVenta" }
+  { "id_menu": 42, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Trabajador - PuntoVenta", "nombre": "miTrabajadorPuntoVenta" },
+  { "id_menu": 43, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Chofer", "nombre": "PanelTFChofer" },
+  { "id_menu": 44, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Socio", "nombre": "PanelTFSocio" }
 ]
