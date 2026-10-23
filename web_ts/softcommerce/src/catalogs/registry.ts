@@ -8,6 +8,7 @@ type Row = Record<string, string>;
 const conditionsOf = (field: any) => ({
   ...(field.visibleWhen ? { visibleWhen: field.visibleWhen } : {}), ...(field.enabledWhen ? { enabledWhen: field.enabledWhen } : {}),
   ...(field.requiredWhen ? { requiredWhen: field.requiredWhen } : {}), ...(field.clearsOnChange ? { clearsOnChange: field.clearsOnChange } : {}),
+  ...(field.ruleState ? { ruleState: field.ruleState } : {}),
 });
 
 function toField(entry: CatalogDef, field: any): FieldConfig {
@@ -22,7 +23,7 @@ function baseField(entry: CatalogDef, field: any): FieldConfig {
     return {
       kind: 'text', name: field.name, label: field.label, required: Boolean(field.required),
       maxLength: field.max, uppercase: normalize.includes('upper'), normalize,
-      ...(field.minLen !== undefined ? { minLen: field.minLen } : {}), ...(field.minLenWhen ? { minLenWhen: field.minLenWhen } : {}),
+      ...(field.minLen !== undefined ? { minLen: field.minLen } : {}), ...(field.minLenWhen ? { minLenWhen: field.minLenWhen } : {}), ...(field.maxWhen ? { maxWhen: field.maxWhen } : {}),
     };
   }
   if (field.kind === 'boolean') {

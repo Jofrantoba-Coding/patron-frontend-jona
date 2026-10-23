@@ -34,3 +34,7 @@ export const LOOKUP_RULES = {
     },
   },
 };
+
+// The named entry rules (D9): hooks and runners live in `entryRules.js` so the validators can import them without a cycle.
+export { docIdentidad } from './docIdentidad.js';
+export { ENTRY_RULE_HOOKS, ENTRY_RULE_NAMES, ruleDerived, ruleDetail, ruleEffects, ruleStates } from './entryRules.js';

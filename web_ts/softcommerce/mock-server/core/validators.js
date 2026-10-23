@@ -4,7 +4,8 @@ import { isIsoDate, todayIso } from './dates.js';
 import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
-import { fieldState, minLengthOf } from './predicates.js';
+import { ruleDetail } from './entryRules.js';
+import { fieldState, maxLengthOf, minLengthOf } from './predicates.js';
 
 /** Logical-delete flag shared by every registry catalog (R-MOCK-7). */
 export const ACTIVE_KEY = 'activo';
@@ -97,13 +98,15 @@ function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
   const state = fieldState(f, record);
   if (!state.visible || !state.enabled) return null;
   const value = record[f.name];
-  const bad = (/** @type {'REQUIRED'|'MAX_LENGTH'|'MIN_LENGTH'|'INVALID'|'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD'} */ code) => ({ field: f.name, code, message: fieldMessage(entry, f, code, mode) });
+  // `maxWhen` (R-REG-2): the limit may depend on another field; the message names the limit that applied.
+  const limit = maxLengthOf(f, record);
+  const bad = (/** @type {'REQUIRED'|'MAX_LENGTH'|'MIN_LENGTH'|'INVALID'|'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD'} */ code) => ({ field: f.name, code, message: fieldMessage(entry, { ...f, max: limit }, code, mode) });
   if (isBlank(value)) {
     const optional = (entry.compat?.serverOptional ?? []).includes(f.name);
     return state.required && !optional ? bad('REQUIRED') : null;
   }
   const text = String(value);
-  if ((f.kind === 'text' || f.kind === 'code') && f.max !== undefined && text.length > f.max) {
+  if ((f.kind === 'text' || f.kind === 'code') && limit !== undefined && text.length > limit) {
     return bad('MAX_LENGTH');
   }
   // `minLen` / `minLenWhen` (R-REG-4): a value shorter than the length that applies is judged like a missing one.
@@ -183,7 +186,7 @@ function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, 
  * first failing step, like the desktop: one detail, 409 for a unique key and 422
  * for anything else. A `compat` entry (Localidad) keeps the W1 behavior: every
  * field and ref failure in one 422, uniqueness checked afterwards. `{rule}` steps
- * are skipped until a named rule exists.
+ * run the named rule's validate hook.
  * @param {any} store @param {string} tenantId @param {any} entry @param {Record<string, any>} record
  * @param {{ selfId?: string, ctx?: import('./context.js').RequestContext, mode?: keyof typeof import('./messages.js').MODO }} [options]
  * `mode` words the messages: INSERT on create, UPDATE on update.
@@ -218,8 +221,8 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
       if (duplicate) throw duplicateError([duplicate]);
       continue;
     }
-    if (typeof step === 'object' && 'rule' in step) continue;
-    const detail = typeof step === 'object' && 'range' in step ? rangeDetail(entry, fields.get(step.range), record, mode) : stepDetail(step);
+    // A named rule is shared code: the same hook runs on the form (D10).
+    const detail = typeof step === 'object' && 'rule' in step ? ruleDetail(entry, step.rule, record, mode) : typeof step === 'object' && 'range' in step ? rangeDetail(entry, fields.get(step.range), record, mode) : stepDetail(step);
     if (detail && !entry.compat) throw validationError([detail]);
     if (detail) details.push(detail);
   }

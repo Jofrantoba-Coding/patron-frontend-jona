@@ -2,7 +2,8 @@
 import { fieldMessage } from '../../../mock-server/core/messages.js';
 import { displayToIso, todayIso } from '../../../mock-server/core/dates.js';
 import { DECIMAL_TEXT, outOfBounds } from '../../../mock-server/core/numbers.js';
-import { fieldState, minLengthOf } from '../../../mock-server/core/predicates.js';
+import { fieldState, maxLengthOf, minLengthOf } from '../../../mock-server/core/predicates.js';
+import { ruleDetail } from '../../../mock-server/core/entryRules.js';
 import { firstServerOnlyStep } from '../../../mock-server/core/validators.js';
 import type { CatalogDef } from '../../../mock-server/registry/schema.js';
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
@@ -68,8 +69,9 @@ function fieldError(field: FieldConfig, values: FormValues, { required: required
   if (!state.visible || !state.enabled) return undefined;
   const value = values[field.name];
   if (state.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? `${field.label} es obligatorio.` };
-  if (field.kind === 'text' && field.maxLength !== undefined && (value?.length ?? 0) > field.maxLength) {
-    return { name: field.name, message: `${field.label} no puede superar ${field.maxLength} caracteres.` };
+  const limit = field.kind === 'text' ? maxLengthOf(field, values) : undefined;
+  if (field.kind === 'text' && limit !== undefined && (value?.length ?? 0) > limit) {
+    return { name: field.name, message: `${field.label} no puede superar ${limit} caracteres.` };
   }
   if (isBlank(value)) return undefined;
   // `minLen` / `minLenWhen` (R-REG-4): shorter than the length that applies reads like a missing value (the desktop RUC text).
@@ -105,8 +107,13 @@ export function validate(fields: FieldConfig[], values: FormValues, rules?: Vali
   const steps: any[] = (entry as any).steps;
   // A `{range: name}` step takes that field's range check out of its field step (R-REF-7 Turno order).
   const ranged = new Set(steps.flatMap((step) => (typeof step === 'object' && 'range' in step ? [step.range] : [])));
-  // Named `{rule}` steps arrive with the rules themselves (W2-12); unique and ref steps are the server's.
+  // Named `{rule}` steps are shared code and run here; unique and ref steps are the server's.
   for (const step of steps.slice(0, firstServerOnlyStep(entry))) {
+    if (typeof step === 'object' && 'rule' in step) {
+      const detail = ruleDetail(entry, step.rule, values, mode);
+      if (detail) return [{ name: detail.field, message: detail.message }];
+      continue;
+    }
     const field = byName.get(typeof step === 'string' ? step : step.range);
     const error = field && (typeof step === 'string' ? fieldError(field, values, messages, ranged.has(step)) : rangeError(field, values, messages.range));
     if (error) return [error];

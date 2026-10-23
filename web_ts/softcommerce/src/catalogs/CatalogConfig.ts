@@ -18,6 +18,8 @@ export interface ConditionalProps {
   enabledWhen?: FieldCondition;
   requiredWhen?: FieldCondition;
   clearsOnChange?: string[];
+  /** State a named rule (`docIdentidad`) gives the field for the current values, on top of the conditions (D9); set by the registry adapter. */
+  ruleState?: (values: Record<string, string>) => { hidden?: boolean; disabled?: boolean; required?: boolean } | undefined;
 }
 
 type PlainField =
@@ -32,6 +34,8 @@ type PlainField =
       /** A length the value must reach, plain or chosen by another field's value (`minLenWhen`, first match wins; R-REG-4). */
       minLen?: number;
       minLenWhen?: { when: { field: string; in: string[] }; len: number }[];
+      /** A maximum length chosen by another field's value (first match wins), else `maxLength` (R-REG-2). */
+      maxWhen?: { when: { field: string; in: string[] }; len: number }[];
       uppercase?: boolean;
       /** Registry `normalize` steps, applied (after a trim) to the payload; absent for the W1 configs. */
       normalize?: string[];

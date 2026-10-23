@@ -1,3 +1,5 @@
+import { DOC_DEFAULTS } from '../core/docIdentidad.js';
+import { ENTRY_RULE_NAMES, ruleStates } from '../core/entryRules.js';
 import { NORMALIZE_STEP } from '../core/normalize.js';
 import { isIsoDate } from '../core/dates.js';
 import { DECIMAL_TEXT } from '../core/numbers.js';
@@ -20,8 +22,8 @@ export const MODES = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
 const KINDS = ['code', 'text', 'number', 'boolean', 'date', 'select', 'options'];
 const STYLES = ['M1', 'M2', 'MS', 'label', 'w1'];
 const STAMPS = ['id_usuario', 'id_empresa'];
-/** Closed set of named rules (D9). Implementations land in the slices that need them. */
-const ENTRY_RULES = ['docIdentidad'];
+/** Closed set of named rules (D9): the hooks live in `core/entryRules.js`. */
+const ENTRY_RULES = ENTRY_RULE_NAMES;
 const FILTER_RULES = ['ubigeoChildren', 'ubigeoHasActive'];
 const CONDITIONS = ['visibleWhen', 'enabledWhen', 'requiredWhen'];
 /** Column renderings beyond plain text; each lands with the first catalog that shows it. */
@@ -110,6 +112,44 @@ function assertMinLength(at, f) {
   for (const rule of f.minLenWhen) {
     if (!rule.when?.field || !Array.isArray(rule.when.in)) fail(at, 'minLenWhen needs a condition { field, in }');
     check('minLenWhen len', rule.len);
+  }
+}
+
+/**
+ * `maxWhen` (a list of `{ when: Cond, len }`, the first match decides) belongs to text fields and never exceeds `max`; without a match the plain
+ * `max` applies. Field names in a condition are checked by the caller.
+ * @param {string} at @param {any} f
+ */
+function assertMaxWhen(at, f) {
+  if (f.maxWhen === undefined) return;
+  if (f.kind !== 'text') fail(at, 'maxWhen needs a text field');
+  if (!Array.isArray(f.maxWhen)) fail(at, 'maxWhen must be a list');
+  for (const rule of f.maxWhen) {
+    if (!rule.when?.field || !Array.isArray(rule.when.in)) fail(at, 'maxWhen needs a condition { field, in }');
+    if (!Number.isInteger(rule.len) || rule.len < 1) fail(at, 'maxWhen len must be a positive integer');
+    if (f.max !== undefined && rule.len > f.max) fail(at, `maxWhen len ${rule.len} is above max ${f.max}`);
+  }
+}
+
+/**
+ * The params of a `docIdentidad` rule: the field names it reads (`tipo`, `numero`, `paterno`, `materno`, `nombres`, `razon`, `sexo`), the two tipo
+ * ids (`dni`, `ruc`) and `persona`, a stored-only column that must not share a name with a field or a constant.
+ * @param {string} where @param {any} entry @param {Map<string, any>} byName @param {any} params
+ */
+function assertDocParams(where, entry, byName, params = {}) {
+  const at = `${where} rule "docIdentidad"`;
+  const FIELDS = ['tipo', 'numero', 'paterno', 'materno', 'nombres', 'razon', 'sexo'];
+  for (const [key, value] of Object.entries(params)) {
+    if (!['persona', 'dni', 'ruc', ...FIELDS].includes(key)) fail(at, `unknown param "${key}"`);
+    if (typeof value !== 'string' || value === '') fail(at, `${key} must be a field name`);
+    if (FIELDS.includes(key) && !byName.has(value)) fail(at, `${key} names unknown field "${value}"`);
+  }
+  const all = { ...DOC_DEFAULTS, ...params };
+  if (!['select', 'options'].includes(byName.get(all.tipo)?.kind)) fail(at, 'tipo must be a select or options field');
+  for (const key of ['numero', 'paterno', 'materno', 'nombres', 'razon']) if (byName.get(all[key])?.kind !== 'text') fail(at, `${key} must be a text field`);
+  if (params.persona !== undefined) {
+    if (byName.has(params.persona)) fail(at, `persona "${params.persona}" is also a field`);
+    if (entry.constants && Object.hasOwn(entry.constants, params.persona)) fail(at, `persona "${params.persona}" is also a constant`);
   }
 }
 
@@ -224,6 +264,8 @@ function resolveEntry(raw, slugs, sources) {
     if (f.min !== undefined && f.kind !== 'number' && f.kind !== 'date') fail(at, 'min needs a number or date field');
     if (f.exclusiveMin !== undefined && f.kind !== 'number') fail(at, 'exclusiveMin needs a number field');
     assertMinLength(at, f);
+    assertMaxWhen(at, f);
+    for (const rule of f.maxWhen ?? []) known(`field "${f.name}" maxWhen`, rule.when.field);
     for (const rule of f.minLenWhen ?? []) known(`field "${f.name}" minLenWhen`, rule.when.field);
     if (f.blankToDefault && f.default === undefined) fail(at, 'blankToDefault needs a default');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
@@ -275,7 +317,11 @@ function resolveEntry(raw, slugs, sources) {
     if (Array.isArray(labels) && labels.length === 0) fail(where, 'optionLabel needs at least one field');
     for (const name of [labels].flat()) known('optionLabel', name);
   }
-  for (const { name } of entry.rules ?? []) rule(name, ENTRY_RULES);
+  const byName = new Map(entry.fields.map((/** @type {any} */ f) => [f.name, f]));
+  for (const { name, params } of entry.rules ?? []) {
+    rule(name, ENTRY_RULES);
+    if (name === 'docIdentidad') assertDocParams(where, entry, byName, params);
+  }
   for (const filter of Object.values(entry.lookupFilters ?? {})) {
     if (filter.rule) rule(filter.rule, FILTER_RULES);
     // `exists` (R-MOCK-16): the catalog must exist; its fields are checked once every entry is resolved.
@@ -319,7 +365,15 @@ function resolveEntry(raw, slugs, sources) {
     } else if ('rule' in step) rule(step.rule, (entry.rules ?? []).map((/** @type {any} */ r) => r.name));
     else if (!selects.some((/** @type {any} */ f) => f.name === step.ref)) fail(where, `ref step names "${step.ref}", which is not a select field`);
   }
-  return { ...entry, refs, steps };
+  // A field a named rule touches carries its state for the form and the server (D9); not enumerable, so the entry stays plain data.
+  const touched = new Set(Object.keys(ruleStates(entry, {})));
+  const fields = entry.fields.map((/** @type {any} */ f) => {
+    if (!touched.has(f.name)) return f;
+    const ruled = { ...f };
+    Object.defineProperty(ruled, 'ruleState', { value: (/** @type {any} */ values) => ruleStates(entry, values)[f.name], enumerable: false });
+    return ruled;
+  });
+  return { ...entry, fields, refs, steps };
 }
 
 /**

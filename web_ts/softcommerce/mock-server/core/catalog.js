@@ -2,7 +2,7 @@ import { methodNotAllowed, modeNotSupported, notFound } from './errors.js';
 import { isModeMap } from '../registry/schema.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { todayIso } from './dates.js';
-import { blankHidden, derivedValues } from './stored.js';
+import { blankHidden, derivedValues, withRuleDerived } from './stored.js';
 import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
 
 export const DEFAULT_PAGE_SIZE = 20;
@@ -111,7 +111,7 @@ export function createRecord(store, tenantId, catalog, body, ctx) {
   const entry = writableEntry(store, catalog, 'POST');
   // Session values come from the context, never from the body (R-MOCK-13).
   const stamps = stampsOf(store, tenantId, entry, ctx);
-  const record = blankHidden(entry, withDefaults(entry, pickWritable(entry, body)));
+  const record = withRuleDerived(entry, blankHidden(entry, withDefaults(entry, pickWritable(entry, body))));
   validateRecord(store, tenantId, entry, record, { ctx, mode: 'INSERT' });
   const rows = rowsOf(store, tenantId, entry);
   // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.
@@ -127,7 +127,7 @@ export function updateRecord(store, tenantId, catalog, id, body, ctx) {
   const entry = writableEntry(store, catalog, 'PUT');
   const stamps = stampsOf(store, tenantId, entry, ctx);
   const row = findRow(store, tenantId, entry, id, ctx);
-  const merged = blankHidden(entry, { ...row, ...pickWritable(entry, body) });
+  const merged = withRuleDerived(entry, blankHidden(entry, { ...row, ...pickWritable(entry, body) }));
   validateRecord(store, tenantId, entry, merged, { selfId: id, ctx, mode: 'UPDATE' });
   Object.assign(row, merged, derivedValues(entry, merged), stamps);
   return enrich(store, tenantId, entry, row, ctx);
