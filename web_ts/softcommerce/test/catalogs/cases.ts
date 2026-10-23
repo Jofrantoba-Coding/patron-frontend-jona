@@ -95,6 +95,20 @@ export const REGISTRY_UNDER_TEST = validateRegistry([
     constants: { num_inicial: '0000000001', flag: 'N' },
     derive: [{ target: 'lineas', when: { field: 'imprime', in: ['S'] }, then: 12, else: 0 }],
   }),
+  // W2-12: the named rule `docIdentidad` over test-only field names (params), with `maxWhen` / `minLenWhen` for the 8 / 11 digit lengths (R-REF-8).
+  entry('personas', {
+    entity: 'una Persona',
+    fields: [
+      { name: 'tipo', kind: 'options', label: 'Tipo de Documento', required: true, display: 'select', options: [{ value: '01', label: 'DNI' }, { value: '05', label: 'RUC' }, { value: '04', label: 'CE' }], clearsOnChange: ['numero', 'pat', 'mat', 'nom', 'razon'] },
+      { name: 'numero', kind: 'text', label: 'DNI/RUC', max: 11, normalize: ['digits'], maxWhen: [{ when: { field: 'tipo', in: ['01'] }, len: 8 }], minLenWhen: [{ when: { field: 'tipo', in: ['01'] }, len: 8 }, { when: { field: 'tipo', in: ['05'] }, len: 11 }] },
+      { name: 'pat', kind: 'text', label: 'Apellido Paterno', max: 50, normalize: ['upper'] },
+      { name: 'mat', kind: 'text', label: 'Apellido Materno', max: 50, normalize: ['upper'] },
+      { name: 'nom', kind: 'text', label: 'Nombres', max: 50, normalize: ['upper'], msgLabel: 'su Nombre' },
+      { name: 'razon', kind: 'text', label: 'Razón Social', max: 300, normalize: ['upper'], msgLabel: 'su Descripcion' },
+    ],
+    rules: [{ name: 'docIdentidad', params: { tipo: 'tipo', numero: 'numero', paterno: 'pat', materno: 'mat', nombres: 'nom', razon: 'razon', persona: 'flag' } }],
+    validation: ['tipo', { rule: 'docIdentidad' }, 'numero', 'pat', 'mat', 'nom', 'razon'],
+  }),
 ]);
 
 const row = (slug: string, id: string, extra: Record<string, unknown> = {}) => ({ [`id_${slug}`]: id, descripcion: `R${id}`, activo: true, ...extra });
@@ -116,6 +130,7 @@ export const SEED_UNDER_TEST = {
   puestos: { demo: [row('puestos', '1', { id_region: '1', id_ciudad: '1' }), row('puestos', '2', { id_region: '1', id_ciudad: '2' }), row('puestos', '10', { id_region: '2', id_ciudad: '10' })] },
   bodegas: { demo: [] },
   comprobantes: { demo: [{ id_comprobantes: '1', tipo: '01', serie: 'F001', autorizacion: '', obs: '', imprime: 'S', num_inicial: '0000000001', flag: 'N', lineas: 12, activo: true }] },
+  personas: { demo: [{ id_personas: '1', tipo: '01', numero: '12345678', pat: 'RAMOS', mat: 'DIAZ', nom: 'LUIS', razon: 'RAMOS DIAZ LUIS', flag: 'N', activo: true }] },
 };
 
 const invalid = (fields: string[], messages?: string[]): Outcome => ({ status: 422, code: 'VALIDATION_ERROR', fields, messages });
@@ -184,4 +199,23 @@ export const CASES: CatalogCase[] = [
   { name: 'R-REF-9 UPDATE re-derives the value and keeps the constants', slug: 'comprobantes', steps: [{ op: 'update', id: '1', body: { imprime: 'N' } }], expect: { ok: true, match: { lineas: 0, num_inicial: '0000000001', flag: 'N' } } },
   { name: 'S-REG-17 a duplicate serie is the 409, even when the ticket field is also blank', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: 'TI', serie: 'F001', autorizacion: '' } }], expect: { status: 409, code: 'DUPLICATE', fields: ['serie'], messages: ['La serie ya existe.'] } },
   { name: 'S-REF-15 the ticket field is reported by the server after a passing unique', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: 'TI', serie: 'T009', autorizacion: '' } }], expect: invalid(['autorizacion']) },
+  // W2-12 (R-REF-8, S-REF-25..28, S-MOCK-20): the server runs the same `docIdentidad` rule as the form, in the desktop order.
+  { name: 'S-REF-25 a DNI of 7 digits is a 422 on the number with the DNI sentence', slug: 'personas', steps: [{ op: 'create', body: { tipo: '01', numero: '1234567', pat: 'PEREZ', mat: 'LOPEZ', nom: 'ANA' } }], expect: invalid(['numero'], ['El número de DNI que has especificado no es válida. Compruébala e inténtalo de nuevo.']) },
+  { name: 'S-REF-25 a DNI with a blank materno names it with the M1 sentence', slug: 'personas', steps: [{ op: 'create', body: { tipo: '01', numero: '12345678', pat: 'PEREZ', mat: ' ', nom: 'ANA' } }], expect: invalid(['mat'], ['Para agregar una Persona, debes especificar su Apellido Materno.']) },
+  { name: 'S-REF-25 the names are checked in order: a blank DNI form fails on the paterno', slug: 'personas', steps: [{ op: 'create', body: { tipo: '01', numero: '12345678' } }], expect: invalid(['pat'], ['Para agregar una Persona, debes especificar su Apellido Paterno.']) },
+  { name: 'S-REF-25 UPDATE words the names sentence with modificar', slug: 'personas', steps: [{ op: 'update', id: '1', body: { mat: '' } }], expect: invalid(['mat'], ['Para modificar una Persona, debes especificar su Apellido Materno.']) },
+  { name: 'S-REF-25 a complete DNI composes the razon social as paterno materno nombres', slug: 'personas', steps: [{ op: 'create', body: { tipo: '01', numero: '12345678', pat: 'perez', mat: 'lopez', nom: 'ana' } }], expect: { ok: true, match: { razon: 'PEREZ LOPEZ ANA', flag: 'N' } } },
+  { name: 'S-REF-25 the razon social of a DNI is the server composition, whatever the body says', slug: 'personas', steps: [{ op: 'create', body: { tipo: '01', numero: '12345678', pat: 'PEREZ', mat: 'LOPEZ', nom: 'ANA', razon: 'OTRO' } }], expect: { ok: true, match: { razon: 'PEREZ LOPEZ ANA' } } },
+  { name: 'S-MOCK-20 the hidden razon social the UI sends as null is composed, not stored empty', slug: 'personas', steps: [{ op: 'create', body: { tipo: '01', numero: '12345678', pat: 'PEREZ', mat: 'LOPEZ', nom: 'ANA', razon: null } }], expect: { ok: true, match: { razon: 'PEREZ LOPEZ ANA' } } },
+  { name: 'S-REF-25 maxWhen: a DNI of 9 digits is a 422 on the number', slug: 'personas', steps: [{ op: 'create', body: { tipo: '01', numero: '123456789', pat: 'PEREZ', mat: 'LOPEZ', nom: 'ANA' } }], expect: invalid(['numero']) },
+  { name: 'S-REF-26 a RUC of 10 digits is a 422 with the RUC sentence', slug: 'personas', steps: [{ op: 'create', body: { tipo: '05', numero: '2012345678', razon: 'ACME' } }], expect: invalid(['numero'], ['El número de RUC que has especificado no es válida. Compruébala e inténtalo de nuevo.']) },
+  { name: 'S-REF-26 a RUC starting with 3 is a 422 with the alert text', slug: 'personas', steps: [{ op: 'create', body: { tipo: '05', numero: '30123456789', razon: 'ACME' } }], expect: invalid(['numero'], ['EL DOCUMENTO RUC EMPIEZA CON 1 Ó 2']) },
+  { name: 'S-REF-26 a RUC starting with 1 needs the three names', slug: 'personas', steps: [{ op: 'create', body: { tipo: '05', numero: '10123456789', pat: 'PEREZ', razon: 'ACME' } }], expect: invalid(['mat'], ['Para agregar una Persona, debes especificar su Apellido Materno.']) },
+  { name: 'S-REF-26 a RUC starting with 1 composes the razon social and is N', slug: 'personas', steps: [{ op: 'create', body: { tipo: '05', numero: '10123456789', pat: 'PEREZ', mat: 'LOPEZ', nom: 'ANA' } }], expect: { ok: true, match: { razon: 'PEREZ LOPEZ ANA', flag: 'N' } } },
+  { name: 'S-REF-26 a RUC starting with 2 needs its razon social (names disabled)', slug: 'personas', steps: [{ op: 'create', body: { tipo: '05', numero: '20123456789', razon: ' ' } }], expect: invalid(['razon'], ['Para agregar una Persona, debes especificar su Descripcion.']) },
+  { name: 'S-REF-28 a RUC starting with 2 stores its razon social and is J', slug: 'personas', steps: [{ op: 'create', body: { tipo: '05', numero: '20123456789', razon: 'acme sac' } }], expect: { ok: true, match: { razon: 'ACME SAC', flag: 'J' } } },
+  { name: 'S-REF-26 any other tipo: no minimum on the number, razon social required', slug: 'personas', steps: [{ op: 'create', body: { tipo: '04', numero: '1', razon: 'JUAN' } }], expect: { ok: true, match: { numero: '1', razon: 'JUAN', flag: 'N' } } },
+  { name: 'S-REF-26 any other tipo accepts a blank number and rejects 12 digits', slug: 'personas', steps: [{ op: 'create', body: { tipo: '04', numero: '123456789012', razon: 'JUAN' } }], expect: invalid(['numero']) },
+  { name: 'S-REF-26 any other tipo without a razon social is a 422 on it', slug: 'personas', steps: [{ op: 'create', body: { tipo: '04', numero: '1' } }], expect: invalid(['razon'], ['Para agregar una Persona, debes especificar su Descripcion.']) },
+  { name: 'S-REF-27 UPDATE to another tipo re-runs the rule and the persona flag follows', slug: 'personas', steps: [{ op: 'update', id: '1', body: { tipo: '05', numero: '20123456789', pat: '', mat: '', nom: '', razon: 'ACME SAC' } }], expect: { ok: true, match: { razon: 'ACME SAC', flag: 'J' } } },
 ];

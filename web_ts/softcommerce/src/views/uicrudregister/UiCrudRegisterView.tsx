@@ -7,6 +7,7 @@ import { DateField } from '../../shared/ui/DateField';
 import { DependentSelect } from '../../shared/ui/DependentSelect';
 import { NumberField } from '../../shared/ui/NumberField';
 import { OptionsField } from '../../shared/ui/OptionsField';
+import { maxLengthOf } from '../../../mock-server/core/predicates.js';
 import { typedNormalize } from '../../domain/crud/normalize';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
@@ -35,6 +36,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
         <div style={{ display: 'grid', gap: 12 }}>
           {status === 'loading' && <p>{props.loadingLabel}</p>}
           {status === 'failed' && <JAlert variant="danger" role="alert">{props.loadError}</JAlert>}
+          {props.alert && <JAlert variant="warning" role="alert">{props.alert}</JAlert>}
           {props.submitError && (
             <JAlert variant="danger" role="alert">
               {props.submitError}
@@ -58,7 +60,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                     <UppercaseTextField
                       ref={props.registerField(field.name)}
                       value={props.values[field.name]}
-                      maxLength={field.maxLength}
+                      maxLength={maxLengthOf(field, props.values)}
                       uppercase={field.uppercase}
                       transform={(typed) => typedNormalize(field, typed)}
                       readOnly={props.isFieldReadOnly(field.name)}

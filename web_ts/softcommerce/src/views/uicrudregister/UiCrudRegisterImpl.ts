@@ -1,6 +1,7 @@
 // Layer: Implementation. Load -> edit -> validate -> confirm -> execute of the generic crud register.
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogConfig, FieldConfig } from '../../catalogs/CatalogConfig';
+import { ruleDerived, ruleEffects } from '../../../mock-server/core/entryRules.js';
 import { decodeValue } from '../../domain/crud/codec';
 import { changeField, isEnabled, isVisible } from '../../domain/crud/conditional';
 import { applyModeDefaults, initialValues, isFieldReadOnly } from '../../domain/crud/modeDefaults';
@@ -77,6 +78,8 @@ export function useUiCrudRegisterImpl<T>(
   const [confirm, setConfirm] = useState<RegisterConfirm | undefined>();
   const [submitting, setSubmitting] = useState(false);
   const [submitFailure, setSubmitFailure] = useState<Failure | undefined>();
+  // The alert a named rule raised on the last edit (R-REF-8).
+  const [ruleAlert, setRuleAlert] = useState<string | undefined>();
   // Field to focus once the confirm pane is gone (a server error names it).
   const [focusName, setFocusName] = useState<string | undefined>();
   const baseline = useRef<FormValues>(values);
@@ -147,9 +150,22 @@ export function useUiCrudRegisterImpl<T>(
     // A parent change empties the selects below it (G2), `clearsOnChange` its named fields and a field that just hid
     // (R-CRUD-13); their own errors go with them.
     const changed = changeField(config.fields, valuesRef.current, name, value, fieldsToClear(chainOf(config.fields), name));
-    valuesRef.current = changed.values;
-    setValues(changed.values);
-    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !changed.cleared.includes(key))));
+    let next = changed.values;
+    const cleared = [...changed.cleared];
+    let alert: string | undefined;
+    // Named rules (D9): an edit may clear the field it just made invalid and raise an alert, and the razon social is composed on every keystroke.
+    if (config.entry?.rules?.length) {
+      const effect = ruleEffects(config.entry, next, name);
+      next = { ...next, ...effect.patch };
+      cleared.push(...Object.keys(effect.patch));
+      alert = effect.alert;
+      const known = new Set(fieldNames(config.fields));
+      next = { ...next, ...Object.fromEntries(Object.entries(ruleDerived(config.entry, next)).filter(([key]) => known.has(key))) };
+    }
+    valuesRef.current = next;
+    setValues(next);
+    setRuleAlert(alert);
+    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !cleared.includes(key))));
   };
 
   return {
@@ -162,6 +178,7 @@ export function useUiCrudRegisterImpl<T>(
     loadError: load.status === 'failed' ? load.message : undefined,
     submitError: submitFailure?.message,
     submitTraceId: submitFailure?.traceId,
+    alert: ruleAlert,
     readOnly: mode === 'DELETE' || mode === 'DETAIL',
     isFieldReadOnly: (name) => {
       const field = config.fields.find((f) => f.name === name);

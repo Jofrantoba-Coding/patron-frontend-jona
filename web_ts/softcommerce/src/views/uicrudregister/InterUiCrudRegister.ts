@@ -27,6 +27,8 @@ export interface InterUiCrudRegister {
   isFieldReadOnly: (name: string) => boolean;
   /** False while a conditional field's `visibleWhen` fails: the view does not render it (R-CRUD-13). */
   isFieldVisible: (name: string) => boolean;
+  /** What the last edit raised through a named rule (the RUC first-digit alert); the next edit clears it. */
+  alert?: string;
   canSubmit: boolean;
   submitting: boolean;
   confirm?: RegisterConfirm;
