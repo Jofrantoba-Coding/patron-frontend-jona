@@ -36,10 +36,11 @@ function fromRecord(fields: FieldConfig[], record: unknown, mode: RegisterMode):
       field.kind === 'cascade' ? field.levels.map((level) => [level.name, String(source[level.name] ?? '')]) : [[field.name, decodeValue(field, source[field.name])]],
     ),
   );
-  // A cascade stores only its leaf; the levels above come from the leaf's ancestors.
+  // A cascade stores only its leaf; the levels above come from the leaf's ancestors. A cascade that stores nothing (`restoreFrom`) takes
+  // the leaf from the ubigeo code the record carries, cut to the leaf level.
   for (const field of fields) {
     if (field.kind !== 'cascade') continue;
-    const leaf = values[field.levels[field.levels.length - 1].name];
+    const leaf = field.restoreFrom ? String(source[field.restoreFrom.field] ?? '').slice(0, field.restoreFrom.prefixLen) : values[field.levels[field.levels.length - 1].name];
     const ids = leaf ? [...field.ancestorsOf(leaf), leaf] : [];
     field.levels.forEach((level, index) => (values[level.name] = ids[index] ?? ''));
   }
@@ -176,7 +177,8 @@ export function useUiCrudRegisterImpl<T>(
     confirm,
     selectOptions,
     loadOptions: async (catalog, filters) => (await lookupRef.current?.options(catalog, filters)) ?? [],
-    loadChildren: async (parent) => (await lookupRef.current?.ubigeoChildren(parent)) ?? [],
+    // A filtered cascade (`has: 'zonas'`) asks the lookup route; the plain one keeps the W1 route.
+    loadChildren: async (parent, filter) => (filter ? await lookupRef.current?.options('ubigeo', { parent, ...filter }) : await lookupRef.current?.ubigeoChildren(parent)) ?? [],
     registerField: (name) => (element) => {
       fieldRefs.current[name] = element;
     },

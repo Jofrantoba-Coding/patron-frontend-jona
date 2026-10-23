@@ -62,6 +62,8 @@ function baseField(entry: CatalogDef, field: any): FieldConfig {
         { name: field.name, label: 'Distrito', article: 'un' },
       ],
       ancestorsOf: (leafId) => [leafId.slice(0, 2), leafId.slice(0, 4)],
+      // A transient cascade (ZonaDistancia) is form-only: restored from a code the record carries, filtered by `has`, never sent (R-CRUD-12).
+      ...(field.transient ? { transient: true } : {}), ...(field.restoreFrom ? { restoreFrom: field.restoreFrom } : {}), ...(field.filter ? { filter: field.filter } : {}),
     };
   }
   if (field.kind === 'select') {
