@@ -1,5 +1,6 @@
 import { resolveWhere, scopeFilter, sessionEmpresa } from './context.js';
 import { duplicateError, validationError } from './errors.js';
+import { isIsoDate, todayIso } from './dates.js';
 import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
@@ -74,7 +75,7 @@ function rangeDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
 /** Required, length, option, number and boolean checks of one field. A `skipRange` field leaves its range to a `{range}` step. @returns {Detail|null} */
 function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode, skipRange = false) {
   const value = record[f.name];
-  const bad = (/** @type {'REQUIRED'|'MAX_LENGTH'|'INVALID'} */ code) => ({ field: f.name, code, message: fieldMessage(entry, f, code, mode) });
+  const bad = (/** @type {'REQUIRED'|'MAX_LENGTH'|'INVALID'|'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD'} */ code) => ({ field: f.name, code, message: fieldMessage(entry, f, code, mode) });
   if (isBlank(value)) {
     const optional = (entry.compat?.serverOptional ?? []).includes(f.name);
     return f.required && !optional ? bad('REQUIRED') : null;
@@ -95,6 +96,21 @@ function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
   if (f.kind === 'number' && outOfBounds(f, text)) return { field: f.name, code: 'RANGE', message: fieldMessage(entry, f, 'RANGE', mode) };
   if (f.kind === 'number' && !skipRange) return rangeDetail(entry, f, record, mode);
   if (f.kind === 'boolean' && typeof value !== 'boolean') return bad('INVALID');
+  if (f.kind === 'date') return dateDetail(f, text, record, bad);
+  return null;
+}
+
+/**
+ * A date must be a real ISO day; then the optional rules (S-CRUD-28): `notFuture` (today is accepted), `min` (inclusive)
+ * and `afterField` (equal dates accepted; nothing to compare while the other date is blank or invalid).
+ * @param {any} f @param {string} text @param {Record<string, any>} record @param {(code: 'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD') => Detail} bad @returns {Detail|null}
+ */
+function dateDetail(f, text, record, bad) {
+  if (!isIsoDate(text)) return bad('DATE');
+  if (f.notFuture && text > todayIso()) return bad('NOT_FUTURE');
+  if (f.min !== undefined && text < f.min) return bad('MIN_DATE');
+  const other = f.afterField === undefined ? undefined : record[f.afterField];
+  if (isIsoDate(other) && text < other) return bad('AFTER_FIELD');
   return null;
 }
 

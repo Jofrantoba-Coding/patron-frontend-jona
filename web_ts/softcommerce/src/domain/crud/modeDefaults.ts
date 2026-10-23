@@ -1,17 +1,19 @@
 // Per-mode starting values and read-only rules of the register fields (R-CRUD-15). Pure.
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
+import { todayIso } from '../../../mock-server/core/dates.js';
 import { decodeValue } from './codec';
 import type { FormValues } from './validate';
 
 type Defaultable = Extract<FieldConfig, { default?: unknown }>;
-const hasDefault = (field: FieldConfig): field is Defaultable => field.kind === 'boolean' || field.kind === 'options' || field.kind === 'number';
+const hasDefault = (field: FieldConfig): field is Defaultable => ['boolean', 'options', 'number', 'date', 'select'].includes(field.kind);
 
 /** A `default` as a form string for `mode`: a per-mode map answers its own entry, a scalar answers INSERT only. */
 function defaultFor(field: FieldConfig, mode: CrudMode): string | undefined {
   if (!hasDefault(field) || field.default === undefined) return undefined;
   const { default: spec } = field;
   const value = typeof spec === 'object' ? (spec as Partial<Record<CrudMode, unknown>>)[mode] : mode === 'INSERT' ? spec : undefined;
-  return value === undefined ? undefined : decodeValue(field, value);
+  // A date default `today` is the day the form opens; any other date default is an ISO date.
+  return value === undefined ? undefined : decodeValue(field, value === 'today' ? todayIso() : value);
 }
 
 const namesOf = (fields: FieldConfig[]) => fields.flatMap((f) => (f.kind === 'cascade' ? f.levels.map((l) => l.name) : [f.name]));

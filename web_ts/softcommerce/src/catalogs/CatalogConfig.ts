@@ -62,6 +62,22 @@ export type FieldConfig =
       normalize?: string[];
     }
   | {
+      /**
+       * A calendar date (G5): the form state is the masked `dd/MM/yyyy` text and the payload the ISO `yyyy-MM-dd` (codec, D7).
+       * `default` is `today` or an ISO date, for INSERT or per mode; `notFuture`, `min` (ISO) and `afterField` are available
+       * but no Wave 2 catalog enables them.
+       */
+      kind: 'date';
+      name: string;
+      label: string;
+      required?: boolean;
+      default?: string | Partial<Record<CrudMode, string>>;
+      readOnlyOn?: readonly CrudMode[];
+      notFuture?: boolean;
+      min?: string;
+      afterField?: string;
+    }
+  | {
       /** W1 selects name a fixed `lookup`; registry selects (G1) name the `source` catalog, its static `where` forwarded as filters. */
       kind: 'select';
       name: string;
@@ -69,6 +85,9 @@ export type FieldConfig =
       required?: boolean;
       lookup?: 'empresas';
       source?: { catalog: string; where?: Record<string, string> };
+      /** The id a select starts with on INSERT (or per mode) and the modes where it is shown but not editable (G6). */
+      default?: string | Partial<Record<CrudMode, string>>;
+      readOnlyOn?: readonly CrudMode[];
       /** Parent fields (G2): the options are asked with their values as `filterKey` and the select clears when one changes. */
       dependsOn?: { field: string; filterKey: string }[];
     }
@@ -89,7 +108,7 @@ export interface CatalogConfig<T> {
   /** Catalog name in `/v1/{catalog}`. */
   catalog: string;
   idKey: keyof T & string;
-  columns: { key: keyof T & string; header: string; sortable?: boolean; /** `bool` renders Sí / No, `dec` the stored number as text (R-CRUD-1). */ format?: 'bool' | 'dec' }[];
+  columns: { key: keyof T & string; header: string; sortable?: boolean; /** `bool` renders Sí / No, `dec` the stored number as text, `date` dd/MM/yyyy (R-CRUD-1). */ format?: 'bool' | 'dec' | 'date' }[];
   fields: FieldConfig[];
   /** Toolbar order; defaults to every action but `export`. */
   actions?: CrudAction[];
