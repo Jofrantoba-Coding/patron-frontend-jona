@@ -148,10 +148,15 @@ function refDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /**
   if (!row) return missing;
   if (ref.activeOnly && target.activeKey && row[target.activeKey] === false) return missing;
   if (Object.entries(resolveWhere(store, tenantId, ref.where, ctx)).some(([key, expected]) => String(row[key]) !== String(expected))) return missing;
-  const lookupFilters = store.registry.bySlug.get(ref.catalog)?.lookupFilters ?? {};
-  /** A parent is matched on the filter key, or through its `via` when the target declares one (the SUNAT code of a familia). */
+  const targetEntry = store.registry.bySlug.get(ref.catalog);
+  const lookupFilters = targetEntry?.lookupFilters ?? {};
+  /**
+   * A parent is matched on the filter key, through its `via` when the target declares one (the SUNAT code of a familia), or through its
+   * `exists` rule: the row belongs when an active row of the other catalog links it to the parent value (the tipo of a punto de venta).
+   */
   const belongs = (/** @type {any} */ p) => {
-    const via = lookupFilters[p.filterKey]?.via;
+    const { via, exists } = lookupFilters[p.filterKey] ?? {};
+    if (exists) return existsRow(store, tenantId, exists, p.filterKey, record[p.field], row, targetEntry.idKey, ctx);
     if (!via) return same(row[p.filterKey], record[p.field]);
     const held = viaValue(store, tenantId, via, record[p.field]);
     return held !== '' && same(row[via.as], held);

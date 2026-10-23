@@ -37,5 +37,6 @@
   { "id_menu": 36, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Ubicación", "nombre": "PnlUbicacion" },
   { "id_menu": 37, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo de Movimiento de Inventario", "nombre": "miTipoMovInventario" },
   { "id_menu": 38, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Unidad de Medida", "nombre": "miUnidadMedida" },
-  { "id_menu": 39, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Vehiculo", "nombre": "miVehiculo" }
+  { "id_menu": 39, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Vehiculo", "nombre": "miVehiculo" },
+  { "id_menu": 40, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Correlativo de Usuario", "nombre": "mi_usuariocorrelativo" }
 ]

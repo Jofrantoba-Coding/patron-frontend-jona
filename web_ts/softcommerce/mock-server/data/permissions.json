@@ -33,5 +33,6 @@
   "PnlUbicacion": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "miTipoMovInventario": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "miUnidadMedida": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
-  "miVehiculo": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true }
+  "miVehiculo": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "mi_usuariocorrelativo": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true }
 }

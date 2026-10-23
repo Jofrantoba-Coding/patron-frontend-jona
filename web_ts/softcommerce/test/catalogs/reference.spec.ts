@@ -97,6 +97,8 @@ const CODE_WIDTH: Record<string, number> = {
   'tipos-mov-inventario': 3, 'unidades-medida': 3,
   // The vehiculo id is a string with no pad evidence (inferred 3, flagged for W6).
   vehiculos: 3,
+  // PanelTFUsuarioCorrelativo.focusLost pads the code filter to five digits ("00000" + code).
+  'usuario-correlativos': 5,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -129,6 +131,13 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   // loadMarca / loadModelo list the rows with estado A.
   'vehiculos.id_marca': ['marcas-vehiculo', { estado: true }],
   'vehiculos.id_modelo': ['modelos-vehiculo', { estado: true }],
+  // RegisterUsuarioCorrelativo: listarGeneral() users, the localidades of the session empresa, the puntos de venta of the localidad, the tipos of the
+  // punto de venta (SP_TIPO_DOC_CORRELATIVO) and the correlativos of the punto de venta and tipo with estado A (listar(pv, tipo, "A")).
+  'usuario-correlativos.id_usuario': ['usuarios', {}],
+  'usuario-correlativos.id_localidad': ['localidades', { id_empresa: '$session.empresa' }],
+  'usuario-correlativos.id_punto_venta': ['punto-venta', {}],
+  'usuario-correlativos.id_tipo_doc': ['tipos-doc-venta', {}],
+  'usuario-correlativos.id_correlativo': ['correlativos', { estado: 'A' }],
 };
 
 /**
@@ -157,6 +166,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   'tipos-mov-inventario': 'tenant', 'unidades-medida': 'empresa',
   // DaoVehiculo.listarVehiculo(id, transportista, estado) takes no empresa and mantVehiculo passes only the user (bean.setId_usuario).
   vehiculos: 'tenant',
+  // PanelTFUsuarioCorrelativo.cargarTabla lists with usuario.getCodempresa() and insertar / modificar pass it with the session user.
+  'usuario-correlativos': 'empresa',
 };
 /**
  * The entries over the W1 sections (empresa, punto-venta; no seed file, so no generic table rows): `DAOEmpresa.listar("")` passes no empresa
@@ -276,6 +287,26 @@ describe('W2 reference catalogs are registered', () => {
     const fields = toCatalogConfig(REGISTRY.bySlug.get('vehiculos')).fields;
     expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_vehiculo', 'select:id_marca', 'select:id_modelo', 'text:placa', 'text:constancia_inscripcion', 'number:peso', 'boolean:estado']);
     expect(fields.map((f: any) => f.label)).toEqual(['Código', 'Marca', 'Modelo', 'Placa', 'Const inscripcion', 'Peso(KG)', 'Activo']);
+  });
+
+  it('S-REF-17 / S-CRUD-40 usuario-correlativos keeps the desktop order, the label style and the multi-parent chain', () => {
+    const entry = REGISTRY.bySlug.get('usuario-correlativos');
+    const field = (name: string) => entry.fields.find((f: any) => f.name === name);
+    expect(entry.messages.style).toBe('label');
+    expect(entry.validation).toEqual(['id_usuario', 'id_localidad', 'id_punto_venta', 'id_tipo_doc', 'id_correlativo', { unique: 0 }, 'habilitar']);
+    expect(entry.fields.filter((f: any) => f.msgLabel).map((f: any) => [f.name, f.msgLabel])).toEqual([
+      ['id_usuario', 'el Usuario'], ['id_localidad', 'la Localidad'], ['id_punto_venta', 'el Punto de Venta'], ['id_tipo_doc', 'el Tipo de documento'], ['id_correlativo', 'su serie'],
+    ]);
+    expect(field('id_punto_venta').dependsOn).toEqual([{ field: 'id_localidad', filterKey: 'id_localidad' }]);
+    expect(field('id_tipo_doc').dependsOn).toEqual([{ field: 'id_punto_venta', filterKey: 'id_punto_venta' }]);
+    expect(field('id_correlativo').dependsOn).toEqual([{ field: 'id_punto_venta', filterKey: 'id_punto_venta' }, { field: 'id_tipo_doc', filterKey: 'id_tipo_doc' }]);
+    expect(entry.unique).toMatchObject([{ fields: ['id_usuario', 'id_correlativo'], errorField: 'id_correlativo', message: 'Ya existe una asignacion del documento con la serie elegida al mismo usuario, por favor elija otra serie u otro usuario disponible.' }]);
+    // The field named id_usuario is the assigned user, so the session user is not stamped over it.
+    expect([entry.stamp, entry.scope, field('habilitar').default]).toEqual([[], 'empresa', true]);
+  });
+
+  it('S-REF-17 the correlativos lookup shows each serie, so the Serie select reads F001', () => {
+    expect(REGISTRY.bySlug.get('correlativos').optionLabel).toBe('serie');
   });
 
   it('R-REF-8 the ticket fields are visible and required only for the tipo TI', () => {
