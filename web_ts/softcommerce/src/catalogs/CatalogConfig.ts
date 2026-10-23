@@ -6,7 +6,21 @@ export type CrudAction = 'add' | 'modify' | 'eliminate' | 'clone' | 'details' | 
 /** The five register modes; a catalog may support a subset (R-REG-10). */
 export type CrudMode = 'INSERT' | 'UPDATE' | 'DELETE' | 'CLONE' | 'DETAIL';
 
-export type FieldConfig =
+/** A condition over another field's value (`{ field, in }`), evaluated by the shared predicate on the client and the server. */
+export interface FieldCondition {
+  field: string;
+  in: string[];
+}
+
+/** G8 conditional behavior (R-CRUD-13): visibility, editability and requiredness by another field's value; `clearsOnChange` empties fields when this one changes. */
+export interface ConditionalProps {
+  visibleWhen?: FieldCondition;
+  enabledWhen?: FieldCondition;
+  requiredWhen?: FieldCondition;
+  clearsOnChange?: string[];
+}
+
+type PlainField =
   /** The server-generated code: read-only, never part of a payload (R-CRUD-14). */
   | { kind: 'code'; name: string; label: string }
   | {
@@ -104,6 +118,9 @@ export type FieldConfig =
       ancestorsOf: (leafId: string) => string[];
       required?: boolean;
     };
+
+/** Every kind but the code and the cascade can be conditional. */
+export type FieldConfig = PlainField extends infer F ? (F extends { kind: 'code' | 'cascade' } ? F : F & ConditionalProps) : never;
 
 /** Everything the generic list and register units need to serve one catalog. */
 export interface CatalogConfig<T> {

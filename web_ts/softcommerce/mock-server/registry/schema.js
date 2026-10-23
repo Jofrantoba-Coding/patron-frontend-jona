@@ -169,7 +169,15 @@ function resolveEntry(raw, slugs, sources) {
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
     for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
     for (const parent of f.dependsOn ?? []) known(`field "${f.name}" dependsOn`, parent.field);
-    for (const key of CONDITIONS) if (f[key]) known(`field "${f.name}" ${key}`, f[key].field);
+    for (const key of CONDITIONS) {
+      if (!f[key]) continue;
+      if (typeof f[key].field !== 'string' || !Array.isArray(f[key].in)) fail(at, `${key} needs a condition { field, in }`);
+      known(`field "${f.name}" ${key}`, f[key].field);
+    }
+    if (f.clearsOnChange !== undefined) {
+      if (!Array.isArray(f.clearsOnChange)) fail(at, 'clearsOnChange must be a list');
+      for (const name of f.clearsOnChange) known(`field "${f.name}" clearsOnChange`, name);
+    }
     if (f.afterField !== undefined && f.kind !== 'date') fail(at, 'afterField needs a date field');
     if (f.afterField) {
       known(`field "${f.name}" afterField`, f.afterField);

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogConfig, FieldConfig } from '../../catalogs/CatalogConfig';
 import { decodeValue } from '../../domain/crud/codec';
+import { changeField, isEnabled, isVisible } from '../../domain/crud/conditional';
 import { applyModeDefaults, initialValues, isFieldReadOnly } from '../../domain/crud/modeDefaults';
 import { blurNormalize, normalize } from '../../domain/crud/normalize';
 import { mapServerError } from '../../domain/crud/serverErrors';
@@ -78,6 +79,9 @@ export function useUiCrudRegisterImpl<T>(
   // Field to focus once the confirm pane is gone (a server error names it).
   const [focusName, setFocusName] = useState<string | undefined>();
   const baseline = useRef<FormValues>(values);
+  // The latest values, so two edits inside one tick each build on the other.
+  const valuesRef = useRef(values);
+  valuesRef.current = values;
   const fieldRefs = useRef<Record<string, HTMLElement | null>>({});
   const lookupsRef = useRef(lookups);
   lookupsRef.current = lookups;
@@ -151,7 +155,12 @@ export function useUiCrudRegisterImpl<T>(
     readOnly: mode === 'DELETE' || mode === 'DETAIL',
     isFieldReadOnly: (name) => {
       const field = config.fields.find((f) => f.name === name);
-      return field ? isFieldReadOnly(field, mode, mode === 'DELETE' || mode === 'DETAIL') : mode === 'DELETE' || mode === 'DETAIL';
+      // A disabled conditional field (`enabledWhen`) is shown but not editable.
+      return field ? isFieldReadOnly(field, mode, mode === 'DELETE' || mode === 'DETAIL') || !isEnabled(field, values) : mode === 'DELETE' || mode === 'DETAIL';
+    },
+    isFieldVisible: (name) => {
+      const field = config.fields.find((f) => f.name === name);
+      return field ? isVisible(field, values) : true;
     },
     canSubmit: mode !== 'DETAIL' && load.status === 'ready' && !submitting,
     submitting,
@@ -163,10 +172,12 @@ export function useUiCrudRegisterImpl<T>(
       fieldRefs.current[name] = element;
     },
     onFieldChange: (name, value) => {
-      // A parent change empties the selects below it (G2); their own errors go with them.
-      const cleared = fieldsToClear(chainOf(config.fields), name);
-      setValues((current) => ({ ...current, ...Object.fromEntries(cleared.map((below) => [below, ''])), [name]: value }));
-      setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !cleared.includes(key))));
+      // A parent change empties the selects below it (G2), `clearsOnChange` its named fields and a field that just hid
+      // (R-CRUD-13); their own errors go with them.
+      const changed = changeField(config.fields, valuesRef.current, name, value, fieldsToClear(chainOf(config.fields), name));
+      valuesRef.current = changed.values;
+      setValues(changed.values);
+      setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !changed.cleared.includes(key))));
     },
     onFieldBlur: (name) => {
       const field = config.fields.find((f) => f.name === name);
