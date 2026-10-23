@@ -18,7 +18,17 @@ export interface ValidationRules {
 
 const isBlank = (value: string | undefined) => !value?.trim();
 
-function fieldError(field: FieldConfig, values: FormValues, requiredMessage?: (name: string) => string): FieldError | undefined {
+/** A number outside its inclusive range; a blank or non-numeric value is another step's business. */
+function rangeError(field: FieldConfig, values: FormValues, rangeMessage?: (name: string) => string): FieldError | undefined {
+  if (field.kind !== 'number' || !field.range) return undefined;
+  const text = values[field.name]?.trim() ?? '';
+  if (!/^\d+$/.test(text)) return undefined;
+  const { min = -Infinity, max = Infinity } = field.range;
+  const n = Number(text);
+  return n < min || n > max ? { name: field.name, message: rangeMessage?.(field.name) ?? `${field.label} está fuera de rango.` } : undefined;
+}
+
+function fieldError(field: FieldConfig, values: FormValues, requiredMessage?: (name: string) => string, rangeMessage?: (name: string) => string, skipRange = false): FieldError | undefined {
   // A code is server-issued and a checkbox is always valid: neither can be blank.
   if (field.kind === 'code' || field.kind === 'boolean') return undefined;
   if (field.kind === 'cascade') {
@@ -31,7 +41,7 @@ function fieldError(field: FieldConfig, values: FormValues, requiredMessage?: (n
   if (field.kind === 'text' && field.maxLength !== undefined && (value?.length ?? 0) > field.maxLength) {
     return { name: field.name, message: `${field.label} no puede superar ${field.maxLength} caracteres.` };
   }
-  return undefined;
+  return skipRange || isBlank(value) ? undefined : rangeError(field, values, rangeMessage);
 }
 
 /**
@@ -44,10 +54,14 @@ export function validate(fields: FieldConfig[], values: FormValues, rules?: Vali
   const byName = new Map(fields.map((field) => [field.name, field]));
   const entryFields = new Map(entry.fields.map((field: any) => [field.name, field]));
   const required = (name: string) => fieldMessage(entry, entryFields.get(name), 'REQUIRED', mode as 'INSERT');
+  const range = (name: string) => fieldMessage(entry, entryFields.get(name), 'RANGE', mode as 'INSERT');
+  const steps: any[] = (entry as any).steps;
+  // A `{range: name}` step takes that field's range check out of its field step (R-REF-7 Turno order).
+  const ranged = new Set(steps.flatMap((step) => (typeof step === 'object' && 'range' in step ? [step.range] : [])));
   // Named `{rule}` steps arrive with the rules themselves (W2-12); unique and ref steps are the server's.
-  for (const step of (entry as any).steps.slice(0, firstServerOnlyStep(entry))) {
-    const field = typeof step === 'string' ? byName.get(step) : undefined;
-    const error = field && fieldError(field, values, required);
+  for (const step of steps.slice(0, firstServerOnlyStep(entry))) {
+    const field = byName.get(typeof step === 'string' ? step : step.range);
+    const error = field && (typeof step === 'string' ? fieldError(field, values, required, range, ranged.has(step)) : rangeError(field, values, range));
     if (error) return [error];
   }
   return [];

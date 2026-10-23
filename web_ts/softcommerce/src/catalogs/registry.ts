@@ -22,6 +22,14 @@ function toField(entry: CatalogDef, field: any): FieldConfig {
       display: field.display, default: field.default, readOnlyOn: field.readOnlyOn,
     };
   }
+  if (field.kind === 'number') {
+    // Decimals (scale > 0) arrive with the decimal field in W2-7.
+    if (field.scale !== 0) throw new Error(`${entry.slug}.${field.name}: the UI does not support decimal numbers yet`);
+    return {
+      kind: 'number', name: field.name, label: field.label, required: Boolean(field.required), scale: 0,
+      maxLength: field.max, range: field.range, normalize: field.normalize ?? [],
+    };
+  }
   throw new Error(`${entry.slug}.${field.name}: the UI does not support kind "${field.kind}" yet`);
 }
 

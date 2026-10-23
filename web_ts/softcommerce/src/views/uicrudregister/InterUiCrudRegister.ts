@@ -30,6 +30,8 @@ export interface InterUiCrudRegister {
   confirm?: RegisterConfirm;
   /** Callbacks are value-first. */
   onFieldChange: (name: string, value: string) => void;
+  /** Focus left the field: a `padLeft` field shows its padded value (S-CRUD-35). */
+  onFieldBlur: (name: string) => void;
   /** Options per select field name, loaded with the form. */
   selectOptions: Record<string, LookupItem[]>;
   /** Children of a cascade parent id; '' asks for the top level. */

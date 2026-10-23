@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CatalogConfig, FieldConfig } from '../../catalogs/CatalogConfig';
 import { decodeValue } from '../../domain/crud/codec';
 import { applyModeDefaults, initialValues, isFieldReadOnly } from '../../domain/crud/modeDefaults';
-import { normalize } from '../../domain/crud/normalize';
+import { blurNormalize, normalize } from '../../domain/crud/normalize';
 import { mapServerError } from '../../domain/crud/serverErrors';
 import { validate, type FormValues } from '../../domain/crud/validate';
 import type { InterCatalogService } from '../../services/InterCatalogService';
@@ -156,6 +156,14 @@ export function useUiCrudRegisterImpl<T>(
     onFieldChange: (name, value) => {
       setValues((current) => ({ ...current, [name]: value }));
       setErrors(({ [name]: _cleared, ...rest }) => rest);
+    },
+    onFieldBlur: (name) => {
+      const field = config.fields.find((f) => f.name === name);
+      if (!field || isFieldReadOnly(field, mode, mode === 'DELETE' || mode === 'DETAIL')) return;
+      setValues((current) => {
+        const padded = blurNormalize(field, current[name] ?? '');
+        return padded === current[name] ? current : { ...current, [name]: padded };
+      });
     },
     onSubmit: () => {
       if (mode === 'DETAIL' || load.status !== 'ready' || submitting || confirm) return;

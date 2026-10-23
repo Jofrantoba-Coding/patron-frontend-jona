@@ -57,6 +57,21 @@ function assertOptions(at, f) {
   for (const value of defaults) if (!seen.has(value)) fail(at, `default "${value}" is not one of the options`);
 }
 
+/**
+ * A number needs a scale. At scale 0 `max` is the digit count (R-CRUD-11) and an optional `range` bounds the value
+ * (R-MOCK-10); a range words its failure with its own literal, so it needs `messages.range`.
+ * @param {string} at @param {any} f
+ */
+function assertNumber(at, f) {
+  if (!Number.isInteger(f.scale)) fail(at, 'number needs a scale');
+  if (f.max !== undefined && !(Number.isInteger(f.max) && f.max > 0)) fail(at, 'number max must be a positive integer');
+  if (f.range === undefined) return;
+  const { min, max } = f.range;
+  for (const bound of [min, max]) if (bound !== undefined && typeof bound !== 'number') fail(at, 'range bounds must be numbers');
+  if (min !== undefined && max !== undefined && min > max) fail(at, `range min ${min} is above max ${max}`);
+  if (!f.messages?.range) fail(at, 'range needs messages.range');
+}
+
 /** @param {string} where @param {any[]} fields */
 function assertAcyclic(where, fields) {
   const parents = new Map(fields.map((f) => [f.name, (f.dependsOn ?? []).map((/** @type {any} */ d) => d.field)]));
@@ -102,7 +117,8 @@ function resolveEntry(raw, slugs, sources) {
       if (!slugs.has(f.source.catalog) && !Object.hasOwn(sources, f.source.catalog)) fail(at, `unknown catalog "${f.source.catalog}"`);
     }
     if (f.kind === 'options') assertOptions(at, f);
-    if (f.kind === 'number' && !Number.isInteger(f.scale)) fail(at, 'number needs a scale');
+    if (f.kind === 'number') assertNumber(at, f);
+    else if (f.range !== undefined) fail(at, 'range needs a number field');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
     for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
@@ -150,6 +166,9 @@ function resolveEntry(raw, slugs, sources) {
       if (!Number.isInteger(step.unique) || step.unique < 0 || step.unique >= (entry.unique ?? []).length) {
         fail(where, `unique step ${step.unique} has no matching unique key`);
       }
+    } else if ('range' in step) {
+      const ranged = entry.fields.find((/** @type {any} */ f) => f.name === step.range);
+      if (!ranged?.range) fail(where, `range step names "${step.range}", which has no range`);
     } else if ('rule' in step) rule(step.rule, (entry.rules ?? []).map((/** @type {any} */ r) => r.name));
     else if (!selects.some((/** @type {any} */ f) => f.name === step.ref)) fail(where, `ref step names "${step.ref}", which is not a select field`);
   }

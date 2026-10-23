@@ -49,8 +49,17 @@ export function pickWritable(entry, body) {
   return record;
 }
 
-/** Required, length, option, number and boolean checks of one field. @returns {Detail|null} */
-function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode) {
+/** A number outside the inclusive `range` of its field (R-MOCK-10); a blank or non-numeric value is another step's business. @returns {Detail|null} */
+function rangeDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode) {
+  const text = String(record[f.name] ?? '').trim();
+  if (!f.range || !/^\d+$/.test(text)) return null;
+  const n = Number(text);
+  const { min = -Infinity, max = Infinity } = f.range;
+  return n < min || n > max ? { field: f.name, code: 'RANGE', message: fieldMessage(entry, f, 'RANGE', mode) } : null;
+}
+
+/** Required, length, option, number and boolean checks of one field. A `skipRange` field leaves its range to a `{range}` step. @returns {Detail|null} */
+function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode, skipRange = false) {
   const value = record[f.name];
   const bad = (/** @type {'REQUIRED'|'MAX_LENGTH'|'INVALID'} */ code) => ({ field: f.name, code, message: fieldMessage(entry, f, code, mode) });
   if (isBlank(value)) {
@@ -67,6 +76,9 @@ function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
   if (f.kind === 'number' && !(f.scale === 0 ? /^\d+$/ : /^-?\d+(\.\d+)?$/).test(text)) {
     return bad('INVALID');
   }
+  // At scale 0 `max` counts digits (R-CRUD-11).
+  if (f.kind === 'number' && f.scale === 0 && f.max !== undefined && text.length > f.max) return bad('MAX_LENGTH');
+  if (f.kind === 'number' && !skipRange) return rangeDetail(entry, f, record, mode);
   if (f.kind === 'boolean' && typeof value !== 'boolean') return bad('INVALID');
   return null;
 }
@@ -113,10 +125,12 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
   const fields = new Map(entry.fields.map((/** @type {any} */ f) => [f.name, f]));
   const inlineRefs = !entry.steps.some((/** @type {any} */ s) => typeof s === 'object' && 'ref' in s);
   const isUnique = (/** @type {any} */ step) => typeof step === 'object' && 'unique' in step;
+  // A `{range: name}` step takes that field's range check out of the field step (R-REF-7 Turno order).
+  const ranged = new Set(entry.steps.flatMap((/** @type {any} */ s) => (typeof s === 'object' && 'range' in s ? [s.range] : [])));
   /** The failure of a field or ref step, if any. @param {any} step @returns {Detail|null} */
   const stepDetail = (step) => {
     const name = typeof step === 'string' ? step : step.ref;
-    let detail = typeof step === 'string' ? fieldDetail(entry, fields.get(name), record, mode) : null;
+    let detail = typeof step === 'string' ? fieldDetail(entry, fields.get(name), record, mode, ranged.has(name)) : null;
     if (!detail && !failed.has(name) && (typeof step === 'object' ? 'ref' in step : inlineRefs && fields.get(name).kind === 'select')) {
       detail = refDetail(store, tenantId, entry.refs.find((/** @type {any} */ r) => r.field === name), record, ctx);
     }
@@ -135,7 +149,7 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
       continue;
     }
     if (typeof step === 'object' && 'rule' in step) continue;
-    const detail = stepDetail(step);
+    const detail = typeof step === 'object' && 'range' in step ? rangeDetail(entry, fields.get(step.range), record, mode) : stepDetail(step);
     if (detail && !entry.compat) throw validationError([detail]);
     if (detail) details.push(detail);
   }
