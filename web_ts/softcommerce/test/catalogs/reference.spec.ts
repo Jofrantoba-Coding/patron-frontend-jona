@@ -35,6 +35,10 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'tipos-trabajador.descripcion': [100, true],
   'tipos-trabajador.abreviatura': [5, true],
   'marcas-vehiculo.descripcion': [100, true],
+  'motivos-descuento.descripcion': [100, true],
+  'motivos-descuento.abrev': [5, true],
+  'motivos-nc.descripcion': [100, true],
+  'tipos-trabajador-perfil.descripcion': [100, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -49,9 +53,23 @@ const CODE_WIDTH: Record<string, number> = {
   'motivos-traslado': 3, 'clasif-clientes': 0, 'clasif-inventarios': 3, tamanos: 3, 'tipos-anexo': 3, 'tipos-descuento': 0,
   // String ids with no pad evidence in the desktop are inferred as 3 (flagged for W6); the Turno id is an int.
   'condiciones-pago': 3, 'tipos-trabajador': 3, 'marcas-vehiculo': 3, turnos: 0,
+  // The motivo de descuento and perfil ids are int beans; the motivo de nota de credito pads to three (PanelTFMotivoNC focusLost "000").
+  'motivos-descuento': 0, 'motivos-nc': 3, 'tipos-trabajador-perfil': 0,
+};
+
+/** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
+const REFS: Record<string, [string, Record<string, unknown>]> = {
+  'motivos-descuento.id_tipo_descuento': ['tipos-descuento', {}],
+  'tipos-trabajador-perfil.id_tipo_trabajador': ['tipos-trabajador', { estado: true }],
 };
 
 describe('W2 reference catalogs are registered', () => {
+  it.each(Object.entries(REFS))('R-REG-6 %s refs its desktop source', (path, [catalog, where]) => {
+    const [slug, name] = path.split('.');
+    const ref = REGISTRY.bySlug.get(slug).refs.find((r: any) => r.field === name);
+    expect([ref.catalog, ref.where, ref.activeOnly]).toEqual([catalog, where, true]);
+  });
+
   it.each(Object.entries(DESKTOP))('R-REF-4 %s keeps the desktop max and case rule', (path, [max, upper]) => {
     const [slug, name] = path.split('.');
     const field = REGISTRY.bySlug.get(slug).fields.find((f: any) => f.name === name);
@@ -75,7 +93,8 @@ describe('W2 reference catalogs are registered', () => {
 
   it('S-REG-6 every one of them seeds demo only: botica starts empty', () => {
     const seed = loadSeed(fileURLToPath(new URL('../../mock-server/data', import.meta.url)));
-    for (const entry of REGISTRY.entries.filter((e: any) => !e.compat)) expect(Object.keys(seed[entry.section]), entry.slug).toEqual(['demo']);
+    // A shared lookup is one global list (S-REG-18, lookups.spec.ts), not a section keyed by tenant.
+    for (const entry of REGISTRY.entries.filter((e: any) => !e.compat && e.scope !== 'shared')) expect(Object.keys(seed[entry.section]), entry.slug).toEqual(['demo']);
   });
 });
 

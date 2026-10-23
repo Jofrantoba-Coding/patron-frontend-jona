@@ -1,0 +1,25 @@
+{
+  "demo": [
+    {
+      "id_tipo_perfil": "1",
+      "descripcion": "ADMINISTRADOR",
+      "id_tipo_trabajador": "001",
+      "id_usuario": 1,
+      "activo": true
+    },
+    {
+      "id_tipo_perfil": "2",
+      "descripcion": "CAJERO",
+      "id_tipo_trabajador": "002",
+      "id_usuario": 1,
+      "activo": true
+    },
+    {
+      "id_tipo_perfil": "3",
+      "descripcion": "PERFIL RETIRADO",
+      "id_tipo_trabajador": "001",
+      "id_usuario": 1,
+      "activo": false
+    }
+  ]
+}

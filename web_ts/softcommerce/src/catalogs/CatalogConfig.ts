@@ -52,7 +52,15 @@ export type FieldConfig =
       /** Registry `normalize` steps (`digits`, `padLeft:n`); `padLeft` is applied on blur and on submit. */
       normalize?: string[];
     }
-  | { kind: 'select'; name: string; label: string; required?: boolean; lookup: 'empresas' }
+  | {
+      /** W1 selects name a fixed `lookup`; registry selects (G1) name the `source` catalog, its static `where` forwarded as filters. */
+      kind: 'select';
+      name: string;
+      label: string;
+      required?: boolean;
+      lookup?: 'empresas';
+      source?: { catalog: string; where?: Record<string, string> };
+    }
   | {
       kind: 'cascade';
       name: string;

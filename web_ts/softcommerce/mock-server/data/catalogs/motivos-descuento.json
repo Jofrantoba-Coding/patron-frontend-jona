@@ -1,0 +1,32 @@
+{
+  "demo": [
+    {
+      "id_motivo_descuento": "1",
+      "descripcion": "PRONTO PAGO",
+      "abrev": "PP",
+      "id_tipo_descuento": "1",
+      "activo": true
+    },
+    {
+      "id_motivo_descuento": "2",
+      "descripcion": "DESCUENTO FIJO",
+      "abrev": "DF",
+      "id_tipo_descuento": "2",
+      "activo": true
+    },
+    {
+      "id_motivo_descuento": "3",
+      "descripcion": "CAMPANA",
+      "abrev": "CAM",
+      "id_tipo_descuento": "3",
+      "activo": true
+    },
+    {
+      "id_motivo_descuento": "4",
+      "descripcion": "LIQUIDACION",
+      "abrev": "LIQ",
+      "id_tipo_descuento": "1",
+      "activo": false
+    }
+  ]
+}

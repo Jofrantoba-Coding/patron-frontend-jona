@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { REGISTRY } from '../../mock-server/registry/index.js';
-import { descripcionText, ENTITIES, NO_DESCRIPCION } from '../../test/catalogs/reference.cases';
+import { DESCRIPCION_NOT_FIRST, descripcionText, ENTITIES, NO_DESCRIPCION } from '../../test/catalogs/reference.cases';
 import type { InterCatalogService } from '../services/InterCatalogService';
 import { DialogStackProvider } from '../views/uishell/DialogStackProvider';
 import { UiCrudRegister } from '../views/uicrudregister';
@@ -24,7 +24,7 @@ const input = (label: string) => screen.getByLabelText(label) as HTMLInputElemen
 // The UI half of the table-driven rules (R-REF-4): the same registry entries, rendered.
 describe.each(Object.keys(ENTITIES))('%s register form', (slug) => {
   // The Turno has no descripcion: its blank-field texts are covered in registry.integer.ui.spec.
-  if (!NO_DESCRIPCION.has(slug)) {
+  if (!NO_DESCRIPCION.has(slug) && !DESCRIPCION_NOT_FIRST.has(slug)) {
     it('S-REF-2 a blank descripcion sends nothing and shows the desktop message', async () => {
       const { service } = await openInsert(slug);
       await userEvent.setup().click(screen.getByRole('button', { name: 'Aceptar' }));
