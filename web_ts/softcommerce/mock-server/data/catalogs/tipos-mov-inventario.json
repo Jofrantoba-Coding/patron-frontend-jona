@@ -1,0 +1,8 @@
+{
+  "demo": [
+    { "id_tipo_mov": "001", "tipo": "E", "id_clasif_inventario": "001", "descripcion": "INGRESO MERCADERIA", "abrev": "ING MERC", "id_tabla_sunat": "12", "id_detalle_sunat": "11", "hab_ingreso": true, "estado": "A", "activo": true },
+    { "id_tipo_mov": "002", "tipo": "S", "id_clasif_inventario": "002", "descripcion": "SALIDA PRODUCTOS VENTA", "abrev": "SAL VTA", "id_tabla_sunat": "12", "id_detalle_sunat": "10", "hab_ingreso": false, "estado": "A", "activo": true },
+    { "id_tipo_mov": "003", "tipo": "E", "id_clasif_inventario": "001", "descripcion": "INGRESO TRANSFERENCIA", "abrev": "ING TRF", "id_tabla_sunat": "", "id_detalle_sunat": "", "hab_ingreso": false, "estado": "A", "activo": true },
+    { "id_tipo_mov": "004", "tipo": "E", "id_clasif_inventario": "001", "descripcion": "INGRESO RETIRADO", "abrev": "ING RET", "id_tabla_sunat": "", "id_detalle_sunat": "", "hab_ingreso": false, "estado": "A", "activo": false }
+  ]
+}

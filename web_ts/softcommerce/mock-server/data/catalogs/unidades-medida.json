@@ -1,0 +1,9 @@
+{
+  "demo": [
+    { "id_um": "001", "descripcion": "UNIDAD", "abreviatura": "UND", "id_tabla_sunat": "6", "id_detalle_sunat": "4", "id_empresa": "1", "activo": true },
+    { "id_um": "002", "descripcion": "KILOGRAMO", "abreviatura": "KG", "id_tabla_sunat": "6", "id_detalle_sunat": "5", "id_empresa": "1", "activo": true },
+    { "id_um": "003", "descripcion": "LITRO", "abreviatura": "LT", "id_tabla_sunat": "6", "id_detalle_sunat": "6", "id_empresa": "2", "activo": true },
+    { "id_um": "004", "descripcion": "CAJA", "abreviatura": "CJ", "id_tabla_sunat": "", "id_detalle_sunat": "", "id_empresa": "1", "activo": true },
+    { "id_um": "005", "descripcion": "BOLSA RETIRADA", "abreviatura": "BLR", "id_tabla_sunat": "", "id_detalle_sunat": "", "id_empresa": "1", "activo": false }
+  ]
+}
