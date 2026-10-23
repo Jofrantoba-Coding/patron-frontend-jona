@@ -34,6 +34,23 @@ export function viaValue(store, tenantId, via, value) {
 }
 
 /**
+ * Whether `row` of an entry passes an `exists` lookup filter (R-MOCK-16): some active row of `filter.catalog` holds the id of `row` in
+ * `filter.local`, the filter `value` in `filter.key` (the filter key itself unless renamed) and every static `filter.where` value
+ * (tipos-doc-venta with an active correlativo in a punto de venta).
+ * @param {any} store @param {string} tenantId @param {{ catalog: string, local: string, key?: string, where?: Record<string, unknown> }} filter
+ * @param {string} key the filter key the caller sent @param {unknown} value @param {any} row @param {string} idKey @param {import('./context.js').RequestContext} [ctx]
+ */
+export function existsRow(store, tenantId, filter, key, value, row, idKey, ctx) {
+  const target = store.registry.bySlug.get(filter.catalog);
+  const inScope = scopeFilter(store, tenantId, target, ctx);
+  return rowsOf(store, tenantId, target).some(
+    (/** @type {any} */ r) =>
+      r[ACTIVE_KEY] !== false && inScope(r) && same(r[filter.local], row[idKey]) && same(r[filter.key ?? key], value) &&
+      Object.entries(filter.where ?? {}).every(([field, expected]) => String(r[field]) === String(expected)),
+  );
+}
+
+/**
  * What a ref or join points to: a registry catalog or a W1 builtin source. An
  * `empresa`-scope catalog shows only the session empresa rows, unless `scoped` is false (a join only reads the name of the
  * row a record already points to, so a tenant-wide list still names the familia of another empresa).

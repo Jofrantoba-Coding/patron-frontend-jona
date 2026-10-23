@@ -32,5 +32,6 @@
   { "id_menu": 31, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Empresa", "nombre": "mi_principal" },
   { "id_menu": 32, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Punto de Venta", "nombre": "mi_puntoventa" },
   { "id_menu": 33, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Almacen", "nombre": "mi_almacen" },
-  { "id_menu": 34, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Zona", "nombre": "miZona" }
+  { "id_menu": 34, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Zona", "nombre": "miZona" },
+  { "id_menu": 35, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Correlativo", "nombre": "PanelTFCorrelativo" }
 ]

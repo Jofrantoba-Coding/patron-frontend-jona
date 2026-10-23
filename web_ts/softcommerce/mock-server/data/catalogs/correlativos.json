@@ -1,0 +1,9 @@
+{
+  "demo": [
+    { "id_correlativo": "00001", "id_tipo_doc": "01", "serie": "F001", "correlativo": "0000000125", "estado": "A", "id_localidad": "1", "id_punto_venta": "1", "nro_autorizacion": "", "codigo_maquina": "", "imprime": "S", "num_inicial": "0000000001", "num_final": "9999999999", "flag_cond_pago": "N", "linea_impresion": 12, "id_usuario": 1, "activo": true },
+    { "id_correlativo": "00002", "id_tipo_doc": "TI", "serie": "T001", "correlativo": "0000000010", "estado": "A", "id_localidad": "1", "id_punto_venta": "1", "nro_autorizacion": "0123456789", "codigo_maquina": "MAQ001", "imprime": "S", "num_inicial": "0000000001", "num_final": "9999999999", "flag_cond_pago": "N", "linea_impresion": 12, "id_usuario": 1, "activo": true },
+    { "id_correlativo": "00003", "id_tipo_doc": "03", "serie": "B001", "correlativo": "0000000001", "estado": "I", "id_localidad": "1", "id_punto_venta": "1", "nro_autorizacion": "", "codigo_maquina": "", "imprime": "N", "num_inicial": "0000000001", "num_final": "9999999999", "flag_cond_pago": "N", "linea_impresion": 0, "id_usuario": 1, "activo": true },
+    { "id_correlativo": "00004", "id_tipo_doc": "01", "serie": "F002", "correlativo": "0000000050", "estado": "A", "id_localidad": "2", "id_punto_venta": "2", "nro_autorizacion": "", "codigo_maquina": "", "imprime": "S", "num_inicial": "0000000001", "num_final": "9999999999", "flag_cond_pago": "N", "linea_impresion": 12, "id_usuario": 1, "activo": true },
+    { "id_correlativo": "00005", "id_tipo_doc": "03", "serie": "B001", "correlativo": "0000000001", "estado": "A", "id_localidad": "3", "id_punto_venta": "3", "nro_autorizacion": "", "codigo_maquina": "", "imprime": "S", "num_inicial": "0000000001", "num_final": "9999999999", "flag_cond_pago": "N", "linea_impresion": 12, "id_usuario": 1, "activo": false }
+  ]
+}

@@ -36,13 +36,14 @@ export const ENTITIES: Record<string, string> = {
   promociones: 'una Promocion',
   almacenes: 'un Almacen',
   zonas: 'una Zona',
+  correlativos: 'un Correlativo',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
 const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción', almacenes: 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto, the Tipo de Cambio its fecha and moneda). */
-export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio']);
+export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos']);
 /** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
 /** The Almacen checks its localidad and punto de venta before the descripcion (RegisterAlmacen.isRegisterValid). */
 export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias', 'almacenes']);
@@ -121,7 +122,8 @@ export const referenceEntries = () => REGISTRY.entries.filter((e: any) => e.slug
 function genericCases(entry: any): CatalogCase[] {
   const { slug, idKey, codeWidth } = entry;
   const config = toCatalogConfig(entry);
-  const texts = config.fields.flatMap((f) => (f.kind === 'text' ? [f] : []));
+  // A conditional text (the ticket fields of a Correlativo) has its own rows: it only exists for some values of another field.
+  const texts = config.fields.flatMap((f) => (f.kind === 'text' && !f.visibleWhen ? [f] : []));
   // A valid body: every required text, every required integer (1), and the first option of every required options field.
   const valid = {
     ...Object.fromEntries(texts.filter((f) => f.required).map((f) => [f.name, 'x'])),
@@ -217,6 +219,8 @@ const DUPLICATE_MSG = 'La fecha del Tipo Cambio ya se encuentra registrado para 
 /** Stray space before the comma: the desktop spells its monto messages `un Tipo de Cambio , debes ...` (RegisterTipoCambio.isRegisterValid). */
 const montoText = (modo: string, label: string) => `Para ${modo} un Tipo de Cambio , debes especificar su ${label}.`;
 const AMOUNTS = { monto_compra: 1, monto_venta: 1, monto_comercial: 1, monto_especial: 1 };
+
+const CORRELATIVO_DUPLICATE = 'Ya existe una asignacion de la serie al mismo tipo de documento, por favor digite otra serie.';
 
 const BASE_CASES: CatalogCase[] = [
   ...referenceEntries().flatMap(genericCases),
@@ -343,7 +347,58 @@ const BASE_CASES: CatalogCase[] = [
   ...almacenCases(),
   // R-REF-6 zonas (S-REF-7, S-REF-33): descripcion first, then the cascade in the MS style; estado is the shared preset.
   ...zonaCases(),
+  // R-REF-6 / R-REF-7 / R-REF-8 / R-REF-9 correlativos (S-MOCK-20, S-MOCK-21, S-REF-14, S-REF-15, S-REF-16).
+  ...correlativoCases(),
 ];
+
+function correlativoCases(): CatalogCase[] {
+  const slug = 'correlativos';
+  const as = (empresaId = '1') => ({ userId: '7', empresaId });
+  const text = (modo: string, label: string) => `Para ${modo} un Correlativo, debes especificar ${label}.`;
+  const body = (over: Record<string, unknown> = {}) => ({ id_tipo_doc: '01', serie: 'F009', correlativo: '1', estado: 'A', id_localidad: '1', id_punto_venta: '1', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, deviation = false): CatalogCase => ({ name: '', slug, ctx: as(), deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: as(), steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const dup: Outcome = { status: 409, code: 'DUPLICATE', fields: ['serie'], messages: [CORRELATIVO_DUPLICATE] };
+  return [
+    row('desktop order: an empty body fails first on the tipo de documento', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: {} }], expect: invalid(['id_tipo_doc'], [text('agregar', 'su Tipo de Documento')]) }),
+    row('then the serie', create({ serie: ' ' }, invalid(['serie'], [text('agregar', 'su Serie')]))),
+    row('then the correlativo', create({ correlativo: '' }, invalid(['correlativo'], [text('agregar', 'su Correlativo')]))),
+    row('then the estado', create({ estado: '' }, invalid(['estado'], [text('agregar', 'su Estado')]))),
+    row('then the localidad, worded la Localidad', create({ id_localidad: '', id_punto_venta: '' }, invalid(['id_localidad'], [text('agregar', 'la Localidad')]))),
+    row('then the punto de venta', create({ id_punto_venta: '' }, invalid(['id_punto_venta'], [text('agregar', 'su Punto de Venta')]))),
+    row('UPDATE words the messages with modificar', update('00001', { serie: ' ' }, invalid(['serie'], [text('modificar', 'su Serie')]))),
+    row('S-MOCK-21 a duplicate (punto de venta, tipo, serie) is a 409 on serie with the desktop text', create({ serie: 'F001' }, dup)),
+    row('S-MOCK-21 the serie is compared after the pad and the case: f1 is stored as 00F1', create({ serie: 'f1' }, { ok: true, match: { serie: '00F1' } })),
+    row('S-REF-14 the same serie on another punto de venta is accepted', create({ serie: 'F001', id_localidad: '2', id_punto_venta: '2' }, { ok: true, match: { id_punto_venta: '2' } })),
+    row('S-REF-14 the same serie under another tipo de documento is accepted', create({ serie: 'F001', id_tipo_doc: '03' }, { ok: true, match: { id_tipo_doc: '03' } })),
+    row('S-MOCK-21 UPDATE keeping its own triple is accepted', update('00001', { correlativo: '0000000200' }, { ok: true, match: { correlativo: '0000000200' } })),
+    row('S-REF-14 UPDATE onto the triple of another record is a 409 on serie', update('00004', { id_localidad: '1', id_punto_venta: '1', serie: 'F001' }, dup)),
+    row('S-REF-14 CLONE keeping the triple is rejected [DEVIATION: the desktop skips the check on CLONE]', create({ serie: 'F001' }, dup, true)),
+    row('S-MOCK-21 a deleted correlativo frees its triple', { name: '', slug, ctx: as(), steps: [{ op: 'remove', id: '00001' }, { op: 'create', body: body({ serie: 'F001' }) }], expect: { ok: true, match: { serie: 'F001' } } }),
+    row('S-MOCK-21 an inactive (estado I) correlativo still holds its triple', create({ id_tipo_doc: '03', serie: 'B001' }, dup)),
+    row('S-MOCK-20 a ticket without the authorization number is a 422 on it, with the desktop text', create({ id_tipo_doc: 'TI', serie: 'T009' }, invalid(['nro_autorizacion'], [text('agregar', 'su Numero de Autorizacion')]))),
+    row('S-REF-15 a ticket with only the authorization number fails on codigo_maquina, after a passing unique', create({ id_tipo_doc: 'TI', serie: 'T009', nro_autorizacion: 'a1' }, invalid(['codigo_maquina'], [text('agregar', 'su Codigo de Maquina')]))),
+    row('S-REF-15 the duplicate is reported before the ticket fields', create({ id_tipo_doc: 'TI', serie: 'T001' }, dup)),
+    row('S-REF-15 a ticket with both fields stores them uppercased', create({ id_tipo_doc: 'TI', serie: 'T009', nro_autorizacion: 'a1', codigo_maquina: 'mq9' }, { ok: true, match: { nro_autorizacion: 'A1', codigo_maquina: 'MQ9' } })),
+    row('S-MOCK-20 another tipo stores both ticket fields as empty strings even when typed', create({ nro_autorizacion: 'a1', codigo_maquina: 'mq9' }, { ok: true, match: { nro_autorizacion: '', codigo_maquina: '' } })),
+    row('R-CRUD-13 the UI sends null for the hidden fields: stored as empty strings', create({ nro_autorizacion: null, codigo_maquina: null }, { ok: true, match: { nro_autorizacion: '', codigo_maquina: '' } })),
+    row('S-REF-15 UPDATE from ticket to another tipo empties the ticket fields', update('00002', { id_tipo_doc: '01', serie: 'T001' }, { ok: true, match: { id_tipo_doc: '01', nro_autorizacion: '', codigo_maquina: '' } })),
+    row('S-REF-16 serie 1 is stored as 0001', create({ serie: '1' }, { ok: true, match: { serie: '0001' } })),
+    row('S-REF-16 a fifth character in the serie is a 422 on serie', create({ serie: 'abcde' }, invalid(['serie']))),
+    row('S-REF-16 correlativo 25 is stored as 0000000025', create({ correlativo: '25' }, { ok: true, match: { correlativo: '0000000025' } })),
+    row('S-REF-16 an 11-digit correlativo is a 422 on correlativo', create({ correlativo: '12345678901' }, invalid(['correlativo']))),
+    row('S-REF-16 a correlativo with letters is a 422 on correlativo', create({ correlativo: 'abc' }, invalid(['correlativo']))),
+    row('S-REF-16 the constants and linea_impresion 12 (imprime defaults to Sí) are stored', create({}, { ok: true, match: { imprime: 'S', num_inicial: '0000000001', num_final: '9999999999', flag_cond_pago: 'N', linea_impresion: 12 } })),
+    row('S-REF-16 imprime No stores linea_impresion 0', create({ imprime: 'N' }, { ok: true, match: { imprime: 'N', linea_impresion: 0, num_final: '9999999999' } })),
+    row('S-REF-16 UPDATE re-derives linea_impresion', update('00001', { imprime: 'N' }, { ok: true, match: { linea_impresion: 0, num_inicial: '0000000001' } })),
+    row('S-REF-16 the constants cannot be sent in the body', create({ num_inicial: '5', num_final: '6', flag_cond_pago: 'S', linea_impresion: 99 }, { ok: true, match: { num_inicial: '0000000001', num_final: '9999999999', flag_cond_pago: 'N', linea_impresion: 12 } })),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '2', id_punto_venta: '1' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-REF-6 a localidad of another empresa is a 422 on id_localidad (the where is the session empresa)', create({ id_localidad: '3', id_punto_venta: '3' }, invalid(['id_localidad']))),
+    row('S-MOCK-28 get joins the tipo, localidad and punto de venta names and labels the estado', { name: '', slug, steps: [{ op: 'get', id: '00001' }], expect: { ok: true, match: { tipo_documento: 'FACTURA', localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL', estado_label: 'Activo' } } }),
+    row('R-REF-6 the list is tenant-wide and needs no session header', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 4 } }),
+  ];
+}
 
 function almacenCases(): CatalogCase[] {
   const slug = 'almacenes';
@@ -431,7 +486,9 @@ function tipoCambioCases(): CatalogCase[] {
   ];
 }
 
+/** An entry that stamps or scopes by the empresa, or whose select asks for the localidades of the session empresa (the Correlativo). */
+const needsEmpresa = (entry: any) => usesEmpresa(entry) || entry.fields.some((f: any) => f.source?.where && Object.values(f.source.where).includes('$session.empresa'));
 /** A case of an empresa catalog acts in the session empresa unless it names its own (an empty one is a missing header). */
 const inSessionEmpresa = (c: CatalogCase): CatalogCase =>
-  usesEmpresa(REGISTRY.bySlug.get(c.slug)) && c.ctx?.empresaId === undefined ? { ...c, ctx: { ...c.ctx, empresaId: EMPRESA } } : c;
+  needsEmpresa(REGISTRY.bySlug.get(c.slug)) && c.ctx?.empresaId === undefined ? { ...c, ctx: { ...c.ctx, empresaId: EMPRESA } } : c;
 export const REFERENCE_CASES: CatalogCase[] = BASE_CASES.map(inSessionEmpresa);

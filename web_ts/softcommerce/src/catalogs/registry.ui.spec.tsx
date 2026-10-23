@@ -37,7 +37,8 @@ describe.each(Object.keys(ENTITIES))('%s register form', (slug) => {
   it('S-REF-3 / S-REF-4 each text field ignores input beyond its max and uppercases only when declared', async () => {
     const { config } = await openInsert(slug);
     for (const field of config.fields) {
-      if (field.kind !== 'text') continue;
+      // A conditional text is not on screen until another field asks for it (registry.correlativos.ui.spec).
+      if (field.kind !== 'text' || field.visibleWhen) continue;
       fireEvent.change(input(field.label), { target: { value: 'x'.repeat((field.maxLength ?? 0) + 1) } });
       expect(input(field.label).value, `${slug}.${field.name} beyond max`).toBe('');
       fireEvent.change(input(field.label), { target: { value: 'rojo' } });
