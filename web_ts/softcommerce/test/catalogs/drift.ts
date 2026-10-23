@@ -18,7 +18,8 @@ export function findDrift(config: CatalogConfig<any>, entry: any): string[] {
     }
     if (field.kind === 'code' && ui.kind !== 'code') at(field.name, `kind code != UI ${ui.kind}`);
     if (Boolean(ui.required) !== Boolean(field.required)) at(field.name, `required ${field.required} != UI ${ui.required}`);
-    if (field.kind === 'text' && ui.maxLength !== field.max) at(field.name, `max ${field.max} != UI maxLength ${ui.maxLength}`);
+    if ((field.kind === 'text' || field.kind === 'number') && ui.maxLength !== field.max) at(field.name, `max ${field.max} != UI maxLength ${ui.maxLength}`);
+    if (field.kind === 'number' && JSON.stringify(ui.range) !== JSON.stringify(field.range)) at(field.name, `range ${JSON.stringify(field.range)} != UI range ${JSON.stringify(ui.range)}`);
   }
   for (const ui of config.fields) {
     if (!entry.fields.some((f: any) => f.name === ui.name)) drift.push(`${entry.slug}.${ui.name}: missing in the registry`);

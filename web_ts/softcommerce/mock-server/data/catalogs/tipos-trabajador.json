@@ -1,0 +1,32 @@
+{
+  "demo": [
+    {
+      "id_tipo_trabajador": "001",
+      "descripcion": "ADMINISTRATIVO",
+      "abreviatura": "ADM",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_tipo_trabajador": "002",
+      "descripcion": "VENDEDOR",
+      "abreviatura": "VEN",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_tipo_trabajador": "003",
+      "descripcion": "ALMACENERO",
+      "abreviatura": "ALM",
+      "estado": false,
+      "activo": true
+    },
+    {
+      "id_tipo_trabajador": "004",
+      "descripcion": "CONDUCTOR",
+      "abreviatura": "CON",
+      "estado": true,
+      "activo": false
+    }
+  ]
+}

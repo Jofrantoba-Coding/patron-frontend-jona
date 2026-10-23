@@ -3,10 +3,12 @@
  * (plus optional extras), a logical-delete flag, the session user stamp and the M1 messages.
  * Each catalog stays a one-line declaration; the rules live in the registry, not here.
  * @param {{ slug: string, idKey: string, entity: string, formId: string, title: string, upper?: boolean,
- *   codeWidth?: number, fields?: any[], columns?: any[] }} def
+ *   codeWidth?: number, style?: 'M1'|'M2', stamp?: string[], descripcion?: any|false, fields?: any[], columns?: any[], validation?: any[] }} def
  * @returns {import('../schema.js').CatalogDef}
  */
-export function referenceCatalog({ slug, idKey, entity, formId, title, upper = true, codeWidth = 3, fields = [], columns = [] }) {
+export function referenceCatalog({
+  slug, idKey, entity, formId, title, upper = true, codeWidth = 3, style = 'M1', stamp = ['id_usuario'], descripcion = {}, fields = [], columns = [], validation,
+}) {
   return {
     slug,
     idKey,
@@ -18,13 +20,15 @@ export function referenceCatalog({ slug, idKey, entity, formId, title, upper = t
     formId,
     title,
     menu: { parent: 'mnGenerales', label: title },
-    stamp: ['id_usuario'],
-    messages: { style: 'M1' },
+    stamp,
+    messages: { style },
     fields: [
       { name: idKey, kind: 'code', label: 'Código' },
-      { name: 'descripcion', preset: 'descripcion', normalize: upper ? ['upper'] : [] },
+      // `descripcion: false` is a catalog with no description (the Turno is its hora:minuto); an object overrides the preset.
+      ...(descripcion === false ? [] : [{ name: 'descripcion', preset: 'descripcion', normalize: upper ? ['upper'] : [], ...descripcion }]),
       ...fields,
     ],
-    columns: [{ key: idKey, header: 'Código' }, { key: 'descripcion', header: 'Descripción' }, ...columns],
+    columns: [{ key: idKey, header: 'Código' }, ...(descripcion === false ? [] : [{ key: 'descripcion', header: 'Descripción' }]), ...columns],
+    ...(validation ? { validation } : {}),
   };
 }

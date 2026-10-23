@@ -1,0 +1,28 @@
+{
+  "demo": [
+    {
+      "id_marca_vehiculo": "001",
+      "descripcion": "TOYOTA",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_marca_vehiculo": "002",
+      "descripcion": "HYUNDAI",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_marca_vehiculo": "003",
+      "descripcion": "VOLVO",
+      "estado": false,
+      "activo": true
+    },
+    {
+      "id_marca_vehiculo": "004",
+      "descripcion": "KIA",
+      "estado": true,
+      "activo": false
+    }
+  ]
+}

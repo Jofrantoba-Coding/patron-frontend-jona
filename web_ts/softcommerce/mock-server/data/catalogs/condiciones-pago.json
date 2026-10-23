@@ -1,0 +1,32 @@
+{
+  "demo": [
+    {
+      "id_condicion_pago": "001",
+      "descripcion": "CONTADO",
+      "dias_pago": 0,
+      "tipo": "CO",
+      "activo": true
+    },
+    {
+      "id_condicion_pago": "002",
+      "descripcion": "CREDITO 30 DIAS",
+      "dias_pago": 30,
+      "tipo": "CR",
+      "activo": true
+    },
+    {
+      "id_condicion_pago": "003",
+      "descripcion": "TRANSFERENCIA BANCARIA",
+      "dias_pago": 0,
+      "tipo": "OB",
+      "activo": true
+    },
+    {
+      "id_condicion_pago": "004",
+      "descripcion": "TARJETA DE CREDITO",
+      "dias_pago": 0,
+      "tipo": "TA",
+      "activo": false
+    }
+  ]
+}

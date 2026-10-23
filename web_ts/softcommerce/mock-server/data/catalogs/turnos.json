@@ -1,0 +1,36 @@
+{
+  "demo": [
+    {
+      "id_turno": "1",
+      "hora": "08",
+      "minuto": "00",
+      "tipo": "AM",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_turno": "2",
+      "hora": "02",
+      "minuto": "30",
+      "tipo": "PM",
+      "estado": true,
+      "activo": true
+    },
+    {
+      "id_turno": "3",
+      "hora": "10",
+      "minuto": "00",
+      "tipo": "PM",
+      "estado": false,
+      "activo": true
+    },
+    {
+      "id_turno": "4",
+      "hora": "06",
+      "minuto": "15",
+      "tipo": "AM",
+      "estado": true,
+      "activo": false
+    }
+  ]
+}
