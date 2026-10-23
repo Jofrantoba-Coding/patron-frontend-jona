@@ -8,7 +8,7 @@ import { createLookupServiceHttp } from '../../src/services/LookupServiceHttp';
 import { createHttpClient } from '../../src/services/httpClient';
 import { createAppServicesMock } from '../../src/services/mock/AppServicesMock';
 import { describeRegistryContract } from './registryContract';
-import { ENTITIES, REFERENCE_CASES, textEntries } from './reference.cases';
+import { ENTITIES, REFERENCE_CASES, referenceEntries } from './reference.cases';
 
 const session = () => ({ tenantId: 'demo' });
 
@@ -21,17 +21,27 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'laboratorios.pais': [100, true],
   'marcas.descripcion': [100, true],
   'nacionalidades.descripcion': [100, true],
+  'motivos-traslado.descripcion': [100, true],
+  'motivos-traslado.abrev': [100, true],
+  'clasif-clientes.descripcion': [100, true],
 };
 
-describe('W2-2 reference catalogs are registered', () => {
+/** Code width per slug: three-digit string ids pad (PanelTF focusLost "000"), integer beans print unpadded. */
+const CODE_WIDTH: Record<string, number> = { 'motivos-traslado': 3, 'clasif-clientes': 0 };
+
+describe('W2 reference catalogs are registered', () => {
   it.each(Object.entries(DESKTOP))('R-REF-4 %s keeps the desktop max and case rule', (path, [max, upper]) => {
     const [slug, name] = path.split('.');
     const field = REGISTRY.bySlug.get(slug).fields.find((f: any) => f.name === name);
     expect([field.max, field.normalize.includes('upper')]).toEqual([max, upper]);
   });
 
-  it('registers the six text catalogs, each with seed rows and one inactive row', () => {
-    expect(textEntries().map((e: any) => e.slug).sort()).toEqual(Object.keys(ENTITIES).sort());
+  it.each(Object.entries(CODE_WIDTH))('%s keeps the desktop code width %i', (slug, width) => {
+    expect(REGISTRY.bySlug.get(slug).codeWidth).toBe(width);
+  });
+
+  it('registers the reference catalogs, each with seed rows and one inactive row', () => {
+    expect(referenceEntries().map((e: any) => e.slug).sort()).toEqual(Object.keys(ENTITIES).sort());
     expect(REFERENCE_CASES.length).toBeGreaterThan(40);
   });
 

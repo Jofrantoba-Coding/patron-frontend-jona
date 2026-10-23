@@ -1,6 +1,8 @@
 // Layer: Implementation. Load -> edit -> validate -> confirm -> execute of the generic crud register.
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogConfig, FieldConfig } from '../../catalogs/CatalogConfig';
+import { decodeValue } from '../../domain/crud/codec';
+import { applyModeDefaults, initialValues, isFieldReadOnly } from '../../domain/crud/modeDefaults';
 import { normalize } from '../../domain/crud/normalize';
 import { mapServerError } from '../../domain/crud/serverErrors';
 import { validate, type FormValues } from '../../domain/crud/validate';
@@ -23,11 +25,15 @@ export interface CrudRegisterHandlers {
 type Load = { status: 'loading' } | { status: 'ready' } | { status: 'failed'; message: string };
 
 const fieldNames = (fields: FieldConfig[]) => fields.flatMap((f) => (f.kind === 'cascade' ? f.levels.map((l) => l.name) : [f.name]));
-const blank = (fields: FieldConfig[]): FormValues => Object.fromEntries(fieldNames(fields).map((name) => [name, '']));
 
 function fromRecord(fields: FieldConfig[], record: unknown, mode: RegisterMode): FormValues {
   const source = record as Record<string, unknown>;
-  const values = Object.fromEntries(fieldNames(fields).map((name) => [name, String(source[name] ?? '')]));
+  // The codec reads each wire value into its string form (a boolean becomes 'true' | 'false').
+  const values: FormValues = Object.fromEntries(
+    fields.flatMap((field) =>
+      field.kind === 'cascade' ? field.levels.map((level) => [level.name, String(source[level.name] ?? '')]) : [[field.name, decodeValue(field, source[field.name])]],
+    ),
+  );
   // A cascade stores only its leaf; the levels above come from the leaf's ancestors.
   for (const field of fields) {
     if (field.kind !== 'cascade') continue;
@@ -37,7 +43,8 @@ function fromRecord(fields: FieldConfig[], record: unknown, mode: RegisterMode):
   }
   // A clone is a new record: the server issues its code (R-CRUD-14).
   if (mode === 'CLONE') for (const field of fields) if (field.kind === 'code') values[field.name] = '';
-  return values;
+  // A per-mode default wins over the stored value (a clone of a TipoCambio starts today).
+  return applyModeDefaults(fields, values, mode);
 }
 
 async function loadSelectOptions(fields: FieldConfig[], lookup?: InterLookupService) {
@@ -54,7 +61,7 @@ export function useUiCrudRegisterImpl<T>(
   { lookups, lookup, onDone, onClose }: CrudRegisterHandlers,
 ): InterUiCrudRegister {
   const [load, setLoad] = useState<Load>({ status: 'loading' });
-  const [values, setValues] = useState<FormValues>(() => blank(config.fields));
+  const [values, setValues] = useState<FormValues>(() => initialValues(config.fields, mode));
   const [selectOptions, setSelectOptions] = useState<Record<string, LookupItem[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirm, setConfirm] = useState<RegisterConfirm | undefined>();
@@ -134,6 +141,10 @@ export function useUiCrudRegisterImpl<T>(
     submitError: submitFailure?.message,
     submitTraceId: submitFailure?.traceId,
     readOnly: mode === 'DELETE' || mode === 'DETAIL',
+    isFieldReadOnly: (name) => {
+      const field = config.fields.find((f) => f.name === name);
+      return field ? isFieldReadOnly(field, mode, mode === 'DELETE' || mode === 'DETAIL') : mode === 'DELETE' || mode === 'DETAIL';
+    },
     canSubmit: mode !== 'DETAIL' && load.status === 'ready' && !submitting,
     submitting,
     confirm,

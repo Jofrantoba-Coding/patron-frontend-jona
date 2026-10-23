@@ -13,6 +13,9 @@ function toField(entry: CatalogDef, field: any): FieldConfig {
       maxLength: field.max, uppercase: normalize.includes('upper'), normalize,
     };
   }
+  if (field.kind === 'boolean') {
+    return { kind: 'boolean', name: field.name, label: field.label, default: field.default, readOnlyOn: field.readOnlyOn };
+  }
   throw new Error(`${entry.slug}.${field.name}: the UI does not support kind "${field.kind}" yet`);
 }
 
@@ -23,7 +26,7 @@ export function toCatalogConfig(entry: CatalogDef): CatalogConfig<Row> {
     title: entry.title ?? entry.slug,
     catalog: entry.slug,
     idKey: entry.idKey,
-    columns: entry.columns.map(({ key, header }) => ({ key, header, sortable: true })),
+    columns: entry.columns.map(({ key, header, type }) => ({ key, header, sortable: true, ...(type === 'bool' ? { format: 'bool' as const } : {}) })),
     fields: entry.fields.map((field) => toField(entry, field)),
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,

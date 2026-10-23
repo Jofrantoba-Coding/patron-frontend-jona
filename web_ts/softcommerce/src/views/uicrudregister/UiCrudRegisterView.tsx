@@ -1,5 +1,6 @@
 // Layer: View. Pure render of props already resolved by the Impl; no state, effects or services.
 import { JAlert, JButton, JComboBox, JDialog } from 'jona-ui';
+import { BooleanField } from '../../shared/ui/BooleanField';
 import { CascadeSelect } from '../../shared/ui/CascadeSelect';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
@@ -61,6 +62,15 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                   </label>
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
                 </div>
+              ) : field.kind === 'boolean' ? (
+                <BooleanField
+                  key={field.name}
+                  ref={props.registerField(field.name)}
+                  label={field.label}
+                  checked={props.values[field.name] === 'true'}
+                  readOnly={props.isFieldReadOnly(field.name)}
+                  onChange={(checked) => props.onFieldChange(field.name, String(checked))}
+                />
               ) : field.kind === 'select' ? (
                 <div key={field.name}>
                   <label style={{ display: 'grid', gap: 4 }}>

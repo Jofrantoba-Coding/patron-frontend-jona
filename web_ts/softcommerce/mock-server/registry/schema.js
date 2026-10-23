@@ -20,6 +20,8 @@ const STAMPS = ['id_usuario', 'id_empresa'];
 const ENTRY_RULES = ['docIdentidad'];
 const FILTER_RULES = ['ubigeoChildren', 'ubigeoHasActive'];
 const CONDITIONS = ['visibleWhen', 'enabledWhen', 'requiredWhen'];
+/** Column renderings beyond plain text; each lands with the first catalog that shows it. */
+const COLUMN_TYPES = ['bool'];
 
 export class RegistryError extends Error {
   /** @param {string} message */
@@ -33,6 +35,9 @@ export class RegistryError extends Error {
 function fail(where, message) {
   throw new RegistryError(`${where}: ${message}`);
 }
+
+/** A `default` given per mode (`{ INSERT: true }`) rather than as one value. @param {unknown} value */
+export const isModeMap = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
 
 /** @param {string} where @param {any[]} fields */
 function assertAcyclic(where, fields) {
@@ -80,12 +85,17 @@ function resolveEntry(raw, slugs, sources) {
     }
     if (f.kind === 'options' && !(Array.isArray(f.options) && f.options.length > 0)) fail(at, 'options needs options');
     if (f.kind === 'number' && !Number.isInteger(f.scale)) fail(at, 'number needs a scale');
+    for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
+    if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
     for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
     for (const parent of f.dependsOn ?? []) known(`field "${f.name}" dependsOn`, parent.field);
     for (const key of CONDITIONS) if (f[key]) known(`field "${f.name}" ${key}`, f[key].field);
     if (f.afterField) known(`field "${f.name}" afterField`, f.afterField);
   }
   assertAcyclic(where, entry.fields);
+  for (const column of entry.columns) {
+    if (column.type !== undefined && !COLUMN_TYPES.includes(column.type)) fail(where, `column "${column.key}" has unknown type "${column.type}"`);
+  }
 
   for (const key of entry.unique ?? []) {
     for (const name of key.fields) known('unique', name);

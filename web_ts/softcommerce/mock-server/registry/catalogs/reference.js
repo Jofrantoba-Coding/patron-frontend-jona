@@ -3,15 +3,15 @@
  * (plus optional extras), a logical-delete flag, the session user stamp and the M1 messages.
  * Each catalog stays a one-line declaration; the rules live in the registry, not here.
  * @param {{ slug: string, idKey: string, entity: string, formId: string, title: string, upper?: boolean,
- *   fields?: any[], columns?: any[] }} def
+ *   codeWidth?: number, fields?: any[], columns?: any[] }} def
  * @returns {import('../schema.js').CatalogDef}
  */
-export function referenceCatalog({ slug, idKey, entity, formId, title, upper = true, fields = [], columns = [] }) {
+export function referenceCatalog({ slug, idKey, entity, formId, title, upper = true, codeWidth = 3, fields = [], columns = [] }) {
   return {
     slug,
     idKey,
-    // The desktop pads its three-digit codes ("001"); `PanelTF*` filters by the same width.
-    codeWidth: 3,
+    // The desktop pads its string codes to three digits ("001"); integer beans print unpadded (width 0).
+    codeWidth,
     entity,
     scope: 'tenant',
     seed: slug,

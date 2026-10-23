@@ -19,7 +19,8 @@ export interface ValidationRules {
 const isBlank = (value: string | undefined) => !value?.trim();
 
 function fieldError(field: FieldConfig, values: FormValues, requiredMessage?: (name: string) => string): FieldError | undefined {
-  if (field.kind === 'code') return undefined;
+  // A code is server-issued and a checkbox is always valid: neither can be blank.
+  if (field.kind === 'code' || field.kind === 'boolean') return undefined;
   if (field.kind === 'cascade') {
     // The first unset level is the one to fix (and to focus).
     const unset = field.levels.find((level) => isBlank(values[level.name]));

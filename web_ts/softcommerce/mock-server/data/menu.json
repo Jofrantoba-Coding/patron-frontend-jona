@@ -11,5 +11,7 @@
   { "id_menu": 10, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Estado del Documento", "nombre": "miEstadoDocumento" },
   { "id_menu": 11, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Laboratorio", "nombre": "miLaboratorioClinico" },
   { "id_menu": 12, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Marca", "nombre": "miMarca" },
-  { "id_menu": 13, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Nacionalidad", "nombre": "miNacionalidad" }
+  { "id_menu": 13, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Nacionalidad", "nombre": "miNacionalidad" },
+  { "id_menu": 14, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Motivo Traslado", "nombre": "miMotivoTraslado" },
+  { "id_menu": 15, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Clasificacion Cliente", "nombre": "miClasifCliente" }
 ]

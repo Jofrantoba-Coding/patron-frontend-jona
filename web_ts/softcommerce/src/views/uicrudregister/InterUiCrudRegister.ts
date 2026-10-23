@@ -21,7 +21,10 @@ export interface InterUiCrudRegister {
   /** Message of a failed submit; the dialog stays open. */
   submitError?: string;
   submitTraceId?: string;
+  /** The whole form is read-only (DELETE, DETAIL). */
   readOnly: boolean;
+  /** True when the named field is not editable in this mode: the form is read-only or the field lists the mode in `readOnlyOn`. */
+  isFieldReadOnly: (name: string) => boolean;
   canSubmit: boolean;
   submitting: boolean;
   confirm?: RegisterConfirm;
