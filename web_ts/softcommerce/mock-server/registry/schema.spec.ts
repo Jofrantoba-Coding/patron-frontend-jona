@@ -30,6 +30,8 @@ const REJECTED: [string, Record<string, any>[], RegExp][] = [
     )],
     /cyclic dependsOn/,
   ],
+  ['R-REG-9 menu without a formId', [base({ menu: { parent: 'mnGenerales', label: 'Cosa' } })], /menu needs a formId/],
+  ['R-REG-9 menu without parent or label', [base({ formId: 'mi_a', menu: { label: 'Cosa' } })], /menu needs a parent and a label/],
   ['S-REG-16 unknown named rule', [base({ rules: [{ name: 'nope' }] })], /unknown rule "nope"/],
   ['S-REG-16 unique step out of range', [base({ validation: ['descripcion', { unique: 3 }] })], /unique step 3/],
   ['unknown rule step', [base({ validation: [{ rule: 'nope' }] })], /unknown rule "nope"/],

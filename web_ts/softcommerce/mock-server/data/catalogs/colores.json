@@ -1,0 +1,19 @@
+{
+  "demo": [
+    {
+      "id_color": "001",
+      "descripcion": "ROJO",
+      "activo": true
+    },
+    {
+      "id_color": "002",
+      "descripcion": "AZUL",
+      "activo": true
+    },
+    {
+      "id_color": "003",
+      "descripcion": "VERDE",
+      "activo": false
+    }
+  ]
+}

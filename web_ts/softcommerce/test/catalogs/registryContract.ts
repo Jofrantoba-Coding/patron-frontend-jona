@@ -58,9 +58,9 @@ function assertOutcome(outcome: Outcome, result: any, error: unknown): void {
 }
 
 /** The shared case table against one source: both sources must meet the same outcomes (R-MOCK-18). */
-export function describeRegistryContract(label: string, make: RegistryServiceFactory): void {
+export function describeRegistryContract(label: string, make: RegistryServiceFactory, cases: CatalogCase[] = CASES): void {
   describe(`registry cases: ${label}`, () => {
-    it.each(CASES.map((c) => [c.name, c] as const))('%s', async (_name, testCase) => {
+    it.each(cases.map((c) => [c.name, c] as const))('%s', async (_name, testCase) => {
       await check(make, testCase);
     });
   });

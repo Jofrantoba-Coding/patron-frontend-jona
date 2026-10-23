@@ -1,5 +1,11 @@
 {
   "mi_localidad": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "demo_stub": { "add": true, "modify": true, "eliminate": false, "nullify": false, "clone": false, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
-  "miTipoCambio": { "add": false, "modify": false, "eliminate": false, "nullify": false, "clone": false, "details": true, "search": true, "report": true, "export": true, "print": true, "printFast": false, "close": true, "refresh": true }
+  "miTipoCambio": { "add": false, "modify": false, "eliminate": false, "nullify": false, "clone": false, "details": true, "search": true, "report": true, "export": true, "print": true, "printFast": false, "close": true, "refresh": true },
+  "miAduana": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "miColor": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "miEstadoDocumento": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "miLaboratorioClinico": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "miMarca": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "miNacionalidad": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true }
 }

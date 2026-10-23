@@ -46,7 +46,8 @@ describe('buildMenuTree', () => {
     const tree = buildMenuTree(menuSeed as MenuItem[]);
 
     expect(shape(tree)).toEqual([
-      { Maestros: [{ Generales: ['Localidad', 'Tipo de Cambio'] }, 'Formulario de Demostracion'] },
+      // Each Wave 2 catalog adds its leaf under Generales (id 2, R-REG-9); the W1 nodes keep their place.
+      { Maestros: [{ Generales: ['Localidad', 'Tipo de Cambio', ...menuSeed.filter((m) => m.id_menu > 7 && m.id_menu_padre === 2).map((m) => m.descripcion)] }, 'Formulario de Demostracion'] },
       { Ventas: ['Registro de Ventas'] },
     ]);
   });

@@ -1,0 +1,19 @@
+{
+  "demo": [
+    {
+      "id_estado_documento": "001",
+      "descripcion": "PENDIENTE",
+      "activo": true
+    },
+    {
+      "id_estado_documento": "002",
+      "descripcion": "ATENDIDO",
+      "activo": true
+    },
+    {
+      "id_estado_documento": "003",
+      "descripcion": "ANULADO",
+      "activo": false
+    }
+  ]
+}

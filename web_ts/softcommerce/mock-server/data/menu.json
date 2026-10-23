@@ -5,5 +5,11 @@
   { "id_menu": 4, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo de Cambio", "nombre": "miTipoCambio" },
   { "id_menu": 5, "id_menu_padre": 1, "menu_item": "S", "descripcion": "Formulario de Demostracion", "nombre": "demo_stub" },
   { "id_menu": 6, "id_menu_padre": null, "menu_item": "N", "descripcion": "Ventas", "nombre": "mnVentas" },
-  { "id_menu": 7, "id_menu_padre": 6, "menu_item": "S", "descripcion": "Registro de Ventas", "nombre": "miVentas" }
+  { "id_menu": 7, "id_menu_padre": 6, "menu_item": "S", "descripcion": "Registro de Ventas", "nombre": "miVentas" },
+  { "id_menu": 8, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Aduana", "nombre": "miAduana" },
+  { "id_menu": 9, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Color", "nombre": "miColor" },
+  { "id_menu": 10, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Estado del Documento", "nombre": "miEstadoDocumento" },
+  { "id_menu": 11, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Laboratorio", "nombre": "miLaboratorioClinico" },
+  { "id_menu": 12, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Marca", "nombre": "miMarca" },
+  { "id_menu": 13, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Nacionalidad", "nombre": "miNacionalidad" }
 ]

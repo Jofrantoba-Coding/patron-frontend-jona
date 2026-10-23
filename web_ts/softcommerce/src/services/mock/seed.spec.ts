@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { REGISTRY } from '../../../mock-server/registry/index.js';
 import { collectSeeds } from '../../../mock-server/registry/seeds.js';
 import { validateRegistry } from '../../../mock-server/registry/schema.js';
 import { seed } from './seed';
@@ -22,9 +23,10 @@ describe('in-browser seed registers catalog files from the registry', () => {
     expect(() => collectSeeds(registry, (name) => (name === 'aduanas' ? { demo: [] } : {}))).toThrow(/monedas\.json/);
   });
 
-  it('keeps the W1 seed keys untouched while the registry has no catalog files', () => {
+  it('keeps the W1 seed keys and adds one section per registry catalog file', () => {
+    const catalogSections = REGISTRY.entries.filter((e: any) => e.seed !== null).map((e: any) => e.section);
     expect(Object.keys(seed).sort()).toEqual(
-      ['empresas', 'localidades', 'menu', 'params', 'permissions', 'puntosVenta', 'tenants', 'ubigeo', 'users'],
+      ['empresas', 'localidades', 'menu', 'params', 'permissions', 'puntosVenta', 'tenants', 'ubigeo', 'users', ...catalogSections].sort(),
     );
   });
 });
