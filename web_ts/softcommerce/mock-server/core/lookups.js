@@ -35,13 +35,16 @@ const labelOf = (entry, row) => [entry.optionLabel ?? 'descripcion'].flat().map(
  * @param {Record<string, string>} [filters] @param {import('./context.js').RequestContext} [ctx]
  */
 export function lookupOptions(store, tenantId, slug, filters = {}, ctx) {
-  const rule = LOOKUP_RULES[store.registry.sources[slug]?.lookupRule];
+  // A source answers through its named rule; a query key listed in `lookupRuleBy` (`has`) hands the request to that key's rule instead.
+  const source = store.registry.sources[slug];
+  const byKey = Object.entries(source?.lookupRuleBy ?? {}).find(([key]) => filters[key] !== undefined);
+  const rule = LOOKUP_RULES[byKey?.[1] ?? source?.lookupRule];
   const entry = store.registry.bySlug.get(slug);
   if (!entry && !rule) throw notFound(`Unknown catalog: ${slug}`);
   const accepted = rule ? new Set(rule.keys) : acceptedKeys(store, entry);
   const unknown = Object.keys(filters).find((key) => !accepted.has(key));
   if (unknown) throw new MockError(400, 'INVALID_FILTER', `Unknown filter "${unknown}" for ${slug}`);
-  if (rule) return { items: structuredClone(rule.options(store, filters)) };
+  if (rule) return { items: structuredClone(rule.options(store, filters, tenantId)) };
   // A `via` filter takes the key of a row of another catalog and matches the value that row holds (SubFamilia SUNAT by familia).
   /** @type {[string, any][]} */
   const exact = [];
