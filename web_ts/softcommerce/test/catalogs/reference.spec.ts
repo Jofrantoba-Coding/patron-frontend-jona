@@ -51,6 +51,8 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'correlativos.serie': [4, true],
   'correlativos.nro_autorizacion': [50, true],
   'correlativos.codigo_maquina': [50, true],
+  // RegisterUbicacion: UpperCaseNumberDocument(50).
+  'ubicaciones.descripcion': [50, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -79,6 +81,8 @@ const CODE_WIDTH: Record<string, number> = {
   almacenes: 3, zonas: 0,
   // PanelTFCorrelativo.focusLost pads the code filter to five digits ("00000" + code).
   correlativos: 5,
+  // The ubicacion id is an int bean (Util.getNumberInteger).
+  ubicaciones: 0,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -98,6 +102,10 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   'correlativos.id_tipo_doc': ['tipos-doc-venta', {}],
   'correlativos.id_localidad': ['localidades', { id_empresa: '$session.empresa' }],
   'correlativos.id_punto_venta': ['punto-venta', {}],
+  // LoadCombo.loadLocalidad lists every active localidad, loadPuntoVenta those of the localidad, loadAlmacen those of the punto de venta in the session empresa.
+  'ubicaciones.id_localidad': ['localidades', {}],
+  'ubicaciones.id_punto_venta': ['punto-venta', {}],
+  'ubicaciones.id_almacen': ['almacenes', {}],
 };
 
 /**
@@ -119,6 +127,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   almacenes: 'empresa', zonas: 'tenant',
   // DAOCorrelativo.listar(id, pv, tipo, estado) takes no empresa and mantCorrelativo passes only the user.
   correlativos: 'tenant',
+  // DaoUbicacion.listarUbicacion(0, "") and insert/update/delete take no empresa and no user.
+  ubicaciones: 'tenant',
 };
 /**
  * The entries over the W1 sections (empresa, punto-venta; no seed file, so no generic table rows): `DAOEmpresa.listar("")` passes no empresa
@@ -187,6 +197,16 @@ describe('W2 reference catalogs are registered', () => {
     const entry = REGISTRY.bySlug.get('correlativos');
     expect(entry.validation).toEqual(['id_tipo_doc', 'serie', 'correlativo', 'estado', 'id_localidad', 'id_punto_venta', { unique: 0 }, 'nro_autorizacion', 'codigo_maquina']);
     expect(entry.unique).toMatchObject([{ fields: ['id_punto_venta', 'id_tipo_doc', 'serie'], errorField: 'serie', message: 'Ya existe una asignacion de la serie al mismo tipo de documento, por favor digite otra serie.' }]);
+  });
+
+  it('S-REF-30 ubicaciones words its messages as literals, checks the chain in order and stamps nothing', () => {
+    const entry = REGISTRY.bySlug.get('ubicaciones');
+    expect(entry.validation).toEqual(['id_localidad', 'id_punto_venta', 'id_almacen', 'descripcion']);
+    expect(entry.fields.filter((f: any) => f.message).map((f: any) => [f.name, f.message])).toEqual([
+      ['id_localidad', 'Seleccione Localidad'], ['id_punto_venta', 'Seleccione Punto de Venta'], ['id_almacen', 'Seleccione Almacen'], ['descripcion', 'Ingrese Descripcion'],
+    ]);
+    expect(entry.stamp).toEqual([]);
+    expect(entry.fields.find((f: any) => f.name === 'id_almacen').dependsOn).toEqual([{ field: 'id_punto_venta', filterKey: 'id_punto_venta' }]);
   });
 
   it('R-REF-8 the ticket fields are visible and required only for the tipo TI', () => {
