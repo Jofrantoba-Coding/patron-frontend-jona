@@ -75,7 +75,8 @@ export function pickWritable(entry, body) {
   /** @type {Record<string, any>} */
   const record = {};
   for (const f of entry.fields) {
-    if (f.kind === 'code' || !(f.name in body)) continue;
+    // A code is the server's and a transient select is a form-only level (the ubigeo cascade): neither is written.
+    if (f.kind === 'code' || f.transient || !(f.name in body)) continue;
     record[f.name] = entry.compat ? body[f.name] : normalizeValue(body[f.name], f.normalize);
   }
   return record;
@@ -192,6 +193,8 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
   /** The failure of a field or ref step, if any. @param {any} step @returns {Detail|null} */
   const stepDetail = (step) => {
     const name = typeof step === 'string' ? step : step.ref;
+    // The client validates a transient level; the server never sees it.
+    if (typeof step === 'string' && fields.get(name).transient) return null;
     let detail = typeof step === 'string' ? fieldDetail(entry, fields.get(name), record, mode, ranged.has(name)) : null;
     if (!detail && !failed.has(name) && (typeof step === 'object' ? 'ref' in step : inlineRefs && fields.get(name).kind === 'select')) {
       detail = refDetail(store, tenantId, entry.refs.find((/** @type {any} */ r) => r.field === name), record, ctx);

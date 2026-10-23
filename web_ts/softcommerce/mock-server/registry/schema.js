@@ -2,6 +2,7 @@ import { NORMALIZE_STEP } from '../core/normalize.js';
 import { isIsoDate } from '../core/dates.js';
 import { DECIMAL_TEXT } from '../core/numbers.js';
 import { applyPreset } from './presets.js';
+import { PROJECTIONS } from './project.js';
 import { BUILTIN_SOURCES } from './sources.js';
 
 /**
@@ -10,7 +11,7 @@ import { BUILTIN_SOURCES } from './sources.js';
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
  *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string | string[], modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
- *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any,
+ *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any, project?: string,
  *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when: { field: string, in: string[] }, then: unknown, else: unknown }[] }} CatalogDef
  */
 
@@ -138,6 +139,32 @@ function assertStored(where, entry, names, known) {
   }
 }
 
+/**
+ * The ubigeo cascade as a parent of another select (D8, R-CRUD-12): `transient` keeps a select out of the server (never stored, validated or
+ * checked as a parent), `restoreFrom { field, prefixLen }` rebuilds the levels from a ubigeo code the record carries (a field, or a join `as`), and
+ * `filter { has }` keeps the ubigeos that hold an active row of that catalog.
+ * @param {string} at @param {any} f @param {Set<string>} names @param {any[]} joins @param {Set<string>} slugs
+ */
+function assertCascade(at, f, names, joins, slugs) {
+  if (f.transient !== undefined) {
+    if (f.kind !== 'select') fail(at, 'transient needs a select field');
+    if (typeof f.transient !== 'boolean') fail(at, 'transient must be a boolean');
+  }
+  const overUbigeo = f.kind === 'select' && f.source?.catalog === 'ubigeo';
+  if (f.restoreFrom !== undefined) {
+    if (!overUbigeo) fail(at, 'restoreFrom needs a select over ubigeo');
+    if (typeof f.restoreFrom.field !== 'string' || !Number.isInteger(f.restoreFrom.prefixLen) || f.restoreFrom.prefixLen < 1) fail(at, 'restoreFrom needs a field and a prefixLen');
+    if (!names.has(f.restoreFrom.field) && !joins.some((join) => join.as === f.restoreFrom.field)) fail(at, `restoreFrom names unknown field "${f.restoreFrom.field}"`);
+  }
+  if (f.filter === undefined) return;
+  if (!overUbigeo) fail(at, 'filter needs a select over ubigeo');
+  if (typeof f.filter !== 'object' || f.filter === null || Object.values(f.filter).some((value) => typeof value !== 'string')) fail(at, 'filter must be an object of text values');
+  for (const [key, value] of Object.entries(f.filter)) {
+    if (key !== 'has') fail(at, `filter names unknown key "${key}"`);
+    if (!slugs.has(/** @type {string} */ (value))) fail(at, `filter has names unknown catalog "${value}"`);
+  }
+}
+
 /** @param {string} where @param {any[]} fields */
 function assertAcyclic(where, fields) {
   const parents = new Map(fields.map((f) => [f.name, (f.dependsOn ?? []).map((/** @type {any} */ d) => d.field)]));
@@ -164,6 +191,13 @@ function resolveEntry(raw, slugs, sources) {
     if (!entry.menu.parent || !entry.menu.label) fail(where, 'menu needs a parent and a label');
   }
   for (const stamp of entry.stamp ?? []) if (!STAMPS.includes(stamp)) fail(where, `unknown stamp "${stamp}"`);
+  // A projection is a read-only view of a seed section already loaded (the auth users), so it has no seed file and no writes.
+  if (entry.project !== undefined) {
+    if (!Object.hasOwn(PROJECTIONS, entry.project)) fail(where, `unknown projection "${entry.project}"`);
+    if (entry.seed !== null) fail(where, 'project needs seed null');
+    if (entry.readOnly !== true) fail(where, 'project needs readOnly');
+    if (entry.scope !== 'tenant') fail(where, 'project needs scope tenant');
+  }
 
   const names = new Set(entry.fields.map((/** @type {any} */ f) => f.name));
   /** @param {string} context @param {string} name */
@@ -202,6 +236,7 @@ function resolveEntry(raw, slugs, sources) {
       if (f.defaultOption !== 'first') fail(at, 'defaultOption must be "first"');
       if (!f.dependsOn?.length) fail(at, 'defaultOption needs a dependsOn parent');
     }
+    assertCascade(at, f, names, entry.joins ?? [], slugs);
     for (const key of CONDITIONS) {
       if (!f[key]) continue;
       if (typeof f[key].field !== 'string' || !Array.isArray(f[key].in)) fail(at, `${key} needs a condition { field, in }`);
@@ -255,14 +290,16 @@ function resolveEntry(raw, slugs, sources) {
     }
   }
 
-  const selects = entry.fields.filter((/** @type {any} */ f) => f.kind === 'select');
+  // A transient select is a form-only level: it has no ref, and a parent that is transient is not one the server can check.
+  const selects = entry.fields.filter((/** @type {any} */ f) => f.kind === 'select' && !f.transient);
+  const transient = new Set(entry.fields.filter((/** @type {any} */ f) => f.transient).map((/** @type {any} */ f) => f.name));
   // Refs come from the field `source` and its `dependsOn` parents (R-REG-6).
   const refs = selects.map((/** @type {any} */ f) => ({
     field: f.name,
     catalog: f.source.catalog,
     where: f.source.where ?? {},
     activeOnly: f.source.activeOnly !== false,
-    parents: f.dependsOn ?? [],
+    parents: (f.dependsOn ?? []).filter((/** @type {any} */ p) => !transient.has(p.field)),
   }));
   // Default order (D10): fields, then refs, then unique keys.
   const steps = entry.validation ?? [

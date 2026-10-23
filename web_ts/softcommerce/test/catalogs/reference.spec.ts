@@ -173,8 +173,8 @@ describe('W2 reference catalogs are registered', () => {
 
   it('5.6b the audit covers every reference catalog', () => {
     expect(Object.keys(SCOPE).sort()).toEqual(Object.keys(ENTITIES).sort());
-    // Every other entry is Localidad (compat), a shared lookup or one of the two W1-section entries.
-    expect(REGISTRY.entries.filter((e: any) => e.scope !== 'shared' && !e.compat && !(e.slug in SCOPE)).map((e: any) => e.slug).sort()).toEqual(Object.keys(W1_SCOPE).sort());
+    // Every other entry is Localidad (compat), a read-only lookup (shared, or the per-tenant usuarios and trabajadores) or one of the two W1-section entries.
+    expect(REGISTRY.entries.filter((e: any) => !e.readOnly && !e.compat && !(e.slug in SCOPE)).map((e: any) => e.slug).sort()).toEqual(Object.keys(W1_SCOPE).sort());
   });
 
   it.each(Object.entries(REFS))('R-REG-6 %s refs its desktop source', (path, [catalog, where]) => {

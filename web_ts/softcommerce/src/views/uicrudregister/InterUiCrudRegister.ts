@@ -40,8 +40,8 @@ export interface InterUiCrudRegister {
   selectOptions: Record<string, LookupItem[]>;
   /** Options of a catalog for the given filters, for the selects that depend on other fields (G2). */
   loadOptions: (catalog: string, filters: Record<string, string>) => Promise<LookupItem[]>;
-  /** Children of a cascade parent id; '' asks for the top level. */
-  loadChildren: (parent: string) => Promise<LookupItem[]>;
+  /** Children of a cascade parent id; '' asks for the top level. The cascade `filter`, when it has one, narrows them. */
+  loadChildren: (parent: string, filter?: Record<string, string>) => Promise<LookupItem[]>;
   /** Ref callback per field name, so a blocked submit can focus the first invalid one. */
   registerField: (name: string) => (element: HTMLElement | null) => void;
   onSubmit: () => void;

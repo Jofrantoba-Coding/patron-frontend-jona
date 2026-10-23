@@ -30,7 +30,7 @@ export function typedNormalize(field: FieldConfig, value: string): string {
 /**
  * On submit: re-applies uppercase to the `uppercase` fields, trims and normalizes the registry fields with
  * the same steps as the server, never sends the server `code`, and drops the cascade levels above the leaf
- * (only the leaf id is stored). The result is the typed payload: the codec turns each boolean field into a boolean, and a hidden
+ * (only the leaf id is stored, unless the cascade is transient). The result is the typed payload: the codec turns each boolean field into a boolean, and a hidden
  * conditional field becomes `null`.
  */
 export function normalize(fields: FieldConfig[], values: FormValues): Record<string, unknown> {
@@ -42,7 +42,8 @@ export function normalize(fields: FieldConfig[], values: FormValues): Record<str
     else if (field.kind === 'text' && field.uppercase && field.name in result) result[field.name] = result[field.name].toUpperCase();
   }
   for (const field of fields) {
-    if (field.kind === 'cascade') field.levels.slice(0, -1).forEach((level) => delete result[level.name]);
+    // A transient cascade sends nothing, its leaf included (the levels are form-only: ZonaDistancia stores the zona).
+    if (field.kind === 'cascade') (field.transient ? field.levels : field.levels.slice(0, -1)).forEach((level) => delete result[level.name]);
   }
   const payload = encodeValues(fields, result);
   // A hidden conditional field is sent as `null`; the server stores an empty string (R-CRUD-13, D7).

@@ -119,6 +119,12 @@ type PlainField =
       /** Ids from the root to the leaf's parent, used to prefill the levels. */
       ancestorsOf: (leafId: string) => string[];
       required?: boolean;
+      /** The levels are form-only (ZonaDistancia): none of them is sent, the leaf included; another select may depend on the leaf (R-CRUD-12). */
+      transient?: boolean;
+      /** Where the stored leaf comes from: the record key that holds a ubigeo code, cut to its first `prefixLen` characters (the distrito). */
+      restoreFrom?: { field: string; prefixLen: number };
+      /** Sent with every level request (`{ has: 'zonas' }` keeps the ubigeos that hold an active zona). */
+      filter?: Record<string, string>;
     };
 
 /** Every kind but the code and the cascade can be conditional. */

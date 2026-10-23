@@ -177,6 +177,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                   levels={field.levels}
                   values={props.values}
                   loadChildren={props.loadChildren}
+                  filter={field.filter}
                   readOnly={props.readOnly}
                   errors={props.errors}
                   registerField={props.registerField}
