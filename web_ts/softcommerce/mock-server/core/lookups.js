@@ -1,7 +1,7 @@
 import { resolveWhere, scopeFilter } from './context.js';
 import { MockError, notFound } from './errors.js';
 import { LOOKUP_RULES } from './rules.js';
-import { ACTIVE_KEY, rowsOf, viaValue } from './validators.js';
+import { ACTIVE_KEY, existsRow, rowsOf, viaValue } from './validators.js';
 
 /**
  * Filter keys the options endpoint accepts for a target: its own ref fields, the
@@ -39,7 +39,15 @@ export function lookupOptions(store, tenantId, slug, filters = {}, ctx) {
   // A `via` filter takes the key of a row of another catalog and matches the value that row holds (SubFamilia SUNAT by familia).
   /** @type {[string, any][]} */
   const exact = [];
+  /** @type {((row: any) => boolean)[]} */
+  const tests = [];
   for (const [key, value] of Object.entries(resolveWhere(store, tenantId, filters, ctx))) {
+    // An `exists` filter keeps the rows that have a matching row in another catalog.
+    const { exists } = entry.lookupFilters?.[key] ?? {};
+    if (exists) {
+      tests.push((row) => existsRow(store, tenantId, exists, key, value, row, entry.idKey, ctx));
+      continue;
+    }
     const via = entry.lookupFilters?.[key]?.via;
     if (!via) {
       exact.push([key, value]);
@@ -52,7 +60,7 @@ export function lookupOptions(store, tenantId, slug, filters = {}, ctx) {
   }
   const items = rowsOf(store, tenantId, entry)
     .filter(scopeFilter(store, tenantId, entry, ctx))
-    .filter((/** @type {any} */ r) => r[ACTIVE_KEY] !== false && exact.every(([key, value]) => String(r[key] ?? '') === String(value)))
+    .filter((/** @type {any} */ r) => r[ACTIVE_KEY] !== false && exact.every(([key, value]) => String(r[key] ?? '') === String(value)) && tests.every((test) => test(r)))
     .map((/** @type {any} */ r) => ({ id: String(r[entry.idKey]), name: String(r[entry.optionLabel ?? 'descripcion'] ?? '') }));
   return { items };
 }

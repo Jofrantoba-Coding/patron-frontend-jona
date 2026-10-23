@@ -47,6 +47,10 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'almacenes.descripcion': [100, true],
   'almacenes.direccion': [100, true],
   'zonas.descripcion': [100, true],
+  // RegisterCorrelativo: formatJTextFieldSerie (UpperCaseNumberDocument(4)), UpperCaseNumberDocument(50) for the ticket fields.
+  'correlativos.serie': [4, true],
+  'correlativos.nro_autorizacion': [50, true],
+  'correlativos.codigo_maquina': [50, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -54,6 +58,8 @@ const INTEGERS: Record<string, [number, boolean, { min?: number; max?: number } 
   'condiciones-pago.dias_pago': [2, false, undefined],
   'turnos.hora': [2, true, { min: 0, max: 12 }],
   'turnos.minuto': [2, true, { min: 0, max: 59 }],
+  // IntegerDocument(10), focusLost pads to ten digits.
+  'correlativos.correlativo': [10, true, undefined],
 };
 
 /** Code width per slug: string ids pad to three digits (PanelTF focusLost "000"; clasif-inventarios is inferred), integer beans print unpadded. */
@@ -71,6 +77,8 @@ const CODE_WIDTH: Record<string, number> = {
   'tipos-cambio': 3, promociones: 0,
   // The almacen id is a string with no pad evidence (inferred 3, flagged for W6); the zona id is an int bean.
   almacenes: 3, zonas: 0,
+  // PanelTFCorrelativo.focusLost pads the code filter to five digits ("00000" + code).
+  correlativos: 5,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -86,6 +94,10 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   'almacenes.id_punto_venta': ['punto-venta', {}],
   'almacenes.id_ubigeo': ['ubigeo', {}],
   'zonas.id_ubigeo': ['ubigeo', {}],
+  // RegisterCorrelativo.loadTipoDocumento lists the tipos with estado A; loadLocalidad passes the session empresa; the punto de venta follows the localidad.
+  'correlativos.id_tipo_doc': ['tipos-doc-venta', {}],
+  'correlativos.id_localidad': ['localidades', { id_empresa: '$session.empresa' }],
+  'correlativos.id_punto_venta': ['punto-venta', {}],
 };
 
 /**
@@ -105,6 +117,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   // DAOAlmacen.listar takes the session empresa (PanelTFAlmacen) and insertar/modificar pass it (RegisterAlmacen.txtCodEmpresa) with the user;
   // DAOZona.listar(0, "") and mantZona(zona, op) see only the user (zona.getId_usuario).
   almacenes: 'empresa', zonas: 'tenant',
+  // DAOCorrelativo.listar(id, pv, tipo, estado) takes no empresa and mantCorrelativo passes only the user.
+  correlativos: 'tenant',
 };
 /**
  * The entries over the W1 sections (empresa, punto-venta; no seed file, so no generic table rows): `DAOEmpresa.listar("")` passes no empresa
@@ -167,6 +181,26 @@ describe('W2 reference catalogs are registered', () => {
 
   it('R-REF-7 tipos-cambio keys uniqueness on (empresa, fecha, moneda) and reports it on fecha', () => {
     expect(REGISTRY.bySlug.get('tipos-cambio').unique).toMatchObject([{ fields: ['fecha', 'id_moneda'], includeEmpresa: true, errorField: 'fecha' }]);
+  });
+
+  it('R-REF-8 / S-REG-17 correlativos declares the desktop order: the unique key sits before the ticket fields', () => {
+    const entry = REGISTRY.bySlug.get('correlativos');
+    expect(entry.validation).toEqual(['id_tipo_doc', 'serie', 'correlativo', 'estado', 'id_localidad', 'id_punto_venta', { unique: 0 }, 'nro_autorizacion', 'codigo_maquina']);
+    expect(entry.unique).toMatchObject([{ fields: ['id_punto_venta', 'id_tipo_doc', 'serie'], errorField: 'serie', message: 'Ya existe una asignacion de la serie al mismo tipo de documento, por favor digite otra serie.' }]);
+  });
+
+  it('R-REF-8 the ticket fields are visible and required only for the tipo TI', () => {
+    const fields = REGISTRY.bySlug.get('correlativos').fields.filter((f: any) => ['nro_autorizacion', 'codigo_maquina'].includes(f.name));
+    expect(fields.map((f: any) => [f.visibleWhen, f.requiredWhen, f.required])).toEqual([
+      [{ field: 'id_tipo_doc', in: ['TI'] }, { field: 'id_tipo_doc', in: ['TI'] }, undefined],
+      [{ field: 'id_tipo_doc', in: ['TI'] }, { field: 'id_tipo_doc', in: ['TI'] }, undefined],
+    ]);
+  });
+
+  it('R-REF-9 the hidden constants and the derived linea_impresion are declared on the entry', () => {
+    const entry = REGISTRY.bySlug.get('correlativos');
+    expect(entry.constants).toEqual({ num_inicial: '0000000001', num_final: '9999999999', flag_cond_pago: 'N' });
+    expect(entry.derive).toEqual([{ target: 'linea_impresion', when: { field: 'imprime', in: ['S'] }, then: 12, else: 0 }]);
   });
 
   it('S-REG-6 every one of them seeds demo only: botica starts empty', () => {

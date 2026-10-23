@@ -231,6 +231,11 @@ function resolveEntry(raw, slugs, sources) {
   for (const { name } of entry.rules ?? []) rule(name, ENTRY_RULES);
   for (const filter of Object.values(entry.lookupFilters ?? {})) {
     if (filter.rule) rule(filter.rule, FILTER_RULES);
+    // `exists` (R-MOCK-16): the catalog must exist; its fields are checked once every entry is resolved.
+    if (filter.exists) {
+      if (!filter.exists.catalog || !filter.exists.local) fail(where, 'exists needs a catalog and a local field');
+      if (!slugs.has(filter.exists.catalog)) fail(where, `lookupFilters names unknown catalog "${filter.exists.catalog}"`);
+    }
     // `via` (R-MOCK-16): the filter value is a row of `via.catalog`; `via.key` is read from it and matched against this entry's `via.as`.
     if (filter.via) {
       if (!slugs.has(filter.via.catalog)) fail(where, `lookupFilters names unknown catalog "${filter.via.catalog}"`);
@@ -291,6 +296,14 @@ export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {})
     for (const { via } of Object.values(entry.lookupFilters ?? {}).filter((/** @type {any} */ f) => f.via)) {
       const target = entries.find((e) => e.slug === via.catalog);
       if (!target.fields.some((/** @type {any} */ f) => f.name === via.key)) fail(`entry "${entry.slug}"`, `lookupFilters names unknown field "${via.key}" of "${via.catalog}"`);
+    }
+  }
+  for (const entry of entries) {
+    for (const [key, { exists }] of Object.entries(entry.lookupFilters ?? {}).filter(([, f]) => /** @type {any} */ (f).exists)) {
+      const target = entries.find((e) => e.slug === exists.catalog);
+      for (const name of [exists.local, exists.key ?? key, ...Object.keys(exists.where ?? {})]) {
+        if (!target.fields.some((/** @type {any} */ f) => f.name === name)) fail(`entry "${entry.slug}"`, `lookupFilters names unknown field "${name}" of "${exists.catalog}"`);
+      }
     }
   }
   return { entries, bySlug: /** @type {Map<string, any>} */ (new Map(entries.map((e) => [e.slug, e]))), sources };

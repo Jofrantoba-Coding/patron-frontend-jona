@@ -28,5 +28,6 @@
   "mi_principal": { "add": false, "modify": true, "eliminate": false, "nullify": false, "clone": false, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "mi_puntoventa": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "mi_almacen": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
-  "miZona": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true }
+  "miZona": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "PanelTFCorrelativo": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true }
 }

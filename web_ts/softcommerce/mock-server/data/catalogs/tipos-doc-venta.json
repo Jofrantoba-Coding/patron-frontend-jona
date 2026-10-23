@@ -1,0 +1,9 @@
+[
+  { "id_tipo_doc": "01", "descripcion": "FACTURA", "abreviatura": "FAC", "activo": true },
+  { "id_tipo_doc": "03", "descripcion": "BOLETA DE VENTA", "abreviatura": "BOL", "activo": true },
+  { "id_tipo_doc": "TI", "descripcion": "TICKET", "abreviatura": "TIC", "activo": true },
+  { "id_tipo_doc": "07", "descripcion": "NOTA DE CREDITO", "abreviatura": "NCR", "activo": true },
+  { "id_tipo_doc": "08", "descripcion": "NOTA DE DEBITO", "abreviatura": "NDB", "activo": true },
+  { "id_tipo_doc": "09", "descripcion": "GUIA DE REMISION REMITENTE", "abreviatura": "GRR", "activo": true },
+  { "id_tipo_doc": "NI", "descripcion": "NOTA DE INGRESO", "abreviatura": "NIN", "activo": false }
+]
