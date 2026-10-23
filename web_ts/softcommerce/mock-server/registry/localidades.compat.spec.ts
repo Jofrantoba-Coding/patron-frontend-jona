@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { localidadConfig } from '../../src/catalogs/localidad/localidad.config';
+import { findDrift } from '../../test/catalogs/drift';
 import { createRecord } from '../core/catalog.js';
 import { createStore } from '../core/store.js';
 import { readSeed } from '../core/test-helpers.js';
@@ -13,21 +14,7 @@ const VALID: Record<string, Record<string, string>> = {
 
 type Entry = (typeof REGISTRY.entries)[number];
 
-/** Drift between the registry entry and the UI config of the same catalog (R-REG-3). */
-function uiDrift(entry: Entry, config: typeof localidadConfig): string[] {
-  const drift: string[] = [];
-  const at = (field: string, what: string) => drift.push(`${entry.slug}.${field}: ${what}`);
-  if (config.catalog !== entry.slug || config.idKey !== entry.idKey) at('(entry)', 'catalog or idKey differ');
-  if (config.formId !== entry.formId) at('(entry)', `formId ${entry.formId} != ${config.formId}`);
-  if (config.columns.map((c) => c.key).join() !== entry.columns.map((c: any) => c.key).join()) at('(columns)', 'column keys differ');
-  for (const field of entry.fields) {
-    const ui: any = config.fields.find((f) => f.name === field.name);
-    if (!ui) { at(field.name, 'missing in the UI config'); continue; }
-    if (Boolean(ui.required) !== Boolean(field.required)) at(field.name, `required ${field.required} != UI ${ui.required}`);
-    if (field.kind === 'text' && ui.maxLength !== field.max) at(field.name, `max ${field.max} != UI maxLength ${ui.maxLength}`);
-  }
-  return drift;
-}
+const uiDrift = (entry: Entry, config: typeof localidadConfig) => findDrift(config, entry);
 
 const rejects = (entry: Entry, body: Record<string, string>) => {
   try {
@@ -57,7 +44,8 @@ describe('S-REG-19 Localidad compat entry', () => {
   });
 });
 
-describe.each(REGISTRY.entries)('R-REG-3 consistency of $slug', (entry) => {
+// Only Localidad keeps a hand-written UI config; the other entries derive theirs (src/catalogs/registry.spec.ts).
+describe.each(REGISTRY.entries.filter((e) => e.compat))('R-REG-3 consistency of $slug', (entry) => {
   const serverOptional: string[] = entry.compat?.serverOptional ?? [];
   const valid = VALID[entry.slug];
 

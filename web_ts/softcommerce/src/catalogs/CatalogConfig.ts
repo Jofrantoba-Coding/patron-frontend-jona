@@ -1,8 +1,24 @@
+import type { CatalogDef } from '../../mock-server/registry/schema.js';
+
 /** Toolbar actions a catalog can expose; each maps to the permission flag of the same name. */
 export type CrudAction = 'add' | 'modify' | 'eliminate' | 'clone' | 'details' | 'search' | 'refresh' | 'export';
 
+/** The five register modes; a catalog may support a subset (R-REG-10). */
+export type CrudMode = 'INSERT' | 'UPDATE' | 'DELETE' | 'CLONE' | 'DETAIL';
+
 export type FieldConfig =
-  | { kind: 'text'; name: string; label: string; required?: boolean; maxLength?: number; uppercase?: boolean }
+  /** The server-generated code: read-only, never part of a payload (R-CRUD-14). */
+  | { kind: 'code'; name: string; label: string }
+  | {
+      kind: 'text';
+      name: string;
+      label: string;
+      required?: boolean;
+      maxLength?: number;
+      uppercase?: boolean;
+      /** Registry `normalize` steps, applied (after a trim) to the payload; absent for the W1 configs. */
+      normalize?: string[];
+    }
   | { kind: 'select'; name: string; label: string; required?: boolean; lookup: 'empresas' }
   | {
       kind: 'cascade';
@@ -25,4 +41,8 @@ export interface CatalogConfig<T> {
   fields: FieldConfig[];
   /** Toolbar order; defaults to every action but `export`. */
   actions?: CrudAction[];
+  /** Supported modes; absent means all five. Unsupported toolbar actions are not rendered (R-CRUD-16). */
+  modes?: readonly CrudMode[];
+  /** The registry entry this config derives from; it drives the declared validation order and messages. */
+  entry?: CatalogDef;
 }

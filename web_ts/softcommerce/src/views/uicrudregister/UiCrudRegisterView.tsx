@@ -36,7 +36,15 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
           )}
           {status === 'ready' &&
             props.fields.map((field) =>
-              field.kind === 'text' ? (
+              field.kind === 'code' ? (
+                // The server issues the code: shown read-only once the record exists, never in INSERT or CLONE.
+                mode !== 'INSERT' && mode !== 'CLONE' && (
+                  <label key={field.name} style={{ display: 'grid', gap: 4 }}>
+                    <span>{field.label}</span>
+                    <UppercaseTextField value={props.values[field.name]} readOnly onChange={() => undefined} />
+                  </label>
+                )
+              ) : field.kind === 'text' ? (
                 <div key={field.name}>
                   <label style={{ display: 'grid', gap: 4 }}>
                     <span>{field.label}</span>

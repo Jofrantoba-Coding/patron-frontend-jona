@@ -24,7 +24,7 @@ type Load = { status: 'loading' } | { status: 'ready' } | { status: 'failed'; me
 const fieldNames = (fields: FieldConfig[]) => fields.flatMap((f) => (f.kind === 'cascade' ? f.levels.map((l) => l.name) : [f.name]));
 const blank = (fields: FieldConfig[]): FormValues => Object.fromEntries(fieldNames(fields).map((name) => [name, '']));
 
-function fromRecord(fields: FieldConfig[], record: unknown): FormValues {
+function fromRecord(fields: FieldConfig[], record: unknown, mode: RegisterMode): FormValues {
   const source = record as Record<string, unknown>;
   const values = Object.fromEntries(fieldNames(fields).map((name) => [name, String(source[name] ?? '')]));
   // A cascade stores only its leaf; the levels above come from the leaf's ancestors.
@@ -34,6 +34,8 @@ function fromRecord(fields: FieldConfig[], record: unknown): FormValues {
     const ids = leaf ? [...field.ancestorsOf(leaf), leaf] : [];
     field.levels.forEach((level, index) => (values[level.name] = ids[index] ?? ''));
   }
+  // A clone is a new record: the server issues its code (R-CRUD-14).
+  if (mode === 'CLONE') for (const field of fields) if (field.kind === 'code') values[field.name] = '';
   return values;
 }
 
@@ -75,7 +77,7 @@ export function useUiCrudRegisterImpl<T>(
         if (!active) return;
         setSelectOptions(options);
         if (record) {
-          baseline.current = fromRecord(config.fields, record);
+          baseline.current = fromRecord(config.fields, record, mode);
           setValues(baseline.current);
         }
         setLoad({ status: 'ready' });
