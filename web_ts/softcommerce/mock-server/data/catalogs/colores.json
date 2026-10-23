@@ -3,17 +3,26 @@
     {
       "id_color": "001",
       "descripcion": "ROJO",
-      "activo": true
+      "activo": true,
+      "id_empresa": "1"
     },
     {
       "id_color": "002",
       "descripcion": "AZUL",
-      "activo": true
+      "activo": true,
+      "id_empresa": "1"
     },
     {
       "id_color": "003",
       "descripcion": "VERDE",
-      "activo": false
+      "activo": false,
+      "id_empresa": "1"
+    },
+    {
+      "id_color": "004",
+      "descripcion": "NEGRO",
+      "id_empresa": "2",
+      "activo": true
     }
   ]
 }

@@ -24,5 +24,7 @@
   { "id_menu": 23, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Turno", "nombre": "miTurno" },
   { "id_menu": 24, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Motivo Descuento", "nombre": "miMotivoDescuento" },
   { "id_menu": 25, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Motivo de Nota de Credito", "nombre": "miMotivoNotaCredito" },
-  { "id_menu": 26, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo Trabajador Perfil", "nombre": "miTipoTrabajadorPerfil" }
+  { "id_menu": 26, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Tipo Trabajador Perfil", "nombre": "miTipoTrabajadorPerfil" },
+  { "id_menu": 27, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Familia", "nombre": "miFamilia" },
+  { "id_menu": 28, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Modelo Vehiculo", "nombre": "miModeloVehiculo" }
 ]

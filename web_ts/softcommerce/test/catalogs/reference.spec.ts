@@ -39,6 +39,8 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'motivos-descuento.abrev': [5, true],
   'motivos-nc.descripcion': [100, true],
   'tipos-trabajador-perfil.descripcion': [100, true],
+  'familias.descripcion': [100, true],
+  'modelos-vehiculo.descripcion': [100, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -55,15 +57,40 @@ const CODE_WIDTH: Record<string, number> = {
   'condiciones-pago': 3, 'tipos-trabajador': 3, 'marcas-vehiculo': 3, turnos: 0,
   // The motivo de descuento and perfil ids are int beans; the motivo de nota de credito pads to three (PanelTFMotivoNC focusLost "000").
   'motivos-descuento': 0, 'motivos-nc': 3, 'tipos-trabajador-perfil': 0,
+  // PanelTFFamilia pads to three; the modelo id has no pad evidence (inferred, flagged for W6).
+  familias: 3, 'modelos-vehiculo': 3,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
 const REFS: Record<string, [string, Record<string, unknown>]> = {
   'motivos-descuento.id_tipo_descuento': ['tipos-descuento', {}],
   'tipos-trabajador-perfil.id_tipo_trabajador': ['tipos-trabajador', { estado: true }],
+  'familias.id_familia_sunat': ['familias-sunat', {}],
+};
+
+/**
+ * Empresa-scope audit (5.6b), read from each `DAO<X>.java`: `empresa` when the list and the writes take the session empresa
+ * (colores, marcas, familias), `stamp` when only the writes do (tamanos, marcas-vehiculo, modelos-vehiculo: their desktop list
+ * passes '' or null), `tenant` when the DAO never sees an empresa.
+ */
+const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
+  aduanas: 'tenant', colores: 'empresa', 'estados-documento': 'tenant', laboratorios: 'tenant', marcas: 'empresa', nacionalidades: 'tenant',
+  'motivos-traslado': 'tenant', 'clasif-clientes': 'tenant', 'clasif-inventarios': 'tenant', tamanos: 'stamp', 'tipos-anexo': 'tenant',
+  'tipos-descuento': 'tenant', 'condiciones-pago': 'tenant', 'tipos-trabajador': 'tenant', 'marcas-vehiculo': 'stamp', turnos: 'tenant',
+  'motivos-descuento': 'tenant', 'motivos-nc': 'tenant', 'tipos-trabajador-perfil': 'tenant', familias: 'empresa', 'modelos-vehiculo': 'stamp',
 };
 
 describe('W2 reference catalogs are registered', () => {
+  it.each(Object.entries(SCOPE))('5.6b %s keeps its audited empresa scope', (slug, scope) => {
+    const entry = REGISTRY.bySlug.get(slug);
+    const decided = entry.scope === 'empresa' ? 'empresa' : (entry.stamp ?? []).includes('id_empresa') ? 'stamp' : 'tenant';
+    expect(decided).toBe(scope);
+  });
+
+  it('5.6b the audit covers every reference catalog', () => {
+    expect(Object.keys(SCOPE).sort()).toEqual(Object.keys(ENTITIES).sort());
+  });
+
   it.each(Object.entries(REFS))('R-REG-6 %s refs its desktop source', (path, [catalog, where]) => {
     const [slug, name] = path.split('.');
     const ref = REGISTRY.bySlug.get(slug).refs.find((r: any) => r.field === name);

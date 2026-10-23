@@ -4,11 +4,13 @@ import { clasifInventarios } from './catalogs/clasif-inventarios.js';
 import { colores } from './catalogs/colores.js';
 import { condicionesPago } from './catalogs/condiciones-pago.js';
 import { estadosDocumento } from './catalogs/estados-documento.js';
+import { familias } from './catalogs/familias.js';
 import { familiasSunat } from './catalogs/familias-sunat.js';
 import { laboratorios } from './catalogs/laboratorios.js';
 import { localidades } from './catalogs/localidades.js';
 import { marcas } from './catalogs/marcas.js';
 import { marcasVehiculo } from './catalogs/marcas-vehiculo.js';
+import { modelosVehiculo } from './catalogs/modelos-vehiculo.js';
 import { motivosDescuento } from './catalogs/motivos-descuento.js';
 import { motivosNc } from './catalogs/motivos-nc.js';
 import { motivosTraslado } from './catalogs/motivos-traslado.js';
@@ -27,5 +29,5 @@ import { validateRegistry } from './schema.js';
  */
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
-  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil,
+  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo,
 ]);
