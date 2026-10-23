@@ -33,6 +33,14 @@ const MONEDAS = [{ id: '00001', name: 'SOLES' }, { id: '00004', name: 'DOLAR AME
 const TIPOS = { '01': 'FACTURA', '03': 'BOLETA DE VENTA', TI: 'TICKET', '07': 'NOTA DE CREDITO', '08': 'NOTA DE DEBITO', '09': 'GUIA DE REMISION REMITENTE' };
 const TIPOS_ITEMS = Object.entries(TIPOS).map(([id, name]) => ({ id, name }));
 const TDV = 'tipos-doc-venta';
+// tablas-sunat / tablas-detalle-sunat (RegisterUnidadMedida.loadTablaSunat, loadTablaDetalleSunat; R-REF-11): the tabla shows as `nombre - descripcion`, its detail as the description.
+const TS = 'tablas-sunat';
+const TD = 'tablas-detalle-sunat';
+const TABLAS = [
+  [1, 'TABLA 1 - TIPO DE COMPROBANTE DE PAGO O DOCUMENTO'], [2, 'TABLA 2 - TIPO DE MONEDA'], [3, 'TABLA 3 - TIPO DE DOCUMENTO DE IDENTIDAD'], [4, 'TABLA 4 - MEDIOS DE PAGO'],
+  [5, 'TABLA 5 - TIPO DE EXISTENCIA'], [6, 'TABLA 6 - UNIDAD DE MEDIDA'], [12, 'TABLA 12 - TIPO DE OPERACION'],
+].map(([id, name]) => ({ id: String(id), name: String(name) }));
+const UNIDADES = ['UNIDAD (BIENES)', 'KILOGRAMO', 'LITRO', 'METRO', 'UNIDAD (SERVICIOS)', 'CAJA'];
 const LOOKUP_CASES: CatalogCase[] = [
   { name: 'familias-sunat S-REG-14 create is 405 METHOD_NOT_ALLOWED', slug: 'familias-sunat', steps: [{ op: 'create', body: { descripcion: 'X' } }], expect: notAllowed },
   { name: 'familias-sunat S-REG-14 update is 405 METHOD_NOT_ALLOWED', slug: 'familias-sunat', steps: [{ op: 'update', id: '5010', body: { descripcion: 'X' } }], expect: notAllowed },
@@ -65,6 +73,21 @@ const LOOKUP_CASES: CatalogCase[] = [
   { name: `${TDV} S-MOCK-30 exists: punto de venta 2 offers its own factura only`, slug: TDV, steps: [{ op: 'options', filters: { id_punto_venta: '2' } }], expect: { ok: true, items: [{ id: '01', name: 'FACTURA' }] } },
   { name: `${TDV} S-MOCK-30 exists: a deleted correlativo does not count`, slug: TDV, steps: [{ op: 'options', filters: { id_punto_venta: '3' } }], expect: { ok: true, items: [] } },
   { name: `${TDV} S-MOCK-30 exists: an unknown punto de venta has no options, not an error`, slug: TDV, steps: [{ op: 'options', filters: { id_punto_venta: 'zzz' } }], expect: { ok: true, items: [] } },
+  { name: `${TS} S-MOCK-29 create is 405 METHOD_NOT_ALLOWED`, slug: TS, steps: [{ op: 'create', body: { nombre: 'X', descripcion: 'X' } }], expect: notAllowed },
+  { name: `${TS} S-MOCK-29 update is 405 METHOD_NOT_ALLOWED`, slug: TS, steps: [{ op: 'update', id: '6', body: { nombre: 'X' } }], expect: notAllowed },
+  { name: `${TS} S-MOCK-29 remove is 405 METHOD_NOT_ALLOWED`, slug: TS, steps: [{ op: 'remove', id: '6' }], expect: notAllowed },
+  { name: `${TS} S-REF-35 lists the seven active rows without any session context`, slug: TS, steps: [{ op: 'list' }], expect: { ok: true, total: 7 } },
+  { name: `${TS} S-MOCK-15 get resolves a retired row`, slug: TS, steps: [{ op: 'get', id: '99' }], expect: { ok: true, match: { activo: false } } },
+  { name: `${TS} R-REF-11 the options show nombre - descripcion with the numeric id`, slug: TS, steps: [{ op: 'options' }], expect: { ok: true, items: TABLAS } },
+  { name: `${TD} S-MOCK-29 create is 405 METHOD_NOT_ALLOWED`, slug: TD, steps: [{ op: 'create', body: { descripcion: 'X' } }], expect: notAllowed },
+  { name: `${TD} S-MOCK-29 update is 405 METHOD_NOT_ALLOWED`, slug: TD, steps: [{ op: 'update', id: '4', body: { descripcion: 'X' } }], expect: notAllowed },
+  { name: `${TD} S-MOCK-29 remove is 405 and the row stays`, slug: TD, steps: [{ op: 'remove', id: '4' }], expect: notAllowed },
+  { name: `${TD} S-REF-35 lists the fourteen active rows without any session context`, slug: TD, steps: [{ op: 'list' }], expect: { ok: true, total: 14 } },
+  { name: `${TD} S-MOCK-29 ?id_tabla_sunat=6 returns only the detail rows of that tabla`, slug: TD, steps: [{ op: 'list', filters: { id_tabla_sunat: '6' } }], expect: { ok: true, total: 6, match: { items: UNIDADES.map((descripcion) => ({ id_tabla_sunat: '6', descripcion })) } } },
+  { name: `${TD} S-MOCK-15 get resolves a retired row and joins its tabla`, slug: TD, steps: [{ op: 'get', id: '15' }], expect: { ok: true, match: { activo: false, tabla_sunat: 'TABLA 6' } } },
+  { name: `${TD} options of tabla 6 are its units, named by the description`, slug: TD, steps: [{ op: 'options', filters: { id_tabla_sunat: '6' } }], expect: { ok: true, items: UNIDADES.map((name, i) => ({ id: String(i + 4), name })) } },
+  { name: `${TD} S-REF-23 tabla 1 has no detail and never returns those of tabla 12 (exact match)`, slug: TD, steps: [{ op: 'options', filters: { id_tabla_sunat: '1' } }], expect: { ok: true, items: [] } },
+  { name: `${TD} S-MOCK-30 an unknown tabla has no options, not an error`, slug: TD, steps: [{ op: 'options', filters: { id_tabla_sunat: 'zzz' } }], expect: { ok: true, items: [] } },
   { name: `${SUBS} S-MOCK-30 via: an unknown familia has no options, not an error`, slug: SUBS, steps: [{ op: 'options', filters: { id_familia: '999' } }], expect: { ok: true, items: [] } },
 ];
 
@@ -169,6 +192,32 @@ describe('S-REG-18 a shared lookup is one global dataset', () => {
     const store = createStore(seed);
     expect(listCatalog(store, 'demo', TDV).items).toEqual(listCatalog(store, 'botica', TDV).items);
     expect(listCatalog(store, 'botica', TDV).items.map((r: any) => r.id_tipo_doc)).toEqual(expect.arrayContaining(['TI', '01', '03']));
+  });
+
+  it('tablas-sunat and tablas-detalle-sunat are declared shared and read-only, with no screen of their own and unpadded numeric ids', () => {
+    for (const slug of [TS, TD]) {
+      const entry = REGISTRY.bySlug.get(slug);
+      expect([entry.scope, entry.readOnly, entry.formId, entry.menu, entry.codeWidth, Array.isArray(seed[slug])]).toEqual(['shared', true, undefined, undefined, 0, true]);
+    }
+    expect(REGISTRY.bySlug.get(TS).optionLabel).toEqual(['nombre', 'descripcion']);
+    expect(REGISTRY.bySlug.get(TD).refs.map((r: any) => [r.field, r.catalog])).toEqual([['id_tabla_sunat', TS]]);
+  });
+
+  it('R-REF-11 at least six tablas are seeded and the 6th is the units table, with its id asserted (UnidadMedida starts on it)', () => {
+    expect(seed[TS].length).toBeGreaterThanOrEqual(6);
+    expect(seed[TS][5]).toMatchObject({ id_tabla_sunat: '6', nombre: 'TABLA 6', descripcion: 'UNIDAD DE MEDIDA' });
+  });
+
+  it('every detail row belongs to a seeded tabla, and the units table has detail rows', () => {
+    const ids = new Set(seed[TS].map((r: any) => r.id_tabla_sunat));
+    expect(seed[TD].every((r: any) => ids.has(r.id_tabla_sunat))).toBe(true);
+    expect(seed[TD].filter((r: any) => r.id_tabla_sunat === '6' && r.activo !== false).length).toBeGreaterThan(0);
+  });
+
+  it('every tenant sees the same tablas and the same detail rows', () => {
+    const store = createStore(seed);
+    for (const slug of [TS, TD]) expect(listCatalog(store, 'demo', slug).items).toEqual(listCatalog(store, 'botica', slug).items);
+    expect(listCatalog(store, 'botica', TS).items).toHaveLength(7);
   });
 
   it('every tenant sees the same rows', () => {

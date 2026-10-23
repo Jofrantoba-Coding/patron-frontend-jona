@@ -21,6 +21,12 @@ function acceptedKeys(store, target) {
 }
 
 /**
+ * The option name of a row: the `optionLabel` field, or several joined with " - " (an empty one is left out).
+ * @param {any} entry @param {any} row
+ */
+const labelOf = (entry, row) => [entry.optionLabel ?? 'descripcion'].flat().map((name) => String(row[name] ?? '')).filter(Boolean).join(' - ');
+
+/**
  * Options of a registry catalog for a select (R-MOCK-16): active rows only, each
  * filter an EXACT match (`"1"` never matches `"10"`), named by `optionLabel`. A
  * filter value of `$session.empresa` is the session empresa. Unknown values give
@@ -61,6 +67,6 @@ export function lookupOptions(store, tenantId, slug, filters = {}, ctx) {
   const items = rowsOf(store, tenantId, entry)
     .filter(scopeFilter(store, tenantId, entry, ctx))
     .filter((/** @type {any} */ r) => r[ACTIVE_KEY] !== false && exact.every(([key, value]) => String(r[key] ?? '') === String(value)) && tests.every((test) => test(r)))
-    .map((/** @type {any} */ r) => ({ id: String(r[entry.idKey]), name: String(r[entry.optionLabel ?? 'descripcion'] ?? '') }));
+    .map((/** @type {any} */ r) => ({ id: String(r[entry.idKey]), name: labelOf(entry, r) }));
   return { items };
 }
