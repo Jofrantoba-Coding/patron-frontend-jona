@@ -135,6 +135,8 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                     load={(filters) => props.loadOptions(field.source!.catalog, { ...field.source!.where, ...filters })}
                     readOnly={props.isFieldReadOnly(field.name)}
                     hasError={Boolean(props.errors[field.name])}
+                    defaultOption={field.defaultOption}
+                    onDefault={(value) => props.onFieldDefault(field.name, value)}
                     onChange={(value) => props.onFieldChange(field.name, value)}
                   />
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}

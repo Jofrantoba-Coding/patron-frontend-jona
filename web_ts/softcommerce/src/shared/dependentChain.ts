@@ -19,6 +19,8 @@ export interface ChainNode {
   parents: ChainParent[];
   /** Plain fields (not selects) that are emptied when this one changes. */
   clearsOnChange?: string[];
+  /** `first`: after each load the first option is reported through `onDefault` (S-CRUD-41). */
+  defaultOption?: 'first';
 }
 
 export type ChainLoader = (name: string, filters: Record<string, string>) => Promise<ChainOption[]>;
@@ -52,7 +54,10 @@ export function fieldsToClear(nodes: ChainNode[], name: string): string[] {
   return cleared;
 }
 
-export function createDependentChain(nodes: ChainNode[], load: ChainLoader, onUpdate: () => void): DependentChain {
+/** Reports the option a `defaultOption` node should hold after a load: its first id, or '' when the load returned none. */
+export type ChainDefault = (name: string, id: string) => void;
+
+export function createDependentChain(nodes: ChainNode[], load: ChainLoader, onUpdate: () => void, onDefault?: ChainDefault): DependentChain {
   type State = { options: ChainOption[]; failed: boolean; parents?: string; token: number };
   const states = new Map<string, State>(nodes.map((node) => [node.name, { options: [], failed: false, token: 0 }]));
   const nodeOf = (name: string) => nodes.find((node) => node.name === name)!;
@@ -74,8 +79,14 @@ export function createDependentChain(nodes: ChainNode[], load: ChainLoader, onUp
       state.failed = failed;
       onUpdate();
     };
+    // Only a successful load picks a default: a blocked or failed node holds no options and its value is already cleared.
+    const loaded = (options: ChainOption[]) => {
+      if (state.token !== token) return;
+      apply(options, false);
+      if (nodeOf(name).defaultOption === 'first') onDefault?.(name, options[0]?.id ?? '');
+    };
     if (blocked(name, values)) apply([], false);
-    else load(name, filtersOf(nodeOf(name), values)).then((options) => apply(options, false), () => apply([], true));
+    else load(name, filtersOf(nodeOf(name), values)).then(loaded, () => apply([], true));
   };
 
   return {

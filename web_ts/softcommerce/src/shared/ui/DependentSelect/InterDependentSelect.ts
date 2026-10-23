@@ -17,6 +17,10 @@ export interface InterDependentSelect {
   hasError?: boolean;
   /** Value-first: the chosen id, no DOM event. */
   onChange: (value: string) => void;
+  /** `first` selects the first option after each load (S-CRUD-41); it never touches a read-only select. */
+  defaultOption?: 'first';
+  /** Value-first: the id the select picked by itself (the first option, or '' when the load returned none); `onChange` when absent. */
+  onDefault?: (value: string) => void;
 }
 
 /** Presentation defaults only; values and options are state and never defaulted. */

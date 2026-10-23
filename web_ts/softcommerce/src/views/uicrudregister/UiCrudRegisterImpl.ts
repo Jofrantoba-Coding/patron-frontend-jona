@@ -142,6 +142,15 @@ export function useUiCrudRegisterImpl<T>(
     }
   }
 
+  const edit = (name: string, value: string) => {
+    // A parent change empties the selects below it (G2), `clearsOnChange` its named fields and a field that just hid
+    // (R-CRUD-13); their own errors go with them.
+    const changed = changeField(config.fields, valuesRef.current, name, value, fieldsToClear(chainOf(config.fields), name));
+    valuesRef.current = changed.values;
+    setValues(changed.values);
+    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !changed.cleared.includes(key))));
+  };
+
   return {
     title: config.title,
     mode,
@@ -171,13 +180,11 @@ export function useUiCrudRegisterImpl<T>(
     registerField: (name) => (element) => {
       fieldRefs.current[name] = element;
     },
-    onFieldChange: (name, value) => {
-      // A parent change empties the selects below it (G2), `clearsOnChange` its named fields and a field that just hid
-      // (R-CRUD-13); their own errors go with them.
-      const changed = changeField(config.fields, valuesRef.current, name, value, fieldsToClear(chainOf(config.fields), name));
-      valuesRef.current = changed.values;
-      setValues(changed.values);
-      setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !changed.cleared.includes(key))));
+    onFieldChange: edit,
+    onFieldDefault: (name, value) => {
+      // A select that picked its own option (S-CRUD-41) is not an edit: the pristine form keeps the pick as its baseline.
+      baseline.current = { ...baseline.current, [name]: value };
+      edit(name, value);
     },
     onFieldBlur: (name) => {
       const field = config.fields.find((f) => f.name === name);

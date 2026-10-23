@@ -196,6 +196,12 @@ function resolveEntry(raw, slugs, sources) {
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
     for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
     for (const parent of f.dependsOn ?? []) known(`field "${f.name}" dependsOn`, parent.field);
+    // `defaultOption` (S-CRUD-41) selects the first option after each load, so it only means something on a select that loads from a parent.
+    if (f.defaultOption !== undefined) {
+      if (f.kind !== 'select') fail(at, 'defaultOption needs a select field');
+      if (f.defaultOption !== 'first') fail(at, 'defaultOption must be "first"');
+      if (!f.dependsOn?.length) fail(at, 'defaultOption needs a dependsOn parent');
+    }
     for (const key of CONDITIONS) {
       if (!f[key]) continue;
       if (typeof f[key].field !== 'string' || !Array.isArray(f[key].in)) fail(at, `${key} needs a condition { field, in }`);

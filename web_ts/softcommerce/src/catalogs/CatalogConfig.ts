@@ -107,6 +107,8 @@ type PlainField =
       readOnlyOn?: readonly CrudMode[];
       /** Parent fields (G2): the options are asked with their values as `filterKey` and the select clears when one changes. */
       dependsOn?: { field: string; filterKey: string }[];
+      /** `first` selects the first option after each load or parent change (S-CRUD-41). */
+      defaultOption?: 'first';
     }
   | {
       kind: 'cascade';
