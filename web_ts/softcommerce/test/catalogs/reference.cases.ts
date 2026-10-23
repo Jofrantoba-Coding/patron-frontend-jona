@@ -38,13 +38,16 @@ export const ENTITIES: Record<string, string> = {
   zonas: 'una Zona',
   correlativos: 'un Correlativo',
   ubicaciones: 'una Ubicación',
+  'tipos-mov-inventario': 'un Tipo de Movimiento de Inventario',
+  'unidades-medida': 'una Unidad de Medida',
+  vehiculos: 'un Vehiculo',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
-const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo']);
+const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo', 'vehiculos']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción', almacenes: 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto, the Tipo de Cambio its fecha and moneda). */
-export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones']);
+export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones', 'vehiculos']);
 /** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
 /** The Almacen checks its localidad and punto de venta before the descripcion (RegisterAlmacen.isRegisterValid). */
 export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias', 'almacenes']);
@@ -103,7 +106,7 @@ const refId = (field: any, empresa: string | undefined, chosen: Record<string, s
 
 /** The required selects of an entry filled in declared order, each child with an id of the parent chosen before it. */
 const refsFor = (entry: any, empresa?: string): Record<string, string> => {
-  const chosen: Record<string, string> = {};
+  const chosen: Record<string, string> = Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value]));
   for (const f of entry.fields.filter((f: any) => f.kind === 'select' && f.required)) chosen[f.name] = refId(f, empresa, chosen);
   return chosen;
 };
@@ -222,6 +225,8 @@ const montoText = (modo: string, label: string) => `Para ${modo} un Tipo de Camb
 const AMOUNTS = { monto_compra: 1, monto_venta: 1, monto_comercial: 1, monto_especial: 1 };
 
 const UBICACION_TEXT = { id_localidad: 'Seleccione Localidad', id_punto_venta: 'Seleccione Punto de Venta', id_almacen: 'Seleccione Almacen', descripcion: 'Ingrese Descripcion' };
+
+const TIPO_MOV = 'un Tipo de Movimiento de Inventario';
 
 const CORRELATIVO_DUPLICATE = 'Ya existe una asignacion de la serie al mismo tipo de documento, por favor digite otra serie.';
 
@@ -354,7 +359,88 @@ const BASE_CASES: CatalogCase[] = [
   ...correlativoCases(),
   // R-REF-6 ubicaciones (S-REF-30): literal messages, localidad > punto de venta > almacen chain.
   ...ubicacionCases(),
+  // R-REF-6 tipos-mov-inventario and unidades-medida (S-REF-23, S-REF-24): the clasificacion follows the tipo, the SUNAT detalle follows its tabla.
+  ...tipoMovCases(),
+  ...unidadCases(),
+  // R-REF-6 vehiculos (S-REF-31): style M2 messages, peso 0 by default, marca and modelo over the estado-A rows.
+  ...vehiculoCases(),
 ];
+
+function vehiculoCases(): CatalogCase[] {
+  const slug = 'vehiculos';
+  const body = (over: Record<string, unknown> = {}) => ({ placa: 'abc123', constancia_inscripcion: 'ci-9', peso: 1200, id_marca: '001', id_modelo: '001', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const { peso: _peso, ...withoutPeso } = body();
+  return [
+    row('S-REF-31 peso is 0 and estado true when the body omits them', { name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: withoutPeso }], expect: { ok: true, match: { peso: 0, estado: true } } }),
+    row('S-REF-31 a blank placa says the M2 text', create({ placa: ' ' }, invalid(['placa'], ['Para agregar, debes especificar su Placa.']))),
+    row('S-REF-31 a blank constancia keeps the desktop spelling Constacia', create({ constancia_inscripcion: ' ' }, invalid(['constancia_inscripcion'], ['Para agregar, debes especificar su Constacia.']))),
+    row('S-REF-31 a blank peso says su Peso', create({ peso: '' }, invalid(['peso'], ['Para agregar, debes especificar su Peso.']))),
+    row('S-REF-31 a blank marca says Seleccionar Marca', create({ id_marca: '' }, invalid(['id_marca'], ['Para agregar, debes Seleccionar Marca.']))),
+    row('S-REF-31 a blank modelo says Seleccionar Modelo', create({ id_modelo: '' }, invalid(['id_modelo'], ['Para agregar, debes Seleccionar Modelo.']))),
+    row('S-REF-31 the desktop order is placa, constancia, peso, marca, modelo', create({ placa: ' ', constancia_inscripcion: ' ', peso: '', id_marca: '', id_modelo: '' }, invalid(['placa']))),
+    row('S-REF-31 after a valid placa the constancia is next', create({ constancia_inscripcion: ' ', peso: '', id_marca: '', id_modelo: '' }, invalid(['constancia_inscripcion']))),
+    row('S-REF-31 then the peso, then the marca', create({ peso: '', id_marca: '', id_modelo: '' }, invalid(['peso']))),
+    row('S-REF-31 then the marca before the modelo', create({ id_marca: '', id_modelo: '' }, invalid(['id_marca']))),
+    row('S-REF-31 UPDATE words the text with modificar', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '001', body: { placa: ' ' } }], expect: invalid(['placa'], ['Para modificar, debes especificar su Placa.']) }),
+    row('S-REF-31 an inactive marca sent directly is a 422 on id_marca', create({ id_marca: '003' }, invalid(['id_marca']))),
+    row('S-REF-31 an inactive modelo sent directly is a 422 on id_modelo', create({ id_modelo: '002' }, invalid(['id_modelo']))),
+    row('R-REF-6 peso accepts 10 digits and 0', create({ peso: 1234567890 }, { ok: true, match: { peso: 1234567890 } })),
+    row('R-REF-6 peso 0 is a value, not a blank', create({ peso: 0 }, { ok: true, match: { peso: 0 } })),
+    row('R-REF-6 peso rejects 11 digits', create({ peso: '12345678901' }, invalid(['peso']))),
+    row('R-REF-6 peso keeps only digits (IntegerDocument): letters leave it blank', create({ peso: 'abc' }, invalid(['peso'], ['Para agregar, debes especificar su Peso.']))),
+    row('S-MOCK-28 get joins the marca and the modelo names', { name: '', slug, steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { marca: 'TOYOTA', modelo: 'HILUX', placa: 'ABC123' } } }),
+    row('R-REF-6 the list is tenant-wide and shows the three active rows', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+    { name: 'marcas-vehiculo S-REF-31 the vehiculo select asks for estado true: VOLVO (estado false) is left out', slug: 'marcas-vehiculo', steps: [{ op: 'options', filters: { estado: 'true' } }], expect: { ok: true, items: [{ id: '001', name: 'TOYOTA' }, { id: '002', name: 'HYUNDAI' }] } },
+    { name: 'marcas-vehiculo S-REF-31 the options offer the active marcas, whatever their estado', slug: 'marcas-vehiculo', steps: [{ op: 'options' }], expect: { ok: true, items: [{ id: '001', name: 'TOYOTA' }, { id: '002', name: 'HYUNDAI' }, { id: '003', name: 'VOLVO' }] } },
+  ];
+}
+
+function tipoMovCases(): CatalogCase[] {
+  const slug = 'tipos-mov-inventario';
+  const body = (over: Record<string, unknown> = {}) => ({ tipo: 'E', id_clasif_inventario: '001', descripcion: 'compra local', abrev: 'cl', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const { tipo: _tipo, ...withoutTipo } = body();
+  return [
+    row('S-REF-23 tipo is E when the body omits it', { name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: withoutTipo }], expect: { ok: true, match: { tipo: 'E', tipo_label: 'E' } } }),
+    row('R-MOCK-10 a tipo outside E|S is a 422 on tipo', create({ tipo: 'Z' }, invalid(['tipo']))),
+    row('S-REF-23 a clasificacion of the other tipo is a 422 on id_clasif_inventario', create({ tipo: 'S', id_clasif_inventario: '001' }, invalid(['id_clasif_inventario'], ['id_clasif_inventario does not belong to tipo']))),
+    row('S-REF-23 the clasificacion of tipo S is accepted and joined', create({ tipo: 'S', id_clasif_inventario: '002' }, { ok: true, match: { tipo: 'S', clasif_inventario: 'VENTA' } })),
+    row('R-REF-6 estado is stored A on create and hab_ingreso defaults to false', create({}, { ok: true, match: { estado: 'A', hab_ingreso: false } })),
+    row('R-REF-6 hab_ingreso true is stored', create({ hab_ingreso: true }, { ok: true, match: { hab_ingreso: true } })),
+    row('R-REF-6 hab_ingreso must be a boolean', create({ hab_ingreso: 'S' }, invalid(['hab_ingreso']))),
+    row('R-REF-6 the desktop checks the descripcion before the abreviatura', create({ descripcion: ' ', abrev: ' ' }, invalid(['descripcion']))),
+    row('R-REF-6 a blank abreviatura says Abreviatura with the desktop text', create({ abrev: ' ' }, invalid(['abrev'], [`Para agregar ${TIPO_MOV}, debes especificar su Abreviatura.`]))),
+    row('S-REF-23 both SUNAT fields blank save with no code', create({ id_tabla_sunat: '', id_detalle_sunat: '' }, { ok: true, match: { id_tabla_sunat: '', id_detalle_sunat: '' } })),
+    row('S-REF-23 a detalle of the chosen tabla is accepted', create({ id_tabla_sunat: '12', id_detalle_sunat: '10' }, { ok: true, match: { id_tabla_sunat: '12', id_detalle_sunat: '10' } })),
+    row('S-REF-23 a detalle of another tabla is a 422 on id_detalle_sunat', create({ id_tabla_sunat: '6', id_detalle_sunat: '10' }, invalid(['id_detalle_sunat'], ['id_detalle_sunat does not belong to id_tabla_sunat']))),
+    row('S-REF-23 a detalle with no tabla is a 422 on id_detalle_sunat', create({ id_detalle_sunat: '10' }, invalid(['id_detalle_sunat']))),
+    row('S-REF-23 changing the tipo on UPDATE re-checks the clasificacion', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '001', body: { tipo: 'S' } }], expect: invalid(['id_clasif_inventario']) }),
+    row('S-MOCK-28 get joins the clasificacion and keeps the SUNAT ids', { name: '', slug, steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { clasif_inventario: 'COMPRA', id_tabla_sunat: '12', id_detalle_sunat: '11', hab_ingreso: true, estado: 'A' } } }),
+    { name: 'clasif-inventarios S-REF-23 the options of tipo E are its clasificaciones only', slug: 'clasif-inventarios', steps: [{ op: 'options', filters: { tipo: 'E' } }], expect: { ok: true, items: [{ id: '001', name: 'COMPRA' }] } },
+    { name: 'clasif-inventarios S-REF-23 the options reload for tipo S', slug: 'clasif-inventarios', steps: [{ op: 'options', filters: { tipo: 'S' } }], expect: { ok: true, items: [{ id: '002', name: 'VENTA' }] } },
+  ];
+}
+
+function unidadCases(): CatalogCase[] {
+  const slug = 'unidades-medida';
+  const ctx = { userId: '7', empresaId: '1' };
+  const body = (over: Record<string, unknown> = {}) => ({ descripcion: 'bolsa', abreviatura: 'bl', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx, steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-24 a body without SUNAT fields starts on tabla 6, the 6th seeded one', create({}, { ok: true, match: { id_tabla_sunat: '6' } })),
+    row('S-REF-24 both SUNAT fields cleared save with no code', create({ id_tabla_sunat: '', id_detalle_sunat: '' }, { ok: true, match: { id_tabla_sunat: '', id_detalle_sunat: '' } })),
+    row('S-REF-24 a detalle of tabla 6 is accepted and joined', create({ id_tabla_sunat: '6', id_detalle_sunat: '5' }, { ok: true, match: { id_detalle_sunat: '5' } })),
+    row('S-REF-24 a detalle of another tabla is a 422 on id_detalle_sunat', create({ id_tabla_sunat: '6', id_detalle_sunat: '1' }, invalid(['id_detalle_sunat']))),
+    row('R-REF-6 a blank abreviatura says Abreviatura with the desktop text', create({ abreviatura: ' ' }, invalid(['abreviatura'], ['Para agregar una Unidad de Medida, debes especificar su Abreviatura.']))),
+    row('R-REF-6 the desktop checks the descripcion before the abreviatura', create({ descripcion: ' ', abreviatura: ' ' }, invalid(['descripcion']))),
+    row('R-REF-6 the list is limited to the session empresa: empresa 1 sees three active rows', { name: '', slug, ctx, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+    row('R-REF-6 empresa 2 sees only its own unit', { name: '', slug, ctx: { ...ctx, empresaId: '2' }, steps: [{ op: 'list' }], expect: { ok: true, total: 1 } }),
+  ];
+}
 
 function ubicacionCases(): CatalogCase[] {
   const slug = 'ubicaciones';
