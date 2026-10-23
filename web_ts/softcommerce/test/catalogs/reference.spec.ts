@@ -44,6 +44,9 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'modelos-vehiculo.descripcion': [100, true],
   'subfamilias.descripcion': [100, true],
   'promociones.descripcion': [100, true],
+  'almacenes.descripcion': [100, true],
+  'almacenes.direccion': [100, true],
+  'zonas.descripcion': [100, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -66,6 +69,8 @@ const CODE_WIDTH: Record<string, number> = {
   subfamilias: 3,
   // The tipo de cambio id is a string with no pad evidence (inferred 3, flagged for W6); the promocion id is an int.
   'tipos-cambio': 3, promociones: 0,
+  // The almacen id is a string with no pad evidence (inferred 3, flagged for W6); the zona id is an int bean.
+  almacenes: 3, zonas: 0,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -76,6 +81,11 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   'subfamilias.id_familia': ['familias', {}],
   'subfamilias.id_subfamilia_sunat': ['subfamilias-sunat', {}],
   'tipos-cambio.id_moneda': ['monedas', {}],
+  // RegisterAlmacen.loadLocalidad(usuario.getCodempresa()): only the session empresa's localidades.
+  'almacenes.id_localidad': ['localidades', { id_empresa: '$session.empresa' }],
+  'almacenes.id_punto_venta': ['punto-venta', {}],
+  'almacenes.id_ubigeo': ['ubigeo', {}],
+  'zonas.id_ubigeo': ['ubigeo', {}],
 };
 
 /**
@@ -92,6 +102,9 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   subfamilias: 'stamp',
   // DaoTipoCambio.listTipoCambio takes (id, fecha, moneda) and no empresa; mantTipoCambio passes empresa and user on every write. The Promocion bean carries neither.
   'tipos-cambio': 'stamp', promociones: 'tenant',
+  // DAOAlmacen.listar takes the session empresa (PanelTFAlmacen) and insertar/modificar pass it (RegisterAlmacen.txtCodEmpresa) with the user;
+  // DAOZona.listar(0, "") and mantZona(zona, op) see only the user (zona.getId_usuario).
+  almacenes: 'empresa', zonas: 'tenant',
 };
 /**
  * The entries over the W1 sections (empresa, punto-venta; no seed file, so no generic table rows): `DAOEmpresa.listar("")` passes no empresa

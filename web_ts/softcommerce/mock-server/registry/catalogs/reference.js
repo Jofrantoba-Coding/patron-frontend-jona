@@ -3,7 +3,7 @@
  * (plus optional extras), a logical-delete flag, the session user stamp and the M1 messages.
  * Each catalog stays a one-line declaration; the rules live in the registry, not here.
  * @param {{ slug: string, idKey: string, entity: string, formId: string, title: string, upper?: boolean,
- *   codeWidth?: number, style?: 'M1'|'M2', scope?: 'tenant'|'empresa', stamp?: string[], descripcion?: any|false, fields?: any[], columns?: any[], joins?: any[], unique?: any[], validation?: any[] }} def
+ *   codeWidth?: number, style?: 'M1'|'M2'|'MS', scope?: 'tenant'|'empresa', stamp?: string[], descripcion?: any|false, fields?: any[], columns?: any[], joins?: any[], unique?: any[], validation?: any[] }} def
  * @returns {import('../schema.js').CatalogDef}
  */
 export function referenceCatalog({
