@@ -101,6 +101,8 @@ const CODE_WIDTH: Record<string, number> = {
   'usuario-correlativos': 5,
   // The zona distancia id is an int bean (Integer.parseInt(txt_Codigo)).
   'zonas-distancia': 0,
+  // PanelTFTrabajadorPuntoVenta.focusLost pads the code filter to five digits ("00000" + code).
+  'trabajador-punto-venta': 5,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -145,6 +147,11 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   'zonas-distancia.id_localidad': ['localidades', { id_empresa: '$session.empresa' }],
   'zonas-distancia.id_punto_venta': ['punto-venta', {}],
   'zonas-distancia.id_almacen': ['almacenes', {}],
+  // RegisterTrabajadorPuntoVenta: the trabajador picker (a select here), every empresa, the localidades of the empresa, the puntos de venta of the localidad.
+  'trabajador-punto-venta.id_trabajador': ['trabajadores', {}],
+  'trabajador-punto-venta.id_empresa': ['empresa', {}],
+  'trabajador-punto-venta.id_localidad': ['localidades', {}],
+  'trabajador-punto-venta.id_punto_venta': ['punto-venta', {}],
 };
 
 /**
@@ -177,6 +184,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   'usuario-correlativos': 'empresa',
   // DAOZonaDistancia: rn_ZonaDistancia.listar(0) and mantZonaDistancia(bean, op) see the user (bean.setId_usuario) and no empresa.
   'zonas-distancia': 'tenant',
+  // DAOTrabajadorPuntoVenta.insertar / modificar pass the trabajador, the punto de venta, the user and habilitar: no empresa (the list takes the session one).
+  'trabajador-punto-venta': 'tenant',
 };
 /**
  * The entries over the W1 sections (empresa, punto-venta; no seed file, so no generic table rows): `DAOEmpresa.listar("")` passes no empresa
@@ -331,6 +340,21 @@ describe('W2 reference catalogs are registered', () => {
     // The server only sees the zona: the transient distrito is no ref and the zona has no parent it can check.
     expect(entry.refs.map((r: any) => r.field)).toEqual(['id_zona', 'id_localidad', 'id_punto_venta', 'id_almacen']);
     expect(entry.refs[0].parents).toEqual([]);
+  });
+
+  it('S-REF-21 trabajador-punto-venta keeps the desktop order, the label style, the empresa chain and the pair key', () => {
+    const entry = REGISTRY.bySlug.get('trabajador-punto-venta');
+    const field = (name: string) => entry.fields.find((f: any) => f.name === name);
+    expect(entry.fields.map((f: any) => f.name)).toEqual(['id_trabajador_punto_venta', 'id_trabajador', 'id_empresa', 'id_localidad', 'id_punto_venta', 'habilitar']);
+    expect(entry.validation).toEqual(['id_trabajador', 'id_empresa', 'id_localidad', 'id_punto_venta', { unique: 0 }, 'habilitar']);
+    expect(entry.messages.style).toBe('label');
+    expect(entry.fields.filter((f: any) => f.msgLabel).map((f: any) => [f.name, f.msgLabel])).toEqual([
+      ['id_trabajador', 'su Nombre'], ['id_empresa', 'la Empresa'], ['id_localidad', 'la Localidad'], ['id_punto_venta', 'su Punto de Venta'],
+    ]);
+    expect(field('id_localidad').dependsOn).toEqual([{ field: 'id_empresa', filterKey: 'id_empresa' }]);
+    expect(field('id_punto_venta').dependsOn).toEqual([{ field: 'id_localidad', filterKey: 'id_localidad' }]);
+    expect(entry.unique).toMatchObject([{ fields: ['id_trabajador', 'id_punto_venta'], errorField: 'id_trabajador', message: 'El Trabajador ya se encuentra asignado al punto de venta especificado. Compruébala e inténtalo de nuevo' }]);
+    expect([entry.stamp, entry.scope, field('habilitar').default]).toEqual([['id_usuario'], 'tenant', false]);
   });
 
   it('S-REF-22 the distancia is a decimal above zero with the Zona Distancia sentence for blank, zero and negative', () => {

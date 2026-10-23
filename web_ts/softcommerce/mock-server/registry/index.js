@@ -37,6 +37,7 @@ import { ubicaciones } from './catalogs/ubicaciones.js';
 import { tiposTrabajador } from './catalogs/tipos-trabajador.js';
 import { tiposTrabajadorPerfil } from './catalogs/tipos-trabajador-perfil.js';
 import { trabajadores } from './catalogs/trabajadores.js';
+import { trabajadorPuntoVenta } from './catalogs/trabajador-punto-venta.js';
 import { turnos } from './catalogs/turnos.js';
 import { usuarioCorrelativos } from './catalogs/usuario-correlativos.js';
 import { usuarios } from './catalogs/usuarios.js';
@@ -50,5 +51,5 @@ import { validateRegistry } from './schema.js';
  */
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
-  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo, subfamiliasSunat, subfamilias, monedas, tiposCambio, promociones, empresa, puntoVenta, almacenes, zonas, tiposDocVenta, correlativos, ubicaciones, tablasSunat, tablasDetalleSunat, tiposMovInventario, unidadesMedida, vehiculos, usuarios, trabajadores, usuarioCorrelativos, zonasDistancia,
+  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo, subfamiliasSunat, subfamilias, monedas, tiposCambio, promociones, empresa, puntoVenta, almacenes, zonas, tiposDocVenta, correlativos, ubicaciones, tablasSunat, tablasDetalleSunat, tiposMovInventario, unidadesMedida, vehiculos, usuarios, trabajadores, usuarioCorrelativos, zonasDistancia, trabajadorPuntoVenta,
 ]);

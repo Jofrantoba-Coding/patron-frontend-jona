@@ -44,13 +44,15 @@ export const ENTITIES: Record<string, string> = {
   // The desktop spells the entity "Asignasion" in every message of RegisterUsuarioCorrelativo.
   'usuario-correlativos': 'una Asignasion de Usuario - Correlativo',
   'zonas-distancia': 'una Zona Distancia',
+  // The desktop sentences of RegisterTrabajadorPuntoVenta say "un Correlativo" for the empresa, localidad and punto de venta [DEVIATION]; the web names the Trabajador.
+  'trabajador-punto-venta': 'un Trabajador',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
 const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo', 'vehiculos']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción', almacenes: 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto, the Tipo de Cambio its fecha and moneda). */
-export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones', 'vehiculos', 'usuario-correlativos', 'zonas-distancia']);
+export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones', 'vehiculos', 'usuario-correlativos', 'zonas-distancia', 'trabajador-punto-venta']);
 /** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
 /** The Almacen checks its localidad and punto de venta before the descripcion (RegisterAlmacen.isRegisterValid). */
 export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias', 'almacenes']);
@@ -248,6 +250,7 @@ const UBICACION_TEXT = { id_localidad: 'Seleccione Localidad', id_punto_venta: '
 const TIPO_MOV = 'un Tipo de Movimiento de Inventario';
 
 const USUARIO_CORRELATIVO_DUPLICATE = 'Ya existe una asignacion del documento con la serie elegida al mismo usuario, por favor elija otra serie u otro usuario disponible.';
+const TRABAJADOR_PV_DUPLICATE = 'El Trabajador ya se encuentra asignado al punto de venta especificado. Compruébala e inténtalo de nuevo';
 const CORRELATIVO_DUPLICATE = 'Ya existe una asignacion de la serie al mismo tipo de documento, por favor digite otra serie.';
 
 const BASE_CASES: CatalogCase[] = [
@@ -388,6 +391,8 @@ const BASE_CASES: CatalogCase[] = [
   ...usuarioCorrelativoCases(),
   // R-REF-6 / R-REF-7 zonas-distancia (S-REF-22, S-MOCK-31): two chains, the MS sentences, distancia above zero.
   ...zonaDistanciaCases(),
+  // R-REF-6 / R-REF-7 trabajador-punto-venta (S-REF-21): the label sentences, the empresa > localidad > punto de venta chain, the (trabajador, punto de venta) key.
+  ...trabajadorPuntoVentaCases(),
 ];
 
 function usuarioCorrelativoCases(): CatalogCase[] {
@@ -425,6 +430,39 @@ function usuarioCorrelativoCases(): CatalogCase[] {
     row('S-MOCK-28 get joins the localidad, punto de venta, usuario, tipo de documento and serie', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '00001' }], expect: { ok: true, match: { localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL', usuario: 'Cajero Uno', tipo_documento: 'FACTURA', serie: 'F001' } } }),
     row('S-MOCK-30 the serie options of a punto de venta and tipo are shown by serie and only the active ones', { name: '', slug: 'correlativos', steps: [{ op: 'options', filters: { id_punto_venta: '1', id_tipo_doc: '01', estado: 'A' } }], expect: { ok: true, items: [{ id: '00001', name: 'F001' }] } }),
     row('S-MOCK-30 an inactive correlativo (estado I) is not offered as a serie', { name: '', slug: 'correlativos', steps: [{ op: 'options', filters: { id_punto_venta: '1', id_tipo_doc: '03', estado: 'A' } }], expect: { ok: true, items: [] } }),
+  ];
+}
+
+function trabajadorPuntoVentaCases(): CatalogCase[] {
+  const slug = 'trabajador-punto-venta';
+  const text = (modo: string, label: string) => `Para ${modo} un Trabajador, debes especificar ${label}.`;
+  const body = (over: Record<string, unknown> = {}) => ({ id_trabajador: '001', id_empresa: '1', id_localidad: '1', id_punto_venta: '1', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, deviation = false): CatalogCase => ({ name: '', slug, ctx: WRITER, deviation, steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const dup: Outcome = { status: 409, code: 'DUPLICATE', fields: ['id_trabajador'], messages: [TRABAJADOR_PV_DUPLICATE] };
+  return [
+    row('desktop order: an empty body fails first on the trabajador, worded su Nombre', { name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: {} }], expect: invalid(['id_trabajador'], [text('agregar', 'su Nombre')]) }),
+    row('then the empresa, worded la Empresa (the desktop says Correlativo [DEVIATION])', create({ id_empresa: '', id_localidad: '', id_punto_venta: '' }, invalid(['id_empresa'], [text('agregar', 'la Empresa')]), true)),
+    row('then the localidad, worded la Localidad', create({ id_localidad: '', id_punto_venta: '' }, invalid(['id_localidad'], [text('agregar', 'la Localidad')]), true)),
+    row('then the punto de venta, worded su Punto de Venta', create({ id_punto_venta: '' }, invalid(['id_punto_venta'], [text('agregar', 'su Punto de Venta')]), true)),
+    row('UPDATE words the messages with modificar', update('00001', { id_trabajador: '' }, invalid(['id_trabajador'], [text('modificar', 'su Nombre')]))),
+    row('S-REF-21 the same (trabajador, punto de venta) pair is a 409 on id_trabajador with the desktop text', create({ id_trabajador: '002' }, dup)),
+    row('S-REF-21 the same trabajador in another punto de venta is accepted', create({ id_trabajador: '002', id_localidad: '2', id_punto_venta: '2' }, { ok: true, match: { id_trabajador: '002', id_punto_venta: '2' } })),
+    row('S-REF-21 another trabajador in that punto de venta is accepted', create({ id_trabajador: '003' }, { ok: true, match: { id_trabajador: '003', id_punto_venta: '1' } })),
+    row('S-REF-21 UPDATE keeping its own pair is accepted', update('00001', { habilitar: false }, { ok: true, match: { habilitar: false } })),
+    row('S-REF-21 UPDATE onto the pair of another record is a 409 on id_trabajador', update('00002', { id_trabajador: '002', id_localidad: '1', id_punto_venta: '1' }, dup)),
+    row('S-REF-21 CLONE keeping the pair is rejected [DEVIATION: the desktop skips the check on CLONE]', create({ id_trabajador: '002' }, dup, true)),
+    row('S-REF-21 a deleted assignment frees its pair', create({ id_trabajador: '001' }, { ok: true, match: { id_trabajador: '001', id_punto_venta: '1' } })),
+    row('S-REF-21 habilitar untouched is saved as false', create({}, { ok: true, match: { habilitar: false, id_usuario: 7 } })),
+    row('S-REF-21 habilitar true is stored as sent', create({ habilitar: true }, { ok: true, match: { habilitar: true } })),
+    row('S-REF-21 habilitar must be a boolean', create({ habilitar: 'S' }, invalid(['habilitar']))),
+    row('R-MOCK-12 a localidad of another empresa is a 422 on id_localidad naming the parent', create({ id_localidad: '3', id_punto_venta: '3' }, invalid(['id_localidad'], ['id_localidad does not belong to id_empresa']))),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_punto_venta: '2' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-MOCK-12 changing the empresa on UPDATE re-checks the localidad', update('00001', { id_empresa: '2' }, invalid(['id_localidad']))),
+    row('R-REF-12 a deleted trabajador is a 422 on id_trabajador', create({ id_trabajador: '004' }, invalid(['id_trabajador']))),
+    row('S-MOCK-28 get joins the trabajador, empresa, localidad and punto de venta names', { name: '', slug, steps: [{ op: 'get', id: '00001' }], expect: { ok: true, match: { trabajador: 'MARIA GARCIA RAMOS', empresa: 'COMERCIAL DEMO SAC', localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL' } } }),
+    row('R-REF-6 the list is tenant-wide and hides the deleted assignment', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
   ];
 }
 
