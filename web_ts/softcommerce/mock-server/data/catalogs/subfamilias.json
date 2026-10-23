@@ -1,0 +1,60 @@
+{
+  "demo": [
+    {
+      "id_sub_familia": "001",
+      "id_familia": "001",
+      "descripcion": "FRUTAS",
+      "id_subfamilia_sunat": "501015",
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_sub_familia": "002",
+      "id_familia": "001",
+      "descripcion": "VERDURAS",
+      "id_subfamilia_sunat": "501016",
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_sub_familia": "003",
+      "id_familia": "002",
+      "descripcion": "LECHE",
+      "id_subfamilia_sunat": "501315",
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_sub_familia": "004",
+      "id_familia": "003",
+      "descripcion": "DETERGENTES",
+      "id_subfamilia_sunat": "",
+      "id_empresa": "1",
+      "activo": true
+    },
+    {
+      "id_sub_familia": "005",
+      "id_familia": "005",
+      "descripcion": "GASEOSAS",
+      "id_subfamilia_sunat": "502015",
+      "id_empresa": "2",
+      "activo": true
+    },
+    {
+      "id_sub_familia": "006",
+      "id_familia": "001",
+      "descripcion": "SUBFAMILIA RETIRADA",
+      "id_subfamilia_sunat": "",
+      "id_empresa": "1",
+      "activo": false
+    },
+    {
+      "id_sub_familia": "007",
+      "id_familia": "006",
+      "descripcion": "PAN",
+      "id_subfamilia_sunat": "",
+      "id_empresa": "2",
+      "activo": true
+    }
+  ]
+}

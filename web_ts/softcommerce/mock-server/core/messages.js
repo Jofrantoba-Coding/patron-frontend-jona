@@ -41,7 +41,7 @@ function plainText(/** @type {any} */ field, /** @type {string} */ code) {
 /**
  * The message of one failed rule. `REQUIRED` and, without their own literal,
  * `RANGE`, `MIN_LENGTH` and `DATE` use the entry style; a field `message` is a
- * literal for the required case and `messages.range|minLen|date` fill `{modo}`.
+ * literal for the required case and, like `messages.range|minLen|date`, fills `{modo}`.
  * @param {any} entry @param {any} field
  * @param {'REQUIRED'|'MAX_LENGTH'|'INVALID'|'RANGE'|'MIN_LENGTH'|'DATE'} code
  * @param {keyof typeof MODO} [mode]
@@ -50,7 +50,7 @@ export function fieldMessage(entry, field, code, mode = 'INSERT') {
   if (entry.messages.style === 'w1') return plainText(field, code);
   const desktop = code === 'REQUIRED' || Object.hasOwn(LITERAL_KEY, code);
   if (!desktop) return plainText(field, code);
-  if (code === 'REQUIRED') return field.message ?? requiredText(entry, field, mode);
+  if (code === 'REQUIRED') return field.message ? fill(field.message, mode) : requiredText(entry, field, mode);
   const literal = field.messages?.[LITERAL_KEY[/** @type {keyof typeof LITERAL_KEY} */ (code)]];
-  return literal ? fill(literal, mode) : (field.message ?? requiredText(entry, field, mode));
+  return literal ? fill(literal, mode) : field.message ? fill(field.message, mode) : requiredText(entry, field, mode);
 }

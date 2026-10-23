@@ -1,6 +1,7 @@
 import { resolveWhere, scopeFilter } from './context.js';
 import { MockError, notFound } from './errors.js';
-import { ACTIVE_KEY, rowsOf } from './validators.js';
+import { LOOKUP_RULES } from './rules.js';
+import { ACTIVE_KEY, rowsOf, viaValue } from './validators.js';
 
 /**
  * Filter keys the options endpoint accepts for a target: its own ref fields, the
@@ -9,7 +10,7 @@ import { ACTIVE_KEY, rowsOf } from './validators.js';
  * @param {any} store @param {any} target
  */
 function acceptedKeys(store, target) {
-  const keys = new Set(target.refs.map((/** @type {any} */ ref) => ref.field));
+  const keys = new Set([...target.refs.map((/** @type {any} */ ref) => ref.field), ...Object.keys(target.lookupFilters ?? {})]);
   for (const entry of store.registry.entries) {
     for (const f of entry.fields.filter((/** @type {any} */ f) => f.kind === 'select' && f.source.catalog === target.slug)) {
       for (const parent of f.dependsOn ?? []) keys.add(parent.filterKey);
@@ -28,12 +29,27 @@ function acceptedKeys(store, target) {
  * @param {Record<string, string>} [filters] @param {import('./context.js').RequestContext} [ctx]
  */
 export function lookupOptions(store, tenantId, slug, filters = {}, ctx) {
+  const rule = LOOKUP_RULES[store.registry.sources[slug]?.lookupRule];
   const entry = store.registry.bySlug.get(slug);
-  if (!entry) throw notFound(`Unknown catalog: ${slug}`);
-  const accepted = acceptedKeys(store, entry);
+  if (!entry && !rule) throw notFound(`Unknown catalog: ${slug}`);
+  const accepted = rule ? new Set(rule.keys) : acceptedKeys(store, entry);
   const unknown = Object.keys(filters).find((key) => !accepted.has(key));
   if (unknown) throw new MockError(400, 'INVALID_FILTER', `Unknown filter "${unknown}" for ${slug}`);
-  const exact = Object.entries(resolveWhere(store, tenantId, filters, ctx));
+  if (rule) return { items: structuredClone(rule.options(store, filters)) };
+  // A `via` filter takes the key of a row of another catalog and matches the value that row holds (SubFamilia SUNAT by familia).
+  /** @type {[string, any][]} */
+  const exact = [];
+  for (const [key, value] of Object.entries(resolveWhere(store, tenantId, filters, ctx))) {
+    const via = entry.lookupFilters?.[key]?.via;
+    if (!via) {
+      exact.push([key, value]);
+      continue;
+    }
+    const held = viaValue(store, tenantId, via, value);
+    // No such row, or a row that holds no value: nothing can match.
+    if (held === '') return { items: [] };
+    exact.push([via.as, held]);
+  }
   const items = rowsOf(store, tenantId, entry)
     .filter(scopeFilter(store, tenantId, entry, ctx))
     .filter((/** @type {any} */ r) => r[ACTIVE_KEY] !== false && exact.every(([key, value]) => String(r[key] ?? '') === String(value)))

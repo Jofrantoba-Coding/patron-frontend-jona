@@ -143,7 +143,14 @@ function resolveEntry(raw, slugs, sources) {
   for (const join of entry.joins ?? []) known('joins', join.ref);
   if (entry.optionLabel !== undefined) known('optionLabel', entry.optionLabel);
   for (const { name } of entry.rules ?? []) rule(name, ENTRY_RULES);
-  for (const filter of Object.values(entry.lookupFilters ?? {})) if (filter.rule) rule(filter.rule, FILTER_RULES);
+  for (const filter of Object.values(entry.lookupFilters ?? {})) {
+    if (filter.rule) rule(filter.rule, FILTER_RULES);
+    // `via` (R-MOCK-16): the filter value is a row of `via.catalog`; `via.key` is read from it and matched against this entry's `via.as`.
+    if (filter.via) {
+      if (!slugs.has(filter.via.catalog)) fail(where, `lookupFilters names unknown catalog "${filter.via.catalog}"`);
+      known('lookupFilters', filter.via.as);
+    }
+  }
 
   const selects = entry.fields.filter((/** @type {any} */ f) => f.kind === 'select');
   // Refs come from the field `source` and its `dependsOn` parents (R-REG-6).
@@ -192,5 +199,11 @@ export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {})
   const slugs = new Set(rawEntries.map((e) => e.slug));
   /** @type {any[]} */
   const entries = rawEntries.map((raw) => resolveEntry(raw, slugs, sources));
+  for (const entry of entries) {
+    for (const { via } of Object.values(entry.lookupFilters ?? {}).filter((/** @type {any} */ f) => f.via)) {
+      const target = entries.find((e) => e.slug === via.catalog);
+      if (!target.fields.some((/** @type {any} */ f) => f.name === via.key)) fail(`entry "${entry.slug}"`, `lookupFilters names unknown field "${via.key}" of "${via.catalog}"`);
+    }
+  }
   return { entries, bySlug: /** @type {Map<string, any>} */ (new Map(entries.map((e) => [e.slug, e]))), sources };
 }

@@ -12,6 +12,8 @@ const OPTIONS: Record<string, { id: string; name: string }[]> = {
   'tipos-descuento': [{ id: '1', name: 'PORCENTAJE' }, { id: '2', name: 'MONTO FIJO' }],
   'tipos-trabajador': [{ id: '001', name: 'ADMINISTRATIVO' }, { id: '002', name: 'VENDEDOR' }],
   'familias-sunat': [{ id: '5010', name: 'FRUTAS Y VERDURAS FRESCAS' }, { id: '5011', name: 'CARNES Y AVES' }],
+  familias: [{ id: '001', name: 'ABARROTES' }, { id: '002', name: 'LACTEOS' }],
+  'subfamilias-sunat': [{ id: '501015', name: 'FRUTAS FRESCAS' }, { id: '501016', name: 'VERDURAS FRESCAS' }],
 };
 
 async function openInsert(slug: string) {
@@ -108,5 +110,39 @@ describe('familias register form', () => {
     await submit(user);
     await user.click(screen.getByRole('button', { name: 'Confirmar' }));
     await waitFor(() => expect(service.create).toHaveBeenCalledWith({ descripcion: 'CARNES', id_familia_sunat: '5011' }));
+  });
+});
+
+// The UI half of the first dependent-select catalog (R-REF-5, R-REF-10, S-REF-8, S-REF-39).
+describe('subfamilias register form', () => {
+  it('checks the familia first, then the descripcion with the desktop spacing, and sends nothing', async () => {
+    const { user, service } = await openInsert('subfamilias');
+    await submit(user);
+    expect(screen.getByText('Para agregar una SubFamilia, debes especificar su Familia.')).toBeTruthy();
+    await user.selectOptions(field('Familia'), 'ABARROTES');
+    await submit(user);
+    expect(screen.getByText('Para agregar una SubFamilia , debes especificar su Descripcion.')).toBeTruthy();
+    expect(service.create).not.toHaveBeenCalled();
+  });
+
+  it('S-REF-8 the SUNAT select waits for the familia, loads with its id and clears when the familia changes', async () => {
+    const { user, service, options } = await openInsert('subfamilias');
+    expect((field('Codigo Sunat') as unknown as HTMLSelectElement).disabled).toBe(true);
+    expect(options).not.toHaveBeenCalledWith('subfamilias-sunat', expect.anything());
+    await user.selectOptions(field('Familia'), 'ABARROTES');
+    await waitFor(() => expect(options).toHaveBeenCalledWith('subfamilias-sunat', { id_familia: '001' }));
+    await user.selectOptions(field('Codigo Sunat'), 'FRUTAS FRESCAS');
+    await user.selectOptions(field('Familia'), 'LACTEOS');
+    expect((field('Codigo Sunat') as unknown as HTMLSelectElement).value).toBe('');
+    await user.selectOptions(field('Codigo Sunat'), 'VERDURAS FRESCAS');
+    await user.type(field('Descripción'), 'verduras');
+    await submit(user);
+    await user.click(screen.getByRole('button', { name: 'Confirmar' }));
+    await waitFor(() => expect(service.create).toHaveBeenCalledWith({ id_familia: '002', descripcion: 'VERDURAS', id_subfamilia_sunat: '501016' }));
+  });
+
+  it('S-REF-39 renders no nested-create button next to the familia', async () => {
+    await openInsert('subfamilias');
+    expect(screen.queryByRole('button', { name: /nuev/i })).toBeNull();
   });
 });
