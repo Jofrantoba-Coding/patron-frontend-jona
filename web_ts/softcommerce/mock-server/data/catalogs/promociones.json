@@ -1,0 +1,7 @@
+{
+  "demo": [
+    { "id_promocion": "1", "descripcion": "NAVIDAD", "fecha_ini": "2025-12-01", "fecha_fin": "2025-12-31", "estado": true, "activo": true },
+    { "id_promocion": "2", "descripcion": "DIA DE LA MADRE", "fecha_ini": "2026-05-01", "fecha_fin": "2026-05-15", "estado": false, "activo": true },
+    { "id_promocion": "3", "descripcion": "FIESTAS PATRIAS", "fecha_ini": "2025-07-20", "fecha_fin": "2025-07-31", "estado": true, "activo": false }
+  ]
+}

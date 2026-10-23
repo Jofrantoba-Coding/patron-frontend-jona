@@ -43,6 +43,7 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'familias.descripcion': [100, true],
   'modelos-vehiculo.descripcion': [100, true],
   'subfamilias.descripcion': [100, true],
+  'promociones.descripcion': [100, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -63,6 +64,8 @@ const CODE_WIDTH: Record<string, number> = {
   familias: 3, 'modelos-vehiculo': 3,
   // PanelTFSubFamilia pads the code to three ("000" + id).
   subfamilias: 3,
+  // The tipo de cambio id is a string with no pad evidence (inferred 3, flagged for W6); the promocion id is an int.
+  'tipos-cambio': 3, promociones: 0,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -72,6 +75,7 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   'familias.id_familia_sunat': ['familias-sunat', {}],
   'subfamilias.id_familia': ['familias', {}],
   'subfamilias.id_subfamilia_sunat': ['subfamilias-sunat', {}],
+  'tipos-cambio.id_moneda': ['monedas', {}],
 };
 
 /**
@@ -86,6 +90,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   'motivos-descuento': 'tenant', 'motivos-nc': 'tenant', 'tipos-trabajador-perfil': 'tenant', familias: 'empresa', 'modelos-vehiculo': 'stamp',
   // DAOSubFamilia.mantSubFamilia passes the empresa on every write; listar passes '' for it, so the list stays tenant-wide.
   subfamilias: 'stamp',
+  // DaoTipoCambio.listTipoCambio takes (id, fecha, moneda) and no empresa; mantTipoCambio passes empresa and user on every write. The Promocion bean carries neither.
+  'tipos-cambio': 'stamp', promociones: 'tenant',
 };
 
 describe('W2 reference catalogs are registered', () => {
@@ -130,6 +136,17 @@ describe('W2 reference catalogs are registered', () => {
     const fields = toCatalogConfig(REGISTRY.bySlug.get('subfamilias')).fields;
     expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_sub_familia', 'select:id_familia', 'text:descripcion', 'select:id_subfamilia_sunat']);
     expect(fields.map((f: any) => f.dependsOn)).toEqual([undefined, undefined, undefined, [{ field: 'id_familia', filterKey: 'id_familia' }]]);
+  });
+
+  it('S-REF-19 tipos-cambio starts on DOLAR AMERICANO: the default moneda id is that seeded row, and the select is read-only in every mode', () => {
+    const entry = REGISTRY.bySlug.get('tipos-cambio');
+    const moneda = entry.fields.find((f: any) => f.name === 'id_moneda');
+    const seeded = loadSeed(fileURLToPath(new URL('../../mock-server/data', import.meta.url))).monedas.find((r: any) => r.id_moneda === moneda.default);
+    expect([seeded.descripcion, moneda.readOnlyOn]).toEqual(['DOLAR AMERICANO', ['INSERT', 'UPDATE', 'CLONE', 'DETAIL', 'DELETE']]);
+  });
+
+  it('R-REF-7 tipos-cambio keys uniqueness on (empresa, fecha, moneda) and reports it on fecha', () => {
+    expect(REGISTRY.bySlug.get('tipos-cambio').unique).toMatchObject([{ fields: ['fecha', 'id_moneda'], includeEmpresa: true, errorField: 'fecha' }]);
   });
 
   it('S-REG-6 every one of them seeds demo only: botica starts empty', () => {
