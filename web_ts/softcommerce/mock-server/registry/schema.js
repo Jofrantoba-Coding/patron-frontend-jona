@@ -2,6 +2,7 @@ import { NORMALIZE_STEP } from '../core/normalize.js';
 import { isIsoDate } from '../core/dates.js';
 import { DECIMAL_TEXT } from '../core/numbers.js';
 import { applyPreset } from './presets.js';
+import { PROJECTIONS } from './project.js';
 import { BUILTIN_SOURCES } from './sources.js';
 
 /**
@@ -10,7 +11,7 @@ import { BUILTIN_SOURCES } from './sources.js';
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
  *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string | string[], modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
- *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any,
+ *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any, project?: string,
  *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when: { field: string, in: string[] }, then: unknown, else: unknown }[] }} CatalogDef
  */
 
@@ -164,6 +165,13 @@ function resolveEntry(raw, slugs, sources) {
     if (!entry.menu.parent || !entry.menu.label) fail(where, 'menu needs a parent and a label');
   }
   for (const stamp of entry.stamp ?? []) if (!STAMPS.includes(stamp)) fail(where, `unknown stamp "${stamp}"`);
+  // A projection is a read-only view of a seed section already loaded (the auth users), so it has no seed file and no writes.
+  if (entry.project !== undefined) {
+    if (!Object.hasOwn(PROJECTIONS, entry.project)) fail(where, `unknown projection "${entry.project}"`);
+    if (entry.seed !== null) fail(where, 'project needs seed null');
+    if (entry.readOnly !== true) fail(where, 'project needs readOnly');
+    if (entry.scope !== 'tenant') fail(where, 'project needs scope tenant');
+  }
 
   const names = new Set(entry.fields.map((/** @type {any} */ f) => f.name));
   /** @param {string} context @param {string} name */

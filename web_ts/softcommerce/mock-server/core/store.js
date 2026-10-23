@@ -1,4 +1,5 @@
 import { REGISTRY } from '../registry/index.js';
+import { PROJECTIONS } from '../registry/project.js';
 import { MockError } from './errors.js';
 
 /**
@@ -29,6 +30,8 @@ function snapshot(seed, registry) {
     tenants[id] = /** @type {TenantData} */ (
       Object.fromEntries(tenantSections.map((s) => [s, structuredClone(seed[s]?.[id] ?? [])]))
     );
+    // A projected entry (the auth users) takes its rows from another seed section, so there is one source (R-REG-2).
+    for (const entry of registry.entries.filter((e) => e.project !== undefined)) tenants[id][entry.section] = PROJECTIONS[entry.project].rows(seed, id);
   }
   return {
     tenantList: /** @type {Tenant[]} */ (structuredClone(seed.tenants)),
