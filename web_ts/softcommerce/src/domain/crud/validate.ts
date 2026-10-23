@@ -2,6 +2,7 @@
 import { fieldMessage } from '../../../mock-server/core/messages.js';
 import { displayToIso, todayIso } from '../../../mock-server/core/dates.js';
 import { DECIMAL_TEXT, outOfBounds } from '../../../mock-server/core/numbers.js';
+import { minLengthOf } from '../../../mock-server/core/predicates.js';
 import { firstServerOnlyStep } from '../../../mock-server/core/validators.js';
 import type { CatalogDef } from '../../../mock-server/registry/schema.js';
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
@@ -45,7 +46,15 @@ function rangeError(field: FieldConfig, values: FormValues, rangeMessage?: (name
   return n < min || n > max ? { name: field.name, message: rangeMessage?.(field.name) ?? `${field.label} está fuera de rango.` } : undefined;
 }
 
-function fieldError(field: FieldConfig, values: FormValues, requiredMessage?: (name: string) => string, rangeMessage?: (name: string) => string, skipRange = false, dateMessage?: DateMessage): FieldError | undefined {
+/** The shared wording of each rule (`fieldMessage`); without it a rule falls back to plain Spanish text. */
+interface Messages {
+  required?: (name: string) => string;
+  range?: (name: string) => string;
+  date?: DateMessage;
+  minLen?: (name: string) => string;
+}
+
+function fieldError(field: FieldConfig, values: FormValues, { required: requiredMessage, range: rangeMessage, date: dateMessage, minLen: minLenMessage }: Messages = {}, skipRange = false): FieldError | undefined {
   // A code is server-issued and a checkbox is always valid: neither can be blank.
   if (field.kind === 'code' || field.kind === 'boolean') return undefined;
   if (field.kind === 'cascade') {
@@ -59,6 +68,8 @@ function fieldError(field: FieldConfig, values: FormValues, requiredMessage?: (n
     return { name: field.name, message: `${field.label} no puede superar ${field.maxLength} caracteres.` };
   }
   if (isBlank(value)) return undefined;
+  // `minLen` / `minLenWhen` (R-REG-4): shorter than the length that applies reads like a missing value (the desktop RUC text).
+  if (field.kind === 'text' && value.length < (minLengthOf(field, values) ?? 0)) return { name: field.name, message: minLenMessage?.(field.name) ?? `${field.label} es demasiado corto.` };
   if (field.kind === 'date') return dateError(field, values, dateMessage);
   if (field.kind === 'number' && field.scale > 0) return decimalError(field, value.trim(), requiredMessage, rangeMessage);
   return skipRange ? undefined : rangeError(field, values, rangeMessage);
@@ -80,15 +91,19 @@ export function validate(fields: FieldConfig[], values: FormValues, rules?: Vali
   const byName = new Map(fields.map((field) => [field.name, field]));
   const entryFields = new Map(entry.fields.map((field: any) => [field.name, field]));
   const required = (name: string) => fieldMessage(entry, entryFields.get(name), 'REQUIRED', mode as 'INSERT');
-  const range = (name: string) => fieldMessage(entry, entryFields.get(name), 'RANGE', mode as 'INSERT');
-  const date: DateMessage = (name, rule) => fieldMessage(entry, entryFields.get(name), rule, mode as 'INSERT');
+  const messages: Messages = {
+    required,
+    range: (name) => fieldMessage(entry, entryFields.get(name), 'RANGE', mode as 'INSERT'),
+    date: (name, rule) => fieldMessage(entry, entryFields.get(name), rule, mode as 'INSERT'),
+    minLen: (name) => fieldMessage(entry, entryFields.get(name), 'MIN_LENGTH', mode as 'INSERT'),
+  };
   const steps: any[] = (entry as any).steps;
   // A `{range: name}` step takes that field's range check out of its field step (R-REF-7 Turno order).
   const ranged = new Set(steps.flatMap((step) => (typeof step === 'object' && 'range' in step ? [step.range] : [])));
   // Named `{rule}` steps arrive with the rules themselves (W2-12); unique and ref steps are the server's.
   for (const step of steps.slice(0, firstServerOnlyStep(entry))) {
     const field = byName.get(typeof step === 'string' ? step : step.range);
-    const error = field && (typeof step === 'string' ? fieldError(field, values, required, range, ranged.has(step), date) : rangeError(field, values, range));
+    const error = field && (typeof step === 'string' ? fieldError(field, values, messages, ranged.has(step)) : rangeError(field, values, messages.range));
     if (error) return [error];
   }
   return [];

@@ -55,6 +55,23 @@ export const REGISTRY_UNDER_TEST = validateRegistry([
   entry('notas', { scope: 'empresa', stamp: ['id_usuario', 'id_empresa'] }),
   entry('declarado', { fields: [text('a', { max: 5 }), text('b', { max: 5 })], validation: ['a', { unique: 0 }, 'b'], unique: [{ fields: ['a'], errorField: 'a', message: 'Ya existe.' }] }),
   entry('colores', { fields: [text('descripcion', { normalize: ['upper'] })] }),
+  // W2-8: a three-level parent chain, like empresa -> localidad -> punto de venta -> almacen (R-MOCK-12, R-MOCK-16).
+  entry('regiones'),
+  entry('ciudades', { fields: [text('descripcion'), { name: 'id_region', kind: 'select', label: 'Región', required: true, source: { catalog: 'regiones' } }] }),
+  entry('puestos', {
+    fields: [
+      text('descripcion'),
+      { name: 'id_region', kind: 'select', label: 'Región', required: true, source: { catalog: 'regiones' } },
+      { name: 'id_ciudad', kind: 'select', label: 'Ciudad', required: true, source: { catalog: 'ciudades' }, dependsOn: [{ field: 'id_region', filterKey: 'id_region' }] },
+    ],
+  }),
+  entry('bodegas', {
+    fields: [
+      text('descripcion'),
+      { name: 'id_ciudad', kind: 'select', label: 'Ciudad', required: true, source: { catalog: 'ciudades' } },
+      { name: 'id_puesto', kind: 'select', label: 'Puesto', required: true, source: { catalog: 'puestos' }, dependsOn: [{ field: 'id_ciudad', filterKey: 'id_ciudad' }] },
+    ],
+  }),
   // W2-7: dates (test-only `notFuture` and `afterField`, S-CRUD-28).
   entry('agenda', {
     fields: [
@@ -79,6 +96,11 @@ export const SEED_UNDER_TEST = {
   declarado: { demo: [{ id_declarado: '1', a: 'X', b: 'Y', activo: true }] },
   colores: { demo: [] },
   agenda: { demo: [{ id_agenda: '1', fecha: '2026-01-15', activo: true }] },
+  regiones: { demo: [row('regiones', '1'), row('regiones', '2')] },
+  // Ids 1 and 10 on purpose: a filter on 1 must never return what belongs to 10.
+  ciudades: { demo: [row('ciudades', '1', { id_region: '1' }), row('ciudades', '2', { id_region: '1' }), row('ciudades', '10', { id_region: '2' })] },
+  puestos: { demo: [row('puestos', '1', { id_region: '1', id_ciudad: '1' }), row('puestos', '2', { id_region: '1', id_ciudad: '2' }), row('puestos', '10', { id_region: '2', id_ciudad: '10' })] },
+  bodegas: { demo: [] },
 };
 
 const invalid = (fields: string[], messages?: string[]): Outcome => ({ status: 422, code: 'VALIDATION_ERROR', fields, messages });
@@ -123,4 +145,14 @@ export const CASES: CatalogCase[] = [
   { name: 'S-CRUD-28 afterField: equal dates are accepted', slug: 'agenda', steps: [{ op: 'create', body: { fecha: '2026-01-15', fecha_ini: '2026-02-01', fecha_fin: '2026-02-01' } }], expect: { ok: true, match: { fecha_fin: '2026-02-01' } } },
   { name: 'S-CRUD-28 notFuture: a date far in the future is a 422 with the configured message', slug: 'agenda', steps: [{ op: 'create', body: { fecha: '2026-01-15', limite: '2999-01-01' } }], expect: invalid(['limite'], ['El límite no puede ser futuro.']) },
   { name: 'D10 a W2 entry reports only the first failing step', slug: 'things', steps: [{ op: 'create', body: { descripcion: ' ', tipo: 'Z' } }], expect: invalid(['descripcion']) },
+  // W2-8 (R-MOCK-12, S-MOCK-24, S-MOCK-30): a ref must belong to its parent, at every level of the chain.
+  { name: 'S-MOCK-24 a puesto of another ciudad is a 422 on id_puesto', slug: 'bodegas', steps: [{ op: 'create', body: { descripcion: 'X', id_ciudad: '2', id_puesto: '1' } }], expect: invalid(['id_puesto'], ['id_puesto does not belong to id_ciudad']) },
+  { name: 'S-MOCK-24 a puesto of its own ciudad is accepted', slug: 'bodegas', steps: [{ op: 'create', body: { descripcion: 'X', id_ciudad: '10', id_puesto: '10' } }], expect: { ok: true, match: { id_puesto: '10' } } },
+  { name: 'S-MOCK-24 changing the ciudad on UPDATE re-checks the puesto', slug: 'bodegas', steps: [{ op: 'create', body: { descripcion: 'X', id_ciudad: '1', id_puesto: '1' } }, { op: 'update', id: '1', body: { id_ciudad: '2' } }], expect: invalid(['id_puesto']) },
+  { name: 'R-MOCK-12 the chain reaches its root: a ciudad of another region is a 422 on id_ciudad', slug: 'puestos', steps: [{ op: 'create', body: { descripcion: 'X', id_region: '1', id_ciudad: '10' } }], expect: invalid(['id_ciudad'], ['id_ciudad does not belong to id_region']) },
+  { name: 'R-MOCK-12 a full chain of its own region is accepted', slug: 'puestos', steps: [{ op: 'create', body: { descripcion: 'X', id_region: '2', id_ciudad: '10' } }], expect: { ok: true, match: { id_region: '2', id_ciudad: '10' } } },
+  { name: 'S-MOCK-30 options of a parent are exact: ciudad 1 never returns the puestos of ciudad 10', slug: 'puestos', steps: [{ op: 'options', filters: { id_ciudad: '1' } }], expect: { ok: true, items: [{ id: '1', name: 'R1' }] } },
+  { name: 'S-MOCK-30 options of ciudad 10 return only its own puesto', slug: 'puestos', steps: [{ op: 'options', filters: { id_ciudad: '10' } }], expect: { ok: true, items: [{ id: '10', name: 'R10' }] } },
+  { name: 'S-MOCK-30 options of a region list its ciudades only', slug: 'ciudades', steps: [{ op: 'options', filters: { id_region: '1' } }], expect: { ok: true, items: [{ id: '1', name: 'R1' }, { id: '2', name: 'R2' }] } },
+  { name: 'S-MOCK-30 options of a ciudad that exists nowhere are empty with status 200', slug: 'puestos', steps: [{ op: 'options', filters: { id_ciudad: 'zzz' } }], expect: { ok: true, items: [] } },
 ];

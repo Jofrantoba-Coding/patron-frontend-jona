@@ -15,6 +15,9 @@ export type FieldConfig =
       label: string;
       required?: boolean;
       maxLength?: number;
+      /** A length the value must reach, plain or chosen by another field's value (`minLenWhen`, first match wins; R-REG-4). */
+      minLen?: number;
+      minLenWhen?: { when: { field: string; in: string[] }; len: number }[];
       uppercase?: boolean;
       /** Registry `normalize` steps, applied (after a trim) to the payload; absent for the W1 configs. */
       normalize?: string[];
