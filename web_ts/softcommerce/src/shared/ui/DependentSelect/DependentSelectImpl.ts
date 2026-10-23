@@ -14,12 +14,23 @@ export type DependentSelectViewProps = typeof DEPENDENTSELECT_DEFAULTS &
   };
 
 export function useDependentSelectImpl(props: InterDependentSelect): DependentSelectViewProps {
-  const { name, label, parents, values, load, readOnly, hasError, onChange } = { ...DEPENDENTSELECT_DEFAULTS, ...props };
+  const resolved = { ...DEPENDENTSELECT_DEFAULTS, ...props };
+  const { name, label, parents, values, load, readOnly, hasError, onChange, defaultOption } = resolved;
   const [, refresh] = useReducer((n: number) => n + 1, 0);
   const loader = useRef(load);
   loader.current = load;
   const chain = useRef<DependentChain>();
-  chain.current ??= createDependentChain([{ name, parents }], (_node, filters) => loader.current(filters), refresh);
+  // The latest props, so a response that arrives late decides with the form as it is then.
+  const live = useRef(resolved);
+  live.current = resolved;
+  chain.current ??= createDependentChain([{ name, parents, ...(defaultOption ? { defaultOption } : {}) }], (_node, filters) => loader.current(filters), refresh, (_node, id) => {
+    const { values: now, readOnly: locked, onDefault, onChange: change } = live.current;
+    if (locked) return;
+    const held = now[name] ?? '';
+    const options = chain.current!.options(name);
+    // A value the options hold stays (UPDATE); a missing or stale one is replaced, and an empty list empties the value.
+    if (options.length === 0 ? held !== '' : !options.some((option) => option.id === held)) (onDefault ?? change)(id);
+  });
   const parentValues = parents.map((p) => values[p.field] ?? '').join('|');
 
   useEffect(() => {

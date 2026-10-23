@@ -1,0 +1,17 @@
+[
+  { "id_detalle_sunat": "1", "id_tabla_sunat": "5", "numero": "01", "descripcion": "MERCADERIA", "activo": true },
+  { "id_detalle_sunat": "2", "id_tabla_sunat": "5", "numero": "02", "descripcion": "PRODUCTO TERMINADO", "activo": true },
+  { "id_detalle_sunat": "3", "id_tabla_sunat": "5", "numero": "03", "descripcion": "MATERIAS PRIMAS Y AUXILIARES", "activo": true },
+  { "id_detalle_sunat": "4", "id_tabla_sunat": "6", "numero": "NIU", "descripcion": "UNIDAD (BIENES)", "activo": true },
+  { "id_detalle_sunat": "5", "id_tabla_sunat": "6", "numero": "KGM", "descripcion": "KILOGRAMO", "activo": true },
+  { "id_detalle_sunat": "6", "id_tabla_sunat": "6", "numero": "LTR", "descripcion": "LITRO", "activo": true },
+  { "id_detalle_sunat": "7", "id_tabla_sunat": "6", "numero": "MTR", "descripcion": "METRO", "activo": true },
+  { "id_detalle_sunat": "8", "id_tabla_sunat": "6", "numero": "ZZ", "descripcion": "UNIDAD (SERVICIOS)", "activo": true },
+  { "id_detalle_sunat": "9", "id_tabla_sunat": "6", "numero": "BX", "descripcion": "CAJA", "activo": true },
+  { "id_detalle_sunat": "10", "id_tabla_sunat": "12", "numero": "01", "descripcion": "VENTA", "activo": true },
+  { "id_detalle_sunat": "11", "id_tabla_sunat": "12", "numero": "02", "descripcion": "COMPRA", "activo": true },
+  { "id_detalle_sunat": "12", "id_tabla_sunat": "12", "numero": "05", "descripcion": "DEVOLUCION RECIBIDA", "activo": true },
+  { "id_detalle_sunat": "13", "id_tabla_sunat": "12", "numero": "06", "descripcion": "DEVOLUCION ENTREGADA", "activo": true },
+  { "id_detalle_sunat": "14", "id_tabla_sunat": "12", "numero": "99", "descripcion": "OTROS", "activo": true },
+  { "id_detalle_sunat": "15", "id_tabla_sunat": "6", "numero": "ZZZ", "descripcion": "UNIDAD RETIRADA", "activo": false }
+]

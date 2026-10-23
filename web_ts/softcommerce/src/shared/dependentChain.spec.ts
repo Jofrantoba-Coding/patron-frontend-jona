@@ -217,3 +217,59 @@ describe('R-CRUD-12 a cascade as the parent of a select (W2-8)', () => {
     expect(chain.options('zona')).toEqual(items('2'));
   });
 });
+
+// R-CRUD-11 / S-CRUD-41: `defaultOption: 'first'` reports the first option of every load, or an empty value when there is none.
+describe('S-CRUD-41 defaultOption first', () => {
+  const TIPO_CLASIF: ChainNode[] = [{ name: 'clasif', parents: [{ field: 'tipo', filterKey: 'tipo' }], defaultOption: 'first' }];
+
+  it('reports the first option once the load of the first parent value arrives', async () => {
+    const { load, calls } = deferredLoader();
+    const picked = vi.fn();
+    createDependentChain(TIPO_CLASIF, load, () => undefined, picked).sync({ tipo: 'E' });
+    calls[0].resolve(items('1', '2'));
+    await flush();
+    expect(picked).toHaveBeenCalledTimes(1);
+    expect(picked).toHaveBeenCalledWith('clasif', '1');
+  });
+
+  it('reports the first option again after each parent change', async () => {
+    const { load, calls } = deferredLoader();
+    const picked = vi.fn();
+    const chain = createDependentChain(TIPO_CLASIF, load, () => undefined, picked);
+    chain.sync({ tipo: 'E' });
+    calls[0].resolve(items('1', '2'));
+    await flush();
+    chain.sync({ tipo: 'S' });
+    calls[1].resolve(items('7', '8'));
+    await flush();
+    expect(picked.mock.calls).toEqual([['clasif', '1'], ['clasif', '7']]);
+  });
+
+  it('reports an empty value when the load returns no options', async () => {
+    const { load, calls } = deferredLoader();
+    const picked = vi.fn();
+    createDependentChain(TIPO_CLASIF, load, () => undefined, picked).sync({ tipo: 'X' });
+    calls[0].resolve([]);
+    await flush();
+    expect(picked).toHaveBeenCalledWith('clasif', '');
+  });
+
+  it('says nothing for a node without defaultOption, a failed load, a blocked node or a superseded response', async () => {
+    const { load, calls } = deferredLoader();
+    const picked = vi.fn();
+    const nodes: ChainNode[] = [
+      { name: 'plain', parents: [{ field: 'p', filterKey: 'p' }] },
+      { name: 'first', parents: [{ field: 'q', filterKey: 'q' }], defaultOption: 'first' },
+    ];
+    const chain = createDependentChain(nodes, load, () => undefined, picked);
+    chain.sync({ p: '1', q: '1' });
+    chain.sync({ p: '1', q: '2' });
+    calls[0].resolve(items('1'));
+    calls[1].resolve(items('9'));
+    calls[2].reject();
+    await flush();
+    chain.sync({ p: '1', q: '' });
+    await flush();
+    expect(picked).not.toHaveBeenCalled();
+  });
+});

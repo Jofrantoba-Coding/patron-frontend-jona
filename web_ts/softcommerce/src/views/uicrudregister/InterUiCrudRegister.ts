@@ -32,6 +32,8 @@ export interface InterUiCrudRegister {
   confirm?: RegisterConfirm;
   /** Callbacks are value-first. */
   onFieldChange: (name: string, value: string) => void;
+  /** A select picked its own option (`defaultOption`): like a change, but the pristine form keeps it as its baseline. */
+  onFieldDefault: (name: string, value: string) => void;
   /** Focus left the field: a `padLeft` field shows its padded value (S-CRUD-35). */
   onFieldBlur: (name: string) => void;
   /** Options per select field name, loaded with the form. */

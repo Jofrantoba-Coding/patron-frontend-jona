@@ -28,6 +28,8 @@ import { tiposAnexo } from './catalogs/tipos-anexo.js';
 import { tiposCambio } from './catalogs/tipos-cambio.js';
 import { tiposDescuento } from './catalogs/tipos-descuento.js';
 import { tiposDocVenta } from './catalogs/tipos-doc-venta.js';
+import { tablasDetalleSunat } from './catalogs/tablas-detalle-sunat.js';
+import { tablasSunat } from './catalogs/tablas-sunat.js';
 import { ubicaciones } from './catalogs/ubicaciones.js';
 import { tiposTrabajador } from './catalogs/tipos-trabajador.js';
 import { tiposTrabajadorPerfil } from './catalogs/tipos-trabajador-perfil.js';
@@ -41,5 +43,5 @@ import { validateRegistry } from './schema.js';
  */
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
-  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo, subfamiliasSunat, subfamilias, monedas, tiposCambio, promociones, empresa, puntoVenta, almacenes, zonas, tiposDocVenta, correlativos, ubicaciones,
+  clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo, subfamiliasSunat, subfamilias, monedas, tiposCambio, promociones, empresa, puntoVenta, almacenes, zonas, tiposDocVenta, correlativos, ubicaciones, tablasSunat, tablasDetalleSunat,
 ]);

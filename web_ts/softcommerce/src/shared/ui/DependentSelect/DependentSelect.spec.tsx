@@ -94,3 +94,57 @@ describe('DependentSelect (G2)', () => {
     expect(ref.current).toBe(select());
   });
 });
+
+// S-CRUD-41: `defaultOption: 'first'` picks the first option after each load; the register decides nothing, the select reports it.
+describe('DependentSelect defaultOption first (S-CRUD-41)', () => {
+  const first = { defaultOption: 'first' as const };
+
+  it('reports the first option when the loaded options hold no value yet', async () => {
+    const onDefault = vi.fn();
+    render(view({ ...first, values: { id_familia: '001', id_subfamilia_sunat: '' }, load: async () => ITEMS, onDefault }));
+    await waitFor(() => expect(onDefault).toHaveBeenCalledWith('5010'));
+    expect(onDefault).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a saved value that is among the options (UPDATE)', async () => {
+    const onDefault = vi.fn();
+    render(view({ ...first, values: { id_familia: '001', id_subfamilia_sunat: '5011' }, load: async () => ITEMS, onDefault }));
+    await waitFor(() => expect(select().value).toBe('5011'));
+    expect(onDefault).not.toHaveBeenCalled();
+  });
+
+  it('replaces a value that the options no longer hold, as the desktop does', async () => {
+    const onDefault = vi.fn();
+    render(view({ ...first, values: { id_familia: '001', id_subfamilia_sunat: '9999' }, load: async () => ITEMS, onDefault }));
+    await waitFor(() => expect(onDefault).toHaveBeenCalledWith('5010'));
+  });
+
+  it('reports an empty value when the load returns no options and one is held', async () => {
+    const onDefault = vi.fn();
+    render(view({ ...first, values: { id_familia: '001', id_subfamilia_sunat: '5010' }, load: async () => [], onDefault }));
+    await waitFor(() => expect(onDefault).toHaveBeenCalledWith(''));
+  });
+
+  it('says nothing for an empty load with no value held', async () => {
+    const onDefault = vi.fn();
+    const load = vi.fn(async () => []);
+    render(view({ ...first, values: { id_familia: '001', id_subfamilia_sunat: '' }, load, onDefault }));
+    await waitFor(() => expect(load).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(onDefault).not.toHaveBeenCalled();
+  });
+
+  it('never changes a read-only select (DETAIL, DELETE)', async () => {
+    const onDefault = vi.fn();
+    render(view({ ...first, values: { id_familia: '001', id_subfamilia_sunat: '9999' }, load: async () => ITEMS, onDefault, readOnly: true }));
+    await waitFor(() => expect(names()).toContain('FRUTAS'));
+    expect(onDefault).not.toHaveBeenCalled();
+  });
+
+  it('without defaultOption it reports nothing', async () => {
+    const onDefault = vi.fn();
+    render(view({ values: { id_familia: '001', id_subfamilia_sunat: '' }, load: async () => ITEMS, onDefault }));
+    await waitFor(() => expect(names()).toContain('FRUTAS'));
+    expect(onDefault).not.toHaveBeenCalled();
+  });
+});

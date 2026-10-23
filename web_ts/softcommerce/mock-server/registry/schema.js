@@ -9,7 +9,7 @@ import { BUILTIN_SOURCES } from './sources.js';
  * reads in this slice are enforced here; later slices extend the checks.
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
- *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string, modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
+ *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string | string[], modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
  *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any,
  *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when: { field: string, in: string[] }, then: unknown, else: unknown }[] }} CatalogDef
  */
@@ -196,6 +196,12 @@ function resolveEntry(raw, slugs, sources) {
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
     for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
     for (const parent of f.dependsOn ?? []) known(`field "${f.name}" dependsOn`, parent.field);
+    // `defaultOption` (S-CRUD-41) selects the first option after each load, so it only means something on a select that loads from a parent.
+    if (f.defaultOption !== undefined) {
+      if (f.kind !== 'select') fail(at, 'defaultOption needs a select field');
+      if (f.defaultOption !== 'first') fail(at, 'defaultOption must be "first"');
+      if (!f.dependsOn?.length) fail(at, 'defaultOption needs a dependsOn parent');
+    }
     for (const key of CONDITIONS) {
       if (!f[key]) continue;
       if (typeof f[key].field !== 'string' || !Array.isArray(f[key].in)) fail(at, `${key} needs a condition { field, in }`);
@@ -227,7 +233,13 @@ function resolveEntry(raw, slugs, sources) {
     known('unique', key.errorField);
   }
   for (const join of entry.joins ?? []) known('joins', join.ref);
-  if (entry.optionLabel !== undefined) known('optionLabel', entry.optionLabel);
+  // `optionLabel` is a field name, or a list of them joined with " - " (the tabla SUNAT shows as `nombre - descripcion`).
+  if (entry.optionLabel !== undefined) {
+    const labels = entry.optionLabel;
+    if (Array.isArray(labels) ? labels.some((name) => typeof name !== 'string') : typeof labels !== 'string') fail(where, 'optionLabel must be a field name or a list of field names');
+    if (Array.isArray(labels) && labels.length === 0) fail(where, 'optionLabel needs at least one field');
+    for (const name of [labels].flat()) known('optionLabel', name);
+  }
   for (const { name } of entry.rules ?? []) rule(name, ENTRY_RULES);
   for (const filter of Object.values(entry.lookupFilters ?? {})) {
     if (filter.rule) rule(filter.rule, FILTER_RULES);
