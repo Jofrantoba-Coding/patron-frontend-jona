@@ -58,6 +58,9 @@ const DESKTOP: Record<string, [number, boolean]> = {
   'tipos-mov-inventario.abrev': [100, true],
   'unidades-medida.descripcion': [100, true],
   'unidades-medida.abreviatura': [100, true],
+  // RegisterVehiculo: UpperCaseNumberDocument(30) on the placa and the constancia.
+  'vehiculos.placa': [30, true],
+  'vehiculos.constancia_inscripcion': [30, true],
 };
 
 /** Integer fields as read from the desktop (IntegerDocument digits, focusLost pad, isRegisterValid range): `[digits, padLeft, range]`. */
@@ -67,6 +70,8 @@ const INTEGERS: Record<string, [number, boolean, { min?: number; max?: number } 
   'turnos.minuto': [2, true, { min: 0, max: 59 }],
   // IntegerDocument(10), focusLost pads to ten digits.
   'correlativos.correlativo': [10, true, undefined],
+  // IntegerDocument(10): digits only, no pad, any value.
+  'vehiculos.peso': [10, false, undefined],
 };
 
 /** Code width per slug: string ids pad to three digits (PanelTF focusLost "000"; clasif-inventarios is inferred), integer beans print unpadded. */
@@ -90,6 +95,8 @@ const CODE_WIDTH: Record<string, number> = {
   ubicaciones: 0,
   // The tipo de movimiento ids are the three-digit TipoMovInventarioEnum codes; the unidad id is a string with no pad evidence (inferred 3, flagged for W6).
   'tipos-mov-inventario': 3, 'unidades-medida': 3,
+  // The vehiculo id is a string with no pad evidence (inferred 3, flagged for W6).
+  vehiculos: 3,
 };
 
 /** Refs as read from the desktop combos (R-REG-6): the source catalog and its static where (the perfil lists tipos with estado A). */
@@ -119,6 +126,9 @@ const REFS: Record<string, [string, Record<string, unknown>]> = {
   'tipos-mov-inventario.id_detalle_sunat': ['tablas-detalle-sunat', {}],
   'unidades-medida.id_tabla_sunat': ['tablas-sunat', {}],
   'unidades-medida.id_detalle_sunat': ['tablas-detalle-sunat', {}],
+  // loadMarca / loadModelo list the rows with estado A.
+  'vehiculos.id_marca': ['marcas-vehiculo', { estado: true }],
+  'vehiculos.id_modelo': ['modelos-vehiculo', { estado: true }],
 };
 
 /**
@@ -145,6 +155,8 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
   // DAOTipoMovInventario.listar(t) takes no empresa and manTipoMovInventario only the user; DAOUnidadMedida.listar/listarGeneral take the session
   // empresa (PanelTFUnidadMedida, RegisterUnidadMedida.loadRegister) and manUnidadMedida the user.
   'tipos-mov-inventario': 'tenant', 'unidades-medida': 'empresa',
+  // DaoVehiculo.listarVehiculo(id, transportista, estado) takes no empresa and mantVehiculo passes only the user (bean.setId_usuario).
+  vehiculos: 'tenant',
 };
 /**
  * The entries over the W1 sections (empresa, punto-venta; no seed file, so no generic table rows): `DAOEmpresa.listar("")` passes no empresa
@@ -248,6 +260,22 @@ describe('W2 reference catalogs are registered', () => {
     const fields = toCatalogConfig(REGISTRY.bySlug.get('unidades-medida')).fields;
     expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_um', 'text:descripcion', 'text:abreviatura', 'select:id_tabla_sunat', 'select:id_detalle_sunat']);
     expect(fields.map((f: any) => f.label)).toEqual(['Código', 'Descripción', 'Abreviatura', 'Tabla Sunat', 'Codigo Sunat']);
+  });
+
+  it('S-REF-31 vehiculos checks placa, constancia, peso, marca and modelo in the desktop order with the M2 select texts', () => {
+    const entry = REGISTRY.bySlug.get('vehiculos');
+    const field = (name: string) => entry.fields.find((f: any) => f.name === name);
+    expect(entry.messages.style).toBe('M2');
+    expect(entry.validation).toEqual(['placa', 'constancia_inscripcion', 'peso', 'id_marca', 'id_modelo', 'estado']);
+    expect([field('id_marca').message, field('id_modelo').message]).toEqual(['Para {modo}, debes Seleccionar Marca.', 'Para {modo}, debes Seleccionar Modelo.']);
+    expect([field('constancia_inscripcion').msgLabel, field('peso').default, field('peso').blankToDefault]).toEqual(['su Constacia', '0', undefined]);
+    expect([entry.stamp, entry.scope, field('estado').default]).toEqual([['id_usuario'], 'tenant', { INSERT: true }]);
+  });
+
+  it('S-REF-39 vehiculos has no propietario picker: the form is marca, modelo, placa, constancia, peso and estado', () => {
+    const fields = toCatalogConfig(REGISTRY.bySlug.get('vehiculos')).fields;
+    expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_vehiculo', 'select:id_marca', 'select:id_modelo', 'text:placa', 'text:constancia_inscripcion', 'number:peso', 'boolean:estado']);
+    expect(fields.map((f: any) => f.label)).toEqual(['Código', 'Marca', 'Modelo', 'Placa', 'Const inscripcion', 'Peso(KG)', 'Activo']);
   });
 
   it('R-REF-8 the ticket fields are visible and required only for the tipo TI', () => {

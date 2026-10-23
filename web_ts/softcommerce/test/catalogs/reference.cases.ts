@@ -40,13 +40,14 @@ export const ENTITIES: Record<string, string> = {
   ubicaciones: 'una Ubicación',
   'tipos-mov-inventario': 'un Tipo de Movimiento de Inventario',
   'unidades-medida': 'una Unidad de Medida',
+  vehiculos: 'un Vehiculo',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
-const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo']);
+const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo', 'vehiculos']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción', almacenes: 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto, the Tipo de Cambio its fecha and moneda). */
-export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones']);
+export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones', 'vehiculos']);
 /** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
 /** The Almacen checks its localidad and punto de venta before the descripcion (RegisterAlmacen.isRegisterValid). */
 export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias', 'almacenes']);
@@ -361,7 +362,40 @@ const BASE_CASES: CatalogCase[] = [
   // R-REF-6 tipos-mov-inventario and unidades-medida (S-REF-23, S-REF-24): the clasificacion follows the tipo, the SUNAT detalle follows its tabla.
   ...tipoMovCases(),
   ...unidadCases(),
+  // R-REF-6 vehiculos (S-REF-31): style M2 messages, peso 0 by default, marca and modelo over the estado-A rows.
+  ...vehiculoCases(),
 ];
+
+function vehiculoCases(): CatalogCase[] {
+  const slug = 'vehiculos';
+  const body = (over: Record<string, unknown> = {}) => ({ placa: 'abc123', constancia_inscripcion: 'ci-9', peso: 1200, id_marca: '001', id_modelo: '001', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  const { peso: _peso, ...withoutPeso } = body();
+  return [
+    row('S-REF-31 peso is 0 and estado true when the body omits them', { name: '', slug, ctx: WRITER, steps: [{ op: 'create', body: withoutPeso }], expect: { ok: true, match: { peso: 0, estado: true } } }),
+    row('S-REF-31 a blank placa says the M2 text', create({ placa: ' ' }, invalid(['placa'], ['Para agregar, debes especificar su Placa.']))),
+    row('S-REF-31 a blank constancia keeps the desktop spelling Constacia', create({ constancia_inscripcion: ' ' }, invalid(['constancia_inscripcion'], ['Para agregar, debes especificar su Constacia.']))),
+    row('S-REF-31 a blank peso says su Peso', create({ peso: '' }, invalid(['peso'], ['Para agregar, debes especificar su Peso.']))),
+    row('S-REF-31 a blank marca says Seleccionar Marca', create({ id_marca: '' }, invalid(['id_marca'], ['Para agregar, debes Seleccionar Marca.']))),
+    row('S-REF-31 a blank modelo says Seleccionar Modelo', create({ id_modelo: '' }, invalid(['id_modelo'], ['Para agregar, debes Seleccionar Modelo.']))),
+    row('S-REF-31 the desktop order is placa, constancia, peso, marca, modelo', create({ placa: ' ', constancia_inscripcion: ' ', peso: '', id_marca: '', id_modelo: '' }, invalid(['placa']))),
+    row('S-REF-31 after a valid placa the constancia is next', create({ constancia_inscripcion: ' ', peso: '', id_marca: '', id_modelo: '' }, invalid(['constancia_inscripcion']))),
+    row('S-REF-31 then the peso, then the marca', create({ peso: '', id_marca: '', id_modelo: '' }, invalid(['peso']))),
+    row('S-REF-31 then the marca before the modelo', create({ id_marca: '', id_modelo: '' }, invalid(['id_marca']))),
+    row('S-REF-31 UPDATE words the text with modificar', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '001', body: { placa: ' ' } }], expect: invalid(['placa'], ['Para modificar, debes especificar su Placa.']) }),
+    row('S-REF-31 an inactive marca sent directly is a 422 on id_marca', create({ id_marca: '003' }, invalid(['id_marca']))),
+    row('S-REF-31 an inactive modelo sent directly is a 422 on id_modelo', create({ id_modelo: '002' }, invalid(['id_modelo']))),
+    row('R-REF-6 peso accepts 10 digits and 0', create({ peso: 1234567890 }, { ok: true, match: { peso: 1234567890 } })),
+    row('R-REF-6 peso 0 is a value, not a blank', create({ peso: 0 }, { ok: true, match: { peso: 0 } })),
+    row('R-REF-6 peso rejects 11 digits', create({ peso: '12345678901' }, invalid(['peso']))),
+    row('R-REF-6 peso keeps only digits (IntegerDocument): letters leave it blank', create({ peso: 'abc' }, invalid(['peso'], ['Para agregar, debes especificar su Peso.']))),
+    row('S-MOCK-28 get joins the marca and the modelo names', { name: '', slug, steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { marca: 'TOYOTA', modelo: 'HILUX', placa: 'ABC123' } } }),
+    row('R-REF-6 the list is tenant-wide and shows the three active rows', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+    { name: 'marcas-vehiculo S-REF-31 the vehiculo select asks for estado true: VOLVO (estado false) is left out', slug: 'marcas-vehiculo', steps: [{ op: 'options', filters: { estado: 'true' } }], expect: { ok: true, items: [{ id: '001', name: 'TOYOTA' }, { id: '002', name: 'HYUNDAI' }] } },
+    { name: 'marcas-vehiculo S-REF-31 the options offer the active marcas, whatever their estado', slug: 'marcas-vehiculo', steps: [{ op: 'options' }], expect: { ok: true, items: [{ id: '001', name: 'TOYOTA' }, { id: '002', name: 'HYUNDAI' }, { id: '003', name: 'VOLVO' }] } },
+  ];
+}
 
 function tipoMovCases(): CatalogCase[] {
   const slug = 'tipos-mov-inventario';
