@@ -1,0 +1,8 @@
+{
+  "demo": [
+    { "id_almacen": "001", "id_localidad": "1", "id_punto_venta": "1", "descripcion": "ALMACEN CENTRAL", "direccion": "AV. AREQUIPA 1000", "id_ubigeo": "150101", "direccionamiento": true, "habilita_despacho": true, "habilita_venta": true, "id_empresa": "1", "id_usuario": 1, "activo": true },
+    { "id_almacen": "002", "id_localidad": "2", "id_punto_venta": "2", "descripcion": "ALMACEN ATE", "direccion": "AV. NICOLAS AYLLON 500", "id_ubigeo": "150103", "direccionamiento": false, "habilita_despacho": true, "habilita_venta": false, "id_empresa": "1", "id_usuario": 1, "activo": true },
+    { "id_almacen": "003", "id_localidad": "3", "id_punto_venta": "3", "descripcion": "ALMACEN CALLAO", "direccion": "AV. ARGENTINA 2000", "id_ubigeo": "070101", "direccionamiento": false, "habilita_despacho": true, "habilita_venta": true, "id_empresa": "2", "id_usuario": 1, "activo": true },
+    { "id_almacen": "004", "id_localidad": "1", "id_punto_venta": "1", "descripcion": "ALMACEN CERRADO", "direccion": "JR. LAMPA 300", "id_ubigeo": "150101", "direccionamiento": false, "habilita_despacho": false, "habilita_venta": false, "id_empresa": "1", "id_usuario": 1, "activo": false }
+  ]
+}

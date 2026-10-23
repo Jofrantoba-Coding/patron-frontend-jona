@@ -34,15 +34,18 @@ export const ENTITIES: Record<string, string> = {
   subfamilias: 'una SubFamilia',
   'tipos-cambio': 'un Tipo de Cambio',
   promociones: 'una Promocion',
+  almacenes: 'un Almacen',
+  zonas: 'una Zona',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
 const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo']);
-const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción' };
+const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción', almacenes: 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto, the Tipo de Cambio its fecha and moneda). */
 export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio']);
 /** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
-export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias']);
+/** The Almacen checks its localidad and punto de venta before the descripcion (RegisterAlmacen.isRegisterValid). */
+export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias', 'almacenes']);
 
 /** The desktop sentence for a blank descripcion in `modo` (agregar, modificar, ...). */
 export const descripcionText = (slug: string, modo: string) => {
@@ -65,12 +68,42 @@ const DEVIATIONS = new Set(['marcas', 'motivos-traslado', 'tamanos', 'tipos-anex
 /** A date no seed row uses, so a valid body never meets the (empresa, fecha, moneda) key of a seeded tipo de cambio. */
 const FREE_DATE = '2030-06-15';
 
-/** A ref id the server accepts for a select field: the first active seed row of its source that meets the static where. */
-const refId = (field: any, empresa?: string): string => {
-  const source = REGISTRY.bySlug.get(field.source.catalog);
+const w1Files = import.meta.glob<any>('../../mock-server/data/*.json', { eager: true, import: 'default' });
+/** The W1 file of an entry or source with no seed file of its own: a W1 section (R-REG-12) or a builtin source. */
+const W1_FILE: Record<string, string> = { localidades: 'localidades', empresa: 'empresas', 'punto-venta': 'puntos-venta', empresas: 'empresas', ubigeo: 'ubigeo' };
+const w1Rows = (file: string) => {
+  const data = w1Files[`../../mock-server/data/${file}.json`];
+  return Array.isArray(data) ? data : (data?.demo ?? []);
+};
+
+/** What a select points to: its rows, id key and, for ubigeo, the rule that only a distrito (6 digits) is a valid ref. */
+function sourceOf(catalog: string): { rows: any[]; idKey: string; scope?: string; accepts: (row: any) => boolean } {
+  const entry = REGISTRY.bySlug.get(catalog);
+  if (!entry) return { rows: w1Rows(W1_FILE[catalog]), idKey: 'id', accepts: (row) => catalog !== 'ubigeo' || row.id.length === 6 };
+  return { rows: entry.seed === null ? w1Rows(W1_FILE[catalog]) : seedRows(entry.seed), idKey: entry.idKey, scope: entry.scope, accepts: () => true };
+}
+
+/**
+ * A ref id the server accepts for a select field: the first active row of its source that meets the static where (`$session.empresa`
+ * is the session empresa) and belongs to the parents already chosen (`chosen`, by field name).
+ */
+const refId = (field: any, empresa: string | undefined, chosen: Record<string, string>): string => {
+  const source = sourceOf(field.source.catalog);
+  const where = Object.entries(field.source.where ?? {}).map(([k, v]) => [k, v === '$session.empresa' ? (empresa ?? EMPRESA) : v] as const);
   // An empresa-scope source only offers (and the server only accepts) the rows of the session empresa.
-  const row = seedRows(source.seed).find((r) => r.activo !== false && (empresa === undefined || source.scope !== 'empresa' || String(r.id_empresa) === empresa) && Object.entries(field.source.where ?? {}).every(([k, v]) => String(r[k]) === String(v)));
+  const row = source.rows.find(
+    (r) =>
+      r.activo !== false && source.accepts(r) && (empresa === undefined || source.scope !== 'empresa' || String(r.id_empresa) === empresa) &&
+      where.every(([k, v]) => String(r[k]) === String(v)) && (field.dependsOn ?? []).every((p: any) => String(r[p.filterKey]) === chosen[p.field]),
+  );
   return String(row[source.idKey]);
+};
+
+/** The required selects of an entry filled in declared order, each child with an id of the parent chosen before it. */
+const refsFor = (entry: any, empresa?: string): Record<string, string> => {
+  const chosen: Record<string, string> = {};
+  for (const f of entry.fields.filter((f: any) => f.kind === 'select' && f.required)) chosen[f.name] = refId(f, empresa, chosen);
+  return chosen;
 };
 
 /** Session empresa of the table: the demo seed has rows of empresas 1 and 2 (5.3, 5.6b). */
@@ -94,11 +127,11 @@ function genericCases(entry: any): CatalogCase[] {
     ...Object.fromEntries(texts.filter((f) => f.required).map((f) => [f.name, 'x'])),
     ...Object.fromEntries(config.fields.filter((f) => f.kind === 'number' && f.required).map((f) => [f.name, '1'])),
     ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value])),
-    ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'select' && f.required).map((f: any) => [f.name, refId(f)])),
+    ...refsFor(entry),
     ...Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'date' && f.required).map((f: any) => [f.name, FREE_DATE])),
   };
   /** Required refs that exist in the session empresa: an empresa-scope source (the familia) differs per empresa. */
-  const refsOf = (empresa: string) => Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'select' && f.required).map((f: any) => [f.name, refId(f, empresa)]));
+  const refsOf = (empresa: string) => refsFor(entry, empresa);
   const rows = seedRows(entry.seed);
   const scoped = inEmpresa(entry, rows);
   const active = scoped.filter((r) => r.activo !== false);
@@ -162,8 +195,8 @@ function genericCases(entry: any): CatalogCase[] {
       else cases.push({ ...create({ ...valid, [name]: '' }, invalid([name])), name: at(`S-REF-34 a blank ${name} is a 422 on it`) });
     }
     cases.push({ ...create({ ...valid, [name]: '99999' }, invalid([name])), name: at(`S-REF-34 an unknown ${name} is a 422 on it`) });
-    const target = REGISTRY.bySlug.get(source.catalog);
-    const retired = seedRows(target.seed).find((r) => r.activo === false);
+    const target = sourceOf(source.catalog);
+    const retired = target.rows.find((r) => r.activo === false);
     if (retired) cases.push({ ...create({ ...valid, [name]: String(retired[target.idKey]) }, invalid([name])), name: at(`S-REF-34 an inactive ${name} is a 422 on it`) });
   }
   return cases;
@@ -306,7 +339,59 @@ const BASE_CASES: CatalogCase[] = [
   { name: 'S-REF-20 promociones a blank date is accepted (the desktop validates only the descripcion)', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'x', fecha_ini: '', fecha_fin: '' } }], expect: { ok: true, match: { fecha_ini: '', fecha_fin: '' } } },
   { name: 'S-MOCK-19 promociones a date that does not exist is a 422 on it', slug: 'promociones', steps: [{ op: 'create', body: { descripcion: 'x', fecha_ini: '2026-02-31' } }], expect: invalid(['fecha_ini']) },
   { name: 'S-REF-7 promociones estado can be switched off on UPDATE and the row stays listed', slug: 'promociones', steps: [{ op: 'update', id: '1', body: { descripcion: 'NAVIDAD', estado: false } }, { op: 'list' }], expect: { ok: true, total: 2 } },
+  // R-REF-6 almacenes (S-REF-13, S-MOCK-24): localidad, punto de venta, descripcion, direccion, then the cascade; the M1 sentences, the empresa of the session.
+  ...almacenCases(),
+  // R-REF-6 zonas (S-REF-7, S-REF-33): descripcion first, then the cascade in the MS style; estado is the shared preset.
+  ...zonaCases(),
 ];
+
+function almacenCases(): CatalogCase[] {
+  const slug = 'almacenes';
+  const as = (empresaId: string) => ({ userId: '7', empresaId });
+  const text = (modo: string, label: string) => `Para ${modo} un Almacen, debes especificar su ${label}.`;
+  const body = (over: Record<string, unknown> = {}) => ({ id_localidad: '1', id_punto_venta: '1', descripcion: 'caja', direccion: 'av. uno', id_ubigeo: '150101', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, empresaId = '1'): CatalogCase => ({ name: '', slug, ctx: as(empresaId), steps: [{ op: 'create', body: body(over) }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-13 a blank form fails first on id_localidad with the desktop text', { name: '', slug, ctx: as('1'), steps: [{ op: 'create', body: {} }], expect: invalid(['id_localidad'], [text('agregar', 'Localidad')]) }),
+    row('S-REF-13 a localidad alone fails next on the punto de venta', create({ id_punto_venta: '' }, invalid(['id_punto_venta'], [text('agregar', 'Punto de Venta')]))),
+    row('S-REF-13 then the descripcion, with its accent', create({ descripcion: ' ' }, invalid(['descripcion'], [text('agregar', 'Descripción')]))),
+    row('S-REF-13 then the direccion', create({ direccion: ' ' }, invalid(['direccion'], [text('agregar', 'Dirección')]))),
+    row('S-REF-13 the cascade without a distrito says su Distrito', create({ id_ubigeo: '' }, invalid(['id_ubigeo'], [text('agregar', 'Distrito')]))),
+    row('S-REF-13 UPDATE words the messages with modificar', { name: '', slug, ctx: as('1'), steps: [{ op: 'update', id: '001', body: { descripcion: ' ' } }], expect: invalid(['descripcion'], [text('modificar', 'Descripción')]) }),
+    row('S-MOCK-24 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '1', id_punto_venta: '2' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('S-MOCK-24 a punto de venta of its own localidad is accepted', create({ id_localidad: '2', id_punto_venta: '2' }, { ok: true, match: { id_almacen: '005', punto_venta: 'TIENDA MIRAFLORES', localidad: 'LOCAL ATE' } })),
+    row('S-MOCK-24 changing the localidad on UPDATE re-checks the punto de venta', { name: '', slug, ctx: as('1'), steps: [{ op: 'update', id: '001', body: { id_localidad: '2' } }], expect: invalid(['id_punto_venta']) }),
+    row('R-REF-6 a localidad of another empresa is a 422 on id_localidad (the where is the session empresa)', create({ id_localidad: '3', id_punto_venta: '3' }, invalid(['id_localidad']))),
+    row('R-REF-6 the same localidad is accepted under empresa 2', create({ id_localidad: '3', id_punto_venta: '3' }, { ok: true, match: { id_empresa: '2', localidad: 'ALMACEN CALLAO', id_usuario: 7 } }, '2')),
+    row('R-REF-6 the three booleans default to false', create({}, { ok: true, match: { direccionamiento: false, habilita_despacho: false, habilita_venta: false } })),
+    row('R-REF-6 the booleans are stored as sent', create({ direccionamiento: true, habilita_despacho: true, habilita_venta: true }, { ok: true, match: { direccionamiento: true, habilita_despacho: true, habilita_venta: true } })),
+    row('R-REF-6 a boolean must be a boolean', create({ habilita_venta: 'S' }, invalid(['habilita_venta']))),
+    row('R-REF-6 a ubigeo that is not a distrito is a 422 on id_ubigeo', create({ id_ubigeo: '15' }, invalid(['id_ubigeo']))),
+    row('S-MOCK-28 get joins the localidad, punto de venta and ubigeo names', { name: '', slug, ctx: as('1'), steps: [{ op: 'get', id: '001' }], expect: { ok: true, match: { localidad: 'LOCAL CENTRAL', punto_venta: 'TIENDA CENTRAL', departamento: 'LIMA', provincia: 'LIMA', distrito: 'LIMA' } } }),
+    row('S-MOCK-30 the localidad options carry the session empresa through the where: empresa 1', { name: '', slug: 'localidades', ctx: as('1'), steps: [{ op: 'options', filters: { id_empresa: '$session.empresa' } }], expect: { ok: true, items: [{ id: '1', name: 'LOCAL CENTRAL' }, { id: '2', name: 'LOCAL ATE' }] } }),
+    row('S-MOCK-30 the localidad options carry the session empresa through the where: empresa 2', { name: '', slug: 'localidades', ctx: as('2'), steps: [{ op: 'options', filters: { id_empresa: '$session.empresa' } }], expect: { ok: true, items: [{ id: '3', name: 'ALMACEN CALLAO' }, { id: '4', name: 'SUCURSAL CUSCO' }] } }),
+  ];
+}
+
+function zonaCases(): CatalogCase[] {
+  const slug = 'zonas';
+  const text = (modo: string, what: string) => `Para ${modo} una Zona, debes ${what}.`;
+  const create = (body: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: WRITER, steps: [{ op: 'create', body }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-33 descripcion first: the desktop M1 sentence', create({}, invalid(['descripcion'], [text('agregar', 'especificar su Descripcion')]))),
+    row('S-REF-33 a descripcion and no distrito says Seleccionar un Distrito (the server only sees the leaf)', create({ descripcion: 'norte' }, invalid(['id_ubigeo'], [text('agregar', 'Seleccionar un Distrito')]))),
+    row('S-REF-33 UPDATE words it with modificar', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '1', body: { id_ubigeo: '' } }], expect: invalid(['id_ubigeo'], [text('modificar', 'Seleccionar un Distrito')]) }),
+    row('R-REF-6 a ubigeo that is not a distrito is a 422 on id_ubigeo', create({ descripcion: 'norte', id_ubigeo: '1501' }, invalid(['id_ubigeo']))),
+    row('S-REF-7 estado is true when the body omits it, and the id is the next int', create({ descripcion: 'norte', id_ubigeo: '150101' }, { ok: true, match: { id_zona: '5', descripcion: 'NORTE', estado: true, id_usuario: 7 } })),
+    row('S-REF-7 estado can be switched off on UPDATE and the row stays listed', { name: '', slug, ctx: WRITER, steps: [{ op: 'update', id: '1', body: { descripcion: 'LIMA CENTRO', id_ubigeo: '150101', estado: false } }, { op: 'list' }], expect: { ok: true, total: 3 } }),
+    row('S-REF-7 an estado-false row is listed and keeps its stored estado', { name: '', slug, steps: [{ op: 'get', id: '3' }], expect: { ok: true, match: { estado: false, activo: true } } }),
+    row('S-REF-7 estado must be a boolean', create({ descripcion: 'norte', id_ubigeo: '150101', estado: 'A' }, invalid(['estado']))),
+    row('S-MOCK-28 get joins the departamento, provincia and distrito names', { name: '', slug, steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { departamento: 'LIMA', provincia: 'LIMA', distrito: 'ATE' } } }),
+    row('R-REF-6 the list is tenant-wide and needs no empresa header', { name: '', slug, ctx: { userId: '7' }, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+  ];
+}
 
 function tipoCambioCases(): CatalogCase[] {
   const slug = 'tipos-cambio';

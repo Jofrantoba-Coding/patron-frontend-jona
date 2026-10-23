@@ -1,0 +1,8 @@
+{
+  "demo": [
+    { "id_zona": "1", "descripcion": "LIMA CENTRO", "id_ubigeo": "150101", "estado": true, "id_usuario": 1, "activo": true },
+    { "id_zona": "2", "descripcion": "ATE ESTE", "id_ubigeo": "150103", "estado": true, "id_usuario": 1, "activo": true },
+    { "id_zona": "3", "descripcion": "CALLAO PUERTO", "id_ubigeo": "070101", "estado": false, "id_usuario": 1, "activo": true },
+    { "id_zona": "4", "descripcion": "CUSCO HISTORICO", "id_ubigeo": "080101", "estado": true, "id_usuario": 1, "activo": false }
+  ]
+}
