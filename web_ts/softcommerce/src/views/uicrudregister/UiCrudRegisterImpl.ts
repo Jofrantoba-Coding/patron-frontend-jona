@@ -8,6 +8,7 @@ import { mapServerError } from '../../domain/crud/serverErrors';
 import { validate, type FormValues } from '../../domain/crud/validate';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import type { InterLookupService, LookupItem } from '../../services/InterLookupService';
+import { fieldsToClear, type ChainNode } from '../../shared/dependentChain';
 import { toFailure, type Failure } from '../../shared/toFailure';
 import { useGuardedClose } from '../uishell/DialogStackProvider';
 import type { InterUiCrudRegister, RegisterConfirm, RegisterMode } from './InterUiCrudRegister';
@@ -47,8 +48,12 @@ function fromRecord(fields: FieldConfig[], record: unknown, mode: RegisterMode):
   return applyModeDefaults(fields, values, mode);
 }
 
+/** The selects that depend on other fields; they load once their parents are known, not with the form. */
+const chainOf = (fields: FieldConfig[]): ChainNode[] =>
+  fields.flatMap((field) => (field.kind === 'select' && field.dependsOn?.length ? [{ name: field.name, parents: field.dependsOn }] : []));
+
 async function loadSelectOptions(fields: FieldConfig[], lookup?: InterLookupService) {
-  const selects = fields.flatMap((field) => (field.kind === 'select' && lookup ? [field] : []));
+  const selects = fields.flatMap((field) => (field.kind === 'select' && lookup && !field.dependsOn?.length ? [field] : []));
   // A registry select asks its catalog for active options, forwarding the static `where`; a W1 select names its lookup.
   const loaded = await Promise.all(
     selects.map(async (field) => [field.name, field.source ? await lookup!.options(field.source.catalog, field.source.where) : await lookup![field.lookup!]()] as const),
@@ -152,13 +157,16 @@ export function useUiCrudRegisterImpl<T>(
     submitting,
     confirm,
     selectOptions,
+    loadOptions: async (catalog, filters) => (await lookupRef.current?.options(catalog, filters)) ?? [],
     loadChildren: async (parent) => (await lookupRef.current?.ubigeoChildren(parent)) ?? [],
     registerField: (name) => (element) => {
       fieldRefs.current[name] = element;
     },
     onFieldChange: (name, value) => {
-      setValues((current) => ({ ...current, [name]: value }));
-      setErrors(({ [name]: _cleared, ...rest }) => rest);
+      // A parent change empties the selects below it (G2); their own errors go with them.
+      const cleared = fieldsToClear(chainOf(config.fields), name);
+      setValues((current) => ({ ...current, ...Object.fromEntries(cleared.map((below) => [below, ''])), [name]: value }));
+      setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !cleared.includes(key))));
     },
     onFieldBlur: (name) => {
       const field = config.fields.find((f) => f.name === name);
