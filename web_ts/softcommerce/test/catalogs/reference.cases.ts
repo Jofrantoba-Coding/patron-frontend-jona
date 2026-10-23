@@ -37,13 +37,14 @@ export const ENTITIES: Record<string, string> = {
   almacenes: 'un Almacen',
   zonas: 'una Zona',
   correlativos: 'un Correlativo',
+  ubicaciones: 'una Ubicación',
 };
 
 /** Message style per slug when it is not M1, and the descripcion label phrase when it is not `su Descripcion`. */
 const M2 = new Set(['tipos-trabajador', 'marcas-vehiculo', 'turnos', 'modelos-vehiculo']);
 const DESCRIPCION: Record<string, string> = { 'condiciones-pago': 'su Descripción', almacenes: 'su Descripción' };
 /** Reference catalogs with no `descripcion` field (the Turno is its own hora:minuto, the Tipo de Cambio its fecha and moneda). */
-export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos']);
+export const NO_DESCRIPCION = new Set(['turnos', 'tipos-cambio', 'correlativos', 'ubicaciones']);
 /** The Motivo de Nota de Crédito checks its tipo before the descripcion (R-REF-5). */
 /** The Almacen checks its localidad and punto de venta before the descripcion (RegisterAlmacen.isRegisterValid). */
 export const DESCRIPCION_NOT_FIRST = new Set(['motivos-nc', 'subfamilias', 'almacenes']);
@@ -220,6 +221,8 @@ const DUPLICATE_MSG = 'La fecha del Tipo Cambio ya se encuentra registrado para 
 const montoText = (modo: string, label: string) => `Para ${modo} un Tipo de Cambio , debes especificar su ${label}.`;
 const AMOUNTS = { monto_compra: 1, monto_venta: 1, monto_comercial: 1, monto_especial: 1 };
 
+const UBICACION_TEXT = { id_localidad: 'Seleccione Localidad', id_punto_venta: 'Seleccione Punto de Venta', id_almacen: 'Seleccione Almacen', descripcion: 'Ingrese Descripcion' };
+
 const CORRELATIVO_DUPLICATE = 'Ya existe una asignacion de la serie al mismo tipo de documento, por favor digite otra serie.';
 
 const BASE_CASES: CatalogCase[] = [
@@ -349,7 +352,35 @@ const BASE_CASES: CatalogCase[] = [
   ...zonaCases(),
   // R-REF-6 / R-REF-7 / R-REF-8 / R-REF-9 correlativos (S-MOCK-20, S-MOCK-21, S-REF-14, S-REF-15, S-REF-16).
   ...correlativoCases(),
+  // R-REF-6 ubicaciones (S-REF-30): literal messages, localidad > punto de venta > almacen chain.
+  ...ubicacionCases(),
 ];
+
+function ubicacionCases(): CatalogCase[] {
+  const slug = 'ubicaciones';
+  const as = (empresaId = '1') => ({ empresaId });
+  const body = (over: Record<string, unknown> = {}) => ({ id_localidad: '1', id_punto_venta: '1', id_almacen: '001', descripcion: 'pasillo b', ...over });
+  const create = (over: Record<string, unknown>, expect: Outcome, empresaId = '1'): CatalogCase => ({ name: '', slug, ctx: as(empresaId), steps: [{ op: 'create', body: body(over) }], expect });
+  const update = (id: string, over: Record<string, unknown>, expect: Outcome): CatalogCase => ({ name: '', slug, ctx: as(), steps: [{ op: 'update', id, body: over }], expect });
+  const row = (name: string, c: CatalogCase): CatalogCase => ({ ...c, name: `${slug} ${name}` });
+  return [
+    row('S-REF-30 a blank form says Seleccione Localidad', { name: '', slug, ctx: as(), steps: [{ op: 'create', body: {} }], expect: invalid(['id_localidad'], [UBICACION_TEXT.id_localidad]) }),
+    row('S-REF-30 then Seleccione Punto de Venta', create({ id_punto_venta: '', id_almacen: '' }, invalid(['id_punto_venta'], [UBICACION_TEXT.id_punto_venta]))),
+    row('S-REF-30 then Seleccione Almacen', create({ id_almacen: '' }, invalid(['id_almacen'], [UBICACION_TEXT.id_almacen]))),
+    row('S-REF-30 then Ingrese Descripcion', create({ descripcion: ' ' }, invalid(['descripcion'], [UBICACION_TEXT.descripcion]))),
+    row('S-REF-30 the messages are literal: UPDATE does not word them with modificar', update('1', { descripcion: ' ' }, invalid(['descripcion'], [UBICACION_TEXT.descripcion]))),
+    row('R-MOCK-12 a punto de venta of another localidad is a 422 on id_punto_venta', create({ id_localidad: '2', id_punto_venta: '1', id_almacen: '002' }, invalid(['id_punto_venta'], ['id_punto_venta does not belong to id_localidad']))),
+    row('R-MOCK-12 an almacen of another punto de venta is a 422 on id_almacen', create({ id_almacen: '002' }, invalid(['id_almacen'], ['id_almacen does not belong to id_punto_venta']))),
+    row('R-MOCK-12 changing the almacen on UPDATE re-checks its punto de venta', update('1', { id_almacen: '002' }, invalid(['id_almacen']))),
+    row('R-REF-6 an almacen of another empresa is a 422 on id_almacen (DAO listarAlmacen passes the session empresa)', create({ id_localidad: '3', id_punto_venta: '3', id_almacen: '003' }, invalid(['id_almacen']))),
+    row('R-REF-6 the same almacen is accepted under its own empresa 2', create({ id_localidad: '3', id_punto_venta: '3', id_almacen: '003' }, { ok: true, match: { almacen: 'ALMACEN CALLAO' } }, '2')),
+    row('S-REF-30 a complete form stores the next id and the uppercased descripcion', create({}, { ok: true, match: { id_ubicacion: '5', descripcion: 'PASILLO B', id_almacen: '001', almacen: 'ALMACEN CENTRAL', punto_venta: 'TIENDA CENTRAL', localidad: 'LOCAL CENTRAL' } })),
+    row('R-REF-6 a write needs no user: the desktop never passes it', create({}, { ok: true })),
+    row('S-REF-3 descripcion rejects 51 characters and accepts 50', create({ descripcion: 'd'.repeat(51) }, invalid(['descripcion']))),
+    row('S-MOCK-28 get joins the almacen, punto de venta and localidad names', { name: '', slug, ctx: as(), steps: [{ op: 'get', id: '1' }], expect: { ok: true, match: { almacen: 'ALMACEN CENTRAL', punto_venta: 'TIENDA CENTRAL', localidad: 'LOCAL CENTRAL', descripcion: 'PASILLO A' } } }),
+    row('R-REF-6 the list is tenant-wide: three active rows', { name: '', slug, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } }),
+  ];
+}
 
 function correlativoCases(): CatalogCase[] {
   const slug = 'correlativos';
@@ -487,7 +518,9 @@ function tipoCambioCases(): CatalogCase[] {
 }
 
 /** An entry that stamps or scopes by the empresa, or whose select asks for the localidades of the session empresa (the Correlativo). */
-const needsEmpresa = (entry: any) => usesEmpresa(entry) || entry.fields.some((f: any) => f.source?.where && Object.values(f.source.where).includes('$session.empresa'));
+const needsEmpresa = (entry: any) =>
+  usesEmpresa(entry) ||
+  entry.fields.some((f: any) => (f.source?.where && Object.values(f.source.where).includes('$session.empresa')) || REGISTRY.bySlug.get(f.source?.catalog)?.scope === 'empresa');
 /** A case of an empresa catalog acts in the session empresa unless it names its own (an empty one is a missing header). */
 const inSessionEmpresa = (c: CatalogCase): CatalogCase =>
   needsEmpresa(REGISTRY.bySlug.get(c.slug)) && c.ctx?.empresaId === undefined ? { ...c, ctx: { ...c.ctx, empresaId: EMPRESA } } : c;
