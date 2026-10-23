@@ -41,7 +41,17 @@ const TABLAS = [
   [5, 'TABLA 5 - TIPO DE EXISTENCIA'], [6, 'TABLA 6 - UNIDAD DE MEDIDA'], [12, 'TABLA 12 - TIPO DE OPERACION'],
 ].map(([id, name]) => ({ id: String(id), name: String(name) }));
 const UNIDADES = ['UNIDAD (BIENES)', 'KILOGRAMO', 'LITRO', 'METRO', 'UNIDAD (SERVICIOS)', 'CAJA'];
+// tipos-doc-iden (RegisterChofer.loadTipoDocIden = listarTipoDocIden("", "A", "S"), R-REF-11): the combo shows the abreviatura; the id is the code (`01` DNI, `05` RUC).
+const TDI = 'tipos-doc-iden';
+const TDI_OPTIONS = [{ id: '00', name: 'SD' }, { id: '01', name: 'DNI' }, { id: '04', name: 'CE' }, { id: '05', name: 'RUC' }, { id: '06', name: 'PAS' }];
 const LOOKUP_CASES: CatalogCase[] = [
+  { name: `${TDI} S-REF-35 create is 405 METHOD_NOT_ALLOWED`, slug: TDI, steps: [{ op: 'create', body: { descripcion: 'X' } }], expect: notAllowed },
+  { name: `${TDI} S-REF-35 update is 405 METHOD_NOT_ALLOWED`, slug: TDI, steps: [{ op: 'update', id: '01', body: { descripcion: 'X' } }], expect: notAllowed },
+  { name: `${TDI} S-REF-35 remove is 405 and the row stays`, slug: TDI, steps: [{ op: 'remove', id: '01' }, { op: 'get', id: '01' }], expect: { ok: true, match: { activo: true } } },
+  { name: `${TDI} S-REF-35 lists the active rows without any session context`, slug: TDI, steps: [{ op: 'list' }], expect: { ok: true, total: 5 } },
+  { name: `${TDI} S-MOCK-15 get resolves a retired row`, slug: TDI, steps: [{ op: 'get', id: '99' }], expect: { ok: true, match: { activo: false } } },
+  { name: `${TDI} S-REF-35 get carries the persona and estado flags`, slug: TDI, steps: [{ op: 'get', id: '06' }], expect: { ok: true, match: { abreviatura: 'PAS', persona: true, estado: false } } },
+  { name: `${TDI} the options are named by the abreviatura, ids are the codes`, slug: TDI, steps: [{ op: 'options' }], expect: { ok: true, items: TDI_OPTIONS } },
   { name: 'familias-sunat S-REG-14 create is 405 METHOD_NOT_ALLOWED', slug: 'familias-sunat', steps: [{ op: 'create', body: { descripcion: 'X' } }], expect: notAllowed },
   { name: 'familias-sunat S-REG-14 update is 405 METHOD_NOT_ALLOWED', slug: 'familias-sunat', steps: [{ op: 'update', id: '5010', body: { descripcion: 'X' } }], expect: notAllowed },
   { name: 'familias-sunat S-REG-14 remove is 405 and the row stays', slug: 'familias-sunat', steps: [{ op: 'remove', id: '5010' }, { op: 'get', id: '5010' }], expect: { ok: true, match: { activo: true } } },
@@ -140,6 +150,24 @@ describe.each([
 
 describe('S-REG-18 a shared lookup is one global dataset', () => {
   const seed = loadSeed(dataDir);
+
+  it('tipos-doc-iden is declared shared and read-only, with no screen of its own, shown by its abreviatura', () => {
+    const entry = REGISTRY.bySlug.get(TDI);
+    expect([entry.scope, entry.readOnly, entry.formId, entry.menu, entry.optionLabel, Array.isArray(seed[TDI])]).toEqual(['shared', true, undefined, undefined, 'abreviatura', true]);
+  });
+
+  it('R-REF-11 the DNI id is 01 and the RUC id is 05 (the desktop ids), both active persons, and a non-person type is seeded', () => {
+    const by = (abreviatura: string) => seed[TDI].find((r: any) => r.abreviatura === abreviatura);
+    expect([by('DNI'), by('RUC')].map((r: any) => [r.id_tipo_doc_iden, r.persona, r.estado, r.activo])).toEqual([['01', true, true, true], ['05', true, true, true]]);
+    expect(seed[TDI].some((r: any) => r.persona === false && r.activo !== false)).toBe(true);
+    expect(seed[TDI].some((r: any) => r.persona === true && r.estado === false && r.activo !== false)).toBe(true);
+  });
+
+  it('every tenant sees the same tipos-doc-iden', () => {
+    const store = createStore(seed);
+    expect(listCatalog(store, 'demo', TDI).items).toEqual(listCatalog(store, 'botica', TDI).items);
+    expect(listCatalog(store, 'botica', TDI).items.map((r: any) => r.abreviatura)).toEqual(['SD', 'DNI', 'CE', 'RUC', 'PAS']);
+  });
 
   it('familias-sunat is declared shared and read-only, with no screen of its own', () => {
     const entry = REGISTRY.bySlug.get('familias-sunat');

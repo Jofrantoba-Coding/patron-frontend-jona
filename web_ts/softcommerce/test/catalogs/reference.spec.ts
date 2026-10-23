@@ -193,8 +193,14 @@ const SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = {
  */
 const W1_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { empresa: 'tenant', 'punto-venta': 'tenant' };
 
+/**
+ * The two document catalogs have their own table (`docIdentidad.cases.ts`): `mantChofer` passes the session user and no empresa; `mantSocio` never passes the
+ * user (the line is commented out) and `listarSocio(0, "")` takes no empresa.
+ */
+const DOC_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { choferes: 'tenant', socios: 'tenant' };
+
 describe('W2 reference catalogs are registered', () => {
-  it.each(Object.entries({ ...SCOPE, ...W1_SCOPE }))('5.6b %s keeps its audited empresa scope', (slug, scope) => {
+  it.each(Object.entries({ ...SCOPE, ...W1_SCOPE, ...DOC_SCOPE }))('5.6b %s keeps its audited empresa scope', (slug, scope) => {
     const entry = REGISTRY.bySlug.get(slug);
     const decided = entry.scope === 'empresa' ? 'empresa' : (entry.stamp ?? []).includes('id_empresa') ? 'stamp' : 'tenant';
     expect(decided).toBe(scope);
@@ -203,7 +209,7 @@ describe('W2 reference catalogs are registered', () => {
   it('5.6b the audit covers every reference catalog', () => {
     expect(Object.keys(SCOPE).sort()).toEqual(Object.keys(ENTITIES).sort());
     // Every other entry is Localidad (compat), a read-only lookup (shared, or the per-tenant usuarios and trabajadores) or one of the two W1-section entries.
-    expect(REGISTRY.entries.filter((e: any) => !e.readOnly && !e.compat && !(e.slug in SCOPE)).map((e: any) => e.slug).sort()).toEqual(Object.keys(W1_SCOPE).sort());
+    expect(REGISTRY.entries.filter((e: any) => !e.readOnly && !e.compat && !(e.slug in SCOPE)).map((e: any) => e.slug).sort()).toEqual([...Object.keys(W1_SCOPE), ...Object.keys(DOC_SCOPE)].sort());
   });
 
   it.each(Object.entries(REFS))('R-REG-6 %s refs its desktop source', (path, [catalog, where]) => {

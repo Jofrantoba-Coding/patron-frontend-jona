@@ -1,0 +1,8 @@
+[
+  { "id_tipo_doc_iden": "00", "descripcion": "SIN DOCUMENTO", "abreviatura": "SD", "persona": false, "estado": true, "activo": true },
+  { "id_tipo_doc_iden": "01", "descripcion": "DOCUMENTO NACIONAL DE IDENTIDAD", "abreviatura": "DNI", "persona": true, "estado": true, "activo": true },
+  { "id_tipo_doc_iden": "04", "descripcion": "CARNET DE EXTRANJERIA", "abreviatura": "CE", "persona": true, "estado": true, "activo": true },
+  { "id_tipo_doc_iden": "05", "descripcion": "REGISTRO UNICO DE CONTRIBUYENTES", "abreviatura": "RUC", "persona": true, "estado": true, "activo": true },
+  { "id_tipo_doc_iden": "06", "descripcion": "PASAPORTE", "abreviatura": "PAS", "persona": true, "estado": false, "activo": true },
+  { "id_tipo_doc_iden": "99", "descripcion": "VARIOS", "abreviatura": "VAR", "persona": false, "estado": true, "activo": false }
+]
