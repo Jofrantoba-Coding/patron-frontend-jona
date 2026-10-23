@@ -2,7 +2,7 @@
 import { fieldMessage } from '../../../mock-server/core/messages.js';
 import { displayToIso, todayIso } from '../../../mock-server/core/dates.js';
 import { DECIMAL_TEXT, outOfBounds } from '../../../mock-server/core/numbers.js';
-import { minLengthOf } from '../../../mock-server/core/predicates.js';
+import { fieldState, minLengthOf } from '../../../mock-server/core/predicates.js';
 import { firstServerOnlyStep } from '../../../mock-server/core/validators.js';
 import type { CatalogDef } from '../../../mock-server/registry/schema.js';
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
@@ -63,8 +63,11 @@ function fieldError(field: FieldConfig, values: FormValues, { required: required
     const unset = field.levels.find((level) => isBlank(values[level.name]));
     return field.required && unset ? { name: unset.name, message: requiredMessage?.(field.name, unset) ?? `${unset.label} es obligatorio.` } : undefined;
   }
+  // A hidden or disabled field is not validated (R-CRUD-5); `requiredWhen` makes a visible one required (R-CRUD-13).
+  const state = fieldState(field, values);
+  if (!state.visible || !state.enabled) return undefined;
   const value = values[field.name];
-  if (field.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? `${field.label} es obligatorio.` };
+  if (state.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? `${field.label} es obligatorio.` };
   if (field.kind === 'text' && field.maxLength !== undefined && (value?.length ?? 0) > field.maxLength) {
     return { name: field.name, message: `${field.label} no puede superar ${field.maxLength} caracteres.` };
   }

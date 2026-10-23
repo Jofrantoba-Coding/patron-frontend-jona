@@ -81,6 +81,20 @@ export const REGISTRY_UNDER_TEST = validateRegistry([
       { name: 'limite', kind: 'date', label: 'Límite', notFuture: true, messages: { notFuture: 'El límite no puede ser futuro.' } },
     ],
   }),
+  // W2-9: conditional fields, stored constants and a derived value (R-CRUD-13, R-REF-8, R-REF-9); the unique key sits before the ticket field.
+  entry('comprobantes', {
+    fields: [
+      { name: 'tipo', kind: 'options', label: 'Tipo', required: true, display: 'select', options: [{ value: 'TI', label: 'Ticket' }, { value: '01', label: 'Factura' }] },
+      text('serie', { max: 4 }),
+      text('autorizacion', { max: 10, msgLabel: 'su Autorizacion', visibleWhen: { field: 'tipo', in: ['TI'] }, requiredWhen: { field: 'tipo', in: ['TI'] } }),
+      text('obs', { max: 10, required: false, enabledWhen: { field: 'tipo', in: ['01'] } }),
+      { name: 'imprime', kind: 'options', label: 'Imprime', display: 'radio', options: [{ value: 'S', label: 'Sí' }, { value: 'N', label: 'No' }], default: 'S' },
+    ],
+    unique: [{ fields: ['serie'], errorField: 'serie', message: 'La serie ya existe.' }],
+    validation: ['tipo', 'serie', { unique: 0 }, 'autorizacion', 'obs'],
+    constants: { num_inicial: '0000000001', flag: 'N' },
+    derive: [{ target: 'lineas', when: { field: 'imprime', in: ['S'] }, then: 12, else: 0 }],
+  }),
 ]);
 
 const row = (slug: string, id: string, extra: Record<string, unknown> = {}) => ({ [`id_${slug}`]: id, descripcion: `R${id}`, activo: true, ...extra });
@@ -101,6 +115,7 @@ export const SEED_UNDER_TEST = {
   ciudades: { demo: [row('ciudades', '1', { id_region: '1' }), row('ciudades', '2', { id_region: '1' }), row('ciudades', '10', { id_region: '2' })] },
   puestos: { demo: [row('puestos', '1', { id_region: '1', id_ciudad: '1' }), row('puestos', '2', { id_region: '1', id_ciudad: '2' }), row('puestos', '10', { id_region: '2', id_ciudad: '10' })] },
   bodegas: { demo: [] },
+  comprobantes: { demo: [{ id_comprobantes: '1', tipo: '01', serie: 'F001', autorizacion: '', obs: '', imprime: 'S', num_inicial: '0000000001', flag: 'N', lineas: 12, activo: true }] },
 };
 
 const invalid = (fields: string[], messages?: string[]): Outcome => ({ status: 422, code: 'VALIDATION_ERROR', fields, messages });
@@ -155,4 +170,18 @@ export const CASES: CatalogCase[] = [
   { name: 'S-MOCK-30 options of ciudad 10 return only its own puesto', slug: 'puestos', steps: [{ op: 'options', filters: { id_ciudad: '10' } }], expect: { ok: true, items: [{ id: '10', name: 'R10' }] } },
   { name: 'S-MOCK-30 options of a region list its ciudades only', slug: 'ciudades', steps: [{ op: 'options', filters: { id_region: '1' } }], expect: { ok: true, items: [{ id: '1', name: 'R1' }, { id: '2', name: 'R2' }] } },
   { name: 'S-MOCK-30 options of a ciudad that exists nowhere are empty with status 200', slug: 'puestos', steps: [{ op: 'options', filters: { id_ciudad: 'zzz' } }], expect: { ok: true, items: [] } },
+  // W2-9 (S-MOCK-20, S-REF-16): a hidden conditional field is stored as an empty string, constants and the derived value are stored.
+  { name: 'S-MOCK-20 a ticket without its field is a 422 on that field', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: 'TI', serie: 'T001', autorizacion: ' ' } }], expect: invalid(['autorizacion'], ['Para agregar un item, debes especificar su Autorizacion.']) },
+  { name: 'S-MOCK-20 a ticket with its field stores it', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: 'TI', serie: 'T001', autorizacion: 'ab12' } }], expect: { ok: true, match: { autorizacion: 'ab12' } } },
+  { name: 'S-MOCK-20 another tipo stores a typed value as an empty string', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: '01', serie: 'F002', autorizacion: 'ab12' } }], expect: { ok: true, match: { autorizacion: '' } } },
+  { name: 'S-MOCK-20 a null from the UI is stored as an empty string', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: '01', serie: 'F002', autorizacion: null } }], expect: { ok: true, match: { autorizacion: '' } } },
+  { name: 'R-CRUD-13 changing the tipo on UPDATE empties the hidden field again', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: 'TI', serie: 'T001', autorizacion: 'ab12' } }, { op: 'update', id: '2', body: { tipo: '01', serie: 'T001', autorizacion: 'ab12' } }], expect: { ok: true, match: { tipo: '01', autorizacion: '' } } },
+  { name: 'R-CRUD-5 a disabled field is not validated and keeps its value', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: 'TI', serie: 'T001', autorizacion: 'x', obs: 'y'.repeat(11) } }], expect: { ok: true } },
+  { name: 'R-REF-9 the constants and the derived value are stored on create', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: '01', serie: 'F002', imprime: 'S' } }], expect: { ok: true, match: { num_inicial: '0000000001', flag: 'N', lineas: 12 } } },
+  { name: 'R-REF-9 the derived value takes the else branch', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: '01', serie: 'F002', imprime: 'N' } }], expect: { ok: true, match: { lineas: 0 } } },
+  { name: 'R-REF-9 the derived value follows the declared default when the body omits the field', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: '01', serie: 'F002' } }], expect: { ok: true, match: { imprime: 'S', lineas: 12 } } },
+  { name: 'R-REF-9 a constant in the body is ignored', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: '01', serie: 'F002', num_inicial: '5', lineas: 99 } }], expect: { ok: true, match: { num_inicial: '0000000001', lineas: 12 } } },
+  { name: 'R-REF-9 UPDATE re-derives the value and keeps the constants', slug: 'comprobantes', steps: [{ op: 'update', id: '1', body: { imprime: 'N' } }], expect: { ok: true, match: { lineas: 0, num_inicial: '0000000001', flag: 'N' } } },
+  { name: 'S-REG-17 a duplicate serie is the 409, even when the ticket field is also blank', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: 'TI', serie: 'F001', autorizacion: '' } }], expect: { status: 409, code: 'DUPLICATE', fields: ['serie'], messages: ['La serie ya existe.'] } },
+  { name: 'S-REF-15 the ticket field is reported by the server after a passing unique', slug: 'comprobantes', steps: [{ op: 'create', body: { tipo: 'TI', serie: 'T009', autorizacion: '' } }], expect: invalid(['autorizacion']) },
 ];

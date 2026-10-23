@@ -4,7 +4,7 @@ import { isIsoDate, todayIso } from './dates.js';
 import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
-import { minLengthOf } from './predicates.js';
+import { fieldState, minLengthOf } from './predicates.js';
 
 /** Logical-delete flag shared by every registry catalog (R-MOCK-7). */
 export const ACTIVE_KEY = 'activo';
@@ -75,11 +75,14 @@ function rangeDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
 
 /** Required, length, option, number and boolean checks of one field. A `skipRange` field leaves its range to a `{range}` step. @returns {Detail|null} */
 function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode, skipRange = false) {
+  // A hidden or disabled field is not validated (R-CRUD-5); `requiredWhen` makes a visible one required (R-CRUD-13).
+  const state = fieldState(f, record);
+  if (!state.visible || !state.enabled) return null;
   const value = record[f.name];
   const bad = (/** @type {'REQUIRED'|'MAX_LENGTH'|'MIN_LENGTH'|'INVALID'|'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD'} */ code) => ({ field: f.name, code, message: fieldMessage(entry, f, code, mode) });
   if (isBlank(value)) {
     const optional = (entry.compat?.serverOptional ?? []).includes(f.name);
-    return f.required && !optional ? bad('REQUIRED') : null;
+    return state.required && !optional ? bad('REQUIRED') : null;
   }
   const text = String(value);
   if ((f.kind === 'text' || f.kind === 'code') && f.max !== undefined && text.length > f.max) {

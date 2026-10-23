@@ -25,6 +25,8 @@ export interface InterUiCrudRegister {
   readOnly: boolean;
   /** True when the named field is not editable in this mode: the form is read-only or the field lists the mode in `readOnlyOn`. */
   isFieldReadOnly: (name: string) => boolean;
+  /** False while a conditional field's `visibleWhen` fails: the view does not render it (R-CRUD-13). */
+  isFieldVisible: (name: string) => boolean;
   canSubmit: boolean;
   submitting: boolean;
   confirm?: RegisterConfirm;

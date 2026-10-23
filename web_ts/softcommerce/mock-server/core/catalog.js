@@ -2,6 +2,7 @@ import { methodNotAllowed, modeNotSupported, notFound } from './errors.js';
 import { isModeMap } from '../registry/schema.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { todayIso } from './dates.js';
+import { blankHidden, derivedValues } from './stored.js';
 import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
 
 export const DEFAULT_PAGE_SIZE = 20;
@@ -110,12 +111,13 @@ export function createRecord(store, tenantId, catalog, body, ctx) {
   const entry = writableEntry(store, catalog, 'POST');
   // Session values come from the context, never from the body (R-MOCK-13).
   const stamps = stampsOf(store, tenantId, entry, ctx);
-  const record = withDefaults(entry, pickWritable(entry, body));
+  const record = blankHidden(entry, withDefaults(entry, pickWritable(entry, body)));
   validateRecord(store, tenantId, entry, record, { ctx, mode: 'INSERT' });
   const rows = rowsOf(store, tenantId, entry);
   // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.
   const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[entry.idKey]) || 0), 0) + 1;
-  const created = { [entry.idKey]: String(next).padStart(entry.codeWidth, '0'), ...record, ...stamps, [ACTIVE_KEY]: true };
+  // Constants and derived columns are the server's: the body never reaches them (R-REF-9).
+  const created = { [entry.idKey]: String(next).padStart(entry.codeWidth, '0'), ...record, ...entry.constants, ...derivedValues(entry, record), ...stamps, [ACTIVE_KEY]: true };
   rows.push(created);
   return enrich(store, tenantId, entry, created, ctx);
 }
@@ -125,9 +127,9 @@ export function updateRecord(store, tenantId, catalog, id, body, ctx) {
   const entry = writableEntry(store, catalog, 'PUT');
   const stamps = stampsOf(store, tenantId, entry, ctx);
   const row = findRow(store, tenantId, entry, id, ctx);
-  const merged = { ...row, ...pickWritable(entry, body) };
+  const merged = blankHidden(entry, { ...row, ...pickWritable(entry, body) });
   validateRecord(store, tenantId, entry, merged, { selfId: id, ctx, mode: 'UPDATE' });
-  Object.assign(row, merged, stamps);
+  Object.assign(row, merged, derivedValues(entry, merged), stamps);
   return enrich(store, tenantId, entry, row, ctx);
 }
 

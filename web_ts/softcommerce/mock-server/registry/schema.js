@@ -10,7 +10,8 @@ import { BUILTIN_SOURCES } from './sources.js';
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
  *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string, modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
- *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any }} CatalogDef
+ *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any,
+ *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when: { field: string, in: string[] }, then: unknown, else: unknown }[] }} CatalogDef
  */
 
 export const SCOPES = ['tenant', 'empresa', 'shared'];
@@ -111,6 +112,32 @@ function assertMinLength(at, f) {
   }
 }
 
+/**
+ * Stored-only columns (R-REG-2): `constants` are written on create and `derive` rules compute a column from the record; the body can
+ * never set them, so none may share a name with a field (or with each other).
+ * @param {string} where @param {any} entry @param {Set<string>} names @param {(context: string, name: string) => void} known
+ */
+function assertStored(where, entry, names, known) {
+  const { constants, derive } = entry;
+  if (constants !== undefined) {
+    if (typeof constants !== 'object' || constants === null || Array.isArray(constants)) fail(where, 'constants must be an object');
+    for (const [key, value] of Object.entries(constants)) {
+      if (!['string', 'number', 'boolean'].includes(typeof value)) fail(where, `constant "${key}" must be a string, number or boolean`);
+      if (names.has(key)) fail(where, `constant "${key}" is also a field`);
+    }
+  }
+  if (derive === undefined) return;
+  if (!Array.isArray(derive)) fail(where, 'derive must be a list');
+  for (const rule of derive) {
+    if (typeof rule.target !== 'string' || rule.target === '') fail(where, 'derive needs a target');
+    if (names.has(rule.target)) fail(where, `derive target "${rule.target}" is also a field`);
+    if (constants && Object.hasOwn(constants, rule.target)) fail(where, `derive target "${rule.target}" is also a constant`);
+    if (typeof rule.when?.field !== 'string' || !Array.isArray(rule.when.in)) fail(where, 'derive needs a condition { field, in }');
+    known('derive', rule.when.field);
+    if (!('then' in rule) || !('else' in rule) || rule.then === undefined || rule.else === undefined) fail(where, 'derive needs then and else');
+  }
+}
+
 /** @param {string} where @param {any[]} fields */
 function assertAcyclic(where, fields) {
   const parents = new Map(fields.map((f) => [f.name, (f.dependsOn ?? []).map((/** @type {any} */ d) => d.field)]));
@@ -169,7 +196,15 @@ function resolveEntry(raw, slugs, sources) {
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
     for (const step of f.normalize ?? []) if (!NORMALIZE_STEP.test(step)) fail(at, `unknown normalize step "${step}"`);
     for (const parent of f.dependsOn ?? []) known(`field "${f.name}" dependsOn`, parent.field);
-    for (const key of CONDITIONS) if (f[key]) known(`field "${f.name}" ${key}`, f[key].field);
+    for (const key of CONDITIONS) {
+      if (!f[key]) continue;
+      if (typeof f[key].field !== 'string' || !Array.isArray(f[key].in)) fail(at, `${key} needs a condition { field, in }`);
+      known(`field "${f.name}" ${key}`, f[key].field);
+    }
+    if (f.clearsOnChange !== undefined) {
+      if (!Array.isArray(f.clearsOnChange)) fail(at, 'clearsOnChange must be a list');
+      for (const name of f.clearsOnChange) known(`field "${f.name}" clearsOnChange`, name);
+    }
     if (f.afterField !== undefined && f.kind !== 'date') fail(at, 'afterField needs a date field');
     if (f.afterField) {
       known(`field "${f.name}" afterField`, f.afterField);
@@ -177,6 +212,7 @@ function resolveEntry(raw, slugs, sources) {
     }
   }
   assertAcyclic(where, entry.fields);
+  assertStored(where, entry, names, known);
   for (const column of entry.columns) {
     // `<name>_label` is the label the server adds beside an options field (R-MOCK-14).
     const base = column.key.endsWith('_label') ? column.key.slice(0, -'_label'.length) : undefined;

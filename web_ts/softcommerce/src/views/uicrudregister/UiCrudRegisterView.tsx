@@ -42,7 +42,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
             </JAlert>
           )}
           {status === 'ready' &&
-            props.fields.map((field) =>
+            props.fields.filter((field) => props.isFieldVisible(field.name)).map((field) =>
               field.kind === 'code' ? (
                 // The server issues the code: shown read-only once the record exists, never in INSERT or CLONE.
                 mode !== 'INSERT' && mode !== 'CLONE' && (
@@ -61,7 +61,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                       maxLength={field.maxLength}
                       uppercase={field.uppercase}
                       transform={(typed) => typedNormalize(field, typed)}
-                      readOnly={props.readOnly}
+                      readOnly={props.isFieldReadOnly(field.name)}
                       hasError={Boolean(props.errors[field.name])}
                       onEnterPress={props.readOnly ? undefined : () => props.onSubmit()}
                       onBlur={() => props.onFieldBlur(field.name)}

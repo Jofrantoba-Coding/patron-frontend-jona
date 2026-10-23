@@ -1,4 +1,5 @@
 import { normalizeValue } from '../../../mock-server/core/normalize.js';
+import { fieldState } from '../../../mock-server/core/predicates.js';
 import type { FieldConfig } from '../../catalogs/CatalogConfig';
 import { encodeValues } from './codec';
 import type { FormValues } from './validate';
@@ -29,7 +30,8 @@ export function typedNormalize(field: FieldConfig, value: string): string {
 /**
  * On submit: re-applies uppercase to the `uppercase` fields, trims and normalizes the registry fields with
  * the same steps as the server, never sends the server `code`, and drops the cascade levels above the leaf
- * (only the leaf id is stored). The result is the typed payload: the codec turns each boolean field into a boolean.
+ * (only the leaf id is stored). The result is the typed payload: the codec turns each boolean field into a boolean, and a hidden
+ * conditional field becomes `null`.
  */
 export function normalize(fields: FieldConfig[], values: FormValues): Record<string, unknown> {
   const result = { ...values };
@@ -42,5 +44,8 @@ export function normalize(fields: FieldConfig[], values: FormValues): Record<str
   for (const field of fields) {
     if (field.kind === 'cascade') field.levels.slice(0, -1).forEach((level) => delete result[level.name]);
   }
-  return encodeValues(fields, result);
+  const payload = encodeValues(fields, result);
+  // A hidden conditional field is sent as `null`; the server stores an empty string (R-CRUD-13, D7).
+  for (const field of fields) if (field.kind !== 'code' && field.kind !== 'cascade' && field.name in payload && !fieldState(field, values).visible) payload[field.name] = null;
+  return payload;
 }

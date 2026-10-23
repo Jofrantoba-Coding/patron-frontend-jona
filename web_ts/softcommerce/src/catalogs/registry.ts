@@ -4,7 +4,18 @@ import type { CatalogConfig, FieldConfig } from './CatalogConfig';
 
 type Row = Record<string, string>;
 
+/** The conditional attributes of a field (G8), carried as declared. */
+const conditionsOf = (field: any) => ({
+  ...(field.visibleWhen ? { visibleWhen: field.visibleWhen } : {}), ...(field.enabledWhen ? { enabledWhen: field.enabledWhen } : {}),
+  ...(field.requiredWhen ? { requiredWhen: field.requiredWhen } : {}), ...(field.clearsOnChange ? { clearsOnChange: field.clearsOnChange } : {}),
+});
+
 function toField(entry: CatalogDef, field: any): FieldConfig {
+  const config = baseField(entry, field);
+  return config.kind === 'code' || config.kind === 'cascade' ? config : { ...config, ...conditionsOf(field) };
+}
+
+function baseField(entry: CatalogDef, field: any): FieldConfig {
   if (field.kind === 'code') return { kind: 'code', name: field.name, label: field.label };
   if (field.kind === 'text') {
     const normalize: string[] = field.normalize ?? [];
