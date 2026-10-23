@@ -56,9 +56,13 @@ export function getPermissions(store, formId) {
   );
 }
 
+/** A row of a W1 section the Wave 2 `empresa` / `punto-venta` entries also write: active rows only (R-REG-12). @param {any} row */
+const isActive = (row) => row.activo !== false;
+
 /** @param {any} store @param {string} tenantId */
 export function listEmpresas(store, tenantId) {
-  return { items: structuredClone(store.data(tenantId).empresas) };
+  // The W1 item shape, whatever else the Wave 2 entry stores in the same row (S-MOCK-34).
+  return { items: store.data(tenantId).empresas.filter(isActive).map((/** @type {any} */ e) => ({ id: e.id, name: e.name })) };
 }
 
 /**
@@ -66,11 +70,11 @@ export function listEmpresas(store, tenantId) {
  * @param {any} store @param {string} tenantId @param {{ id_empresa?: string }} [query]
  */
 export function listPuntosVenta(store, tenantId, query = {}) {
-  const all = store.data(tenantId).puntosVenta;
+  const all = store.data(tenantId).puntosVenta.filter(isActive);
   const items = query.id_empresa === undefined
     ? all
     : all.filter((/** @type {any} */ p) => p.id_empresa === query.id_empresa);
-  return { items: structuredClone(items) };
+  return { items: items.map((/** @type {any} */ p) => ({ id: p.id, name: p.name, id_empresa: p.id_empresa })) };
 }
 
 /** BdEmpresaParametro flags as data only. @param {any} store @param {string} tenantId */

@@ -5,6 +5,8 @@ export interface UppercaseTextFieldProps extends Omit<InterJTextBox, 'onChange' 
   /** An edit that would leave the value longer than this is ignored whole: no truncation, no error. */
   maxLength?: number;
   uppercase?: boolean;
+  /** Applied to every edit before the length check, so characters it drops (letters in a digits field) never count. */
+  transform?: (next: string) => string;
   /** Value-first: only accepted values are reported. */
   onChange: (value: string) => void;
 }
@@ -15,11 +17,12 @@ export interface UppercaseTextFieldProps extends Omit<InterJTextBox, 'onChange' 
  * `[selectionStart, selectionEnd)` by hand; a rejected change leaves the controlled value untouched.
  */
 export const UppercaseTextField = forwardRef<HTMLInputElement, UppercaseTextFieldProps>(
-  ({ maxLength, uppercase, onChange, ...box }, ref) => (
+  ({ maxLength, uppercase, transform, onChange, ...box }, ref) => (
     <JTextBox
       {...box}
       ref={ref}
-      onChange={(next) => {
+      onChange={(typed) => {
+        const next = transform ? transform(typed) : typed;
         if (maxLength !== undefined && next.length > maxLength) return;
         onChange(uppercase ? next.toUpperCase() : next);
       }}

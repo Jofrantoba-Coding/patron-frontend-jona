@@ -98,7 +98,8 @@ export type FieldConfig =
       kind: 'cascade';
       name: string;
       lookup: 'ubigeo';
-      levels: { name: string; label: string }[];
+      /** `article` (un / una) words the MS style message of the level ("debes Seleccionar una Provincia"). */
+      levels: { name: string; label: string; article?: 'un' | 'una' }[];
       /** Ids from the root to the leaf's parent, used to prefill the levels. */
       ancestorsOf: (leafId: string) => string[];
       required?: boolean;

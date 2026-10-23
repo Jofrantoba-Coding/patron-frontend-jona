@@ -239,11 +239,13 @@ function resolveEntry(raw, slugs, sources) {
  */
 export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {}) {
   for (const key of ['slug', 'idKey', 'formId']) {
-    const seen = new Set();
+    // The entries over the W1 sections (`seed: null`) all keep the W1 row key `id`, so only they may share it.
+    const seen = new Map();
     for (const raw of rawEntries) {
       if (raw[key] === undefined) continue;
-      if (seen.has(raw[key])) fail(`entry "${raw.slug}"`, `duplicate ${key} "${raw[key]}"`);
-      seen.add(raw[key]);
+      const first = seen.get(raw[key]);
+      if (first && !(key === 'idKey' && first.seed === null && raw.seed === null)) fail(`entry "${raw.slug}"`, `duplicate ${key} "${raw[key]}"`);
+      seen.set(raw[key], first ?? raw);
     }
   }
   const slugs = new Set(rawEntries.map((e) => e.slug));

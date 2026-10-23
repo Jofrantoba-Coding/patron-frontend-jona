@@ -1,9 +1,9 @@
 {
   "demo": [
-    { "id": "1", "name": "COMERCIAL DEMO SAC" },
-    { "id": "2", "name": "DISTRIBUIDORA DEMO SRL" }
+    { "id": "1", "name": "COMERCIAL DEMO SAC", "direccion": "AV. AREQUIPA 1000", "ruc": "20123456789", "representante": "JUAN PEREZ", "telefono": "014445555", "website": "www.comercialdemo.pe", "direccion_comercial": "AV. AREQUIPA 1000", "correo": "contacto@comercialdemo.pe", "id_ubigeo": "150101", "flag_percepcion": false },
+    { "id": "2", "name": "DISTRIBUIDORA DEMO SRL", "direccion": "AV. ARGENTINA 2000", "ruc": "20987654321", "representante": "MARIA LOPEZ", "telefono": "014446666", "website": "www.distribuidorademo.pe", "direccion_comercial": "AV. ARGENTINA 2000", "correo": "ventas@distribuidorademo.pe", "id_ubigeo": "070101", "flag_percepcion": true }
   ],
   "botica": [
-    { "id": "1", "name": "BOTICA SALUD EIRL" }
+    { "id": "1", "name": "BOTICA SALUD EIRL", "direccion": "CALLE MERCADERES 200", "ruc": "20555555555", "representante": "ANA TORRES", "telefono": "054222333", "website": "", "direccion_comercial": "CALLE MERCADERES 200", "correo": "botica@salud.pe", "id_ubigeo": "040101", "flag_percepcion": false }
   ]
 }

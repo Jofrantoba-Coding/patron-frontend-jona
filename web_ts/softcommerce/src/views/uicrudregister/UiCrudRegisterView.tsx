@@ -7,6 +7,7 @@ import { DateField } from '../../shared/ui/DateField';
 import { DependentSelect } from '../../shared/ui/DependentSelect';
 import { NumberField } from '../../shared/ui/NumberField';
 import { OptionsField } from '../../shared/ui/OptionsField';
+import { typedNormalize } from '../../domain/crud/normalize';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { UICRUDREGISTER_DEFAULTS, type InterUiCrudRegister } from './InterUiCrudRegister';
@@ -59,6 +60,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                       value={props.values[field.name]}
                       maxLength={field.maxLength}
                       uppercase={field.uppercase}
+                      transform={(typed) => typedNormalize(field, typed)}
                       readOnly={props.readOnly}
                       hasError={Boolean(props.errors[field.name])}
                       onEnterPress={props.readOnly ? undefined : () => props.onSubmit()}

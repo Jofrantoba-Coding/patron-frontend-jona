@@ -1,10 +1,10 @@
 {
   "demo": [
-    { "id": "1", "name": "TIENDA CENTRAL", "id_empresa": "1" },
-    { "id": "2", "name": "TIENDA MIRAFLORES", "id_empresa": "1" },
-    { "id": "3", "name": "ALMACEN SUR", "id_empresa": "2" }
+    { "id": "1", "name": "TIENDA CENTRAL", "id_empresa": "1", "id_localidad": "1", "direccion": "AV. AREQUIPA 1000", "telefono": "014445555", "id_ubigeo": "150101" },
+    { "id": "2", "name": "TIENDA MIRAFLORES", "id_empresa": "1", "id_localidad": "2", "direccion": "AV. NICOLAS AYLLON 500", "telefono": "014447777", "id_ubigeo": "150103" },
+    { "id": "3", "name": "ALMACEN SUR", "id_empresa": "2", "id_localidad": "3", "direccion": "AV. ARGENTINA 2000", "telefono": "014446666", "id_ubigeo": "070101" }
   ],
   "botica": [
-    { "id": "1", "name": "BOTICA PRINCIPAL", "id_empresa": "1" }
+    { "id": "1", "name": "BOTICA PRINCIPAL", "id_empresa": "1", "id_localidad": "1", "direccion": "CALLE MERCADERES 200", "telefono": "054222333", "id_ubigeo": "040101" }
   ]
 }
