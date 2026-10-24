@@ -43,5 +43,6 @@
   "miTrabajador": { "add": true, "modify": true, "eliminate": false, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "miVendedor": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": false, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
   "miTransportista": { "add": true, "modify": true, "eliminate": false, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
-  "mi_usuario": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true }
+  "mi_usuario": { "add": true, "modify": true, "eliminate": true, "nullify": false, "clone": true, "details": true, "search": true, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": true },
+  "mi_SeguridadPerfil": { "add": false, "modify": false, "eliminate": false, "nullify": false, "clone": false, "details": false, "search": false, "report": false, "export": false, "print": false, "printFast": false, "close": true, "refresh": false }
 }
