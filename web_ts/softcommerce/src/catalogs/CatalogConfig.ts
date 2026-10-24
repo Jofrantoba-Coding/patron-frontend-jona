@@ -14,10 +14,18 @@ export interface FieldCondition {
   in: string[];
 }
 
+/** Overrides a company parameter applies to a field (R-MST-11): while `param` holds a listed value (the gate test), `set` replaces `required` and the cascade `filter`. */
+export interface ParamOverride {
+  param: string;
+  in?: unknown[];
+  set: { required?: boolean; filter?: Record<string, string> };
+}
+
 /** G8 conditional behavior (R-CRUD-13): visibility, editability and requiredness by another field's value; `clearsOnChange` empties fields when this one changes. */
 export interface ConditionalProps {
   /** The company parameter that gives the field (R-REG-17): with it off the field is absent from the register, validation and payload. */
   gate?: { param: string; in?: unknown[] };
+  byParam?: ParamOverride;
   visibleWhen?: FieldCondition;
   enabledWhen?: FieldCondition;
   requiredWhen?: FieldCondition;
@@ -137,6 +145,8 @@ type PlainField =
       defaultOption?: 'first';
       /** The sentence of a blank required value when no entry gives one (an action dialog: `Seleccione Padron`). */
       message?: string;
+      /** Choosing an option copies its name into `target` (empty for the ids in `unless`, which are typed, R-MST-11); client side like a lookup `fill`. */
+      fillLabel?: { target: string; unless?: string[] };
     }
   | {
       /** A code box over a search dialog (R-CRUD-19): the form state and the payload carry the id; `display` is the record key that holds its description. */
@@ -172,6 +182,8 @@ type PlainField =
       restoreFrom?: { field: string; prefixLen: number };
       /** Sent with every level request (`{ has: 'zonas' }` keeps the ubigeos that hold an active zona). */
       filter?: Record<string, string>;
+      /** What a company parameter changes in the cascade (the zona filter of the Cliente direcciones, R-MST-11). */
+      byParam?: ParamOverride;
     };
 
 /** Every kind but the code and the cascade can be conditional. */

@@ -16,7 +16,9 @@ const conditionsOf = (field: any) => ({
 
 function toField(entry: CatalogDef, field: any, registry: Registry): FieldConfig {
   const config = baseField(entry, field, registry);
-  return config.kind === 'code' || config.kind === 'cascade' ? config : { ...config, ...conditionsOf(field) };
+  // What a company parameter changes (R-MST-11) rides on the cascade too; the other conditions never apply to it.
+  const byParam = field.byParam && config.kind !== 'code' ? { byParam: field.byParam } : {};
+  return config.kind === 'code' ? config : { ...(config.kind === 'cascade' ? config : { ...config, ...conditionsOf(field) }), ...byParam };
 }
 
 type Registry = { bySlug: Map<string, any>; childEntries?: any[] };
@@ -93,7 +95,7 @@ function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConf
   if (field.kind === 'select') {
     // The lookup filters travel as query strings, so a boolean or numeric `where` value is sent as its text.
     const where = field.source.where && Object.fromEntries(Object.entries(field.source.where).map(([key, value]) => [key, String(value)]));
-    return { kind: 'select', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, where }, ...(field.dependsOn?.length ? { dependsOn: field.dependsOn } : {}), ...(field.defaultOption ? { defaultOption: field.defaultOption } : {}), ...(field.default !== undefined ? { default: field.default } : {}), ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}), ...(field.message ? { message: field.message } : {}) };
+    return { kind: 'select', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, where }, ...(field.dependsOn?.length ? { dependsOn: field.dependsOn } : {}), ...(field.defaultOption ? { defaultOption: field.defaultOption } : {}), ...(field.default !== undefined ? { default: field.default } : {}), ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}), ...(field.message ? { message: field.message } : {}), ...(field.fillLabel ? { fillLabel: field.fillLabel } : {}) };
   }
   throw new Error(`${entry.slug}.${field.name}: the UI does not support kind "${field.kind}" yet`);
 }

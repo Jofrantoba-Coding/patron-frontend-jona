@@ -1,7 +1,7 @@
 // Layer: Implementation. The generic register plus the tabs, the child drafts and the child dialog (D10).
 import { useMemo, useRef, useState } from 'react';
 import { todayIso } from '../../../mock-server/core/dates.js';
-import { gateOpen } from '../../../mock-server/core/predicates.js';
+import { effectiveField, gateOpen } from '../../../mock-server/core/predicates.js';
 import type { ActionConfig, CatalogConfig, ChildConfig } from '../../catalogs/CatalogConfig';
 import { ACTION_RULES } from '../../domain/crud/actionRules';
 import { formatRows } from '../../domain/crud/listView';
@@ -30,7 +30,11 @@ export function useUiMasterRegisterImpl<T>(
   // A child or a field whose company-parameter gate is closed does not exist for this register: no tab, no rows, no ops, no control, nothing validated or sent (R-REG-17, S-MD-14, S-REG-25).
   const params: Record<string, unknown> | undefined = useOptionalSession()?.session?.params as Record<string, unknown> | undefined;
   const kids = useMemo(() => (config.children ?? []).filter((child) => gateOpen(child.gate, params)), [config.children, params]);
-  const fields = useMemo(() => config.fields.filter((field) => gateOpen('gate' in field ? field.gate : undefined, params)), [config.fields, params]);
+  // A field that a parameter changes (`byParam`, R-MST-11) is taken as it is for the session: the zona required, the cascade filtered.
+  const fields = useMemo(
+    () => config.fields.filter((field) => gateOpen('gate' in field ? field.gate : undefined, params)).map((field) => effectiveField(field, params)),
+    [config.fields, params],
+  );
   const gated = useMemo(() => ({ ...config, fields, children: kids }), [config, fields, kids]);
   const tabs = useMemo(() => buildTabs(gated), [gated]);
   const app = useOptionalServices();
@@ -209,7 +213,9 @@ export function useUiMasterRegisterImpl<T>(
       ),
     [kids],
   );
-  const parts = (child: ChildConfig) => ({ config: child.config, service: services.get(child.name) as MasterChildDialog['service'], lookups: handlers.lookups, lookup: handlers.lookup });
+  // The child dialogs take their fields the same way; memoized because a new `fields` identity reloads the register (D-W3-5b-6).
+  const childConfigs = useMemo(() => Object.fromEntries(kids.map((child) => [child.name, { ...child.config, fields: child.config.fields.map((field) => effectiveField(field, params)) }])), [kids, params]);
+  const parts = (child: ChildConfig) => ({ config: childConfigs[child.name], service: services.get(child.name) as MasterChildDialog['service'], lookups: handlers.lookups, lookup: handlers.lookup });
 
   const openChild = (child: ChildConfig) => {
     if (readOnly) return;
