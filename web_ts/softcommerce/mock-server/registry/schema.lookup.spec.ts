@@ -7,9 +7,11 @@ const entry = (slug: string, over: Record<string, any> = {}): Record<string, any
   fields: [text('descripcion', { required: true })], columns: [{ key: 'descripcion', header: 'D' }], ...over,
 });
 const personas = entry('personas', { optionLabel: 'nombre', fields: [text('nombre', { required: true }), text('dni')] });
-const lookup = (over: Record<string, any> = {}) => ({
-  name: 'id_persona', kind: 'lookup', label: 'Persona', required: true, source: { catalog: 'personas' }, search: ['nombre', 'dni'], ...over,
-});
+const lookup = (over: Record<string, any> = {}) => {
+  const base: Record<string, any> = { name: 'id_persona', kind: 'lookup', label: 'Persona', required: true, source: { catalog: 'personas' }, search: ['nombre', 'dni'], ...over };
+  const fields: string[] = base.search?.length ? base.search : ['nombre'];
+  return { columns: [{ key: fields[0], header: 'C' }], filters: fields.map((field) => ({ field, label: field, type: 'text' })), ...base };
+};
 const withLookup = (field: Record<string, any>, extra: Record<string, any> = {}) => [personas, entry('citas', { fields: [text('motivo'), field], ...extra })];
 const citas = (registry: ReturnType<typeof validateRegistry>) => registry.bySlug.get('citas');
 
