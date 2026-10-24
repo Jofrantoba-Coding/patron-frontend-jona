@@ -69,6 +69,10 @@ function assertGate(at, gate) {
   if (!Object.hasOwn(PARAM_KEYS, gate.param)) fail(at, `gate.param "${gate.param}" is not a params key`);
   if (!isGateParam(gate.param)) fail(at, `gate.param "${gate.param}" is a value, not a gate`);
   if (gate.in !== undefined && (!Array.isArray(gate.in) || gate.in.length === 0)) fail(at, 'gate.in must be a non-empty list');
+  // `or`: more params that open the gate by the same test; each follows the rules of `param`.
+  if (gate.or === undefined) return;
+  if (!Array.isArray(gate.or) || gate.or.length === 0) fail(at, 'gate.or must be a non-empty list');
+  for (const param of gate.or) assertGate(at, { param });
 }
 
 /** A `$params.X` default must name a params key. @param {string} at @param {any} f */
@@ -77,6 +81,23 @@ function assertParamDefaults(at, f) {
   for (const value of defaults) {
     const key = paramToken(value);
     if (key !== undefined && !Object.hasOwn(PARAM_KEYS, key)) fail(at, `default names unknown params key "${key}"`);
+  }
+}
+
+/**
+ * `follows: { field, map?, otherwise? }` (D27b): the value of the field is computed from another field of the entry (a copy, or a lookup in `map` with an `otherwise`); a `$params.X` value in
+ * `map` or `otherwise` must name a params key. The server applies it to a locked follower and the register after every edit of the source. @param {string} at @param {any} f @param {(where: string, name: string) => void} known
+ */
+function assertFollows(at, f, known) {
+  if (f.follows === undefined) return;
+  const { field, map, otherwise } = f.follows;
+  if (typeof field !== 'string') fail(at, 'follows needs a field');
+  if (field === f.name) fail(at, 'follows cannot name its own field');
+  known(`field "${f.name}" follows`, field);
+  if (map !== undefined && (typeof map !== 'object' || map === null || Array.isArray(map))) fail(at, 'follows.map must be an object');
+  for (const value of [...Object.values(map ?? {}), otherwise]) {
+    const key = paramToken(value);
+    if (key !== undefined && !Object.hasOwn(PARAM_KEYS, key)) fail(at, `follows names unknown params key "${key}"`);
   }
 }
 
@@ -505,6 +526,7 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
     assertByParam(at, f);
     assertFillLabel(at, f, known);
     assertParamDefaults(at, f);
+    assertFollows(at, f, known);
     if (f.blankToDefault && f.default === undefined) fail(at, 'blankToDefault needs a default');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
@@ -694,6 +716,11 @@ function assertQuitar(at, quitar) {
  */
 function assertLayout(at, entry) {
   const layout = entry.layout;
+  // `generalTab` renames the base tab (the Item `Datos de Item`): a non-empty text no child tab already uses.
+  if (entry.generalTab !== undefined) {
+    if (typeof entry.generalTab !== 'string' || entry.generalTab.trim() === '') fail(at, 'generalTab must be a non-empty text');
+    if (childList(entry).some((/** @type {any} */ c) => c.tab === entry.generalTab)) fail(at, `generalTab "${entry.generalTab}" is also a child tab`);
+  }
   if (layout === undefined) return;
   if (!Array.isArray(layout) || layout.length === 0) fail(at, 'layout must be a non-empty list');
   const childTabs = childList(entry).map((/** @type {any} */ c) => c.tab);
@@ -701,7 +728,7 @@ function assertLayout(at, entry) {
   const placed = new Set();
   for (const tab of layout) {
     if (typeof tab?.title !== 'string' || tab.title.trim() === '') fail(at, 'layout tab needs a title');
-    if (tab.title === 'General') fail(at, 'layout tab "General" is the base tab');
+    if (tab.title === (entry.generalTab ?? 'General')) fail(at, `layout tab "${tab.title}" is the base tab`);
     if (titles.has(tab.title)) fail(at, `layout tab "${tab.title}" is repeated`);
     if (childTabs.includes(tab.title)) fail(at, `layout tab "${tab.title}" is also a child tab`);
     titles.add(tab.title);

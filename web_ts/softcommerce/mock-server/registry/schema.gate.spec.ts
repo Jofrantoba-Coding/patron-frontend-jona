@@ -47,6 +47,13 @@ describe('S-REG-24 gate validation at load (R-REG-17, D25)', () => {
     expect(fieldGated({ param: 'NOPE' })).toThrow(/entry "items" field "nombre": gate.param "NOPE" is not a params key/);
   });
 
+  it('an `or` list names gate params only', () => {
+    expect(gated({ param: 'ISBOTICA', or: ['IS_BOTICA_SIN_LOTE'] })).not.toThrow();
+    expect(gated({ param: 'ISBOTICA', or: [] })).toThrow(/gate.or must be a non-empty list/);
+    expect(gated({ param: 'ISBOTICA', or: ['NOPE'] })).toThrow(/gate.param "NOPE" is not a params key/);
+    expect(gated({ param: 'ISBOTICA', or: ['PORC_IGV'] })).toThrow(/gate.param "PORC_IGV" is a value, not a gate/);
+  });
+
   it('isGateParam is true for the boolean keys only', () => {
     expect(['IS_CLIENTE_SUSTITUTO', 'ISBOTICA', 'PORC_IGV', 'INICIO_ACTIVIDADES', 'NOPE'].map(isGateParam)).toEqual([true, true, false, false, false]);
     expect(Object.keys(PARAM_KEYS)).toContain('PORC_IGV');

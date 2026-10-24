@@ -1,7 +1,7 @@
 import { isModeMap } from '../registry/schema.js';
 import { todayIso } from './dates.js';
 import { ruleDerived } from './entryRules.js';
-import { fieldState, gateOpen, matches, resolveParamToken } from './predicates.js';
+import { fieldState, followedValue, gateOpen, matches, resolveParamToken } from './predicates.js';
 
 /**
  * Stored-only columns and conditional storage of a record (R-CRUD-13, R-REF-8, R-REF-9). Pure: both mocks go through it.
@@ -16,6 +16,19 @@ export function blankHidden(entry, record) {
 /** The columns `derive` computes from the record: `then` when its condition holds, `else` otherwise. @param {any} entry @param {Record<string, any>} record */
 export function derivedValues(entry, record) {
   return Object.fromEntries((entry.derive ?? []).filter((/** @type {any} */ d) => d.fromRef === undefined).map((/** @type {any} */ d) => [d.target, matches(d.when, record) ? d.then : d.else]));
+}
+
+/**
+ * The record with every locked field that `follows` another set to the followed value (D27b): a follower that is read-only in INSERT and UPDATE, or disabled by its `enabledWhen`, never takes the
+ * body value (U. Compra and U. Venta follow U. Stock, Kardex and Serv.Transporte the tipo, Porc. IGV is 0 unless AFECTO). An editable follower keeps what the body carries. @param {any} entry @param {Record<string, any>} record @param {Record<string, unknown>} [params] the tenant company params
+ */
+export function withFollowed(entry, record, params) {
+  const out = { ...record };
+  for (const f of entry.fields) {
+    const locked = ['INSERT', 'UPDATE'].every((mode) => f.readOnlyOn?.includes(mode)) || !fieldState(f, out).enabled;
+    if (f.follows !== undefined && locked) out[f.name] = followedValue(f.follows, out, params);
+  }
+  return out;
 }
 
 /** The record plus what the named entry rules compute from it: the composed razon social, the persona flag (D9). @param {any} entry @param {Record<string, any>} record */
@@ -33,7 +46,9 @@ export function withRuleDerived(entry, record) {
 export function withDefaults(entry, record, params) {
   const out = { ...record };
   for (const f of entry.fields) {
-    if (f.name in out || f.default === undefined || !gateOpen(f.gate, params)) continue;
+    // A blank optional decimal with `blankToDefault` (an Item price) takes its default too: the desktop saves a blank price as 0.
+    const blank = f.blankToDefault === true && f.required !== true && String(out[f.name] ?? '').trim() === '';
+    if ((f.name in out && !blank) || f.default === undefined || !gateOpen(f.gate, params)) continue;
     const value = resolveParamToken(isModeMap(f.default) ? f.default.INSERT : f.default, params);
     if (value !== undefined) out[f.name] = f.kind === 'date' && value === 'today' ? todayIso() : f.kind === 'number' && typeof value === 'string' ? Number(value) : value;
   }

@@ -52,13 +52,14 @@ export function maxLengthOf(field, values) {
 
 /**
  * Whether a company-parameter gate is open (R-REG-17): no gate always is; `{ param }` needs the parameter true; `{ param, in }` needs its value to equal
- * one of the listed values (compared by text). Pure: the server reads the tenant params, the UI the session params.
- * @param {{ param: string, in?: unknown[] } | undefined} gate @param {Record<string, unknown> | undefined} params
+ * one of the listed values (compared by text). `or` lists more params that pass the same test, any one of which opens the gate (the Item botica fields: ISBOTICA or
+ * IS_BOTICA_SIN_LOTE). Pure: the server reads the tenant params, the UI the session params.
+ * @param {{ param: string, in?: unknown[], or?: string[] } | undefined} gate @param {Record<string, unknown> | undefined} params
  */
 export function gateOpen(gate, params) {
   if (gate === undefined) return true;
-  const value = params?.[gate.param];
-  return gate.in === undefined ? value === true : gate.in.map(text).includes(text(value));
+  const passes = (/** @type {string} */ param) => (gate.in === undefined ? params?.[param] === true : gate.in.map(text).includes(text(params?.[param])));
+  return [gate.param, ...(gate.or ?? [])].some(passes);
 }
 
 /**
@@ -95,4 +96,15 @@ export const paramToken = (value) => (typeof value === 'string' ? PARAMS_TOKEN.e
 export function resolveParamToken(value, params) {
   const key = paramToken(value);
   return key === undefined ? value : params?.[key];
+}
+
+/**
+ * The value a field that `follows: { field, map?, otherwise? }` takes for `values` (D27b, the Item units, kardex and IGV): the source value itself without a `map`, else the entry
+ * of `map` for the text of the source, else `otherwise`; the empty string when none applies. A `$params.X` value resolves against the company params. Pure.
+ * @param {{ field: string, map?: Record<string, unknown>, otherwise?: unknown }} follows @param {Record<string, unknown>} values @param {Record<string, unknown> | undefined} params
+ */
+export function followedValue(follows, values, params) {
+  const key = text(values[follows.field]);
+  const raw = follows.map === undefined ? values[follows.field] : Object.hasOwn(follows.map, key) ? follows.map[key] : follows.otherwise;
+  return resolveParamToken(raw, params) ?? '';
 }

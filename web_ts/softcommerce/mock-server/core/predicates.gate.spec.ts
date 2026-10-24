@@ -16,6 +16,11 @@ describe('R-REG-17 gateOpen (shared by the server and the UI)', () => {
     expect([gateOpen({ param: 'MODO', in: ['A', 'B'] }, params), gateOpen({ param: 'MODO', in: ['A'] }, params), gateOpen({ param: 'ISBOTICA', in: [false] }, params)]).toEqual([true, false, true]);
   });
 
+  it('a gate with `or` is open when the param or any of the other params passes the same test (Item botica fields)', () => {
+    const gate = { param: 'ISBOTICA', or: ['IS_CLIENTE_SUSTITUTO'] };
+    expect([gateOpen(gate, params), gateOpen(gate, { ISBOTICA: false }), gateOpen({ param: 'ISBOTICA', or: ['MODO'], in: ['B'] }, { ISBOTICA: false, MODO: 'B' })]).toEqual([true, false, true]);
+  });
+
   it('missing params close every gate', () => {
     expect(gateOpen({ param: 'ISBOTICA', in: [true] }, undefined)).toBe(false);
   });
