@@ -8,7 +8,7 @@ type Row = Record<string, string>;
 
 /** The conditional attributes of a field (G8), carried as declared. */
 const conditionsOf = (field: any) => ({
-  ...(field.gate ? { gate: field.gate } : {}),
+  ...(field.gate ? { gate: field.gate } : {}), ...(field.follows ? { follows: field.follows } : {}),
   ...(field.visibleWhen ? { visibleWhen: field.visibleWhen } : {}), ...(field.enabledWhen ? { enabledWhen: field.enabledWhen } : {}),
   ...(field.requiredWhen ? { requiredWhen: field.requiredWhen } : {}), ...(field.clearsOnChange ? { clearsOnChange: field.clearsOnChange } : {}),
   ...(field.ruleState ? { ruleState: field.ruleState } : {}),

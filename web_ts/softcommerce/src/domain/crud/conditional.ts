@@ -1,10 +1,11 @@
 // The form changes caused by one edit: the chain below, `clearsOnChange` and conditional fields that just hid (R-CRUD-12, R-CRUD-13). Pure.
-import { fieldState } from '../../../mock-server/core/predicates.js';
+import { fieldState, followedValue } from '../../../mock-server/core/predicates.js';
 import type { FieldConfig } from '../../catalogs/CatalogConfig';
 import type { FormValues } from './validate';
 
-/** What a cleared field shows: an unchecked box for a boolean, its starting text for an integer that declares one (the días of a condición de pago: 0), an empty string for anything else. */
-const blankOf = (field: FieldConfig | undefined) => (field?.kind === 'boolean' ? 'false' : field?.kind === 'number' && typeof field.default === 'string' ? field.default : '');
+/** What a cleared field shows: an unchecked box for a boolean, its starting value for an integer or a radio / select of options that declares one (the días of a condición de pago: 0; the Item No perecible), an empty string for anything else. */
+const blankOf = (field: FieldConfig | undefined) =>
+  field?.kind === 'boolean' ? 'false' : (field?.kind === 'number' || field?.kind === 'options') && typeof field.default === 'string' ? field.default : '';
 
 /** Whether the field is shown (a field with no `visibleWhen` always is); the code and cascade kinds are never conditional. */
 export function isVisible(field: FieldConfig, values: FormValues): boolean {
@@ -31,5 +32,8 @@ export function changeField(fields: FieldConfig[], current: FormValues, name: st
   }
   clearing.delete(name);
   for (const cleared of clearing) values[cleared] = blankOf(byName.get(cleared));
-  return { values, cleared: [...clearing] };
+  // The fields that `follow` the edited one take the value computed from it (D27b: U. Compra and U. Venta, Kardex, Porc. IGV); a follower is shown as text like any value.
+  const following = fields.flatMap((field) => (field.kind !== 'code' && field.kind !== 'cascade' && field.follows?.field === name ? [{ name: field.name, follows: field.follows }] : []));
+  for (const follower of following) values[follower.name] = String(followedValue(follower.follows, values, undefined));
+  return { values, cleared: [...clearing, ...following.map((follower) => follower.name)] };
 }
