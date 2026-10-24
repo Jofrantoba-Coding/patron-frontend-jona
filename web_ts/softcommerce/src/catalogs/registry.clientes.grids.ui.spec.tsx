@@ -10,14 +10,13 @@ import { SessionProvider } from '../session/SessionProvider';
 import { createSessionStore, type Session } from '../session/sessionStore';
 import { UiCatalog } from '../views/uicatalog';
 import { DialogStackProvider } from '../views/uishell/DialogStackProvider';
-import { withBancos } from '../../test/catalogs/bancosSeed';
 import { toCatalogConfig } from './registry';
 
 const granted = Object.fromEntries(PERMISSION_FLAGS.map((f) => [f, true])) as Permissions;
 
 /** The real `clientes` entry over the demo seed (user 7) against the in-browser mock, with the session params given (S-MST-22, S-MST-23, S-MD-1..3, S-MD-6, S-MD-7 on the real Cliente). */
 function renderClientes(params: Record<string, unknown> = { IS_CLIENTE_CONDICION_PAGO: true, IS_DIRECCION_CLIENTE: true }) {
-  const services = createAppServicesMock('exitoso', { getSession: () => ({ tenantId: 'demo' }), getRequestContext: () => ({ userId: '7' }), delayMs: 0, seed: withBancos(seed) });
+  const services = createAppServicesMock('exitoso', { getSession: () => ({ tenantId: 'demo' }), getRequestContext: () => ({ userId: '7' }), delayMs: 0, seed: seed });
   const store = createSessionStore(window.localStorage);
   store.setSession({ params } as unknown as Session);
   render(

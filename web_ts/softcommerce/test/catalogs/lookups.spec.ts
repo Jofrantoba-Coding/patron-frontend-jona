@@ -92,7 +92,7 @@ const LOOKUP_CASES: CatalogCase[] = [
   { name: `${TD} S-MOCK-29 create is 405 METHOD_NOT_ALLOWED`, slug: TD, steps: [{ op: 'create', body: { descripcion: 'X' } }], expect: notAllowed },
   { name: `${TD} S-MOCK-29 update is 405 METHOD_NOT_ALLOWED`, slug: TD, steps: [{ op: 'update', id: '4', body: { descripcion: 'X' } }], expect: notAllowed },
   { name: `${TD} S-MOCK-29 remove is 405 and the row stays`, slug: TD, steps: [{ op: 'remove', id: '4' }], expect: notAllowed },
-  { name: `${TD} S-REF-35 lists the fourteen active rows without any session context`, slug: TD, steps: [{ op: 'list' }], expect: { ok: true, total: 14 } },
+  { name: `${TD} S-REF-35 lists the seventeen active rows without any session context`, slug: TD, steps: [{ op: 'list' }], expect: { ok: true, total: 17 } },
   { name: `${TD} S-MOCK-29 ?id_tabla_sunat=6 returns only the detail rows of that tabla`, slug: TD, steps: [{ op: 'list', filters: { id_tabla_sunat: '6' } }], expect: { ok: true, total: 6, match: { items: UNIDADES.map((descripcion) => ({ id_tabla_sunat: '6', descripcion })) } } },
   { name: `${TD} S-MOCK-15 get resolves a retired row and joins its tabla`, slug: TD, steps: [{ op: 'get', id: '15' }], expect: { ok: true, match: { activo: false, tabla_sunat: 'TABLA 6' } } },
   { name: `${TD} options of tabla 6 are its units, named by the description`, slug: TD, steps: [{ op: 'options', filters: { id_tabla_sunat: '6' } }], expect: { ok: true, items: UNIDADES.map((name, i) => ({ id: String(i + 4), name })) } },

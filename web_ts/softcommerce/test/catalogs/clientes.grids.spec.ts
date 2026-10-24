@@ -9,7 +9,6 @@ import { createLookupServiceHttp } from '../../src/services/LookupServiceHttp';
 import { createHttpClient } from '../../src/services/httpClient';
 import { createAppServicesMock } from '../../src/services/mock/AppServicesMock';
 import { seed } from '../../src/services/mock/seed';
-import { withBancos } from './bancosSeed';
 import { CLIENTE_GRID_CASES } from './clientes.grids.cases';
 import { describeRegistryContract } from './registryContract';
 
@@ -44,12 +43,12 @@ describe('R-MST-11 the Cliente child entries', () => {
 describeRegistryContract(
   'in-browser mock (clientes grids)',
   (slug, ctx) => {
-    const mock = createAppServicesMock('exitoso', { getSession: session, getRequestContext: () => ctx, delayMs: 0, seed: withBancos(seed) });
+    const mock = createAppServicesMock('exitoso', { getSession: session, getRequestContext: () => ctx, delayMs: 0, seed: seed });
     return { catalog: mock.catalog(slug), lookup: mock.lookup };
   },
   CLIENTE_GRID_CASES,
 );
-const server = useTestServer({ seed: withBancos(loadSeed(dataDir)) });
+const server = useTestServer({ seed: loadSeed(dataDir) });
 describeRegistryContract(
   'http mock server (clientes grids)',
   (slug, ctx) => {
@@ -60,7 +59,7 @@ describeRegistryContract(
 );
 
 describe.each([
-  ['in-browser mock', () => { const mock = createAppServicesMock('exitoso', { getSession: session, getRequestContext: () => WRITER, delayMs: 0, seed: withBancos(seed) }); return { catalog: mock.catalog('clientes'), children: mock.children('clientes') }; }],
+  ['in-browser mock', () => { const mock = createAppServicesMock('exitoso', { getSession: session, getRequestContext: () => WRITER, delayMs: 0, seed: seed }); return { catalog: mock.catalog('clientes'), children: mock.children('clientes') }; }],
   ['http mock server', () => { const client = createHttpClient({ baseUrl: server.url(), getSession: session, getRequestContext: () => WRITER }); return { catalog: createCatalogServiceHttp(client, 'clientes'), children: createChildServiceHttp(client, 'clientes') }; }],
 ])('Cliente nested routes: %s', (_label, make) => {
   it('S-MOCK-39 lists the active and the deactivated direccion and not the deleted one; a deactivated one resolves', async () => {
@@ -91,7 +90,7 @@ describe.each([
 });
 
 /** The same data with IS_DIRECCION_CLIENTE off for `demo`: the zona becomes required (S-MST-22). */
-const withoutParam = (base: any) => withBancos({ ...base, params: { ...base.params, demo: { ...base.params.demo, IS_DIRECCION_CLIENTE: false } } });
+const withoutParam = (base: any) => ({ ...base, params: { ...base.params, demo: { ...base.params.demo, IS_DIRECCION_CLIENTE: false } } });
 const offServer = useTestServer({ seed: withoutParam(loadSeed(dataDir)) });
 describe.each([
   ['in-browser mock', () => createAppServicesMock('exitoso', { getSession: session, getRequestContext: () => WRITER, delayMs: 0, seed: withoutParam(seed) }).catalog('clientes')],
