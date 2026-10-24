@@ -11,7 +11,11 @@ const root = ReactDOM.createRoot(document.getElementById('root')!);
 try {
   const store = createSessionStore(sessionStorage);
   // A configuration error (bad VITE_API_*) throws here, before any request.
-  const services = composeServices(import.meta.env, { getSession: store.getContext, getRequestContext: store.getRequestContext });
+  const services = composeServices(import.meta.env, {
+    getSession: store.getContext,
+    getRequestContext: store.getRequestContext,
+    getGrants: () => store.getSnapshot().session?.grants,
+  });
   root.render(
     <React.StrictMode>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

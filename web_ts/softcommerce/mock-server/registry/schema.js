@@ -630,7 +630,7 @@ function assertQuitar(at, quitar) {
 // `none`: the grid has no Agregar; its rows come from the actions (the activation history).
 const CHILD_ENTRIES = ['dialog', 'inline', 'none'];
 /** Route words and row keys a child name or field may not take (R-REG-14, R-REG-20). */
-const RESERVED_CHILD_NAMES = ['actions'];
+const RESERVED_CHILD_NAMES = ['actions', 'menu', 'permisos'];
 const RESERVED_CHILD_FIELDS = ['id', 'estado', 'op'];
 
 /** The children of an entry as an ordered `{ name, ...def }` list: a map (R-REG-14) or a list, which can repeat a name. @param {any} parent */

@@ -6,13 +6,16 @@ import { createCatalogServiceHttp } from './CatalogServiceHttp';
 import { createChildServiceHttp } from './ChildServiceHttp';
 import type { InterChildService } from './InterChildService';
 import type { InterCatalogService } from './InterCatalogService';
+import type { GrantsSnapshot, InterGrantsService } from './InterGrantsService';
 import type { InterLookupService } from './InterLookupService';
 import type { InterShellService } from './InterShellService';
+import { createGrantsServiceHttp } from './GrantsServiceHttp';
 import { createLookupServiceHttp } from './LookupServiceHttp';
 import { createShellServiceHttp } from './ShellServiceHttp';
 import { createHttpClient, type RequestContext, type SessionContext } from './httpClient';
 import { lazyService } from './lazyService';
 import type { AppServicesMock } from './mock/AppServicesMock';
+import { withGrantsSnapshot } from './withGrantsSnapshot';
 
 export const API_MODES = ['mock', 'http'] as const;
 export const API_SCENARIOS = ['exitoso', 'vacio', 'errorServidor'] as const;
@@ -76,11 +79,15 @@ export interface ComposeDeps {
   getSession?: () => SessionContext;
   /** Live user and empresa sent as session headers (D13). */
   getRequestContext?: () => RequestContext;
+  /** The grants snapshot of the open session; the shell answers from it (R-AUTH-11). */
+  getGrants?: () => GrantsSnapshot | undefined;
 }
 
 export interface AppServices {
   auth: InterAuthService;
   shell: InterShellService;
+  /** Takes the grants of the acting user at login. */
+  grants: InterGrantsService;
   lookup: InterLookupService;
   /** A service for one catalog (`/v1/{catalog}`); cheap to build, nothing loads until a call. */
   catalog<T>(catalog: string): InterCatalogService<T>;
@@ -91,7 +98,7 @@ export interface AppServices {
 }
 
 /** Validates the env and builds every service. Throws a configuration error at startup. */
-export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestContext }: ComposeDeps = {}): AppServices {
+export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestContext, getGrants }: ComposeDeps = {}): AppServices {
   const config = parseApiEnv(env);
   const client = (baseUrl: string) => createHttpClient({ baseUrl, fetchFn, getSession, getRequestContext });
 
@@ -106,9 +113,16 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestCo
       createHttp: (baseUrl) => createAuthServiceHttp(client(baseUrl)),
       loadMock: async (scenario) => (await loadMock(scenario)).auth,
     }),
-    shell: composeService<InterShellService>(config, {
-      createHttp: (baseUrl) => createShellServiceHttp(client(baseUrl)),
-      loadMock: async (scenario) => (await loadMock(scenario)).shell,
+    shell: withGrantsSnapshot(
+      composeService<InterShellService>(config, {
+        createHttp: (baseUrl) => createShellServiceHttp(client(baseUrl)),
+        loadMock: async (scenario) => (await loadMock(scenario)).shell,
+      }),
+      () => getGrants?.(),
+    ),
+    grants: composeService<InterGrantsService>(config, {
+      createHttp: (baseUrl) => createGrantsServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).grants,
     }),
     lookup: composeService<InterLookupService>(config, {
       createHttp: (baseUrl) => createLookupServiceHttp(client(baseUrl)),
