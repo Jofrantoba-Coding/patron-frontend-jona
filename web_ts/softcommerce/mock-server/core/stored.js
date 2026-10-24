@@ -15,7 +15,7 @@ export function blankHidden(entry, record) {
 
 /** The columns `derive` computes from the record: `then` when its condition holds, `else` otherwise. @param {any} entry @param {Record<string, any>} record */
 export function derivedValues(entry, record) {
-  return Object.fromEntries((entry.derive ?? []).map((/** @type {any} */ d) => [d.target, matches(d.when, record) ? d.then : d.else]));
+  return Object.fromEntries((entry.derive ?? []).filter((/** @type {any} */ d) => d.fromRef === undefined).map((/** @type {any} */ d) => [d.target, matches(d.when, record) ? d.then : d.else]));
 }
 
 /** The record plus what the named entry rules compute from it: the composed razon social, the persona flag (D9). @param {any} entry @param {Record<string, any>} record */

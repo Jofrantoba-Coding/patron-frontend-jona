@@ -46,5 +46,6 @@
   { "id_menu": 45, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Banco", "nombre": "miBancoAnexo" },
   { "id_menu": 46, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Trabajador", "nombre": "miTrabajador" },
   { "id_menu": 47, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Vendedor", "nombre": "miVendedor" },
-  { "id_menu": 48, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Transportista", "nombre": "miTransportista" }
+  { "id_menu": 48, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Transportista", "nombre": "miTransportista" },
+  { "id_menu": 49, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Usuario", "nombre": "mi_usuario" }
 ]

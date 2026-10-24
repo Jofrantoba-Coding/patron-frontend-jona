@@ -5,6 +5,7 @@ import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
 import { ownedFields, ruleDetail } from './entryRules.js';
+import { BACKINGS } from '../registry/backings.js';
 import { confirmationOf } from './password.js';
 import { fieldState, maxLengthOf, minLengthOf } from './predicates.js';
 import { findConflict, isActive, isActiveSibling, same } from './unique.js';
@@ -21,6 +22,8 @@ const isBlank = (/** @type {unknown} */ value) => String(value ?? '').trim() ===
 
 /** Rows of an entry: the tenant dataset, or the global one for `shared` entries. @param {any} store @param {string} tenantId @param {any} entry */
 export function rowsOf(store, tenantId, entry) {
+  // A backed entry reads the records another part of the store holds (D15): the live ones of the tenant.
+  if (entry.backing !== undefined) return BACKINGS[entry.backing].rows(store, tenantId);
   return entry.scope === 'shared' ? store.shared[entry.section] : store.data(tenantId)[entry.section];
 }
 
@@ -66,6 +69,23 @@ export function targetOf(store, tenantId, catalog, ctx, scoped = true) {
   }
   const entry = bySlug.get(catalog);
   return { idKey: entry.idKey, activeKey: ACTIVE_KEY, rows: scoped ? rowsOf(store, tenantId, entry).filter(scopeFilter(store, tenantId, entry, ctx)) : rowsOf(store, tenantId, entry) };
+}
+
+/**
+ * The columns `derive` copies from a referenced row (`fromRef`, the Usuario nombre from its trabajador): the value `key` of the row `field` points to, or ''.
+ * Server-owned: a body never writes them, and every write recomputes them.
+ * @param {any} store @param {string} tenantId @param {any} entry @param {Record<string, any>} record @param {import('./context.js').RequestContext} [ctx]
+ */
+export function refDerived(store, tenantId, entry, record, ctx) {
+  /** @type {Record<string, string>} */
+  const out = {};
+  for (const { target, fromRef } of (entry.derive ?? []).filter((/** @type {any} */ d) => d.fromRef)) {
+    const ref = entry.refs.find((/** @type {any} */ r) => r.field === fromRef.field);
+    const source = targetOf(store, tenantId, ref.catalog, ctx);
+    const row = source.rows.find((/** @type {any} */ r) => String(r[source.idKey]) === String(record[fromRef.field] ?? ''));
+    out[target] = String(row?.[fromRef.key] ?? '');
+  }
+  return out;
 }
 
 /**

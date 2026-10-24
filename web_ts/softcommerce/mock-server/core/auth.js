@@ -1,4 +1,5 @@
 import { MockError } from './errors.js';
+import { hashPassword } from './password.js';
 
 /** The 13 per-form permission flags (see `RnUsuario.cargaFormularioPerfil`). */
 export const PERMISSION_FLAGS = /** @type {const} */ ([
@@ -23,8 +24,9 @@ export function sessionOptions(store) {
  */
 export function login(store, tenantId, credentials) {
   const { usuario = '', clave = '' } = credentials ?? {};
+  // One compare path over the stored hash (D16); a logically deleted user is as good as unknown (R-AUTH-10).
   const user = store.shared.users.find(
-    (/** @type {any} */ u) => u.usuario === usuario && u.clave === clave && u.tenants.includes(tenantId),
+    (/** @type {any} */ u) => u.activo !== false && u.usuario === usuario && u.tenants.includes(tenantId) && u.clave_hash === hashPassword(u.id_usuario, clave),
   );
   if (!user || usuario === '') throw invalidCredentials();
   if (user.flaghabilitado === 'D') {
@@ -35,7 +37,7 @@ export function login(store, tenantId, credentials) {
   }
   return {
     token: `mock-token-${user.id_usuario}-${tenantId}`,
-    user: { id_usuario: user.id_usuario, usuario: user.usuario, nombre: user.nombre },
+    user: { id_usuario: Number(user.id_usuario), usuario: user.usuario, nombre: user.nombre },
   };
 }
 
