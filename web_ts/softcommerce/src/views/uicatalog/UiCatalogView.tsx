@@ -9,7 +9,7 @@ type UiCatalogViewProps = InterUiCatalog & typeof UICATALOG_DEFAULTS;
 export function UiCatalogView({ config, service, lookup, permissions, className }: UiCatalogViewProps) {
   return (
     <div className={className}>
-      <UiCrudList config={config} service={service} lookup={lookup} permissions={permissions} register={config.children?.length ? UiMasterRegister : undefined}
+      <UiCrudList config={config} service={service} lookup={lookup} permissions={permissions} register={config.children?.length || config.entry?.generalTab ? UiMasterRegister : undefined}
         listActions={config.rowActions?.filter((action) => action.placement === 'list-toolbar')}
         panels={LIST_PANELS}
       />

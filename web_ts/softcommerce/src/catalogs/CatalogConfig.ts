@@ -24,8 +24,10 @@ export interface ParamOverride {
 /** G8 conditional behavior (R-CRUD-13): visibility, editability and requiredness by another field's value; `clearsOnChange` empties fields when this one changes. */
 export interface ConditionalProps {
   /** The company parameter that gives the field (R-REG-17): with it off the field is absent from the register, validation and payload. */
-  gate?: { param: string; in?: unknown[] };
+  gate?: { param: string; in?: unknown[]; or?: string[] };
   byParam?: ParamOverride;
+  /** The value of this field is computed from another field (D27b): a copy, or the entry of `map` for the source text, else `otherwise`; a `$params.X` value resolves against the session params. */
+  follows?: { field: string; map?: Record<string, unknown>; otherwise?: unknown };
   visibleWhen?: FieldCondition;
   enabledWhen?: FieldCondition;
   requiredWhen?: FieldCondition;

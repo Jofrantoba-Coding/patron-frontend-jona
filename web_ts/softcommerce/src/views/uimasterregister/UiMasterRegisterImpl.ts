@@ -4,6 +4,7 @@ import { aggregateValues, type AggregateDef } from '../../../mock-server/core/ag
 import { todayIso } from '../../../mock-server/core/dates.js';
 import { effectiveField, gateOpen } from '../../../mock-server/core/predicates.js';
 import type { ActionConfig, CatalogConfig, ChildConfig } from '../../catalogs/CatalogConfig';
+import { withParamTokens } from '../../catalogs/paramTokens';
 import { ACTION_RULES } from '../../domain/crud/actionRules';
 import { formatRows } from '../../domain/crud/listView';
 import { resolveRowAction } from '../../domain/crud/toolbarGate';
@@ -34,7 +35,7 @@ export function useUiMasterRegisterImpl<T>(
   const kids = useMemo(() => (config.children ?? []).filter((child) => gateOpen(child.gate, params)), [config.children, params]);
   // A field that a parameter changes (`byParam`, R-MST-11) is taken as it is for the session: the zona required, the cascade filtered.
   const fields = useMemo(
-    () => config.fields.filter((field) => gateOpen('gate' in field ? field.gate : undefined, params)).map((field) => effectiveField(field, params)),
+    () => config.fields.filter((field) => gateOpen('gate' in field ? field.gate : undefined, params)).map((field) => withParamTokens(effectiveField(field, params), params)),
     [config.fields, params],
   );
   const gated = useMemo(() => ({ ...config, fields, children: kids }), [config, fields, kids]);

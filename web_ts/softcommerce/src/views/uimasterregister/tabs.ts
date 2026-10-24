@@ -9,12 +9,12 @@ export interface RegisterTab {
   child?: ChildConfig;
 }
 
-/** `General` first (it holds every field no layout tab lists), then the layout tabs, then one tab per child. */
+/** `General` (or the `generalTab` the entry names, the Item `Datos de Item`) first (it holds every field no layout tab lists), then the layout tabs, then one tab per child. */
 export function buildTabs(config: CatalogConfig<any>): RegisterTab[] {
   const layout = config.layout ?? [];
   const placed = new Set(layout.flatMap((tab) => tab.fields));
   return [
-    { key: 'general', title: 'General', fields: config.fields.map((field) => field.name).filter((name) => !placed.has(name)) },
+    { key: 'general', title: config.entry?.generalTab ?? 'General', fields: config.fields.map((field) => field.name).filter((name) => !placed.has(name)) },
     ...layout.map((tab) => ({ key: `fields:${tab.title}`, title: tab.title, fields: tab.fields })),
     ...(config.children ?? []).map((child) => ({ key: `child:${child.name}`, title: child.title, fields: [], child })),
   ];

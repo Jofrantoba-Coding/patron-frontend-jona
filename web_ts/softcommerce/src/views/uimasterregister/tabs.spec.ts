@@ -12,6 +12,10 @@ const config = {
 } as unknown as CatalogConfig<any>;
 
 describe('master register tabs (R-MD-1)', () => {
+  it('names the first tab after the entry generalTab (the Item Datos de Item) and keeps its key', () => {
+    expect(buildTabs({ ...config, entry: { generalTab: 'Datos de Item' } } as unknown as CatalogConfig<any>).slice(0, 1).map((t) => [t.key, t.title])).toEqual([['general', 'Datos de Item']]);
+  });
+
   it('puts every unlisted field on General, then the layout tabs, then one tab per child', () => {
     expect(buildTabs(config).map((t) => [t.key, t.title, t.fields])).toEqual([
       ['general', 'General', ['nombre', 'id_distrito']],
