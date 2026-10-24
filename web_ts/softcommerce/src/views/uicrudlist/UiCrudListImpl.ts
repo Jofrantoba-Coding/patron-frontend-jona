@@ -1,6 +1,6 @@
 // Layer: Implementation. Fetch, client-side view state and selection of the generic crud list.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { CatalogConfig, CrudAction } from '../../catalogs/CatalogConfig';
+import type { ActionConfig, CatalogConfig, CrudAction } from '../../catalogs/CatalogConfig';
 import { nextSort } from '../../domain/crud/filterSort';
 import { actionsForModes } from '../../domain/crud/toolbarGate';
 import { applyListView, formatRows, isTruncated, pageOfRow, withListViewChange, type ListViewState } from '../../domain/crud/listView';
@@ -18,22 +18,29 @@ type Load<T> =
   | { status: 'ready'; items: T[]; truncated: boolean }
   | { status: 'failed'; message: string; traceId?: string };
 
-export interface CrudListHandlers {
+export interface CrudListHandlers<T = any> {
   /** Every toolbar action but `refresh`, which the list runs itself. */
   onAction?: (action: CrudAction) => void;
   /** Double click on a row. */
   onRowOpen?: (id: string) => void;
+  /** The `list-toolbar` actions and what runs one on the selected row (R-ACT-1). */
+  listActions?: readonly ActionConfig[];
+  onListAction?: (action: ActionConfig, row: T) => void;
 }
+
+/** The desktop notice of a list action pressed with no selected row (R-PRM-6). */
+export const NO_SELECTION = { title: 'Aviso', message: 'Seleccione un registro de la tabla' };
 
 export function useUiCrudListImpl<T>(
   config: CatalogConfig<T>,
   service: InterCatalogService<T>,
   permissions: Permissions,
-  { onAction, onRowOpen }: CrudListHandlers = {},
+  { onAction, onRowOpen, listActions, onListAction }: CrudListHandlers<T> = {},
 ): InterUiCrudList<T> {
   const [load, setLoad] = useState<Load<T>>({ status: 'loading' });
   const [view, setView] = useState<ListViewState>({ filterText: '', page: 1 });
   const [selectedId, setSelectedId] = useState<string | undefined>();
+  const [notice, setNotice] = useState<typeof NO_SELECTION | undefined>();
   const latest = useRef(0);
   const shortcutScope = useRef<HTMLElement>(null);
   const shortcutsBlocked = useDialogOpen();
@@ -69,6 +76,7 @@ export function useUiCrudListImpl<T>(
 
   const items = load.status === 'ready' ? load.items : [];
   const { rows, page, pageCount, matchCount } = applyListView(items, view, filterKeys);
+  const selectedRow = items.find((row) => String(row[config.idKey]) === selectedId);
 
   return {
     title: config.title,
@@ -96,6 +104,16 @@ export function useUiCrudListImpl<T>(
       onRowOpen?.(id);
     },
     onAction: (action) => (action === 'refresh' ? void refresh() : onAction?.(action)),
+    // An absent permission fails closed.
+    listActions: listActions?.map(({ id, label, flag }) => ({ id, label, enabled: permissions[flag] === true })),
+    onListAction: (id) => {
+      const action = listActions?.find((a) => a.id === id);
+      if (!action || permissions[action.flag] !== true) return;
+      if (selectedRow) onListAction?.(action, selectedRow);
+      else setNotice(NO_SELECTION);
+    },
+    notice,
+    onCloseNotice: () => setNotice(undefined),
     onRetry: () => void refresh(),
     shortcutScope,
     shortcutsBlocked,

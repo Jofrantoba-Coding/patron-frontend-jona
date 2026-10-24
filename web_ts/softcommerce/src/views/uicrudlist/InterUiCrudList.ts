@@ -46,6 +46,12 @@ export interface InterUiCrudList<T> {
   shortcutScope: RefObject<HTMLElement>;
   /** True while a dialog is open, so the list's shortcuts stay quiet. */
   shortcutsBlocked: () => boolean;
+  /** The `list-toolbar` actions (R-ACT-1): shown after the toolbar, enabled by their declared flag; pressing one with no selected row raises `notice`. */
+  listActions?: { id: string; label: string; enabled: boolean }[];
+  onListAction?: (id: string) => void;
+  /** The notice of a list action pressed with no selected row; `onCloseNotice` dismisses it. */
+  notice?: { title: string; message: string };
+  onCloseNotice?: () => void;
   /** Reloads the list; `select` re-selects that id and jumps to its page, else the selection stays while the row exists. */
   refresh: (options?: { select?: string }) => Promise<void>;
 }

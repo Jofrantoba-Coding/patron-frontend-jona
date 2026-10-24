@@ -220,6 +220,8 @@ export interface CatalogConfig<T> {
   children?: ChildConfig[];
   /** Register tabs of parent fields after `General`, which holds every field no tab lists (R-MD-1); the child tabs follow. */
   layout?: { title: string; fields: string[] }[];
+  /** Child resources with no register tab (`tab: false`, R-MD-10): reached only from a panel such as Autorizar Series, never from the register. */
+  resources?: ChildConfig[];
   /** The row actions the entry declares (R-REG-15); `actions` above is the toolbar order. A child's own are on its `ChildConfig`. */
   rowActions?: ActionConfig[];
 }
