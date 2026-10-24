@@ -11,6 +11,7 @@ import { validate, type FormValues } from '../../domain/crud/validate';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import type { InterLookupService, LookupItem } from '../../services/InterLookupService';
 import { fieldsToClear, type ChainNode } from '../../shared/dependentChain';
+import { useOptionalServices } from '../../services/ServicesContext';
 import { toFailure, type Failure } from '../../shared/toFailure';
 import { useGuardedClose } from '../uishell/DialogStackProvider';
 import type { InterUiCrudRegister, RegisterConfirm, RegisterMode } from './InterUiCrudRegister';
@@ -73,6 +74,8 @@ export function useUiCrudRegisterImpl<T>(
 ): InterUiCrudRegister {
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [values, setValues] = useState<FormValues>(() => initialValues(config.fields, mode));
+  const [lookupDisplay, setLookupDisplay] = useState<Record<string, string>>({});
+  const services = useOptionalServices();
   const [selectOptions, setSelectOptions] = useState<Record<string, LookupItem[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirm, setConfirm] = useState<RegisterConfirm | undefined>();
@@ -103,6 +106,8 @@ export function useUiCrudRegisterImpl<T>(
         if (!active) return;
         setSelectOptions(options);
         if (record) {
+          // The joined display of each lookup comes with the record (R-CRUD-19); it is not a form value.
+          setLookupDisplay(Object.fromEntries(config.fields.flatMap((f) => (f.kind === 'lookup' ? [[f.name, String((record as Record<string, unknown>)[f.display] ?? '')]] : []))));
           baseline.current = fromRecord(config.fields, record, mode);
           setValues(baseline.current);
         }
@@ -196,6 +201,15 @@ export function useUiCrudRegisterImpl<T>(
     loadOptions: async (catalog, filters) => (await lookupRef.current?.options(catalog, filters)) ?? [],
     // A filtered cascade (`has: 'zonas'`) asks the lookup route; the plain one keeps the W1 route.
     loadChildren: async (parent, filter) => (filter ? await lookupRef.current?.options('ubigeo', { parent, ...filter }) : await lookupRef.current?.ubigeoChildren(parent)) ?? [],
+    lookupDisplay,
+    onLookupChange: (name, value, description) => {
+      setLookupDisplay((current) => ({ ...current, [name]: description }));
+      edit(name, value);
+    },
+    lookupList: (catalog, where) => ({ filters, page, pageSize }) => {
+      if (!services) return Promise.reject(new Error('A lookup field needs a ServicesProvider.'));
+      return services.catalog<Record<string, string>>(catalog).list({ page, pageSize, filters: { ...where, ...filters } });
+    },
     registerField: (name) => (element) => {
       fieldRefs.current[name] = element;
     },

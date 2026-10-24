@@ -1,4 +1,5 @@
 import type { CatalogDef } from '../../mock-server/registry/schema.js';
+import type { LookupDialogConfig } from '../shared/ui/LookupDialog/InterLookupDialog';
 
 /** Toolbar actions a catalog can expose; each maps to the permission flag of the same name. */
 export type CrudAction = 'add' | 'modify' | 'eliminate' | 'clone' | 'details' | 'search' | 'refresh' | 'export';
@@ -113,6 +114,20 @@ type PlainField =
       dependsOn?: { field: string; filterKey: string }[];
       /** `first` selects the first option after each load or parent change (S-CRUD-41). */
       defaultOption?: 'first';
+    }
+  | {
+      /** A code box over a search dialog (R-CRUD-19): the form state and the payload carry the id; `display` is the record key that holds its description. */
+      kind: 'lookup';
+      name: string;
+      label: string;
+      required?: boolean;
+      source: { catalog: string; where?: Record<string, string> };
+      display: string;
+      /** The source's id key, code width (typed-code padding, R-LKP-6) and the key of the description of a row. */
+      idKey: string;
+      codeWidth: number;
+      optionLabel: string;
+      picker: LookupDialogConfig;
     }
   | {
       kind: 'cascade';
