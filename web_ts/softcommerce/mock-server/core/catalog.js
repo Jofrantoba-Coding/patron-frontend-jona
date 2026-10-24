@@ -1,3 +1,4 @@
+import { todayIso } from './dates.js';
 import { MockError, methodNotAllowed, modeNotSupported, notFound } from './errors.js';
 import { joinLabel } from './lookups.js';
 import { acceptedListKeys, exactListKeys, matchesTerms, searchTerms } from './search.js';
@@ -176,7 +177,7 @@ export function deleteRecord(/** @type {any} */ store, /** @type {string} */ ten
   if (entry.removal === 'none') throw modeNotSupported(`${catalog} rows cannot be removed`);
   const row = findRow(store, tenantId, entry, id, ctx, link);
   if (link && row[ACTIVE_KEY] === false) throw notFound(`${entry.slug} ${id} not found`);
-  if (entry.removal === 'deactivate') row.estado = 'D';
+  if (entry.removal === 'deactivate') Object.assign(row, { estado: 'D' }, entry.closeDate === undefined ? {} : { [entry.closeDate]: todayIso() });
   else row[ACTIVE_KEY] = false;
   // A logical delete of a parent deletes all its children; children never block it (R-MOCK-21).
   if (!link) cascadeDelete(store, tenantId, entry, row);

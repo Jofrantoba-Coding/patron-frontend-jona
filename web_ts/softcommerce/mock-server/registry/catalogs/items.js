@@ -32,9 +32,37 @@ const unidad = (name, label, follow = true) => ({
 /** A flag the form shows read-only. @param {string} name @param {string} label @param {Record<string, unknown>} more */
 const flag = (name, label, more) => ({ name, kind: 'boolean', label, default: false, readOnlyOn: ALL, ...more });
 
+/**
+ * R-MST-15 the `Configuracion Almacen` tab (`getPnlConfigItemAlmacen`, `FormItemAlmacen`, `desactivarAlmacen`). The dialog `Agregar Almacen` asks Localidad (those of the session empresa:
+ * `loadLocalidad(usuario.getCodempresa())`), Pto Venta, Almacen, Proceso (`VENTA`, `DESPACHO`, no blank item) and Fecha Inicio (today). `verificarValido` checks the four selects in that order
+ * (`Seleccione Localidad`, `Seleccione Punto de Venta`, `Seleccione Almacen`, `Seleccione Proceso`) and then refuses an ACTIVE row of the grid with the same almacen and proceso
+ * (`Almacen ya se Encuentra Activado`). The bean carries only the almacen, the proceso and the dates (`getXmlAlmacen`): the localidad and the punto de venta are stored here as well
+ * ([DEVIATION], as the ZonaDistancia chain) so the cascade can be checked by the server. `desactivarAlmacen`: an empty grid answers nothing, no selection `Seleccionar Fila`, a deactivated row
+ * `Almacen Seleccionado ya esta desactivado`, the question `Desea Desactivar Almacen?`; a pending row is removed, a persisted one gets `F_FIN` today and estado `D` (`closeDate`). The table model
+ * has the columns ESTADO, ID, ALMACEN, F_INICIO, F_FIN and PROCESO (the ID is hidden here). The dialog title is `Agregar Almacen`; the web titles it by the tab like every child dialog.
+ * The desktop has no stock minimo, maximo or ubicacion on this tab (`FormItemAlmacen` has five controls): none is ported.
+ */
+const ALMACEN_DUPLICADO = 'Almacen ya se Encuentra Activado';
+const almacenes = {
+  tab: 'Configuracion Almacen', removal: 'deactivate', entry: 'dialog', messages: { style: 'dialog' }, closeDate: 'f_fin',
+  quitar: { none: 'Seleccionar Fila', confirm: 'Desea Desactivar Almacen?', already: 'Almacen Seleccionado ya esta desactivado' },
+  fields: [
+    { name: 'id_localidad', kind: 'select', label: 'Localidad', required: true, message: 'Seleccione Localidad', source: { catalog: 'localidades', where: { id_empresa: '$session.empresa' } } },
+    { name: 'id_punto_venta', kind: 'select', label: 'Pto Venta', required: true, message: 'Seleccione Punto de Venta', source: { catalog: 'punto-venta' }, dependsOn: [{ field: 'id_localidad', filterKey: 'id_localidad' }] },
+    { name: 'id_almacen', kind: 'select', label: 'Almacen', required: true, message: 'Seleccione Almacen', source: { catalog: 'almacenes' }, dependsOn: [{ field: 'id_punto_venta', filterKey: 'id_punto_venta' }] },
+    { name: 'proceso', kind: 'options', label: 'Proceso', required: true, message: 'Seleccione Proceso', default: 'VENTA', options: [{ value: 'VENTA', label: 'VENTA' }, { value: 'DESPACHO', label: 'DESPACHO' }] },
+    { name: 'f_inicio', kind: 'date', label: 'Fecha Inicio', required: true, default: 'today' },
+  ],
+  unique: [{ fields: ['id_almacen', 'proceso'], errorField: 'id_almacen', message: ALMACEN_DUPLICADO }],
+  validation: ['id_localidad', 'id_punto_venta', 'id_almacen', 'proceso', 'f_inicio', { unique: 0 }],
+  joins: [{ as: 'almacen', ref: 'id_almacen', display: 'descripcion' }],
+  columns: [{ key: 'almacen', header: 'ALMACEN' }, { key: 'f_inicio', header: 'F_INICIO', type: 'date' }, { key: 'f_fin', header: 'F_FIN', type: 'date' }, { key: 'proceso', header: 'PROCESO' }],
+};
+
 export const items = referenceCatalog({
   slug: 'items', idKey: 'id_item', codeWidth: 6, entity: 'un Item', formId: 'miItem', title: 'Item', scope: 'empresa', stamp: ['id_usuario', 'id_empresa'], descripcion: false, generalTab: 'Datos de Item',
   modes: ['INSERT', 'UPDATE', 'DELETE', 'DETAIL'],
+  children: { almacenes },
   fields: [
     { name: 'id_alterno', kind: 'text', label: 'Cod. Alterno', required: true, max: 30, normalize: ['upper'], msgLabel: 'su Codigo Alternativo' },
     { name: 'id_familia', kind: 'select', label: 'Familia', required: true, source: { catalog: 'familias' } },
