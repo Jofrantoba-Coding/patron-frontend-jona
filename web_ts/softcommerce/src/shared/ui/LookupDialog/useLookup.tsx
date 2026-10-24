@@ -1,6 +1,7 @@
 // Layer: Impl hook of a host that opens a named picker (D4): `open` resolves with the pick, or undefined on cancel; the host renders `dialog`.
 import { useCallback, useState, type ReactElement } from 'react';
 import { PICKERS } from '../../../../mock-server/registry/pickers.js';
+import type { AppServices } from '../../../services/serviceComposer';
 import { useServices } from '../../../services/ServicesContext';
 import { LookupDialog } from './LookupDialog';
 import type { InterLookupDialog } from './InterLookupDialog';
@@ -13,8 +14,25 @@ export interface LookupResult {
 export type LookupOpenOptions = Pick<InterLookupDialog, 'preset' | 'veto'>;
 type Opened = { picker: string; options: LookupOpenOptions; settle: (result?: LookupResult) => void };
 
+/**
+ * The props of the lookup dialog for a named picker (D4): the source list with the picker's static `where`, the select-filter options, and the row identity (the source's `id_*` column).
+ * Shared by the hook and by a host that opens a picker itself (the master register of a `picker` child).
+ */
+export function pickerDialogProps(services: Pick<AppServices, 'catalog' | 'lookup'>, picker: string): Pick<InterLookupDialog, 'config' | 'idKey' | 'list' | 'loadOptions'> {
+  if (!(picker in PICKERS)) throw new Error(`Unknown picker "${picker}".`);
+  const config = PICKERS[picker];
+  const service = services.catalog<Row>(config.source);
+  return {
+    config,
+    // The row identity is the source's id column (every picker lists it, `id_*`).
+    idKey: config.columns.find((column: { key: string }) => column.key.startsWith('id_'))!.key,
+    list: ({ filters, page, pageSize }) => service.list({ page, pageSize, filters: { ...config.where, ...filters } }),
+    loadOptions: (slug, filters) => services.lookup.options(slug, filters),
+  };
+}
+
 export function useLookup(): { open: (picker: string, options?: LookupOpenOptions) => Promise<LookupResult | undefined>; dialog: ReactElement | null } {
-  const { catalog, lookup } = useServices();
+  const services = useServices();
   const [opened, setOpened] = useState<Opened | undefined>();
 
   const open = useCallback(
@@ -26,17 +44,11 @@ export function useLookup(): { open: (picker: string, options?: LookupOpenOption
   );
 
   if (!opened) return { open, dialog: null };
-  const config = PICKERS[opened.picker];
-  const service = catalog<Row>(config.source);
   return {
     open,
     dialog: (
       <LookupDialog
-        config={config}
-        // The row identity is the source's id column (every picker lists it, `id_*`).
-        idKey={config.columns.find((column: { key: string }) => column.key.startsWith('id_'))!.key}
-        list={({ filters, page, pageSize }) => service.list({ page, pageSize, filters: { ...config.where, ...filters } })}
-        loadOptions={(slug, filters) => lookup.options(slug, filters)}
+        {...pickerDialogProps(services, opened.picker)}
         preset={opened.options.preset}
         veto={opened.options.veto}
         onPick={(row, extras) => opened.settle({ row, extras })}

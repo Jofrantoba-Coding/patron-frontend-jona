@@ -3,6 +3,7 @@ import type { CatalogConfig } from '../../catalogs/CatalogConfig';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import type { InterLookupService } from '../../services/InterLookupService';
 import type { InterChildGrid } from '../../shared/ui/ChildGrid';
+import type { InterLookupDialog } from '../../shared/ui/LookupDialog/InterLookupDialog';
 import type { InterUiCrudRegister } from '../uicrudregister/InterUiCrudRegister';
 
 /** The inline entry of a child (R-MD-3): the same register parts as the dialog, without the way to close it. */
@@ -43,5 +44,7 @@ export interface InterUiMasterRegister {
   /** Value-first: the tab key. */
   onTabChange: (key: string) => void;
   childDialog?: MasterChildDialog;
+  /** The picker a `picker` child opened (R-MST-12): the lookup dialog with the host veto. */
+  pickerDialog?: InterLookupDialog;
   quitarConfirm?: MasterQuitarConfirm;
 }

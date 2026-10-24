@@ -129,8 +129,8 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId, cre
         throw indexed(error, child.childName, n);
       }
       if (op.op === 'A') {
-        // `A` updates, and deactivates a child that is not removed by deletion (`deactivate`, or `none`: the activation history closes its rows); it never reactivates (R-MOCK-21).
-        const estado = child.removal !== 'delete' && op.estado === 'D' ? { estado: 'D' } : {};
+        // `A` updates, and deactivates a child that is not removed by deletion (`deactivate`, or `none`: the activation history closes its rows); it reactivates only a `reactivable` child (the sustitutos, R-MOCK-21).
+        const estado = child.removal !== 'delete' && (op.estado === 'D' || (op.estado === 'A' && child.reactivable)) ? { estado: op.estado } : {};
         writes.push(() => Object.assign(/** @type {any} */ (stored), record, derivedValues(child, record), stamps, estado));
         Object.assign(/** @type {any} */ (inView(stored[child.idKey])), record, estado);
         return;

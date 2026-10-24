@@ -1,6 +1,7 @@
 // Pure: the client rules a `deferred` row action names (R-ACT-4, D12). A rule decides what the action does to the pending rows of the open register.
 import { ANEXO_RULES } from './anexoRules';
 import { PADRON_RULES } from './padronRules';
+import { SUSTITUTO_RULES } from './sustitutoRules';
 
 /** What a rule sees: the rows of the grid (without the deleted ones), the selected row, if any, and the input of the action dialog. */
 export interface ActionCall {
@@ -28,5 +29,5 @@ export interface ActionRule {
   apply: (call: ActionCall) => ActionEffect;
 }
 
-/** The rules by the name an action declares in `rule`: the anexo Activar and Desactivar (W3-7) and the padron ones (W3-15); tests register their own. */
-export const ACTION_RULES: Record<string, ActionRule> = { ...ANEXO_RULES, ...PADRON_RULES };
+/** The rules by the name an action declares in `rule`: the anexo Activar and Desactivar (W3-7), the padron ones (W3-15) and the Cliente sustitutos ones (W3-17); tests register their own. */
+export const ACTION_RULES: Record<string, ActionRule> = { ...ANEXO_RULES, ...PADRON_RULES, ...SUSTITUTO_RULES };

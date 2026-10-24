@@ -35,7 +35,7 @@ export function formatRows<T>(columns: readonly { key: keyof T & string; format?
       if (format === 'date') {
         shown[key] = isoToDisplay(value);
         shown[sortKeyOf(key)] = typeof value === 'string' ? value : '';
-      } else shown[key] = format === 'bool' ? (value === true ? 'Sí' : value === false ? 'No' : '') : value === undefined || value === null ? '' : String(value);
+      } else shown[key] = format === 'bool' ? (value === true || value === 'true' ? 'Sí' : value === false || value === 'false' ? 'No' : '') : value === undefined || value === null ? '' : String(value);
     }
     return shown as T;
   });

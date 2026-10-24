@@ -1,3 +1,4 @@
+import { AGGREGATE_OPS } from '../core/aggregate.js';
 import { DOC_DEFAULTS } from '../core/docIdentidad.js';
 import { ENTRY_RULE_NAMES, ruleStates } from '../core/entryRules.js';
 import { NORMALIZE_STEP } from '../core/normalize.js';
@@ -533,6 +534,7 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
   }
   assertAcyclic(where, entry.fields);
   assertStored(where, entry, names, known);
+  assertAggregate(where, entry);
   for (const column of entry.columns) {
     // `<name>_label` is the label the server adds beside an options field (R-MOCK-14).
     const base = column.key.endsWith('_label') ? column.key.slice(0, -'_label'.length) : undefined;
@@ -633,6 +635,33 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
   return { ...entry, fields, refs, steps, ...(actions && { actions }) };
 }
 
+/**
+ * `aggregate: [{ as, child, op, field?, where? }]` (D27a): a count or sum over the rows of a declared child. `as` is a read-only column the server adds to every answer, so it may
+ * name a `number` field (the Credito total of the register) but never a stored field of another kind; a sum names a field of the child.
+ * @param {string} at @param {any} entry
+ */
+function assertAggregate(at, entry) {
+  if (entry.aggregate === undefined) return;
+  if (!Array.isArray(entry.aggregate)) fail(at, 'aggregate must be a list');
+  const kids = childList(entry);
+  const seen = new Set();
+  for (const def of entry.aggregate) {
+    const name = `aggregate "${def?.as}"`;
+    if (typeof def?.as !== 'string' || def.as === '') fail(at, 'an aggregate needs an as');
+    if (seen.has(def.as)) fail(at, `duplicate aggregate "${def.as}"`);
+    seen.add(def.as);
+    const target = entry.fields.find((/** @type {any} */ f) => f.name === def.as);
+    if (target && target.kind !== 'number') fail(at, `${name} is also a field with a kind other than number`);
+    const child = kids.find((/** @type {any} */ k) => k.name === def.child);
+    if (!child) fail(at, `${name} names unknown child "${def.child}"`);
+    if (!AGGREGATE_OPS.includes(def.op)) fail(at, `${name} has unknown op "${def.op}"`);
+    if (def.op === 'sum') {
+      if (typeof def.field !== 'string') fail(at, `${name} needs a field to sum`);
+      if (!(child.fields ?? []).some((/** @type {any} */ f) => f.name === def.field)) fail(at, `${name} names unknown field "${def.field}" of child "${def.child}"`);
+    }
+  }
+}
+
 const REMOVALS = ['deactivate', 'delete', 'none'];
 const QUITAR_KEYS = ['none', 'confirm', 'already'];
 
@@ -688,7 +717,26 @@ function assertLayout(at, entry) {
 }
 
 // `none`: the grid has no Agregar; its rows come from the actions (the activation history).
-const CHILD_ENTRIES = ['dialog', 'inline', 'none'];
+const CHILD_ENTRIES = ['dialog', 'inline', 'none', 'picker'];
+
+/**
+ * `pick: { picker, field, message, copy? }` of a `picker` child (R-MST-12): `Agregar` opens the named picker (`registry/pickers.js`) instead of a dialog; a pick adds a row whose `field`
+ * holds the id of the picked row and whose `copy` columns (`{ column: pickerKey }`) hold the display values the grid shows before the save; `message` is the host veto text of the
+ * picker (the cliente is already in the grid). `reactivable` lets a composite `A` op set a deactivated row active again (a child that is never removed by deletion otherwise only closes).
+ * @param {string} at @param {any} def @param {string} entry @param {Set<string>} fieldNames
+ */
+function assertPick(at, def, entry, fieldNames) {
+  if (def.reactivable !== undefined && typeof def.reactivable !== 'boolean') fail(at, 'reactivable must be a boolean');
+  if ((entry === 'picker') !== (def.pick !== undefined)) fail(at, 'a picker child needs pick, and only a picker child takes it');
+  if (def.pick === undefined) return;
+  const { picker, field, message, copy = {} } = def.pick;
+  if (!Object.hasOwn(PICKERS, picker)) fail(at, `pick names unknown picker "${picker}"`);
+  if (!fieldNames.has(field)) fail(at, `pick names unknown field "${field}"`);
+  if (typeof message !== 'string' || message === '') fail(at, 'pick needs a message');
+  for (const [column, key] of Object.entries(copy)) {
+    if (typeof key !== 'string') fail(at, `pick copy "${column}" needs a picker key`);
+  }
+}
 /** Route words and row keys a child name or field may not take (R-REG-14, R-REG-20). */
 const RESERVED_CHILD_NAMES = ['actions', 'menu', 'permisos'];
 const RESERVED_CHILD_FIELDS = ['id', 'estado', 'op'];
@@ -769,6 +817,7 @@ function expandChildren(parent, slugs, sources, rawBySlug, resolved) {
     if (def.store !== undefined) return storeChild(parent, def, at, removal, entry, resolved, resolve);
     const fieldNames = new Set((def.fields ?? []).map((/** @type {any} */ f) => f.name));
     assertInitial(at, def.initial, fieldNames);
+    assertPick(at, def, entry, fieldNames);
     for (const ref of def.refs ?? []) if (!fieldNames.has(ref.field)) fail(`entry "${parent.slug}/${def.name}"`, `refs names unknown field "${ref.field}"`);
     const { name, refs: _refs, ...rest } = def;
     return resolveEntry({

@@ -109,7 +109,7 @@ export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY
   const all = (registry.childEntries ?? []).filter((child) => child.parent === entry.slug);
   const kids = all.filter((child) => (child as any).tab !== false);
   const hidden = all.filter((child) => (child as any).tab === false);
-  const toChild = (child: CatalogDef) => ({ name: (child as any).childName, title: (child as any).tab || (child as any).childName, removal: (child as any).removal, entryMode: (child as any).entry, quitar: { none: 'Seleccione Fila.', already: 'Fila ya Esta desactivada', ...(child as any).quitar }, ...((child as any).gate ? { gate: (child as any).gate } : {}), ...((child as any).actions ? { actions: toActions(child, registry) } : {}), config: { ...toCatalogConfig(child, registry), title: (child as any).tab || (child as any).childName } });
+  const toChild = (child: CatalogDef) => ({ name: (child as any).childName, title: (child as any).tab || (child as any).childName, removal: (child as any).removal, entryMode: (child as any).entry, ...((child as any).pick ? { pick: (child as any).pick } : {}), quitar: { none: 'Seleccione Fila.', already: 'Fila ya Esta desactivada', ...(child as any).quitar }, ...((child as any).gate ? { gate: (child as any).gate } : {}), ...((child as any).actions ? { actions: toActions(child, registry) } : {}), config: { ...toCatalogConfig(child, registry), title: (child as any).tab || (child as any).childName } });
   return {
     formId: entry.formId ?? entry.slug,
     title: entry.title ?? entry.slug,
