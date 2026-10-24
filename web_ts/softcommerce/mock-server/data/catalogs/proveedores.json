@@ -1,0 +1,117 @@
+{
+  "demo": [
+    {
+      "id_proveedor": "0000000001",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20123456789",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "DISTRIBUIDORA ANDINA SAC",
+      "direccion": "AV. ARGENTINA 1500 CALLAO",
+      "sexo": "",
+      "telefono": "4519100",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "ventas@andina.pe",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "1",
+      "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": true,
+      "flag_buen_contrib": false,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "1", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ],
+      "padrones": [
+        { "id": "1", "id_padron": "02", "estado": "A", "f_inicio": "2025-02-01", "f_fin": "" }
+      ]
+    },
+    {
+      "id_proveedor": "0000000002",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "10456789012",
+      "ap_paterno": "QUISPE",
+      "ap_materno": "MAMANI",
+      "nombres": "LUIS",
+      "descripcion": "QUISPE MAMANI LUIS",
+      "direccion": "JR. HUANCAVELICA 310 LIMA",
+      "sexo": "M",
+      "telefono": "",
+      "celular": "987111222",
+      "id_nacionalidad": "001",
+      "email": "",
+      "flag_tipo_persona": "N",
+      "id_tipo_anexo": "1",
+      "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_buen_contrib": true,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "2", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ],
+      "padrones": [
+        { "id": "2", "id_padron": "04", "estado": "A", "f_inicio": "2025-03-01", "f_fin": "" }
+      ]
+    },
+    {
+      "id_proveedor": "0000000003",
+      "id_tipo_doc_iden": "04",
+      "numero_doc": "001234568",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "LEE KIM IMPORT",
+      "direccion": "JR. LAMPA 460 LIMA",
+      "sexo": "",
+      "telefono": "",
+      "celular": "987654322",
+      "id_nacionalidad": "002",
+      "email": "",
+      "flag_tipo_persona": "N",
+      "id_tipo_anexo": "1",
+      "estado": false,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_buen_contrib": false,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "3", "estado": "D", "f_inicio": "2024-02-01", "f_fin": "2024-12-31", "motivo_activacion": "INICIO", "motivo_desactivacion": "CIERRE" }
+      ],
+      "padrones": [
+        { "id": "3", "id_padron": "03", "estado": "D", "f_inicio": "2024-02-01", "f_fin": "2024-12-31" }
+      ]
+    },
+    {
+      "id_proveedor": "0000000004",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20555555553",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "PROVEEDOR RETIRADO SA",
+      "direccion": "",
+      "sexo": "",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "1",
+      "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_buen_contrib": false,
+      "id_usuario": 7,
+      "activo": false,
+      "activaciones": [
+        { "id": "4", "estado": "A", "f_inicio": "2023-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ]
+    }
+  ]
+}

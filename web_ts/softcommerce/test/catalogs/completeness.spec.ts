@@ -28,7 +28,7 @@ const T3 = [
 const LOOKUPS = ['monedas', 'tipos-doc-iden', 'tablas-sunat', 'tablas-detalle-sunat', 'tipos-doc-venta', 'familias-sunat', 'subfamilias-sunat', 'cuentas-contables', 'parametros-prov', 'clases-sunat', 'padrones'];
 const CATALOGS = [...T1, ...T2, ...T3];
 // The Wave 3 masters have their own suites (R-MST-18 exception 3): they are not among the 38 reference catalogs.
-const MASTERS = ['bancos', 'trabajadores', 'vendedores', 'transportistas', 'usuarios'];
+const MASTERS = ['bancos', 'trabajadores', 'vendedores', 'transportistas', 'proveedores', 'usuarios'];
 
 const entries = REGISTRY.entries as any[];
 
