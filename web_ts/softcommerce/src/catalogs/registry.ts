@@ -27,6 +27,7 @@ function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConf
     return {
       kind: 'text', name: field.name, label: field.label, required: Boolean(field.required),
       maxLength: field.max, uppercase: normalize.includes('upper'), normalize,
+      ...(field.message ? { message: field.message } : {}),
       ...(field.minLen !== undefined ? { minLen: field.minLen } : {}), ...(field.minLenWhen ? { minLenWhen: field.minLenWhen } : {}), ...(field.maxWhen ? { maxWhen: field.maxWhen } : {}),
     };
   }

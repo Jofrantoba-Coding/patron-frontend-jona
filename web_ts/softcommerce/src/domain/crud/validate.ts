@@ -68,7 +68,7 @@ function fieldError(field: FieldConfig, values: FormValues, { required: required
   const state = fieldState(field, values);
   if (!state.visible || !state.enabled) return undefined;
   const value = values[field.name];
-  if (state.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? `${field.label} es obligatorio.` };
+  if (state.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? (field.kind === 'text' ? field.message : undefined) ?? `${field.label} es obligatorio.` };
   const limit = field.kind === 'text' ? maxLengthOf(field, values) : undefined;
   if (field.kind === 'text' && limit !== undefined && (value?.length ?? 0) > limit) {
     return { name: field.name, message: `${field.label} no puede superar ${limit} caracteres.` };

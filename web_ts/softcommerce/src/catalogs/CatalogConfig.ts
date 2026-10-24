@@ -41,6 +41,8 @@ type PlainField =
       uppercase?: boolean;
       /** Registry `normalize` steps, applied (after a trim) to the payload; absent for the W1 configs. */
       normalize?: string[];
+      /** The sentence of a blank required value when no entry gives one (an action dialog: `Ingrese Motivo`). */
+      message?: string;
     }
   | {
       /** A checkbox; the form state is 'true' | 'false' and the payload a boolean (codec, D7). */
@@ -174,6 +176,8 @@ export interface ActionConfig {
   dialog?: { title: string; fields: FieldConfig[] };
   server?: string;
   rule?: string;
+  /** Constants the named rule reads (the entity word of the anexo messages). */
+  params?: Record<string, unknown>;
 }
 
 /** Everything the generic list and register units need to serve one catalog. */
@@ -206,8 +210,8 @@ export interface ChildConfig {
   /** The register tab title. */
   title: string;
   removal: 'deactivate' | 'delete' | 'none';
-  /** `dialog` opens the child register; `inline` puts the entry above the grid (R-MD-3). */
-  entryMode: 'dialog' | 'inline';
+  /** `dialog` opens the child register; `inline` puts the entry above the grid (R-MD-3); `none` has no Agregar: the rows come from the actions. */
+  entryMode: 'dialog' | 'inline' | 'none';
   /** The grid messages of Quitar (R-MD-4): no selected row, the desktop question (absent when it did not ask) and a row that is already deactivated. */
   quitar: { none: string; confirm?: string; already: string };
   /** The company parameter that shows the tab; absent means always (R-REG-17). */
