@@ -131,7 +131,7 @@ export function createRecord(store, tenantId, catalog, body, ctx, link) {
   const entry = writableEntry(store, catalog, 'POST', link);
   // Session values come from the context, never from the body (R-MOCK-13).
   const stamps = stampsOf(store, tenantId, entry, ctx);
-  const record = withRuleDerived(entry, blankHidden(entry, withDefaults(entry, pickWritable(entry, body), store.data(tenantId).params)));
+  const record = withRuleDerived(entry, blankHidden(entry, withDefaults(entry, pickWritable(entry, body, store.data(tenantId).params), store.data(tenantId).params)));
   validateRecord(store, tenantId, entry, record, { ctx, mode: 'INSERT', parentId: link?.id });
   const plan = link ? null : planChildren(store, tenantId, entry, body.children, { ctx, creating: true });
   const rows = rowsOf(store, tenantId, entry);
@@ -154,7 +154,7 @@ export function updateRecord(store, tenantId, catalog, id, body, ctx, link) {
   const row = findRow(store, tenantId, entry, id, ctx, link);
   if (link && row[ACTIVE_KEY] === false) throw notFound(`${entry.slug} ${id} not found`);
   // A backed record is edited through its presented form (the flags as booleans), so a body that leaves a checkbox out keeps it.
-  const merged = withRuleDerived(entry, blankHidden(entry, { ...(entry.backing === undefined ? row : BACKINGS[entry.backing].present(row)), ...pickWritable(entry, body) }));
+  const merged = withRuleDerived(entry, blankHidden(entry, { ...(entry.backing === undefined ? row : BACKINGS[entry.backing].present(row)), ...pickWritable(entry, body, store.data(tenantId).params) }));
   validateRecord(store, tenantId, entry, merged, { selfId: id, ctx, mode: 'UPDATE', parentId: link?.id });
   const plan = link ? null : planChildren(store, tenantId, entry, body.children, { ctx, parentId: id });
   Object.assign(row, storePasswords(entry, merged, id), derivedValues(entry, merged), refDerived(store, tenantId, entry, merged, ctx), stamps);

@@ -27,10 +27,11 @@ export function useUiMasterRegisterImpl<T>(
   handlers: CrudRegisterHandlers,
   permissions?: Permissions,
 ): InterUiMasterRegister {
-  // A child whose company-parameter gate is closed does not exist for this register: no tab, no rows, no ops (R-REG-17, S-MD-14).
+  // A child or a field whose company-parameter gate is closed does not exist for this register: no tab, no rows, no ops, no control, nothing validated or sent (R-REG-17, S-MD-14, S-REG-25).
   const params: Record<string, unknown> | undefined = useOptionalSession()?.session?.params as Record<string, unknown> | undefined;
   const kids = useMemo(() => (config.children ?? []).filter((child) => gateOpen(child.gate, params)), [config.children, params]);
-  const gated = useMemo(() => ({ ...config, children: kids }), [config, kids]);
+  const fields = useMemo(() => config.fields.filter((field) => gateOpen('gate' in field ? field.gate : undefined, params)), [config.fields, params]);
+  const gated = useMemo(() => ({ ...config, fields, children: kids }), [config, fields, kids]);
   const tabs = useMemo(() => buildTabs(gated), [gated]);
   const app = useOptionalServices();
   const childService = app?.children(config.catalog);
@@ -50,7 +51,7 @@ export function useUiMasterRegisterImpl<T>(
   const [askingAction, setAskingAction] = useState<MasterQuitarConfirm>();
   const readOnly = mode === 'DELETE' || mode === 'DETAIL';
 
-  const register = useUiCrudRegisterImpl(config, service, mode, id, handlers, {
+  const register = useUiCrudRegisterImpl(gated, service, mode, id, handlers, {
     dirty: drafts.dirty,
     payload: drafts.payload,
     // UPDATE, DETAIL and DELETE restore every child beside the parent; INSERT has none and CLONE drops them (R-MD-9, D11).

@@ -511,6 +511,8 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
       fail(where, `column "${column.key}" has no options field "${base}"`);
     }
     if (column.type !== undefined && !COLUMN_TYPES.includes(column.type)) fail(where, `column "${column.key}" has unknown type "${column.type}"`);
+    // A column gated by a company parameter is left out of the list while it is off (R-MST-10: CONDICION PAGO, NUMERO DIAS).
+    assertGate(`${where} column "${column.key}"`, column.gate);
   }
 
   for (const key of entry.unique ?? []) {
@@ -627,6 +629,35 @@ function assertQuitar(at, quitar) {
     if (typeof text !== 'string' || text.trim() === '') fail(at, `quitar.${key} must be a non-empty text`);
   }
 }
+/**
+ * The register layout tabs of an entry (R-MD-1): `[{ title, fields }]`, the extra field tabs after `General` (which keeps every field no tab lists). A title is a
+ * non-empty text that is neither `General` nor another layout or child tab; its fields are a non-empty list of fields of the entry, each placed once (the code is never placed).
+ * @param {string} at @param {any} entry
+ */
+function assertLayout(at, entry) {
+  const layout = entry.layout;
+  if (layout === undefined) return;
+  if (!Array.isArray(layout) || layout.length === 0) fail(at, 'layout must be a non-empty list');
+  const childTabs = childList(entry).map((/** @type {any} */ c) => c.tab);
+  const titles = new Set();
+  const placed = new Set();
+  for (const tab of layout) {
+    if (typeof tab?.title !== 'string' || tab.title.trim() === '') fail(at, 'layout tab needs a title');
+    if (tab.title === 'General') fail(at, 'layout tab "General" is the base tab');
+    if (titles.has(tab.title)) fail(at, `layout tab "${tab.title}" is repeated`);
+    if (childTabs.includes(tab.title)) fail(at, `layout tab "${tab.title}" is also a child tab`);
+    titles.add(tab.title);
+    if (!Array.isArray(tab.fields) || tab.fields.length === 0) fail(at, `layout tab "${tab.title}" needs a non-empty list of fields`);
+    for (const name of tab.fields) {
+      const field = entry.fields.find((/** @type {any} */ f) => f.name === name);
+      if (!field) fail(at, `layout tab "${tab.title}" names unknown field "${name}"`);
+      if (field.kind === 'code') fail(at, `layout tab "${tab.title}" cannot place the code field "${name}"`);
+      if (placed.has(name)) fail(at, `layout places field "${name}" twice`);
+      placed.add(name);
+    }
+  }
+}
+
 // `none`: the grid has no Agregar; its rows come from the actions (the activation history).
 const CHILD_ENTRIES = ['dialog', 'inline', 'none'];
 /** Route words and row keys a child name or field may not take (R-REG-14, R-REG-20). */
@@ -753,6 +784,7 @@ export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {})
       }
     }
   }
+  for (const entry of entries) assertLayout(`entry "${entry.slug}"`, entry);
   const resolved = new Map(entries.map((e) => [e.slug, e]));
   // A child is reachable by `bySlug` under `parent/name` only; it is not a top-level entry (no menu, no form, no route of its own).
   const childEntries = entries.flatMap((entry) => (entry.children === undefined ? [] : expandChildren(entry, slugs, sources, rawBySlug, resolved)));

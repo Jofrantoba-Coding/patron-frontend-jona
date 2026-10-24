@@ -121,7 +121,7 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId, cre
         view.splice(view.indexOf(/** @type {any} */ (inView(stored[child.idKey]))), 1);
         return;
       }
-      const picked = pickWritable(child, op);
+      const picked = pickWritable(child, op, params);
       const record = withRuleDerived(child, blankHidden(child, op.op === 'I' ? withDefaults(child, picked, params) : { ...stored, ...picked }));
       try {
         validateRecord(store, tenantId, child, record, { ctx, mode: op.op === 'I' ? 'INSERT' : 'UPDATE', selfId: stored?.[child.idKey], parentId, siblings: view });

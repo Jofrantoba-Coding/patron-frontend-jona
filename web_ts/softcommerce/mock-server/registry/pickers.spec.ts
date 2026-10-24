@@ -144,7 +144,7 @@ const GAPS: Record<string, string[]> = {
   panelCargarTrabajador: ['punto_venta'],
   // The padron flags and the sustitutos count come with W3-17 (Cliente padrones and sustitutos); remove them here with that slice.
   buscarCliente: ['cant_sust', 'flag_buen_contrib', 'flag_exceptuado', 'flag_retencion'],
-  formClienteBuscar: ['cant_sust', 'condicion_pago', 'flag_exceptuado', 'flag_percepcion', 'flag_retencion', 'numero_dias'],
+  formClienteBuscar: ['cant_sust', 'flag_exceptuado', 'flag_percepcion', 'flag_retencion'],
 };
 /** Select filters of registered sources that are not yet a declared `lookupFilters` key (the exact list match); none is left since W3-10. */
 const SELECT_GAPS: Record<string, string[]> = {};

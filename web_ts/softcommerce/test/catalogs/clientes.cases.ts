@@ -32,6 +32,16 @@ export const CLIENTE_CASES: CatalogCase[] = [
   write('S-MST-20 the tipo de cliente is checked before the nacionalidad', { id_tipo_doc_iden: '05', numero_doc: '20123456789', descripcion: 'acme sac', id_nacionalidad: '' }, invalid(['id_clasif_cliente'], [TIPO_CLIENTE])),
   write('R-MST-10 a deactivated tipo de cliente is not offered: a 422 on the field', { ...RUC_BODY, id_clasif_cliente: '2' }, invalid(['id_clasif_cliente'])),
 
+  // S-MST-20 third clause and S-MST-21 (the tenant `demo` has IS_CLIENTE_CONDICION_PAGO on): the días are checked last and only for CREDITO.
+  write('S-MST-20 CREDITO with blank días says Ingrese numero de Dias', { ...RUC_BODY, condicion_pago: 'CREDITO', numero_dias: '' }, invalid(['numero_dias'], ['Ingrese numero de Dias'])),
+  write('S-MST-20 the días come last: the nacionalidad sentence wins over a blank días', { ...RUC_BODY, id_nacionalidad: '', condicion_pago: 'CREDITO', numero_dias: '' }, invalid(['id_nacionalidad'], ['Para agregar un Cliente, debes Seleccionar una Nacionalidad.'])),
+  write('S-MST-21 CREDITO with días stores flag_credito S and the días', { ...RUC_BODY, condicion_pago: 'CREDITO', numero_dias: 45 }, { ok: true, match: { condicion_pago: 'CREDITO', numero_dias: 45, flag_credito: 'S', flag_contado: 'N' } }),
+  write('S-MST-21 CONTADO needs no días (the field is disabled and shows 0): flag_contado S', { ...RUC_BODY, condicion_pago: 'CONTADO', numero_dias: 0 }, { ok: true, match: { condicion_pago: 'CONTADO', numero_dias: 0, flag_contado: 'S', flag_credito: 'N' } }),
+  write('S-MST-21 no condición (the blank item) stores neither flag and the default días 0', RUC_BODY, { ok: true, match: { numero_dias: 0, flag_contado: 'N', flag_credito: 'N' } }),
+  write('R-MST-10 a condición outside CONTADO and CREDITO is a 422 on the field', { ...RUC_BODY, condicion_pago: 'TARJETA' }, invalid(['condicion_pago'])),
+  update('S-MST-21 changing a CREDITO cliente to CONTADO stores the flags and días 0', 1, { condicion_pago: 'CONTADO', numero_dias: 0 }, { ok: true, match: { flag_contado: 'S', flag_credito: 'N', numero_dias: 0 } }),
+  { name: 'clientes S-MST-21 the seeded condición is read back', slug: 'clientes', steps: [{ op: 'get', id: client(1) }], expect: { ok: true, match: { condicion_pago: 'CREDITO', numero_dias: 30, flag_credito: 'S' } } },
+
   // S-MST-5 the persona flag and the stored constants (R-ANX-9).
   write('S-MST-5 a RUC starting with 2 is juridical: flag_tipo_persona J', RUC_BODY, { ok: true, match: { flag_tipo_persona: 'J' } }),
   write('S-MST-5 a DNI is N and composes the razon social', DNI_BODY, { ok: true, match: { flag_tipo_persona: 'N', descripcion: 'PEREZ LOPEZ ANA' } }),
