@@ -60,8 +60,11 @@ export function useUiLoginImpl(service: InterAuthService): InterUiLogin {
 
     setFailure(undefined);
     setIsSubmitting(true);
+    const credentials = { usuario: form.usuario, clave: form.clave };
+    // The password is never kept past the submit (S-AUTH-24): the field is empty whatever the answer.
+    setForm((current) => ({ ...current, clave: '' }));
     service
-      .login(form.tenantId, { usuario: form.usuario, clave: form.clave })
+      .login(form.tenantId, credentials)
       .then((result) => {
         startLogin({ tenantId: form.tenantId, result });
         navigate('/contexto');
