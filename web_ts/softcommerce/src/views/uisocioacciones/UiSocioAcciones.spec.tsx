@@ -31,6 +31,8 @@ const top = () => screen.getAllByRole('dialog').at(-1) as HTMLElement;
 const open = async () => {
   const page = renderScreen();
   await screen.findByRole('tab', { name: 'Socios' });
+  // The tabs draw while the lists load: wait for the seeded socio row before any step reads them.
+  await within(screen.getByRole('tabpanel', { name: 'Socios' })).findByText('RAMOS DIAZ LUIS');
   return page;
 };
 const toPrecio = async (user: User) => {
