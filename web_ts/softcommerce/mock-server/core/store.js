@@ -10,7 +10,7 @@ import { MockError } from './errors.js';
  */
 
 /** W1 seed sections keyed by tenant id; registry entries (Localidad included) add theirs by scope. */
-const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'params', 'perfil-overrides'];
+const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'params', 'perfil-overrides', 'socio-acciones-precios', 'socio-acciones-socios'];
 
 /** @param {ReturnType<typeof import('../registry/schema.js').validateRegistry>} registry @param {boolean} shared */
 const sectionsOf = (registry, shared) =>

@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { join } from 'node:path';
 import {
   getAllPermissions, getMenu, getParams, getPermissions, listEmpresas, listPuntosVenta, login, sessionOptions,
 } from '../core/auth.js';
@@ -11,6 +13,7 @@ import { lookupOptions } from '../core/lookups.js';
 import {
   getPerfilMenu, getPerfilPermiso, getPerfilPermisos, putPerfilMenu, putPerfilPermisos,
 } from '../core/grants.js';
+import { getSocioAcciones, putSocioAcciones, withSocioAccionesSeed } from '../core/socioAcciones.js';
 import { createStore } from '../core/store.js';
 import { REGISTRY } from '../registry/index.js';
 import { childrenOf } from '../core/ubigeo.js';
@@ -48,6 +51,9 @@ const ROUTES = [
   { method: 'PUT', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos$/, handle: ({ store, tenant, params, body }) => ({ body: putPerfilPermisos(store, tenant, params[0], body) }) },
   { method: 'GET', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos\/([^/]+)$/, handle: ({ store, tenant, params }) => ({ body: getPerfilPermiso(store, tenant, params[0], params[1]) }) },
   { method: 'PUT', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos\/([^/]+)$/, handle: ({ store, tenant, params, body }) => ({ body: putPerfilPermisos(store, tenant, params[0], body, params[1]) }) },
+  // Socio acciones (R-MOCK-26): a custom resource, so it must win over the generic `/v1/{slug}` match.
+  { method: 'GET', pattern: /^\/v1\/socio-acciones$/, handle: ({ store, tenant }) => ({ body: getSocioAcciones(store, tenant) }) },
+  { method: 'PUT', pattern: /^\/v1\/socio-acciones$/, handle: ({ store, tenant, body }) => ({ body: putSocioAcciones(store, tenant, body) }) },
   // Lookups come before the generic catalog routes so they win the match.
   { method: 'GET', pattern: /^\/v1\/ubigeo$/, handle: ({ store, query }) => ({ body: childrenOf(store, query.parent) }) },
   { method: 'GET', pattern: /^\/v1\/lookups\/([^/]+)$/, handle: ({ store, tenant, params, query, ctx }) => ({ body: lookupOptions(store, tenant, params[0], query, ctx) }) },
@@ -82,6 +88,9 @@ const ROUTES = [
   { method: 'POST', pattern: /^\/__mock\/reset$/, isPublic: true, handle: ({ store }) => { store.reset(); return { status: 204 }; } },
 ];
 
+/** The Socio acciones seed of a data dir; a dir without the file has none (R-MOCK-26). @param {string} path */
+const optionalJson = (path) => (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : undefined);
+
 /** @param {import('node:http').IncomingMessage} req */
 async function readJson(req) {
   const chunks = [];
@@ -102,7 +111,7 @@ async function readJson(req) {
  */
 export function createApp({ seed, dataDir, registry = REGISTRY }) {
   if (!seed && !dataDir) throw new Error('createApp needs a seed or a dataDir');
-  const store = createStore(seed ?? loadSeed(/** @type {string} */ (dataDir), registry), registry);
+  const store = createStore(seed ?? withSocioAccionesSeed(loadSeed(/** @type {string} */ (dataDir), registry), optionalJson(join(/** @type {string} */ (dataDir), 'catalogs', 'socio-acciones.json'))), registry);
 
   const server = createServer(async (req, res) => {
     const correlationId = String(req.headers['x-correlation-id'] || randomUUID());
