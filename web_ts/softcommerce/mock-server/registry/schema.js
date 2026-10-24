@@ -486,6 +486,20 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
 }
 
 const REMOVALS = ['deactivate', 'delete', 'none'];
+const QUITAR_KEYS = ['none', 'confirm', 'already'];
+
+/**
+ * The grid messages of a child `Quitar` (R-MD-4): `none` (no selected row), `confirm` (the question; absent when the desktop did not ask) and
+ * `already` (a deactivated row pressed again). @param {string} at @param {any} quitar
+ */
+function assertQuitar(at, quitar) {
+  if (quitar === undefined) return;
+  if (typeof quitar !== 'object' || quitar === null || Array.isArray(quitar)) fail(at, 'quitar must be an object');
+  for (const [key, text] of Object.entries(quitar)) {
+    if (!QUITAR_KEYS.includes(key)) fail(at, `quitar names unknown key "${key}"`);
+    if (typeof text !== 'string' || text.trim() === '') fail(at, `quitar.${key} must be a non-empty text`);
+  }
+}
 const CHILD_ENTRIES = ['dialog', 'inline'];
 /** Route words and row keys a child name or field may not take (R-REG-14, R-REG-20). */
 const RESERVED_CHILD_NAMES = ['actions'];
@@ -510,7 +524,7 @@ function storeChild(parent, def, at, removal, entry, resolved) {
   if (ownerSlug === parent.slug) fail(at, 'store cannot name its own parent');
   for (const part of OWNER_PARTS) if (def[part] !== undefined) fail(at, `a store child takes ${part} from "${ownerSlug}"`);
   const { menu: _menu, children: _children, ...rest } = owner;
-  return { ...rest, slug: `${parent.slug}/${def.name}`, parent: parent.slug, childName: def.name, parentKey: key, seed: null, removal, entry, store: def.store, tab: def.tab, gate: def.gate, columns: def.columns ?? owner.columns };
+  return { ...rest, slug: `${parent.slug}/${def.name}`, parent: parent.slug, childName: def.name, parentKey: key, seed: null, removal, entry, store: def.store, tab: def.tab, gate: def.gate, quitar: def.quitar, columns: def.columns ?? owner.columns };
 }
 
 /**
@@ -534,6 +548,7 @@ function expandChildren(parent, slugs, sources, rawBySlug, resolved) {
     const entry = def.entry ?? 'dialog';
     if (!CHILD_ENTRIES.includes(entry)) fail(at, `unknown entry "${entry}"`);
     assertGate(at, def.gate);
+    assertQuitar(at, def.quitar);
     for (const f of def.fields ?? []) {
       if ([...RESERVED_CHILD_FIELDS, parent.idKey].includes(f.name)) fail(`${at} field "${f.name}"`, 'reserved name');
     }

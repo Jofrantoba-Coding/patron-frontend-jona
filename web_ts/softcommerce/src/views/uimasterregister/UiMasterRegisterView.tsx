@@ -5,11 +5,13 @@ import { ChildGrid } from '../../shared/ui/ChildGrid';
 import { UICRUDREGISTER_DEFAULTS } from '../uicrudregister/InterUiCrudRegister';
 import { UiCrudRegister } from '../uicrudregister/UiCrudRegister';
 import { UiCrudRegisterView } from '../uicrudregister/UiCrudRegisterView';
+import { GuardedOptionPane } from '../uishell/DialogStackProvider';
+import { InlineEntry } from './InlineEntry';
 import type { InterUiMasterRegister } from './InterUiMasterRegister';
 
 const noop = () => undefined;
 
-export function UiMasterRegisterView({ register, tabs, activeTab, onTabChange, childDialog }: InterUiMasterRegister) {
+export function UiMasterRegisterView({ register, tabs, activeTab, onTabChange, childDialog, quitarConfirm }: InterUiMasterRegister) {
   // jona-ui `JTabsContent` renders nothing for an inactive tab (JTabsView.tsx:126), which would drop the entered data and the pending rows.
   // So `JTabs` only draws the trigger list and each panel is rendered here, `hidden` when inactive.
   const arrange = (nodes: ReactNode[]) => {
@@ -27,6 +29,7 @@ export function UiMasterRegisterView({ register, tabs, activeTab, onTabChange, c
         </JTabs>
         {tabs.map((tab) => (
           <div key={tab.key} role="tabpanel" aria-label={tab.title} hidden={tab.key !== activeTab} className="grid min-w-0 gap-3">
+            {tab.inline && <InlineEntry {...tab.inline} />}
             {tab.grid ? <ChildGrid {...tab.grid} /> : tab.fields.map((name) => byField.get(name))}
           </div>
         ))}
@@ -38,6 +41,9 @@ export function UiMasterRegisterView({ register, tabs, activeTab, onTabChange, c
       <UiCrudRegisterView {...UICRUDREGISTER_DEFAULTS} {...register} arrange={arrange} />
       {childDialog && (
         <UiCrudRegister mode="INSERT" config={childDialog.config} service={childDialog.service} lookups={childDialog.lookups} lookup={childDialog.lookup} onDone={noop} onClose={childDialog.onClose} />
+      )}
+      {quitarConfirm && (
+        <GuardedOptionPane open variant="info" title={quitarConfirm.title} description={quitarConfirm.description} confirmLabel={UICRUDREGISTER_DEFAULTS.confirmLabel} cancelLabel={UICRUDREGISTER_DEFAULTS.declineLabel} onConfirm={quitarConfirm.onConfirm} onClose={quitarConfirm.onCancel} />
       )}
     </>
   );

@@ -103,7 +103,7 @@ export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,
     // A child is a nested config of its own (R-REG-14): the child dialog is the unchanged crud register over it.
-    ...(kids.length ? { children: kids.map((child) => ({ name: child.childName, title: child.tab ?? child.childName, removal: child.removal, entryMode: child.entry, config: { ...toCatalogConfig(child, registry), title: child.tab ?? child.childName } })) } : {}),
+    ...(kids.length ? { children: kids.map((child) => ({ name: child.childName, title: child.tab ?? child.childName, removal: child.removal, entryMode: child.entry, quitar: { none: 'Seleccione Fila.', already: 'Fila ya Esta desactivada', ...child.quitar }, ...(child.gate ? { gate: child.gate } : {}), config: { ...toCatalogConfig(child, registry), title: child.tab ?? child.childName } })) } : {}),
     ...((entry as any).layout ? { layout: (entry as any).layout } : {}),
   };
 }

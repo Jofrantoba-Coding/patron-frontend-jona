@@ -3,7 +3,7 @@ import type { CatalogConfig, ChildConfig } from '../../catalogs/CatalogConfig';
 import { buildTabs, tabOfField } from './tabs';
 
 const text = (name: string) => ({ kind: 'text' as const, name, label: name });
-const child = (name: string): ChildConfig => ({ name, title: name.toUpperCase(), removal: 'delete', entryMode: 'dialog', config: {} as ChildConfig['config'] });
+const child = (name: string): ChildConfig => ({ name, title: name.toUpperCase(), removal: 'delete', entryMode: 'dialog', quitar: { none: 'Seleccione Fila.', already: 'ya' }, config: {} as ChildConfig['config'] });
 const cascade = { kind: 'cascade' as const, name: 'id_distrito', lookup: 'ubigeo' as const, levels: [{ name: 'id_departamento', label: 'Departamento' }, { name: 'id_distrito', label: 'Distrito' }], ancestorsOf: () => [] };
 const config = {
   fields: [text('nombre'), cascade, text('dias')],

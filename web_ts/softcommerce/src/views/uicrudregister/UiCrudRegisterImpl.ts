@@ -36,6 +36,8 @@ export interface RegisterExtension {
   payload?: () => Record<string, unknown>;
   /** The field a failed submit points at, so the host can make it visible before it is focused. */
   firstError?: (name: string) => void;
+  /** The register sits inside its host (an inline child entry, R-MD-3): it takes no place in the dialog stack and a valid submit executes without asking. */
+  embedded?: boolean;
 }
 
 type Load = { status: 'loading' } | { status: 'ready' } | { status: 'failed'; message: string };
@@ -144,7 +146,7 @@ export function useUiCrudRegisterImpl<T>(
 
   const dirty = Object.keys(values).some((name) => values[name] !== baseline.current[name]) || Boolean(extension?.dirty?.());
   // A dirty editable form asks before discarding; anything else just closes.
-  const guardedClose = useGuardedClose(true, () => (dirty && mode !== 'DELETE' && mode !== 'DETAIL' ? setConfirm('discard') : onClose()));
+  const guardedClose = useGuardedClose(!extension?.embedded, () => (dirty && mode !== 'DELETE' && mode !== 'DETAIL' ? setConfirm('discard') : onClose()));
 
   async function execute() {
     setSubmitting(true);
@@ -248,8 +250,10 @@ export function useUiCrudRegisterImpl<T>(
       if (mode === 'DETAIL' || load.status !== 'ready' || submitting || confirm) return;
       const found = mode === 'DELETE' ? [] : validate(config.fields, values, config.entry && { entry: config.entry, mode });
       setErrors(Object.fromEntries(found.map((e) => [e.name, e.message])));
-      if (found.length === 0) setConfirm('submit');
-      else if (extension?.firstError) {
+      if (found.length === 0) {
+        if (extension?.embedded) void execute();
+        else setConfirm('submit');
+      } else if (extension?.firstError) {
         // The field may sit on a hidden tab: the host shows it first, the focus effect runs once it is visible.
         extension.firstError(found[0].name);
         setFocusName(found[0].name);
