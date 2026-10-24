@@ -1,6 +1,7 @@
 // Layer: View. Pure render of props already resolved by the Impl; no state, effects or services.
-import { JAlert, JButton, JDatePicker, JSelectField } from 'jona-ui';
-import type { InterUiContexto } from './InterUiContexto';
+import { JAlert, JButton, JLabel, JSelectField } from 'jona-ui';
+import { DateField } from '../../shared/ui/DateField';
+import { PERIOD_ERROR_ID, type InterUiContexto } from './InterUiContexto';
 
 export function UiContextoView({
   title,
@@ -61,9 +62,26 @@ export function UiContextoView({
         disabled={!empresaId || isSubmitting}
         onChange={(value) => onPuntoVentaChange?.(value)}
       />
-      <JDatePicker placeholder="Fecha inicio" value={fechaInicio} disabled={isSubmitting} onChange={onFechaInicioChange} />
-      <JDatePicker placeholder="Fecha fin" value={fechaFin} disabled={isSubmitting} onChange={onFechaFinChange} />
-      {periodError ? <small role="alert">{periodError}</small> : null}
+      <DateField
+        name="fechaInicio"
+        label="Fecha inicio"
+        value={fechaInicio}
+        readOnly={isSubmitting}
+        hasError={!!periodError}
+        describedBy={periodError ? PERIOD_ERROR_ID : undefined}
+        onChange={(value) => onFechaInicioChange?.(value)}
+      />
+      <DateField
+        name="fechaFin"
+        label="Fecha fin"
+        value={fechaFin}
+        readOnly={isSubmitting}
+        hasError={!!periodError}
+        describedBy={periodError ? PERIOD_ERROR_ID : undefined}
+        onChange={(value) => onFechaFinChange?.(value)}
+      />
+      {/* Same error text as the selects (JLabel `error`, role="alert"), tied to both dates by id. */}
+      <JLabel id={PERIOD_ERROR_ID} variant="error" message={periodError} />
       <JButton type="submit" loading={isSubmitting}>
         {submitLabel}
       </JButton>

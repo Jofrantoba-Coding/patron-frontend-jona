@@ -10,15 +10,17 @@ export interface DateFieldViewProps extends Required<Pick<InterDateField, 'name'
 
 /**
  * `JDatePicker` owns the mask, the calendar and the day picking. What it cannot do is reached on its input from here:
- * `aria-invalid` while the field has an error, and the ref a blocked submit focuses.
+ * `aria-invalid` while the field has an error, `aria-describedby` to its error text, and the ref a blocked submit focuses.
  */
 export function useDateFieldImpl(props: InterDateField, forwardedRef: ForwardedRef<HTMLInputElement>): DateFieldViewProps {
-  const { name, label, value, readOnly, hasError, onChange } = { ...DATEFIELD_DEFAULTS, ...props };
+  const { name, label, value, readOnly, hasError, describedBy, onChange } = { ...DATEFIELD_DEFAULTS, ...props };
   const wrapperRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const input = wrapperRef.current?.querySelector('input') ?? null;
     if (hasError) input?.setAttribute('aria-invalid', 'true');
     else input?.removeAttribute('aria-invalid');
+    if (describedBy) input?.setAttribute('aria-describedby', describedBy);
+    else input?.removeAttribute('aria-describedby');
     if (typeof forwardedRef === 'function') forwardedRef(input);
     else if (forwardedRef) forwardedRef.current = input;
     return () => {

@@ -35,8 +35,8 @@ async function confirmWith(service?: InterGrantsService) {
   await user.selectOptions(await screen.findByLabelText('Empresa'), '1');
   await screen.findByRole('option', { name: 'TIENDA CENTRAL' });
   await user.selectOptions(screen.getByLabelText('Punto de venta'), '1');
-  await user.type(screen.getByPlaceholderText('Fecha inicio'), '2026-01-01');
-  await user.type(screen.getByPlaceholderText('Fecha fin'), '2026-12-31');
+  await user.type(screen.getByLabelText('Fecha inicio'), '01012026');
+  await user.type(screen.getByLabelText('Fecha fin'), '31122026');
   await user.click(screen.getByRole('button', { name: 'Confirmar' }));
   return store;
 }
