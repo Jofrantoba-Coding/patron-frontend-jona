@@ -10,11 +10,13 @@ import {
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../../../mock-server/core/catalog.js';
 import { MockError } from '../../../mock-server/core/errors.js';
 import { lookupOptions } from '../../../mock-server/core/lookups.js';
+import { createChild, getChild, listChild, removeChild, updateChild } from '../../../mock-server/core/nested.js';
 import { createStore } from '../../../mock-server/core/store.js';
 import { childrenOf } from '../../../mock-server/core/ubigeo.js';
 import { ApiError } from '../ApiError';
 import type { InterAuthService } from '../InterAuthService';
 import type { InterCatalogService, Page } from '../InterCatalogService';
+import type { InterChildService } from '../InterChildService';
 import type { InterLookupService } from '../InterLookupService';
 import type { InterShellService } from '../InterShellService';
 import type { RequestContext, SessionContext } from '../httpClient';
@@ -49,6 +51,8 @@ export interface AppServicesMock {
   lookup: InterLookupService;
   /** One service per catalog name, all over the same store. */
   catalog<T>(catalog: string): InterCatalogService<T>;
+  /** The nested child routes of one catalog (R-MOCK-19), over the same store. */
+  children(catalog: string): InterChildService;
 }
 
 type Store = ReturnType<typeof createStore>;
@@ -137,5 +141,14 @@ export function createAppServicesMock(
     remove: (id) => call((s) => deleteRecord(s, tenantGate(s), name, id, getRequestContext())),
   });
 
-  return { auth, shell, lookup, catalog };
+  const children = (name: string): InterChildService => ({
+    list: (parentId, child, { page, pageSize, filters } = {}) =>
+      call((s) => listChild(s, tenantGate(s), name, parentId, child, { page, pageSize, ...filters }, getRequestContext()) as Page<any>),
+    get: (parentId, child, id) => call((s) => getChild(s, tenantGate(s), name, parentId, child, id, getRequestContext())),
+    create: (parentId, child, values) => call((s) => createChild(s, tenantGate(s), name, parentId, child, values, getRequestContext())),
+    update: (parentId, child, id, values) => call((s) => updateChild(s, tenantGate(s), name, parentId, child, id, values, getRequestContext())),
+    remove: (parentId, child, id) => call((s) => removeChild(s, tenantGate(s), name, parentId, child, id, getRequestContext())),
+  });
+
+  return { auth, shell, lookup, catalog, children };
 }
