@@ -87,11 +87,10 @@ describe('clientes INSERT (S-MST-3, S-MST-20)', () => {
     expect(await screen.findByText('Para agregar un Cliente, debes Seleccionar un Tipo de Cliente.')).toBeTruthy();
   });
 
-  it('the tipo de cliente offers only the active clasificaciones and the tab is Activación de Cliente', async () => {
+  it('the tipo de cliente offers only the active clasificaciones', async () => {
     const { user } = renderClientes();
     await openRegister(user, 'Agregar');
     await waitFor(() => expect([...select('Tipo Cliente').querySelectorAll('option')].map((o) => o.textContent)).toEqual(['--- Seleccione ---', 'MAYORISTA']));
-    expect(within(dialog()).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['General', 'Activación de Cliente']);
   });
 });
 

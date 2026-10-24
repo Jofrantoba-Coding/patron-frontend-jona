@@ -51,8 +51,8 @@ describe('R-MST-1 / R-MST-10 the clientes entry', () => {
     expect(fieldState(tipo, { id_tipo_doc_iden: 'OTROS' }).required).toBe(false);
   });
 
-  it('has the tab Activación de Cliente for now (the other tabs come with W3-16b and W3-17)', () => {
-    expect(REGISTRY.childEntries.filter((c: any) => c.parent === 'clientes').map((c: any) => [c.childName, c.tab])).toEqual([['activaciones', 'Activación de Cliente']]);
+  it('has the activation tab; the grids are covered by clientes.grids.spec', () => {
+    expect(REGISTRY.childEntries.filter((c: any) => c.parent === 'clientes').map((c: any) => c.childName)).toContain('activaciones');
   });
 });
 
