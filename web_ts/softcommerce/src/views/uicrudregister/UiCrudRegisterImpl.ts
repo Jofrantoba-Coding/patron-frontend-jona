@@ -6,7 +6,7 @@ import { decodeValue } from '../../domain/crud/codec';
 import { changeField, isEnabled, isVisible } from '../../domain/crud/conditional';
 import { applyModeDefaults, initialValues, isFieldReadOnly } from '../../domain/crud/modeDefaults';
 import { blurNormalize, normalize } from '../../domain/crud/normalize';
-import { mapServerError } from '../../domain/crud/serverErrors';
+import { mapServerError, type ChildServerError } from '../../domain/crud/serverErrors';
 import { validate, type FormValues } from '../../domain/crud/validate';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import type { InterLookupService, LookupItem } from '../../services/InterLookupService';
@@ -36,6 +36,8 @@ export interface RegisterExtension {
   payload?: () => Record<string, unknown>;
   /** The field a failed submit points at, so the host can make it visible before it is focused. */
   firstError?: (name: string) => void;
+  /** The child rows a failed save named, or `[]` when a new save starts (R-MD-5); called before `firstError`, so a parent field keeps the tab. */
+  childErrors?: (errors: ChildServerError[]) => void;
   /** The register sits inside its host (an inline child entry, R-MD-3): it takes no place in the dialog stack and a valid submit executes without asking. */
   embedded?: boolean;
 }
@@ -151,6 +153,7 @@ export function useUiCrudRegisterImpl<T>(
   async function execute() {
     setSubmitting(true);
     setSubmitFailure(undefined);
+    extension?.childErrors?.([]);
     try {
       const data = { ...normalize(config.fields, values), ...extension?.payload?.() } as Partial<T>;
       let resultId = id;
@@ -162,6 +165,7 @@ export function useUiCrudRegisterImpl<T>(
     } catch (error) {
       const mapped = mapServerError(error, fieldNames(config.fields));
       setErrors(mapped.fields);
+      extension?.childErrors?.(mapped.children ?? []);
       if (mapped.first) extension?.firstError?.(mapped.first);
       setFocusName(mapped.first);
       setSubmitFailure(mapped.form);

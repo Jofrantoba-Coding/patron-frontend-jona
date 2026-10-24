@@ -26,6 +26,8 @@ export function useUiMasterRegisterImpl<T>(
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [dialog, setDialog] = useState<MasterChildDialog>();
   const [notice, setNotice] = useState<{ child: string; text: string }>();
+  // What the server rejected, by child and row key (R-MD-5).
+  const [rowErrors, setRowErrors] = useState<Record<string, Record<string, string>>>({});
   const [asking, setAsking] = useState<{ child: ChildConfig; key: string }>();
   const readOnly = mode === 'DELETE' || mode === 'DETAIL';
 
@@ -33,6 +35,15 @@ export function useUiMasterRegisterImpl<T>(
     dirty: drafts.dirty,
     payload: drafts.payload,
     firstError: (name) => setActiveTab(tabOfField(tabs, config, name)),
+    // Each failure lands on the pending row that was sent at that index, and the register shows the tab of the first one.
+    childErrors: (errors) => {
+      const placed = errors.flatMap((error) => {
+        const key = draftsRef.current.opKey(error.child, error.index);
+        return key === undefined ? [] : [{ ...error, key }];
+      });
+      setRowErrors(placed.reduce<Record<string, Record<string, string>>>((all, { child, key, message }) => ({ ...all, [child]: { ...all[child], [key]: all[child]?.[key] ?? message } }), {}));
+      if (placed.length > 0) setActiveTab(`child:${placed[0].child}`);
+    },
   });
 
   const remove = (child: ChildConfig, key: string) => {
@@ -99,6 +110,7 @@ export function useUiMasterRegisterImpl<T>(
           onSelect: (rowId: string) => setSelected((current) => ({ ...current, [child.name]: rowId })),
           ...(child.entryMode === 'dialog' || readOnly ? { onAdd: () => openChild(child) } : {}),
           ...(child.removal !== 'none' && { onRemove: () => quitar(child) }),
+          ...(rowErrors[child.name] && { rowErrors: rowErrors[child.name] }),
           ...(notice?.child === child.name && { notice: notice.text }),
         },
       }),

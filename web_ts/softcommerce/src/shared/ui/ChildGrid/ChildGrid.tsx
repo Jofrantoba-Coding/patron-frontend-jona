@@ -6,7 +6,7 @@ import { CHILDGRID_DEFAULTS, type InterChildGrid } from './InterChildGrid';
 const STATE = '_estado';
 
 export function ChildGrid(props: InterChildGrid) {
-  const { title, columns, rows, selectedId, readOnly, onSelect, onAdd, onRemove, notice, stateHeader, activeLabel, deactivatedLabel, addLabel, removeLabel } = { ...CHILDGRID_DEFAULTS, ...props };
+  const { title, columns, rows, selectedId, readOnly, onSelect, onAdd, onRemove, notice, rowErrors = {}, stateHeader, activeLabel, deactivatedLabel, addLabel, removeLabel } = { ...CHILDGRID_DEFAULTS, ...props };
   return (
     <section aria-label={title} className="grid min-w-0 gap-2">
       <div role="toolbar" aria-label={title} className="flex flex-wrap gap-2">
@@ -21,6 +21,9 @@ export function ChildGrid(props: InterChildGrid) {
           </JButton>
         )}
       </div>
+      {rows.filter((row) => rowErrors[row._key]).map((row) => (
+        <JAlert key={row._key} variant="danger" role="alert">{`${row[columns[0].key]}: ${rowErrors[row._key]}`}</JAlert>
+      ))}
       {notice && <JAlert variant="warning" role="status">{notice}</JAlert>}
       <div className="max-w-full overflow-auto">
         <CrudGrid
