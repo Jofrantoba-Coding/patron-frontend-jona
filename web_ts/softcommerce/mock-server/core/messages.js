@@ -13,6 +13,9 @@ const LITERAL_KEY = { RANGE: 'range', MIN_LENGTH: 'minLen', DATE: 'date', NOT_FU
 /** Date rules the desktop never had: without a literal they read as plain text, never as a missing value. */
 const OWN_TEXT = ['NOT_FUTURE', 'MIN_DATE', 'AFTER_FIELD'];
 
+/** The confirmation of a password differs from it (R-CRUD-17): a NEW sentence, the desktop has no confirmation. It never names the value. */
+export const MISMATCH_TEXT = 'La confirmación de la contraseña no coincide.';
+
 /** @param {string} template @param {keyof typeof MODO} mode */
 const fill = (template, mode) => template.replaceAll('{modo}', MODO[mode]);
 
@@ -49,10 +52,11 @@ function plainText(/** @type {any} */ field, /** @type {string} */ code) {
  * `RANGE`, `MIN_LENGTH` and `DATE` use the entry style; a field `message` is a
  * literal for the required case and, like `messages.range|minLen|date`, fills `{modo}`.
  * @param {any} entry @param {any} field
- * @param {'REQUIRED'|'MAX_LENGTH'|'INVALID'|'RANGE'|'MIN_LENGTH'|'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD'} code
+ * @param {'REQUIRED'|'MAX_LENGTH'|'INVALID'|'RANGE'|'MIN_LENGTH'|'DATE'|'NOT_FUTURE'|'MIN_DATE'|'AFTER_FIELD'|'MISMATCH'} code
  * @param {keyof typeof MODO} [mode]
  */
 export function fieldMessage(entry, field, code, mode = 'INSERT') {
+  if (code === 'MISMATCH') return field.messages?.mismatch ?? MISMATCH_TEXT;
   if (entry.messages.style === 'w1') return plainText(field, code);
   const desktop = code === 'REQUIRED' || Object.hasOwn(LITERAL_KEY, code);
   if (!desktop) return plainText(field, code);
