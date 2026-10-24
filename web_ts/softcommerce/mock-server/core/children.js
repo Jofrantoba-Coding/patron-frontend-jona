@@ -1,3 +1,4 @@
+import { activacionChildHook } from './activacion.js';
 import { MockError, notFound, validationError } from './errors.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { gateOpen } from './predicates.js';
@@ -13,10 +14,11 @@ import { ACTIVE_KEY, pickWritable, rowsOf, validateRecord } from './validators.j
 const OPS = ['I', 'A', 'E'];
 
 /**
- * Named child rules (`activacion`, `padron`) run after the field validation and before the write (D6). The set is empty until W3-7.
- * @type {Record<string, (store: any, tenantId: string, entry: any, ops: Record<string, any[]>) => void>}
+ * Named child rules (`activacion`, `padron` in W3-15) run after the field validation and before the write (D6). A hook gets the parent entry, the ops planned
+ * per child and `{ parentId, ctx, creating }`; it throws to refuse the body and may return a function that runs after the writes with the parent id.
+ * @type {Record<string, (store: any, tenantId: string, parent: any, ops: Record<string, any[]>, options: { parentId?: string, ctx?: import('./context.js').RequestContext, creating: boolean }) => ((parentId: string) => void) | void>}
  */
-export const CHILD_RULE_HOOKS = {};
+export const CHILD_RULE_HOOKS = { activacion: activacionChildHook };
 
 /**
  * The child entry of `parent/name`; an unknown parent, an unknown name or the reserved `actions` is a 404.
@@ -126,8 +128,8 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId, cre
         throw indexed(error, child.childName, n);
       }
       if (op.op === 'A') {
-        // `A` updates, and deactivates a child whose removal kind is `deactivate`; it never reactivates (R-MOCK-21).
-        const estado = child.removal === 'deactivate' && op.estado === 'D' ? { estado: 'D' } : {};
+        // `A` updates, and deactivates a child that is not removed by deletion (`deactivate`, or `none`: the activation history closes its rows); it never reactivates (R-MOCK-21).
+        const estado = child.removal !== 'delete' && op.estado === 'D' ? { estado: 'D' } : {};
         writes.push(() => Object.assign(/** @type {any} */ (stored), record, derivedValues(child, record), stamps, estado));
         Object.assign(/** @type {any} */ (inView(stored[child.idKey])), record, estado);
         return;
@@ -140,6 +142,7 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId, cre
       writes.push(insertion(child, rows, withRuleDerived(child, blankHidden(child, withDefaults(child, { ...child.initial }, params))), stampsOf(store, tenantId, child, ctx)));
     }
   }
-  for (const hook of Object.values(CHILD_RULE_HOOKS)) hook(store, tenantId, parent, planned);
-  return { apply: (id) => writes.forEach((write) => write(id)) };
+  // A rule may also settle what depends on the history once the rows are written (the master `estado`, the INICIO row of a legacy master).
+  const settles = Object.values(CHILD_RULE_HOOKS).flatMap((hook) => hook(store, tenantId, parent, planned, { parentId, ctx, creating }) ?? []);
+  return { apply: (id) => [...writes, ...settles].forEach((write) => write(id)) };
 }
