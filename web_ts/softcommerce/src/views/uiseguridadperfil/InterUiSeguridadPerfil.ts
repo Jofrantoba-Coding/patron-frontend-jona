@@ -1,5 +1,6 @@
 // Layer: Interface. Public contract of the Seguridad - Perfil screen: shapes and defaults only, no logic.
 import type { MenuNode } from '../../domain/menuTree';
+import type { PermisosTarget } from './permisos/PermisosDialogImpl';
 
 export interface SelectOption {
   value: string;
@@ -49,6 +50,8 @@ export interface InterUiSeguridadPerfil {
   treeLoaded: boolean;
   saving: boolean;
   notice?: PerfilNotice;
+  /** The open permission dialog: one option of the loaded perfil, or (no `node`) the matrix of a perfil. */
+  dialog?: PermisosTarget;
   /** Callbacks are value-first. */
   onDescripcionChange: (value: string) => void;
   onTipoChange: (value: string) => void;
@@ -57,6 +60,9 @@ export interface InterUiSeguridadPerfil {
   onToggleNode: (id: number, checked: boolean) => void;
   onSelectNode: (id: number) => void;
   onSave: () => void;
+  onPermisos: () => void;
+  onPermisosForm: () => void;
+  onCloseDialog: () => void;
   onCloseNotice: () => void;
 }
 
