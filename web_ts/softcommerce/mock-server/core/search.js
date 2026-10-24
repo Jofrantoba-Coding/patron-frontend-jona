@@ -31,3 +31,16 @@ export function acceptedListKeys(store, entry) {
   for (const key of acceptedKeys(store, entry)) keys.add(key);
   return keys;
 }
+
+/**
+ * The keys the list route matches EXACTLY: the plain lookup filter keys the entry declares (`codigo_subfamilia_sunat`, R-MOCK-16). A `via`, `exists` or `rule`
+ * filter has its own meaning and stays a contains match here, and so does a ref field: the generic list keeps its W2 substring matching (R-MOCK-9, S-MOCK-30).
+ * @param {any} entry @returns {Set<string>}
+ */
+export function exactListKeys(entry) {
+  const keys = new Set();
+  for (const [key, filter] of Object.entries(entry.lookupFilters ?? {})) {
+    if (!(/** @type {any} */ (filter).via || /** @type {any} */ (filter).exists || /** @type {any} */ (filter).rule)) keys.add(key);
+  }
+  return keys;
+}

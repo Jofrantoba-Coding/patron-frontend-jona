@@ -4,6 +4,7 @@ import { NORMALIZE_STEP } from '../core/normalize.js';
 import { isIsoDate } from '../core/dates.js';
 import { DECIMAL_TEXT } from '../core/numbers.js';
 import { applyPreset } from './presets.js';
+import { PICKERS } from './pickers.js';
 import { PROJECTIONS } from './project.js';
 import { BUILTIN_SOURCES } from './sources.js';
 
@@ -217,6 +218,43 @@ function assertAcyclic(where, fields) {
 }
 
 /**
+ * A lookup naming a picker (D2) takes its `search`, `columns`, `filters` and `pickLabel` from `registry/pickers.js` and its source from the picker (a static `where`
+ * of the picker or of the field narrows it); what the field declares itself wins.
+ * @param {string} at @param {any} f
+ */
+function expandPicker(at, f) {
+  if (f.picker === undefined) return f;
+  if (!Object.hasOwn(PICKERS, f.picker)) fail(at, `unknown picker "${f.picker}"`);
+  const picker = PICKERS[f.picker];
+  if (f.source?.catalog !== undefined && f.source.catalog !== picker.source) fail(at, `picker "${f.picker}" is over "${picker.source}", not "${f.source.catalog}"`);
+  const where = f.source?.where ?? picker.where;
+  return { search: picker.search, columns: picker.columns, filters: picker.filters, pickLabel: picker.pickLabel, ...f, source: { catalog: picker.source, ...(where ? { where } : {}) } };
+}
+
+/**
+ * The `columns` and `filters` of a lookup (R-REG-13). Every filter is a `text` or a `select` over a field or joined display key of the source (a select also needs
+ * its own source catalog, and may depend on another filter); a column only names its key, which the consistency spec checks against the source.
+ * @param {string} at @param {any} f @param {any} target @param {Set<string>} targetNames @param {Map<string, any>} rawBySlug @param {Record<string, any>} sources
+ */
+function assertPickerParts(at, f, target, targetNames, rawBySlug, sources) {
+  if (!Array.isArray(f.columns) || f.columns.length === 0 || f.columns.some((/** @type {any} */ c) => typeof c?.key !== 'string' || typeof c?.header !== 'string')) fail(at, 'lookup needs columns');
+  if (!Array.isArray(f.filters) || f.filters.length === 0) fail(at, 'lookup needs filters');
+  const filterFields = new Set(f.filters.map((/** @type {any} */ filter) => filter.field));
+  for (const filter of f.filters) {
+    const name = `filter "${filter.field}"`;
+    if (!['text', 'select'].includes(filter.type)) fail(at, `${name} has unknown type "${filter.type}"`);
+    if (!targetNames.has(filter.field)) fail(at, `filter names unknown field "${filter.field}" of "${target.slug}"`);
+    if (filter.type === 'select') {
+      if (!filter.source) fail(at, `${name} needs a source`);
+      // A select sends an exact key: only a declared lookupFilters key is exact on the list route (R-MOCK-20).
+      if (!Object.hasOwn(target.lookupFilters ?? {}, filter.field)) fail(at, `select ${name} must be a declared lookupFilters key of "${target.slug}"`);
+      if (!rawBySlug.has(filter.source) && !Object.hasOwn(sources, filter.source)) fail(at, `${name} names unknown catalog "${filter.source}"`);
+    }
+    if (filter.dependsOn !== undefined && !filterFields.has(filter.dependsOn.field)) fail(at, `${name} dependsOn names unknown filter "${filter.dependsOn.field}"`);
+  }
+}
+
+/**
  * `lookup` fields (R-REG-13, D3). The source must be a registered catalog (a W1 builtin source has no search) and the field names the `search`
  * fields of its picker, each a field or joined display key of the source. The description shown beside the code comes from a derived join
  * `{ as, ref: <field>, display: <source optionLabel> }` (R-REG-8), named by `display` or after the field without its `id_` prefix; a join the entry already
@@ -227,15 +265,17 @@ function applyLookups(where, entry, rawBySlug, sources) {
   if (!entry.fields.some((/** @type {any} */ f) => f.kind === 'lookup')) return;
   const joins = [...(entry.joins ?? [])];
   const taken = new Set([...entry.fields.map((/** @type {any} */ f) => f.name), ...joins.map((join) => join.as)]);
-  entry.fields = entry.fields.map((/** @type {any} */ f) => {
-    if (f.kind !== 'lookup') return f;
-    const at = `${where} field "${f.name}"`;
+  entry.fields = entry.fields.map((/** @type {any} */ declared) => {
+    if (declared.kind !== 'lookup') return declared;
+    const at = `${where} field "${declared.name}"`;
+    const f = expandPicker(at, declared);
     if (!f.source?.catalog) fail(at, 'lookup needs a source');
     const target = rawBySlug.get(f.source.catalog);
     if (!target) fail(at, Object.hasOwn(sources, f.source.catalog) ? `lookup source "${f.source.catalog}" is not a registered catalog` : `unknown catalog "${f.source.catalog}"`);
     if (!Array.isArray(f.search) || f.search.length === 0 || f.search.some((/** @type {unknown} */ name) => typeof name !== 'string')) fail(at, 'lookup needs search fields');
     const targetNames = new Set([...target.fields.map((/** @type {any} */ t) => t.name), ...(target.joins ?? []).map((/** @type {any} */ join) => join.as)]);
     for (const name of f.search) if (!targetNames.has(name)) fail(at, `search names unknown field "${name}" of "${target.slug}"`);
+    assertPickerParts(at, f, target, targetNames, rawBySlug, sources);
     const existing = joins.find((join) => join.ref === f.name);
     if (existing) return { ...f, display: existing.as };
     const as = f.display ?? (f.name.startsWith('id_') ? f.name.slice('id_'.length) : `${f.name}_display`);

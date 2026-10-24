@@ -18,8 +18,8 @@ const ENTRIES = [
   entry('citas', {
     fields: [
       text('motivo', { required: true, message: 'Falta motivo' }),
-      { name: 'id_persona', kind: 'lookup', label: 'Persona', required: true, message: 'Falta persona', source: { catalog: 'personas' }, search: ['nombre'] },
-      { name: 'id_zona', kind: 'lookup', label: 'Zona', source: { catalog: 'zonas' }, search: ['nombre'], display: 'zona_texto' },
+      { name: 'id_persona', kind: 'lookup', label: 'Persona', required: true, message: 'Falta persona', source: { catalog: 'personas' }, search: ['nombre'], columns: [{ key: 'nombre', header: 'N' }], filters: [{ field: 'nombre', label: 'N', type: 'text' }] },
+      { name: 'id_zona', kind: 'lookup', label: 'Zona', source: { catalog: 'zonas' }, search: ['nombre'], display: 'zona_texto', columns: [{ key: 'nombre', header: 'N' }], filters: [{ field: 'nombre', label: 'N', type: 'text' }] },
     ],
   }),
 ];
