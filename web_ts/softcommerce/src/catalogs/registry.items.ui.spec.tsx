@@ -50,8 +50,8 @@ async function openRegister(user: User, button: 'Agregar' | 'Modificar', row?: s
 }
 
 describe('R-REG-19 the screen is reachable', () => {
-  it('the menu leaf miItem opens the generic catalog unit', () => {
-    expect(formRegistry.miItem).toBeTruthy();
+  it('the menu leaf miProducto opens the generic catalog unit', () => {
+    expect(formRegistry.miProducto).toBeTruthy();
   });
 });
 
