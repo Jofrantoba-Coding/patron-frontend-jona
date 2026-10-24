@@ -8,8 +8,25 @@ import { docIdentidad } from './docIdentidad.js';
 export const ENTRY_RULE_HOOKS = { docIdentidad };
 export const ENTRY_RULE_NAMES = Object.keys(ENTRY_RULE_HOOKS);
 
+/**
+ * Registers a named rule (test seam, and the way W3-7 adds `activacion`); returns the function that removes it. `owns(params)` may list the fields the rule
+ * derives itself: a body never writes them (R-ACT-5).
+ * @param {string} name @param {any} hooks
+ */
+export function registerEntryRule(name, hooks) {
+  /** @type {any} */ (ENTRY_RULE_HOOKS)[name] = hooks;
+  if (!ENTRY_RULE_NAMES.includes(name)) ENTRY_RULE_NAMES.push(name);
+  return () => {
+    delete (/** @type {any} */ (ENTRY_RULE_HOOKS))[name];
+    ENTRY_RULE_NAMES.splice(ENTRY_RULE_NAMES.indexOf(name), 1);
+  };
+}
+
 /** The `{ name, params }` pairs of an entry. @param {any} entry @returns {{ hooks: any, params: any, name: string }[]} */
 const rulesOf = (entry) => (entry?.rules ?? []).map((/** @type {any} */ r) => ({ name: r.name, params: r.params, hooks: /** @type {any} */ (ENTRY_RULE_HOOKS)[r.name] }));
+
+/** The field names the entry rules derive themselves (`owns`): a body never writes them (R-ACT-5, S-ACT-8). @param {any} entry @returns {string[]} */
+export const ownedFields = (entry) => rulesOf(entry).flatMap(({ hooks, params }) => hooks.owns?.(params) ?? []);
 
 /** The per-field `{ hidden, disabled, required, max }` every rule of the entry declares for `values`, by field name. @param {any} entry @param {Record<string, unknown>} values */
 export function ruleStates(entry, values) {
