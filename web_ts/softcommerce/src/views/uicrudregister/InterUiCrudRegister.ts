@@ -1,4 +1,5 @@
 // Layer: Interface. Public contract of the generic crud register dialog: shapes and defaults only, no logic.
+import type { ReactNode } from 'react';
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
 import type { FormValues } from '../../domain/crud/validate';
 import type { LookupItem } from '../../services/InterLookupService';
@@ -72,4 +73,6 @@ export const UICRUDREGISTER_DEFAULTS = {
   confirmMessage: '¿Desea continuar con esta operación?',
   discardTitle: 'Descartar cambios',
   discardMessage: '¿Descartar los cambios sin guardar?',
+  /** Lays out the rendered fields (each element keyed by its field name); a master register sets them in tabs (R-MD-1). */
+  arrange: (nodes: ReactNode[]): ReactNode => nodes,
 };

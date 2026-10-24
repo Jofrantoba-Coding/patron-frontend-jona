@@ -14,7 +14,7 @@ import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { UICRUDREGISTER_DEFAULTS, type InterUiCrudRegister } from './InterUiCrudRegister';
 
-type UiCrudRegisterViewProps = InterUiCrudRegister & typeof UICRUDREGISTER_DEFAULTS;
+export type UiCrudRegisterViewProps = InterUiCrudRegister & typeof UICRUDREGISTER_DEFAULTS;
 
 export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
   const { mode, modeLabels, status, confirm } = props;
@@ -45,7 +45,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
             </JAlert>
           )}
           {status === 'ready' &&
-            props.fields.filter((field) => props.isFieldVisible(field.name)).map((field) =>
+            props.arrange(props.fields.filter((field) => props.isFieldVisible(field.name)).map((field) =>
               field.kind === 'code' ? (
                 // The server issues the code: shown read-only once the record exists, never in INSERT or CLONE.
                 mode !== 'INSERT' && mode !== 'CLONE' && (
@@ -204,7 +204,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                   onChange={props.onFieldChange}
                 />
               ),
-            )}
+            ))}
         </div>
       </JDialog>
       <GuardedOptionPane
