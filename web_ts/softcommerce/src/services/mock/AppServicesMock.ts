@@ -14,8 +14,10 @@ import { MockError } from '../../../mock-server/core/errors.js';
 import { getPerfilMenu, getPerfilPermiso, getPerfilPermisos, putPerfilMenu, putPerfilPermisos } from '../../../mock-server/core/grants.js';
 import { lookupOptions } from '../../../mock-server/core/lookups.js';
 import { createChild, getChild, listChild, removeChild, updateChild } from '../../../mock-server/core/nested.js';
+import { getSocioAcciones, putSocioAcciones, withSocioAccionesSeed } from '../../../mock-server/core/socioAcciones.js';
 import { createStore } from '../../../mock-server/core/store.js';
 import { childrenOf } from '../../../mock-server/core/ubigeo.js';
+import socioAccionesSeed from '../../../mock-server/data/catalogs/socio-acciones.json';
 import { ApiError } from '../ApiError';
 import type { InterAuthService } from '../InterAuthService';
 import type { InterActionService } from '../InterActionService';
@@ -25,6 +27,7 @@ import type { InterGrantsService } from '../InterGrantsService';
 import type { InterLookupService } from '../InterLookupService';
 import type { Permissions } from '../../domain/permissions';
 import type { InterPerfilGrantsService, PerfilForm } from '../InterPerfilGrantsService';
+import type { InterSocioAccionesService } from '../InterSocioAccionesService';
 import type { InterShellService } from '../InterShellService';
 import type { RequestContext, SessionContext } from '../httpClient';
 import type { ApiScenario } from '../serviceComposer';
@@ -59,6 +62,8 @@ export interface AppServicesMock {
   grants: InterGrantsService;
   /** The perfil permission editor (R-PRM-5), over the same store as the HTTP routes. */
   perfilGrants: InterPerfilGrantsService;
+  /** The Socio acciones screen (R-MOCK-26), over the same store as the HTTP routes. */
+  socioAcciones: InterSocioAccionesService;
   lookup: InterLookupService;
   /** One service per catalog name, all over the same store. */
   catalog<T>(catalog: string): InterCatalogService<T>;
@@ -90,7 +95,7 @@ export function createAppServicesMock(
   { getSession = () => ({}), getRequestContext = () => ({}), delayMs = DEFAULT_DELAY_MS, registry, seed }: AppServicesMockOptions = {},
 ): AppServicesMock {
   const fixture = FIXTURES[scenario];
-  const store = fixture.kind === 'data' ? createStore(seed ?? fixture.seed, registry) : undefined;
+  const store = fixture.kind === 'data' ? createStore(seed ?? withSocioAccionesSeed(fixture.seed, socioAccionesSeed), registry) : undefined;
 
   /** One simulated request: latency, scenario failure, then the core rule mapped to ApiError. */
   const call = async <T>(rule: (store: Store) => T): Promise<T> => {
@@ -159,6 +164,11 @@ export function createAppServicesMock(
     savePermiso: (perfilId, formId, changes) => call((s) => putPerfilPermisos(s, tenantGate(s), perfilId, changes, formId) as Permissions),
   };
 
+  const socioAcciones: InterSocioAccionesService = {
+    load: () => call((s) => getSocioAcciones(s, tenantGate(s)) as any),
+    save: (body) => call((s) => putSocioAcciones(s, tenantGate(s), body) as any),
+  };
+
   const lookup: InterLookupService = {
     empresas: () => call((s) => listEmpresas(s, tenantGate(s)).items),
     ubigeoChildren: (parent) => call((s) => childrenOf(s, parent).items),
@@ -192,5 +202,5 @@ export function createAppServicesMock(
       ) as Promise<any>,
   });
 
-  return { auth, shell, grants, perfilGrants, lookup, catalog, children, actions };
+  return { auth, shell, grants, perfilGrants, socioAcciones, lookup, catalog, children, actions };
 }
