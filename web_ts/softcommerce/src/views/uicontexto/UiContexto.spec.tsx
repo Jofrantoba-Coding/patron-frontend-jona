@@ -47,7 +47,11 @@ async function renderContexto(service: InterAuthService, { pending = true } = {}
 }
 
 type User = ReturnType<typeof userEvent.setup>;
-const selectEmpresa = async (user: User, id: string) => user.selectOptions(await screen.findByLabelText('Empresa'), id);
+// The select is there (disabled, "Cargando...") before the empresas arrive: wait for the option itself.
+const selectEmpresa = async (user: User, id: string) => {
+  await screen.findByRole('option', { name: empresas.find((e) => e.id === id)!.name });
+  await user.selectOptions(screen.getByLabelText('Empresa'), id);
+};
 const selectPunto = async (user: User, id: string) => {
   await screen.findByRole('option', { name: puntos.find((p) => p.id === id)!.name });
   await user.selectOptions(screen.getByLabelText('Punto de venta'), id);

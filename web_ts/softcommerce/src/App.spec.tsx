@@ -53,7 +53,9 @@ describe('App routing', () => {
 
   async function reachShell(user: User) {
     await login(user, 'admin', 'admin123');
-    await user.selectOptions(await screen.findByLabelText('Empresa'), '1');
+    // The select exists (disabled, "Cargando...") before the empresas arrive: wait for the option itself.
+    await screen.findByRole('option', { name: 'COMERCIAL DEMO SAC' });
+    await user.selectOptions(screen.getByLabelText('Empresa'), '1');
     await screen.findByRole('option', { name: 'TIENDA CENTRAL' });
     await user.selectOptions(screen.getByLabelText('Punto de venta'), '1');
     await user.type(screen.getByLabelText('Fecha inicio'), '01012026');
