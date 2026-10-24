@@ -1,4 +1,5 @@
 // Layer: Interface. Public contract of the crud grid: shapes and defaults only, no logic.
+import type { ReactNode } from 'react';
 import type { SortState } from '../../../domain/crud/filterSort';
 
 export interface GridColumn<T> {
@@ -23,6 +24,10 @@ export interface InterCrudGrid<T> {
   onRowOpen?: (id: string) => void;
   onSortChange?: (key: string) => void;
   onPageChange?: (page: number) => void;
+  /** A cell drawn by the host (an icon); `undefined` falls back to the value as text. */
+  renderCell?: (row: T, key: string) => ReactNode;
+  /** A grid that never pages (a child grid) hides the pager. */
+  hidePagination?: boolean;
 }
 
 /** Presentation defaults only; rows, selection and paging are state and never defaulted. */
