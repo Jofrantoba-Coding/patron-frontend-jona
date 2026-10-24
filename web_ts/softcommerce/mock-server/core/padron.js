@@ -1,5 +1,5 @@
 import { todayIso } from './dates.js';
-import { actionNotAllowed } from './errors.js';
+import { MockError } from './errors.js';
 import { checkOps, flagsOf, isActive } from './padronRule.js';
 import { ACTIVE_KEY, rowsOf } from './validators.js';
 
@@ -39,6 +39,7 @@ export function padronChildHook(store, tenantId, parent, planned, { parentId, cr
   const child = store.registry.bySlug.get(`${parent.slug}/${rule.params.child}`);
   const stored = parentId === undefined ? [] : rowsOf(store, tenantId, child).filter(ownRows(child, parentId));
   const found = checkOps(stored, planned[rule.params.child] ?? [], { child: rule.params.child });
-  if (found) throw actionNotAllowed(found.conflict);
+  // The 409 names the refused row (`padrones[n].id_padron`), so the register shows it on that pending row and goes to the tab (S-MD-8).
+  if (found) throw new MockError(409, 'ACTION_NOT_ALLOWED', found.conflict, [{ field: `${rule.params.child}[${found.index}].id_padron`, code: 'ACTION_NOT_ALLOWED', message: found.conflict }]);
   return (id) => settle(store, tenantId, parent, child, rule.params.flags, id);
 }

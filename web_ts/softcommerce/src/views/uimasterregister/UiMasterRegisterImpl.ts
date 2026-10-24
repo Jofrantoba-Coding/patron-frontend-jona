@@ -1,5 +1,6 @@
 // Layer: Implementation. The generic register plus the tabs, the child drafts and the child dialog (D10).
 import { useMemo, useRef, useState } from 'react';
+import { aggregateValues, type AggregateDef } from '../../../mock-server/core/aggregate.js';
 import { todayIso } from '../../../mock-server/core/dates.js';
 import { effectiveField, gateOpen } from '../../../mock-server/core/predicates.js';
 import type { ActionConfig, CatalogConfig, ChildConfig } from '../../catalogs/CatalogConfig';
@@ -245,8 +246,12 @@ export function useUiMasterRegisterImpl<T>(
     };
   })();
 
+  // A field the entry declares as an aggregate (the Credito total, D27a) shows what the grids say now, not what the server answered at load: the pending rows count, the server ignores a sent value.
+  const totals = (config.entry as { aggregate?: AggregateDef[] } | undefined)?.aggregate?.filter((def) => fields.some((field) => field.name === def.as)) ?? [];
+  const shown = totals.length === 0 ? register : { ...register, values: { ...register.values, ...Object.fromEntries(Object.entries(aggregateValues(totals, (child) => drafts.rows(child))).map(([name, value]) => [name, String(value)])) } };
+
   return {
-    register,
+    register: shown,
     tabs: tabs.map(({ key, title, fields, child }) => ({
       key,
       title,

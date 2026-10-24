@@ -11,10 +11,12 @@ import { referenceCatalog } from './reference.js';
  * returns false and the panel has no clone or detail handler: the modes are INSERT and UPDATE. The estado is derived from the last activation (R-ACT-5, the `activacion` rule
  * owns it); the desktop disables its checkbox, the web port shows it read-only. [DEVIATION] the desktop selects the first tipo de cliente when it loads the combo
  * (`setSelectedIndex(1)`), the web register opens on `--- Seleccione ---` so the sentence stays reachable (R-MST-10). The condición de pago is gated by `IS_CLIENTE_CONDICION_PAGO`
- * (R-REG-17). The padron flags, the sustitutos, the credit tabs and
- * the padrones come with W3-17. The grids Direcciones, Contactos and Cuentas are W3-16b (`RegisterClienteNuevo` `quitarDireccion`, `quitarContacto`, `quitarCuenta`).
+ * (R-REG-17). The padron flags (AP, AR, EX), the sustitutos, the credit tabs and
+ * the padrones are W3-17. The grids Direcciones, Contactos and Cuentas are W3-16b (`RegisterClienteNuevo` `quitarDireccion`, `quitarContacto`, `quitarCuenta`).
  */
 const anexo = presets.anexo({ entity: 'Cliente', tipoAnexo: TIPO_ANEXO.cliente });
+// R-ANX-7, R-ANX-8: the padron history (`FormAnexoPadron(..., 2, ...)`) offers 01, 02 and 03 and derives the three flags of the General tab (A Percepcion, A Retencion, Exceptuado).
+const padron = presets.padron({ master: 'cliente' });
 const identity = anexoIdentity('un Cliente');
 
 // `isRegisterValid` skips the tipo de cliente when the selected tipo de documento is `OTROS`. No seeded tipo is OTROS [INFERRED], so the condition lists the ids the tipo
@@ -126,12 +128,39 @@ const sustitutos = {
   ],
 };
 
+// R-MST-12 the Credito and Credito Temp children (`getPanelCredito`, `getPanelCreditoTemp`, `FormClienteCredito`; tabs behind IS_CLIENTE_CREDITO). The desktop kept one list with a TEMPORAL flag; the web keeps one
+// child per tab. A credit is additive: the dialog (Motivo, Monto, F Inicio and, for the temporal one, F Fin) is its only way in and the desktop wired no Desactivar, so there is no Quitar and no action.
+// [DEVIATION] the desktop copied the fecha de INICIO into the fin of a temporal credit (`dc_fechainicio.getDate()` read twice) and validated no dates: the fin is stored as entered and a fin before the inicio
+// is refused with `Fecha es menor a fecha inicial` (`afterField`). `validarData` checks the motivo, then the monto (`Ingrese Motivo`, `Ingrese Monto`); the dialog title `Agregar Cuenta` is a copy-paste defect.
+const GATE_CREDITO = { param: 'IS_CLIENTE_CREDITO' };
+/** @param {string} tab @param {boolean} temporal */
+const creditoEntry = (tab, temporal) => ({
+  tab, removal: 'none', entry: 'dialog', gate: GATE_CREDITO,
+  fields: [
+    { name: 'motivo', kind: 'text', label: 'Motivo', required: true, max: 50, normalize: ['upper'], message: 'Ingrese Motivo' },
+    { name: 'monto', kind: 'number', label: 'Monto', required: true, scale: 2, message: 'Ingrese Monto' },
+    { name: 'f_inicio', kind: 'date', label: 'F Inicio', required: true, default: 'today' },
+    ...(temporal ? [{ name: 'f_fin', kind: 'date', label: 'F Fin', required: true, default: 'today', afterField: 'f_inicio', messages: { afterField: 'Fecha es menor a fecha inicial' } }] : []),
+  ],
+  validation: ['motivo', 'monto', 'f_inicio', ...(temporal ? ['f_fin'] : [])],
+  columns: [
+    { key: 'motivo', header: 'MOTIVO' }, { key: 'monto', header: 'MONTO', type: 'dec' }, { key: 'f_inicio', header: 'F_INICIO', type: 'date' }, ...(temporal ? [{ key: 'f_fin', header: 'F_FIN', type: 'date' }] : []),
+  ],
+});
+// The totals of the register (`txtCredito`, `txtCreditoTemp`, read-only, 0 by default) are the sums of the montos of each tab (D27a): derived on every read, never written by a body.
+const MODES_ALL = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
+const totales = [
+  { name: 'credito', kind: 'number', label: 'Credito', scale: 2, gate: GATE_CREDITO, readOnlyOn: MODES_ALL },
+  { name: 'credito_temp', kind: 'number', label: 'Credito Temp', scale: 2, gate: GATE_CREDITO, readOnlyOn: MODES_ALL },
+];
+
 export const clientes = referenceCatalog({
   slug: 'clientes', idKey: 'id_cliente', codeWidth: anexo.codeWidth, entity: 'un Cliente', formId: 'miCliente', title: 'Cliente', descripcion: false,
-  fields: [...fields, { name: 'estado', preset: 'estado', label: 'Estado', readOnlyOn: ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'] }, ...condicion],
+  fields: [...fields, { name: 'estado', preset: 'estado', label: 'Estado', readOnlyOn: MODES_ALL }, ...condicion, ...totales, ...padron.fields],
   columns: [
     { key: 'flag_tipo_persona', header: 'T_PERSONA' }, { key: 'descripcion', header: 'RAZON SOCIAL' }, { key: 'ap_paterno', header: 'PATERNO' }, { key: 'ap_materno', header: 'MATERNO' }, { key: 'nombres', header: 'NOMBRES' },
     { key: 'numero_doc', header: 'RUC/DNI' }, { key: 'direccion', header: 'DIRECCION' },
+    { key: 'flag_percepcion', header: 'AP', type: 'bool' }, { key: 'flag_retencion', header: 'AR', type: 'bool' }, { key: 'flag_exceptuado', header: 'EX', type: 'bool' },
     // CANT_SUST is the aggregate over the sustitutos (D27a), listed with IS_CLIENTE_SUSTITUTO. With IS_CLIENTE_CONDICION_PAGO off the desktop hides the last two columns (`setNoVisibleColumn(15)` and `(16)`).
     { key: 'cant_sust', header: 'CANT_SUST', gate: { param: 'IS_CLIENTE_SUSTITUTO' } },
     { key: 'condicion_pago', header: 'CONDICION PAGO', gate: GATE }, { key: 'numero_dias', header: 'NUMERO DIAS', gate: GATE },
@@ -140,11 +169,14 @@ export const clientes = referenceCatalog({
   // The BuscarCliente picker filters by the tipo de cliente, an exact key.
   lookupFilters: { id_clasif_cliente: {} },
   modes: ['INSERT', 'UPDATE'],
-  rules: [...identity.rules, ...anexo.rules],
+  rules: [...identity.rules, ...anexo.rules, ...padron.rules],
   validation: [...validation, 'condicion_pago', 'numero_dias'],
   derive,
   constants: anexo.constants,
-  children: { ...anexo.children, direcciones, sustitutos, contactos, cuentas },
-  aggregate: [{ as: 'cant_sust', child: 'sustitutos', op: 'count', where: { estado: 'A' } }],
+  children: { ...anexo.children, direcciones, sustitutos, creditos: creditoEntry('Credito', false), creditos_temp: creditoEntry('Credito Temp', true), ...padron.children, contactos, cuentas },
+  aggregate: [
+    { as: 'cant_sust', child: 'sustitutos', op: 'count', where: { estado: 'A' } },
+    { as: 'credito', child: 'creditos', op: 'sum', field: 'monto' }, { as: 'credito_temp', child: 'creditos_temp', op: 'sum', field: 'monto' },
+  ],
   actions: anexo.actions,
 });

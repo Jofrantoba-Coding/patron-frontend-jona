@@ -33,7 +33,7 @@ describe('R-MST-1 / R-MST-10 the clientes entry', () => {
   });
 
   it('is the person block of R-MST-2 plus the tipo de cliente and the condición de pago, in the order of isRegisterValid, with the activacion rule', () => {
-    expect(entry.rules.map((r: any) => r.name)).toEqual(['docIdentidad', 'activacion']);
+    expect(entry.rules.map((r: any) => r.name)).toEqual(['docIdentidad', 'activacion', 'padron']);
     expect(entry.validation).toEqual(['id_tipo_doc_iden', { rule: 'docIdentidad' }, 'numero_doc', 'ap_paterno', 'ap_materno', 'nombres', 'descripcion', 'id_clasif_cliente', 'id_nacionalidad', 'direccion', 'sexo', 'telefono', 'celular', 'email', 'condicion_pago', 'numero_dias']);
   });
 

@@ -37,7 +37,7 @@ describe('R-MST-12 the sustitutos child entry', () => {
 
   it('the list shows CANT_SUST only with the parameter on', () => {
     expect(REGISTRY.bySlug.get('clientes').columns.find((c: any) => c.key === 'cant_sust')).toMatchObject({ header: 'CANT_SUST', gate: { param: 'IS_CLIENTE_SUSTITUTO' } });
-    expect(REGISTRY.bySlug.get('clientes').aggregate).toEqual([{ as: 'cant_sust', child: 'sustitutos', op: 'count', where: { estado: 'A' } }]);
+    expect(REGISTRY.bySlug.get('clientes').aggregate).toContainEqual({ as: 'cant_sust', child: 'sustitutos', op: 'count', where: { estado: 'A' } });
   });
 });
 

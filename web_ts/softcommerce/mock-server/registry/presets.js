@@ -78,8 +78,8 @@ function anexo({ entity, tipoAnexo }) {
 
 /** The master flag each padron id sets (R-ANX-8) and its label: the desktop checkboxes of `RegisterProveedorNuevo` say `A Percepcion`, `A Retencion`, `Buen Contribuyente`. */
 const PADRON_FLAGS = { '01': ['flag_exceptuado', 'Exceptuado'], '02': ['flag_retencion', 'A Retencion'], '03': ['flag_percepcion', 'A Percepcion'], '04': ['flag_buen_contrib', 'Buen Contribuyente'] };
-/** What each master offers (`FormAnexoPadron.loadPadron` removes the 4th entry for Cliente and the 1st for Proveedor): the `padrones` column it filters on and the flags in form order. */
-const PADRON_OFERTA = { proveedor: { where: 'para_proveedor', ids: ['03', '02', '04'] }, cliente: { where: 'para_cliente', ids: ['01', '02', '03'] } };
+/** What each master offers (`FormAnexoPadron.loadPadron` removes the 4th entry for Cliente and the 1st for Proveedor): the `padrones` column it filters on and the flags in form order (the checkboxes of `RegisterClienteNuevo`: A Percepcion, A Retencion, Exceptuado). */
+const PADRON_OFERTA = { proveedor: { where: 'para_proveedor', ids: ['03', '02', '04'] }, cliente: { where: 'para_cliente', ids: ['03', '02', '01'] } };
 const PADRON_MODES = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
 
 /**
