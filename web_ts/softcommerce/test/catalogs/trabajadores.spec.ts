@@ -28,7 +28,11 @@ const field = (name: string) => entry.fields.find((f: any) => f.name === name);
 describe('R-MST-4 the trabajadores entry', () => {
   it('is a writable master that keeps the W2 slug, id key, label, scope and lookup shape (R-MST-17)', () => {
     expect([entry.slug, entry.idKey, entry.optionLabel, entry.scope, entry.readOnly ?? false]).toEqual(['trabajadores', 'id_trabajador', 'nombre', 'tenant', false]);
-    expect([entry.formId, entry.title, entry.entity, entry.modes]).toEqual(['miTrabajador', 'Trabajador', 'un Trabajador', ['INSERT', 'UPDATE', 'DETAIL', 'CLONE']]);
+    expect([entry.formId, entry.title, entry.entity, entry.modes]).toEqual(['miTrabajador', 'Trabajador', 'un Trabajador', ['INSERT', 'UPDATE', 'DETAIL']]);
+  });
+
+  it('does not offer CLONE: PanelTFTrabajador.controlClone is empty, so the entry offers no CLONE mode (R-CRUD-16, R-MST-1; the toolbar drop is asserted in the UI spec)', () => {
+    expect(entry.modes).not.toContain('CLONE');
   });
 
   it('has the fields in the desktop order, the derived nombre and the read-only estado', () => {
@@ -51,7 +55,7 @@ describe('R-MST-4 the trabajadores entry', () => {
     expect((menu as any[]).find((n) => n.nombre === 'miTrabajador')).toMatchObject({ descripcion: 'Trabajador', menu_item: 'S', id_menu_padre: 2 });
     const grant = (permissions as any).miTrabajador;
     expect(Object.keys(grant)).toHaveLength(13);
-    expect(grant).toMatchObject({ add: true, modify: true, eliminate: false, clone: true, details: true });
+    expect(grant).toMatchObject({ add: true, modify: true, eliminate: false, clone: false, details: true });
   });
 });
 

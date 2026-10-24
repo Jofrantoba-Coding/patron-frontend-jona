@@ -50,7 +50,7 @@ export const trabajadores = referenceCatalog({
     { key: 'estado', header: 'Estado', type: 'bool' },
   ],
   joins: [{ as: 'tipo_trabajador', ref: 'id_tipo_trabajador', display: 'descripcion' }, { as: 'perfil', ref: 'id_tipo_perfil', display: 'descripcion' }],
-  modes: ['INSERT', 'UPDATE', 'DETAIL', 'CLONE'],
+  modes: ['INSERT', 'UPDATE', 'DETAIL'],
   rules: [{ name: 'nombreCompuesto' }, ...anexo.rules],
   validation: ['id_tipo_trabajador', 'id_tipo_perfil', 'ap_paterno', 'ap_materno', 'nombres', 'dni', 'fecha_nac', 'direccion', 'email', 'sexo', 'telefono', 'celular'],
   constants: anexo.constants,

@@ -20,14 +20,14 @@ const entry = REGISTRY.bySlug.get('items');
 const field = (name: string) => entry.fields.find((f: any) => f.name === name);
 
 describe('R-MST-1 / R-MST-14 the items entry', () => {
-  it('is the Item master: formId miItem, Datos de Item, empresa scope, no clone (S-MST-1), code of six', () => {
-    expect([entry.formId, entry.title, entry.entity, entry.modes, entry.scope, entry.codeWidth, entry.generalTab]).toEqual(['miItem', 'Item', 'un Item', ['INSERT', 'UPDATE', 'DELETE', 'DETAIL'], 'empresa', 6, 'Datos de Item']);
+  it('is the Item master: formId miProducto, Datos de Item, empresa scope, no clone (S-MST-1), code of six', () => {
+    expect([entry.formId, entry.title, entry.entity, entry.modes, entry.scope, entry.codeWidth, entry.generalTab]).toEqual(['miProducto', 'Item', 'un Item', ['INSERT', 'UPDATE', 'DELETE', 'DETAIL'], 'empresa', 6, 'Datos de Item']);
   });
 
   it('hangs under Generales with the menu node and the grant of the formId (R-REG-19), without clone', () => {
     expect(entry.menu).toEqual({ parent: 'mnGenerales', label: 'Item' });
-    expect((menu as any[]).find((n) => n.nombre === 'miItem')).toMatchObject({ descripcion: 'Item', menu_item: 'S' });
-    expect((permissions as any).miItem).toMatchObject({ add: true, modify: true, eliminate: true, clone: false, details: true });
+    expect((menu as any[]).find((n) => n.nombre === 'miProducto')).toMatchObject({ descripcion: 'Item', menu_item: 'S' });
+    expect((permissions as any).miProducto).toMatchObject({ add: true, modify: true, eliminate: true, clone: false, details: true });
   });
 
   it('checks the five required fields in the order of isRegisterValid, then the units that follow the stock', () => {

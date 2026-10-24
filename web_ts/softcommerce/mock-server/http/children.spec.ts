@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { CHILD_REGISTRY, CHILD_SEED } from '../core/children.fixture';
+import { CHILD_REGISTRY, CHILD_SEED, parentEntry } from '../core/children.fixture';
+import { validateRegistry } from '../registry/schema.js';
 import { useTestServer } from './test-server';
 
 const server = useTestServer({ seed: CHILD_SEED, registry: CHILD_REGISTRY });
@@ -69,5 +70,20 @@ describe('S-MOCK-40 nested create and 404', () => {
 
   it('does not reach a child through a single-segment route', async () => {
     expect((await call('GET', '/v1/clientes%2Fdirecciones')).status).toBe(404);
+  });
+});
+
+const STAMPED = validateRegistry([parentEntry('cuentas', { scope: 'empresa', stamp: ['id_usuario', 'id_empresa'] })]);
+const stampedServer = useTestServer({ seed: CHILD_SEED, registry: STAMPED });
+const asUser = (method: string, path: string, body?: unknown) => stampedServer.call(method, path, { tenant: 'a', body, headers: { 'X-Empresa-Id': '1', 'X-User-Id': '7' } });
+
+describe('R-MD-8 a child row written through a nested write carries the session id_usuario stamp', () => {
+  it('stamps the session user on a child created through the nested route and through the composite body', async () => {
+    const nested = await asUser('POST', '/v1/cuentas/001/contactos', { nombre: 'ROSA' });
+    expect([nested.status, nested.body.id_usuario]).toEqual([201, 7]);
+    const composite = await asUser('PUT', '/v1/cuentas/001', { nombre: 'E1', children: { contactos: [{ op: 'I', nombre: 'LUZ' }] } });
+    expect(composite.status).toBe(200);
+    const rows = (await asUser('GET', '/v1/cuentas/001/contactos')).body.items;
+    expect(rows.map((r: any) => [r.nombre, r.id_usuario])).toEqual([['UNO', undefined], ['ROSA', 7], ['LUZ', 7]]);
   });
 });

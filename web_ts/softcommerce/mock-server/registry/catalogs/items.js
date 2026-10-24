@@ -60,7 +60,7 @@ const almacenes = {
 };
 
 export const items = referenceCatalog({
-  slug: 'items', idKey: 'id_item', codeWidth: 6, entity: 'un Item', formId: 'miItem', title: 'Item', scope: 'empresa', stamp: ['id_usuario', 'id_empresa'], descripcion: false, generalTab: 'Datos de Item',
+  slug: 'items', idKey: 'id_item', codeWidth: 6, entity: 'un Item', formId: 'miProducto', title: 'Item', scope: 'empresa', stamp: ['id_usuario', 'id_empresa'], descripcion: false, generalTab: 'Datos de Item',
   modes: ['INSERT', 'UPDATE', 'DELETE', 'DETAIL'],
   children: { almacenes },
   fields: [

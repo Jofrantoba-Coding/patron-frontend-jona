@@ -49,13 +49,14 @@ describe('R-REG-19 the screen is reachable', () => {
 });
 
 describe('trabajadores list and toolbar (R-MST-1)', () => {
-  it('lists the active trabajadores by their nombre, hides the retired one and offers no Eliminar', async () => {
+  it('lists the active trabajadores by their nombre, hides the retired one and offers neither Eliminar nor Clonar', async () => {
     renderTrabajadores();
     expect(await screen.findByText('JUAN PEREZ LOPEZ')).toBeTruthy();
     expect(screen.getByText('MARIA GARCIA RAMOS')).toBeTruthy();
     expect(screen.queryByText('LUIS RETIRADO SOTO')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Eliminar' })).toBeNull();
-    for (const name of ['Agregar', 'Modificar', 'Clonar']) expect(screen.getByRole('button', { name })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Clonar' })).toBeNull();
+    for (const name of ['Agregar', 'Modificar']) expect(screen.getByRole('button', { name })).toBeTruthy();
   });
 });
 
