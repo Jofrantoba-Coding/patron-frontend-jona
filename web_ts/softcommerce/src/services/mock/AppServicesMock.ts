@@ -1,4 +1,5 @@
 import {
+  getAllPermissions,
   getMenu,
   getParams,
   getPermissions,
@@ -19,6 +20,7 @@ import type { InterAuthService } from '../InterAuthService';
 import type { InterActionService } from '../InterActionService';
 import type { InterCatalogService, Page } from '../InterCatalogService';
 import type { InterChildService } from '../InterChildService';
+import type { InterGrantsService } from '../InterGrantsService';
 import type { InterLookupService } from '../InterLookupService';
 import type { InterShellService } from '../InterShellService';
 import type { RequestContext, SessionContext } from '../httpClient';
@@ -50,6 +52,8 @@ export interface AppServicesMockOptions {
 export interface AppServicesMock {
   auth: InterAuthService;
   shell: InterShellService;
+  /** The login snapshot of the acting user's grants (R-AUTH-11). */
+  grants: InterGrantsService;
   lookup: InterLookupService;
   /** One service per catalog name, all over the same store. */
   catalog<T>(catalog: string): InterCatalogService<T>;
@@ -109,6 +113,9 @@ export function createAppServicesMock(
     return tenantId;
   };
 
+  /** The acting user and the tenant the grants resolve for, like `X-User-Id` and `X-Tenant-Id` over HTTP. */
+  const grantContext = (s: Store) => ({ ...getRequestContext(), tenantId: tenantGate(s) });
+
   const auth: InterAuthService = {
     sessionOptions: () => call((s) => sessionOptions(s).items),
     login: (tenantId, credentials) => call((s) => login(s, tenantGate(s, tenantId), credentials)),
@@ -121,12 +128,20 @@ export function createAppServicesMock(
     menu: () =>
       call((s) => {
         tenantGate(s);
-        return getMenu(s).items;
+        return getMenu(s, grantContext(s)).items;
       }),
     permissions: (formId) =>
       call((s) => {
         tenantGate(s);
-        return getPermissions(s, formId);
+        return getPermissions(s, formId, grantContext(s));
+      }),
+  };
+
+  const grants: InterGrantsService = {
+    snapshot: () =>
+      call((s) => {
+        const ctx = grantContext(s);
+        return { menu: getMenu(s, ctx).items, permissions: getAllPermissions(s, ctx) as any };
       }),
   };
 
@@ -163,5 +178,5 @@ export function createAppServicesMock(
       ) as Promise<any>,
   });
 
-  return { auth, shell, lookup, catalog, children, actions };
+  return { auth, shell, grants, lookup, catalog, children, actions };
 }

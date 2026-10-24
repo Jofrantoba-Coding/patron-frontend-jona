@@ -1,3 +1,4 @@
+import type { GrantsSnapshot } from '../services/InterGrantsService';
 import type { AppParams, Empresa, LoginResult, LoginUser, PuntoVenta } from '../services/InterAuthService';
 import type { RequestContext, SessionContext } from '../services/httpClient';
 
@@ -12,6 +13,8 @@ export interface Session {
   puntoVenta: PuntoVenta;
   periodo: { fechaInicio: string; fechaFin: string };
   params: AppParams;
+  /** Menu and flags of the user's perfil taken at login: an open session keeps them until logout (R-AUTH-11). */
+  grants?: GrantsSnapshot;
 }
 
 /** Step-1 result: kept in memory only, never written to storage. */
