@@ -5,6 +5,7 @@ import type { MenuChange, PerfilMenuNode } from '../../services/InterPerfilGrant
 import { useServices } from '../../services/ServicesContext';
 import { toFailure } from '../../shared/toFailure';
 import type { InterUiSeguridadPerfil, PerfilNotice, PerfilRow, SelectOption } from './InterUiSeguridadPerfil';
+import type { PermisosTarget } from './permisos/PermisosDialogImpl';
 
 interface TipoRow {
   id_tipo_trabajador: string;
@@ -42,6 +43,7 @@ export function useUiSeguridadPerfilImpl(): InterUiSeguridadPerfil {
   const [selectedNode, setSelectedNode] = useState<number | undefined>();
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<PerfilNotice | undefined>();
+  const [dialog, setDialog] = useState<PermisosTarget | undefined>();
 
   useEffect(() => {
     let live = true;
@@ -99,6 +101,22 @@ export function useUiSeguridadPerfilImpl(): InterUiSeguridadPerfil {
     }
   };
 
+  /** Desktop `permisoFormulario`: the guards run in this order, and none opens the dialog. */
+  const onPermisos = () => {
+    const node = stored.find((n) => n.id_menu === selectedNode);
+    if (!loaded || !node) return notify(MESSAGE_TITLE, 'Seleccione Opcion');
+    if (!checked[node.id_menu]) return notify(MESSAGE_TITLE, 'No tiene Permisos para acceder a Opcion');
+    if (node.menu_item !== 'S') return notify(MESSAGE_TITLE, 'Opcion no tiene Asociado un formulario');
+    setDialog({ perfil: loaded, node });
+  };
+
+  /** Desktop `permisoFormularioPerfil`: needs a selected perfil row, not a loaded tree. */
+  const onPermisosForm = () => {
+    if (rows.length === 0) return;
+    if (!selectedRow) return notify('Perfiles', 'Seleccione Fila');
+    setDialog({ perfil: selectedRow });
+  };
+
   return {
     rows,
     selectedId,
@@ -121,6 +139,10 @@ export function useUiSeguridadPerfilImpl(): InterUiSeguridadPerfil {
     onToggleNode: (id, value) => setChecked((current) => ({ ...current, [id]: value })),
     onSelectNode: setSelectedNode,
     onSave,
+    onPermisos,
+    onPermisosForm,
+    onCloseDialog: () => setDialog(undefined),
+    dialog,
     onCloseNotice: () => setNotice(undefined),
   };
 }

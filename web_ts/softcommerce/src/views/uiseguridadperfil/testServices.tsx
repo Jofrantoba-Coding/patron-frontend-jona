@@ -62,3 +62,10 @@ export async function openScreen(grants: Grants = fakeGrants()) {
 
 /** The perfil rows of the left list (not the `<option>`s of the tipo select). */
 export const perfilRows = () => within(screen.getByRole('listbox', { name: 'Perfiles' })).queryAllByRole('option');
+
+/** The seeded `miAduana` grants: every flag but `nullify`, `report`, `export`, `print` and `printFast`. */
+export const ADUANA_FLAGS = { ...DENY_ALL, add: true, modify: true, eliminate: true, clone: true, details: true, search: true, close: true, refresh: true };
+export const forms = () => [
+  { formId: 'miAduana', ...ADUANA_FLAGS },
+  { formId: 'miColor', ...ADUANA_FLAGS, eliminate: false },
+];

@@ -4,6 +4,7 @@ import type { MenuNode } from '../../domain/menuTree';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { UISEGURIDADPERFIL_DEFAULTS, type InterUiSeguridadPerfil } from './InterUiSeguridadPerfil';
+import { PermisosDialog } from './permisos';
 
 type ViewProps = InterUiSeguridadPerfil & typeof UISEGURIDADPERFIL_DEFAULTS;
 
@@ -21,7 +22,11 @@ export function UiSeguridadPerfilView(props: ViewProps) {
             className={`flex items-center ${TOUCH} rounded px-2 ${selectedNode === node.id_menu ? 'bg-neutral-100' : ''}`}
             onClick={() => props.onSelectNode(node.id_menu)}
           >
-            <JCheckBox label={node.descripcion} checked={checked[node.id_menu] ?? false} onCheckedChange={(value) => props.onToggleNode(node.id_menu, value)} />
+            {/* The label names the checkbox for assistive tech only: clicking the visible text selects the node, it never toggles it (desktop JTree). */}
+            <JCheckBox label={node.descripcion} labelClassName="sr-only" checked={checked[node.id_menu] ?? false} onCheckedChange={(value) => props.onToggleNode(node.id_menu, value)} />
+            <button type="button" className={`${TOUCH} flex-1 bg-transparent text-left`} onClick={() => props.onSelectNode(node.id_menu)}>
+              {node.descripcion}
+            </button>
           </div>
           {renderNodes(node.children)}
         </li>
@@ -56,6 +61,7 @@ export function UiSeguridadPerfilView(props: ViewProps) {
         </ul>
         <div className="flex flex-wrap gap-2">
           <JButton className={TOUCH} onClick={props.onLoadTree}>{props.loadLabel}</JButton>
+          <JButton className={TOUCH} onClick={props.onPermisosForm}>{props.permisosFormLabel}</JButton>
         </div>
       </div>
       <div className="grid min-w-0 content-start gap-3">
@@ -63,9 +69,10 @@ export function UiSeguridadPerfilView(props: ViewProps) {
         <div className="max-h-96 max-w-full overflow-auto">{renderNodes(nodes)}</div>
         <div className="flex flex-wrap gap-2">
           <JButton className={TOUCH} disabled={!treeLoaded || saving} onClick={props.onSave}>{props.saveLabel}</JButton>
-          <JButton className={TOUCH} disabled={!treeLoaded}>{props.permisosLabel}</JButton>
+          <JButton className={TOUCH} disabled={!treeLoaded} onClick={props.onPermisos}>{props.permisosLabel}</JButton>
         </div>
       </div>
+      {props.dialog && <PermisosDialog {...props.dialog} onClose={props.onCloseDialog} />}
       <GuardedOptionPane open={notice !== undefined} variant="info" title={notice?.title ?? ''} description={notice?.message} confirmLabel={props.closeLabel} cancelLabel="Cerrar" onConfirm={props.onCloseNotice} onClose={props.onCloseNotice} />
     </section>
   );
