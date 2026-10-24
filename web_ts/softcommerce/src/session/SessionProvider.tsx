@@ -27,6 +27,11 @@ export function SessionProvider({ store, children }: { store: SessionStore; chil
   return <SessionContextValue.Provider value={api}>{children}</SessionContextValue.Provider>;
 }
 
+/** The session, or `null` outside a provider (a register that only reads the company params works without one). */
+export function useOptionalSession(): SessionApi | null {
+  return useContext(SessionContextValue);
+}
+
 export function useSession(): SessionApi {
   const api = useContext(SessionContextValue);
   if (!api) throw new Error('useSession must be used inside a SessionProvider.');

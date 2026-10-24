@@ -20,6 +20,8 @@ export interface InterChildGrid {
   onRemove?: () => void;
   /** What the last Quitar said (no selection, already deactivated); shown under the toolbar. */
   notice?: string;
+  /** What the server said about a row, by row key; shown under the grid next to the row's first column. */
+  rowErrors?: Record<string, string>;
 }
 
 export const CHILDGRID_DEFAULTS = {

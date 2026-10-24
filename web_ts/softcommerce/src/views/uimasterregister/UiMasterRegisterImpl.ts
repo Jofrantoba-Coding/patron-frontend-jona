@@ -1,7 +1,10 @@
 // Layer: Implementation. The generic register plus the tabs, the child drafts and the child dialog (D10).
 import { useMemo, useRef, useState } from 'react';
+import { gateOpen } from '../../../mock-server/core/predicates.js';
 import type { CatalogConfig, ChildConfig } from '../../catalogs/CatalogConfig';
 import type { InterCatalogService } from '../../services/InterCatalogService';
+import { useOptionalServices } from '../../services/ServicesContext';
+import { useOptionalSession } from '../../session/SessionProvider';
 import { createDraftCatalogService, type DraftUniqueKey } from '../../shared/DraftCatalogService';
 import type { RegisterMode } from '../uicrudregister/InterUiCrudRegister';
 import { useUiCrudRegisterImpl, type CrudRegisterHandlers } from '../uicrudregister/UiCrudRegisterImpl';
@@ -16,8 +19,13 @@ export function useUiMasterRegisterImpl<T>(
   id: string | undefined,
   handlers: CrudRegisterHandlers,
 ): InterUiMasterRegister {
-  const tabs = useMemo(() => buildTabs(config), [config]);
-  const drafts = useChildDraftsImpl((config.children ?? []).map((child) => child.name), Object.fromEntries((config.children ?? []).map((child) => [child.name, child.config.idKey])));
+  // A child whose company-parameter gate is closed does not exist for this register: no tab, no rows, no ops (R-REG-17, S-MD-14).
+  const params: Record<string, unknown> | undefined = useOptionalSession()?.session?.params as Record<string, unknown> | undefined;
+  const kids = useMemo(() => (config.children ?? []).filter((child) => gateOpen(child.gate, params)), [config.children, params]);
+  const gated = useMemo(() => ({ ...config, children: kids }), [config, kids]);
+  const tabs = useMemo(() => buildTabs(gated), [gated]);
+  const childService = useOptionalServices()?.children(config.catalog);
+  const drafts = useChildDraftsImpl(kids.map((child) => child.name), Object.fromEntries(kids.map((child) => [child.name, child.config.idKey])));
   // The child dialog's service reads the grid at the moment of the confirm, not at the moment it opened.
   const draftsRef = useRef(drafts);
   draftsRef.current = drafts;
@@ -26,13 +34,30 @@ export function useUiMasterRegisterImpl<T>(
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [dialog, setDialog] = useState<MasterChildDialog>();
   const [notice, setNotice] = useState<{ child: string; text: string }>();
+  // What the server rejected, by child and row key (R-MD-5).
+  const [rowErrors, setRowErrors] = useState<Record<string, Record<string, string>>>({});
   const [asking, setAsking] = useState<{ child: ChildConfig; key: string }>();
   const readOnly = mode === 'DELETE' || mode === 'DETAIL';
 
   const register = useUiCrudRegisterImpl(config, service, mode, id, handlers, {
     dirty: drafts.dirty,
     payload: drafts.payload,
-    firstError: (name) => setActiveTab(tabOfField(tabs, config, name)),
+    // UPDATE, DETAIL and DELETE restore every child beside the parent; INSERT has none and CLONE drops them (R-MD-9, D11).
+    restore: async () => {
+      if (!childService || mode === 'INSERT' || mode === 'CLONE') return;
+      const loaded = await Promise.all(kids.map(async (child) => [child.name, (await childService.list(id as string, child.name, { pageSize: 1000 })).items] as const));
+      draftsRef.current.load(Object.fromEntries(loaded));
+    },
+    firstError: (name) => setActiveTab(tabOfField(tabs, gated, name)),
+    // Each failure lands on the pending row that was sent at that index, and the register shows the tab of the first one.
+    childErrors: (errors) => {
+      const placed = errors.flatMap((error) => {
+        const key = draftsRef.current.opKey(error.child, error.index);
+        return key === undefined ? [] : [{ ...error, key }];
+      });
+      setRowErrors(placed.reduce<Record<string, Record<string, string>>>((all, { child, key, message }) => ({ ...all, [child]: { ...all[child], [key]: all[child]?.[key] ?? message } }), {}));
+      if (placed.length > 0) setActiveTab(`child:${placed[0].child}`);
+    },
   });
 
   const remove = (child: ChildConfig, key: string) => {
@@ -63,7 +88,7 @@ export function useUiMasterRegisterImpl<T>(
   const services = useMemo(
     () =>
       new Map(
-        (config.children ?? []).map((child) => [
+        kids.map((child) => [
           child.name,
           createDraftCatalogService<ChildRow>({
             unique: (child.config.entry as { unique?: DraftUniqueKey[] } | undefined)?.unique ?? [],
@@ -72,7 +97,7 @@ export function useUiMasterRegisterImpl<T>(
           }) as MasterChildDialog['service'],
         ]),
       ),
-    [config.children],
+    [kids],
   );
   const parts = (child: ChildConfig) => ({ config: child.config, service: services.get(child.name) as MasterChildDialog['service'], lookups: handlers.lookups, lookup: handlers.lookup });
 
@@ -99,6 +124,7 @@ export function useUiMasterRegisterImpl<T>(
           onSelect: (rowId: string) => setSelected((current) => ({ ...current, [child.name]: rowId })),
           ...(child.entryMode === 'dialog' || readOnly ? { onAdd: () => openChild(child) } : {}),
           ...(child.removal !== 'none' && { onRemove: () => quitar(child) }),
+          ...(rowErrors[child.name] && { rowErrors: rowErrors[child.name] }),
           ...(notice?.child === child.name && { notice: notice.text }),
         },
       }),

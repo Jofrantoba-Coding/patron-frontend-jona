@@ -130,7 +130,7 @@ export function createRecord(store, tenantId, catalog, body, ctx, link) {
   const stamps = stampsOf(store, tenantId, entry, ctx);
   const record = withRuleDerived(entry, blankHidden(entry, withDefaults(entry, pickWritable(entry, body), store.data(tenantId).params)));
   validateRecord(store, tenantId, entry, record, { ctx, mode: 'INSERT', parentId: link?.id });
-  const plan = link ? null : planChildren(store, tenantId, entry, body.children, { ctx });
+  const plan = link ? null : planChildren(store, tenantId, entry, body.children, { ctx, creating: true });
   const rows = rowsOf(store, tenantId, entry);
   // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.
   const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[entry.idKey]) || 0), 0) + 1;

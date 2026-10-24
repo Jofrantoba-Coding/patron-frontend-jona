@@ -39,6 +39,8 @@ export function useChildDraftsImpl(names: readonly string[], idKeys: Record<stri
       if (key.startsWith('~')) setPending((current) => ({ ...current, [name]: (current[name] ?? []).filter((change) => change.key !== key) }));
       else if (kind !== 'none') push(name, { key, op: kind === 'delete' ? 'E' : 'A' });
     },
+    /** The key of the row the n-th op sent for the child belongs to (a server failure names it by that index). */
+    opKey: (name: string, index: number) => pending[name]?.[index]?.key,
     dirty: () => withOps.length > 0,
     /** The composite body (R-MOCK-19): only the changed rows, in the order they were made. */
     payload: () =>
