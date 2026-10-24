@@ -466,13 +466,33 @@ const RESERVED_CHILD_FIELDS = ['id', 'estado', 'op'];
 const childList = (parent) =>
   Array.isArray(parent.children) ? parent.children : Object.entries(parent.children ?? {}).map(([name, def]) => ({ ...(/** @type {any} */ (def)), name }));
 
+/** What a store child takes from its owning entry instead of declaring it. */
+const OWNER_PARTS = ['fields', 'unique', 'joins', 'validation', 'refs'];
+
+/**
+ * The internal entry of a store child: the owning entry under the slug `parent/name`, linked to the parent through `store.key`.
+ * @param {any} parent @param {any} def @param {string} at @param {string} removal @param {string} entry @param {Map<string, any>} resolved
+ */
+function storeChild(parent, def, at, removal, entry, resolved) {
+  const { entry: ownerSlug, key } = def.store;
+  if (typeof ownerSlug !== 'string' || typeof key !== 'string' || key === '') fail(at, 'store needs an entry and a key');
+  const owner = resolved.get(ownerSlug);
+  if (!owner) fail(at, `store names unknown entry "${ownerSlug}"`);
+  if (ownerSlug === parent.slug) fail(at, 'store cannot name its own parent');
+  for (const part of OWNER_PARTS) if (def[part] !== undefined) fail(at, `a store child takes ${part} from "${ownerSlug}"`);
+  const { menu: _menu, children: _children, ...rest } = owner;
+  return { ...rest, slug: `${parent.slug}/${def.name}`, parent: parent.slug, childName: def.name, parentKey: key, seed: null, removal, entry, store: def.store, tab: def.tab, gate: def.gate, columns: def.columns ?? owner.columns };
+}
+
 /**
  * Expands the children of a resolved parent into internal entries (D5): slug `parent/name` (no single-segment route reaches it), the parent's scope,
  * stamp, formId and flags, a `id` code, the parent key as link column and a constant `estado`. Each goes through `resolveEntry`, so unknown field names in
  * `unique`, `joins`, `columns` and `validation` fail like in a top-level entry.
- * @param {any} parent @param {Set<string>} slugs @param {Record<string, any>} sources @param {Map<string, any>} rawBySlug
+ * A `store: { entry, key }` child is a filtered view of another entry's section (R-REG-14): it takes the owner's rows and rules, links its rows to the
+ * parent through `key`, and has no seed of its own.
+ * @param {any} parent @param {Set<string>} slugs @param {Record<string, any>} sources @param {Map<string, any>} rawBySlug @param {Map<string, any>} resolved the resolved top-level entries
  */
-function expandChildren(parent, slugs, sources, rawBySlug) {
+function expandChildren(parent, slugs, sources, rawBySlug, resolved) {
   const seen = new Set();
   return childList(parent).map((/** @type {any} */ def) => {
     const at = `entry "${parent.slug}" child "${def.name}"`;
@@ -487,6 +507,7 @@ function expandChildren(parent, slugs, sources, rawBySlug) {
     for (const f of def.fields ?? []) {
       if ([...RESERVED_CHILD_FIELDS, parent.idKey].includes(f.name)) fail(`${at} field "${f.name}"`, 'reserved name');
     }
+    if (def.store !== undefined) return storeChild(parent, def, at, removal, entry, resolved);
     const fieldNames = new Set((def.fields ?? []).map((/** @type {any} */ f) => f.name));
     for (const ref of def.refs ?? []) if (!fieldNames.has(ref.field)) fail(`entry "${parent.slug}/${def.name}"`, `refs names unknown field "${ref.field}"`);
     const { name, refs: _refs, ...rest } = def;
@@ -532,7 +553,8 @@ export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {})
       }
     }
   }
+  const resolved = new Map(entries.map((e) => [e.slug, e]));
   // A child is reachable by `bySlug` under `parent/name` only; it is not a top-level entry (no menu, no form, no route of its own).
-  const childEntries = entries.flatMap((entry) => (entry.children === undefined ? [] : expandChildren(entry, slugs, sources, rawBySlug)));
+  const childEntries = entries.flatMap((entry) => (entry.children === undefined ? [] : expandChildren(entry, slugs, sources, rawBySlug, resolved)));
   return { entries, childEntries, bySlug: /** @type {Map<string, any>} */ (new Map([...entries, ...childEntries].map((e) => [e.slug, e]))), sources };
 }

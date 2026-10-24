@@ -13,7 +13,7 @@ const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'params'];
 
 /** @param {ReturnType<typeof import('../registry/schema.js').validateRegistry>} registry @param {boolean} shared */
 const sectionsOf = (registry, shared) =>
-  [...registry.entries, ...(registry.childEntries ?? [])].filter((e) => (e.scope === 'shared') === shared).map((e) => e.section);
+  [...registry.entries, ...(registry.childEntries ?? []).filter((c) => c.store === undefined)].filter((e) => (e.scope === 'shared') === shared).map((e) => e.section);
 
 /**
  * Splits the child rows nested in the parent seed rows (R-REG-14) into the child sections: each child row links to its parent through
@@ -23,7 +23,8 @@ const sectionsOf = (registry, shared) =>
  * @returns {{ parents: any[], children: Record<string, any[]> }}
  */
 function splitChildren(registry, parent, rows) {
-  const kids = (registry.childEntries ?? []).filter((c) => c.parent === parent.slug);
+  // A store child has no section or seed of its own: its rows are the owning entry's (R-REG-14).
+  const kids = (registry.childEntries ?? []).filter((c) => c.parent === parent.slug && c.store === undefined);
   /** @type {Record<string, any[]>} */
   const children = Object.fromEntries(kids.map((c) => [c.section, []]));
   const parents = rows.map((row) => {
