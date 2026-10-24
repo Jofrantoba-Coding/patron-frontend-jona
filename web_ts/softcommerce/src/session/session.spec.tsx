@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { RedirectIfSession } from './RedirectIfSession';
 import { RequireSession } from './RequireSession';
 import { SessionProvider, useSession } from './SessionProvider';
 import { SESSION_STORAGE_KEY, createSessionStore, type Session } from './sessionStore';
@@ -111,6 +112,26 @@ describe('RequireSession and logout', () => {
     renderApp(session);
 
     expect(screen.getByText('shell for admin')).toBeTruthy();
+  });
+
+  it.each([
+    ['with a session goes to the shell', session, 'shell for admin'],
+    ['without a session shows login step 1', null, 'login step 1'],
+  ] as const)('RedirectIfSession: a visit to login %s', (_name, initial, expected) => {
+    const store = createSessionStore(sessionStorage);
+    if (initial) store.setSession(initial);
+    render(
+      <SessionProvider store={store}>
+        <MemoryRouter initialEntries={['/login']}>
+          <Routes>
+            <Route path="/login" element={<RedirectIfSession><p>login step 1</p></RedirectIfSession>} />
+            <Route path="/" element={<RequireSession><Shell /></RequireSession>} />
+          </Routes>
+        </MemoryRouter>
+      </SessionProvider>,
+    );
+
+    expect(screen.getByText(expected)).toBeTruthy();
   });
 
   it('S-AUTH-18 logout clears the session and shows login step 1', async () => {

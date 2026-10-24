@@ -154,6 +154,55 @@ describe('UiContexto step 2', () => {
     expect(store.getSnapshot().session).toBeNull();
   });
 
+  it('S-AUTH-16 with router transitions on (as main.tsx runs) the confirm lands on the shell, not on login', async () => {
+    sessionStorage.clear();
+    const store = createSessionStore(sessionStorage);
+    store.setPending({ tenantId: 'demo', result: { token: 'tok-9', user: user1 } });
+    render(
+      <SessionProvider store={store}>
+        <MemoryRouter initialEntries={['/contexto']} future={{ v7_startTransition: true }}>
+          <Routes>
+            <Route path="/contexto" element={<UiContexto service={fakeService()} />} />
+            <Route path="/login" element={<p>login step 1</p>} />
+            <Route path="/" element={<p>shell</p>} />
+          </Routes>
+        </MemoryRouter>
+      </SessionProvider>,
+    );
+    const user = userEvent.setup();
+    await fillAll(user, '20260101', '20261231');
+    await confirm(user);
+
+    expect(await screen.findByText('shell')).toBeTruthy();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByText('login step 1')).toBeNull();
+    expect(screen.getByText('shell')).toBeTruthy();
+  });
+
+  it('a session that already exists sends step 2 to the shell', async () => {
+    const service = fakeService();
+    sessionStorage.clear();
+    const store = createSessionStore(sessionStorage);
+    store.setSession({
+      tenantId: 'demo', token: 'tok-9', user: user1, empresa: empresas[0], puntoVenta: puntos[0],
+      periodo: { fechaInicio: '2026-01-01', fechaFin: '2026-12-31' }, params,
+    });
+    render(
+      <SessionProvider store={store}>
+        <MemoryRouter initialEntries={['/contexto']}>
+          <Routes>
+            <Route path="/contexto" element={<UiContexto service={service} />} />
+            <Route path="/login" element={<p>login step 1</p>} />
+            <Route path="/" element={<p>shell</p>} />
+          </Routes>
+        </MemoryRouter>
+      </SessionProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByText('shell')).toBeTruthy());
+    expect(service.empresas).not.toHaveBeenCalled();
+  });
+
   it('A7 returns to login step 1 when the in-memory step-1 result is gone', async () => {
     const service = fakeService();
     await renderContexto(service, { pending: false });

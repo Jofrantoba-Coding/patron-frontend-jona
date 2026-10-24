@@ -18,7 +18,7 @@ const PERIOD_MESSAGES: Record<PeriodError, string> = {
 type Failure = ReturnType<typeof toFailure>;
 
 export function useUiContextoImpl(service: InterAuthService, grantsService?: InterGrantsService): InterUiContexto {
-  const { pending, startSession } = useSession();
+  const { session, pending, startSession } = useSession();
   const navigate = useNavigate();
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [puntosVenta, setPuntosVenta] = useState<PuntoVenta[]>([]);
@@ -31,14 +31,18 @@ export function useUiContextoImpl(service: InterAuthService, grantsService?: Int
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const hasPending = pending !== null;
+  const hasSession = session !== null;
 
-  // A7: a reload loses the in-memory step-1 result, so step 1 comes back.
+  // The one place step 2 leaves from. A session (just confirmed, or already open) goes to the shell. Without one,
+  // A7: a reload loses the in-memory step-1 result, so step 1 comes back. Confirming clears `pending` as it creates
+  // the session, so the session is checked first; a separate navigate('/') on submit would race this redirect.
   useEffect(() => {
-    if (!hasPending) navigate('/login', { replace: true });
-  }, [hasPending, navigate]);
+    if (hasSession) navigate('/', { replace: true });
+    else if (!hasPending) navigate('/login', { replace: true });
+  }, [hasSession, hasPending, navigate]);
 
   useEffect(() => {
-    if (!hasPending) return;
+    if (!hasPending || hasSession) return;
     let active = true;
     service
       .empresas()
@@ -48,7 +52,7 @@ export function useUiContextoImpl(service: InterAuthService, grantsService?: Int
     return () => {
       active = false;
     };
-  }, [service, hasPending]);
+  }, [service, hasPending, hasSession]);
 
   // S-AUTH-10: puntos de venta follow the empresa; a late response for a previous empresa is ignored.
   useEffect(() => {
@@ -106,7 +110,6 @@ export function useUiContextoImpl(service: InterAuthService, grantsService?: Int
           params,
           ...(grants ? { grants } : {}),
         });
-        navigate('/');
       })
       .catch((error: unknown) => {
         setFailure(toFailure(error));
