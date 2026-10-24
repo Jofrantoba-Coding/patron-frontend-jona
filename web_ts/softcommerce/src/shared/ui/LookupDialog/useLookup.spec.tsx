@@ -81,7 +81,7 @@ describe('useLookup (R-LKP-1, D4)', () => {
 
   it('S-LKP-9 a host veto keeps the dialog open, shows its message and hands nothing over', async () => {
     const veto = vi.fn((row: Row) => (row.id_cliente === '7' ? 'Cliente ya Esta Agregado' : undefined));
-    const { user } = await start('formClienteBuscar', { clientes: [{ id_cliente: '7', razon_social: 'ACME' }, { id_cliente: '8', razon_social: 'BETA' }] }, { veto });
+    const { user } = await start('formClienteBuscar', { clientes: [{ id_cliente: '7', descripcion: 'ACME' }, { id_cliente: '8', descripcion: 'BETA' }] }, { veto });
     await user.click(await screen.findByText('ACME'));
     await user.click(screen.getByRole('button', { name: 'Agregar' }));
     expect((await screen.findByRole('alert')).textContent).toBe('Cliente ya Esta Agregado');

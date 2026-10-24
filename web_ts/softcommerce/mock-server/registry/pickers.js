@@ -11,7 +11,7 @@
  * - `search`: the text filter fields (the free-text `q` of R-MOCK-20 looks in them).
  * - `refresh`: the dialog has the `Refrescar` button. `extras`: inputs the dialog adds beside the filters (`BuscarItemConversion`).
  *
- * Several field names of the sources that arrive later (`clientes`, `vehiculos`, `items`, `parametros-prov`) are [INFERRED]: the registered entry decides them
+ * Several field names of the sources that arrive later (`vehiculos`, `items`, `parametros-prov`) are [INFERRED]; the `clientes` ones are the real Cliente fields since W3-16a: the registered entry decides them
  * and `pickers.spec.ts` checks every picker against its source once it exists.
  */
 
@@ -52,17 +52,17 @@ export const PICKERS = {
   // The classification combo of the desktop lists vendedores under `--- SELECCIONE VENDEDOR ---`: a copy-paste defect, so it is over `clasif-clientes` (R-LKP-7).
   buscarCliente: picker({
     title: 'Cliente', source: 'clientes', pickLabel: 'Agregar',
-    filters: [text('id_cliente', 'Código', digits(11)), text('razon_social', 'Desc.', upper(255)), text('numero_documento', 'DNI/RUC', digits(11)),
-      select('id_clasificacion', 'Clasificación', 'clasif-clientes'), text('direccion', 'Direccion')],
-    columns: [column('id_cliente', 'COD'), column('razon_social', 'RAZON SOCIAL'), column('numero_documento', 'RUC/DNI'), column('direccion', 'DIRECCION'),
-      column('bc', 'BC'), column('ar', 'AR'), column('ex', 'EX'), column('cant_sust', 'CANT SUST')],
+    filters: [text('id_cliente', 'Código', digits(11)), text('descripcion', 'Desc.', upper(255)), text('numero_doc', 'DNI/RUC', digits(11)),
+      select('id_clasif_cliente', 'Clasificación', 'clasif-clientes'), text('direccion', 'Direccion')],
+    columns: [column('id_cliente', 'COD'), column('descripcion', 'RAZON SOCIAL'), column('numero_doc', 'RUC/DNI'), column('direccion', 'DIRECCION'),
+      column('flag_buen_contrib', 'BC'), column('flag_retencion', 'AR'), column('flag_exceptuado', 'EX'), column('cant_sust', 'CANT SUST')],
   }),
   // FormClienteBuscar: Codigo (IntegerDocument 10), Desc. (UpperCaseNumberDocument 100), RUC/DNI (IntegerDocument 11); `listarCliente("A")` lists active clientes.
   formClienteBuscar: picker({
     title: 'Buscar Cliente', source: 'clientes', pickLabel: 'Agregar',
-    filters: [text('id_cliente', 'Codigo', digits(10)), text('razon_social', 'Desc.', upper(100)), text('numero_documento', 'RUC/DNI', digits(11))],
-    columns: [column('id_cliente', 'COD'), column('razon_social', 'RAZON SOCIAL'), column('numero_documento', 'RUC/DNI'), column('direccion', 'DIRECCION'),
-      column('ap', 'AP'), column('ar', 'AR'), column('ex', 'EX'), column('cant_sust', 'CANT_SUST'), column('condicion_pago', 'CONDICION PAGO'), column('numero_dias', 'NUMERO DIAS')],
+    filters: [text('id_cliente', 'Codigo', digits(10)), text('descripcion', 'Desc.', upper(100)), text('numero_doc', 'RUC/DNI', digits(11))],
+    columns: [column('id_cliente', 'COD'), column('descripcion', 'RAZON SOCIAL'), column('numero_doc', 'RUC/DNI'), column('direccion', 'DIRECCION'),
+      column('flag_percepcion', 'AP'), column('flag_retencion', 'AR'), column('flag_exceptuado', 'EX'), column('cant_sust', 'CANT_SUST'), column('condicion_pago', 'CONDICION PAGO'), column('numero_dias', 'NUMERO DIAS')],
   }),
   // FormBuscarVehiculo: Codigo (IntegerDocument 10), Transportista (UpperCaseNumberDocument 50), Marca, RUC/DNI (IntegerDocument 11), Constancia Inscr and Placa
   // (UpperCaseNumberDocument 30), Modelo. Marca and Modelo list the rows with estado A. `transportista` and its RUC are joined display keys (R-LKP-3).
