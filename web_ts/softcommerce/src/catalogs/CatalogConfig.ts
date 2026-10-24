@@ -1,4 +1,5 @@
 import type { CatalogDef } from '../../mock-server/registry/schema.js';
+import type { PermissionFlag } from '../domain/permissions';
 import type { LookupDialogConfig } from '../shared/ui/LookupDialog/InterLookupDialog';
 
 /** Toolbar actions a catalog can expose; each maps to the permission flag of the same name. */
@@ -149,6 +150,32 @@ type PlainField =
 /** Every kind but the code and the cascade can be conditional. */
 export type FieldConfig = PlainField extends infer F ? (F extends { kind: 'code' | 'cascade' } ? F : F & ConditionalProps) : never;
 
+/** When a row action is enabled (R-ACT-2): the register modes, a selected row, a condition on it and a condition no row of the grid may meet. */
+export interface ActionCondition {
+  modes?: CrudMode[];
+  selection?: boolean;
+  row?: FieldCondition;
+  noRow?: FieldCondition;
+}
+
+/**
+ * A declared row action (R-ACT-1). `immediate` calls the action endpoint `/actions/{id}` at once (the server runs `server`); `deferred` changes a pending
+ * child row through the client `rule` and is saved with the parent. `dialog` collects the input of the action.
+ */
+export interface ActionConfig {
+  id: string;
+  label: string;
+  placement: 'list-toolbar' | 'register' | 'child';
+  /** The permission flag of the form that grants it (default `modify`). */
+  flag: PermissionFlag;
+  kind: 'deferred' | 'immediate';
+  enabledWhen?: ActionCondition;
+  confirm?: string;
+  dialog?: { title: string; fields: FieldConfig[] };
+  server?: string;
+  rule?: string;
+}
+
 /** Everything the generic list and register units need to serve one catalog. */
 export interface CatalogConfig<T> {
   formId: string;
@@ -168,6 +195,8 @@ export interface CatalogConfig<T> {
   children?: ChildConfig[];
   /** Register tabs of parent fields after `General`, which holds every field no tab lists (R-MD-1); the child tabs follow. */
   layout?: { title: string; fields: string[] }[];
+  /** The row actions the entry declares (R-REG-15); `actions` above is the toolbar order. A child's own are on its `ChildConfig`. */
+  rowActions?: ActionConfig[];
 }
 
 /** One child of a master register: its own config drives the child dialog (R-MD-3). */
@@ -183,5 +212,7 @@ export interface ChildConfig {
   quitar: { none: string; confirm?: string; already: string };
   /** The company parameter that shows the tab; absent means always (R-REG-17). */
   gate?: { param: string; in?: unknown[] };
+  /** The actions of the child grid toolbar (R-ACT-1). */
+  actions?: ActionConfig[];
   config: CatalogConfig<Record<string, string>>;
 }

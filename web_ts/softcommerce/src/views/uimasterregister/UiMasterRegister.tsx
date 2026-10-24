@@ -4,7 +4,7 @@ import { useUiMasterRegisterImpl } from './UiMasterRegisterImpl';
 import { UiMasterRegisterView } from './UiMasterRegisterView';
 
 /** Tabbed register with child grids for a catalog config that declares `children`. Mount it to open, unmount on `onClose`. */
-export function UiMasterRegister<T>({ config, service, mode, id, ...handlers }: UiCrudRegisterProps<T>) {
-  const impl = useUiMasterRegisterImpl(config, service, mode, id, handlers);
+export function UiMasterRegister<T>({ config, service, mode, id, permissions, ...handlers }: UiCrudRegisterProps<T>) {
+  const impl = useUiMasterRegisterImpl(config, service, mode, id, handlers, permissions);
   return <UiMasterRegisterView {...impl} />;
 }

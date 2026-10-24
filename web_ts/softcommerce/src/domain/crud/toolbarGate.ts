@@ -1,4 +1,5 @@
-import type { CrudAction, CrudMode } from '../../catalogs/CatalogConfig';
+import { actionHolds } from '../../../mock-server/core/predicates.js';
+import type { ActionConfig, CrudAction, CrudMode } from '../../catalogs/CatalogConfig';
 import type { PermissionFlag, Permissions } from '../permissions';
 import { shortcutOf } from './toolbarShortcuts';
 
@@ -64,4 +65,27 @@ export function canTrigger(
   actions: readonly CrudAction[] = DEFAULT_ACTIONS,
 ): boolean {
   return actions.includes(action) && isEnabled(action, permissions, selectedId);
+}
+
+export interface RowActionContext {
+  /** The form's permissions; absent fails closed. */
+  permissions?: Permissions;
+  mode: CrudMode;
+  /** The selected row of the grid and whether it is still pending (not saved yet). */
+  selected?: Record<string, unknown>;
+  selectedPending?: boolean;
+  /** The rows of the grid, without the logically deleted ones. */
+  rows: Record<string, unknown>[];
+  /** The parent is saved (UPDATE, DETAIL, DELETE): an immediate action calls the server on it. */
+  hasParent: boolean;
+}
+
+/**
+ * Whether a row action can fire (R-ACT-2): its flag is granted, the register is editable, its `enabledWhen` holds and, for an `immediate` one, the parent
+ * (and the row an `enabledWhen.selection` names) is saved. The one gate for click and keyboard: a disabled action sends nothing and opens nothing.
+ */
+export function resolveRowAction(action: ActionConfig, { permissions, mode, selected, selectedPending, rows, hasParent }: RowActionContext): boolean {
+  if (permissions?.[action.flag] !== true || mode === 'DETAIL' || mode === 'DELETE') return false;
+  if (action.kind === 'immediate' && (!hasParent || (action.enabledWhen?.selection === true && selectedPending === true))) return false;
+  return actionHolds(action.enabledWhen, { mode, selected, rows });
 }
