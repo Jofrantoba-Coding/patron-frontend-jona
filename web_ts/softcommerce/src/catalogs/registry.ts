@@ -8,6 +8,7 @@ type Row = Record<string, string>;
 
 /** The conditional attributes of a field (G8), carried as declared. */
 const conditionsOf = (field: any) => ({
+  ...(field.gate ? { gate: field.gate } : {}),
   ...(field.visibleWhen ? { visibleWhen: field.visibleWhen } : {}), ...(field.enabledWhen ? { enabledWhen: field.enabledWhen } : {}),
   ...(field.requiredWhen ? { requiredWhen: field.requiredWhen } : {}), ...(field.clearsOnChange ? { clearsOnChange: field.clearsOnChange } : {}),
   ...(field.ruleState ? { ruleState: field.ruleState } : {}),
@@ -112,7 +113,7 @@ export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY
     title: entry.title ?? entry.slug,
     catalog: entry.slug,
     idKey: entry.idKey,
-    columns: entry.columns.map(({ key, header, type }) => ({ key, header, sortable: true, ...(type === 'bool' || type === 'dec' || type === 'date' ? { format: type as 'bool' | 'dec' | 'date' } : {}) })),
+    columns: entry.columns.map(({ key, header, type, gate }: any) => ({ key, header, sortable: true, ...(type === 'bool' || type === 'dec' || type === 'date' ? { format: type as 'bool' | 'dec' | 'date' } : {}), ...(gate ? { gate } : {}) })),
     // A store child shows only the owner's fields it picks, in that order (`entryFields`, R-REG-14); everything else is the owner's.
     fields: ((entry as any).entryFields?.map((name: string) => entry.fields.find((field) => field.name === name)) ?? entry.fields).map((field: any) => toField(entry, field, registry)),
     modes: entry.modes as CatalogConfig<Row>['modes'],

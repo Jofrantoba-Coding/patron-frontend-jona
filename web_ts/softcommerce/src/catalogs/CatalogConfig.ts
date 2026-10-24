@@ -16,6 +16,8 @@ export interface FieldCondition {
 
 /** G8 conditional behavior (R-CRUD-13): visibility, editability and requiredness by another field's value; `clearsOnChange` empties fields when this one changes. */
 export interface ConditionalProps {
+  /** The company parameter that gives the field (R-REG-17): with it off the field is absent from the register, validation and payload. */
+  gate?: { param: string; in?: unknown[] };
   visibleWhen?: FieldCondition;
   enabledWhen?: FieldCondition;
   requiredWhen?: FieldCondition;
@@ -210,7 +212,7 @@ export interface CatalogConfig<T> {
   /** Catalog name in `/v1/{catalog}`. */
   catalog: string;
   idKey: keyof T & string;
-  columns: { key: keyof T & string; header: string; sortable?: boolean; /** `bool` renders Sí / No, `dec` the stored number as text, `date` dd/MM/yyyy (R-CRUD-1). */ format?: 'bool' | 'dec' | 'date' }[];
+  columns: { key: keyof T & string; header: string; sortable?: boolean; /** `bool` renders Sí / No, `dec` the stored number as text, `date` dd/MM/yyyy (R-CRUD-1). */ format?: 'bool' | 'dec' | 'date'; /** The company parameter that shows the column (R-REG-17); absent means always. */ gate?: { param: string; in?: unknown[] } }[];
   fields: FieldConfig[];
   /** Toolbar order; defaults to every action but `export`. */
   actions?: CrudAction[];

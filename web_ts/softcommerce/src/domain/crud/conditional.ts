@@ -3,8 +3,8 @@ import { fieldState } from '../../../mock-server/core/predicates.js';
 import type { FieldConfig } from '../../catalogs/CatalogConfig';
 import type { FormValues } from './validate';
 
-/** What a cleared field shows: an unchecked box for a boolean, an empty string for anything else. */
-const blankOf = (field: FieldConfig | undefined) => (field?.kind === 'boolean' ? 'false' : '');
+/** What a cleared field shows: an unchecked box for a boolean, its starting text for an integer that declares one (the días of a condición de pago: 0), an empty string for anything else. */
+const blankOf = (field: FieldConfig | undefined) => (field?.kind === 'boolean' ? 'false' : field?.kind === 'number' && typeof field.default === 'string' ? field.default : '');
 
 /** Whether the field is shown (a field with no `visibleWhen` always is); the code and cascade kinds are never conditional. */
 export function isVisible(field: FieldConfig, values: FormValues): boolean {
