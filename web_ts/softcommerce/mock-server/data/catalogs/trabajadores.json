@@ -1,8 +1,8 @@
 {
   "demo": [
-    { "id_trabajador": "001", "nombre": "JUAN PEREZ LOPEZ", "activo": true },
-    { "id_trabajador": "002", "nombre": "MARIA GARCIA RAMOS", "activo": true },
-    { "id_trabajador": "003", "nombre": "CARLOS TORRES DIAZ", "activo": true },
-    { "id_trabajador": "004", "nombre": "LUIS RETIRADO SOTO", "activo": false }
+    { "id_trabajador": "001", "nombre": "JUAN PEREZ LOPEZ", "dni": "40123456", "activo": true },
+    { "id_trabajador": "002", "nombre": "MARIA GARCIA RAMOS", "dni": "40234567", "activo": true },
+    { "id_trabajador": "003", "nombre": "CARLOS TORRES DIAZ", "dni": "40345678", "activo": true },
+    { "id_trabajador": "004", "nombre": "LUIS RETIRADO SOTO", "dni": "40456789", "activo": false }
   ]
 }
