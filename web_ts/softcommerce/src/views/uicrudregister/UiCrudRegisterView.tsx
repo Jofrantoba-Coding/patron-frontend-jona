@@ -9,6 +9,7 @@ import { DependentSelect } from '../../shared/ui/DependentSelect';
 import { LookupField } from '../../shared/ui/LookupField';
 import { NumberField } from '../../shared/ui/NumberField';
 import { OptionsField } from '../../shared/ui/OptionsField';
+import { TextAreaField } from '../../shared/ui/TextAreaField';
 import { maxLengthOf } from '../../../mock-server/core/predicates.js';
 import { typedNormalize } from '../../domain/crud/normalize';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
@@ -59,6 +60,24 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                     <UppercaseTextField value={props.values[field.name]} readOnly onChange={() => undefined} />
                   </label>
                 )
+              ) : field.kind === 'text' && field.multiline ? (
+                <div key={field.name}>
+                  <TextAreaField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    value={props.values[field.name]}
+                    rows={field.rows}
+                    maxLength={maxLengthOf(field, props.values)}
+                    uppercase={field.uppercase}
+                    transform={(typed) => typedNormalize(field, typed)}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onBlur={() => props.onFieldBlur(field.name)}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
               ) : field.kind === 'text' ? (
                 <div key={field.name}>
                   <label style={{ display: 'grid', gap: 4 }}>

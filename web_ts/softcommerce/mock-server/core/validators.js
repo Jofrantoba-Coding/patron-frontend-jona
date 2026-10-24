@@ -107,7 +107,7 @@ function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
     return state.required && !optional ? bad('REQUIRED') : null;
   }
   const text = String(value);
-  if ((f.kind === 'text' || f.kind === 'code') && limit !== undefined && text.length > limit) {
+  if ((f.kind === 'text' || f.kind === 'textarea' || f.kind === 'code') && limit !== undefined && text.length > limit) {
     return bad('MAX_LENGTH');
   }
   // `minLen` / `minLenWhen` (R-REG-4): a value shorter than the length that applies is judged like a missing one.

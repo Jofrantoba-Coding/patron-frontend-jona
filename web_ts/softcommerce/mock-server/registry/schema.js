@@ -23,7 +23,7 @@ import { BUILTIN_SOURCES } from './sources.js';
 
 export const SCOPES = ['tenant', 'empresa', 'shared'];
 export const MODES = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
-const KINDS = ['code', 'text', 'number', 'boolean', 'date', 'select', 'options', 'lookup'];
+const KINDS = ['code', 'text', 'textarea', 'number', 'boolean', 'date', 'select', 'options', 'lookup'];
 const STYLES = ['M1', 'M2', 'MS', 'label', 'w1'];
 const STAMPS = ['id_usuario', 'id_empresa'];
 /** Closed set of named rules (D9): the hooks live in `core/entryRules.js`. */
@@ -418,6 +418,10 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
       if (!slugs.has(f.source.catalog) && !Object.hasOwn(sources, f.source.catalog)) fail(at, `unknown catalog "${f.source.catalog}"`);
     }
     if (f.kind === 'options') assertOptions(at, f);
+    // A textarea is a text with visible lines (R-REG-13): `rows` is a positive integer and means nothing elsewhere.
+    if (f.kind === 'textarea') {
+      if (f.rows !== undefined && !(Number.isInteger(f.rows) && f.rows > 0)) fail(at, 'rows must be a positive integer');
+    } else if (f.rows !== undefined) fail(at, 'rows needs a textarea field');
     if (f.kind === 'date') assertDate(at, f);
     else if (f.notFuture !== undefined) fail(at, 'notFuture needs a date field');
     if (f.kind === 'number') assertNumber(at, f);

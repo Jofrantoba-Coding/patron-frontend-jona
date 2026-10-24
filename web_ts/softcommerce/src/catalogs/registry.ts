@@ -22,12 +22,14 @@ type Registry = { bySlug: Map<string, any>; childEntries?: any[] };
 
 function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConfig {
   if (field.kind === 'code') return { kind: 'code', name: field.name, label: field.label };
-  if (field.kind === 'text') {
+  // A textarea is a text for the core (R-CRUD-18): the same required, max and normalize checks; `multiline` only picks the control.
+  if (field.kind === 'text' || field.kind === 'textarea') {
     const normalize: string[] = field.normalize ?? [];
     return {
       kind: 'text', name: field.name, label: field.label, required: Boolean(field.required),
       maxLength: field.max, uppercase: normalize.includes('upper'), normalize,
       ...(field.message ? { message: field.message } : {}),
+      ...(field.kind === 'textarea' ? { multiline: true, rows: field.rows ?? 4 } : {}),
       ...(field.minLen !== undefined ? { minLen: field.minLen } : {}), ...(field.minLenWhen ? { minLenWhen: field.minLenWhen } : {}), ...(field.maxWhen ? { maxWhen: field.maxWhen } : {}),
     };
   }

@@ -43,6 +43,9 @@ type PlainField =
       normalize?: string[];
       /** The sentence of a blank required value when no entry gives one (an action dialog: `Ingrese Motivo`). */
       message?: string;
+      /** A `textarea` field (R-CRUD-18): the register shows a multi-line input of `rows` lines (default 4); every check is the text's. */
+      multiline?: boolean;
+      rows?: number;
     }
   | {
       /** A checkbox; the form state is 'true' | 'false' and the payload a boolean (codec, D7). */
