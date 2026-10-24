@@ -6,6 +6,7 @@ import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
 import { ruleDetail } from './entryRules.js';
 import { fieldState, maxLengthOf, minLengthOf } from './predicates.js';
+import { findConflict, isActive, isActiveSibling, same } from './unique.js';
 
 /** Logical-delete flag shared by every registry catalog (R-MOCK-7). */
 export const ACTIVE_KEY = 'activo';
@@ -16,7 +17,6 @@ export const ACTIVE_KEY = 'activo';
  */
 
 const isBlank = (/** @type {unknown} */ value) => String(value ?? '').trim() === '';
-const same = (/** @type {unknown} */ a, /** @type {unknown} */ b) => String(a ?? '').trim() === String(b ?? '').trim();
 
 /** Rows of an entry: the tenant dataset, or the global one for `shared` entries. @param {any} store @param {string} tenantId @param {any} entry */
 export function rowsOf(store, tenantId, entry) {
@@ -168,16 +168,18 @@ function refDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /**
   return parent ? { ...missing, message: `${ref.field} does not belong to ${parent.field}` } : null;
 }
 
-/** @returns {Detail|null} */
-function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {any} */ key, /** @type {Record<string, any>} */ record, /** @type {string|undefined} */ selfId, /** @type {any} */ ctx, /** @type {string|undefined} */ parentId) {
+/**
+ * A unique key over the active rows (S-REG-9, S-REG-10). A child key is scoped by its parent and only counts ACTIVE siblings, so a deactivated
+ * (`estado` `D`) or deleted row never conflicts (R-MD-6); `siblings` replaces the stored rows with the working view of a composite write.
+ * @returns {Detail|null}
+ */
+function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {any} */ key, /** @type {Record<string, any>} */ record, /** @type {string|undefined} */ selfId, /** @type {any} */ ctx, /** @type {string|undefined} */ parentId, /** @type {any[]|undefined} */ siblings) {
   // The session empresa is part of the key only with `includeEmpresa` (R-REG-7).
   const empresa = key.includeEmpresa ? sessionEmpresa(store, tenantId, ctx) : undefined;
-  // Deleted rows and the record itself never conflict (S-REG-9, S-REG-10).
-  const taken = rowsOf(store, tenantId, entry).some(
-    (/** @type {any} */ r) =>
-      r[ACTIVE_KEY] !== false && String(r[entry.idKey]) !== selfId && (entry.parentKey === undefined || String(r[entry.parentKey]) === String(parentId)) && (empresa === undefined || String(r.id_empresa) === empresa) &&
-      key.fields.every((/** @type {string} */ f) => same(r[f], record[f])),
+  const pool = siblings ?? rowsOf(store, tenantId, entry).filter(
+    (/** @type {any} */ r) => (entry.parentKey === undefined || String(r[entry.parentKey]) === String(parentId)) && (empresa === undefined || String(r.id_empresa) === empresa),
   );
+  const taken = findConflict(pool, key.fields, record, { selfId, idKey: entry.idKey, active: entry.parentKey === undefined ? isActive : isActiveSibling });
   return taken ? { field: key.errorField, code: 'DUPLICATE', message: key.message } : null;
 }
 
@@ -188,10 +190,11 @@ function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, 
  * field and ref failure in one 422, uniqueness checked afterwards. `{rule}` steps
  * run the named rule's validate hook.
  * @param {any} store @param {string} tenantId @param {any} entry @param {Record<string, any>} record
- * @param {{ selfId?: string, ctx?: import('./context.js').RequestContext, mode?: keyof typeof import('./messages.js').MODO, parentId?: string }} [options]
- * `mode` words the messages: INSERT on create, UPDATE on update. `parentId` scopes a child's unique key to the rows of its parent.
+ * @param {{ selfId?: string, ctx?: import('./context.js').RequestContext, mode?: keyof typeof import('./messages.js').MODO, parentId?: string, siblings?: any[] }} [options]
+ * `mode` words the messages: INSERT on create, UPDATE on update. `parentId` scopes a child's unique key to the rows of its parent; `siblings` is the
+ * working view of those rows during a composite write (stored rows plus the ops planned before this one).
  */
-export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mode = 'INSERT', parentId } = {}) {
+export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mode = 'INSERT', parentId, siblings } = {}) {
   const failed = new Set();
   const fields = new Map(entry.fields.map((/** @type {any} */ f) => [f.name, f]));
   const inlineRefs = !entry.steps.some((/** @type {any} */ s) => typeof s === 'object' && 'ref' in s);
@@ -211,7 +214,7 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
     return detail;
   };
   /** @param {any} step */
-  const uniqueOf = (step) => uniqueDetail(store, tenantId, entry, entry.unique[step.unique], record, selfId, ctx, parentId);
+  const uniqueOf = (step) => uniqueDetail(store, tenantId, entry, entry.unique[step.unique], record, selfId, ctx, parentId, siblings);
 
   /** @type {Detail[]} */
   const details = [];

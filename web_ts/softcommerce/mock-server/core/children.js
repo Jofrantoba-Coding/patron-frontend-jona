@@ -69,6 +69,9 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId } = 
     const rows = rowsOf(store, tenantId, child);
     const own = (/** @type {any} */ r) => parentId !== undefined && String(r[child.parentKey]) === parentId && r[ACTIVE_KEY] !== false;
     planned[child.childName] = ops;
+    // The working view of the active siblings: the stored rows of this parent, then every op planned before the current one (R-MD-6).
+    const view = rows.filter(own).map((/** @type {any} */ r) => ({ ...r }));
+    const inView = (/** @type {string} */ id) => view.find((/** @type {any} */ r) => r.id === id);
     ops.forEach((/** @type {any} */ op, /** @type {number} */ n) => {
       const bad = (/** @type {string} */ field, /** @type {string} */ code, /** @type {string} */ message) => validationError([{ field: `${child.childName}[${n}].${field}`, code, message }]);
       if (!OPS.includes(op?.op)) throw bad('op', 'INVALID', 'op must be I, A or E');
@@ -77,12 +80,13 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId } = 
       if (op.op !== 'I' && !stored) throw bad('id', 'NOT_FOUND', `${child.childName} ${op.id} does not exist`);
       if (op.op === 'E') {
         writes.push(() => { /** @type {any} */ (stored)[ACTIVE_KEY] = false; });
+        view.splice(view.indexOf(/** @type {any} */ (inView(stored.id))), 1);
         return;
       }
       const picked = pickWritable(child, op);
       const record = withRuleDerived(child, blankHidden(child, op.op === 'I' ? withDefaults(child, picked) : { ...stored, ...picked }));
       try {
-        validateRecord(store, tenantId, child, record, { ctx, mode: op.op === 'I' ? 'INSERT' : 'UPDATE', selfId: stored?.id, parentId });
+        validateRecord(store, tenantId, child, record, { ctx, mode: op.op === 'I' ? 'INSERT' : 'UPDATE', selfId: stored?.id, parentId, siblings: view });
       } catch (error) {
         throw indexed(error, child.childName, n);
       }
@@ -90,8 +94,10 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId } = 
         // `A` updates, and deactivates a child whose removal kind is `deactivate`; it never reactivates (R-MOCK-21).
         const estado = child.removal === 'deactivate' && op.estado === 'D' ? { estado: 'D' } : {};
         writes.push(() => Object.assign(/** @type {any} */ (stored), record, derivedValues(child, record), stamps, estado));
+        Object.assign(/** @type {any} */ (inView(stored.id)), record, estado);
         return;
       }
+      view.push({ ...record, ...child.constants, id: `~${n}` });
       writes.push((id) => {
         const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r.id) || 0), 0) + 1;
         rows.push({ id: String(next), ...record, ...child.constants, ...derivedValues(child, record), ...stamps, [child.parentKey]: id, [ACTIVE_KEY]: true });
