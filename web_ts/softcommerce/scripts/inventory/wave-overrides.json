@@ -1,1 +1,60 @@
-{}
+{
+  "JHInternal": "infra",
+  "JHInternalDialog": "infra",
+  "PanelControlRegister": "infra",
+  "PanelRowSelection": "infra",
+  "ProgressBarSystem": "infra",
+  "RendererCheckBox": "infra",
+  "StateBarSystem": "infra",
+
+  "ImagePanel": "drop",
+  "ImagePreview": "drop",
+  "TimeSerieResumen": "drop",
+  "CambiarCondicionPago": "drop",
+  "ConexionBaseDatos": "drop",
+  "MainFrameTest": "drop",
+
+  "CambiarEmpresa": "shell",
+  "CambiarPeriodo": "shell",
+  "Main": "shell",
+  "UiLogin": "shell",
+  "UiLoginImpl": "shell",
+
+  "PnlMarcaVehiculo": "W2",
+  "PnlModeloVehiculo": "W2",
+  "PnlTipoTrabajador": "W2",
+  "PnlTurno": "W2",
+  "PnlUbicacion": "W2",
+  "PnlVehiculo": "W2",
+
+  "PnlLiquidacion": "W4",
+  "PnlLiquidacionRegistro": "W4",
+  "PnlCierreProdDespachar": "W4",
+  "PnlConsultaProdDespachar": "W4",
+  "PanelDiferenciaPrecio": "W4",
+  "FormConversion": "W4",
+  "FormConversionVarios": "W4",
+  "FormAutorizar": "W4",
+  "FormDVRegularEstado": "W4",
+
+  "PnlRepKardex": "W5",
+  "PnlConsultaMovimiento": "W5",
+  "PnlDocumentoCosteo": "W5",
+  "PnlMostrarTipoMovimientosFormula": "W5",
+  "ActualizarAlmacenes": "W5",
+  "PnlActualizarAlmacenes": "W5",
+  "JDSeleccionaAlmacen": "W5",
+  "FormLoteMovimiento": "W5",
+  "PanelFEDesactivarItemAlm": "W5",
+
+  "PnlCancClienteGroup": "W6",
+  "PnlCancProvGroup": "W6",
+  "FrmCambiarFechaDoc": "W6",
+
+  "PnlRepLibroCaja": "W7",
+  "PnlRepLibroCompras": "W7",
+  "PnlRepLibroDiario": "W7",
+  "PnlRepLibroDiarioSimp": "W7",
+  "PnlRepLibroMayor": "W7",
+  "PnlRepLibroPercepcion": "W7"
+}
