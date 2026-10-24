@@ -26,10 +26,13 @@ export function menuPermissionProblems(entries: any[], menu: any[], permissions:
 }
 
 /**
- * R-REG-19: the screens that are not registry catalogs but still appear in the menu and need their 13 flags. `miAccionSocio` joins
- * the list with its own slice (W3-15); the rule is the same one for every entry.
+ * R-REG-19: the screens that are not registry catalogs but still appear in the menu and need their 13 flags. `miAccionSocio` joined
+ * the list in W3-20; the rule is the same one for every entry.
  */
-export const CUSTOM_SCREENS = [{ formId: 'mi_SeguridadPerfil', menu: { parent: 'mnGenerales', label: 'Seguridad - Perfil' } }];
+export const CUSTOM_SCREENS = [
+  { formId: 'mi_SeguridadPerfil', menu: { parent: 'mnGenerales', label: 'Seguridad - Perfil' } },
+  { formId: 'miAccionSocio', menu: { parent: 'mnGenerales', label: 'Acciones de Socio' } },
+];
 
 /** Same checks as `menuPermissionProblems`, for the custom-screen list; each problem names the formId. */
 export function customScreenProblems(screens: typeof CUSTOM_SCREENS, menu: any[], permissions: Record<string, any>): string[] {
