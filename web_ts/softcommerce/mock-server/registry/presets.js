@@ -76,5 +76,42 @@ function anexo({ entity, tipoAnexo }) {
   };
 }
 
+/** The master flag each padron id sets (R-ANX-8) and its label: the desktop checkboxes of `RegisterProveedorNuevo` say `A Percepcion`, `A Retencion`, `Buen Contribuyente`. */
+const PADRON_FLAGS = { '01': ['flag_exceptuado', 'Exceptuado'], '02': ['flag_retencion', 'A Retencion'], '03': ['flag_percepcion', 'A Percepcion'], '04': ['flag_buen_contrib', 'Buen Contribuyente'] };
+/** What each master offers (`FormAnexoPadron.loadPadron` removes the 4th entry for Cliente and the 1st for Proveedor): the `padrones` column it filters on and the flags in form order. */
+const PADRON_OFERTA = { proveedor: { where: 'para_proveedor', ids: ['03', '02', '04'] }, cliente: { where: 'para_cliente', ids: ['01', '02', '03'] } };
+const PADRON_MODES = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
+
+/**
+ * The padron preset (R-ANX-7, R-ANX-8, W3-15): the pieces Cliente and Proveedor share, spread into the entry beside the anexo preset. `fields` are the read-only master
+ * flags the rule derives from the active rows; `rules` names the `padron` rule (it owns the flags and runs the incompatibility checks); `children.padrones` is the grid
+ * (`ESTADO`, `PADRON`, `F_INICIO`, `F_FIN`; no Agregar, no Quitar) with the deferred Activar (`Agregar Padron`: the select of the padrones the master offers and the start date)
+ * and Desactivar (`Desea Desactivar Padron?`).
+ * @param {{ master: 'proveedor' | 'cliente' }} options
+ */
+function padron({ master }) {
+  const { where, ids } = PADRON_OFERTA[master];
+  const flags = Object.fromEntries(ids.map((id) => [id, PADRON_FLAGS[/** @type {keyof typeof PADRON_FLAGS} */ (id)][0]]));
+  const select = { name: 'id_padron', kind: 'select', label: 'Padron', required: true, message: 'Seleccione Padron', source: { catalog: 'padrones', where: { [where]: true } } };
+  return {
+    fields: ids.map((id) => ({ name: flags[id], kind: 'boolean', label: PADRON_FLAGS[/** @type {keyof typeof PADRON_FLAGS} */ (id)][1], readOnlyOn: PADRON_MODES })),
+    rules: [{ name: 'padron', params: { child: 'padrones', flags } }],
+    children: {
+      padrones: {
+        tab: 'Padrones', removal: 'none', entry: 'none',
+        fields: [select, { name: 'f_inicio', kind: 'date', label: 'Fecha Inicio', default: 'today' }, { name: 'f_fin', kind: 'date', label: 'Fecha Fin' }],
+        columns: [{ key: 'padron', header: 'PADRON' }, { key: 'f_inicio', header: 'F_INICIO', type: 'date' }, { key: 'f_fin', header: 'F_FIN', type: 'date' }],
+        actions: [
+          {
+            id: 'activar', label: 'Activar', kind: 'deferred', rule: 'activarPadron', enabledWhen: { modes: ['INSERT', 'UPDATE'] },
+            dialog: { title: 'Agregar Padron', fields: [select, { name: 'f_inicio', kind: 'date', label: 'Fecha Inicio', required: true, default: 'today' }] },
+          },
+          { id: 'desactivar', label: 'Desactivar', kind: 'deferred', rule: 'desactivarPadron', confirm: 'Desea Desactivar Padron?', enabledWhen: { modes: ['INSERT', 'UPDATE'] } },
+        ],
+      },
+    },
+  };
+}
+
 /** Whole-entry presets, merged by the entry that names them (the field presets above are merged under a field). */
-export const presets = { anexo };
+export const presets = { anexo, padron };
