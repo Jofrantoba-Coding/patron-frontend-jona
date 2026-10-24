@@ -45,9 +45,9 @@ async function start(picker: Parameters<ReturnType<typeof useLookup>['open']>[0]
   return { user, ...services };
 }
 const ITEMS: Row[] = [
-  { id_item: '1', descripcion: 'TUERCA', id_familia: 'F1', id_subfamilia: 'S1', id_marca: 'M1' },
-  { id_item: '2', descripcion: 'TORNILLO', id_familia: 'F1', id_subfamilia: 'S1', id_marca: 'M2' },
-  { id_item: '3', descripcion: 'CLAVO', id_familia: 'F2', id_subfamilia: 'S1', id_marca: 'M1' },
+  { id_item: '1', descripcion: 'TUERCA', id_familia: 'F1', id_subfamilia: 'S1', id_marca: 'M1', estado: 'true' },
+  { id_item: '2', descripcion: 'TORNILLO', id_familia: 'F1', id_subfamilia: 'S1', id_marca: 'M2', estado: 'true' },
+  { id_item: '3', descripcion: 'CLAVO', id_familia: 'F2', id_subfamilia: 'S1', id_marca: 'M1', estado: 'true' },
 ];
 const select = (label: string) => screen.getByLabelText(label) as HTMLSelectElement;
 
@@ -73,9 +73,9 @@ describe('useLookup (R-LKP-1, D4)', () => {
     await user.selectOptions(select('Marca'), 'MARCA UNO');
     await waitFor(() => expect(screen.queryByText('TORNILLO')).toBeNull());
     expect(screen.getByText('TUERCA')).toBeTruthy();
-    expect(list).toHaveBeenLastCalledWith('items', expect.objectContaining({ filters: { id_familia: 'F1', id_subfamilia: 'S1', id_marca: 'M1' } }));
+    expect(list).toHaveBeenLastCalledWith('items', expect.objectContaining({ filters: { estado: 'true', id_familia: 'F1', id_subfamilia: 'S1', id_marca: 'M1' } }));
     await user.selectOptions(select('Familia'), 'FAMILIA DOS');
-    await waitFor(() => expect(list).toHaveBeenLastCalledWith('items', expect.objectContaining({ filters: { id_familia: 'F2', id_marca: 'M1' } })));
+    await waitFor(() => expect(list).toHaveBeenLastCalledWith('items', expect.objectContaining({ filters: { estado: 'true', id_familia: 'F2', id_marca: 'M1' } })));
     expect(select('SubFamilia').value).toBe('');
   });
 

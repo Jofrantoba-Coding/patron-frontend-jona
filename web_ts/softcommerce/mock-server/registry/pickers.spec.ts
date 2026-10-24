@@ -145,7 +145,7 @@ const GAPS: Record<string, string[]> = {
 };
 /** Select filters of registered sources that are not yet a declared `lookupFilters` key (the exact list match); none is left since W3-10. */
 const SELECT_GAPS: Record<string, string[]> = {};
-const LATER_SOURCES = ['items'];
+const LATER_SOURCES: string[] = [];
 
 describe('lazy consistency of every picker with its registered source', () => {
   const namesOf = (picker: any) => [...picker.search, ...picker.filters.map((f: any) => f.field), ...picker.columns.map((c: any) => c.key)];

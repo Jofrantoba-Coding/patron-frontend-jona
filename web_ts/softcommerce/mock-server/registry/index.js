@@ -49,6 +49,7 @@ import { vendedores } from './catalogs/vendedores.js';
 import { transportistas } from './catalogs/transportistas.js';
 import { proveedores } from './catalogs/proveedores.js';
 import { clientes } from './catalogs/clientes.js';
+import { items } from './catalogs/items.js';
 import { trabajadorPuntoVenta } from './catalogs/trabajador-punto-venta.js';
 import { turnos } from './catalogs/turnos.js';
 import { usuarioCorrelativos } from './catalogs/usuario-correlativos.js';
@@ -67,5 +68,5 @@ export const REGISTRY = validateRegistry([
   // Wave 3 read-only stubs of W6 data (R-MOCK-25).
   cuentasContables, parametrosProv, clasesSunat, padrones,
   // Wave 3 masters (rich registers with children and actions).
-  bancos, vendedores, transportistas, proveedores, clientes,
+  bancos, vendedores, transportistas, proveedores, clientes, items,
 ]);

@@ -11,7 +11,7 @@
  * - `search`: the text filter fields (the free-text `q` of R-MOCK-20 looks in them).
  * - `refresh`: the dialog has the `Refrescar` button. `extras`: inputs the dialog adds beside the filters (`BuscarItemConversion`).
  *
- * Several field names of the sources that arrive later (`vehiculos`, `items`, `parametros-prov`) are [INFERRED]; the `clientes` ones are the real Cliente fields since W3-16a: the registered entry decides them
+ * Several field names of the sources that arrive later (`vehiculos`, `parametros-prov`) are [INFERRED]; the `clientes` ones are the real Cliente fields since W3-16a: the registered entry decides them
  * and `pickers.spec.ts` checks every picker against its source once it exists.
  */
 
@@ -84,13 +84,14 @@ export const PICKERS = {
       column('flag_venta', 'VENTA'), column('flag_tesoreria', 'TESORERIA'), column('flag_fondo_fijo', 'FONDO FIJO')],
   }),
   // BuscarItemConversion: Código and Código Alt. (IntegerDocument 6), Desc. (UpperCaseNumberDocument 255), Familia, SubFamilia (by familia), Marca. The three
-  // extras are DoubleDocument inputs that open at 0.0, 0.0 and 1.0. The desktop also shows the unit, percepción and price columns, left to the Item master.
+  // extras are DoubleDocument inputs that open at 0.0, 0.0 and 1.0. The desktop also shows the unit, percepción and price columns, left to the Item master. Active items
+  // only (R-LKP-7); the Código Alt. is the real `id_alterno` since W3-18.
   buscarItemConversion: picker({
-    title: 'Item a convertir', source: 'items', pickLabel: 'Agregar', refresh: true,
-    filters: [text('id_item', 'Código', digits(6)), text('codigo_alterno', 'Código Alt.', digits(6)), text('descripcion', 'Desc.', upper(255)),
+    title: 'Item a convertir', source: 'items', pickLabel: 'Agregar', refresh: true, where: { estado: 'true' },
+    filters: [text('id_item', 'Código', digits(6)), text('id_alterno', 'Código Alt.', digits(6)), text('descripcion', 'Desc.', upper(255)),
       select('id_familia', 'Familia', 'familias'), select('id_subfamilia', 'SubFamilia', 'subfamilias', { dependsOn: { field: 'id_familia', filterKey: 'id_familia' } }),
       select('id_marca', 'Marca', 'marcas')],
-    columns: [column('id_item', 'COD'), column('codigo_alterno', 'COD ALT'), column('descripcion', 'DESC'), column('familia', 'FAMILIA'),
+    columns: [column('id_item', 'COD'), column('id_alterno', 'COD ALT'), column('descripcion', 'DESC'), column('familia', 'FAMILIA'),
       column('subfamilia', 'SUB_FAMILIA'), column('marca', 'MARCA')],
     extras: [
       { name: 'valor_conversion', label: 'VALOR DE CONVERSION', type: 'decimal', default: '0.0' },

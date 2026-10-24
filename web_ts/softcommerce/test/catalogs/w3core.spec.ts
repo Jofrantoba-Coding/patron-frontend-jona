@@ -135,10 +135,10 @@ function describeStubs({ label, services }: Source): void {
 
     it('clases-sunat is shared data and codigo_subfamilia_sunat filters EXACTLY on the list and the lookup', async () => {
       const clases = demo().catalog('clases-sunat');
-      expect((await clases.list()).items).toHaveLength(4);
+      expect((await clases.list()).items).toHaveLength(6);
       expect((await clases.list({ filters: { codigo_subfamilia_sunat: '0101' } })).items.map((r: any) => r.id_clase_sunat)).toEqual(['01010101', '01010102']);
       expect((await demo().lookup.options('clases-sunat', { codigo_subfamilia_sunat: '0101' })).map((o) => o.id)).toEqual(['01010101', '01010102']);
-      expect((await services('botica').catalog('clases-sunat').list()).items).toHaveLength(4);
+      expect((await services('botica').catalog('clases-sunat').list()).items).toHaveLength(6);
     });
 
     it.each(['cuentas-contables', 'parametros-prov', 'clases-sunat', 'padrones'])('%s answers every write with 405 METHOD_NOT_ALLOWED', async (slug) => {

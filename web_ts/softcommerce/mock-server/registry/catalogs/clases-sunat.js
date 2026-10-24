@@ -14,7 +14,8 @@ export const clasesSunat = {
   readOnly: true,
   optionLabel: 'descripcion',
   search: ['id_clase_sunat', 'descripcion'],
-  lookupFilters: { codigo_subfamilia_sunat: {} },
+  // `id_subfamilia` (the Item `Codigo Sunat`, W3-18): the options of the SUNAT code the chosen subfamilia holds (`via`); a subfamilia with no code offers none.
+  lookupFilters: { codigo_subfamilia_sunat: {}, id_subfamilia: { via: { catalog: 'subfamilias', key: 'id_subfamilia_sunat', as: 'codigo_subfamilia_sunat' } } },
   messages: { style: 'M1' },
   fields: [
     { name: 'id_clase_sunat', kind: 'code', label: 'Código' },

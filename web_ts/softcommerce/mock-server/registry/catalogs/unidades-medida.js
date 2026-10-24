@@ -10,7 +10,7 @@ import { referenceCatalog } from './reference.js';
  * flagged for W6.
  */
 export const unidadesMedida = referenceCatalog({
-  slug: 'unidades-medida', idKey: 'id_um', entity: 'una Unidad de Medida', formId: 'miUnidadMedida', title: 'Unidad de Medida', scope: 'empresa',
+  slug: 'unidades-medida', idKey: 'id_um', entity: 'una Unidad de Medida', formId: 'miUnidadMedida', title: 'Unidad de Medida', scope: 'empresa', optionLabel: 'abreviatura',
   fields: [
     { name: 'abreviatura', kind: 'text', label: 'Abreviatura', required: true, max: 100, normalize: ['upper'] },
     { name: 'id_tabla_sunat', kind: 'select', label: 'Tabla Sunat', source: { catalog: 'tablas-sunat' }, default: '6' },
