@@ -28,8 +28,8 @@ export interface CrudRegisterHandlers {
 
 /** What a master register adds to the generic register (R-MD-1): its child drafts ride along with the parent's load, dirty state, payload and first error. */
 export interface RegisterExtension {
-  /** Called with the loaded record, before the form shows it. */
-  load?: (record: unknown, mode: RegisterMode) => void;
+  /** Loads what the extension restores (the persisted child rows, D11); it runs with the record's own load and the form waits for both. */
+  restore?: () => Promise<unknown>;
   /** True while the extension holds a change of its own (a pending child row). */
   dirty?: () => boolean;
   /** Merged into the body of a create or update. */
@@ -120,12 +120,12 @@ export function useUiCrudRegisterImpl<T>(
       lookupsRef.current?.(),
       mode === 'INSERT' ? undefined : service.get(id as string),
       loadSelectOptions(config.fields, lookupRef.current),
+      extensionRef.current?.restore?.(),
     ])
       .then(([, record, options]) => {
         if (!active) return;
         setSelectOptions(options);
         if (record) {
-          extensionRef.current?.load?.(record, mode);
           // The joined display of each lookup comes with the record (R-CRUD-19); it is not a form value.
           setLookupDisplay(Object.fromEntries(config.fields.flatMap((f) => (f.kind === 'lookup' ? [[f.name, String((record as Record<string, unknown>)[f.display] ?? '')]] : []))));
           baseline.current = fromRecord(config.fields, record, mode);

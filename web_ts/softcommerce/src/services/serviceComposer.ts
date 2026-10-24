@@ -1,6 +1,8 @@
 import { createAuthServiceHttp } from './AuthServiceHttp';
 import type { InterAuthService } from './InterAuthService';
 import { createCatalogServiceHttp } from './CatalogServiceHttp';
+import { createChildServiceHttp } from './ChildServiceHttp';
+import type { InterChildService } from './InterChildService';
 import type { InterCatalogService } from './InterCatalogService';
 import type { InterLookupService } from './InterLookupService';
 import type { InterShellService } from './InterShellService';
@@ -80,6 +82,8 @@ export interface AppServices {
   lookup: InterLookupService;
   /** A service for one catalog (`/v1/{catalog}`); cheap to build, nothing loads until a call. */
   catalog<T>(catalog: string): InterCatalogService<T>;
+  /** The nested child routes of one catalog (`/v1/{catalog}/{id}/{child}`, R-MOCK-19). */
+  children(catalog: string): InterChildService;
 }
 
 /** Validates the env and builds every service. Throws a configuration error at startup. */
@@ -110,6 +114,11 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestCo
       composeService<InterCatalogService<T>>(config, {
         createHttp: (baseUrl) => createCatalogServiceHttp<T>(client(baseUrl), name),
         loadMock: async (scenario) => (await loadMock(scenario)).catalog<T>(name),
+      }),
+    children: (name: string) =>
+      composeService<InterChildService>(config, {
+        createHttp: (baseUrl) => createChildServiceHttp(client(baseUrl), name),
+        loadMock: async (scenario) => (await loadMock(scenario)).children(name),
       }),
   };
 }

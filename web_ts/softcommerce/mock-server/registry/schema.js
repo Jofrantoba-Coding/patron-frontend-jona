@@ -489,6 +489,16 @@ const REMOVALS = ['deactivate', 'delete', 'none'];
 const QUITAR_KEYS = ['none', 'confirm', 'already'];
 
 /**
+ * The first row the server creates for every new parent of a child (the `INICIO` activation, R-MD-9): stored field values.
+ * @param {string} at @param {any} initial @param {Set<string>} fieldNames
+ */
+function assertInitial(at, initial, fieldNames) {
+  if (initial === undefined) return;
+  if (typeof initial !== 'object' || initial === null || Array.isArray(initial)) fail(at, 'initial must be an object');
+  for (const name of Object.keys(initial)) if (!fieldNames.has(name)) fail(at, `initial names unknown field "${name}"`);
+}
+
+/**
  * The grid messages of a child `Quitar` (R-MD-4): `none` (no selected row), `confirm` (the question; absent when the desktop did not ask) and
  * `already` (a deactivated row pressed again). @param {string} at @param {any} quitar
  */
@@ -554,6 +564,7 @@ function expandChildren(parent, slugs, sources, rawBySlug, resolved) {
     }
     if (def.store !== undefined) return storeChild(parent, def, at, removal, entry, resolved);
     const fieldNames = new Set((def.fields ?? []).map((/** @type {any} */ f) => f.name));
+    assertInitial(at, def.initial, fieldNames);
     for (const ref of def.refs ?? []) if (!fieldNames.has(ref.field)) fail(`entry "${parent.slug}/${def.name}"`, `refs names unknown field "${ref.field}"`);
     const { name, refs: _refs, ...rest } = def;
     return resolveEntry({

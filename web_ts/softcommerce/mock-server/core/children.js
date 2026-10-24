@@ -65,6 +65,12 @@ export function cascadeDelete(store, tenantId, parent, row) {
   }
 }
 
+/** The write that stores one new child row under the parent id it is given. @param {any} child @param {any[]} rows @param {Record<string, any>} record @param {Record<string, any>} stamps */
+const insertion = (child, rows, record, stamps) => (/** @type {string} */ id) => {
+  const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[child.idKey]) || 0), 0) + 1;
+  rows.push({ [child.idKey]: String(next).padStart(child.codeWidth, '0'), ...record, ...child.constants, ...derivedValues(child, record), ...stamps, [child.parentKey]: id, [ACTIVE_KEY]: true });
+};
+
 /** Re-roots a child failure on `<child>[<n>].<field>`, `n` being the index in the SENT array (S-MOCK-57). @param {unknown} error @param {string} name @param {number} n */
 function indexed(error, name, n) {
   if (!(error instanceof MockError) || error.details.length === 0) return error;
@@ -75,22 +81,25 @@ function indexed(error, name, n) {
  * Validates a composite body and returns the write to run once the parent is stored, or null when the body carries no children. Order (D6):
  * a child whose company-parameter gate is off is ignored (R-REG-17); child by child in declared order, op by op in sent order; the first failure stops (fail-first, W2 D10); then the named rules; nothing is written here.
  * @param {any} store @param {string} tenantId @param {any} parent @param {unknown} body
- * @param {{ ctx?: import('./context.js').RequestContext, parentId?: string }} [options] `parentId` is the stored parent on update.
+ * @param {{ ctx?: import('./context.js').RequestContext, parentId?: string, creating?: boolean }} [options] `parentId` is the stored parent on update; `creating`
+ * adds the `initial` row of each child the body does not insert into (CLONE sends no child ops, R-MD-9).
  * @returns {{ apply: (parentId: string) => void } | null}
  */
-export function planChildren(store, tenantId, parent, body, { ctx, parentId } = {}) {
-  if (body === undefined || body === null || parent.children === undefined) return null;
-  if (typeof body !== 'object' || Array.isArray(body)) throw validationError([{ field: 'children', code: 'INVALID', message: 'children must be an object' }]);
+export function planChildren(store, tenantId, parent, body, { ctx, parentId, creating = false } = {}) {
+  if ((body === undefined || body === null) && !creating) return null;
+  if (parent.children === undefined) return null;
+  if (body !== undefined && body !== null && (typeof body !== 'object' || Array.isArray(body))) throw validationError([{ field: 'children', code: 'INVALID', message: 'children must be an object' }]);
   const params = store.data(tenantId).params;
-  const names = Object.keys(body);
+  const sent = body ?? {};
+  const names = Object.keys(sent);
   const unknown = names.find((name) => !store.registry.bySlug.has(`${parent.slug}/${name}`));
   if (unknown) throw validationError([{ field: `children.${unknown}`, code: 'UNKNOWN_CHILD', message: `Unknown child ${unknown}` }]);
   /** @type {((id: string) => void)[]} */
   const writes = [];
   /** @type {Record<string, any[]>} */
   const planned = {};
-  for (const child of store.registry.childEntries.filter((/** @type {any} */ c) => c.parent === parent.slug && names.includes(c.childName) && gateOpen(c.gate, params))) {
-    const ops = /** @type {any} */ (body)[child.childName];
+  for (const child of store.registry.childEntries.filter((/** @type {any} */ c) => c.parent === parent.slug && (names.includes(c.childName) || (creating && c.initial !== undefined)) && gateOpen(c.gate, params))) {
+    const ops = /** @type {any} */ (sent)[child.childName] ?? [];
     if (!Array.isArray(ops)) throw validationError([{ field: child.childName, code: 'INVALID', message: `${child.childName} must be a list of operations` }]);
     const rows = rowsOf(store, tenantId, child);
     const own = (/** @type {any} */ r) => parentId !== undefined && String(r[child.parentKey]) === parentId && r[ACTIVE_KEY] !== false;
@@ -124,11 +133,12 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId } = 
         return;
       }
       view.push({ ...record, ...child.constants, [child.idKey]: `~${n}` });
-      writes.push((id) => {
-        const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[child.idKey]) || 0), 0) + 1;
-        rows.push({ [child.idKey]: String(next).padStart(child.codeWidth, '0'), ...record, ...child.constants, ...derivedValues(child, record), ...stamps, [child.parentKey]: id, [ACTIVE_KEY]: true });
-      });
+      writes.push(insertion(child, rows, record, stamps));
     });
+    // The server owns the first row of a child that declares one (the INICIO activation), whether or not the client sent it.
+    if (creating && child.initial !== undefined && !ops.some((/** @type {any} */ op) => op?.op === 'I')) {
+      writes.push(insertion(child, rows, withRuleDerived(child, blankHidden(child, withDefaults(child, { ...child.initial }, params))), stampsOf(store, tenantId, child, ctx)));
+    }
   }
   for (const hook of Object.values(CHILD_RULE_HOOKS)) hook(store, tenantId, parent, planned);
   return { apply: (id) => writes.forEach((write) => write(id)) };
