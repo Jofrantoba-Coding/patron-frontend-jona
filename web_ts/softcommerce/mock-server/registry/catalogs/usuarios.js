@@ -55,4 +55,21 @@ export const usuarios = {
     { target: 'nombre', fromRef: { field: 'id_trabajador', key: 'nombre' } },
   ],
   constants: { modificar: 'N', eliminar: 'N', insertar: 'N' },
+  // Autorizar Series (`controlNullify` of PanelTFUsuario, R-PRM-6, D14): the toolbar button opens the series panel of the selected usuario. The desktop button
+  // is the `Anular` slot; the web names it and gates it with `modify` (the grant has `nullify` off). Pressed with no selection it answers `Seleccione un registro de la tabla`.
+  actions: [{ id: 'autorizar-series', label: 'Autorizar Series', kind: 'deferred', rule: 'autorizarSeries', placement: 'list-toolbar', flag: 'modify' }],
+  // The series of a usuario are the W2 usuario-correlativos rows (R-PRM-7). `tab: false`: a child resource reached only from the Autorizar Series panel, never a register tab (R-MD-10).
+  children: {
+    series: {
+      tab: false, entry: 'none', store: { entry: 'usuario-correlativos', key: 'id_usuario' },
+      columns: [
+        { key: 'habilitar', header: 'ESTADO' }, { key: 'id_correlativo', header: 'ID CORRELATIVO' }, { key: 'punto_venta', header: 'PUNTO DE VENTA' },
+        { key: 'tipo_documento', header: 'TIPO DE DOCUMENTO' }, { key: 'serie', header: 'SERIE' }, { key: 'fecha_inicio', header: 'FECHA INICIO' }, { key: 'fecha_fin', header: 'FECHA FIN' },
+      ],
+      actions: [
+        { id: 'activate', label: 'Activar', kind: 'immediate', server: 'activarSerie' },
+        { id: 'deactivate', label: 'Desactivar', kind: 'immediate', server: 'desactivarSerie' },
+      ],
+    },
+  },
 };
