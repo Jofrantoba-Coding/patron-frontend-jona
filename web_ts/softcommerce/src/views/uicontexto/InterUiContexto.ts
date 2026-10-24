@@ -12,7 +12,7 @@ export interface InterUiContexto {
   puntoVentaOptions: SelectOption[];
   empresaId: string;
   puntoVentaId: string;
-  /** ISO `yyyy-MM-dd`. */
+  /** The text typed, masked `dd/MM/yyyy`; the session keeps the period as ISO `yyyy-MM-dd`. */
   fechaInicio: string;
   fechaFin: string;
   empresaError?: string;
@@ -36,3 +36,6 @@ export const UICONTEXTO_DEFAULTS: Required<Pick<InterUiContexto, 'title' | 'subm
   title: 'Contexto de trabajo',
   submitLabel: 'Confirmar',
 };
+
+/** Id of the period error text; both date inputs point at it (`aria-describedby`). */
+export const PERIOD_ERROR_ID = 'contexto-periodo-error';

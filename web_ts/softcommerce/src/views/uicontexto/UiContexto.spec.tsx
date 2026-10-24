@@ -52,10 +52,14 @@ const selectPunto = async (user: User, id: string) => {
   await screen.findByRole('option', { name: puntos.find((p) => p.id === id)!.name });
   await user.selectOptions(screen.getByLabelText('Punto de venta'), id);
 };
+const inicioInput = () => screen.getByLabelText('Fecha inicio') as HTMLInputElement;
+const finInput = () => screen.getByLabelText('Fecha fin') as HTMLInputElement;
+/** Digits as the user types them, day first: the field masks them as dd/MM/yyyy. */
 const typeDates = async (user: User, inicio: string, fin: string) => {
-  if (inicio) await user.type(screen.getByPlaceholderText('Fecha inicio'), inicio);
-  if (fin) await user.type(screen.getByPlaceholderText('Fecha fin'), fin);
+  if (inicio) await user.type(inicioInput(), inicio);
+  if (fin) await user.type(finInput(), fin);
 };
+const INVALID_DATE_MESSAGE = 'Ingrese fechas válidas (dd/mm/aaaa).';
 const confirm = (user: User) => user.click(screen.getByRole('button', { name: 'Confirmar' }));
 
 async function fillAll(user: User, inicio: string, fin: string) {
@@ -97,12 +101,49 @@ describe('UiContexto step 2', () => {
     expect(service.params).not.toHaveBeenCalled();
   });
 
+  it('each period date has a visible label and the dd/MM/yyyy mask users type into', async () => {
+    const { user } = await renderContexto(fakeService());
+    await user.type(inicioInput(), '01102026');
+
+    expect(inicioInput().value).toBe('01/10/2026');
+    expect(inicioInput().placeholder).toBe('dd/MM/yyyy');
+    expect(finInput().placeholder).toBe('dd/MM/yyyy');
+    expect(screen.getByText('Fecha inicio').tagName).toBe('SPAN');
+    expect(screen.getByText('Fecha fin').tagName).toBe('SPAN');
+  });
+
+  it('S-AUTH-11 missing dates are reported at once, with the selections, on the date fields', async () => {
+    const service = fakeService();
+    const { user } = await renderContexto(service);
+    await confirm(user);
+
+    const error = screen.getByText(INVALID_DATE_MESSAGE);
+    expect(error.getAttribute('role')).toBe('alert');
+    expect(error.id).toBeTruthy();
+    for (const field of [inicioInput(), finInput()]) {
+      expect(field.getAttribute('aria-invalid')).toBe('true');
+      expect(field.getAttribute('aria-describedby')).toBe(error.id);
+    }
+    expect(screen.getByText('Seleccione una empresa.')).toBeTruthy();
+    expect(service.params).not.toHaveBeenCalled();
+  });
+
+  it('editing a date clears the period error', async () => {
+    const { user } = await renderContexto(fakeService());
+    await confirm(user);
+    await user.type(inicioInput(), '0');
+
+    expect(screen.queryByText(INVALID_DATE_MESSAGE)).toBeNull();
+    expect(inicioInput().getAttribute('aria-invalid')).toBeNull();
+  });
+
   it.each([
-    ['S-AUTH-11 impossible date', '20260231', '20260301', 'Ingrese fechas válidas (aaaa-mm-dd).'],
-    ['S-AUTH-11 empty date', '', '20260301', 'Ingrese fechas válidas (aaaa-mm-dd).'],
-    ['S-AUTH-12 before start of activity', '20191231', '20191231', 'La fecha de inicio es anterior al inicio de actividades de la empresa.'],
-    ['S-AUTH-13 end before start', '20260601', '20260531', 'La fecha fin no puede ser anterior a la fecha de inicio.'],
-    ['S-AUTH-14 different accounting year', '20251201', '20260131', 'El período debe estar dentro del mismo año contable.'],
+    ['S-AUTH-11 impossible date', '31022026', '01032026', INVALID_DATE_MESSAGE],
+    ['S-AUTH-11 empty date', '', '01032026', INVALID_DATE_MESSAGE],
+    ['S-AUTH-11 incomplete date', '0103', '01032026', INVALID_DATE_MESSAGE],
+    ['S-AUTH-12 before start of activity', '31122019', '31122019', 'La fecha de inicio es anterior al inicio de actividades de la empresa.'],
+    ['S-AUTH-13 end before start', '01062026', '31052026', 'La fecha fin no puede ser anterior a la fecha de inicio.'],
+    ['S-AUTH-14 different accounting year', '01122025', '31012026', 'El período debe estar dentro del mismo año contable.'],
   ])('%s shows its error and creates no session', async (_name, inicio, fin, message) => {
     const { user, store } = await renderContexto(fakeService());
     await fillAll(user, inicio, fin);
@@ -115,7 +156,7 @@ describe('UiContexto step 2', () => {
 
   it('S-AUTH-15 accepts inicio equal to INICIO_ACTIVIDADES with fin the same day', async () => {
     const { user, store } = await renderContexto(fakeService());
-    await fillAll(user, '20200101', '20200101');
+    await fillAll(user, '01012020', '01012020');
     await confirm(user);
 
     expect(await screen.findByText('shell')).toBeTruthy();
@@ -124,7 +165,7 @@ describe('UiContexto step 2', () => {
 
   it('S-AUTH-16 creates the full session and navigates to the shell', async () => {
     const { user, store } = await renderContexto(fakeService());
-    await fillAll(user, '20260101', '20261231');
+    await fillAll(user, '01012026', '31122026');
     await confirm(user);
 
     expect(await screen.findByText('shell')).toBeTruthy();
@@ -146,7 +187,7 @@ describe('UiContexto step 2', () => {
   it('shows the server message and traceId when params fail, without a session', async () => {
     const failing = new ApiError(500, { code: 'INTERNAL_ERROR', message: 'Parametros no disponibles', details: [], traceId: 'trace-p' });
     const { user, store } = await renderContexto(fakeService({ params: vi.fn().mockRejectedValue(failing) }));
-    await fillAll(user, '20260101', '20261231');
+    await fillAll(user, '01012026', '31122026');
     await confirm(user);
 
     expect(await screen.findByText('Parametros no disponibles')).toBeTruthy();
@@ -170,7 +211,7 @@ describe('UiContexto step 2', () => {
       </SessionProvider>,
     );
     const user = userEvent.setup();
-    await fillAll(user, '20260101', '20261231');
+    await fillAll(user, '01012026', '31122026');
     await confirm(user);
 
     expect(await screen.findByText('shell')).toBeTruthy();

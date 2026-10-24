@@ -1,6 +1,7 @@
 // Layer: Implementation. State, period rules, service calls, session creation and navigation of login step 2.
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { displayToIso } from '../../../mock-server/core/dates.js';
 import { validatePeriod, type PeriodError } from '../../domain/period';
 import type { Empresa, InterAuthService, PuntoVenta } from '../../services/InterAuthService';
 import type { InterGrantsService } from '../../services/InterGrantsService';
@@ -9,7 +10,7 @@ import { toFailure } from '../../shared/toFailure';
 import type { InterUiContexto } from './InterUiContexto';
 
 const PERIOD_MESSAGES: Record<PeriodError, string> = {
-  INVALID_DATE: 'Ingrese fechas válidas (aaaa-mm-dd).',
+  INVALID_DATE: 'Ingrese fechas válidas (dd/mm/aaaa).',
   BEFORE_ACTIVITY_START: 'La fecha de inicio es anterior al inicio de actividades de la empresa.',
   END_BEFORE_START: 'La fecha fin no puede ser anterior a la fecha de inicio.',
   DIFFERENT_YEAR: 'El período debe estar dentro del mismo año contable.',
@@ -79,24 +80,35 @@ export function useUiContextoImpl(service: InterAuthService, grantsService?: Int
     setErrors((current) => ({ ...current, puntoVentaError: undefined }));
   }
 
+  // Typing a date again withdraws the period error, as choosing an option withdraws its selection error.
+  const changeDate = (setDate: (value: string) => void) => (value: string) => {
+    setDate(value);
+    setErrors((current) => ({ ...current, periodError: undefined }));
+  };
+
   function onSubmit(): void {
     if (isSubmitting || !pending) return;
     const empresa = empresas.find((e) => e.id === empresaId);
     const puntoVenta = puntosVenta.find((p) => p.id === puntoVentaId);
-    const selectionErrors = {
+    // The screen shows dd/MM/yyyy; the rules and the session work on ISO. Blank, incomplete or impossible dates need
+    // no params, so they are reported at once together with the selections (S-AUTH-11).
+    const inicio = displayToIso(fechaInicio);
+    const fin = displayToIso(fechaFin);
+    const fieldErrors = {
       empresaError: empresa ? undefined : 'Seleccione una empresa.',
       puntoVentaError: puntoVenta ? undefined : 'Seleccione un punto de venta.',
+      periodError: inicio && fin ? undefined : PERIOD_MESSAGES.INVALID_DATE,
     };
-    setErrors(selectionErrors);
+    setErrors(fieldErrors);
     setFailure(undefined);
-    if (!empresa || !puntoVenta) return;
+    if (!empresa || !puntoVenta || !inicio || !fin) return;
 
     setIsSubmitting(true);
     service
       .params()
       .then(async (params) => {
-        const periodError = validatePeriod({ fechaInicio, fechaFin, inicioActividades: params.INICIO_ACTIVIDADES });
-        setErrors({ ...selectionErrors, periodError: periodError ? PERIOD_MESSAGES[periodError] : undefined });
+        const periodError = validatePeriod({ fechaInicio: inicio, fechaFin: fin, inicioActividades: params.INICIO_ACTIVIDADES });
+        setErrors({ ...fieldErrors, periodError: periodError ? PERIOD_MESSAGES[periodError] : undefined });
         if (periodError) return setIsSubmitting(false);
         // The menu and the flags of the user's perfil are taken once, here (R-AUTH-11).
         const grants = await grantsService?.snapshot();
@@ -106,7 +118,7 @@ export function useUiContextoImpl(service: InterAuthService, grantsService?: Int
           user: pending.result.user,
           empresa,
           puntoVenta,
-          periodo: { fechaInicio, fechaFin },
+          periodo: { fechaInicio: inicio, fechaFin: fin },
           params,
           ...(grants ? { grants } : {}),
         });
@@ -131,8 +143,8 @@ export function useUiContextoImpl(service: InterAuthService, grantsService?: Int
     isSubmitting,
     onEmpresaChange,
     onPuntoVentaChange,
-    onFechaInicioChange: setFechaInicio,
-    onFechaFinChange: setFechaFin,
+    onFechaInicioChange: changeDate(setFechaInicio),
+    onFechaFinChange: changeDate(setFechaFin),
     onSubmit,
   };
 }
