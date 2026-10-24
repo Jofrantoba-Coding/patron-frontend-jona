@@ -62,6 +62,17 @@ export function gateOpen(gate, params) {
 }
 
 /**
+ * A field as it is for the company parameters (R-MST-11): with `byParam: { param, in?, set }` and the parameter open (the same test as a gate) the overrides in `set`
+ * (`required`, `filter`) replace the declared ones; otherwise the field itself. Pure: the server reads the tenant params, the UI the session params.
+ * @template {object} F
+ * @param {F & { byParam?: { param: string, in?: unknown[], set: Record<string, unknown> } }} field @param {Record<string, unknown> | undefined} params @returns {F}
+ */
+export function effectiveField(field, params) {
+  const by = field.byParam;
+  return by !== undefined && gateOpen(by, params) ? { ...field, ...by.set } : field;
+}
+
+/**
  * Whether the `enabledWhen` of a row action holds (R-ACT-2): `{ modes, selection, row, noRow }`, all optional. `modes` lists the register modes it works
  * in, `selection` needs a selected row, `row` is a condition the selected row must meet and `noRow` one that NO row of the grid may meet. Pure.
  * @param {{ modes?: string[], selection?: boolean, row?: Cond, noRow?: Cond } | undefined} when

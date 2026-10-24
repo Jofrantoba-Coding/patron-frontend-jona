@@ -12,7 +12,7 @@ import { referenceCatalog } from './reference.js';
  * owns it); the desktop disables its checkbox, the web port shows it read-only. [DEVIATION] the desktop selects the first tipo de cliente when it loads the combo
  * (`setSelectedIndex(1)`), the web register opens on `--- Seleccione ---` so the sentence stays reachable (R-MST-10). The condición de pago is gated by `IS_CLIENTE_CONDICION_PAGO`
  * (R-REG-17). The padron flags, the sustitutos, the credit tabs and
- * the padrones come with W3-17; the direcciones, contactos and cuentas with W3-16b.
+ * the padrones come with W3-17. The grids Direcciones, Contactos and Cuentas are W3-16b (`RegisterClienteNuevo` `quitarDireccion`, `quitarContacto`, `quitarCuenta`).
  */
 const anexo = presets.anexo({ entity: 'Cliente', tipoAnexo: TIPO_ANEXO.cliente });
 const identity = anexoIdentity('un Cliente');
@@ -48,6 +48,59 @@ const derive = [
 const fields = identity.fields.flatMap((f) => (f.name === 'id_nacionalidad' ? [tipoCliente, f] : [f]));
 const validation = identity.validation.flatMap((step) => (step === 'id_nacionalidad' ? ['id_clasif_cliente', step] : [step]));
 
+// R-MST-11 the Direcciones child (`FormClienteDireccion`). `loadUbigeo(..., !IS_DIRECCION_CLIENTE)` lists every ubigeo while the parameter is true and only the ubigeos with an active
+// zona while it is false, and `validarData` asks for the zona only in that case: both are `byParam` overrides on the cascade leaf (UI) and the zona (UI and server). The sentences are
+// the bare ones of the dialog (`Debes Seleccionar un Distrito.`; [DEVIATION] the desktop distrito sentence says `un Almacen`); the departamento and provincia are client-only levels.
+const SIN_ZONA = { param: 'IS_DIRECCION_CLIENTE', in: [false] };
+const direcciones = {
+  tab: 'Direcciones', removal: 'deactivate', entry: 'dialog', messages: { style: 'dialog' },
+  quitar: { none: 'Para quitar una direccion primero debe seleccionar la fila.', confirm: 'Desea Quitar Direccion?', already: 'Direccion ya Esta desactivada' },
+  fields: [
+    { name: 'id_ubigeo', kind: 'select', label: 'Distrito', required: true, article: 'un', source: { catalog: 'ubigeo' }, byParam: { ...SIN_ZONA, set: { filter: { has: 'zonas' } } } },
+    { name: 'id_zona', kind: 'select', label: 'Zona', article: 'una', source: { catalog: 'zonas' }, dependsOn: [{ field: 'id_ubigeo', filterKey: 'id_ubigeo' }], byParam: { ...SIN_ZONA, set: { required: true } } },
+    // `UpperCaseDocument()` has no limit; the 280 of the Cliente direccion is [INFERRED].
+    { name: 'direccion', kind: 'text', label: 'Direccion', required: true, max: 280, normalize: ['upper'], message: 'Debes Ingresar Direccion.' },
+  ],
+  validation: ['id_ubigeo', 'id_zona', 'direccion'],
+  joins: [{ as: 'distrito', ref: 'id_ubigeo', display: 'name' }, { as: 'zona', ref: 'id_zona', display: 'descripcion' }],
+  columns: [{ key: 'distrito', header: 'UBIGEO' }, { key: 'zona', header: 'ZONA' }, { key: 'direccion', header: 'DIRECCION' }],
+};
+
+// R-MST-11 the Contactos child (`FormClienteContacto`): the three names are required in that order; the correo has no document (the 100 is [INFERRED]), the phones are `IntegerDocument(15)`.
+/** @param {string} name @param {string} label @param {string} message */
+const required = (name, label, message) => ({ name, kind: 'text', label, required: true, max: 50, normalize: ['upper'], message });
+const contactos = {
+  tab: 'Contactos', removal: 'deactivate', entry: 'dialog',
+  quitar: { none: 'Seleccione Fila.', confirm: 'Desea Quitar Contacto?', already: 'Contacto ya esta Desactivado' },
+  fields: [
+    required('paterno', 'Paterno', 'Ingrese Apellido Paterno'), required('materno', 'Materno', 'Ingrese Apellido Materno'), required('nombre', 'Nombres', 'Ingrese Nombres'),
+    { name: 'correo', kind: 'text', label: 'Correo', max: 100 },
+    { name: 'telef', kind: 'text', label: 'Telef', max: 15, normalize: ['digits'] }, { name: 'celular', kind: 'text', label: 'Celular', max: 15, normalize: ['digits'] },
+  ],
+  validation: ['paterno', 'materno', 'nombre', 'correo', 'telef', 'celular'],
+  columns: [
+    { key: 'paterno', header: 'PATERNO' }, { key: 'materno', header: 'MATERNO' }, { key: 'nombre', header: 'NOMBRES' }, { key: 'correo', header: 'CORREO' }, { key: 'telef', header: 'TELEF' }, { key: 'celular', header: 'CELULAR' },
+  ],
+};
+
+// R-MST-11 the Cuentas child (`FormClienteCuenta`): a BANK account over the detalles of tabla SUNAT 3 (`listarDetalleSunat(3)`, [INFERRED] as the bank table), not a cuenta contable. The
+// Nombre is the banco name, read-only, unless the banco is the detalle 58 (OTROS, [INFERRED]), where it starts empty and is typed (`Ingrese Nombre de Banco`); the server stores the name the client sends.
+const OTROS = '58';
+const cuentas = {
+  tab: 'Cuentas', removal: 'deactivate', entry: 'dialog',
+  quitar: { none: 'Seleccione Fila.', confirm: 'Desea Quitar Cuenta?', already: 'Cuenta ya esta Desactivada' },
+  fields: [
+    {
+      name: 'id_cuenta', kind: 'select', label: 'Banco', required: true, message: 'Seleccione Banco', source: { catalog: 'tablas-detalle-sunat', where: { id_tabla_sunat: '3' } },
+      fillLabel: { target: 'descripcion', unless: [OTROS] },
+    },
+    { name: 'descripcion', kind: 'text', label: 'Nombre', required: true, max: 100, normalize: ['upper'], message: 'Ingrese Nombre de Banco', enabledWhen: { field: 'id_cuenta', in: [OTROS] } },
+    { name: 'num_cuenta', kind: 'text', label: 'Cuenta', required: true, max: 30, message: 'Ingrese Numero de Cuenta' },
+  ],
+  validation: ['id_cuenta', 'descripcion', 'num_cuenta'],
+  columns: [{ key: 'descripcion', header: 'DESC_CUENTA' }, { key: 'num_cuenta', header: 'NUM_CUENTA' }],
+};
+
 export const clientes = referenceCatalog({
   slug: 'clientes', idKey: 'id_cliente', codeWidth: anexo.codeWidth, entity: 'un Cliente', formId: 'miCliente', title: 'Cliente', descripcion: false,
   fields: [...fields, { name: 'estado', preset: 'estado', label: 'Estado', readOnlyOn: ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'] }, ...condicion],
@@ -65,6 +118,6 @@ export const clientes = referenceCatalog({
   validation: [...validation, 'condicion_pago', 'numero_dias'],
   derive,
   constants: anexo.constants,
-  children: anexo.children,
+  children: { ...anexo.children, direcciones, contactos, cuentas },
   actions: anexo.actions,
 });

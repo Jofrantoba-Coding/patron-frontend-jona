@@ -26,6 +26,18 @@
       "activo": true,
       "activaciones": [
         { "id": "1", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ],
+      "direcciones": [
+        { "id": "1", "estado": "A", "id_ubigeo": "150101", "id_zona": "1", "direccion": "AV. AREQUIPA 2450" },
+        { "id": "2", "estado": "D", "id_ubigeo": "150103", "id_zona": "2", "direccion": "AV. NICOLAS AYLLON 100" },
+        { "id": "3", "estado": "A", "id_ubigeo": "150101", "id_zona": "1", "direccion": "JR. BORRADA 1", "activo": false }
+      ],
+      "contactos": [
+        { "id": "1", "estado": "A", "paterno": "SOTO", "materno": "VEGA", "nombre": "MARIA", "correo": "msoto@losandes.pe", "telef": "4410001", "celular": "987000111" }
+      ],
+      "cuentas": [
+        { "id": "1", "estado": "A", "id_cuenta": "56", "descripcion": "BANCO DE CREDITO DEL PERU", "num_cuenta": "19123456789012" },
+        { "id": "2", "estado": "A", "id_cuenta": "58", "descripcion": "CAJA RURAL SUR", "num_cuenta": "0011223344" }
       ]
     },
     {
@@ -54,6 +66,9 @@
       "activo": true,
       "activaciones": [
         { "id": "2", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ],
+      "contactos": [
+        { "id": "2", "estado": "A", "paterno": "RAMOS", "materno": "DIAZ", "nombre": "ELENA", "correo": "", "telef": "", "celular": "987654321" }
       ]
     },
     {

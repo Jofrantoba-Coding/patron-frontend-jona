@@ -191,6 +191,13 @@ export function useUiCrudRegisterImpl<T>(
       const known = new Set(fieldNames(config.fields));
       next = { ...next, ...Object.fromEntries(Object.entries(ruleDerived(config.entry, next)).filter(([key]) => known.has(key))) };
     }
+    // A select that names a field to fill (`fillLabel`, R-MST-11) copies the name of the chosen option there; the ids in `unless` leave it empty to be typed.
+    const own = config.fields.find((f) => f.name === name);
+    if (own?.kind === 'select' && own.fillLabel) {
+      const { target, unless = [] } = own.fillLabel;
+      next = { ...next, [target]: unless.includes(value) ? '' : (selectOptions[name]?.find((option) => option.id === value)?.name ?? '') };
+      cleared.push(target);
+    }
     valuesRef.current = next;
     setValues(next);
     setRuleAlert(alert);

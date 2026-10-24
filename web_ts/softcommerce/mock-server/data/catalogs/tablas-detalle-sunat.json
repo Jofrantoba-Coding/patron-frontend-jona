@@ -13,5 +13,9 @@
   { "id_detalle_sunat": "12", "id_tabla_sunat": "12", "numero": "05", "descripcion": "DEVOLUCION RECIBIDA", "activo": true },
   { "id_detalle_sunat": "13", "id_tabla_sunat": "12", "numero": "06", "descripcion": "DEVOLUCION ENTREGADA", "activo": true },
   { "id_detalle_sunat": "14", "id_tabla_sunat": "12", "numero": "99", "descripcion": "OTROS", "activo": true },
-  { "id_detalle_sunat": "15", "id_tabla_sunat": "6", "numero": "ZZZ", "descripcion": "UNIDAD RETIRADA", "activo": false }
+  { "id_detalle_sunat": "15", "id_tabla_sunat": "6", "numero": "ZZZ", "descripcion": "UNIDAD RETIRADA", "activo": false },
+  { "id_detalle_sunat": "56", "id_tabla_sunat": "3", "numero": "002", "descripcion": "BANCO DE CREDITO DEL PERU", "activo": true },
+  { "id_detalle_sunat": "57", "id_tabla_sunat": "3", "numero": "003", "descripcion": "INTERBANK", "activo": true },
+  { "id_detalle_sunat": "58", "id_tabla_sunat": "3", "numero": "999", "descripcion": "OTROS", "activo": true },
+  { "id_detalle_sunat": "59", "id_tabla_sunat": "3", "numero": "004", "descripcion": "BANCO RETIRADO", "activo": false }
 ]

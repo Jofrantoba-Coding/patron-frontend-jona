@@ -7,7 +7,7 @@ import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
 import { ownedFields, ruleDetail } from './entryRules.js';
 import { BACKINGS } from '../registry/backings.js';
 import { confirmationOf } from './password.js';
-import { fieldState, gateOpen, maxLengthOf, minLengthOf } from './predicates.js';
+import { effectiveField, fieldState, gateOpen, maxLengthOf, minLengthOf } from './predicates.js';
 import { findConflict, isActive, isActiveSibling, same } from './unique.js';
 
 /** Logical-delete flag shared by every registry catalog (R-MOCK-7). */
@@ -254,7 +254,7 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
     if (typeof step === 'string' && fields.get(name).transient) return null;
     // A field whose company-parameter gate is off is neither required nor validated (R-REG-17).
     if (!gateOpen(fields.get(name).gate, params)) return null;
-    let detail = typeof step === 'string' ? fieldDetail(entry, fields.get(name), record, mode, ranged.has(name)) : null;
+    let detail = typeof step === 'string' ? fieldDetail(entry, effectiveField(fields.get(name), params), record, mode, ranged.has(name)) : null;
     if (!detail && !failed.has(name) && (typeof step === 'object' ? 'ref' in step : inlineRefs && ['select', 'lookup'].includes(fields.get(name).kind))) {
       detail = refDetail(store, tenantId, entry.refs.find((/** @type {any} */ r) => r.field === name), record, ctx);
     }

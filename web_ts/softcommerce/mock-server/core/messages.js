@@ -1,7 +1,7 @@
 /**
  * Validation messages, shared by the server validators and (from W2-2) the UI, so
  * both emit identical text (R-REF-3, R-CRUD-6, D12). Styles: `M1`, `M2`, `MS`,
- * `label`, and `w1` (the W1 English text, kept for Localidad).
+ * `label`, `dialog` (the bare sentences of a child dialog, R-MST-11) and `w1` (the W1 English text, kept for Localidad).
  */
 
 /** `{modo}` of each mode. */
@@ -24,6 +24,8 @@ function requiredText(/** @type {any} */ entry, /** @type {any} */ field, /** @t
   const { style } = entry.messages;
   const modo = MODO[mode];
   if (style === 'M2') return `Para ${modo}, debes especificar ${field.msgLabel ?? `su ${field.label}`}.`;
+  // The child dialogs of the desktop say it without the entity: `Debes Seleccionar un Distrito.`, `Debes Ingresar Direccion.`.
+  if (style === 'dialog') return field.kind === 'text' ? `Debes Ingresar ${field.label}.` : `Debes Seleccionar ${field.article ?? 'un'} ${field.label}.`;
   if (style === 'MS') return `Para ${modo} ${entry.entity}, debes Seleccionar ${field.article ?? 'un'} ${field.label}.`;
   // `label` takes the label phrase as written ("el Usuario"); M1 is "su {label}".
   const phrase = style === 'label' ? (field.msgLabel ?? field.label) : (field.msgLabel ?? `su ${field.label}`);

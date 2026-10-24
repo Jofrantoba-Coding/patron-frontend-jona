@@ -25,7 +25,7 @@ import { BUILTIN_SOURCES } from './sources.js';
 export const SCOPES = ['tenant', 'empresa', 'shared'];
 export const MODES = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
 const KINDS = ['code', 'text', 'textarea', 'password', 'number', 'boolean', 'date', 'select', 'options', 'lookup'];
-const STYLES = ['M1', 'M2', 'MS', 'label', 'w1'];
+const STYLES = ['M1', 'M2', 'MS', 'label', 'dialog', 'w1'];
 const STAMPS = ['id_usuario', 'id_empresa'];
 /** Closed set of named rules (D9): the hooks live in `core/entryRules.js`. */
 const ENTRY_RULES = ENTRY_RULE_NAMES;
@@ -217,6 +217,33 @@ function assertStored(where, entry, names, known) {
     known('derive', rule.when.field);
     if (!('then' in rule) || !('else' in rule) || rule.then === undefined || rule.else === undefined) fail(where, 'derive needs then and else');
   }
+}
+
+/**
+ * `fillLabel: { target, unless? }` (R-MST-11): choosing an option of this select copies its name into the field `target`, except for the option ids in `unless`, which leave it
+ * empty to be typed (the banco OTROS of a Cliente cuenta). Client side, like `fill`: the server stores what the body carries. @param {string} at @param {any} f @param {(where: string, name: string) => void} known
+ */
+function assertFillLabel(at, f, known) {
+  if (f.fillLabel === undefined) return;
+  if (f.kind !== 'select') fail(at, 'fillLabel needs a select field');
+  if (typeof f.fillLabel.target !== 'string') fail(at, 'fillLabel needs a target field');
+  if (f.fillLabel.target === f.name) fail(at, 'fillLabel cannot target its own field');
+  known(`field "${f.name}" fillLabel`, f.fillLabel.target);
+  const { unless } = f.fillLabel;
+  if (unless !== undefined && (!Array.isArray(unless) || unless.some((/** @type {unknown} */ id) => typeof id !== 'string'))) fail(at, 'fillLabel.unless must be a list of ids');
+}
+
+const BY_PARAM_KEYS = ['required', 'filter'];
+/**
+ * `byParam: { param, in?, set }` (R-MST-11): the field takes the overrides in `set` (only `required` and `filter`) while the company parameter holds a listed value;
+ * `param` and `in` follow the gate rules. @param {string} at @param {any} f
+ */
+function assertByParam(at, f) {
+  if (f.byParam === undefined) return;
+  assertGate(at, f.byParam);
+  const set = f.byParam.set;
+  if (typeof set !== 'object' || set === null || Array.isArray(set) || Object.keys(set).length === 0) fail(at, 'byParam needs a non-empty set');
+  for (const key of Object.keys(set)) if (!BY_PARAM_KEYS.includes(key)) fail(at, `byParam.set names unknown key "${key}"`);
 }
 
 /**
@@ -474,6 +501,8 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
     for (const rule of f.maxWhen ?? []) known(`field "${f.name}" maxWhen`, rule.when.field);
     for (const rule of f.minLenWhen ?? []) known(`field "${f.name}" minLenWhen`, rule.when.field);
     assertGate(at, f.gate);
+    assertByParam(at, f);
+    assertFillLabel(at, f, known);
     assertParamDefaults(at, f);
     if (f.blankToDefault && f.default === undefined) fail(at, 'blankToDefault needs a default');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
