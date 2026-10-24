@@ -456,6 +456,48 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
   return { ...entry, fields, refs, steps };
 }
 
+const REMOVALS = ['deactivate', 'delete', 'none'];
+const CHILD_ENTRIES = ['dialog', 'inline'];
+/** Route words and row keys a child name or field may not take (R-REG-14, R-REG-20). */
+const RESERVED_CHILD_NAMES = ['actions'];
+const RESERVED_CHILD_FIELDS = ['id', 'estado', 'op'];
+
+/** The children of an entry as an ordered `{ name, ...def }` list: a map (R-REG-14) or a list, which can repeat a name. @param {any} parent */
+const childList = (parent) =>
+  Array.isArray(parent.children) ? parent.children : Object.entries(parent.children ?? {}).map(([name, def]) => ({ ...(/** @type {any} */ (def)), name }));
+
+/**
+ * Expands the children of a resolved parent into internal entries (D5): slug `parent/name` (no single-segment route reaches it), the parent's scope,
+ * stamp, formId and flags, a `id` code, the parent key as link column and a constant `estado`. Each goes through `resolveEntry`, so unknown field names in
+ * `unique`, `joins`, `columns` and `validation` fail like in a top-level entry.
+ * @param {any} parent @param {Set<string>} slugs @param {Record<string, any>} sources @param {Map<string, any>} rawBySlug
+ */
+function expandChildren(parent, slugs, sources, rawBySlug) {
+  const seen = new Set();
+  return childList(parent).map((def) => {
+    const at = `entry "${parent.slug}" child "${def.name}"`;
+    if (seen.has(def.name)) fail(at, 'duplicate child name');
+    seen.add(def.name);
+    if (RESERVED_CHILD_NAMES.includes(def.name)) fail(at, 'reserved name');
+    if (parent.fields.some((/** @type {any} */ f) => f.name === def.name)) fail(at, 'collides with a field of the parent');
+    const removal = def.removal ?? 'delete';
+    if (!REMOVALS.includes(removal)) fail(at, `unknown removal "${removal}"`);
+    const entry = def.entry ?? 'dialog';
+    if (!CHILD_ENTRIES.includes(entry)) fail(at, `unknown entry "${entry}"`);
+    for (const f of def.fields ?? []) {
+      if ([...RESERVED_CHILD_FIELDS, parent.idKey].includes(f.name)) fail(`${at} field "${f.name}"`, 'reserved name');
+    }
+    const fieldNames = new Set((def.fields ?? []).map((/** @type {any} */ f) => f.name));
+    for (const ref of def.refs ?? []) if (!fieldNames.has(ref.field)) fail(`entry "${parent.slug}/${def.name}"`, `refs names unknown field "${ref.field}"`);
+    const { name, refs: _refs, ...rest } = def;
+    return resolveEntry({
+      entity: parent.entity, messages: parent.messages, ...rest, slug: `${parent.slug}/${name}`, section: `${parent.section}/${name}`, parent: parent.slug, childName: name,
+      parentKey: parent.idKey, idKey: 'id', codeWidth: 0, scope: parent.scope, seed: null, stamp: parent.stamp, formId: parent.formId, readOnly: parent.readOnly,
+      removal, entry, constants: { estado: 'A' }, fields: [{ name: 'id', kind: 'code', label: 'Codigo' }, ...(def.fields ?? [])], columns: def.columns ?? [],
+    }, slugs, sources, rawBySlug);
+  });
+}
+
 /**
  * Validates every entry at load and returns the registry. Fails fast with a
  * `RegistryError` naming the entry and field (R-REG-4).
@@ -490,5 +532,7 @@ export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {})
       }
     }
   }
-  return { entries, bySlug: /** @type {Map<string, any>} */ (new Map(entries.map((e) => [e.slug, e]))), sources };
+  // A child is reachable by `bySlug` under `parent/name` only; it is not a top-level entry (no menu, no form, no route of its own).
+  const childEntries = entries.flatMap((entry) => (entry.children === undefined ? [] : expandChildren(entry, slugs, sources, rawBySlug)));
+  return { entries, childEntries, bySlug: /** @type {Map<string, any>} */ (new Map([...entries, ...childEntries].map((e) => [e.slug, e]))), sources };
 }
