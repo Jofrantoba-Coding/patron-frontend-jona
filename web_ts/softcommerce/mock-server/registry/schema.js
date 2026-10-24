@@ -283,6 +283,21 @@ function assertPickerParts(at, f, target, targetNames, rawBySlug, sources) {
 }
 
 /**
+ * `fill: { targetField: sourceKey }` (R-REG-13): what a pick copies into the entry's own fields, each source key a field or joined display key of the
+ * source; `fillReadOnly` lists the targets the register then shows read-only. The UI does the copying; the server only stores the body.
+ * @param {string} at @param {any} f @param {Set<string>} names the entry's field names @param {any} target @param {Set<string>} targetNames
+ */
+function assertFill(at, f, names, target, targetNames) {
+  const fill = f.fill ?? {};
+  for (const [name, key] of Object.entries(fill)) {
+    if (name === f.name) fail(at, 'fill cannot name the lookup itself');
+    if (!names.has(name)) fail(at, `fill names unknown field "${name}"`);
+    if (!targetNames.has(/** @type {string} */ (key))) fail(at, `fill names unknown source key "${key}" of "${target.slug}"`);
+  }
+  for (const name of f.fillReadOnly ?? []) if (!Object.hasOwn(fill, name)) fail(at, `fillReadOnly names "${name}", which fill does not set`);
+}
+
+/**
  * `lookup` fields (R-REG-13, D3). The source must be a registered catalog (a W1 builtin source has no search) and the field names the `search`
  * fields of its picker, each a field or joined display key of the source. The description shown beside the code comes from a derived join
  * `{ as, ref: <field>, display: <source optionLabel> }` (R-REG-8), named by `display` or after the field without its `id_` prefix; a join the entry already
@@ -304,6 +319,7 @@ function applyLookups(where, entry, rawBySlug, sources) {
     const targetNames = new Set([...target.fields.map((/** @type {any} */ t) => t.name), ...(target.joins ?? []).map((/** @type {any} */ join) => join.as)]);
     for (const name of f.search) if (!targetNames.has(name)) fail(at, `search names unknown field "${name}" of "${target.slug}"`);
     assertPickerParts(at, f, target, targetNames, rawBySlug, sources);
+    assertFill(at, f, new Set(entry.fields.map((/** @type {any} */ t) => t.name)), target, targetNames);
     const existing = joins.find((join) => join.ref === f.name);
     if (existing) return { ...f, display: existing.as };
     const as = f.display ?? (f.name.startsWith('id_') ? f.name.slice('id_'.length) : `${f.name}_display`);
@@ -418,6 +434,7 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
       if (!slugs.has(f.source.catalog) && !Object.hasOwn(sources, f.source.catalog)) fail(at, `unknown catalog "${f.source.catalog}"`);
     }
     if (f.kind === 'options') assertOptions(at, f);
+    if (f.kind !== 'lookup') for (const key of ['fill', 'fillReadOnly']) if (f[key] !== undefined) fail(at, `${key} needs a lookup field`);
     // A textarea is a text with visible lines (R-REG-13): `rows` is a positive integer and means nothing elsewhere.
     if (f.kind === 'textarea') {
       if (f.rows !== undefined && !(Number.isInteger(f.rows) && f.rows > 0)) fail(at, 'rows must be a positive integer');

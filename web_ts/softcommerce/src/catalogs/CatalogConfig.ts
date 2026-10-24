@@ -134,6 +134,11 @@ type PlainField =
       codeWidth: number;
       optionLabel: string;
       picker: LookupDialogConfig;
+      /** What a pick copies into the register's own fields (`{ field: source key }`) and which of those the register then shows read-only (R-REG-13). */
+      fill?: Record<string, string>;
+      fillReadOnly?: string[];
+      /** Modes where the picker is disabled (Vendedor UPDATE). */
+      readOnlyOn?: readonly CrudMode[];
     }
   | {
       kind: 'cascade';

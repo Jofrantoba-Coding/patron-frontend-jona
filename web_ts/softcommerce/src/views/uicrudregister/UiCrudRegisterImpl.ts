@@ -211,7 +211,9 @@ export function useUiCrudRegisterImpl<T>(
     isFieldReadOnly: (name) => {
       const field = config.fields.find((f) => f.name === name);
       // A disabled conditional field (`enabledWhen`) is shown but not editable.
-      return field ? isFieldReadOnly(field, mode, mode === 'DELETE' || mode === 'DETAIL') || !isEnabled(field, values) : mode === 'DELETE' || mode === 'DETAIL';
+      // A field a lookup fills and locks (`fillReadOnly`) is shown, never typed.
+      const locked = config.fields.some((f) => f.kind === 'lookup' && f.fillReadOnly?.includes(name));
+      return field ? locked || isFieldReadOnly(field, mode, mode === 'DELETE' || mode === 'DETAIL') || !isEnabled(field, values) : mode === 'DELETE' || mode === 'DETAIL';
     },
     isFieldVisible: (name) => {
       const field = config.fields.find((f) => f.name === name);
@@ -225,9 +227,12 @@ export function useUiCrudRegisterImpl<T>(
     // A filtered cascade (`has: 'zonas'`) asks the lookup route; the plain one keeps the W1 route.
     loadChildren: async (parent, filter) => (filter ? await lookupRef.current?.options('ubigeo', { parent, ...filter }) : await lookupRef.current?.ubigeoChildren(parent)) ?? [],
     lookupDisplay,
-    onLookupChange: (name, value, description) => {
+    onLookupChange: (name, value, description, row) => {
       setLookupDisplay((current) => ({ ...current, [name]: description }));
       edit(name, value);
+      // A pick copies its row into the declared fields; clearing or editing the code takes the copy away (R-REG-13 `fill`).
+      const lookupField = config.fields.find((f) => f.name === name);
+      if (lookupField?.kind === 'lookup' && (row || value === '')) for (const [target, key] of Object.entries(lookupField.fill ?? {})) edit(target, row ? String(row[key] ?? '') : '');
     },
     lookupList: (catalog, where) => ({ filters, page, pageSize }) => {
       if (!services) return Promise.reject(new Error('A lookup field needs a ServicesProvider.'));

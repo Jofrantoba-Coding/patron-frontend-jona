@@ -211,7 +211,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                     hasError={Boolean(props.errors[field.name])}
                     dialog={{ config: field.picker, idKey: field.idKey, list: props.lookupList(field.source.catalog, field.source.where), loadOptions: props.loadOptions }}
                     describe={(row) => row[field.optionLabel]}
-                    onChange={(value, description) => props.onLookupChange(field.name, value, description)}
+                    onChange={(value, description, row) => props.onLookupChange(field.name, value, description, row)}
                   />
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
                 </div>

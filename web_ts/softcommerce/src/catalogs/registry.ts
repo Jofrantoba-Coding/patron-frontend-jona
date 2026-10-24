@@ -66,7 +66,8 @@ function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConf
     const where = field.source.where && Object.fromEntries(Object.entries(field.source.where).map(([key, value]) => [key, String(value)]));
     return {
       kind: 'lookup', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, ...(where ? { where } : {}) },
-      display: field.display, idKey: target.idKey, codeWidth: target.codeWidth ?? 0, optionLabel: target.optionLabel ?? 'descripcion',
+      display: field.display, idKey: target.idKey,
+      ...(field.fill ? { fill: field.fill } : {}), ...(field.fillReadOnly ? { fillReadOnly: field.fillReadOnly } : {}), ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}), codeWidth: target.codeWidth ?? 0, optionLabel: target.optionLabel ?? 'descripcion',
       picker: { title: named?.title ?? field.label, columns: field.columns, filters: field.filters, pickLabel: field.pickLabel ?? 'Agregar', ...(named?.refresh ? { refresh: true } : {}), ...(named?.extras ? { extras: named.extras } : {}) },
     };
   }
