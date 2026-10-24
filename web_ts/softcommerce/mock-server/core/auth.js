@@ -1,4 +1,5 @@
 import { MockError } from './errors.js';
+import { allPermissions, effectiveFlags, effectiveMenu } from './grants.js';
 import { hashPassword } from './password.js';
 
 /** The 13 per-form permission flags (see `RnUsuario.cargaFormularioPerfil`). */
@@ -41,21 +42,27 @@ export function login(store, tenantId, credentials) {
   };
 }
 
-/** Flat MenuDinamico list; the client builds the tree. @param {any} store */
-export function getMenu(store) {
-  return { items: structuredClone(store.shared.menu) };
+/**
+ * Flat MenuDinamico list; the client builds the tree. For a user whose trabajador has a perfil the unchecked nodes are omitted (R-AUTH-11);
+ * with no user it is the seeded list.
+ * @param {any} store @param {import('./grants.js').GrantContext} [ctx]
+ */
+export function getMenu(store, ctx) {
+  return { items: effectiveMenu(store, ctx) };
 }
 
 /**
- * Permission flags of a form. Unknown forms and missing flags are denied.
- * @param {any} store @param {string} formId
+ * Permission flags of a form for the acting user's perfil; with no user the seeded flags. Unknown forms and missing flags are denied.
+ * @param {any} store @param {string} formId @param {import('./grants.js').GrantContext} [ctx]
  * @returns {Record<(typeof PERMISSION_FLAGS)[number], boolean>}
  */
-export function getPermissions(store, formId) {
-  const seeded = Object.hasOwn(store.shared.permissions, formId) ? store.shared.permissions[formId] : {};
-  return /** @type {any} */ (
-    Object.fromEntries(PERMISSION_FLAGS.map((flag) => [flag, seeded[flag] === true]))
-  );
+export function getPermissions(store, formId, ctx) {
+  return /** @type {any} */ (effectiveFlags(store, formId, ctx));
+}
+
+/** The flags of every form for the acting user, `{ [formId]: flags }`. @param {any} store @param {import('./grants.js').GrantContext} [ctx] */
+export function getAllPermissions(store, ctx) {
+  return allPermissions(store, ctx);
 }
 
 /** A row of a W1 section the Wave 2 `empresa` / `punto-venta` entries also write: active rows only (R-REG-12). @param {any} row */

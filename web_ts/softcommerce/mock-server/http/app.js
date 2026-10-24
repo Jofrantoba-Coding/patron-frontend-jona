@@ -1,13 +1,16 @@
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import {
-  getMenu, getParams, getPermissions, listEmpresas, listPuntosVenta, login, sessionOptions,
+  getAllPermissions, getMenu, getParams, getPermissions, listEmpresas, listPuntosVenta, login, sessionOptions,
 } from '../core/auth.js';
 import { runChildAction, runEntryAction } from '../core/actions.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../core/catalog.js';
 import { MockError, notFound, toErrorBody } from '../core/errors.js';
 import { createChild, getChild, listChild, removeChild, updateChild } from '../core/nested.js';
 import { lookupOptions } from '../core/lookups.js';
+import {
+  getPerfilMenu, getPerfilPermiso, getPerfilPermisos, putPerfilMenu, putPerfilPermisos,
+} from '../core/grants.js';
 import { createStore } from '../core/store.js';
 import { REGISTRY } from '../registry/index.js';
 import { childrenOf } from '../core/ubigeo.js';
@@ -34,8 +37,17 @@ const CORS_HEADERS = {
 const ROUTES = [
   { method: 'GET', pattern: /^\/auth\/session-options$/, isPublic: true, handle: ({ store }) => ({ body: sessionOptions(store) }) },
   { method: 'POST', pattern: /^\/auth\/login$/, handle: ({ store, tenant, body }) => ({ body: login(store, tenant, body) }) },
-  { method: 'GET', pattern: /^\/menu$/, handle: ({ store }) => ({ body: getMenu(store) }) },
-  { method: 'GET', pattern: /^\/forms\/([^/]+)\/permissions$/, handle: ({ store, params }) => ({ body: getPermissions(store, params[0]) }) },
+  // Grants resolve for the user of `X-User-Id` through its perfil, and for the seeded defaults without one (R-AUTH-11).
+  { method: 'GET', pattern: /^\/menu$/, handle: ({ store, tenant, ctx }) => ({ body: getMenu(store, { ...ctx, tenantId: tenant }) }) },
+  { method: 'GET', pattern: /^\/forms\/permissions$/, handle: ({ store, tenant, ctx }) => ({ body: getAllPermissions(store, { ...ctx, tenantId: tenant }) }) },
+  { method: 'GET', pattern: /^\/forms\/([^/]+)\/permissions$/, handle: ({ store, tenant, params, ctx }) => ({ body: getPermissions(store, params[0], { ...ctx, tenantId: tenant }) }) },
+  // The perfil grants editor (R-PRM-5): `menu` and `permisos` are reserved child names, so they never reach the generic child routes.
+  { method: 'GET', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/menu$/, handle: ({ store, tenant, params }) => ({ body: getPerfilMenu(store, tenant, params[0]) }) },
+  { method: 'PUT', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/menu$/, handle: ({ store, tenant, params, body }) => ({ body: putPerfilMenu(store, tenant, params[0], body) }) },
+  { method: 'GET', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos$/, handle: ({ store, tenant, params }) => ({ body: getPerfilPermisos(store, tenant, params[0]) }) },
+  { method: 'PUT', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos$/, handle: ({ store, tenant, params, body }) => ({ body: putPerfilPermisos(store, tenant, params[0], body) }) },
+  { method: 'GET', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos\/([^/]+)$/, handle: ({ store, tenant, params }) => ({ body: getPerfilPermiso(store, tenant, params[0], params[1]) }) },
+  { method: 'PUT', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos\/([^/]+)$/, handle: ({ store, tenant, params, body }) => ({ body: putPerfilPermisos(store, tenant, params[0], body, params[1]) }) },
   // Lookups come before the generic catalog routes so they win the match.
   { method: 'GET', pattern: /^\/v1\/ubigeo$/, handle: ({ store, query }) => ({ body: childrenOf(store, query.parent) }) },
   { method: 'GET', pattern: /^\/v1\/lookups\/([^/]+)$/, handle: ({ store, tenant, params, query, ctx }) => ({ body: lookupOptions(store, tenant, params[0], query, ctx) }) },
