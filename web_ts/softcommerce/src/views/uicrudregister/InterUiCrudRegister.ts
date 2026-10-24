@@ -49,7 +49,7 @@ export interface InterUiCrudRegister {
   /** The description of each lookup field's picked record, by field name (kept out of the form values: it is never sent). */
   lookupDisplay: Record<string, string>;
   /** Value-first: a lookup picked, resolved, cleared or edited; `('', '')` clears. */
-  onLookupChange: (name: string, value: string, description: string) => void;
+  onLookupChange: (name: string, value: string, description: string, row?: Record<string, string>) => void;
   /** The paged search over a lookup source (`where` is its static filter). */
   lookupList: (catalog: string, where?: Record<string, string>) => (query: LookupQuery) => Promise<{ items: Record<string, string>[]; pagination: { total: number } }>;
   /** Ref callback per field name, so a blocked submit can focus the first invalid one. */

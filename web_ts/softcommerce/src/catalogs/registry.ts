@@ -22,12 +22,14 @@ type Registry = { bySlug: Map<string, any>; childEntries?: any[] };
 
 function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConfig {
   if (field.kind === 'code') return { kind: 'code', name: field.name, label: field.label };
-  if (field.kind === 'text') {
+  // A textarea is a text for the core (R-CRUD-18): the same required, max and normalize checks; `multiline` only picks the control.
+  if (field.kind === 'text' || field.kind === 'textarea') {
     const normalize: string[] = field.normalize ?? [];
     return {
       kind: 'text', name: field.name, label: field.label, required: Boolean(field.required),
       maxLength: field.max, uppercase: normalize.includes('upper'), normalize,
       ...(field.message ? { message: field.message } : {}),
+      ...(field.kind === 'textarea' ? { multiline: true, rows: field.rows ?? 4 } : {}),
       ...(field.minLen !== undefined ? { minLen: field.minLen } : {}), ...(field.minLenWhen ? { minLenWhen: field.minLenWhen } : {}), ...(field.maxWhen ? { maxWhen: field.maxWhen } : {}),
     };
   }
@@ -64,7 +66,8 @@ function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConf
     const where = field.source.where && Object.fromEntries(Object.entries(field.source.where).map(([key, value]) => [key, String(value)]));
     return {
       kind: 'lookup', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, ...(where ? { where } : {}) },
-      display: field.display, idKey: target.idKey, codeWidth: target.codeWidth ?? 0, optionLabel: target.optionLabel ?? 'descripcion',
+      display: field.display, idKey: target.idKey,
+      ...(field.fill ? { fill: field.fill } : {}), ...(field.fillReadOnly ? { fillReadOnly: field.fillReadOnly } : {}), ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}), codeWidth: target.codeWidth ?? 0, optionLabel: target.optionLabel ?? 'descripcion',
       picker: { title: named?.title ?? field.label, columns: field.columns, filters: field.filters, pickLabel: field.pickLabel ?? 'Agregar', ...(named?.refresh ? { refresh: true } : {}), ...(named?.extras ? { extras: named.extras } : {}) },
     };
   }

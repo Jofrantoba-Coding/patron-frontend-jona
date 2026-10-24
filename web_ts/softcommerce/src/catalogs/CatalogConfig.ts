@@ -43,6 +43,9 @@ type PlainField =
       normalize?: string[];
       /** The sentence of a blank required value when no entry gives one (an action dialog: `Ingrese Motivo`). */
       message?: string;
+      /** A `textarea` field (R-CRUD-18): the register shows a multi-line input of `rows` lines (default 4); every check is the text's. */
+      multiline?: boolean;
+      rows?: number;
     }
   | {
       /** A checkbox; the form state is 'true' | 'false' and the payload a boolean (codec, D7). */
@@ -131,6 +134,11 @@ type PlainField =
       codeWidth: number;
       optionLabel: string;
       picker: LookupDialogConfig;
+      /** What a pick copies into the register's own fields (`{ field: source key }`) and which of those the register then shows read-only (R-REG-13). */
+      fill?: Record<string, string>;
+      fillReadOnly?: string[];
+      /** Modes where the picker is disabled (Vendedor UPDATE). */
+      readOnlyOn?: readonly CrudMode[];
     }
   | {
       kind: 'cascade';

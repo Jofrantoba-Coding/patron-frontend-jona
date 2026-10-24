@@ -20,8 +20,8 @@ export interface InterLookupField {
   dialog: Pick<InterLookupDialog, 'config' | 'idKey' | 'list' | 'loadOptions' | 'preset' | 'veto'>;
   /** The description of a row (the target's option label). */
   describe: (row: Row) => string;
-  /** Value-first: the id and its description; `('', '')` when the code is cleared or edited. */
-  onChange: (value: string, description: string) => void;
+  /** Value-first: the id and its description; `('', '')` when the code is cleared or edited. A pick also hands over its row (a host may copy from it, `fill`). */
+  onChange: (value: string, description: string, row?: Row) => void;
 }
 
 /** Presentation defaults only; the value and its description are state and never defaulted. */

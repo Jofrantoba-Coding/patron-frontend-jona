@@ -32,7 +32,7 @@ export function useLookupFieldImpl(props: InterLookupField): LookupFieldViewProp
   const pick = (row: Row) => {
     const id = String(row[dialog.idKey]);
     setText(id);
-    onChange(id, describe(row));
+    onChange(id, describe(row), row);
   };
   const resolve = async () => {
     const code = padTypedCode(text, resolved.codeWidth);

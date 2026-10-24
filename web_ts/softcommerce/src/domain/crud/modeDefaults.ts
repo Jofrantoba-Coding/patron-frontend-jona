@@ -43,5 +43,5 @@ export function applyModeDefaults(fields: FieldConfig[], values: FormValues, mod
 /** True when the whole register is read-only or the field lists `mode` in `readOnlyOn`. */
 export function isFieldReadOnly(field: FieldConfig, mode: CrudMode, formReadOnly: boolean): boolean {
   if (formReadOnly) return true;
-  return hasDefault(field) && (field.readOnlyOn?.includes(mode) ?? false);
+  return (hasDefault(field) || field.kind === 'lookup') && (field.readOnlyOn?.includes(mode) ?? false);
 }
