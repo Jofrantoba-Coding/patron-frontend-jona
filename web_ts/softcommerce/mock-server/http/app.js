@@ -5,6 +5,7 @@ import {
 } from '../core/auth.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../core/catalog.js';
 import { MockError, notFound, toErrorBody } from '../core/errors.js';
+import { createChild, getChild, listChild, removeChild, updateChild } from '../core/nested.js';
 import { lookupOptions } from '../core/lookups.js';
 import { createStore } from '../core/store.js';
 import { REGISTRY } from '../registry/index.js';
@@ -54,6 +55,12 @@ const ROUTES = [
       return { status: 204 };
     },
   },
+  // Nested child routes (R-MOCK-19): the parent is checked once in the core.
+  { method: 'GET', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, query, ctx }) => ({ body: listChild(store, tenant, params[0], params[1], params[2], query, ctx) }) },
+  { method: 'POST', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ status: 201, body: createChild(store, tenant, params[0], params[1], params[2], body ?? {}, ctx) }) },
+  { method: 'GET', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, ctx }) => ({ body: getChild(store, tenant, params[0], params[1], params[2], params[3], ctx) }) },
+  { method: 'PUT', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: updateChild(store, tenant, params[0], params[1], params[2], params[3], body ?? {}, ctx) }) },
+  { method: 'DELETE', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, ctx }) => { removeChild(store, tenant, params[0], params[1], params[2], params[3], ctx); return { status: 204 }; } },
   { method: 'POST', pattern: /^\/__mock\/reset$/, isPublic: true, handle: ({ store }) => { store.reset(); return { status: 204 }; } },
 ];
 

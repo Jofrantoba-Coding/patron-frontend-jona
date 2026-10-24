@@ -1,3 +1,5 @@
+import { isModeMap } from '../registry/schema.js';
+import { todayIso } from './dates.js';
 import { ruleDerived } from './entryRules.js';
 import { fieldState, matches } from './predicates.js';
 
@@ -19,4 +21,20 @@ export function derivedValues(entry, record) {
 /** The record plus what the named entry rules compute from it: the composed razon social, the persona flag (D9). @param {any} entry @param {Record<string, any>} record */
 export function withRuleDerived(entry, record) {
   return { ...record, ...ruleDerived(entry, record) };
+}
+
+/**
+ * Declared defaults for the fields a create body leaves out: a scalar `default`, or the
+ * INSERT entry of a per-mode map (R-CRUD-15). A date default `today` is the server day; a decimal default is
+ * stored as the number it spells. Updates never re-apply them.
+ * @param {any} entry @param {Record<string, any>} record
+ */
+export function withDefaults(entry, record) {
+  const out = { ...record };
+  for (const f of entry.fields) {
+    if (f.name in out || f.default === undefined) continue;
+    const value = isModeMap(f.default) ? f.default.INSERT : f.default;
+    if (value !== undefined) out[f.name] = f.kind === 'date' && value === 'today' ? todayIso() : f.kind === 'number' && typeof value === 'string' ? Number(value) : value;
+  }
+  return out;
 }

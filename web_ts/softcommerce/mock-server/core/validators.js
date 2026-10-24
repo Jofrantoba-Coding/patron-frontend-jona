@@ -169,13 +169,13 @@ function refDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /**
 }
 
 /** @returns {Detail|null} */
-function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {any} */ key, /** @type {Record<string, any>} */ record, /** @type {string|undefined} */ selfId, /** @type {any} */ ctx) {
+function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {any} */ key, /** @type {Record<string, any>} */ record, /** @type {string|undefined} */ selfId, /** @type {any} */ ctx, /** @type {string|undefined} */ parentId) {
   // The session empresa is part of the key only with `includeEmpresa` (R-REG-7).
   const empresa = key.includeEmpresa ? sessionEmpresa(store, tenantId, ctx) : undefined;
   // Deleted rows and the record itself never conflict (S-REG-9, S-REG-10).
   const taken = rowsOf(store, tenantId, entry).some(
     (/** @type {any} */ r) =>
-      r[ACTIVE_KEY] !== false && String(r[entry.idKey]) !== selfId && (empresa === undefined || String(r.id_empresa) === empresa) &&
+      r[ACTIVE_KEY] !== false && String(r[entry.idKey]) !== selfId && (entry.parentKey === undefined || String(r[entry.parentKey]) === String(parentId)) && (empresa === undefined || String(r.id_empresa) === empresa) &&
       key.fields.every((/** @type {string} */ f) => same(r[f], record[f])),
   );
   return taken ? { field: key.errorField, code: 'DUPLICATE', message: key.message } : null;
@@ -188,10 +188,10 @@ function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, 
  * field and ref failure in one 422, uniqueness checked afterwards. `{rule}` steps
  * run the named rule's validate hook.
  * @param {any} store @param {string} tenantId @param {any} entry @param {Record<string, any>} record
- * @param {{ selfId?: string, ctx?: import('./context.js').RequestContext, mode?: keyof typeof import('./messages.js').MODO }} [options]
- * `mode` words the messages: INSERT on create, UPDATE on update.
+ * @param {{ selfId?: string, ctx?: import('./context.js').RequestContext, mode?: keyof typeof import('./messages.js').MODO, parentId?: string }} [options]
+ * `mode` words the messages: INSERT on create, UPDATE on update. `parentId` scopes a child's unique key to the rows of its parent.
  */
-export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mode = 'INSERT' } = {}) {
+export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mode = 'INSERT', parentId } = {}) {
   const failed = new Set();
   const fields = new Map(entry.fields.map((/** @type {any} */ f) => [f.name, f]));
   const inlineRefs = !entry.steps.some((/** @type {any} */ s) => typeof s === 'object' && 'ref' in s);
@@ -211,7 +211,7 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
     return detail;
   };
   /** @param {any} step */
-  const uniqueOf = (step) => uniqueDetail(store, tenantId, entry, entry.unique[step.unique], record, selfId, ctx);
+  const uniqueOf = (step) => uniqueDetail(store, tenantId, entry, entry.unique[step.unique], record, selfId, ctx, parentId);
 
   /** @type {Detail[]} */
   const details = [];

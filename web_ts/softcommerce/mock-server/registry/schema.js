@@ -474,7 +474,7 @@ const childList = (parent) =>
  */
 function expandChildren(parent, slugs, sources, rawBySlug) {
   const seen = new Set();
-  return childList(parent).map((def) => {
+  return childList(parent).map((/** @type {any} */ def) => {
     const at = `entry "${parent.slug}" child "${def.name}"`;
     if (seen.has(def.name)) fail(at, 'duplicate child name');
     seen.add(def.name);
