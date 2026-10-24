@@ -1,0 +1,11 @@
+{
+  "demo": {
+    "precios": [
+      { "id_accion_precio": "1", "fecha_inicio": "2026-01-01", "fecha_fin": "2026-05-31", "estado": "D", "precio": 10 },
+      { "id_accion_precio": "2", "fecha_inicio": "2026-06-01", "fecha_fin": "", "estado": "A", "precio": 12.5 }
+    ],
+    "socios": [
+      { "id_accion_socio": "1", "id_socio": "1", "fecha_inicio": "2026-06-01", "fecha_fin": "", "estado": "A", "precio": 12.5, "cantidad": 100 }
+    ]
+  }
+}
