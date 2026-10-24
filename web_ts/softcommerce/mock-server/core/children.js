@@ -1,5 +1,6 @@
 import { MockError, notFound, validationError } from './errors.js';
 import { scopeFilter, stampsOf } from './context.js';
+import { gateOpen } from './predicates.js';
 import { blankHidden, derivedValues, withDefaults, withRuleDerived } from './stored.js';
 import { ACTIVE_KEY, pickWritable, rowsOf, validateRecord } from './validators.js';
 
@@ -25,6 +26,16 @@ export function childEntryOf(store, parentSlug, name) {
   const parent = store.registry.bySlug.get(parentSlug);
   const child = parent && parent.parent === undefined ? store.registry.bySlug.get(`${parentSlug}/${name}`) : undefined;
   if (!child || child.parent !== parentSlug) throw notFound(`Unknown child "${name}" of ${parentSlug}`);
+  return child;
+}
+
+/**
+ * The child entry of a nested route for a tenant: a child whose company-parameter gate is off does not exist (404, R-REG-17).
+ * @param {any} store @param {string} tenantId @param {string} parentSlug @param {string} name
+ */
+export function gatedChildOf(store, tenantId, parentSlug, name) {
+  const child = childEntryOf(store, parentSlug, name);
+  if (!gateOpen(child.gate, store.data(tenantId).params)) throw notFound(`Unknown child "${name}" of ${parentSlug}`);
   return child;
 }
 
@@ -62,7 +73,7 @@ function indexed(error, name, n) {
 
 /**
  * Validates a composite body and returns the write to run once the parent is stored, or null when the body carries no children. Order (D6):
- * child by child in declared order, op by op in sent order; the first failure stops (fail-first, W2 D10); then the named rules; nothing is written here.
+ * a child whose company-parameter gate is off is ignored (R-REG-17); child by child in declared order, op by op in sent order; the first failure stops (fail-first, W2 D10); then the named rules; nothing is written here.
  * @param {any} store @param {string} tenantId @param {any} parent @param {unknown} body
  * @param {{ ctx?: import('./context.js').RequestContext, parentId?: string }} [options] `parentId` is the stored parent on update.
  * @returns {{ apply: (parentId: string) => void } | null}
@@ -70,6 +81,7 @@ function indexed(error, name, n) {
 export function planChildren(store, tenantId, parent, body, { ctx, parentId } = {}) {
   if (body === undefined || body === null || parent.children === undefined) return null;
   if (typeof body !== 'object' || Array.isArray(body)) throw validationError([{ field: 'children', code: 'INVALID', message: 'children must be an object' }]);
+  const params = store.data(tenantId).params;
   const names = Object.keys(body);
   const unknown = names.find((name) => !store.registry.bySlug.has(`${parent.slug}/${name}`));
   if (unknown) throw validationError([{ field: `children.${unknown}`, code: 'UNKNOWN_CHILD', message: `Unknown child ${unknown}` }]);
@@ -77,7 +89,7 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId } = 
   const writes = [];
   /** @type {Record<string, any[]>} */
   const planned = {};
-  for (const child of store.registry.childEntries.filter((/** @type {any} */ c) => c.parent === parent.slug && names.includes(c.childName))) {
+  for (const child of store.registry.childEntries.filter((/** @type {any} */ c) => c.parent === parent.slug && names.includes(c.childName) && gateOpen(c.gate, params))) {
     const ops = /** @type {any} */ (body)[child.childName];
     if (!Array.isArray(ops)) throw validationError([{ field: child.childName, code: 'INVALID', message: `${child.childName} must be a list of operations` }]);
     const rows = rowsOf(store, tenantId, child);
@@ -98,7 +110,7 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId } = 
         return;
       }
       const picked = pickWritable(child, op);
-      const record = withRuleDerived(child, blankHidden(child, op.op === 'I' ? withDefaults(child, picked) : { ...stored, ...picked }));
+      const record = withRuleDerived(child, blankHidden(child, op.op === 'I' ? withDefaults(child, picked, params) : { ...stored, ...picked }));
       try {
         validateRecord(store, tenantId, child, record, { ctx, mode: op.op === 'I' ? 'INSERT' : 'UPDATE', selfId: stored?.[child.idKey], parentId, siblings: view });
       } catch (error) {

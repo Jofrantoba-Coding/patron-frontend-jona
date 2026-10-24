@@ -67,3 +67,21 @@ export const RULES_SEED = {
   usuarios: { a: [{ id_usuarios: '001', nombre: 'USU', activo: true }] },
   series: [{ id_series: '001', placa: 'S1', id_usuarios: '001', activo: true }, { id_series: '002', placa: 'S2', id_usuarios: '002', activo: true }],
 };
+
+/** `clientes` with children gated by company parameters (R-REG-17): sustitutos by a flag, avisos by a flag value. */
+export const GATE_ENTRIES: Record<string, any>[] = [
+  parentEntry('clientes', {
+    children: {
+      sustitutos: { tab: 'Sustitutos', removal: 'delete', gate: { param: 'IS_CLIENTE_SUSTITUTO' }, fields: [text('nombre', { required: true })], columns: [{ key: 'nombre', header: 'Nombre' }] },
+      avisos: { tab: 'Avisos', removal: 'delete', gate: { param: 'ISBOTICA', in: [false] }, fields: [text('aviso')], columns: [{ key: 'aviso', header: 'Aviso' }] },
+    },
+  }),
+];
+
+export const GATE_REGISTRY = validateRegistry(GATE_ENTRIES);
+
+export const GATE_SEED = {
+  ...tinySeed(),
+  params: { a: { INICIO_ACTIVIDADES: '2020-01-01', IS_CLIENTE_SUSTITUTO: true, ISBOTICA: false }, b: { INICIO_ACTIVIDADES: '2021-06-01', IS_CLIENTE_SUSTITUTO: false, ISBOTICA: true } },
+  clientes: { a: [{ id_clientes: '001', nombre: 'ACME', activo: true }], b: [{ id_clientes: '001', nombre: 'ACME', activo: true }] },
+};

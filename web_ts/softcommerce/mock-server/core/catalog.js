@@ -128,7 +128,7 @@ export function createRecord(store, tenantId, catalog, body, ctx, link) {
   const entry = writableEntry(store, catalog, 'POST', link);
   // Session values come from the context, never from the body (R-MOCK-13).
   const stamps = stampsOf(store, tenantId, entry, ctx);
-  const record = withRuleDerived(entry, blankHidden(entry, withDefaults(entry, pickWritable(entry, body))));
+  const record = withRuleDerived(entry, blankHidden(entry, withDefaults(entry, pickWritable(entry, body), store.data(tenantId).params)));
   validateRecord(store, tenantId, entry, record, { ctx, mode: 'INSERT', parentId: link?.id });
   const plan = link ? null : planChildren(store, tenantId, entry, body.children, { ctx });
   const rows = rowsOf(store, tenantId, entry);

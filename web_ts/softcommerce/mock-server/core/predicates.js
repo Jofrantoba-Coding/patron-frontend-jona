@@ -49,3 +49,25 @@ export function minLengthOf(field, values) {
 export function maxLengthOf(field, values) {
   return field.maxWhen?.find((rule) => matches(rule.when, values))?.len ?? field.max ?? field.maxLength;
 }
+
+/**
+ * Whether a company-parameter gate is open (R-REG-17): no gate always is; `{ param }` needs the parameter true; `{ param, in }` needs its value to equal
+ * one of the listed values (compared by text). Pure: the server reads the tenant params, the UI the session params.
+ * @param {{ param: string, in?: unknown[] } | undefined} gate @param {Record<string, unknown> | undefined} params
+ */
+export function gateOpen(gate, params) {
+  if (gate === undefined) return true;
+  const value = params?.[gate.param];
+  return gate.in === undefined ? value === true : gate.in.map(text).includes(text(value));
+}
+
+const PARAMS_TOKEN = /^\$params\.(\w+)$/;
+
+/** The params key named by a `$params.X` value token (D27b), or undefined when the value is not a token. @param {unknown} value */
+export const paramToken = (value) => (typeof value === 'string' ? PARAMS_TOKEN.exec(value)?.[1] : undefined);
+
+/** A `$params.X` token resolved against the company params (undefined when the key is absent); any other value is returned as is. @param {unknown} value @param {Record<string, unknown> | undefined} params */
+export function resolveParamToken(value, params) {
+  const key = paramToken(value);
+  return key === undefined ? value : params?.[key];
+}
