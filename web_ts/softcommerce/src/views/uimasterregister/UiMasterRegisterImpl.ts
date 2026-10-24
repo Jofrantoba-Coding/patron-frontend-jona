@@ -1,8 +1,10 @@
 // Layer: Implementation. The generic register plus the tabs, the child drafts and the child dialog (D10).
 import { useMemo, useRef, useState } from 'react';
+import { todayIso } from '../../../mock-server/core/dates.js';
 import { gateOpen } from '../../../mock-server/core/predicates.js';
 import type { ActionConfig, CatalogConfig, ChildConfig } from '../../catalogs/CatalogConfig';
 import { ACTION_RULES } from '../../domain/crud/actionRules';
+import { formatRows } from '../../domain/crud/listView';
 import { resolveRowAction } from '../../domain/crud/toolbarGate';
 import type { Permissions } from '../../domain/permissions';
 import { ApiError } from '../../services/ApiError';
@@ -15,7 +17,7 @@ import type { RegisterMode } from '../uicrudregister/InterUiCrudRegister';
 import { useUiCrudRegisterImpl, type CrudRegisterHandlers } from '../uicrudregister/UiCrudRegisterImpl';
 import type { InterUiMasterRegister, MasterChildDialog, MasterQuitarConfirm } from './InterUiMasterRegister';
 import { buildTabs, tabOfField } from './tabs';
-import { useChildDraftsImpl, type ChildRow } from './useChildDraftsImpl';
+import { useChildDraftsImpl, type ChildRow, type DraftRow } from './useChildDraftsImpl';
 
 export function useUiMasterRegisterImpl<T>(
   config: CatalogConfig<T>,
@@ -107,7 +109,7 @@ export function useUiMasterRegisterImpl<T>(
     if (action.kind === 'deferred') {
       const rule = ACTION_RULES[action.rule as string];
       if (!rule) throw new Error(`Unknown action rule "${action.rule}".`);
-      const call = { rows: liveRows(child), selected: row, input };
+      const call = { rows: liveRows(child), selected: row, input, params: action.params ?? {} };
       const refusal = rule.guard?.(call);
       if (refusal) throw new Error(refusal);
       const effect = rule.apply(call);
@@ -147,6 +149,12 @@ export function useUiMasterRegisterImpl<T>(
     const action = child.actions?.find((candidate) => candidate.id === actionId);
     if (!action || !allowed(child, action)) return;
     setNotice(undefined);
+    // A deferred rule may refuse before its dialog opens (the anexo guards, R-ANX-3/4); an empty text refuses silently.
+    const refusal = action.kind === 'deferred' ? ACTION_RULES[action.rule as string]?.check?.({ rows: liveRows(child), selected: selectedRow(child), input: {}, params: action.params ?? {} }) : undefined;
+    if (refusal !== undefined) {
+      if (refusal) setNotice({ child: child.name, text: refusal });
+      return;
+    }
     if (!action.confirm) return startAction(child, action);
     setAskingAction({
       title: action.label,
@@ -157,6 +165,14 @@ export function useUiMasterRegisterImpl<T>(
       },
       onCancel: () => setAskingAction(undefined),
     });
+  };
+
+  // A new master (INSERT, CLONE) has no history yet, but the server creates the child's `initial` row on save (R-MD-9): the grid shows it, display only, never sent.
+  const initialRows = (child: ChildConfig): DraftRow[] => {
+    const initial = (child.config.entry as { initial?: Record<string, unknown> } | undefined)?.initial;
+    if (!initial || (mode !== 'INSERT' && mode !== 'CLONE')) return [];
+    const today = Object.fromEntries(child.config.fields.filter((field) => field.kind === 'date' && field.default === 'today').map((field) => [field.name, todayIso()]));
+    return [{ ...today, ...initial, _key: '~initial', estado: 'A' }];
   };
 
   // One draft service per child, built once: the register hook reloads when its service changes.
@@ -193,11 +209,12 @@ export function useUiMasterRegisterImpl<T>(
         grid: {
           title,
           columns: child.config.columns.map(({ key: column, header }) => ({ key: column, header })),
-          rows: drafts.rows(child.name),
+          // The shown rows follow the column formats (dd/MM/yyyy dates, R-ANX-1); the drafts keep the stored values.
+          rows: formatRows(child.config.columns, [...drafts.rows(child.name), ...initialRows(child)]),
           selectedId: selected[child.name],
           readOnly,
           onSelect: (rowId: string) => setSelected((current) => ({ ...current, [child.name]: rowId })),
-          ...(child.entryMode === 'dialog' || readOnly ? { onAdd: () => openChild(child) } : {}),
+          ...(child.entryMode !== 'none' && (child.entryMode === 'dialog' || readOnly) ? { onAdd: () => openChild(child) } : {}),
           ...(child.removal !== 'none' && { onRemove: () => quitar(child) }),
           ...(child.actions?.length && { actions: child.actions.map((action) => ({ id: action.id, label: action.label, disabled: !allowed(child, action) })), onAction: (actionId: string) => runAction(child, actionId) }),
           ...(rowErrors[child.name] && { rowErrors: rowErrors[child.name] }),

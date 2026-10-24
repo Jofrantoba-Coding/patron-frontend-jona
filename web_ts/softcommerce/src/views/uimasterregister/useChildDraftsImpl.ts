@@ -3,8 +3,8 @@ import { useRef, useState } from 'react';
 import { isActiveSibling } from '../../../mock-server/core/unique.js';
 
 export type ChildRow = Record<string, any>;
-/** A grid row: the stored or pending columns, a state (`A` / `D`) and a key that is unique within the grid. */
-export type DraftRow = ChildRow & { _key: string; estado: string };
+/** A grid row: the stored or pending columns, a state (`A` / `D`), a key that is unique within the grid, and `_changed` when a persisted row has a pending op. */
+export type DraftRow = ChildRow & { _key: string; estado: string; _changed?: true };
 /** `I` inserts a pending row, `A` changes or deactivates a persisted one (`patch` and/or the new `estado`), `E` deletes a persisted one (R-MOCK-19). */
 interface PendingOp {
   key: string;
@@ -27,7 +27,7 @@ export function useChildDraftsImpl(names: readonly string[], idKeys: Record<stri
       .filter((row) => row.activo !== false && opOn(name, keyOf(name, row))?.op !== 'E')
       .map((row) => {
         const change = opOn(name, keyOf(name, row));
-        return { ...row, ...change?.patch, _key: keyOf(name, row), estado: (change?.op === 'A' ? change.estado : undefined) ?? row.estado ?? 'A' };
+        return { ...row, ...change?.patch, _key: keyOf(name, row), estado: (change?.op === 'A' ? change.estado : undefined) ?? row.estado ?? 'A', ...(change && { _changed: true as const }) };
       }),
     ...(pending[name] ?? []).flatMap(({ key, op, row }) => (op === 'I' ? [{ ...row, _key: key, estado: 'A' }] : [])),
   ];
