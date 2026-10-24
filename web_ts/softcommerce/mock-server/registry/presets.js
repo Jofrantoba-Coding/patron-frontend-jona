@@ -20,9 +20,9 @@ export function applyPreset(field) {
 
 /**
  * Tipo anexo of each anexo master (R-ANX-9, D13): the hidden constant the stored procedure files the master under. Banco is `"3"` (`PanelTFBanco.cargarTabla`
- * lists `listAnexo("3", ...)`); the others come with their master. A Trabajador id is not in the repository: it will be a seed placeholder `[INFERRED]`.
+ * lists `listAnexo("3", ...)`); the others come with their master. The Trabajador id is not in the repository (`mantTrabajador` passes no tipo anexo and `PanelTFTrabajador` lists `listarTrabajador`, not `listAnexo`): `'9'` is a placeholder (the free id after Vendedor `8`) `[INFERRED]`.
  */
-export const TIPO_ANEXO = { banco: '3' };
+export const TIPO_ANEXO = { banco: '3', chofer: '7', trabajador: '9' };
 
 const MOTIVO_REQUERIDO = 'Ingrese Motivo';
 const ACCIONES = [

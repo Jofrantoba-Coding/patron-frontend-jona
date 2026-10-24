@@ -1,5 +1,8 @@
+import { presets, TIPO_ANEXO } from '../presets.js';
 import { documentFields } from './documento.js';
 import { referenceCatalog } from './reference.js';
+
+const anexo = presets.anexo({ entity: 'Chofer', tipoAnexo: TIPO_ANEXO.chofer });
 
 /**
  * Chofer (`RegisterChofer`, R-REF-6, R-REF-8, S-REF-25..27, S-REF-29). The tipo de documento comes first, then (named rule `docIdentidad`) the number
@@ -8,8 +11,9 @@ import { referenceCatalog } from './reference.js';
  * forces both back on every edit: [DEVIATION] UPDATE restores the stored tipo and nacionalidad. `executeDelete` returns false, so the modes are INSERT,
  * UPDATE, DETAIL and CLONE (DELETE answers 405 `MODE_NOT_SUPPORTED`). `mantChofer` passes the session user and no empresa, and `flag_tipo_persona` is
  * always `N` (the line that computed it is commented out): tenant scope, user stamp, constant. `listAnexo("7", ...)` lists every chofer; the code is padded to ten
- * (`PanelTFChofer.focusLost`: `"0000000000" + id`). The sexo is shown for a natural person only (the radios hide otherwise). The activation tab and
- * its history grid, the percepcion / retencion / exceptuado flags and the estado checkbox are excluded (R-REF-12, G11/G12 in W2b).
+ * (`PanelTFChofer.focusLost`: `"0000000000" + id`). The sexo is shown for a natural person only (the radios hide otherwise). The percepcion / retencion / exceptuado flags stay excluded
+ * (R-REF-12). Wave 3 closes G11 / G12 (R-ANX-10): the anexo preset adds the `Activación de Chofer` tab, Activar / Desactivar and the tipo anexo `7`
+ * (`PanelTFChofer.cargarTabla` lists `listAnexo("7", ...)`); the estado checkbox the desktop hides is shown read-only and derived from the last activation.
  */
 export const choferes = referenceCatalog({
   slug: 'choferes', idKey: 'id_chofer', codeWidth: 10, entity: 'un Chofer', formId: 'PanelTFChofer', title: 'Chofer', descripcion: false,
@@ -24,6 +28,7 @@ export const choferes = referenceCatalog({
       name: 'id_nacionalidad', kind: 'select', label: 'Nacionalidad', required: true, message: 'Para {modo} un Chofer, debes Seleccionar una Nacionalidad.',
       default: { INSERT: '001' }, source: { catalog: 'nacionalidades' },
     },
+    { name: 'estado', preset: 'estado', label: 'Estado', readOnlyOn: ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'] },
   ],
   columns: [
     { key: 'descripcion', header: 'Razón Social' }, { key: 'tipo_doc', header: 'Tipo Doc' }, { key: 'numero_doc', header: 'RUC/DNI' },
@@ -31,7 +36,9 @@ export const choferes = referenceCatalog({
   ],
   joins: [{ as: 'tipo_doc', ref: 'id_tipo_doc_iden', display: 'abreviatura' }, { as: 'nacionalidad', ref: 'id_nacionalidad', display: 'descripcion' }],
   modes: ['INSERT', 'UPDATE', 'DETAIL', 'CLONE'],
-  rules: [{ name: 'docIdentidad', params: { sexo: 'sexo' } }],
+  rules: [{ name: 'docIdentidad', params: { sexo: 'sexo' } }, ...anexo.rules],
   validation: ['id_tipo_doc_iden', { rule: 'docIdentidad' }, 'numero_doc', 'ap_paterno', 'ap_materno', 'nombres', 'descripcion', 'id_nacionalidad', 'nro_licencia', 'direccion', 'sexo', 'telefono', 'celular'],
-  constants: { flag_tipo_persona: 'N' },
+  constants: { flag_tipo_persona: 'N', ...anexo.constants },
+  children: anexo.children,
+  actions: anexo.actions,
 });

@@ -140,8 +140,8 @@ describe('a lookup with no desktop dialog declares the three inline (R-REG-13)',
  * its fields or joins. `GAPS` lists what the source still lacks TODAY; the slice that adds the field must also remove it here (the test fails both ways).
  */
 const GAPS: Record<string, string[]> = {
-  buscarTrabajador: ['celular', 'direccion', 'empresa', 'telefono', 'tipo_trabajador'],
-  panelCargarTrabajador: ['celular', 'direccion', 'punto_venta', 'telefono'],
+  buscarTrabajador: ['empresa'],
+  panelCargarTrabajador: ['punto_venta'],
   formBuscarVehiculo: ['transportista', 'transportista_ruc'],
 };
 /** Select filters of registered sources that are not yet a declared `lookupFilters` key (the exact list match); W3-10 declares them. */

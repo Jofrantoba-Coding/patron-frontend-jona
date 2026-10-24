@@ -68,9 +68,9 @@ describe('chofer list and toolbar (S-REF-29, S-REF-39)', () => {
     for (const name of ['Agregar', 'Modificar', 'Clonar']) expect(screen.getByRole('button', { name })).toBeTruthy();
   });
 
-  it('S-REF-39 the form has no activation tab, history grid or percepcion flags', async () => {
+  it('S-REF-39 the form has no percepcion, retencion or exceptuado flags (the activation tab is W3, S-REF-40)', async () => {
     await openAdd();
-    for (const text of [/Activaci/i, /Percepcion/i, /Retencion/i, /Exceptuado/i, /Estado/i]) expect(screen.queryByText(text)).toBeNull();
+    for (const text of [/Percepcion/i, /Retencion/i, /Exceptuado/i]) expect(screen.queryByText(text)).toBeNull();
   });
 });
 
