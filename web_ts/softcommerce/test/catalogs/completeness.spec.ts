@@ -25,7 +25,7 @@ const T3 = [
   'almacenes', 'zonas', 'correlativos', 'usuario-correlativos', 'punto-venta', 'zonas-distancia', 'tipos-mov-inventario', 'unidades-medida', 'tipos-cambio', 'promociones',
   'trabajador-punto-venta', 'choferes', 'socios', 'ubicaciones', 'vehiculos',
 ];
-const LOOKUPS = ['monedas', 'tipos-doc-iden', 'tablas-sunat', 'tablas-detalle-sunat', 'tipos-doc-venta', 'usuarios', 'trabajadores', 'familias-sunat', 'subfamilias-sunat'];
+const LOOKUPS = ['monedas', 'tipos-doc-iden', 'tablas-sunat', 'tablas-detalle-sunat', 'tipos-doc-venta', 'usuarios', 'trabajadores', 'familias-sunat', 'subfamilias-sunat', 'cuentas-contables', 'parametros-prov', 'clases-sunat', 'padrones'];
 const CATALOGS = [...T1, ...T2, ...T3];
 
 const entries = REGISTRY.entries as any[];
@@ -37,7 +37,7 @@ describe('R-REF-4..R-REF-6 the 38 catalogs', () => {
     expect(writable.sort()).toEqual([...CATALOGS].sort());
   });
 
-  it('R-REF-11 the other entries are Localidad (W1) and the nine read-only lookups', () => {
+  it('R-REF-11 the other entries are Localidad (W1) and the thirteen read-only lookups', () => {
     const others = entries.filter((e) => e.readOnly || e.compat).map((e) => e.slug).sort();
     expect(others).toEqual(['localidades', ...LOOKUPS].sort());
   });

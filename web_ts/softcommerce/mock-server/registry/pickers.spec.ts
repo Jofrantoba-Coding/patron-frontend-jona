@@ -68,7 +68,7 @@ const entry = (slug: string, over: Record<string, any> = {}): Record<string, any
   slug, idKey: `id_${slug}`, codeWidth: 0, entity: 'un item', scope: 'tenant', seed: slug, messages: { style: 'M1' },
   fields: [text('descripcion', { required: true })], columns: [{ key: 'descripcion', header: 'D' }], ...over,
 });
-const trabajadores = entry('trabajadores', { idKey: 'id_trabajador', optionLabel: 'nombre', fields: [{ name: 'id_trabajador', kind: 'code', label: 'Código' }, text('nombre'), text('dni')] });
+const trabajadores = entry('trabajadores', { idKey: 'id_trabajador', optionLabel: 'nombre', lookupFilters: { nombre: {} }, fields: [{ name: 'id_trabajador', kind: 'code', label: 'Código' }, text('nombre'), text('dni')] });
 const lookup = (over: Record<string, any> = {}) => ({ name: 'id_trabajador', kind: 'lookup', label: 'Trabajador', picker: 'buscarTrabajador', ...over });
 const citas = (field: Record<string, any>) => [trabajadores, entry('citas', { fields: [text('motivo'), field] })];
 const resolved = (registry: ReturnType<typeof validateRegistry>) => registry.bySlug.get('citas').fields.find((f: any) => f.name === 'id_trabajador');
@@ -123,6 +123,11 @@ describe('a lookup with no desktop dialog declares the three inline (R-REG-13)',
     expect(() => validateRegistry(citas(inline({ filters: [{ field: 'nombre', label: 'X', type: 'select' }] })))).toThrow(/filter "nombre" needs a source/);
   });
 
+  it('a select filter must be a declared lookupFilters key of the source, so the list matches it exactly', () => {
+    const select = [{ field: 'dni', label: 'X', type: 'select', source: 'trabajadores' }];
+    expect(() => validateRegistry(citas(inline({ filters: select })))).toThrow(/select filter "dni" must be a declared lookupFilters key of "trabajadores"/);
+  });
+
   it('accepts a select filter over a registered catalog and rejects one over an unknown catalog', () => {
     const select = (source: string) => inline({ filters: [{ field: 'nombre', label: 'X', type: 'select', source }] });
     expect(() => validateRegistry(citas(select('trabajadores')))).not.toThrow();
@@ -139,7 +144,9 @@ const GAPS: Record<string, string[]> = {
   panelCargarTrabajador: ['celular', 'direccion', 'dni', 'punto_venta', 'telefono'],
   formBuscarVehiculo: ['transportista', 'transportista_ruc'],
 };
-const LATER_SOURCES = ['clientes', 'items', 'parametros-prov'];
+/** Select filters of registered sources that are not yet a declared `lookupFilters` key (the exact list match); W3-10 declares them. */
+const SELECT_GAPS: Record<string, string[]> = { formBuscarVehiculo: ['id_marca', 'id_modelo'] };
+const LATER_SOURCES = ['clientes', 'items'];
 
 describe('lazy consistency of every picker with its registered source', () => {
   const namesOf = (picker: any) => [...picker.search, ...picker.filters.map((f: any) => f.field), ...picker.columns.map((c: any) => c.key)];
@@ -154,6 +161,12 @@ describe('lazy consistency of every picker with its registered source', () => {
     const known = new Set([...source.fields.map((f: any) => f.name), ...(source.joins ?? []).map((j: any) => j.as)]);
     const missing = [...new Set(namesOf(PICKERS[name]).filter((n) => !known.has(n)))].sort();
     expect(missing).toEqual(GAPS[name] ?? []);
+  });
+
+  it.each(NAMES.filter((name) => REGISTRY.bySlug.has(PICKERS[name].source)))('%s select filters are declared lookupFilters keys of the source, except the documented gaps', (name) => {
+    const source = REGISTRY.bySlug.get(PICKERS[name].source);
+    const undeclared = PICKERS[name].filters.filter((f: any) => f.type === 'select' && !Object.hasOwn(source.lookupFilters ?? {}, f.field)).map((f: any) => f.field).sort();
+    expect(undeclared).toEqual(SELECT_GAPS[name] ?? []);
   });
 
   it('select filters point at registered catalogs (or sources that arrive later)', () => {

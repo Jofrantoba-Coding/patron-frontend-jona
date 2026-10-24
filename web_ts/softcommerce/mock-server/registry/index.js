@@ -2,6 +2,10 @@ import { aduanas } from './catalogs/aduanas.js';
 import { almacenes } from './catalogs/almacenes.js';
 import { choferes } from './catalogs/choferes.js';
 import { socios } from './catalogs/socios.js';
+import { clasesSunat } from './catalogs/clases-sunat.js';
+import { cuentasContables } from './catalogs/cuentas-contables.js';
+import { padrones } from './catalogs/padrones.js';
+import { parametrosProv } from './catalogs/parametros-prov.js';
 import { clasifClientes } from './catalogs/clasif-clientes.js';
 import { clasifInventarios } from './catalogs/clasif-inventarios.js';
 import { colores } from './catalogs/colores.js';
@@ -55,4 +59,6 @@ import { validateRegistry } from './schema.js';
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
   clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo, subfamiliasSunat, subfamilias, monedas, tiposCambio, promociones, empresa, puntoVenta, almacenes, zonas, tiposDocVenta, correlativos, ubicaciones, tablasSunat, tablasDetalleSunat, tiposMovInventario, unidadesMedida, vehiculos, usuarios, trabajadores, usuarioCorrelativos, zonasDistancia, trabajadorPuntoVenta, tiposDocIden, choferes, socios,
+  // Wave 3 read-only stubs of W6 data (R-MOCK-25).
+  cuentasContables, parametrosProv, clasesSunat, padrones,
 ]);

@@ -1,0 +1,8 @@
+{
+  "demo": [
+    { "id_parametro_prov": "1", "descripcion": "IGV", "id_cuenta": "1", "cuenta": "4011", "tipo": "C", "flag_compra": "S", "flag_venta": "N", "flag_tesoreria": "N", "flag_fondo_fijo": "N", "activo": true },
+    { "id_parametro_prov": "2", "descripcion": "DETRACCION", "id_cuenta": "2", "cuenta": "4012", "tipo": "C", "flag_compra": "S", "flag_venta": "N", "flag_tesoreria": "S", "flag_fondo_fijo": "N", "activo": true },
+    { "id_parametro_prov": "3", "descripcion": "RETENCION DE VENTAS", "id_cuenta": "2", "cuenta": "4013", "tipo": "V", "flag_compra": "N", "flag_venta": "S", "flag_tesoreria": "N", "flag_fondo_fijo": "N", "activo": true },
+    { "id_parametro_prov": "4", "descripcion": "PROVISION ANULADA", "id_cuenta": "1", "cuenta": "4014", "tipo": "C", "flag_compra": "S", "flag_venta": "N", "flag_tesoreria": "N", "flag_fondo_fijo": "N", "activo": false }
+  ]
+}

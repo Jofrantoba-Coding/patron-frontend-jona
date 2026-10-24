@@ -1,6 +1,6 @@
 import { MockError, methodNotAllowed, modeNotSupported, notFound } from './errors.js';
 import { joinLabel } from './lookups.js';
-import { acceptedListKeys, matchesTerms, searchTerms } from './search.js';
+import { acceptedListKeys, exactListKeys, matchesTerms, searchTerms } from './search.js';
 import { isModeMap } from '../registry/schema.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { todayIso } from './dates.js';
@@ -77,9 +77,14 @@ export function listCatalog(store, tenantId, catalog, query = {}, ctx) {
     .map((/** @type {any} */ r) => enrich(store, tenantId, entry, r, ctx));
   // `q` (R-MOCK-20): every term in some declared search field; an entry with no `search` has nothing to match, so the list is empty.
   if (terms.length > 0) rows = rows.filter((/** @type {any} */ r) => matchesTerms(r, entry.search ?? [], terms));
+  // A declared lookup filter key is exact (`1` never matches `10`, R-MOCK-16 on this route too); every other key is a contains match (R-MOCK-9).
+  const exact = exactListKeys(entry);
   for (const [field, value] of Object.entries(filters)) {
     const needle = String(value).toLowerCase();
-    rows = rows.filter((/** @type {any} */ r) => String(r[field] ?? '').toLowerCase().includes(needle));
+    rows = rows.filter((/** @type {any} */ r) => {
+      const text = String(r[field] ?? '').toLowerCase();
+      return exact.has(field) ? text.trim() === needle.trim() : text.includes(needle);
+    });
   }
   const start = (page - 1) * pageSize;
   return { items: rows.slice(start, start + pageSize), pagination: { page, pageSize, total: rows.length } };

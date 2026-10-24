@@ -246,6 +246,8 @@ function assertPickerParts(at, f, target, targetNames, rawBySlug, sources) {
     if (!targetNames.has(filter.field)) fail(at, `filter names unknown field "${filter.field}" of "${target.slug}"`);
     if (filter.type === 'select') {
       if (!filter.source) fail(at, `${name} needs a source`);
+      // A select sends an exact key: only a declared lookupFilters key is exact on the list route (R-MOCK-20).
+      if (!Object.hasOwn(target.lookupFilters ?? {}, filter.field)) fail(at, `select ${name} must be a declared lookupFilters key of "${target.slug}"`);
       if (!rawBySlug.has(filter.source) && !Object.hasOwn(sources, filter.source)) fail(at, `${name} names unknown catalog "${filter.source}"`);
     }
     if (filter.dependsOn !== undefined && !filterFields.has(filter.dependsOn.field)) fail(at, `${name} dependsOn names unknown filter "${filter.dependsOn.field}"`);

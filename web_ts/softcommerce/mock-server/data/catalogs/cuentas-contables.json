@@ -1,0 +1,7 @@
+{
+  "demo": [
+    { "id_cuenta": "1", "cuenta": "1011", "descripcion": "CAJA", "activo": true },
+    { "id_cuenta": "2", "cuenta": "1041", "descripcion": "CUENTA CORRIENTE", "activo": true },
+    { "id_cuenta": "3", "cuenta": "1051", "descripcion": "FONDO FIJO", "activo": false }
+  ]
+}
