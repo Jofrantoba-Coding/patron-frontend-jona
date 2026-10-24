@@ -1,0 +1,89 @@
+{
+  "demo": [
+    {
+      "id_vendedor": "0000000001",
+      "id_trabajador": "001",
+      "nombres": "JUAN PEREZ LOPEZ",
+      "direccion": "AV. LIMA 123",
+      "id_tipo_doc_iden": "01",
+      "numero_doc": "40123456",
+      "telefono": "4561234",
+      "celular": "999111222",
+      "id_nacionalidad": "001",
+      "credito": false,
+      "contado": true,
+      "comentario": "",
+      "id_tipo_anexo": "8",
+      "estado": true,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "1", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ]
+    },
+    {
+      "id_vendedor": "0000000002",
+      "id_trabajador": "002",
+      "nombres": "MARIA GARCIA RAMOS",
+      "direccion": "JR. CUSCO 45",
+      "id_tipo_doc_iden": "01",
+      "numero_doc": "40234567",
+      "telefono": "",
+      "celular": "988777666",
+      "id_nacionalidad": "001",
+      "credito": true,
+      "contado": false,
+      "comentario": "ATIENDE LA ZONA NORTE\nCOMISION ESPECIAL",
+      "id_tipo_anexo": "8",
+      "estado": true,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "2", "estado": "D", "f_inicio": "2024-01-02", "f_fin": "2024-06-30", "motivo_activacion": "INICIO", "motivo_desactivacion": "CIERRE" },
+        { "id": "3", "estado": "A", "f_inicio": "2024-09-01", "f_fin": "", "motivo_activacion": "REINGRESO", "motivo_desactivacion": "" }
+      ]
+    },
+    {
+      "id_vendedor": "0000000003",
+      "id_trabajador": "003",
+      "nombres": "CARLOS TORRES DIAZ",
+      "direccion": "",
+      "id_tipo_doc_iden": "01",
+      "numero_doc": "40345678",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "credito": false,
+      "contado": true,
+      "comentario": "",
+      "id_tipo_anexo": "8",
+      "estado": false,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "4", "estado": "D", "f_inicio": "2024-02-01", "f_fin": "2024-12-31", "motivo_activacion": "INICIO", "motivo_desactivacion": "CESE" }
+      ]
+    },
+    {
+      "id_vendedor": "0000000004",
+      "id_trabajador": "004",
+      "nombres": "LUIS RETIRADO SOTO",
+      "direccion": "",
+      "id_tipo_doc_iden": "01",
+      "numero_doc": "40456789",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "credito": false,
+      "contado": true,
+      "comentario": "",
+      "id_tipo_anexo": "8",
+      "estado": true,
+      "id_usuario": 7,
+      "activo": false,
+      "activaciones": [
+        { "id": "5", "estado": "A", "f_inicio": "2024-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ]
+    }
+  ]
+}

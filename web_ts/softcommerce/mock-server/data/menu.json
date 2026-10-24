@@ -44,5 +44,6 @@
   { "id_menu": 43, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Chofer", "nombre": "PanelTFChofer" },
   { "id_menu": 44, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Socio", "nombre": "PanelTFSocio" },
   { "id_menu": 45, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Banco", "nombre": "miBancoAnexo" },
-  { "id_menu": 46, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Trabajador", "nombre": "miTrabajador" }
+  { "id_menu": 46, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Trabajador", "nombre": "miTrabajador" },
+  { "id_menu": 47, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Vendedor", "nombre": "miVendedor" }
 ]
