@@ -59,16 +59,16 @@ export function applyOps(stored, ops, today) {
 
 /**
  * The first refusal of a body over the stored rows of its parent, or null: each insert is checked against the rows the earlier ops leave, so two inserts of one
- * padron in a body fail like two clicks of `Activar`. `{ conflict }` is the 409 message.
+ * padron in a body fail like two clicks of `Activar`. `{ conflict, index }` is the 409 message and the index of the refused op in the body.
  * @param {Record<string, any>[]} stored @param {Record<string, any>[]} ops
  * @param {{ child: string, today?: string }} [_context]
- * @returns {{ conflict: string } | null}
+ * @returns {{ conflict: string, index: number } | null}
  */
 export function checkOps(stored, ops, _context) {
   for (const [n, op] of ops.entries()) {
     if (op.op !== 'I' || !op.id_padron) continue;
     const message = refusal(applyOps(stored, ops.slice(0, n), ''), String(op.id_padron));
-    if (message) return { conflict: message };
+    if (message) return { conflict: message, index: n };
   }
   return null;
 }

@@ -22,6 +22,9 @@
       "flag_tipo_persona": "J",
       "id_tipo_anexo": "2",
       "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": true,
+      "flag_exceptuado": false,
       "id_usuario": 7,
       "activo": true,
       "activaciones": [
@@ -89,6 +92,15 @@
           "f_fin": "2025-12-31"
         }
       ],
+      "padrones": [
+        {
+          "id": "1",
+          "id_padron": "02",
+          "estado": "A",
+          "f_inicio": "2025-02-01",
+          "f_fin": ""
+        }
+      ],
       "contactos": [
         {
           "id": "1",
@@ -140,6 +152,9 @@
       "flag_tipo_persona": "N",
       "id_tipo_anexo": "2",
       "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_exceptuado": false,
       "id_usuario": 7,
       "activo": true,
       "activaciones": [
@@ -187,6 +202,9 @@
       "flag_tipo_persona": "N",
       "id_tipo_anexo": "2",
       "estado": false,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_exceptuado": false,
       "id_usuario": 7,
       "activo": true,
       "activaciones": [
@@ -222,6 +240,9 @@
       "flag_tipo_persona": "J",
       "id_tipo_anexo": "2",
       "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_exceptuado": false,
       "id_usuario": 7,
       "activo": false,
       "activaciones": [

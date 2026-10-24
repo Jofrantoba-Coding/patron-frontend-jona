@@ -21,7 +21,7 @@ const kid = (name: string) => kids.find((c: any) => c.childName === name);
 describe('R-MST-11 the Cliente child entries', () => {
   it('the tabs follow the desktop order and each child is deactivated, never deleted (R-MD-4)', () => {
     expect(kids.map((c: any) => [c.childName, c.tab, c.removal])).toEqual([
-      ['activaciones', 'Activación de Cliente', 'none'], ['direcciones', 'Direcciones', 'deactivate'], ['sustitutos', 'Sustitutos', 'none'], ['creditos', 'Credito', 'none'], ['creditos_temp', 'Credito Temp', 'none'], ['contactos', 'Contactos', 'deactivate'], ['cuentas', 'Cuentas', 'deactivate'],
+      ['activaciones', 'Activación de Cliente', 'none'], ['direcciones', 'Direcciones', 'deactivate'], ['sustitutos', 'Sustitutos', 'none'], ['creditos', 'Credito', 'none'], ['creditos_temp', 'Credito Temp', 'none'], ['padrones', 'Padrones', 'none'], ['contactos', 'Contactos', 'deactivate'], ['cuentas', 'Cuentas', 'deactivate'],
     ]);
   });
 

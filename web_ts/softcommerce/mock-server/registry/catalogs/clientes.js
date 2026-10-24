@@ -11,10 +11,12 @@ import { referenceCatalog } from './reference.js';
  * returns false and the panel has no clone or detail handler: the modes are INSERT and UPDATE. The estado is derived from the last activation (R-ACT-5, the `activacion` rule
  * owns it); the desktop disables its checkbox, the web port shows it read-only. [DEVIATION] the desktop selects the first tipo de cliente when it loads the combo
  * (`setSelectedIndex(1)`), the web register opens on `--- Seleccione ---` so the sentence stays reachable (R-MST-10). The condición de pago is gated by `IS_CLIENTE_CONDICION_PAGO`
- * (R-REG-17). The padron flags, the sustitutos, the credit tabs and
+ * (R-REG-17). The padron flags (AP, AR, EX), the sustitutos, the credit tabs and
  * the padrones are W3-17. The grids Direcciones, Contactos and Cuentas are W3-16b (`RegisterClienteNuevo` `quitarDireccion`, `quitarContacto`, `quitarCuenta`).
  */
 const anexo = presets.anexo({ entity: 'Cliente', tipoAnexo: TIPO_ANEXO.cliente });
+// R-ANX-7, R-ANX-8: the padron history (`FormAnexoPadron(..., 2, ...)`) offers 01, 02 and 03 and derives the three flags of the General tab (A Percepcion, A Retencion, Exceptuado).
+const padron = presets.padron({ master: 'cliente' });
 const identity = anexoIdentity('un Cliente');
 
 // `isRegisterValid` skips the tipo de cliente when the selected tipo de documento is `OTROS`. No seeded tipo is OTROS [INFERRED], so the condition lists the ids the tipo
@@ -154,10 +156,11 @@ const totales = [
 
 export const clientes = referenceCatalog({
   slug: 'clientes', idKey: 'id_cliente', codeWidth: anexo.codeWidth, entity: 'un Cliente', formId: 'miCliente', title: 'Cliente', descripcion: false,
-  fields: [...fields, { name: 'estado', preset: 'estado', label: 'Estado', readOnlyOn: MODES_ALL }, ...condicion, ...totales],
+  fields: [...fields, { name: 'estado', preset: 'estado', label: 'Estado', readOnlyOn: MODES_ALL }, ...condicion, ...totales, ...padron.fields],
   columns: [
     { key: 'flag_tipo_persona', header: 'T_PERSONA' }, { key: 'descripcion', header: 'RAZON SOCIAL' }, { key: 'ap_paterno', header: 'PATERNO' }, { key: 'ap_materno', header: 'MATERNO' }, { key: 'nombres', header: 'NOMBRES' },
     { key: 'numero_doc', header: 'RUC/DNI' }, { key: 'direccion', header: 'DIRECCION' },
+    { key: 'flag_percepcion', header: 'AP', type: 'bool' }, { key: 'flag_retencion', header: 'AR', type: 'bool' }, { key: 'flag_exceptuado', header: 'EX', type: 'bool' },
     // CANT_SUST is the aggregate over the sustitutos (D27a), listed with IS_CLIENTE_SUSTITUTO. With IS_CLIENTE_CONDICION_PAGO off the desktop hides the last two columns (`setNoVisibleColumn(15)` and `(16)`).
     { key: 'cant_sust', header: 'CANT_SUST', gate: { param: 'IS_CLIENTE_SUSTITUTO' } },
     { key: 'condicion_pago', header: 'CONDICION PAGO', gate: GATE }, { key: 'numero_dias', header: 'NUMERO DIAS', gate: GATE },
@@ -166,11 +169,11 @@ export const clientes = referenceCatalog({
   // The BuscarCliente picker filters by the tipo de cliente, an exact key.
   lookupFilters: { id_clasif_cliente: {} },
   modes: ['INSERT', 'UPDATE'],
-  rules: [...identity.rules, ...anexo.rules],
+  rules: [...identity.rules, ...anexo.rules, ...padron.rules],
   validation: [...validation, 'condicion_pago', 'numero_dias'],
   derive,
   constants: anexo.constants,
-  children: { ...anexo.children, direcciones, sustitutos, creditos: creditoEntry('Credito', false), creditos_temp: creditoEntry('Credito Temp', true), contactos, cuentas },
+  children: { ...anexo.children, direcciones, sustitutos, creditos: creditoEntry('Credito', false), creditos_temp: creditoEntry('Credito Temp', true), ...padron.children, contactos, cuentas },
   aggregate: [
     { as: 'cant_sust', child: 'sustitutos', op: 'count', where: { estado: 'A' } },
     { as: 'credito', child: 'creditos', op: 'sum', field: 'monto' }, { as: 'credito_temp', child: 'creditos_temp', op: 'sum', field: 'monto' },

@@ -50,12 +50,13 @@ export const PICKERS = {
   }),
   // BuscarCliente: Código (IntegerDocument 11), Desc. (UpperCaseNumberDocument 255), DNI/RUC (IntegerDocument 11), Clasificación, Direccion (any text).
   // The classification combo of the desktop lists vendedores under `--- SELECCIONE VENDEDOR ---`: a copy-paste defect, so it is over `clasif-clientes` (R-LKP-7).
+  // [DEVIATION] the desktop table (`AnexoTableModel`, shared with the Proveedor) also has a BC column (Buen Contribuyente); the Cliente never takes the padron 04 (S-ANX-10), so the column would always be empty and is not listed.
   buscarCliente: picker({
     title: 'Cliente', source: 'clientes', pickLabel: 'Agregar',
     filters: [text('id_cliente', 'Código', digits(11)), text('descripcion', 'Desc.', upper(255)), text('numero_doc', 'DNI/RUC', digits(11)),
       select('id_clasif_cliente', 'Clasificación', 'clasif-clientes'), text('direccion', 'Direccion')],
     columns: [column('id_cliente', 'COD'), column('descripcion', 'RAZON SOCIAL'), column('numero_doc', 'RUC/DNI'), column('direccion', 'DIRECCION'),
-      column('flag_buen_contrib', 'BC'), column('flag_retencion', 'AR'), column('flag_exceptuado', 'EX'), column('cant_sust', 'CANT SUST')],
+      column('flag_retencion', 'AR'), column('flag_exceptuado', 'EX'), column('cant_sust', 'CANT SUST')],
   }),
   // FormClienteBuscar: Codigo (IntegerDocument 10), Desc. (UpperCaseNumberDocument 100), RUC/DNI (IntegerDocument 11); `listarCliente("A")` lists the clientes with estado A (`where`).
   formClienteBuscar: picker({

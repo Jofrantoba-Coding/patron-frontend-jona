@@ -23,7 +23,7 @@ describe('D2 the seven picker configs', () => {
   it.each([
     ['buscarTrabajador', '', 'trabajadores', ['Código', 'R. Social', 'RUC/DNI'], ['DNI', 'COD.', 'NOMBRE', 'DIRECCION', 'TELEFONO', 'CELULAR', 'AREA', 'EMPRESA']],
     ['panelCargarTrabajador', 'Trabajador', 'trabajadores', ['Nombres', 'DNI', 'Direccion'], ['COD.', 'NOMBRE', 'DIRECCION', 'DNI', 'TELEFONO', 'CELULAR', 'PUNTO VENTA']],
-    ['buscarCliente', 'Cliente', 'clientes', ['Código', 'Desc.', 'DNI/RUC', 'Clasificación', 'Direccion'], ['COD', 'RAZON SOCIAL', 'RUC/DNI', 'DIRECCION', 'BC', 'AR', 'EX', 'CANT SUST']],
+    ['buscarCliente', 'Cliente', 'clientes', ['Código', 'Desc.', 'DNI/RUC', 'Clasificación', 'Direccion'], ['COD', 'RAZON SOCIAL', 'RUC/DNI', 'DIRECCION', 'AR', 'EX', 'CANT SUST']],
     ['formClienteBuscar', 'Buscar Cliente', 'clientes', ['Codigo', 'Desc.', 'RUC/DNI'], ['COD', 'RAZON SOCIAL', 'RUC/DNI', 'DIRECCION', 'AP', 'AR', 'EX', 'CANT_SUST', 'CONDICION PAGO', 'NUMERO DIAS']],
     ['formBuscarVehiculo', 'Buscar Vehiculo', 'vehiculos', ['Codigo', 'Transportista', 'Marca', 'RUC/DNI', 'Constancia Inscr', 'Placa', 'Modelo'], ['CODIGO', 'TRANSPORTE', 'DNI/RUC', 'PLACA', 'CONSTANCIA INSCRIPCION', 'MARCA', 'MODELO']],
     ['buscarParametroProv', 'Provisiones', 'parametros-prov', ['Código', 'Descripción'], ['CODIGO', 'DESC PARAMETRO', 'CUENTA', 'COMPRA', 'VENTA', 'TESORERIA', 'FONDO FIJO']],
@@ -142,9 +142,6 @@ describe('a lookup with no desktop dialog declares the three inline (R-REG-13)',
 const GAPS: Record<string, string[]> = {
   buscarTrabajador: ['empresa'],
   panelCargarTrabajador: ['punto_venta'],
-  // The padron flags come with W3-17 (Cliente padrones); remove them here with that slice. `cant_sust` is an aggregate of the Cliente (W3-17).
-  buscarCliente: ['flag_buen_contrib', 'flag_exceptuado', 'flag_retencion'],
-  formClienteBuscar: ['flag_exceptuado', 'flag_percepcion', 'flag_retencion'],
 };
 /** Select filters of registered sources that are not yet a declared `lookupFilters` key (the exact list match); none is left since W3-10. */
 const SELECT_GAPS: Record<string, string[]> = {};

@@ -52,7 +52,7 @@ describe('R-MST-12 the Sustitutos tab is behind IS_CLIENTE_SUSTITUTO', () => {
   it('shows after Direcciones with the parameter true', async () => {
     const { user } = renderClientes();
     await openUpdate(user);
-    expect(within(screen.getByRole('dialog')).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['General', 'Activación de Cliente', 'Direcciones', 'Sustitutos', 'Contactos', 'Cuentas']);
+    expect(within(screen.getByRole('dialog')).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['General', 'Activación de Cliente', 'Direcciones', 'Sustitutos', 'Padrones', 'Contactos', 'Cuentas']);
   });
 
   it('with the parameter false there is no Sustitutos tab and the list has no CANT_SUST column', async () => {

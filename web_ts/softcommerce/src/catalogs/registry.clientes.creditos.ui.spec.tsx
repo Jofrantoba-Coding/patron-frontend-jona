@@ -57,7 +57,7 @@ describe('R-MST-12 the credit tabs are behind IS_CLIENTE_CREDITO', () => {
   it('show after the Sustitutos position, with the two totals read-only on General', async () => {
     const { user } = renderClientes();
     await openUpdate(user);
-    expect(within(screen.getByRole('dialog')).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['General', 'Activación de Cliente', 'Direcciones', 'Credito', 'Credito Temp', 'Contactos', 'Cuentas']);
+    expect(within(screen.getByRole('dialog')).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['General', 'Activación de Cliente', 'Direcciones', 'Credito', 'Credito Temp', 'Padrones', 'Contactos', 'Cuentas']);
     await waitFor(() => expect([total('Credito').value, total('Credito Temp').value]).toEqual(['5000', '1200']));
     expect([total('Credito').readOnly, total('Credito Temp').readOnly]).toEqual([true, true]);
   });

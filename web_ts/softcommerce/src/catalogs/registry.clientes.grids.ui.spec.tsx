@@ -65,10 +65,10 @@ describe('S-MD-3 the Direcciones grid shows the history of the real Cliente', ()
     for (const header of ['UBIGEO', 'ZONA', 'DIRECCION']) expect(within(grid).getByText(header)).toBeTruthy();
   });
 
-  it('the register tabs are General, Activación de Cliente, Direcciones, Contactos and Cuentas (the gated and padron tabs come with W3-17)', async () => {
+  it('the register tabs are General, Activación de Cliente, Direcciones, Padrones, Contactos and Cuentas (the parameter-gated ones need their parameters)', async () => {
     const { user } = renderClientes();
     await openUpdate(user);
-    expect(within(screen.getByRole('dialog')).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['General', 'Activación de Cliente', 'Direcciones', 'Contactos', 'Cuentas']);
+    expect(within(screen.getByRole('dialog')).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['General', 'Activación de Cliente', 'Direcciones', 'Padrones', 'Contactos', 'Cuentas']);
   });
 });
 

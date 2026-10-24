@@ -22,7 +22,7 @@ const check = (stored: any[], ops: any[]) => checkOps(stored, ops, { child: 'pad
 
 describe('S-ANX-9 the incompatibility checks of verificarPadron', () => {
   it('refuses the same padron while it is active', () => {
-    expect(check([row('1', '02')], [add('02')])).toEqual({ conflict: YA_ACTIVADO });
+    expect(check([row('1', '02')], [add('02')])).toEqual({ conflict: YA_ACTIVADO, index: 0 });
     expect(YA_ACTIVADO).toBe('Padron ya se Encuentra Activado');
   });
 
@@ -30,12 +30,12 @@ describe('S-ANX-9 the incompatibility checks of verificarPadron', () => {
     ['02', '02'],
     ['03', '03'],
   ])('refuses 01 while %s is active (the 03 case the desktop missed [DEVIATION])', (active) => {
-    expect(check([row('1', active)], [add('01')])).toEqual({ conflict: INCOMPATIBLE_PERCEPCION });
+    expect(check([row('1', active)], [add('01')])).toEqual({ conflict: INCOMPATIBLE_PERCEPCION, index: 0 });
     expect(INCOMPATIBLE_PERCEPCION).toBe('Configuracion incompatible, Desactive AG. Percepcion y/o AG. Retencion');
   });
 
   it.each(['02', '03'])('refuses %s while 01 is active', (id) => {
-    expect(check([row('1', '01')], [add(id)])).toEqual({ conflict: INCOMPATIBLE_EXCEPTUADO });
+    expect(check([row('1', '01')], [add(id)])).toEqual({ conflict: INCOMPATIBLE_EXCEPTUADO, index: 0 });
     expect(INCOMPATIBLE_EXCEPTUADO).toBe('Configuracion incompatible, Desactive Exceptuado');
   });
 
@@ -48,8 +48,8 @@ describe('S-ANX-9 the incompatibility checks of verificarPadron', () => {
 
   it('replays the ops in order: a deactivation and a re-activation in one body is fine, two inserts of one padron are not', () => {
     expect(check([row('1', '02')], [deactivate('1'), add('02')])).toBeNull();
-    expect(check([], [add('02'), add('02')])).toEqual({ conflict: YA_ACTIVADO });
-    expect(check([], [add('02'), add('01')])).toEqual({ conflict: INCOMPATIBLE_PERCEPCION });
+    expect(check([], [add('02'), add('02')])).toEqual({ conflict: YA_ACTIVADO, index: 1 });
+    expect(check([], [add('02'), add('01')])).toEqual({ conflict: INCOMPATIBLE_PERCEPCION, index: 1 });
   });
 
   it('a delete op frees the padron', () => {
