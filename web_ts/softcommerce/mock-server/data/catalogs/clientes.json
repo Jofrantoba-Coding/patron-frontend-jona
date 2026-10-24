@@ -70,6 +70,25 @@
           "id_hijo": "0000000003"
         }
       ],
+      "creditos": [
+        {
+          "id": "1",
+          "estado": "A",
+          "motivo": "LINEA INICIAL",
+          "monto": 5000,
+          "f_inicio": "2025-01-02"
+        }
+      ],
+      "creditos_temp": [
+        {
+          "id": "1",
+          "estado": "A",
+          "motivo": "CAMPANA NAVIDAD",
+          "monto": 1200,
+          "f_inicio": "2025-11-01",
+          "f_fin": "2025-12-31"
+        }
+      ],
       "contactos": [
         {
           "id": "1",
