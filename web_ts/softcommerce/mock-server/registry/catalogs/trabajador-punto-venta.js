@@ -5,7 +5,7 @@ import { referenceCatalog } from './reference.js';
  * empresa, the localidad and the punto de venta, then the (trabajador, punto de venta) pair, with the `label` sentence (`Para {modo} un Trabajador, debes
  * especificar su Nombre.`, `la Empresa`, `la Localidad`, `su Punto de Venta`). [DEVIATION] the desktop words the empresa, localidad and punto de venta
  * messages with "un Correlativo" (a copy of the correlativo form); the web port names the Trabajador, and the desktop skips the pair check on CLONE, the
- * generic create applies it. The trabajador is picked in the `BuscarTrabajador` dialog on the desktop, a plain select here (R-REF-12). The chain is empresa
+ * generic create applies it. The trabajador is picked in the `BuscarTrabajador` dialog, a `lookup` field over the `buscarTrabajador` picker (R-LKP-8; a plain select in Wave 2). The chain is empresa
  * (`listarEmpresa("")`, every one) > localidad (`listar("", empresa, ...)`) > punto de venta (`listar("", "", localidad, ...)`). `insertar` / `modificar` pass the
  * trabajador, the punto de venta, the session user and habilitar, and no empresa (the empresa follows the chosen punto de venta), while
  * `PanelTFTrabajadorPuntoVenta.cargarTabla` lists the session empresa; the web list stays tenant-wide (no list-only scope exists in the core, as for
@@ -16,7 +16,7 @@ export const trabajadorPuntoVenta = referenceCatalog({
   slug: 'trabajador-punto-venta', idKey: 'id_trabajador_punto_venta', codeWidth: 5, entity: 'un Trabajador', formId: 'miTrabajadorPuntoVenta',
   title: 'Trabajador - PuntoVenta', style: 'label', descripcion: false,
   fields: [
-    { name: 'id_trabajador', kind: 'select', label: 'Trabajador', required: true, msgLabel: 'su Nombre', source: { catalog: 'trabajadores' } },
+    { name: 'id_trabajador', kind: 'lookup', picker: 'buscarTrabajador', label: 'Trabajador', required: true, msgLabel: 'su Nombre' },
     { name: 'id_empresa', kind: 'select', label: 'Empresa', required: true, msgLabel: 'la Empresa', source: { catalog: 'empresa' } },
     { name: 'id_localidad', kind: 'select', label: 'Localidad', required: true, msgLabel: 'la Localidad', source: { catalog: 'localidades' }, dependsOn: [{ field: 'id_empresa', filterKey: 'id_empresa' }] },
     { name: 'id_punto_venta', kind: 'select', label: 'Punto de Venta', required: true, msgLabel: 'su Punto de Venta', source: { catalog: 'punto-venta' }, dependsOn: [{ field: 'id_localidad', filterKey: 'id_localidad' }] },
