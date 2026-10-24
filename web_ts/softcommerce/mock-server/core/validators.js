@@ -204,7 +204,7 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
     // The client validates a transient level; the server never sees it.
     if (typeof step === 'string' && fields.get(name).transient) return null;
     let detail = typeof step === 'string' ? fieldDetail(entry, fields.get(name), record, mode, ranged.has(name)) : null;
-    if (!detail && !failed.has(name) && (typeof step === 'object' ? 'ref' in step : inlineRefs && fields.get(name).kind === 'select')) {
+    if (!detail && !failed.has(name) && (typeof step === 'object' ? 'ref' in step : inlineRefs && ['select', 'lookup'].includes(fields.get(name).kind))) {
       detail = refDetail(store, tenantId, entry.refs.find((/** @type {any} */ r) => r.field === name), record, ctx);
     }
     if (detail) failed.add(name);

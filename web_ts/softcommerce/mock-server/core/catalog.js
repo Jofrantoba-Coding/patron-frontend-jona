@@ -1,4 +1,5 @@
 import { MockError, methodNotAllowed, modeNotSupported, notFound } from './errors.js';
+import { joinLabel } from './lookups.js';
 import { acceptedListKeys, matchesTerms, searchTerms } from './search.js';
 import { isModeMap } from '../registry/schema.js';
 import { scopeFilter, stampsOf } from './context.js';
@@ -46,7 +47,8 @@ function enrich(store, tenantId, entry, row, ctx) {
     const key = join.prefixLen ? value.slice(0, join.prefixLen) : value;
     const found = target.rows.find((/** @type {any} */ r) => String(r[target.idKey]) === key);
     const active = found && (!target.activeKey || found[target.activeKey] !== false);
-    out[join.as] = active ? String(found[join.display] ?? '') : '';
+    // `display` is one field of the target, or a list joined with " - " (the optionLabel a lookup join carries, D3).
+    out[join.as] = active ? joinLabel(join.display, found) : '';
   }
   for (const f of entry.fields.filter((/** @type {any} */ f) => f.kind === 'options')) {
     out[`${f.name}_label`] = f.options.find((/** @type {any} */ o) => o.value === String(row[f.name]))?.label ?? '';
