@@ -9,6 +9,8 @@ import { DependentSelect } from '../../shared/ui/DependentSelect';
 import { LookupField } from '../../shared/ui/LookupField';
 import { NumberField } from '../../shared/ui/NumberField';
 import { OptionsField } from '../../shared/ui/OptionsField';
+import { PasswordField } from '../../shared/ui/PasswordField';
+import { confirmationOf } from '../../../mock-server/core/password.js';
 import { TextAreaField } from '../../shared/ui/TextAreaField';
 import { maxLengthOf } from '../../../mock-server/core/predicates.js';
 import { typedNormalize } from '../../domain/crud/normalize';
@@ -59,6 +61,33 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                     <span>{field.label}</span>
                     <UppercaseTextField value={props.values[field.name]} readOnly onChange={() => undefined} />
                   </label>
+                )
+              ) : field.kind === 'password' ? (
+                // Never rendered on DETAIL or DELETE, and never prefilled (R-CRUD-17).
+                !props.readOnly && (
+                  <div key={field.name}>
+                    <PasswordField
+                      ref={props.registerField(field.name)}
+                      name={field.name}
+                      label={field.label}
+                      value={props.values[field.name]}
+                      maxLength={field.maxLength}
+                      readOnly={props.isFieldReadOnly(field.name)}
+                      hasError={Boolean(props.errors[field.name])}
+                      onChange={(value) => props.onFieldChange(field.name, value)}
+                      {...(field.confirm
+                        ? {
+                            confirmLabel: `Confirmar ${field.label}`,
+                            confirmValue: props.values[confirmationOf(field.name)],
+                            confirmHasError: Boolean(props.errors[confirmationOf(field.name)]),
+                            confirmRef: props.registerField(confirmationOf(field.name)),
+                            onConfirmChange: (value: string) => props.onFieldChange(confirmationOf(field.name), value),
+                          }
+                        : {})}
+                    />
+                    {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                    {props.errors[confirmationOf(field.name)] && <small role="alert">{props.errors[confirmationOf(field.name)]}</small>}
+                  </div>
                 )
               ) : field.kind === 'text' && field.multiline ? (
                 <div key={field.name}>

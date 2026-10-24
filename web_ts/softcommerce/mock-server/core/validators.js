@@ -5,6 +5,7 @@ import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
 import { ownedFields, ruleDetail } from './entryRules.js';
+import { confirmationOf } from './password.js';
 import { fieldState, maxLengthOf, minLengthOf } from './predicates.js';
 import { findConflict, isActive, isActiveSibling, same } from './unique.js';
 
@@ -77,6 +78,11 @@ export function pickWritable(entry, body) {
   const record = {};
   const owned = ownedFields(entry);
   for (const f of entry.fields) {
+    // A password travels untrimmed with its confirmation (R-CRUD-17); the store keeps only its hash (D16).
+    if (f.kind === 'password') {
+      for (const key of [f.name, confirmationOf(f.name)]) if (key in body) record[key] = String(body[key] ?? '');
+      continue;
+    }
     // A code is the server's, a transient select is a form-only level (the ubigeo cascade) and a field a named rule owns is derived by it: none is written.
     if (f.kind === 'code' || f.transient || owned.includes(f.name) || !(f.name in body)) continue;
     record[f.name] = entry.compat ? body[f.name] : normalizeValue(body[f.name], f.normalize);
@@ -93,11 +99,29 @@ function rangeDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
   return n < min || n > max ? { field: f.name, code: 'RANGE', message: fieldMessage(entry, f, 'RANGE', mode) } : null;
 }
 
+/**
+ * A password (R-CRUD-17): required on a create, a blank one on UPDATE keeps the stored value; at most `max` characters; the confirmation must equal it
+ * (422 on `<name>_confirmacion`). No message names the value.
+ * @returns {Detail|null}
+ */
+function passwordDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode) {
+  const value = String(record[f.name] ?? '');
+  const confirmation = String(record[confirmationOf(f.name)] ?? '');
+  const mismatch = { field: confirmationOf(f.name), code: 'MISMATCH', message: fieldMessage(entry, f, 'MISMATCH', mode) };
+  if (value === '') {
+    if (mode !== 'UPDATE') return { field: f.name, code: 'REQUIRED', message: fieldMessage(entry, f, 'REQUIRED', mode) };
+    return f.confirm && confirmation !== '' ? mismatch : null;
+  }
+  if (value.length > f.max) return { field: f.name, code: 'MAX_LENGTH', message: fieldMessage(entry, f, 'MAX_LENGTH', mode) };
+  return f.confirm && confirmation !== value ? mismatch : null;
+}
+
 /** Required, length, option, number and boolean checks of one field. A `skipRange` field leaves its range to a `{range}` step. @returns {Detail|null} */
 function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode, skipRange = false) {
   // A hidden or disabled field is not validated (R-CRUD-5); `requiredWhen` makes a visible one required (R-CRUD-13).
   const state = fieldState(f, record);
   if (!state.visible || !state.enabled) return null;
+  if (f.kind === 'password') return passwordDetail(entry, f, record, mode);
   const value = record[f.name];
   // `maxWhen` (R-REG-2): the limit may depend on another field; the message names the limit that applied.
   const limit = maxLengthOf(f, record);

@@ -48,6 +48,19 @@ type PlainField =
       rows?: number;
     }
   | {
+      /**
+       * A password (R-CRUD-17): masked, `maxLength` characters, with a companion `<name>_confirmacion` while `confirm` is on. It is required on INSERT and CLONE, a
+       * blank pair on UPDATE means "keep the stored one" and sends neither key, and it never renders on DETAIL or DELETE.
+       */
+      kind: 'password';
+      name: string;
+      label: string;
+      maxLength: number;
+      confirm: boolean;
+      /** The sentence of a confirmation that differs; the shared default when absent. */
+      confirmMessage?: string;
+    }
+  | {
       /** A checkbox; the form state is 'true' | 'false' and the payload a boolean (codec, D7). */
       kind: 'boolean';
       name: string;

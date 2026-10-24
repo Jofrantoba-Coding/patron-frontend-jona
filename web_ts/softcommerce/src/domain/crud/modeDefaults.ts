@@ -1,6 +1,7 @@
 // Per-mode starting values and read-only rules of the register fields (R-CRUD-15). Pure.
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
 import { todayIso } from '../../../mock-server/core/dates.js';
+import { confirmationOf } from '../../../mock-server/core/password.js';
 import { decodeValue } from './codec';
 import type { FormValues } from './validate';
 
@@ -16,7 +17,9 @@ function defaultFor(field: FieldConfig, mode: CrudMode): string | undefined {
   return value === undefined ? undefined : decodeValue(field, value === 'today' ? todayIso() : value);
 }
 
-const namesOf = (fields: FieldConfig[]) => fields.flatMap((f) => (f.kind === 'cascade' ? f.levels.map((l) => l.name) : [f.name]));
+/** Every form key of the fields: a cascade holds one per level and a confirming password its `<name>_confirmacion`. */
+export const namesOf = (fields: FieldConfig[]) =>
+  fields.flatMap((f) => (f.kind === 'cascade' ? f.levels.map((l) => l.name) : f.kind === 'password' && f.confirm ? [f.name, confirmationOf(f.name)] : [f.name]));
 
 /** The form before any record loads: empty strings, an unchecked boolean, and the defaults of `mode`. */
 export function initialValues(fields: FieldConfig[], mode: CrudMode): FormValues {

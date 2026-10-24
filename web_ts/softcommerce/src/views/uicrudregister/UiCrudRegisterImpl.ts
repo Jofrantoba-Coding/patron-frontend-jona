@@ -2,9 +2,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogConfig, FieldConfig } from '../../catalogs/CatalogConfig';
 import { ruleDerived, ruleEffects } from '../../../mock-server/core/entryRules.js';
+import { confirmationOf } from '../../../mock-server/core/password.js';
 import { decodeValue } from '../../domain/crud/codec';
 import { changeField, isEnabled, isVisible } from '../../domain/crud/conditional';
-import { applyModeDefaults, initialValues, isFieldReadOnly } from '../../domain/crud/modeDefaults';
+import { applyModeDefaults, initialValues, isFieldReadOnly, namesOf } from '../../domain/crud/modeDefaults';
 import { blurNormalize, normalize } from '../../domain/crud/normalize';
 import { mapServerError, type ChildServerError } from '../../domain/crud/serverErrors';
 import { validate, type FormValues } from '../../domain/crud/validate';
@@ -44,14 +45,14 @@ export interface RegisterExtension {
 
 type Load = { status: 'loading' } | { status: 'ready' } | { status: 'failed'; message: string };
 
-const fieldNames = (fields: FieldConfig[]) => fields.flatMap((f) => (f.kind === 'cascade' ? f.levels.map((l) => l.name) : [f.name]));
+const fieldNames = namesOf;
 
 function fromRecord(fields: FieldConfig[], record: unknown, mode: RegisterMode): FormValues {
   const source = record as Record<string, unknown>;
   // The codec reads each wire value into its string form (a boolean becomes 'true' | 'false').
   const values: FormValues = Object.fromEntries(
     fields.flatMap((field) =>
-      field.kind === 'cascade' ? field.levels.map((level) => [level.name, String(source[level.name] ?? '')]) : [[field.name, decodeValue(field, source[field.name])]],
+      field.kind === 'cascade' ? field.levels.map((level) => [level.name, String(source[level.name] ?? '')]) : [[field.name, decodeValue(field, source[field.name])], ...(field.kind === 'password' && field.confirm ? [[confirmationOf(field.name), '']] : [])],
     ),
   );
   // A cascade stores only its leaf; the levels above come from the leaf's ancestors. A cascade that stores nothing (`restoreFrom`) takes
@@ -155,7 +156,7 @@ export function useUiCrudRegisterImpl<T>(
     setSubmitFailure(undefined);
     extension?.childErrors?.([]);
     try {
-      const data = { ...normalize(config.fields, values), ...extension?.payload?.() } as Partial<T>;
+      const data = { ...normalize(config.fields, values, mode), ...extension?.payload?.() } as Partial<T>;
       let resultId = id;
       if (mode === 'INSERT' || mode === 'CLONE') resultId = String((await service.create(data))[config.idKey]);
       else if (mode === 'UPDATE') await service.update(id as string, data);
@@ -193,7 +194,8 @@ export function useUiCrudRegisterImpl<T>(
     valuesRef.current = next;
     setValues(next);
     setRuleAlert(alert);
-    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !cleared.includes(key))));
+    // Editing a password also drops the error of its confirmation (they are one decision).
+    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && key !== confirmationOf(name) && !cleared.includes(key))));
   };
 
   return {

@@ -3,6 +3,7 @@ import { joinLabel } from './lookups.js';
 import { acceptedListKeys, exactListKeys, matchesTerms, searchTerms } from './search.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { cascadeDelete, planChildren } from './children.js';
+import { storePasswords, withoutPasswords } from './password.js';
 import { blankHidden, derivedValues, withDefaults, withRuleDerived } from './stored.js';
 import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
 
@@ -45,7 +46,8 @@ function writableEntry(store, catalog, verb, link) {
  * @param {import('./context.js').RequestContext} [ctx]
  */
 function enrich(store, tenantId, entry, row, ctx) {
-  const out = { ...row };
+  // A password, its confirmation and its hash never leave the store (R-MOCK-23).
+  const out = withoutPasswords(entry, row);
   for (const join of entry.joins ?? []) {
     const ref = entry.refs.find((/** @type {any} */ r) => r.field === join.ref);
     const target = targetOf(store, tenantId, ref.catalog, ctx, false);
@@ -135,7 +137,8 @@ export function createRecord(store, tenantId, catalog, body, ctx, link) {
   // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.
   const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[entry.idKey]) || 0), 0) + 1;
   // Constants and derived columns are the server's: the body never reaches them (R-REF-9).
-  const created = { [entry.idKey]: String(next).padStart(entry.codeWidth, '0'), ...record, ...entry.constants, ...derivedValues(entry, record), ...stamps, ...(link ? { [link.key]: link.id } : {}), [ACTIVE_KEY]: true };
+  const id = String(next).padStart(entry.codeWidth, '0');
+  const created = { [entry.idKey]: id, ...storePasswords(entry, record, id), ...entry.constants, ...derivedValues(entry, record), ...stamps, ...(link ? { [link.key]: link.id } : {}), [ACTIVE_KEY]: true };
   rows.push(created);
   plan?.apply(created[entry.idKey]);
   return enrich(store, tenantId, entry, created, ctx);
@@ -150,7 +153,7 @@ export function updateRecord(store, tenantId, catalog, id, body, ctx, link) {
   const merged = withRuleDerived(entry, blankHidden(entry, { ...row, ...pickWritable(entry, body) }));
   validateRecord(store, tenantId, entry, merged, { selfId: id, ctx, mode: 'UPDATE', parentId: link?.id });
   const plan = link ? null : planChildren(store, tenantId, entry, body.children, { ctx, parentId: id });
-  Object.assign(row, merged, derivedValues(entry, merged), stamps);
+  Object.assign(row, storePasswords(entry, merged, id), derivedValues(entry, merged), stamps);
   plan?.apply(id);
   return enrich(store, tenantId, entry, row, ctx);
 }

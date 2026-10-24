@@ -7,6 +7,8 @@ import type { FormValues } from './validate';
 /** Wire value -> form string. A missing boolean reads as unchecked; a missing text as empty. */
 export function decodeValue(field: FieldConfig, wire: unknown): string {
   if (field.kind === 'boolean') return wire === true ? 'true' : 'false';
+  // A password is never prefilled, in any mode: the server does not return it (R-CRUD-17).
+  if (field.kind === 'password') return '';
   if (field.kind === 'date') return isoToDisplay(wire);
   return wire === undefined || wire === null ? '' : String(wire);
 }

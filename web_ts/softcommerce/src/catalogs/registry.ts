@@ -33,6 +33,9 @@ function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConf
       ...(field.minLen !== undefined ? { minLen: field.minLen } : {}), ...(field.minLenWhen ? { minLenWhen: field.minLenWhen } : {}), ...(field.maxWhen ? { maxWhen: field.maxWhen } : {}),
     };
   }
+  if (field.kind === 'password') {
+    return { kind: 'password', name: field.name, label: field.label, maxLength: field.max, confirm: field.confirm !== false, ...(field.messages?.mismatch ? { confirmMessage: field.messages.mismatch } : {}) };
+  }
   if (field.kind === 'boolean') {
     return { kind: 'boolean', name: field.name, label: field.label, default: field.default, readOnlyOn: field.readOnlyOn };
   }

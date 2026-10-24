@@ -23,7 +23,7 @@ import { BUILTIN_SOURCES } from './sources.js';
 
 export const SCOPES = ['tenant', 'empresa', 'shared'];
 export const MODES = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
-const KINDS = ['code', 'text', 'textarea', 'number', 'boolean', 'date', 'select', 'options', 'lookup'];
+const KINDS = ['code', 'text', 'textarea', 'password', 'number', 'boolean', 'date', 'select', 'options', 'lookup'];
 const STYLES = ['M1', 'M2', 'MS', 'label', 'w1'];
 const STAMPS = ['id_usuario', 'id_empresa'];
 /** Closed set of named rules (D9): the hooks live in `core/entryRules.js`. */
@@ -49,6 +49,9 @@ function fail(where, message) {
 
 /** An `options` field renders as a select unless it asks for radios. @param {any} field */
 const withDisplay = (field) => (field.kind === 'options' && field.display === undefined ? { ...field, display: 'select' } : field);
+
+/** A password confirms itself unless the entry says otherwise (R-REG-13). @param {any} field */
+const withConfirm = (field) => (field.kind === 'password' && field.confirm === undefined ? { ...field, confirm: true } : field);
 
 /** The literal defaults of a field: a `$params.X` token (D27b) is resolved at write time, so it is not a value to check against the kind. @param {any} f @returns {unknown[]} */
 const literalDefaults = (f) => (isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default]).filter((value) => paramToken(value) === undefined);
@@ -397,7 +400,7 @@ function normalizeActions(where, owner, names, resolve) {
  */
 function resolveEntry(raw, slugs, sources, rawBySlug) {
   const where = `entry "${raw.slug}"`;
-  const entry = { section: raw.slug, modes: MODES, ...raw, fields: raw.fields.map(applyPreset).map(withDisplay) };
+  const entry = { section: raw.slug, modes: MODES, ...raw, fields: raw.fields.map(applyPreset).map(withDisplay).map(withConfirm) };
   applyLookups(where, entry, rawBySlug, sources);
   if (!SCOPES.includes(entry.scope)) fail(where, `unknown scope "${entry.scope}"`);
   if (!STYLES.includes(entry.messages?.style)) fail(where, `unknown messages style "${entry.messages?.style}"`);
@@ -439,6 +442,11 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
     if (f.kind === 'textarea') {
       if (f.rows !== undefined && !(Number.isInteger(f.rows) && f.rows > 0)) fail(at, 'rows must be a positive integer');
     } else if (f.rows !== undefined) fail(at, 'rows needs a textarea field');
+    // A password (R-REG-13) needs a `max` (the desktop document length) and may switch its confirmation off; neither means anything elsewhere.
+    if (f.kind === 'password') {
+      if (!(Number.isInteger(f.max) && f.max > 0)) fail(at, 'password needs a max (a positive integer)');
+      if (typeof f.confirm !== 'boolean') fail(at, 'confirm must be a boolean');
+    } else if (f.confirm !== undefined) fail(at, 'confirm needs a password field');
     if (f.kind === 'date') assertDate(at, f);
     else if (f.notFuture !== undefined) fail(at, 'notFuture needs a date field');
     if (f.kind === 'number') assertNumber(at, f);
