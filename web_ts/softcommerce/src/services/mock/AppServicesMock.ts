@@ -11,6 +11,7 @@ import {
 import { runChildAction, runEntryAction } from '../../../mock-server/core/actions.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../../../mock-server/core/catalog.js';
 import { MockError } from '../../../mock-server/core/errors.js';
+import { getPerfilMenu, getPerfilPermiso, getPerfilPermisos, putPerfilMenu, putPerfilPermisos } from '../../../mock-server/core/grants.js';
 import { lookupOptions } from '../../../mock-server/core/lookups.js';
 import { createChild, getChild, listChild, removeChild, updateChild } from '../../../mock-server/core/nested.js';
 import { createStore } from '../../../mock-server/core/store.js';
@@ -22,6 +23,8 @@ import type { InterCatalogService, Page } from '../InterCatalogService';
 import type { InterChildService } from '../InterChildService';
 import type { InterGrantsService } from '../InterGrantsService';
 import type { InterLookupService } from '../InterLookupService';
+import type { Permissions } from '../../domain/permissions';
+import type { InterPerfilGrantsService, PerfilForm } from '../InterPerfilGrantsService';
 import type { InterShellService } from '../InterShellService';
 import type { RequestContext, SessionContext } from '../httpClient';
 import type { ApiScenario } from '../serviceComposer';
@@ -54,6 +57,8 @@ export interface AppServicesMock {
   shell: InterShellService;
   /** The login snapshot of the acting user's grants (R-AUTH-11). */
   grants: InterGrantsService;
+  /** The perfil permission editor (R-PRM-5), over the same store as the HTTP routes. */
+  perfilGrants: InterPerfilGrantsService;
   lookup: InterLookupService;
   /** One service per catalog name, all over the same store. */
   catalog<T>(catalog: string): InterCatalogService<T>;
@@ -145,6 +150,15 @@ export function createAppServicesMock(
       }),
   };
 
+  const perfilGrants: InterPerfilGrantsService = {
+    menu: (perfilId) => call((s) => getPerfilMenu(s, tenantGate(s), perfilId).items),
+    saveMenu: (perfilId, changes) => call((s) => putPerfilMenu(s, tenantGate(s), perfilId, changes).items),
+    permisos: (perfilId) => call((s) => getPerfilPermisos(s, tenantGate(s), perfilId).items as PerfilForm[]),
+    permiso: (perfilId, formId) => call((s) => getPerfilPermiso(s, tenantGate(s), perfilId, formId) as Permissions),
+    savePermisos: (perfilId, changes) => call((s) => (putPerfilPermisos(s, tenantGate(s), perfilId, changes) as { items: PerfilForm[] }).items),
+    savePermiso: (perfilId, formId, changes) => call((s) => putPerfilPermisos(s, tenantGate(s), perfilId, changes, formId) as Permissions),
+  };
+
   const lookup: InterLookupService = {
     empresas: () => call((s) => listEmpresas(s, tenantGate(s)).items),
     ubigeoChildren: (parent) => call((s) => childrenOf(s, parent).items),
@@ -178,5 +192,5 @@ export function createAppServicesMock(
       ) as Promise<any>,
   });
 
-  return { auth, shell, grants, lookup, catalog, children, actions };
+  return { auth, shell, grants, perfilGrants, lookup, catalog, children, actions };
 }
