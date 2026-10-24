@@ -13,7 +13,7 @@ import { BUILTIN_SOURCES } from './sources.js';
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
  *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string | string[], modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
- *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any, project?: string,
+ *   rules?: { name: string }[], search?: string[], lookupFilters?: Record<string, any>, compat?: any, project?: string,
  *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when: { field: string, in: string[] }, then: unknown, else: unknown }[] }} CatalogDef
  */
 
@@ -310,6 +310,13 @@ function resolveEntry(raw, slugs, sources) {
     known('unique', key.errorField);
   }
   for (const join of entry.joins ?? []) known('joins', join.ref);
+  // `search` (R-REG-16): the fields or joined display keys the free-text `q` looks in.
+  if (entry.search !== undefined) {
+    if (!Array.isArray(entry.search) || entry.search.some((/** @type {unknown} */ name) => typeof name !== 'string')) fail(where, 'search must be a list of field names');
+    for (const name of entry.search) {
+      if (!names.has(name) && !(entry.joins ?? []).some((/** @type {any} */ join) => join.as === name)) fail(where, `search names unknown field "${name}"`);
+    }
+  }
   // `optionLabel` is a field name, or a list of them joined with " - " (the tabla SUNAT shows as `nombre - descripcion`).
   if (entry.optionLabel !== undefined) {
     const labels = entry.optionLabel;

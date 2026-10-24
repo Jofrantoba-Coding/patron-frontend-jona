@@ -9,7 +9,7 @@ import { ACTIVE_KEY, existsRow, rowsOf, viaValue } from './validators.js';
  * the static `where` those selects declare (the UI forwards them as parameters).
  * @param {any} store @param {any} target
  */
-function acceptedKeys(store, target) {
+export function acceptedKeys(store, target) {
   const keys = new Set([...target.refs.map((/** @type {any} */ ref) => ref.field), ...Object.keys(target.lookupFilters ?? {})]);
   for (const entry of store.registry.entries) {
     for (const f of entry.fields.filter((/** @type {any} */ f) => f.kind === 'select' && f.source.catalog === target.slug)) {
