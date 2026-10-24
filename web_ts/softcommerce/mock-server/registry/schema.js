@@ -316,7 +316,8 @@ function applyLookups(where, entry, rawBySlug, sources) {
 }
 
 const ACTION_KINDS = ['deferred', 'immediate'];
-const ACTION_PLACEMENTS = { entry: ['list-toolbar', 'register'], child: ['child'] };
+// `api` is served by the endpoints only and never rendered (the anexo `activar` / `desactivar` of S-MOCK-47..49).
+const ACTION_PLACEMENTS = { entry: ['list-toolbar', 'register', 'api'], child: ['child'] };
 const ACTION_WHEN_KEYS = ['modes', 'selection', 'row', 'noRow'];
 
 /**
@@ -353,6 +354,8 @@ function normalizeActions(where, owner, names, resolve) {
       if (typeof declared.rule !== 'string' || declared.rule === '') fail(at, 'a deferred action needs a rule');
       if (declared.server !== undefined) fail(at, 'a deferred action has no server action');
     }
+    // `params` are the constants the named rule reads (the entity word of the anexo messages).
+    if (declared.params !== undefined && (typeof declared.params !== 'object' || declared.params === null || Array.isArray(declared.params))) fail(at, 'params must be an object');
     const when = declared.enabledWhen;
     if (when !== undefined) {
       for (const key of Object.keys(when)) if (!ACTION_WHEN_KEYS.includes(key)) fail(at, `enabledWhen names unknown key "${key}"`);
@@ -571,7 +574,8 @@ function assertQuitar(at, quitar) {
     if (typeof text !== 'string' || text.trim() === '') fail(at, `quitar.${key} must be a non-empty text`);
   }
 }
-const CHILD_ENTRIES = ['dialog', 'inline'];
+// `none`: the grid has no Agregar; its rows come from the actions (the activation history).
+const CHILD_ENTRIES = ['dialog', 'inline', 'none'];
 /** Route words and row keys a child name or field may not take (R-REG-14, R-REG-20). */
 const RESERVED_CHILD_NAMES = ['actions'];
 const RESERVED_CHILD_FIELDS = ['id', 'estado', 'op'];
