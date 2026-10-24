@@ -1,6 +1,7 @@
 import { normalizeValue } from '../../../mock-server/core/normalize.js';
+import { confirmationOf } from '../../../mock-server/core/password.js';
 import { fieldState } from '../../../mock-server/core/predicates.js';
-import type { FieldConfig } from '../../catalogs/CatalogConfig';
+import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
 import { encodeValues } from './codec';
 import type { FormValues } from './validate';
 
@@ -30,13 +31,15 @@ export function typedNormalize(field: FieldConfig, value: string): string {
 /**
  * On submit: re-applies uppercase to the `uppercase` fields, trims and normalizes the registry fields with
  * the same steps as the server, never sends the server `code`, and drops the cascade levels above the leaf
- * (only the leaf id is stored, unless the cascade is transient). The result is the typed payload: the codec turns each boolean field into a boolean, and a hidden
+ * (only the leaf id is stored, unless the cascade is transient). With the `mode` a blank password pair on UPDATE is left out of the payload. The result is the typed payload: the codec turns each boolean field into a boolean, and a hidden
  * conditional field becomes `null`.
  */
-export function normalize(fields: FieldConfig[], values: FormValues): Record<string, unknown> {
+export function normalize(fields: FieldConfig[], values: FormValues, mode?: CrudMode): Record<string, unknown> {
   const result = { ...values };
   for (const field of fields) {
     if (field.kind === 'code') delete result[field.name];
+    // A blank pair on UPDATE means "keep the stored password": neither key is sent (R-CRUD-17). A password goes as typed, never trimmed.
+    else if (field.kind === 'password' && mode === 'UPDATE' && !result[field.name] && !result[confirmationOf(field.name)]) [field.name, confirmationOf(field.name)].forEach((key) => delete result[key]);
     else if (field.kind === 'text' && field.normalize && field.name in result) result[field.name] = normalizeValue(result[field.name], field.normalize) as string;
     else if (field.kind === 'number' && field.normalize && field.name in result) result[field.name] = normalizeValue(result[field.name], field.normalize) as string;
     else if (field.kind === 'text' && field.uppercase && field.name in result) result[field.name] = result[field.name].toUpperCase();
