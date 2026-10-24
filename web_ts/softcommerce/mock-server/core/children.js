@@ -40,6 +40,20 @@ export function liveParent(store, tenantId, child, id, ctx) {
   return row;
 }
 
+/**
+ * Cascade of a logical parent delete (R-MOCK-21, R-MD-7): every row of every child of `parent` linked to the deleted row is logically deleted, the
+ * deactivated ones included. A store child marks the rows of the owning section; the rows of another parent are not touched.
+ * @param {any} store @param {string} tenantId @param {any} parent @param {Record<string, any>} row the deleted parent row
+ */
+export function cascadeDelete(store, tenantId, parent, row) {
+  for (const child of store.registry.childEntries.filter((/** @type {any} */ c) => c.parent === parent.slug)) {
+    const sameEmpresa = (/** @type {any} */ r) => child.scope !== 'empresa' || parent.scope !== 'empresa' || String(r.id_empresa) === String(row.id_empresa);
+    for (const kid of rowsOf(store, tenantId, child)) {
+      if (String(kid[child.parentKey]) === String(row[parent.idKey]) && sameEmpresa(kid)) kid[ACTIVE_KEY] = false;
+    }
+  }
+}
+
 /** Re-roots a child failure on `<child>[<n>].<field>`, `n` being the index in the SENT array (S-MOCK-57). @param {unknown} error @param {string} name @param {number} n */
 function indexed(error, name, n) {
   if (!(error instanceof MockError) || error.details.length === 0) return error;
@@ -71,22 +85,22 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId } = 
     planned[child.childName] = ops;
     // The working view of the active siblings: the stored rows of this parent, then every op planned before the current one (R-MD-6).
     const view = rows.filter(own).map((/** @type {any} */ r) => ({ ...r }));
-    const inView = (/** @type {string} */ id) => view.find((/** @type {any} */ r) => r.id === id);
+    const inView = (/** @type {string} */ id) => view.find((/** @type {any} */ r) => r[child.idKey] === id);
     ops.forEach((/** @type {any} */ op, /** @type {number} */ n) => {
       const bad = (/** @type {string} */ field, /** @type {string} */ code, /** @type {string} */ message) => validationError([{ field: `${child.childName}[${n}].${field}`, code, message }]);
       if (!OPS.includes(op?.op)) throw bad('op', 'INVALID', 'op must be I, A or E');
       const stamps = stampsOf(store, tenantId, child, ctx);
-      const stored = op.op === 'I' ? undefined : rows.find((/** @type {any} */ r) => own(r) && r.id === String(op.id ?? ''));
+      const stored = op.op === 'I' ? undefined : rows.find((/** @type {any} */ r) => own(r) && r[child.idKey] === String(op.id ?? ''));
       if (op.op !== 'I' && !stored) throw bad('id', 'NOT_FOUND', `${child.childName} ${op.id} does not exist`);
       if (op.op === 'E') {
         writes.push(() => { /** @type {any} */ (stored)[ACTIVE_KEY] = false; });
-        view.splice(view.indexOf(/** @type {any} */ (inView(stored.id))), 1);
+        view.splice(view.indexOf(/** @type {any} */ (inView(stored[child.idKey]))), 1);
         return;
       }
       const picked = pickWritable(child, op);
       const record = withRuleDerived(child, blankHidden(child, op.op === 'I' ? withDefaults(child, picked) : { ...stored, ...picked }));
       try {
-        validateRecord(store, tenantId, child, record, { ctx, mode: op.op === 'I' ? 'INSERT' : 'UPDATE', selfId: stored?.id, parentId, siblings: view });
+        validateRecord(store, tenantId, child, record, { ctx, mode: op.op === 'I' ? 'INSERT' : 'UPDATE', selfId: stored?.[child.idKey], parentId, siblings: view });
       } catch (error) {
         throw indexed(error, child.childName, n);
       }
@@ -94,13 +108,13 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId } = 
         // `A` updates, and deactivates a child whose removal kind is `deactivate`; it never reactivates (R-MOCK-21).
         const estado = child.removal === 'deactivate' && op.estado === 'D' ? { estado: 'D' } : {};
         writes.push(() => Object.assign(/** @type {any} */ (stored), record, derivedValues(child, record), stamps, estado));
-        Object.assign(/** @type {any} */ (inView(stored.id)), record, estado);
+        Object.assign(/** @type {any} */ (inView(stored[child.idKey])), record, estado);
         return;
       }
-      view.push({ ...record, ...child.constants, id: `~${n}` });
+      view.push({ ...record, ...child.constants, [child.idKey]: `~${n}` });
       writes.push((id) => {
-        const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r.id) || 0), 0) + 1;
-        rows.push({ id: String(next), ...record, ...child.constants, ...derivedValues(child, record), ...stamps, [child.parentKey]: id, [ACTIVE_KEY]: true });
+        const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[child.idKey]) || 0), 0) + 1;
+        rows.push({ [child.idKey]: String(next).padStart(child.codeWidth, '0'), ...record, ...child.constants, ...derivedValues(child, record), ...stamps, [child.parentKey]: id, [ACTIVE_KEY]: true });
       });
     });
   }

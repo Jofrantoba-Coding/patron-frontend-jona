@@ -2,7 +2,7 @@ import { MockError, methodNotAllowed, modeNotSupported, notFound } from './error
 import { joinLabel } from './lookups.js';
 import { acceptedListKeys, exactListKeys, matchesTerms, searchTerms } from './search.js';
 import { scopeFilter, stampsOf } from './context.js';
-import { planChildren } from './children.js';
+import { cascadeDelete, planChildren } from './children.js';
 import { blankHidden, derivedValues, withDefaults, withRuleDerived } from './stored.js';
 import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
 
@@ -166,4 +166,6 @@ export function deleteRecord(/** @type {any} */ store, /** @type {string} */ ten
   if (link && row[ACTIVE_KEY] === false) throw notFound(`${entry.slug} ${id} not found`);
   if (entry.removal === 'deactivate') row.estado = 'D';
   else row[ACTIVE_KEY] = false;
+  // A logical delete of a parent deletes all its children; children never block it (R-MOCK-21).
+  if (!link) cascadeDelete(store, tenantId, entry, row);
 }
