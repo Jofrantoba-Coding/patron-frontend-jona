@@ -1,5 +1,7 @@
 // G15 UI adapter: a registry entry becomes the CatalogConfig the generic list and register units consume.
 import type { CatalogDef } from '../../mock-server/registry/schema.js';
+import { PICKERS } from '../../mock-server/registry/pickers.js';
+import { REGISTRY } from '../../mock-server/registry/index.js';
 import type { CatalogConfig, FieldConfig } from './CatalogConfig';
 
 type Row = Record<string, string>;
@@ -11,12 +13,14 @@ const conditionsOf = (field: any) => ({
   ...(field.ruleState ? { ruleState: field.ruleState } : {}),
 });
 
-function toField(entry: CatalogDef, field: any): FieldConfig {
-  const config = baseField(entry, field);
+function toField(entry: CatalogDef, field: any, registry: Registry): FieldConfig {
+  const config = baseField(entry, field, registry);
   return config.kind === 'code' || config.kind === 'cascade' ? config : { ...config, ...conditionsOf(field) };
 }
 
-function baseField(entry: CatalogDef, field: any): FieldConfig {
+type Registry = { bySlug: Map<string, any> };
+
+function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConfig {
   if (field.kind === 'code') return { kind: 'code', name: field.name, label: field.label };
   if (field.kind === 'text') {
     const normalize: string[] = field.normalize ?? [];
@@ -52,6 +56,17 @@ function baseField(entry: CatalogDef, field: any): FieldConfig {
       ...(field.notFuture ? { notFuture: true } : {}), ...(field.min !== undefined ? { min: field.min } : {}), ...(field.afterField ? { afterField: field.afterField } : {}),
     };
   }
+  if (field.kind === 'lookup') {
+    // The dialog is the named picker (its title, Refrescar and extras) or what the field declares inline.
+    const named = field.picker ? PICKERS[field.picker as keyof typeof PICKERS] : undefined;
+    const target = registry.bySlug.get(field.source.catalog);
+    const where = field.source.where && Object.fromEntries(Object.entries(field.source.where).map(([key, value]) => [key, String(value)]));
+    return {
+      kind: 'lookup', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, ...(where ? { where } : {}) },
+      display: field.display, idKey: target.idKey, codeWidth: target.codeWidth ?? 0, optionLabel: target.optionLabel ?? 'descripcion',
+      picker: { title: named?.title ?? field.label, columns: field.columns, filters: field.filters, pickLabel: field.pickLabel ?? 'Agregar', ...(named?.refresh ? { refresh: true } : {}), ...(named?.extras ? { extras: named.extras } : {}) },
+    };
+  }
   // A select over `ubigeo` is the departamento > provincia > distrito cascade (R-REF-6, D8): the leaf carries the field name, the
   // levels above are not stored (INEI codes nest by prefix: departamento 2 digits, provincia 4, distrito 6).
   if (field.kind === 'select' && field.source.catalog === 'ubigeo') {
@@ -76,14 +91,14 @@ function baseField(entry: CatalogDef, field: any): FieldConfig {
 }
 
 /** The list and register config of an entry; the entry rides along for validation order and messages. */
-export function toCatalogConfig(entry: CatalogDef): CatalogConfig<Row> {
+export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY): CatalogConfig<Row> {
   return {
     formId: entry.formId ?? entry.slug,
     title: entry.title ?? entry.slug,
     catalog: entry.slug,
     idKey: entry.idKey,
     columns: entry.columns.map(({ key, header, type }) => ({ key, header, sortable: true, ...(type === 'bool' || type === 'dec' || type === 'date' ? { format: type as 'bool' | 'dec' | 'date' } : {}) })),
-    fields: entry.fields.map((field) => toField(entry, field)),
+    fields: entry.fields.map((field) => toField(entry, field, registry)),
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,
   };

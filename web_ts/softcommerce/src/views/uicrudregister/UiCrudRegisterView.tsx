@@ -5,6 +5,7 @@ import { CascadeSelect } from '../../shared/ui/CascadeSelect';
 import { CatalogSelect } from '../../shared/ui/CatalogSelect';
 import { DateField } from '../../shared/ui/DateField';
 import { DependentSelect } from '../../shared/ui/DependentSelect';
+import { LookupField } from '../../shared/ui/LookupField';
 import { NumberField } from '../../shared/ui/NumberField';
 import { OptionsField } from '../../shared/ui/OptionsField';
 import { maxLengthOf } from '../../../mock-server/core/predicates.js';
@@ -171,6 +172,23 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                       onChange={(value) => props.onFieldChange(field.name, value)}
                     />
                   </label>
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
+              ) : field.kind === 'lookup' ? (
+                <div key={field.name}>
+                  <LookupField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    value={props.values[field.name]}
+                    description={props.lookupDisplay[field.name] ?? ''}
+                    codeWidth={field.codeWidth}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    dialog={{ config: field.picker, idKey: field.idKey, list: props.lookupList(field.source.catalog, field.source.where), loadOptions: props.loadOptions }}
+                    describe={(row) => row[field.optionLabel]}
+                    onChange={(value, description) => props.onLookupChange(field.name, value, description)}
+                  />
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
                 </div>
               ) : (

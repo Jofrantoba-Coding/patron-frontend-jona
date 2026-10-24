@@ -2,6 +2,7 @@
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
 import type { FormValues } from '../../domain/crud/validate';
 import type { LookupItem } from '../../services/InterLookupService';
+import type { LookupQuery } from '../../shared/ui/LookupDialog/InterLookupDialog';
 
 export type RegisterMode = CrudMode;
 export type RegisterStatus = 'loading' | 'ready' | 'failed';
@@ -44,6 +45,12 @@ export interface InterUiCrudRegister {
   loadOptions: (catalog: string, filters: Record<string, string>) => Promise<LookupItem[]>;
   /** Children of a cascade parent id; '' asks for the top level. The cascade `filter`, when it has one, narrows them. */
   loadChildren: (parent: string, filter?: Record<string, string>) => Promise<LookupItem[]>;
+  /** The description of each lookup field's picked record, by field name (kept out of the form values: it is never sent). */
+  lookupDisplay: Record<string, string>;
+  /** Value-first: a lookup picked, resolved, cleared or edited; `('', '')` clears. */
+  onLookupChange: (name: string, value: string, description: string) => void;
+  /** The paged search over a lookup source (`where` is its static filter). */
+  lookupList: (catalog: string, where?: Record<string, string>) => (query: LookupQuery) => Promise<{ items: Record<string, string>[]; pagination: { total: number } }>;
   /** Ref callback per field name, so a blocked submit can focus the first invalid one. */
   registerField: (name: string) => (element: HTMLElement | null) => void;
   onSubmit: () => void;
