@@ -100,10 +100,11 @@ describe('vehiculo register (S-REF-31, S-REF-39)', () => {
     expect(await screen.findByText('QWE123')).toBeTruthy();
   });
 
-  it('S-REF-39 the form has no propietario picker (transportista)', async () => {
+  it('S-REF-39 (modified by R-MST-6) the Propietario is present and no other excluded control is: no Transportista box and no nested-create button', async () => {
     await openAdd();
-    for (const absent of ['Propietario', 'Transportista']) expect(screen.queryByLabelText(absent), absent).toBeNull();
-    expect(screen.queryByText('Propietario')).toBeNull();
+    expect(screen.getByLabelText('Propietario')).toBeTruthy();
+    expect(screen.queryByLabelText('Transportista')).toBeNull();
+    expect(within(dialog()).queryAllByRole('button').map((b) => b.textContent).filter((t) => /nuev[ao]|crear/i.test(t ?? ''))).toEqual([]);
   });
 
   it('UPDATE restores the saved marca, modelo, placa and peso', async () => {

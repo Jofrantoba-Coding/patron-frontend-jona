@@ -309,10 +309,10 @@ describe('W2 reference catalogs are registered', () => {
     expect([entry.stamp, entry.scope, field('estado').default]).toEqual([['id_usuario'], 'tenant', { INSERT: true }]);
   });
 
-  it('S-REF-39 vehiculos has no propietario picker: the form is marca, modelo, placa, constancia, peso and estado', () => {
+  it('S-REF-39 (modified by R-MST-6) vehiculos: the form is marca, modelo, placa, constancia, peso, the Propietario lookup and estado', () => {
     const fields = toCatalogConfig(REGISTRY.bySlug.get('vehiculos')).fields;
-    expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_vehiculo', 'select:id_marca', 'select:id_modelo', 'text:placa', 'text:constancia_inscripcion', 'number:peso', 'boolean:estado']);
-    expect(fields.map((f: any) => f.label)).toEqual(['Código', 'Marca', 'Modelo', 'Placa', 'Const inscripcion', 'Peso(KG)', 'Activo']);
+    expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_vehiculo', 'select:id_marca', 'select:id_modelo', 'text:placa', 'text:constancia_inscripcion', 'number:peso', 'lookup:id_anexo_empresa_transportista', 'boolean:estado']);
+    expect(fields.map((f: any) => f.label)).toEqual(['Código', 'Marca', 'Modelo', 'Placa', 'Const inscripcion', 'Peso(KG)', 'Propietario', 'Activo']);
   });
 
   it('S-REF-17 / S-CRUD-40 usuario-correlativos keeps the desktop order, the label style and the multi-parent chain', () => {

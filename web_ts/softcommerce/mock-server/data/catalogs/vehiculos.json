@@ -1,8 +1,8 @@
 {
   "demo": [
-    { "id_vehiculo": "001", "id_marca": "001", "id_modelo": "001", "placa": "ABC123", "constancia_inscripcion": "CI-0001", "peso": 1500, "estado": true, "activo": true },
-    { "id_vehiculo": "002", "id_marca": "002", "id_modelo": "004", "placa": "XYZ789", "constancia_inscripcion": "CI-0002", "peso": 2000, "estado": true, "activo": true },
-    { "id_vehiculo": "003", "id_marca": "001", "id_modelo": "001", "placa": "DEF456", "constancia_inscripcion": "CI-0003", "peso": 800, "estado": false, "activo": true },
+    { "id_vehiculo": "001", "id_marca": "001", "id_modelo": "001", "placa": "ABC123", "constancia_inscripcion": "CI-0001", "peso": 1500, "id_anexo_empresa_transportista": "0000000001", "estado": true, "activo": true },
+    { "id_vehiculo": "002", "id_marca": "002", "id_modelo": "004", "placa": "XYZ789", "constancia_inscripcion": "CI-0002", "peso": 2000, "id_anexo_empresa_transportista": "0000000001", "estado": true, "activo": true },
+    { "id_vehiculo": "003", "id_marca": "001", "id_modelo": "001", "placa": "DEF456", "constancia_inscripcion": "CI-0003", "peso": 800, "id_anexo_empresa_transportista": "0000000002", "estado": false, "activo": true },
     { "id_vehiculo": "004", "id_marca": "002", "id_modelo": "005", "placa": "RET000", "constancia_inscripcion": "CI-0004", "peso": 0, "estado": true, "activo": false }
   ]
 }

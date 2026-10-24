@@ -9,7 +9,11 @@ import { referenceCatalog } from './reference.js';
  * `"3"` and Chofer with `"7"`); the code is padded to ten (`PanelTFTransportista.focusLost`). `executeDelete` returns false, so DELETE answers 405
  * `MODE_NOT_SUPPORTED`. The estado is derived from the last activation (R-ACT-5, the `activacion` rule owns it); the desktop hides its checkbox, the web port shows it read-only.
  * [DEVIATION] `isRegisterValid` words the tipo-document sentence `un Cliente` (it names `un Transportista`), and `loadRegister` forces `PERUANA` on UPDATE (the stored nacionalidad
- * is restored); the padron flags the desktop loads and sends without a tab are not ported (R-MST-3). The `Vehiculos` grid comes with W3-10b (R-MST-5, R-MST-6).
+ * is restored); the padron flags the desktop loads and sends without a tab are not ported (R-MST-3).
+ * The `Vehiculo` tab (`getPanelVehiculo`) is the W2 vehiculos section seen through the propietario (R-MST-6, S-REG-30): the entry sits above the grid (`entry: 'inline'`) with
+ * the five fields of `agregarVehiculo` in its order and its sentences (`Ingrese Constancia`, `Ingrese Placa`, `Ingrese Peso`, `Seleccione Marca`, `Seleccione Modelo`),
+ * `quitarVehiculo` marks a persisted row `E` (`removal: 'delete'`), and the grid shows CODIGO, PLACA, CONSTANCIA INSCRIPCION, MARCA and MODELO (the other `VehiculoTableModel`
+ * columns are hidden). `loadRegister` lists `listarVehiculo("", idTransportista, "A")`.
  */
 const anexo = presets.anexo({ entity: 'Transportista', tipoAnexo: TIPO_ANEXO.transportista });
 const identity = anexoIdentity('un Transportista', { tipo: '05' });
@@ -25,6 +29,20 @@ export const transportistas = referenceCatalog({
   rules: [...identity.rules, ...anexo.rules],
   validation: identity.validation,
   constants: anexo.constants,
-  children: anexo.children,
+  children: {
+    ...anexo.children,
+    vehiculos: {
+      tab: 'Vehiculo', entry: 'inline', removal: 'delete', store: { entry: 'vehiculos', key: 'id_anexo_empresa_transportista' },
+      quitar: { none: 'Seleccione Vehiculo', confirm: 'Desea Quitar el Vehiculo?' },
+      columns: [
+        { key: 'id_vehiculo', header: 'CODIGO' }, { key: 'placa', header: 'PLACA' }, { key: 'constancia_inscripcion', header: 'CONSTANCIA INSCRIPCION' },
+        { key: 'marca', header: 'MARCA' }, { key: 'modelo', header: 'MODELO' },
+      ],
+      entryFields: [
+        { name: 'constancia_inscripcion', message: 'Ingrese Constancia' }, { name: 'placa', message: 'Ingrese Placa' }, { name: 'peso', message: 'Ingrese Peso' },
+        { name: 'id_marca', message: 'Seleccione Marca' }, { name: 'id_modelo', message: 'Seleccione Modelo' },
+      ],
+    },
+  },
   actions: anexo.actions,
 });

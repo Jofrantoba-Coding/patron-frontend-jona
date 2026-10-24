@@ -15,8 +15,8 @@ export interface DraftOptions<T> {
   unique: DraftUniqueKey[];
   /** The active rows of the grid, persisted and pending, read at the moment of the confirm. */
   siblings: () => T[];
-  /** Receives the one new row once it passed. */
-  onRow: (row: T) => void;
+  /** Receives the one new row once it passed; the confirm waits for it, so a host can add the display names of the row first. */
+  onRow: (row: T) => void | Promise<void>;
 }
 
 const refuse = (what: string) => () => Promise.reject(new Error(`A draft catalog service only collects rows (${what}).`));
@@ -29,7 +29,7 @@ export function createDraftCatalogService<T extends Record<string, any>>({ uniqu
         if (!findConflict(siblings(), key.fields, row, { active: isActiveSibling })) continue;
         throw new ApiError(409, { code: 'DUPLICATE', message: key.message, details: [{ field: key.errorField, message: key.message }], traceId: 'draft' });
       }
-      onRow(row);
+      await onRow(row);
       return row;
     },
     list: refuse('list'),
