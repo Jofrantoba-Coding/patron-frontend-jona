@@ -142,9 +142,9 @@ describe('a lookup with no desktop dialog declares the three inline (R-REG-13)',
 const GAPS: Record<string, string[]> = {
   buscarTrabajador: ['empresa'],
   panelCargarTrabajador: ['punto_venta'],
-  // The padron flags and the sustitutos count come with W3-17 (Cliente padrones and sustitutos); remove them here with that slice.
-  buscarCliente: ['cant_sust', 'flag_buen_contrib', 'flag_exceptuado', 'flag_retencion'],
-  formClienteBuscar: ['cant_sust', 'flag_exceptuado', 'flag_percepcion', 'flag_retencion'],
+  // The padron flags come with W3-17 (Cliente padrones); remove them here with that slice. `cant_sust` is an aggregate of the Cliente (W3-17).
+  buscarCliente: ['flag_buen_contrib', 'flag_exceptuado', 'flag_retencion'],
+  formClienteBuscar: ['flag_exceptuado', 'flag_percepcion', 'flag_retencion'],
 };
 /** Select filters of registered sources that are not yet a declared `lookupFilters` key (the exact list match); none is left since W3-10. */
 const SELECT_GAPS: Record<string, string[]> = {};
@@ -160,7 +160,7 @@ describe('lazy consistency of every picker with its registered source', () => {
 
   it.each(NAMES.filter((name) => REGISTRY.bySlug.has(PICKERS[name].source)))('%s only names fields of its source, except the documented gaps', (name) => {
     const source = REGISTRY.bySlug.get(PICKERS[name].source);
-    const known = new Set([...source.fields.map((f: any) => f.name), ...(source.joins ?? []).map((j: any) => j.as)]);
+    const known = new Set([...source.fields.map((f: any) => f.name), ...(source.joins ?? []).map((j: any) => j.as), ...(source.aggregate ?? []).map((a: any) => a.as)]);
     const missing = [...new Set(namesOf(PICKERS[name]).filter((n) => !known.has(n)))].sort();
     expect(missing).toEqual(GAPS[name] ?? []);
   });

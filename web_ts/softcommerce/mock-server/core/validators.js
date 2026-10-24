@@ -96,7 +96,8 @@ export function refDerived(store, tenantId, entry, record, ctx) {
 export function pickWritable(entry, body, params) {
   /** @type {Record<string, any>} */
   const record = {};
-  const owned = ownedFields(entry);
+  // The aggregates (D27a) are derived on every read: a body never writes them.
+  const owned = [...ownedFields(entry), ...(entry.aggregate ?? []).map((/** @type {any} */ a) => a.as)];
   for (const f of entry.fields) {
     // A password travels untrimmed with its confirmation (R-CRUD-17); the store keeps only its hash (D16).
     if (f.kind === 'password') {

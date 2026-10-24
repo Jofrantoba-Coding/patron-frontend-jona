@@ -101,13 +101,39 @@ const cuentas = {
   columns: [{ key: 'descripcion', header: 'DESC_CUENTA' }, { key: 'num_cuenta', header: 'NUM_CUENTA' }],
 };
 
+// R-MST-12 the Sustitutos child (`getPanelSustitutos`, `FormClienteBuscar`, `ClienteSustitutoTableModel`; tab behind IS_CLIENTE_SUSTITUTO). `Agregar` opens the FormClienteBuscar picker (no dialog of its own)
+// and a pick adds the row; the grid shows the cliente (RUC/DNI, RAZON SOCIAL, DIRECCION) and its AP / AR / EX flags beside the state. There is no Quitar: `Activar` and `Desactivar` change the
+// state (a pending row that is deactivated is removed, a persisted one is closed), so the child is `removal: 'none'` and `reactivable`. A cliente is unique among the active rows
+// (`Cliente ya Esta Agregado`); `Cliente esta desactivado` (the cliente of the row was deactivated) is the client check of Activar, read from the joined estado of the cliente.
+const SUSTITUTO_DUPLICADO = 'Cliente ya Esta Agregado';
+const sustitutos = {
+  tab: 'Sustitutos', removal: 'none', entry: 'picker', reactivable: true, gate: { param: 'IS_CLIENTE_SUSTITUTO' },
+  pick: {
+    picker: 'formClienteBuscar', field: 'id_hijo', message: SUSTITUTO_DUPLICADO,
+    copy: { descripcion: 'descripcion', numero_doc: 'numero_doc', direccion: 'direccion', estado_cliente: 'estado', flag_percepcion: 'flag_percepcion', flag_retencion: 'flag_retencion', flag_exceptuado: 'flag_exceptuado' },
+  },
+  fields: [{ name: 'id_hijo', kind: 'select', label: 'Cliente', required: true, message: 'Seleccione Cliente', source: { catalog: 'clientes' } }],
+  unique: [{ fields: ['id_hijo'], errorField: 'id_hijo', message: SUSTITUTO_DUPLICADO }],
+  validation: ['id_hijo', { unique: 0 }],
+  joins: ['descripcion', 'numero_doc', 'direccion', 'flag_percepcion', 'flag_retencion', 'flag_exceptuado'].map((name) => ({ as: name, ref: 'id_hijo', display: name })).concat([{ as: 'estado_cliente', ref: 'id_hijo', display: 'estado' }]),
+  columns: [
+    { key: 'numero_doc', header: 'RUC/DNI' }, { key: 'descripcion', header: 'RAZON SOCIAL' }, { key: 'direccion', header: 'DIRECCION' },
+    { key: 'flag_percepcion', header: 'AP', type: 'bool' }, { key: 'flag_retencion', header: 'AR', type: 'bool' }, { key: 'flag_exceptuado', header: 'EX', type: 'bool' },
+  ],
+  actions: [
+    { id: 'activar', label: 'Activar', kind: 'deferred', rule: 'activarSustituto', confirm: 'Desea activar Cliente Sustituto?', enabledWhen: { modes: ['INSERT', 'UPDATE'] } },
+    { id: 'desactivar', label: 'Desactivar', kind: 'deferred', rule: 'desactivarSustituto', confirm: 'Desea Desactivar Cliente Sustituto?', enabledWhen: { modes: ['INSERT', 'UPDATE'] } },
+  ],
+};
+
 export const clientes = referenceCatalog({
   slug: 'clientes', idKey: 'id_cliente', codeWidth: anexo.codeWidth, entity: 'un Cliente', formId: 'miCliente', title: 'Cliente', descripcion: false,
   fields: [...fields, { name: 'estado', preset: 'estado', label: 'Estado', readOnlyOn: ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'] }, ...condicion],
   columns: [
     { key: 'flag_tipo_persona', header: 'T_PERSONA' }, { key: 'descripcion', header: 'RAZON SOCIAL' }, { key: 'ap_paterno', header: 'PATERNO' }, { key: 'ap_materno', header: 'MATERNO' }, { key: 'nombres', header: 'NOMBRES' },
     { key: 'numero_doc', header: 'RUC/DNI' }, { key: 'direccion', header: 'DIRECCION' },
-    // With IS_CLIENTE_CONDICION_PAGO off the desktop hides these two columns (`setNoVisibleColumn(15)` and `(16)`); the CANT_SUST column comes with W3-17.
+    // CANT_SUST is the aggregate over the sustitutos (D27a), listed with IS_CLIENTE_SUSTITUTO. With IS_CLIENTE_CONDICION_PAGO off the desktop hides the last two columns (`setNoVisibleColumn(15)` and `(16)`).
+    { key: 'cant_sust', header: 'CANT_SUST', gate: { param: 'IS_CLIENTE_SUSTITUTO' } },
     { key: 'condicion_pago', header: 'CONDICION PAGO', gate: GATE }, { key: 'numero_dias', header: 'NUMERO DIAS', gate: GATE },
   ],
   joins: identity.joins,
@@ -118,6 +144,7 @@ export const clientes = referenceCatalog({
   validation: [...validation, 'condicion_pago', 'numero_dias'],
   derive,
   constants: anexo.constants,
-  children: { ...anexo.children, direcciones, contactos, cuentas },
+  children: { ...anexo.children, direcciones, sustitutos, contactos, cuentas },
+  aggregate: [{ as: 'cant_sust', child: 'sustitutos', op: 'count', where: { estado: 'A' } }],
   actions: anexo.actions,
 });

@@ -57,9 +57,9 @@ export const PICKERS = {
     columns: [column('id_cliente', 'COD'), column('descripcion', 'RAZON SOCIAL'), column('numero_doc', 'RUC/DNI'), column('direccion', 'DIRECCION'),
       column('flag_buen_contrib', 'BC'), column('flag_retencion', 'AR'), column('flag_exceptuado', 'EX'), column('cant_sust', 'CANT SUST')],
   }),
-  // FormClienteBuscar: Codigo (IntegerDocument 10), Desc. (UpperCaseNumberDocument 100), RUC/DNI (IntegerDocument 11); `listarCliente("A")` lists active clientes.
+  // FormClienteBuscar: Codigo (IntegerDocument 10), Desc. (UpperCaseNumberDocument 100), RUC/DNI (IntegerDocument 11); `listarCliente("A")` lists the clientes with estado A (`where`).
   formClienteBuscar: picker({
-    title: 'Buscar Cliente', source: 'clientes', pickLabel: 'Agregar',
+    title: 'Buscar Cliente', source: 'clientes', pickLabel: 'Agregar', where: { estado: 'true' },
     filters: [text('id_cliente', 'Codigo', digits(10)), text('descripcion', 'Desc.', upper(100)), text('numero_doc', 'RUC/DNI', digits(11))],
     columns: [column('id_cliente', 'COD'), column('descripcion', 'RAZON SOCIAL'), column('numero_doc', 'RUC/DNI'), column('direccion', 'DIRECCION'),
       column('flag_percepcion', 'AP'), column('flag_retencion', 'AR'), column('flag_exceptuado', 'EX'), column('cant_sust', 'CANT_SUST'), column('condicion_pago', 'CONDICION PAGO'), column('numero_dias', 'NUMERO DIAS')],

@@ -249,8 +249,10 @@ export interface ChildConfig {
   /** The register tab title. */
   title: string;
   removal: 'deactivate' | 'delete' | 'none';
-  /** `dialog` opens the child register; `inline` puts the entry above the grid (R-MD-3); `none` has no Agregar: the rows come from the actions. */
-  entryMode: 'dialog' | 'inline' | 'none';
+  /** `dialog` opens the child register; `inline` puts the entry above the grid (R-MD-3); `none` has no Agregar: the rows come from the actions; `picker` opens a named picker and a pick adds the row. */
+  entryMode: 'dialog' | 'inline' | 'none' | 'picker';
+  /** The picker of a `picker` child (R-MST-12): its name, the row column that takes the picked id, the veto sentence and the columns copied from the picked row for the grid. */
+  pick?: { picker: string; field: string; message: string; copy?: Record<string, string> };
   /** The grid messages of Quitar (R-MD-4): no selected row, the desktop question (absent when it did not ask) and a row that is already deactivated. */
   quitar: { none: string; confirm?: string; already: string };
   /** The company parameter that shows the tab; absent means always (R-REG-17). */

@@ -2,6 +2,7 @@
 import { JTabs, JTabsList, JTabsTrigger } from 'jona-ui';
 import { isValidElement, type ReactNode } from 'react';
 import { ChildGrid } from '../../shared/ui/ChildGrid';
+import { LookupDialog } from '../../shared/ui/LookupDialog';
 import { UICRUDREGISTER_DEFAULTS } from '../uicrudregister/InterUiCrudRegister';
 import { UiCrudRegister } from '../uicrudregister/UiCrudRegister';
 import { UiCrudRegisterView } from '../uicrudregister/UiCrudRegisterView';
@@ -11,7 +12,7 @@ import type { InterUiMasterRegister } from './InterUiMasterRegister';
 
 const noop = () => undefined;
 
-export function UiMasterRegisterView({ register, tabs, activeTab, onTabChange, childDialog, quitarConfirm }: InterUiMasterRegister) {
+export function UiMasterRegisterView({ register, tabs, activeTab, onTabChange, childDialog, pickerDialog, quitarConfirm }: InterUiMasterRegister) {
   // jona-ui `JTabsContent` renders nothing for an inactive tab (JTabsView.tsx:126), which would drop the entered data and the pending rows.
   // So `JTabs` only draws the trigger list and each panel is rendered here, `hidden` when inactive.
   const arrange = (nodes: ReactNode[]) => {
@@ -42,6 +43,7 @@ export function UiMasterRegisterView({ register, tabs, activeTab, onTabChange, c
       {childDialog && (
         <UiCrudRegister mode="INSERT" config={childDialog.config} service={childDialog.service} lookups={childDialog.lookups} lookup={childDialog.lookup} onDone={noop} onClose={childDialog.onClose} />
       )}
+      {pickerDialog && <LookupDialog {...pickerDialog} />}
       {quitarConfirm && (
         <GuardedOptionPane open variant="info" title={quitarConfirm.title} description={quitarConfirm.description} confirmLabel={UICRUDREGISTER_DEFAULTS.confirmLabel} cancelLabel={UICRUDREGISTER_DEFAULTS.declineLabel} onConfirm={quitarConfirm.onConfirm} onClose={quitarConfirm.onCancel} />
       )}

@@ -13,6 +13,7 @@ import { useOptionalServices } from '../../services/ServicesContext';
 import { useOptionalSession } from '../../session/SessionProvider';
 import { toFailure } from '../../shared/toFailure';
 import { createDraftCatalogService, type DraftUniqueKey } from '../../shared/DraftCatalogService';
+import { pickerDialogProps } from '../../shared/ui/LookupDialog/useLookup';
 import type { RegisterMode } from '../uicrudregister/InterUiCrudRegister';
 import { useUiCrudRegisterImpl, type CrudRegisterHandlers } from '../uicrudregister/UiCrudRegisterImpl';
 import type { InterUiMasterRegister, MasterChildDialog, MasterQuitarConfirm } from './InterUiMasterRegister';
@@ -51,6 +52,8 @@ export function useUiMasterRegisterImpl<T>(
   // What the server rejected, by child and row key (R-MD-5).
   const [rowErrors, setRowErrors] = useState<Record<string, Record<string, string>>>({});
   const [asking, setAsking] = useState<{ child: ChildConfig; key: string }>();
+  // The `picker` child whose picker is open (R-MST-12).
+  const [picking, setPicking] = useState<ChildConfig>();
   // The question of a row action that declares a `confirm` (R-ACT-1).
   const [askingAction, setAskingAction] = useState<MasterQuitarConfirm>();
   const readOnly = mode === 'DELETE' || mode === 'DETAIL';
@@ -220,8 +223,27 @@ export function useUiMasterRegisterImpl<T>(
   const openChild = (child: ChildConfig) => {
     if (readOnly) return;
     setNotice(undefined);
-    setDialog({ ...parts(child), onClose: () => setDialog(undefined) });
+    if (child.pick) setPicking(child);
+    else setDialog({ ...parts(child), onClose: () => setDialog(undefined) });
   };
+
+  // A `picker` child adds its row from the pick (FormClienteBuscar): the host veto refuses a cliente that is already an active row of the grid, or the cliente being edited, and the dialog
+  // stays open; the pending row keeps the id and the display columns the grid shows before the save (they are not sent: the server joins them).
+  const pickerDialog = (() => {
+    const pick = picking?.pick;
+    if (!picking || !pick || !app) return undefined;
+    const base = pickerDialogProps(app, pick.picker);
+    const idOf = (row: Record<string, string>) => String(row[base.idKey]);
+    return {
+      ...base,
+      veto: (row: Record<string, string>) => (idOf(row) === id || draftsRef.current.siblings(picking.name).some((sibling) => String(sibling[pick.field]) === idOf(row)) ? pick.message : undefined),
+      onPick: (row: Record<string, string>) => {
+        draftsRef.current.add(picking.name, { [pick.field]: idOf(row), ...Object.fromEntries(Object.entries(pick.copy ?? {}).map(([column, key]) => [column, row[key]])) });
+        setPicking(undefined);
+      },
+      onClose: () => setPicking(undefined),
+    };
+  })();
 
   return {
     register,
@@ -239,7 +261,7 @@ export function useUiMasterRegisterImpl<T>(
           selectedId: selected[child.name],
           readOnly,
           onSelect: (rowId: string) => setSelected((current) => ({ ...current, [child.name]: rowId })),
-          ...(child.entryMode !== 'none' && (child.entryMode === 'dialog' || readOnly) ? { onAdd: () => openChild(child) } : {}),
+          ...(child.entryMode !== 'none' && (child.entryMode === 'dialog' || child.entryMode === 'picker' || readOnly) ? { onAdd: () => openChild(child) } : {}),
           ...(child.removal !== 'none' && { onRemove: () => quitar(child) }),
           ...(child.actions?.length && { actions: child.actions.map((action) => ({ id: action.id, label: action.label, disabled: !allowed(child, action) })), onAction: (actionId: string) => runAction(child, actionId) }),
           ...(rowErrors[child.name] && { rowErrors: rowErrors[child.name] }),
@@ -250,6 +272,7 @@ export function useUiMasterRegisterImpl<T>(
     activeTab,
     onTabChange: setActiveTab,
     childDialog: dialog,
+    pickerDialog,
     quitarConfirm: quitarConfirm ?? askingAction,
   };
 }

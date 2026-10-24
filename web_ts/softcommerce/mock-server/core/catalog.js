@@ -2,6 +2,7 @@ import { MockError, methodNotAllowed, modeNotSupported, notFound } from './error
 import { joinLabel } from './lookups.js';
 import { acceptedListKeys, exactListKeys, matchesTerms, searchTerms } from './search.js';
 import { scopeFilter, stampsOf } from './context.js';
+import { aggregatesOf } from './aggregate.js';
 import { cascadeDelete, planChildren } from './children.js';
 import { storePasswords, withoutPasswords } from './password.js';
 import { blankHidden, derivedValues, withDefaults, withRuleDerived } from './stored.js';
@@ -41,8 +42,8 @@ function writableEntry(store, catalog, verb, link) {
 }
 
 /**
- * Adds the joined display names (R-REG-8) and `<name>_label` for options fields
- * (R-MOCK-14). A join over a missing or inactive target is an empty string.
+ * Adds the joined display names (R-REG-8), `<name>_label` for options fields
+ * (R-MOCK-14) and the aggregates over the children (D27a). A join over a missing or inactive target is an empty string.
  * @param {any} store @param {string} tenantId @param {any} entry @param {any} row
  * @param {import('./context.js').RequestContext} [ctx]
  */
@@ -62,7 +63,8 @@ function enrich(store, tenantId, entry, row, ctx) {
   for (const f of entry.fields.filter((/** @type {any} */ f) => f.kind === 'options')) {
     out[`${f.name}_label`] = f.options.find((/** @type {any} */ o) => o.value === String(row[f.name]))?.label ?? '';
   }
-  return out;
+  // The derived counts and sums over the children (D27a) are computed on every read, never stored.
+  return Object.assign(out, aggregatesOf(store, tenantId, entry, row));
 }
 
 /**
