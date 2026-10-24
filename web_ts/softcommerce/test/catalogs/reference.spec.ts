@@ -199,7 +199,7 @@ const W1_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { empresa: 'ten
  */
 const DOC_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { choferes: 'tenant', socios: 'tenant' };
 /** The Wave 3 masters (R-MST-18 exception 3): each audited from its Register file (`mantBanco` passes the session user and no empresa). */
-const MASTER_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { bancos: 'tenant', trabajadores: 'stamp', vendedores: 'tenant' };
+const MASTER_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { bancos: 'tenant', trabajadores: 'stamp', vendedores: 'tenant', transportistas: 'tenant' };
 
 describe('W2 reference catalogs are registered', () => {
   it.each(Object.entries({ ...SCOPE, ...W1_SCOPE, ...DOC_SCOPE, ...MASTER_SCOPE }))('5.6b %s keeps its audited empresa scope', (slug, scope) => {
