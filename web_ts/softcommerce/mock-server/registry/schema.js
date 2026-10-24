@@ -1,9 +1,11 @@
 import { DOC_DEFAULTS } from '../core/docIdentidad.js';
 import { ENTRY_RULE_NAMES, ruleStates } from '../core/entryRules.js';
 import { NORMALIZE_STEP } from '../core/normalize.js';
+import { paramToken } from '../core/predicates.js';
 import { isIsoDate } from '../core/dates.js';
 import { DECIMAL_TEXT } from '../core/numbers.js';
 import { applyPreset } from './presets.js';
+import { PARAM_KEYS, isGateParam } from './paramKeys.js';
 import { PICKERS } from './pickers.js';
 import { PROJECTIONS } from './project.js';
 import { BUILTIN_SOURCES } from './sources.js';
@@ -47,6 +49,31 @@ function fail(where, message) {
 /** An `options` field renders as a select unless it asks for radios. @param {any} field */
 const withDisplay = (field) => (field.kind === 'options' && field.display === undefined ? { ...field, display: 'select' } : field);
 
+/** The literal defaults of a field: a `$params.X` token (D27b) is resolved at write time, so it is not a value to check against the kind. @param {any} f @returns {unknown[]} */
+const literalDefaults = (f) => (isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default]).filter((value) => paramToken(value) === undefined);
+
+/**
+ * A `gate: { param, in? }` (R-REG-17, D25): `param` must be a boolean key of the `GET /v1/params` payload (a number such as `PORC_IGV` is a value source,
+ * not a gate) and `in`, when given, a non-empty list.
+ * @param {string} at @param {any} gate
+ */
+function assertGate(at, gate) {
+  if (gate === undefined) return;
+  if (typeof gate?.param !== 'string') fail(at, 'gate needs a param');
+  if (!Object.hasOwn(PARAM_KEYS, gate.param)) fail(at, `gate.param "${gate.param}" is not a params key`);
+  if (!isGateParam(gate.param)) fail(at, `gate.param "${gate.param}" is a value, not a gate`);
+  if (gate.in !== undefined && (!Array.isArray(gate.in) || gate.in.length === 0)) fail(at, 'gate.in must be a non-empty list');
+}
+
+/** A `$params.X` default must name a params key. @param {string} at @param {any} f */
+function assertParamDefaults(at, f) {
+  const defaults = isModeMap(f.default) ? Object.values(f.default) : [f.default];
+  for (const value of defaults) {
+    const key = paramToken(value);
+    if (key !== undefined && !Object.hasOwn(PARAM_KEYS, key)) fail(at, `default names unknown params key "${key}"`);
+  }
+}
+
 /** A `default` given per mode (`{ INSERT: true }`) rather than as one value. @param {unknown} value */
 export const isModeMap = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -60,7 +87,7 @@ function assertOptions(at, f) {
     if (seen.has(option.value)) fail(at, `duplicate option value "${option.value}"`);
     seen.add(option.value);
   }
-  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  const defaults = literalDefaults(f);
   for (const value of defaults) if (!seen.has(value)) fail(at, `default "${value}" is not one of the options`);
 }
 
@@ -73,7 +100,7 @@ function assertNumber(at, f) {
   if (!Number.isInteger(f.scale)) fail(at, 'number needs a scale');
   if (f.max !== undefined && !(Number.isInteger(f.max) && f.max > 0)) fail(at, 'number max must be a positive integer');
   for (const bound of ['min', 'exclusiveMin']) if (f[bound] !== undefined && typeof f[bound] !== 'number') fail(at, `${bound} must be a number`);
-  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  const defaults = literalDefaults(f);
   for (const value of defaults) if (!DECIMAL_TEXT.test(String(value))) fail(at, `default "${value}" is not a number`);
   if (f.range === undefined) return;
   const { min, max } = f.range;
@@ -88,7 +115,7 @@ function assertNumber(at, f) {
  * @param {string} at @param {any} f
  */
 function assertDate(at, f) {
-  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  const defaults = literalDefaults(f);
   for (const value of defaults) if (value !== 'today' && !isIsoDate(value)) fail(at, `default "${value}" is not today or an ISO date`);
   if (f.min !== undefined && !isIsoDate(f.min)) fail(at, `min "${f.min}" is not an ISO date`);
   if (f.notFuture !== undefined && typeof f.notFuture !== 'boolean') fail(at, 'notFuture must be a boolean');
@@ -339,6 +366,8 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
     assertMaxWhen(at, f);
     for (const rule of f.maxWhen ?? []) known(`field "${f.name}" maxWhen`, rule.when.field);
     for (const rule of f.minLenWhen ?? []) known(`field "${f.name}" minLenWhen`, rule.when.field);
+    assertGate(at, f.gate);
+    assertParamDefaults(at, f);
     if (f.blankToDefault && f.default === undefined) fail(at, 'blankToDefault needs a default');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
@@ -504,6 +533,7 @@ function expandChildren(parent, slugs, sources, rawBySlug, resolved) {
     if (!REMOVALS.includes(removal)) fail(at, `unknown removal "${removal}"`);
     const entry = def.entry ?? 'dialog';
     if (!CHILD_ENTRIES.includes(entry)) fail(at, `unknown entry "${entry}"`);
+    assertGate(at, def.gate);
     for (const f of def.fields ?? []) {
       if ([...RESERVED_CHILD_FIELDS, parent.idKey].includes(f.name)) fail(`${at} field "${f.name}"`, 'reserved name');
     }

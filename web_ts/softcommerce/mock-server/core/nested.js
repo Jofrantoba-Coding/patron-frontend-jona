@@ -1,5 +1,5 @@
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from './catalog.js';
-import { childEntryOf, liveParent } from './children.js';
+import { gatedChildOf, liveParent } from './children.js';
 
 /**
  * Nested child routes `/v1/{slug}/{id}/{child}[/{childId}]` (R-MOCK-19, D7): the parent is checked once (404 when unknown, deleted, of another tenant or
@@ -7,7 +7,7 @@ import { childEntryOf, liveParent } from './children.js';
  * @param {any} store @param {string} tenantId @param {string} parentSlug @param {string} id @param {string} name @param {import('./context.js').RequestContext} [ctx]
  */
 function bind(store, tenantId, parentSlug, id, name, ctx) {
-  const child = childEntryOf(store, parentSlug, name);
+  const child = gatedChildOf(store, tenantId, parentSlug, name);
   liveParent(store, tenantId, child, id, ctx);
   return { slug: child.slug, link: { key: child.parentKey, id } };
 }

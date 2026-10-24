@@ -1,7 +1,7 @@
 import { isModeMap } from '../registry/schema.js';
 import { todayIso } from './dates.js';
 import { ruleDerived } from './entryRules.js';
-import { fieldState, matches } from './predicates.js';
+import { fieldState, matches, resolveParamToken } from './predicates.js';
 
 /**
  * Stored-only columns and conditional storage of a record (R-CRUD-13, R-REF-8, R-REF-9). Pure: both mocks go through it.
@@ -26,14 +26,15 @@ export function withRuleDerived(entry, record) {
 /**
  * Declared defaults for the fields a create body leaves out: a scalar `default`, or the
  * INSERT entry of a per-mode map (R-CRUD-15). A date default `today` is the server day; a decimal default is
- * stored as the number it spells. Updates never re-apply them.
- * @param {any} entry @param {Record<string, any>} record
+ * stored as the number it spells. A `$params.X` default is the company parameter `X` (D27b); a missing parameter leaves the field out.
+ * Updates never re-apply them.
+ * @param {any} entry @param {Record<string, any>} record @param {Record<string, unknown>} [params] the tenant company params
  */
-export function withDefaults(entry, record) {
+export function withDefaults(entry, record, params) {
   const out = { ...record };
   for (const f of entry.fields) {
     if (f.name in out || f.default === undefined) continue;
-    const value = isModeMap(f.default) ? f.default.INSERT : f.default;
+    const value = resolveParamToken(isModeMap(f.default) ? f.default.INSERT : f.default, params);
     if (value !== undefined) out[f.name] = f.kind === 'date' && value === 'today' ? todayIso() : f.kind === 'number' && typeof value === 'string' ? Number(value) : value;
   }
   return out;

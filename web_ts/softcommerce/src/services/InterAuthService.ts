@@ -36,6 +36,14 @@ export interface AppParams {
   IS_FACTURADOR_SUNAT: boolean;
   ISBOTICA: boolean;
   DESPACHO_AUTOMATICO: boolean;
+  /** Wave 3 gates and values (R-MOCK-24); optional so a W1 fixture without them stays valid. */
+  IS_CLIENTE_SUSTITUTO?: boolean;
+  IS_CLIENTE_CREDITO?: boolean;
+  IS_CLIENTE_CONDICION_PAGO?: boolean;
+  IS_DIRECCION_CLIENTE?: boolean;
+  IS_ITEM_RESUMEN_PRECIO?: boolean;
+  IS_BOTICA_SIN_LOTE?: boolean;
+  PORC_IGV?: number;
 }
 
 /**
