@@ -164,4 +164,20 @@ export interface CatalogConfig<T> {
   modes?: readonly CrudMode[];
   /** The registry entry this config derives from; it drives the declared validation order and messages. */
   entry?: CatalogDef;
+  /** The child grids of a master register (R-REG-14), in declared order; one tab each. */
+  children?: ChildConfig[];
+  /** Register tabs of parent fields after `General`, which holds every field no tab lists (R-MD-1); the child tabs follow. */
+  layout?: { title: string; fields: string[] }[];
+}
+
+/** One child of a master register: its own config drives the child dialog (R-MD-3). */
+export interface ChildConfig {
+  /** The nested route segment. */
+  name: string;
+  /** The register tab title. */
+  title: string;
+  removal: 'deactivate' | 'delete' | 'none';
+  /** `dialog` opens the child register; `inline` puts the entry above the grid (R-MD-3). */
+  entryMode: 'dialog' | 'inline';
+  config: CatalogConfig<Record<string, string>>;
 }

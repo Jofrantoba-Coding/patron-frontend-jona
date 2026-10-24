@@ -18,7 +18,7 @@ function toField(entry: CatalogDef, field: any, registry: Registry): FieldConfig
   return config.kind === 'code' || config.kind === 'cascade' ? config : { ...config, ...conditionsOf(field) };
 }
 
-type Registry = { bySlug: Map<string, any> };
+type Registry = { bySlug: Map<string, any>; childEntries?: any[] };
 
 function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConfig {
   if (field.kind === 'code') return { kind: 'code', name: field.name, label: field.label };
@@ -92,6 +92,7 @@ function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConf
 
 /** The list and register config of an entry; the entry rides along for validation order and messages. */
 export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY): CatalogConfig<Row> {
+  const kids = (registry.childEntries ?? []).filter((child) => child.parent === entry.slug);
   return {
     formId: entry.formId ?? entry.slug,
     title: entry.title ?? entry.slug,
@@ -101,5 +102,8 @@ export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY
     fields: entry.fields.map((field) => toField(entry, field, registry)),
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,
+    // A child is a nested config of its own (R-REG-14): the child dialog is the unchanged crud register over it.
+    ...(kids.length ? { children: kids.map((child) => ({ name: child.childName, title: child.tab ?? child.childName, removal: child.removal, entryMode: child.entry, config: { ...toCatalogConfig(child, registry), title: child.tab ?? child.childName } })) } : {}),
+    ...((entry as any).layout ? { layout: (entry as any).layout } : {}),
   };
 }

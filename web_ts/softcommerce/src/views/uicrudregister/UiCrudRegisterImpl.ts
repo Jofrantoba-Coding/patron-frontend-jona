@@ -26,6 +26,18 @@ export interface CrudRegisterHandlers {
   onClose: () => void;
 }
 
+/** What a master register adds to the generic register (R-MD-1): its child drafts ride along with the parent's load, dirty state, payload and first error. */
+export interface RegisterExtension {
+  /** Called with the loaded record, before the form shows it. */
+  load?: (record: unknown, mode: RegisterMode) => void;
+  /** True while the extension holds a change of its own (a pending child row). */
+  dirty?: () => boolean;
+  /** Merged into the body of a create or update. */
+  payload?: () => Record<string, unknown>;
+  /** The field a failed submit points at, so the host can make it visible before it is focused. */
+  firstError?: (name: string) => void;
+}
+
 type Load = { status: 'loading' } | { status: 'ready' } | { status: 'failed'; message: string };
 
 const fieldNames = (fields: FieldConfig[]) => fields.flatMap((f) => (f.kind === 'cascade' ? f.levels.map((l) => l.name) : [f.name]));
@@ -71,6 +83,7 @@ export function useUiCrudRegisterImpl<T>(
   mode: RegisterMode,
   id: string | undefined,
   { lookups, lookup, onDone, onClose }: CrudRegisterHandlers,
+  extension?: RegisterExtension,
 ): InterUiCrudRegister {
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [values, setValues] = useState<FormValues>(() => initialValues(config.fields, mode));
@@ -94,6 +107,8 @@ export function useUiCrudRegisterImpl<T>(
   lookupsRef.current = lookups;
   const lookupRef = useRef(lookup);
   lookupRef.current = lookup;
+  const extensionRef = useRef(extension);
+  extensionRef.current = extension;
 
   useEffect(() => {
     let active = true;
@@ -106,6 +121,7 @@ export function useUiCrudRegisterImpl<T>(
         if (!active) return;
         setSelectOptions(options);
         if (record) {
+          extensionRef.current?.load?.(record, mode);
           // The joined display of each lookup comes with the record (R-CRUD-19); it is not a form value.
           setLookupDisplay(Object.fromEntries(config.fields.flatMap((f) => (f.kind === 'lookup' ? [[f.name, String((record as Record<string, unknown>)[f.display] ?? '')]] : []))));
           baseline.current = fromRecord(config.fields, record, mode);
@@ -126,7 +142,7 @@ export function useUiCrudRegisterImpl<T>(
     }
   }, [focusName, confirm]);
 
-  const dirty = Object.keys(values).some((name) => values[name] !== baseline.current[name]);
+  const dirty = Object.keys(values).some((name) => values[name] !== baseline.current[name]) || Boolean(extension?.dirty?.());
   // A dirty editable form asks before discarding; anything else just closes.
   const guardedClose = useGuardedClose(true, () => (dirty && mode !== 'DELETE' && mode !== 'DETAIL' ? setConfirm('discard') : onClose()));
 
@@ -134,7 +150,7 @@ export function useUiCrudRegisterImpl<T>(
     setSubmitting(true);
     setSubmitFailure(undefined);
     try {
-      const data = normalize(config.fields, values) as Partial<T>;
+      const data = { ...normalize(config.fields, values), ...extension?.payload?.() } as Partial<T>;
       let resultId = id;
       if (mode === 'INSERT' || mode === 'CLONE') resultId = String((await service.create(data))[config.idKey]);
       else if (mode === 'UPDATE') await service.update(id as string, data);
@@ -144,6 +160,7 @@ export function useUiCrudRegisterImpl<T>(
     } catch (error) {
       const mapped = mapServerError(error, fieldNames(config.fields));
       setErrors(mapped.fields);
+      if (mapped.first) extension?.firstError?.(mapped.first);
       setFocusName(mapped.first);
       setSubmitFailure(mapped.form);
       setSubmitting(false);
@@ -231,8 +248,12 @@ export function useUiCrudRegisterImpl<T>(
       if (mode === 'DETAIL' || load.status !== 'ready' || submitting || confirm) return;
       const found = mode === 'DELETE' ? [] : validate(config.fields, values, config.entry && { entry: config.entry, mode });
       setErrors(Object.fromEntries(found.map((e) => [e.name, e.message])));
-      if (found.length > 0) fieldRefs.current[found[0].name]?.focus();
-      else setConfirm('submit');
+      if (found.length === 0) setConfirm('submit');
+      else if (extension?.firstError) {
+        // The field may sit on a hidden tab: the host shows it first, the focus effect runs once it is visible.
+        extension.firstError(found[0].name);
+        setFocusName(found[0].name);
+      } else fieldRefs.current[found[0].name]?.focus();
     },
     onConfirm: () => (confirm === 'discard' ? onClose() : void execute()),
     onConfirmCancel: () => setConfirm(undefined),
