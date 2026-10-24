@@ -1,5 +1,6 @@
 // Layer: View. Pure render of props already resolved by the Impl; no state, effects or services.
 import { JAlert, JButton, JComboBox, JDialog } from 'jona-ui';
+import type { ComponentProps, ReactNode } from 'react';
 import { BooleanField } from '../../shared/ui/BooleanField';
 import { CascadeSelect } from '../../shared/ui/CascadeSelect';
 import { CatalogSelect } from '../../shared/ui/CatalogSelect';
@@ -14,11 +15,15 @@ import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { UICRUDREGISTER_DEFAULTS, type InterUiCrudRegister } from './InterUiCrudRegister';
 
-export type UiCrudRegisterViewProps = InterUiCrudRegister & typeof UICRUDREGISTER_DEFAULTS;
+/** `inline` draws only the fields and the alerts, with no dialog around them: an inline child entry sits in its host (R-MD-3). */
+export type UiCrudRegisterViewProps = InterUiCrudRegister & typeof UICRUDREGISTER_DEFAULTS & { inline?: boolean };
+
+const Bare = ({ children }: Partial<ComponentProps<typeof JDialog>> & { children?: ReactNode }) => <>{children}</>;
 
 export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
   const { mode, modeLabels, status, confirm } = props;
   const title = `${modeLabels[mode]}: ${props.title}`;
+  const Frame = props.inline ? Bare : JDialog;
   const footer = (
     <>
       <JButton variant="outline" className="min-h-11 sm:min-h-9" onClick={props.onClose}>
@@ -33,7 +38,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
   );
   return (
     <>
-      <JDialog open title={title} onClose={props.onClose} footer={footer}>
+      <Frame open title={title} onClose={props.onClose} footer={footer}>
         <div style={{ display: 'grid', gap: 12 }}>
           {status === 'loading' && <p>{props.loadingLabel}</p>}
           {status === 'failed' && <JAlert variant="danger" role="alert">{props.loadError}</JAlert>}
@@ -206,7 +211,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
               ),
             ))}
         </div>
-      </JDialog>
+      </Frame>
       <GuardedOptionPane
         open={confirm !== undefined}
         variant={mode === 'DELETE' ? 'danger' : 'info'}

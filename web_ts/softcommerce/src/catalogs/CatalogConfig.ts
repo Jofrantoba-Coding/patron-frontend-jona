@@ -179,5 +179,9 @@ export interface ChildConfig {
   removal: 'deactivate' | 'delete' | 'none';
   /** `dialog` opens the child register; `inline` puts the entry above the grid (R-MD-3). */
   entryMode: 'dialog' | 'inline';
+  /** The grid messages of Quitar (R-MD-4): no selected row, the desktop question (absent when it did not ask) and a row that is already deactivated. */
+  quitar: { none: string; confirm?: string; already: string };
+  /** The company parameter that shows the tab; absent means always (R-REG-17). */
+  gate?: { param: string; in?: unknown[] };
   config: CatalogConfig<Record<string, string>>;
 }

@@ -14,7 +14,12 @@ export interface InterChildGrid {
   readOnly: boolean;
   /** Callbacks are value-first: the row key, no DOM event. */
   onSelect: (id: string) => void;
-  onAdd: () => void;
+  /** Absent when the child enters its row inline above the grid (R-MD-3): the grid then has no Agregar of its own. */
+  onAdd?: () => void;
+  /** Absent for a child that cannot be removed (removal `none`). Quitar acts on the selected row. */
+  onRemove?: () => void;
+  /** What the last Quitar said (no selection, already deactivated); shown under the toolbar. */
+  notice?: string;
 }
 
 export const CHILDGRID_DEFAULTS = {
@@ -22,4 +27,5 @@ export const CHILDGRID_DEFAULTS = {
   activeLabel: 'Activo',
   deactivatedLabel: 'Desactivado',
   addLabel: 'Agregar',
+  removeLabel: 'Quitar',
 };

@@ -52,4 +52,25 @@ describe('ChildGrid (R-MD-2, S-MD-3)', () => {
     await user.click(add);
     expect(onAdd).not.toHaveBeenCalled();
   });
+
+  it('offers Quitar only when the register wires it, disabled when read-only', async () => {
+    const { user, onAdd } = show();
+    expect(screen.queryByRole('button', { name: 'Quitar' })).toBeNull();
+    expect(onAdd).not.toHaveBeenCalled();
+    const onRemove = vi.fn();
+    show({ onRemove });
+    await user.click(screen.getByRole('button', { name: 'Quitar' }));
+    expect(onRemove).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables Quitar when the grid is read-only', () => {
+    show({ onRemove: vi.fn(), readOnly: true });
+    expect((screen.getByRole('button', { name: 'Quitar' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('shows the notice under the toolbar and leaves out Agregar when the entry sits above the grid', () => {
+    show({ notice: 'Seleccione Fila.', onAdd: undefined });
+    expect(within(screen.getByRole('toolbar', { name: 'Direcciones' })).queryByRole('button', { name: 'Agregar' })).toBeNull();
+    expect(screen.getByRole('status').textContent).toBe('Seleccione Fila.');
+  });
 });
