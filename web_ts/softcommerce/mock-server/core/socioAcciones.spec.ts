@@ -15,7 +15,7 @@ describe('R-MOCK-26 GET returns every price and socio row, active and deactivate
     expect(res.status).toBe(200);
     expect(res.body.precios.map((r: any) => [r.id_accion_precio, r.estado])).toEqual([['1', 'D'], ['2', 'A']]);
     expect(res.body.socios).toEqual([
-      expect.objectContaining({ id_accion_socio: '1', id_socio: '1', socio: 'RAMOS DIAZ LUIS', estado: 'A', precio: 12.5, cantidad: 100 }),
+      expect.objectContaining({ id_accion_socio: '1', id_socio: '1', numero_doc: '45871236', socio: 'RAMOS DIAZ LUIS', estado: 'A', precio: 12.5, cantidad: 100 }),
     ]);
   });
 

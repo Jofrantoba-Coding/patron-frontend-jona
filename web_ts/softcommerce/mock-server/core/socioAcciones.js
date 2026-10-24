@@ -31,13 +31,13 @@ function amount(value) {
 /** @param {string} field @param {string} message @param {string} [code] */
 const invalid = (field, message, code = 'REQUIRED') => validationError([{ field, code, message }]);
 
-/** Both lists as stored, with the socio name joined. @param {any} store @param {string} tenantId */
+/** Both lists as stored, with the socio document number and name joined. @param {any} store @param {string} tenantId */
 export function getSocioAcciones(store, tenantId) {
   const catalog = rowsOf(store, tenantId, store.registry.bySlug.get('socios'));
-  const nameOf = (/** @type {unknown} */ id) => catalog.find((/** @type {any} */ s) => String(s.id_socio) === String(id))?.descripcion ?? '';
+  const socioOf = (/** @type {unknown} */ id) => catalog.find((/** @type {any} */ s) => String(s.id_socio) === String(id));
   return {
     precios: section(store, tenantId, PRECIOS).map((r) => ({ ...r })),
-    socios: section(store, tenantId, SOCIOS).map((r) => ({ ...r, socio: nameOf(r.id_socio) })),
+    socios: section(store, tenantId, SOCIOS).map((r) => ({ ...r, numero_doc: socioOf(r.id_socio)?.numero_doc ?? '', socio: socioOf(r.id_socio)?.descripcion ?? '' })),
   };
 }
 

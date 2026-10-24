@@ -9,10 +9,12 @@ import type { InterCatalogService } from './InterCatalogService';
 import type { GrantsSnapshot, InterGrantsService } from './InterGrantsService';
 import type { InterLookupService } from './InterLookupService';
 import type { InterPerfilGrantsService } from './InterPerfilGrantsService';
+import type { InterSocioAccionesService } from './InterSocioAccionesService';
 import type { InterShellService } from './InterShellService';
 import { createGrantsServiceHttp } from './GrantsServiceHttp';
 import { createLookupServiceHttp } from './LookupServiceHttp';
 import { createPerfilGrantsServiceHttp } from './PerfilGrantsServiceHttp';
+import { createSocioAccionesServiceHttp } from './SocioAccionesServiceHttp';
 import { createShellServiceHttp } from './ShellServiceHttp';
 import { createHttpClient, type RequestContext, type SessionContext } from './httpClient';
 import { lazyService } from './lazyService';
@@ -92,6 +94,8 @@ export interface AppServices {
   grants: InterGrantsService;
   /** The perfil permission editor (`/v1/tipos-trabajador-perfil/{id}/menu|permisos`, R-PRM-5). */
   perfilGrants: InterPerfilGrantsService;
+  /** The Socio acciones screen (`/v1/socio-acciones`, R-MOCK-26). */
+  socioAcciones: InterSocioAccionesService;
   lookup: InterLookupService;
   /** A service for one catalog (`/v1/{catalog}`); cheap to build, nothing loads until a call. */
   catalog<T>(catalog: string): InterCatalogService<T>;
@@ -131,6 +135,10 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestCo
     perfilGrants: composeService<InterPerfilGrantsService>(config, {
       createHttp: (baseUrl) => createPerfilGrantsServiceHttp(client(baseUrl)),
       loadMock: async (scenario) => (await loadMock(scenario)).perfilGrants,
+    }),
+    socioAcciones: composeService<InterSocioAccionesService>(config, {
+      createHttp: (baseUrl) => createSocioAccionesServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).socioAcciones,
     }),
     lookup: composeService<InterLookupService>(config, {
       createHttp: (baseUrl) => createLookupServiceHttp(client(baseUrl)),
