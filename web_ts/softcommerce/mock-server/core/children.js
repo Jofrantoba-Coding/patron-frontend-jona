@@ -1,5 +1,6 @@
 import { activacionChildHook } from './activacion.js';
 import { MockError, notFound, validationError } from './errors.js';
+import { padronChildHook } from './padron.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { gateOpen } from './predicates.js';
 import { blankHidden, derivedValues, withDefaults, withRuleDerived } from './stored.js';
@@ -18,7 +19,7 @@ const OPS = ['I', 'A', 'E'];
  * per child and `{ parentId, ctx, creating }`; it throws to refuse the body and may return a function that runs after the writes with the parent id.
  * @type {Record<string, (store: any, tenantId: string, parent: any, ops: Record<string, any[]>, options: { parentId?: string, ctx?: import('./context.js').RequestContext, creating: boolean }) => ((parentId: string) => void) | void>}
  */
-export const CHILD_RULE_HOOKS = { activacion: activacionChildHook };
+export const CHILD_RULE_HOOKS = { activacion: activacionChildHook, padron: padronChildHook };
 
 /**
  * The child entry of `parent/name`; an unknown parent, an unknown name or the reserved `actions` is a 404.

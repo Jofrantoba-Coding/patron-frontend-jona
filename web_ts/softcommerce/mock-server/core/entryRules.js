@@ -2,13 +2,14 @@ import { activacion } from './activacionRule.js';
 import { docIdentidad } from './docIdentidad.js';
 import { fechaAutorizacion } from './fechaAutorizacion.js';
 import { nombreCompuesto } from './nombreCompuesto.js';
+import { padron } from './padronRule.js';
 
 /**
  * The closed set of named entry rules (D9) and how an entry runs them. Each rule is up to four pure hooks (`state`, `validate`, `effect`,
  * `derive`); an entry lists `rules: [{ name, params? }]` and a `{ rule: name }` step in its `validation`. The UI and both mocks go through
  * these helpers, so the three apply the same rule. Kept apart from `rules.js` (lookup filters), which reads the store.
  */
-export const ENTRY_RULE_HOOKS = { docIdentidad, activacion, nombreCompuesto, fechaAutorizacion };
+export const ENTRY_RULE_HOOKS = { docIdentidad, activacion, nombreCompuesto, fechaAutorizacion, padron };
 export const ENTRY_RULE_NAMES = Object.keys(ENTRY_RULE_HOOKS);
 
 /**

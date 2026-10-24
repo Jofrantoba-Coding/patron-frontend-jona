@@ -17,6 +17,9 @@ export const padrones = {
   fields: [
     { name: 'id_padron', kind: 'code', label: 'Código' },
     { name: 'descripcion', kind: 'text', label: 'Descripción', required: true, max: 100 },
+    // Which anexo master offers the padron in `FormAnexoPadron.loadPadron` (W3-15): Cliente removes the 4th entry, Proveedor the 1st. The select of the padron child filters on these.
+    { name: 'para_cliente', kind: 'boolean', label: 'Cliente' },
+    { name: 'para_proveedor', kind: 'boolean', label: 'Proveedor' },
   ],
   columns: [{ key: 'id_padron', header: 'Código' }, { key: 'descripcion', header: 'Descripción' }],
 };

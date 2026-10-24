@@ -11,7 +11,8 @@ import { ACTIVE_KEY, existsRow, rowsOf, viaValue } from './validators.js';
  */
 export function acceptedKeys(store, target) {
   const keys = new Set([...target.refs.map((/** @type {any} */ ref) => ref.field), ...Object.keys(target.lookupFilters ?? {})]);
-  for (const entry of store.registry.entries) {
+  // The selects of a child entry (the padron of a Proveedor) count too: their `where` keys are valid filters of the source.
+  for (const entry of [...store.registry.entries, ...(store.registry.childEntries ?? [])]) {
     for (const f of entry.fields.filter((/** @type {any} */ f) => (f.kind === 'select' || f.kind === 'lookup') && f.source.catalog === target.slug)) {
       for (const parent of f.dependsOn ?? []) keys.add(parent.filterKey);
       for (const key of Object.keys(f.source.where ?? {})) keys.add(key);
