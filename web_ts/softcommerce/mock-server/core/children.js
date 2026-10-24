@@ -1,6 +1,7 @@
 import { activacionChildHook } from './activacion.js';
 import { MockError, notFound, validationError } from './errors.js';
 import { padronChildHook } from './padron.js';
+import { todayIso } from './dates.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { gateOpen } from './predicates.js';
 import { blankHidden, derivedValues, withDefaults, withRuleDerived } from './stored.js';
@@ -131,6 +132,8 @@ export function planChildren(store, tenantId, parent, body, { ctx, parentId, cre
       if (op.op === 'A') {
         // `A` updates, and deactivates a child that is not removed by deletion (`deactivate`, or `none`: the activation history closes its rows); it reactivates only a `reactivable` child (the sustitutos, R-MOCK-21).
         const estado = child.removal !== 'delete' && (op.estado === 'D' || (op.estado === 'A' && child.reactivable)) ? { estado: op.estado } : {};
+        // A deactivation closes the column the child names (`closeDate`) with today.
+        if (op.estado === 'D' && child.closeDate !== undefined) Object.assign(estado, { [child.closeDate]: todayIso() });
         writes.push(() => Object.assign(/** @type {any} */ (stored), record, derivedValues(child, record), stamps, estado));
         Object.assign(/** @type {any} */ (inView(stored[child.idKey])), record, estado);
         return;

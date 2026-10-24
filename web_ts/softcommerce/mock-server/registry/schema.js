@@ -754,6 +754,8 @@ const CHILD_ENTRIES = ['dialog', 'inline', 'none', 'picker'];
  */
 function assertPick(at, def, entry, fieldNames) {
   if (def.reactivable !== undefined && typeof def.reactivable !== 'boolean') fail(at, 'reactivable must be a boolean');
+  // `closeDate` names the row column a deactivation fills with today (the Item almacen closes its F_FIN: `desactivarAlmacen` sets `fechaFin`); it is a column of the grid, not a field of the dialog.
+  if (def.closeDate !== undefined && (typeof def.closeDate !== 'string' || def.closeDate === '')) fail(at, 'closeDate must be a column name');
   if ((entry === 'picker') !== (def.pick !== undefined)) fail(at, 'a picker child needs pick, and only a picker child takes it');
   if (def.pick === undefined) return;
   const { picker, field, message, copy = {} } = def.pick;

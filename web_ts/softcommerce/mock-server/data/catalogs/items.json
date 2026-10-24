@@ -35,7 +35,12 @@
       "stock_min": 0,
       "id_usuario": 7,
       "id_empresa": "1",
-      "activo": true
+      "activo": true,
+      "almacenes": [
+        { "id": "1", "estado": "A", "id_localidad": "1", "id_punto_venta": "1", "id_almacen": "001", "proceso": "VENTA", "f_inicio": "2025-01-02", "f_fin": "" },
+        { "id": "2", "estado": "D", "id_localidad": "1", "id_punto_venta": "1", "id_almacen": "001", "proceso": "DESPACHO", "f_inicio": "2024-06-01", "f_fin": "2024-12-31" },
+        { "id": "3", "estado": "A", "id_localidad": "2", "id_punto_venta": "2", "id_almacen": "002", "proceso": "VENTA", "f_inicio": "2025-02-01", "f_fin": "", "activo": false }
+      ]
     },
     {
       "id_item": "000002",
