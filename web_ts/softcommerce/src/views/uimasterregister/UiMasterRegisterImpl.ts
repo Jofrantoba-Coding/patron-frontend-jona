@@ -1,10 +1,15 @@
 // Layer: Implementation. The generic register plus the tabs, the child drafts and the child dialog (D10).
 import { useMemo, useRef, useState } from 'react';
 import { gateOpen } from '../../../mock-server/core/predicates.js';
-import type { CatalogConfig, ChildConfig } from '../../catalogs/CatalogConfig';
+import type { ActionConfig, CatalogConfig, ChildConfig } from '../../catalogs/CatalogConfig';
+import { ACTION_RULES } from '../../domain/crud/actionRules';
+import { resolveRowAction } from '../../domain/crud/toolbarGate';
+import type { Permissions } from '../../domain/permissions';
+import { ApiError } from '../../services/ApiError';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import { useOptionalServices } from '../../services/ServicesContext';
 import { useOptionalSession } from '../../session/SessionProvider';
+import { toFailure } from '../../shared/toFailure';
 import { createDraftCatalogService, type DraftUniqueKey } from '../../shared/DraftCatalogService';
 import type { RegisterMode } from '../uicrudregister/InterUiCrudRegister';
 import { useUiCrudRegisterImpl, type CrudRegisterHandlers } from '../uicrudregister/UiCrudRegisterImpl';
@@ -18,13 +23,15 @@ export function useUiMasterRegisterImpl<T>(
   mode: RegisterMode,
   id: string | undefined,
   handlers: CrudRegisterHandlers,
+  permissions?: Permissions,
 ): InterUiMasterRegister {
   // A child whose company-parameter gate is closed does not exist for this register: no tab, no rows, no ops (R-REG-17, S-MD-14).
   const params: Record<string, unknown> | undefined = useOptionalSession()?.session?.params as Record<string, unknown> | undefined;
   const kids = useMemo(() => (config.children ?? []).filter((child) => gateOpen(child.gate, params)), [config.children, params]);
   const gated = useMemo(() => ({ ...config, children: kids }), [config, kids]);
   const tabs = useMemo(() => buildTabs(gated), [gated]);
-  const childService = useOptionalServices()?.children(config.catalog);
+  const app = useOptionalServices();
+  const childService = app?.children(config.catalog);
   const drafts = useChildDraftsImpl(kids.map((child) => child.name), Object.fromEntries(kids.map((child) => [child.name, child.config.idKey])));
   // The child dialog's service reads the grid at the moment of the confirm, not at the moment it opened.
   const draftsRef = useRef(drafts);
@@ -37,6 +44,8 @@ export function useUiMasterRegisterImpl<T>(
   // What the server rejected, by child and row key (R-MD-5).
   const [rowErrors, setRowErrors] = useState<Record<string, Record<string, string>>>({});
   const [asking, setAsking] = useState<{ child: ChildConfig; key: string }>();
+  // The question of a row action that declares a `confirm` (R-ACT-1).
+  const [askingAction, setAskingAction] = useState<MasterQuitarConfirm>();
   const readOnly = mode === 'DELETE' || mode === 'DETAIL';
 
   const register = useUiCrudRegisterImpl(config, service, mode, id, handlers, {
@@ -84,6 +93,72 @@ export function useUiMasterRegisterImpl<T>(
     onCancel: () => setAsking(undefined),
   };
 
+  // Row actions (R-ACT-1..6, D12). The one gate for click and keyboard is `allowed`: a disabled action sends nothing and opens nothing.
+  const selectedRow = (child: ChildConfig) => draftsRef.current.rows(child.name).find((row) => row._key === selected[child.name]);
+  const liveRows = (child: ChildConfig) => draftsRef.current.rows(child.name).filter((row) => row.activo !== false);
+  const allowed = (child: ChildConfig, action: ActionConfig) => {
+    const row = selectedRow(child);
+    return resolveRowAction(action, { permissions, mode, selected: row, selectedPending: row?._key.startsWith('~'), rows: liveRows(child), hasParent: mode !== 'INSERT' && mode !== 'CLONE' });
+  };
+  const refreshRows = async (child: ChildConfig) => draftsRef.current.loadOne(child.name, (await (childService as NonNullable<typeof childService>).list(id as string, child.name, { pageSize: 1000 })).items);
+  // A deferred action asks its client rule what to change in the pending rows; an immediate one calls the endpoint, then reloads the grid (R-ACT-4, R-ACT-6).
+  const perform = async (child: ChildConfig, action: ActionConfig, input: Record<string, any>) => {
+    const row = selectedRow(child);
+    if (action.kind === 'deferred') {
+      const rule = ACTION_RULES[action.rule as string];
+      if (!rule) throw new Error(`Unknown action rule "${action.rule}".`);
+      const call = { rows: liveRows(child), selected: row, input };
+      const refusal = rule.guard?.(call);
+      if (refusal) throw new Error(refusal);
+      const effect = rule.apply(call);
+      if (effect.insert) draftsRef.current.add(child.name, effect.insert);
+      if (effect.change && row) draftsRef.current.change(child.name, row._key, effect.change.patch ?? {}, effect.change.estado);
+      for (const [name, value] of Object.entries(effect.parent ?? {})) register.onFieldChange(name, value);
+      return;
+    }
+    if (!app) throw new Error('An immediate action needs a ServicesProvider.');
+    const target = { id: id as string, child: child.name, ...(action.enabledWhen?.selection === true && row ? { childId: row._key } : {}) };
+    try {
+      const result = await app.actions(config.catalog).run(target, action.id, input);
+      await refreshRows(child);
+      setNotice(result.message ? { child: child.name, text: result.message } : undefined);
+    } catch (error) {
+      // The row vanished: the grid shows what is left and says why; any other refusal is the caller's (dialog or notice).
+      if (!(error instanceof ApiError && error.status === 404)) throw error;
+      await refreshRows(child);
+      setNotice({ child: child.name, text: error.message });
+    }
+  };
+  const startAction = (child: ChildConfig, action: ActionConfig) => {
+    if (!action.dialog) {
+      perform(child, action, {}).catch((error: unknown) => setNotice({ child: child.name, text: toFailure(error).message }));
+      return;
+    }
+    const never = () => Promise.reject(new Error('An action dialog only collects input.'));
+    setDialog({
+      config: { formId: action.id, title: action.dialog.title, catalog: '', idKey: 'id', columns: [], fields: action.dialog.fields, modes: ['INSERT'] },
+      service: { create: async (values: Record<string, string>) => { await perform(child, action, values); return { id: '' }; }, get: never, list: never, update: never, remove: never } as unknown as MasterChildDialog['service'],
+      lookups: handlers.lookups,
+      lookup: handlers.lookup,
+      onClose: () => setDialog(undefined),
+    });
+  };
+  const runAction = (child: ChildConfig, actionId: string) => {
+    const action = child.actions?.find((candidate) => candidate.id === actionId);
+    if (!action || !allowed(child, action)) return;
+    setNotice(undefined);
+    if (!action.confirm) return startAction(child, action);
+    setAskingAction({
+      title: action.label,
+      description: action.confirm,
+      onConfirm: () => {
+        setAskingAction(undefined);
+        startAction(child, action);
+      },
+      onCancel: () => setAskingAction(undefined),
+    });
+  };
+
   // One draft service per child, built once: the register hook reloads when its service changes.
   const services = useMemo(
     () =>
@@ -124,6 +199,7 @@ export function useUiMasterRegisterImpl<T>(
           onSelect: (rowId: string) => setSelected((current) => ({ ...current, [child.name]: rowId })),
           ...(child.entryMode === 'dialog' || readOnly ? { onAdd: () => openChild(child) } : {}),
           ...(child.removal !== 'none' && { onRemove: () => quitar(child) }),
+          ...(child.actions?.length && { actions: child.actions.map((action) => ({ id: action.id, label: action.label, disabled: !allowed(child, action) })), onAction: (actionId: string) => runAction(child, actionId) }),
           ...(rowErrors[child.name] && { rowErrors: rowErrors[child.name] }),
           ...(notice?.child === child.name && { notice: notice.text }),
         },
@@ -132,6 +208,6 @@ export function useUiMasterRegisterImpl<T>(
     activeTab,
     onTabChange: setActiveTab,
     childDialog: dialog,
-    quitarConfirm,
+    quitarConfirm: quitarConfirm ?? askingAction,
   };
 }

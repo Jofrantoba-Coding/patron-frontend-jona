@@ -61,6 +61,20 @@ export function gateOpen(gate, params) {
   return gate.in === undefined ? value === true : gate.in.map(text).includes(text(value));
 }
 
+/**
+ * Whether the `enabledWhen` of a row action holds (R-ACT-2): `{ modes, selection, row, noRow }`, all optional. `modes` lists the register modes it works
+ * in, `selection` needs a selected row, `row` is a condition the selected row must meet and `noRow` one that NO row of the grid may meet. Pure.
+ * @param {{ modes?: string[], selection?: boolean, row?: Cond, noRow?: Cond } | undefined} when
+ * @param {{ mode: string, selected?: Record<string, unknown>, rows?: Record<string, unknown>[] }} state
+ */
+export function actionHolds(when, { mode, selected, rows = [] }) {
+  if (when === undefined) return true;
+  if (when.modes !== undefined && !when.modes.includes(mode)) return false;
+  if (when.selection === true && selected === undefined) return false;
+  if (when.row !== undefined && (selected === undefined || !matches(when.row, selected))) return false;
+  return when.noRow === undefined || !rows.some((row) => matches(when.noRow, row));
+}
+
 const PARAMS_TOKEN = /^\$params\.(\w+)$/;
 
 /** The params key named by a `$params.X` value token (D27b), or undefined when the value is not a token. @param {unknown} value */

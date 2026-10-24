@@ -51,6 +51,7 @@ export function UiCrudList<T>({ config, service, permissions, lookups, lookup, r
           service={service}
           lookups={lookups}
           lookup={lookup}
+          permissions={permissions}
           {...register}
           onDone={({ id }) => void impl.refresh(id ? { select: id } : undefined)}
           onClose={() => setRegister(undefined)}

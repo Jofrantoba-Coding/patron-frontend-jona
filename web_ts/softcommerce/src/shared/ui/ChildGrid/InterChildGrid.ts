@@ -18,6 +18,10 @@ export interface InterChildGrid {
   onAdd?: () => void;
   /** Absent for a child that cannot be removed (removal `none`). Quitar acts on the selected row. */
   onRemove?: () => void;
+  /** The row actions of the toolbar, in declared order (R-ACT-1), each already resolved to enabled or not (R-ACT-2). */
+  actions?: { id: string; label: string; disabled: boolean }[];
+  /** Value-first: the id of the clicked action. */
+  onAction?: (id: string) => void;
   /** What the last Quitar said (no selection, already deactivated); shown under the toolbar. */
   notice?: string;
   /** What the server said about a row, by row key; shown under the grid next to the row's first column. */

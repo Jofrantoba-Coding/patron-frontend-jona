@@ -2,7 +2,7 @@
 import type { CatalogDef } from '../../mock-server/registry/schema.js';
 import { PICKERS } from '../../mock-server/registry/pickers.js';
 import { REGISTRY } from '../../mock-server/registry/index.js';
-import type { CatalogConfig, FieldConfig } from './CatalogConfig';
+import type { ActionConfig, CatalogConfig, FieldConfig } from './CatalogConfig';
 
 type Row = Record<string, string>;
 
@@ -90,6 +90,10 @@ function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConf
   throw new Error(`${entry.slug}.${field.name}: the UI does not support kind "${field.kind}" yet`);
 }
 
+/** The row actions of an entry or child (R-ACT-1) as the UI config: the dialog fields become form fields. */
+const toActions = (entry: CatalogDef, registry: Registry): ActionConfig[] | undefined =>
+  (entry as any).actions?.map(({ dialog, ...action }: any) => ({ ...action, ...(dialog && { dialog: { title: dialog.title, fields: dialog.fields.map((field: any) => toField(entry, field, registry)) } }) }));
+
 /** The list and register config of an entry; the entry rides along for validation order and messages. */
 export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY): CatalogConfig<Row> {
   const kids = (registry.childEntries ?? []).filter((child) => child.parent === entry.slug);
@@ -103,7 +107,9 @@ export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,
     // A child is a nested config of its own (R-REG-14): the child dialog is the unchanged crud register over it.
-    ...(kids.length ? { children: kids.map((child) => ({ name: child.childName, title: child.tab ?? child.childName, removal: child.removal, entryMode: child.entry, quitar: { none: 'Seleccione Fila.', already: 'Fila ya Esta desactivada', ...child.quitar }, ...(child.gate ? { gate: child.gate } : {}), config: { ...toCatalogConfig(child, registry), title: child.tab ?? child.childName } })) } : {}),
+    ...(kids.length ? { children: kids.map((child) => ({ name: child.childName, title: child.tab ?? child.childName, removal: child.removal, entryMode: child.entry, quitar: { none: 'Seleccione Fila.', already: 'Fila ya Esta desactivada', ...child.quitar }, ...(child.gate ? { gate: child.gate } : {}), ...(child.actions ? { actions: toActions(child, registry) } : {}), config: { ...toCatalogConfig(child, registry), title: child.tab ?? child.childName } })) } : {}),
     ...((entry as any).layout ? { layout: (entry as any).layout } : {}),
+    // A child's own actions ride on its `ChildConfig`; its nested config has none.
+    ...((entry as any).actions && (entry as any).parent === undefined ? { rowActions: toActions(entry, registry) } : {}),
   };
 }
