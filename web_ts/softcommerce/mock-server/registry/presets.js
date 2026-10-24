@@ -60,7 +60,8 @@ function anexo({ entity, tipoAnexo }) {
         fields: [
           { name: 'f_inicio', kind: 'date', label: 'Fecha Inicio', default: 'today' },
           { name: 'f_fin', kind: 'date', label: 'Fecha Fin' },
-          { name: 'motivo_activacion', kind: 'text', label: 'Motivo de Activacion', max: 100, normalize: ['upper'] },
+          // The server asks for the motivo of an activation a body inserts; the INICIO row it creates itself is not validated (R-MD-9).
+          { name: 'motivo_activacion', kind: 'text', label: 'Motivo de Activacion', required: true, max: 100, normalize: ['upper'], message: MOTIVO_REQUERIDO },
           { name: 'motivo_desactivacion', kind: 'text', label: 'Motivo de Desactivacion', max: 100, normalize: ['upper'] },
         ],
         columns: [
