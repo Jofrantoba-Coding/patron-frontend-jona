@@ -1,0 +1,95 @@
+# Delta for softcommerce-mock-api
+
+Adds the nested child routes with a composite atomic write, the `?q=` search, child uniqueness and cascade, the row-action endpoint, the password rule, the company-parameter keys, the read-only W6 stubs and the Socio acciones resource; promotes `usuarios` and `trabajadores` from read-only lookups to writable masters. Marker legend: **[ASSUMPTION]**, **[DEVIATION]**, **[INFERRED]** (a fact the repository does not hold). Numbering continues the promoted spec (R-MOCK-1..18, S-MOCK-1..38).
+
+## ADDED Requirements
+
+### R-MOCK-19 Nested resources and composite write
+For every registry entry that declares children (softcommerce-catalog-registry R-REG-14) the server MUST expose, under the parent, `GET|POST /v1/{slug}/{id}/{child}` and `GET|PUT|DELETE /v1/{slug}/{id}/{child}/{childId}`, driven only by the child entry. A child list MUST use the R-MOCK-3 envelope, MUST include active AND deactivated rows (the grid shows history) and MUST NOT include logically deleted rows; the generic filters of R-MOCK-9 apply to child fields. Child DELETE MUST follow the child's removal kind: `deactivate` sets the child `estado` to `D` and keeps the row (default list shows it), `delete` is the logical delete of R-MOCK-7. A nested route under an unknown, deleted, other-tenant or (for `scope=empresa` parents) other-empresa parent, or an unknown child name, MUST answer 404 with the error shape. Child writes MUST be validated like parent writes (R-MOCK-10..12) and stamped like the parent (R-MOCK-13, R-MD-8). The parent `POST` / `PUT` body MAY also carry `children: { <child>: [ { id?, op: 'I'|'A'|'E', ...fields } ] }` (`op` `I` insert, `A` update / deactivate, `E` delete; CHANGED rows only): the server MUST then apply the parent and every child change ATOMICALLY (all or nothing, nothing persisted on any failure) and answer errors with `details[].field` as `<child>[<n>].<field>` for a child failure, where `<n>` is the index of the op in the SENT array for that child. On CLONE the client sends no child ops and the server creates the initial `INICIO` activation of the new record (R-MD-9, R-ANX-2). The nested routes serve reads and independent child writes; the composite body serves the register submit of softcommerce-master-detail R-MD-5.
+
+### R-MOCK-20 Search
+The list route `GET /v1/{slug}` MUST accept `q`: case-insensitive free text, split on whitespace, where EVERY term must be contained in at least one of the entry's declared search fields (the picker display fields, for example `id_trabajador`, `nombre`, `dni`); a blank `q` filters nothing. `q` MUST combine (AND) with the per-field contains filters of R-MOCK-9, which MAY also name a joined display key of the entry (for example `transportista`, `clasificacion`, `marca`), and with the exact-match keys of R-MOCK-16 (ref fields and `dependsOn` filter keys) on this route too. Search results MUST be active records only, paged (R-MOCK-3, `page`, `pageSize`), and an unknown filter key keeps answering 400 `INVALID_FILTER` while `q` on an entry with no declared search fields answers an empty list, never an error. Values with regex or SQL metacharacters MUST be matched literally.
+
+### R-MOCK-21 Child uniqueness and cascade
+A child entry MAY declare a `unique` rule among its ACTIVE sibling rows (R-MD-6). A violation MUST answer 409 `DUPLICATE` with `details: [{ field, code, message }]` using the child's literal message (field `<child>[<n>].<field>` inside a composite write, the child field on a nested route); an update MUST NOT conflict with itself and deactivated or deleted siblings MUST NOT count. A logical delete of a parent (R-MOCK-7) MUST logically delete all its children and their nested routes MUST then answer 404; a logical delete MUST NOT be blocked by children. A child with `deactivate` removal MUST be reactivated only through an action (R-MOCK-22), never through a body `estado`.
+
+### R-MOCK-22 Row-action endpoint
+The server MUST expose, for every action registered on an entry (softcommerce-row-actions R-ACT-1), `POST /v1/{slug}/{id}/actions/{action}` (and the nested form `.../{child}/{childId}/actions/{action}` where the action targets an existing child row, and `POST /v1/{slug}/{id}/{child}/actions/{action}` where the action targets no existing child row and creates one, for example Autorizar Series `activate`) with the action input as body. It MUST answer 200 with the updated row (and its parent state, for example the derived `estado`), 404 for an unknown action, parent or row, 409 `ACTION_NOT_ALLOWED` (message from the entry) when the row state does not allow it (for example `Activar` while an activation is active, R-ANX-5), and 422 `VALIDATION_ERROR` with `details` for invalid input (for example `fecha_fin` before `fecha_inicio`, R-ANX-4). The state derivation of R-ACT-5 MUST be applied in the same write. The Autorizar Series actions (`activate`, `deactivate`) MUST be served here over the shared `usuario-correlativos` store (R-PRM-7).
+
+### R-MOCK-23 Password never leaves the server
+`clave` (and `clave_confirmacion`) MUST be accepted on writes of `usuarios` only and MUST NEVER appear in any response: not in list, get, lookup, the login answer, a 4xx / 5xx body, `details`, or a log line. A write MUST validate length (max 20), confirmation equality (422 on `clave_confirmacion`) and, on create, presence (422 on `clave`); on update a missing or blank `clave` MUST keep the stored value. A contract test MUST assert the absence of both keys on every route of `usuarios` and of `/auth/login` against both sources.
+
+### R-MOCK-24 Company parameter keys
+The `GET /v1/params` payload MUST carry, per tenant, the flags that gate Wave 3 behavior: `IS_CLIENTE_SUSTITUTO`, `IS_CLIENTE_CREDITO`, `IS_CLIENTE_CONDICION_PAGO`, `IS_DIRECCION_CLIENTE`, `IS_ITEM_RESUMEN_PRECIO`, `IS_BOTICA_SIN_LOTE` and `PORC_IGV` (the company IGV percentage, **[INFERRED]** key name; the desktop reads `LoadDataGenerica.getPorcIgv`), next to the Wave 1 keys. **[ASSUMPTION]** Seeds: `demo` has `IS_CLIENTE_SUSTITUTO` true, `IS_CLIENTE_CREDITO` true, `IS_CLIENTE_CONDICION_PAGO` true, `IS_DIRECCION_CLIENTE` true, `IS_ITEM_RESUMEN_PRECIO` true, `IS_BOTICA_SIN_LOTE` false, `PORC_IGV` 18; `botica` has the desktop defaults (`IS_CLIENTE_SUSTITUTO` false, `IS_CLIENTE_CREDITO` false, `IS_CLIENTE_CONDICION_PAGO` false, `IS_DIRECCION_CLIENTE` true, `IS_ITEM_RESUMEN_PRECIO` false, `IS_BOTICA_SIN_LOTE` false, `PORC_IGV` 18). Behavior now depends on these flags in Wave 3 (R-MST-10..R-MST-15); the Wave 1 keys keep their meaning.
+
+### R-MOCK-25 Read-only stubs of W6 data
+The server MUST expose as read-only lookups (R-MOCK-15 semantics: GET list and by id; any write answers 405 `METHOD_NOT_ALLOWED`), seeded from JSON and documented as the W6 contract (the real data and the final scopes belong to W6): `cuentas-contables` (tenant scope; `{ id_cuenta, cuenta, descripcion }`; kept as the read-only stub of the proposal although the Cliente `Cuenta` is a bank account, R-MST-11, so no W3 screen consumes it), `parametros-prov` (tenant scope; `{ id_parametro_prov, descripcion, id_cuenta, cuenta, tipo, flag_compra, flag_venta, flag_tesoreria, flag_fondo_fijo }`, the `BeanParametroProv` fields, for the BuscarParametroProv picker), `clases-sunat` (shared; `{ id_clase_sunat, descripcion, codigo_subfamilia_sunat }`, filter key `codigo_subfamilia_sunat`, for the Item `Codigo Sunat`) and `padrones` (shared; `{ id_padron, descripcion }` with `01` EXCEPTUADO, `02` AG. RETENCION, `03` AG. PERCEPCION, `04` BUEN CONTRIBUYENTE, R-ANX-7). The shapes of the first three are **[INFERRED]**.
+
+### R-MOCK-26 Socio acciones resource
+The server MUST expose `GET /v1/socio-acciones` returning `{ precios: [...], socios: [...] }` (all rows, active and deactivated) and `PUT /v1/socio-acciones` with the body `{ precios: [ { id?, op, ... } ], socios: [ { id?, op, ... } ] }` applied ATOMICALLY (nothing persisted on any failure). It MUST enforce: a price active at most once (`No se Puede Agregar mas de un Precio`), the save requiring an active price (422 `Ingrese Precio`), a socio active at most once (409 `Socio ya esta activado`), a socio `cantidad` present (422 `Ingrese Cantidad`) and a price `fecha_fin` after its `fecha_inicio` (422 `Fecha es menor a fecha inicial`), and MUST apply a newly activated price to every active socio row in the same write. **[ASSUMPTION]** The answer message is the text the desktop showed from the procedure result and is carried as `message`.
+
+## MODIFIED Requirements
+
+### R-MOCK-1 Endpoint surface
+The server MUST expose: `POST /auth/login`, `GET /auth/session-options`, `GET /menu`, `GET /forms/{formId}/permissions`, `GET|POST|PUT|DELETE /v1/{catalog}[/{id}]` for every registry catalog (R-MOCK-9; read-only lookups per R-MOCK-15), `GET|POST|PUT|DELETE /v1/{catalog}/{id}/{child}[/{childId}]` for every declared child (R-MOCK-19), `POST /v1/{catalog}/{id}/actions/{action}`, `POST /v1/{catalog}/{id}/{child}/actions/{action}` and `POST /v1/{catalog}/{id}/{child}/{childId}/actions/{action}` (R-MOCK-22), the batch `GET /forms/permissions` resolved by `X-User-Id` (softcommerce-auth-session R-AUTH-11), the perfil permission routes of softcommerce-user-permissions R-PRM-5, `GET|PUT /v1/socio-acciones` (R-MOCK-26), `GET /v1/lookups/{catalog}?<field>=` (R-MOCK-16), `GET /v1/ubigeo?parent=`, `GET /v1/params`. The W1 routes `GET /v1/empresas` and `GET /v1/puntos-venta?id_empresa=` (puntos de venta filtered by empresa) MUST stay byte-identical to W1 (same status, headers-independent body and item shape); the Wave 2 Empresa and PuntoVenta CRUD lives at `/v1/empresa` and `/v1/punto-venta` over the same storage section, so a record written there appears in the W1 routes with the W1 item shape.
+(Previously: no nested child routes, no action endpoint, no perfil permission routes and no `socio-acciones`.)
+
+### R-MOCK-6 Params seed
+`GET /v1/params` MUST return the seeded `BdEmpresaParametro` flags (the Wave 1 keys `IS_FACTURADOR_SUNAT`, `ISBOTICA`, `DESPACHO_AUTOMATICO` and the Wave 3 keys of R-MOCK-24). The Wave 1 keys remain data only; the Wave 3 keys gate tabs and fields of the masters (R-MST-10..R-MST-15) through the session params.
+(Previously: "as data only; no behavior depends on them in Wave 1", with only the three Wave 1 keys.)
+
+### R-MOCK-15 Read-only lookups
+The server MUST expose as read-only (GET list and GET by id only; any write answers 405 `METHOD_NOT_ALLOWED` with the error shape, distinct from `MODE_NOT_SUPPORTED`): `monedas`, `tipos-doc-iden`, `tablas-sunat`, `tablas-detalle-sunat`, plus the lookups `tipos-doc-venta`, `familias-sunat` and `subfamilias-sunat` required by in-scope registers (confirmed; softcommerce-reference-catalogs R-REF-11), and the Wave 3 stubs of R-MOCK-25. Each lookup declares its own `scope`: `shared` (one global dataset for all tenants) for `monedas`, `tipos-doc-iden`, `tablas-sunat`, `tablas-detalle-sunat`, `tipos-doc-venta`, `familias-sunat` and `subfamilias-sunat` (W6 to confirm); `tenant` (per-tenant dataset) for the tenant stubs. `usuarios` and `trabajadores` are NOT read-only lookups any more: they are writable masters (softcommerce-masters R-MST-4, R-MST-7) whose `GET /v1/lookups/{slug}` contract and row keys stay as in W2; the `usuarios` master reads and writes the SAME `users.json` store the login uses (softcommerce-auth-session R-AUTH-10), filtered by tenant and never exposing the password (R-MOCK-23). Seeds MUST be isolated in JSON (R-MOCK-5) and registered from `entry.seed`.
+(Previously: `usuarios` and `trabajadores` were read-only lookups, `usuarios` a password-free projection of `users.json`.)
+
+### R-MOCK-18 Dual-source parity
+The in-browser mock MUST implement the same registry rules as the HTTP server (R-MOCK-9..17 and R-MOCK-19..26), returning errors with the same `code`, status category and `details`. A contract suite (`catalogServiceContract`) MUST run every case against both sources through the same `InterCatalogService`.
+(Previously: R-MOCK-9..17.)
+
+## MODIFIED Scenarios
+
+**S-MOCK-35 dual-source contract** — Given the contract suite, When each of S-MOCK-15..33, S-MOCK-36..38 and S-MOCK-39..58 runs against the in-browser mock and the HTTP server, Then both return the same `code`, status category and `details`.
+
+**S-MOCK-38 shared and tenant lookup scope** — Given tenants `demo` and `botica`, When `GET /v1/monedas` is called for each, Then both return the same rows; When `GET /v1/usuarios` is called for each, Then each returns only its own tenant's rows (now a writable master, without any password key, R-MOCK-23).
+
+## ADDED Scenarios
+
+**S-MOCK-39 nested list** — Given a Cliente with two direcciones (one deactivated) and one logically deleted, When `GET /v1/clientes/{id}/direcciones` is called, Then the envelope lists the two and not the deleted; `GET .../direcciones/{childId}` resolves a deactivated one.
+
+**S-MOCK-40 nested create and 404** — Given `POST /v1/clientes/{id}/contactos` with valid data, Then 201 with the child and it appears in the list; Given an unknown parent id, an unknown child name, or a deleted parent, Then 404 with the error shape; a parent of another tenant answers 404.
+
+**S-MOCK-41 child removal kinds** — Given `DELETE .../direcciones/{childId}` (kind `deactivate`), Then the row stays listed with `estado` `D`; Given `DELETE /v1/transportistas/{id}/vehiculos/{childId}` (kind `delete`), Then it disappears from the list.
+
+**S-MOCK-42 composite atomic write** — Given `POST /v1/clientes` with a valid parent and two children of which the second is invalid, Then the answer is 422 with `details[].field` `direcciones[1].direccion`, and `GET /v1/clientes` does not contain the parent and no child exists; with all valid, Then 201 and every child persists.
+
+**S-MOCK-43 child unique** — Given an active item almacén row (almacén A, proceso VENTA), When the same pair is posted, Then 409 `DUPLICATE` with `Almacen ya se Encuentra Activado`; When the existing row is deactivated, Then 201; a PUT keeping its own values answers 200.
+
+**S-MOCK-44 cascade** — Given a Vendedor with activations, When it is deleted, Then 200/204, `GET /v1/vendedores/{id}/activaciones` answers 404 and the rows are logically deleted.
+
+**S-MOCK-45 q search** — Given trabajadores `JUAN PEREZ LOPEZ` and `MARIA GARCIA RAMOS`, When `GET /v1/trabajadores?q=perez juan` is called, Then only the first returns; `?q=` blank returns all active; `?q=%` or `?q=.*` returns nothing (literal); inactive records never return.
+
+**S-MOCK-46 search by joined key and paging** — Given 25 active vehiculos, When `GET /v1/vehiculos?marca=toy&page=2&pageSize=10` is called, Then the envelope is paged and only vehiculos whose joined marca contains `toy` return; `?placa=ab&q=lima` combines both with AND; an unknown key answers 400 `INVALID_FILTER`.
+
+**S-MOCK-47 action endpoint** — Given a Trabajador whose last activation is deactivated, When `POST /v1/trabajadores/{id}/actions/activar` with `{ fecha_inicio, motivo }` is called, Then 200, a new active activation exists and the derived `estado` is `A`.
+
+**S-MOCK-48 action not allowed** — Given a Banco whose last activation is active, When `activar` is posted, Then 409 `ACTION_NOT_ALLOWED` with `Banco ya Esta Activado` and the data is unchanged; an unknown action answers 404.
+
+**S-MOCK-49 action validation** — Given an active activation starting 2026-03-10, When `desactivar` is posted with `fecha_fin` 2026-03-09, Then 422 with a detail on `fecha_fin` (`Fecha es menor a fecha inicial`).
+
+**S-MOCK-50 password never leaves** — Given `POST /v1/usuarios` with `clave`, Then no response of `POST`, `GET list`, `GET {id}`, `PUT`, `/v1/lookups/usuarios`, `/auth/login` or any 4xx body (including a 422 for `clave`) contains `clave`, `clave_confirmacion` or `password`.
+
+**S-MOCK-51 usuario password rules** — Given `POST /v1/usuarios` without `clave`, Then 422 on `clave`; with 21 characters, Then 422 on `clave`; with a different `clave_confirmacion`, Then 422 on `clave_confirmacion`; Given `PUT` with no `clave`, Then the stored password is kept and the user can still log in with it.
+
+**S-MOCK-52 params keys** — Given `GET /v1/params` for `demo` and `botica`, Then each carries the keys of R-MOCK-24 with the seeded values and the Wave 1 keys are unchanged.
+
+**S-MOCK-53 stubs read-only** — Given `GET /v1/cuentas-contables`, `/v1/parametros-prov`, `/v1/clases-sunat?codigo_subfamilia_sunat=...` and `/v1/padrones`, Then they return the seed; Given `POST` on any, Then 405 `METHOD_NOT_ALLOWED`.
+
+**S-MOCK-54 socio-acciones composite** — Given an active price, When `PUT /v1/socio-acciones` activates a second price, Then 409 `No se Puede Agregar mas de un Precio` and nothing changes; Given no active price in the final state, Then 422 `Ingrese Precio`; Given a valid body, Then 200 with `message`, the new price applied to every active socio and all rows persisted atomically.
+
+**S-MOCK-56 action that creates a child** — Given `POST /v1/usuarios/{id}/series/actions/activate` with a valid pair, Then 200 with the new authorization row; a duplicate active pair answers 409 `ACTION_NOT_ALLOWED`/`DUPLICATE` with the W2 literal message.
+
+**S-MOCK-57 composite index** — Given a composite body whose second sent `direcciones` op is invalid, Then `details[].field` is `direcciones[1].direccion` (index in the sent array, not in the stored list).
+
+**S-MOCK-58 batch permissions** — Given `GET /forms/permissions` with `X-User-Id`, Then it returns the flags of every form for that user's perfil (defaults without overrides); without the header, the seeded defaults.
+
+**S-MOCK-55 usuarios master writes** — Given `POST /v1/usuarios` with `id_trabajador` of an unknown or inactive trabajador, Then 422 on `id_trabajador`; Given a duplicate `usuario` in the tenant, Then 409 on `usuario`; Given a valid body, Then 201 and `GET /v1/lookups/usuarios` lists `{ id, name }` with the derived nombre.
