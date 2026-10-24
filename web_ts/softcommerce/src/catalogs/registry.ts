@@ -103,7 +103,10 @@ const toActions = (entry: CatalogDef, registry: Registry): ActionConfig[] | unde
 
 /** The list and register config of an entry; the entry rides along for validation order and messages. */
 export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY): CatalogConfig<Row> {
-  const kids = (registry.childEntries ?? []).filter((child) => child.parent === entry.slug);
+  const all = (registry.childEntries ?? []).filter((child) => child.parent === entry.slug);
+  const kids = all.filter((child) => (child as any).tab !== false);
+  const hidden = all.filter((child) => (child as any).tab === false);
+  const toChild = (child: CatalogDef) => ({ name: (child as any).childName, title: (child as any).tab || (child as any).childName, removal: (child as any).removal, entryMode: (child as any).entry, quitar: { none: 'Seleccione Fila.', already: 'Fila ya Esta desactivada', ...(child as any).quitar }, ...((child as any).gate ? { gate: (child as any).gate } : {}), ...((child as any).actions ? { actions: toActions(child, registry) } : {}), config: { ...toCatalogConfig(child, registry), title: (child as any).tab || (child as any).childName } });
   return {
     formId: entry.formId ?? entry.slug,
     title: entry.title ?? entry.slug,
@@ -115,7 +118,8 @@ export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,
     // A child is a nested config of its own (R-REG-14): the child dialog is the unchanged crud register over it.
-    ...(kids.length ? { children: kids.map((child) => ({ name: child.childName, title: child.tab ?? child.childName, removal: child.removal, entryMode: child.entry, quitar: { none: 'Seleccione Fila.', already: 'Fila ya Esta desactivada', ...child.quitar }, ...(child.gate ? { gate: child.gate } : {}), ...(child.actions ? { actions: toActions(child, registry) } : {}), config: { ...toCatalogConfig(child, registry), title: child.tab ?? child.childName } })) } : {}),
+    ...(kids.length ? { children: kids.map(toChild) } : {}),
+    ...(hidden.length ? { resources: hidden.map(toChild) } : {}),
     ...((entry as any).layout ? { layout: (entry as any).layout } : {}),
     // A child's own actions ride on its `ChildConfig`; its nested config has none.
     ...((entry as any).actions && (entry as any).parent === undefined ? { rowActions: toActions(entry, registry) } : {}),
