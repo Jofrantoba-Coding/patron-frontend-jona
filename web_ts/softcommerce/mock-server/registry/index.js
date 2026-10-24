@@ -1,4 +1,5 @@
 import { aduanas } from './catalogs/aduanas.js';
+import { bancos } from './catalogs/bancos.js';
 import { almacenes } from './catalogs/almacenes.js';
 import { choferes } from './catalogs/choferes.js';
 import { socios } from './catalogs/socios.js';
@@ -61,4 +62,6 @@ export const REGISTRY = validateRegistry([
   clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo, subfamiliasSunat, subfamilias, monedas, tiposCambio, promociones, empresa, puntoVenta, almacenes, zonas, tiposDocVenta, correlativos, ubicaciones, tablasSunat, tablasDetalleSunat, tiposMovInventario, unidadesMedida, vehiculos, usuarios, trabajadores, usuarioCorrelativos, zonasDistancia, trabajadorPuntoVenta, tiposDocIden, choferes, socios,
   // Wave 3 read-only stubs of W6 data (R-MOCK-25).
   cuentasContables, parametrosProv, clasesSunat, padrones,
+  // Wave 3 masters (rich registers with children and actions).
+  bancos,
 ]);

@@ -1,0 +1,121 @@
+{
+  "demo": [
+    {
+      "id_banco": "0000000001",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20100047218",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "BANCO DE CREDITO DEL PERU",
+      "direccion": "CALLE CENTENARIO 156 LA MOLINA",
+      "sexo": "",
+      "telefono": "3112000",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "contacto@bcp.pe",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "3",
+      "estado": true,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "2", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ]
+    },
+    {
+      "id_banco": "0000000002",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20100130204",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "BBVA PERU",
+      "direccion": "AV. REPUBLICA DE PANAMA 3055 SAN ISIDRO",
+      "sexo": "",
+      "telefono": "2111000",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "3",
+      "estado": true,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "3", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ]
+    },
+    {
+      "id_banco": "0000000003",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20100053455",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "INTERBANK",
+      "direccion": "AV. CARLOS VILLARAN 140 LA VICTORIA",
+      "sexo": "",
+      "telefono": "2199000",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "3",
+      "estado": true,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "4", "estado": "D", "f_inicio": "2024-01-02", "f_fin": "2024-06-30", "motivo_activacion": "INICIO", "motivo_desactivacion": "CIERRE" },
+        { "id": "5", "estado": "D", "f_inicio": "2024-09-01", "f_fin": "2025-02-28", "motivo_activacion": "REINGRESO", "motivo_desactivacion": "CIERRE" },
+        { "id": "6", "estado": "A", "f_inicio": "2025-03-01", "f_fin": "", "motivo_activacion": "REINGRESO", "motivo_desactivacion": "" }
+      ]
+    },
+    {
+      "id_banco": "0000000004",
+      "id_tipo_doc_iden": "04",
+      "numero_doc": "001234567",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "KIM LEE JAE",
+      "direccion": "JR. LAMPA 450 LIMA",
+      "sexo": "",
+      "telefono": "",
+      "celular": "987654321",
+      "id_nacionalidad": "002",
+      "email": "",
+      "flag_tipo_persona": "N",
+      "id_tipo_anexo": "3",
+      "estado": false,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "1", "estado": "D", "f_inicio": "2024-02-01", "f_fin": "2024-12-31", "motivo_activacion": "INICIO", "motivo_desactivacion": "CIERRE" }
+      ]
+    },
+    {
+      "id_banco": "0000000005",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20555555551",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "BANCO RETIRADO SA",
+      "direccion": "",
+      "sexo": "",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "3",
+      "estado": false,
+      "id_usuario": 7,
+      "activo": false,
+      "activaciones": [
+        { "id": "7", "estado": "D", "f_inicio": "2024-01-02", "f_fin": "2024-03-01", "motivo_activacion": "INICIO", "motivo_desactivacion": "CIERRE" }
+      ]
+    }
+  ]
+}
