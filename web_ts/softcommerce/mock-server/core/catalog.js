@@ -5,7 +5,8 @@ import { scopeFilter, stampsOf } from './context.js';
 import { cascadeDelete, planChildren } from './children.js';
 import { storePasswords, withoutPasswords } from './password.js';
 import { blankHidden, derivedValues, withDefaults, withRuleDerived } from './stored.js';
-import { ACTIVE_KEY, pickWritable, positiveInt, rowsOf, targetOf, validateRecord } from './validators.js';
+import { BACKINGS } from '../registry/backings.js';
+import { ACTIVE_KEY, pickWritable, positiveInt, refDerived, rowsOf, targetOf, validateRecord } from './validators.js';
 
 export const DEFAULT_PAGE_SIZE = 20;
 export const MAX_PAGE_SIZE = 1000;
@@ -46,8 +47,8 @@ function writableEntry(store, catalog, verb, link) {
  * @param {import('./context.js').RequestContext} [ctx]
  */
 function enrich(store, tenantId, entry, row, ctx) {
-  // A password, its confirmation and its hash never leave the store (R-MOCK-23).
-  const out = withoutPasswords(entry, row);
+  // A password, its confirmation and its hash never leave the store (R-MOCK-23); a backed record also leaves its hidden keys behind.
+  const out = withoutPasswords(entry, entry.backing === undefined ? row : BACKINGS[entry.backing].present(row));
   for (const join of entry.joins ?? []) {
     const ref = entry.refs.find((/** @type {any} */ r) => r.field === join.ref);
     const target = targetOf(store, tenantId, ref.catalog, ctx, false);
@@ -135,13 +136,15 @@ export function createRecord(store, tenantId, catalog, body, ctx, link) {
   const plan = link ? null : planChildren(store, tenantId, entry, body.children, { ctx, creating: true });
   const rows = rowsOf(store, tenantId, entry);
   // The server owns the code (R-MOCK-13): next number, zero-padded to `codeWidth`.
-  const next = rows.reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[entry.idKey]) || 0), 0) + 1;
+  const next = (entry.backing === undefined ? rows : BACKINGS[entry.backing].all(store)).reduce((/** @type {number} */ max, /** @type {any} */ r) => Math.max(max, Number(r[entry.idKey]) || 0), 0) + 1;
   // Constants and derived columns are the server's: the body never reaches them (R-REF-9).
   const id = String(next).padStart(entry.codeWidth, '0');
-  const created = { [entry.idKey]: id, ...storePasswords(entry, record, id), ...entry.constants, ...derivedValues(entry, record), ...stamps, ...(link ? { [link.key]: link.id } : {}), [ACTIVE_KEY]: true };
-  rows.push(created);
+  const created = { [entry.idKey]: id, ...storePasswords(entry, record, id), ...entry.constants, ...derivedValues(entry, record), ...refDerived(store, tenantId, entry, record, ctx), ...stamps, ...(link ? { [link.key]: link.id } : {}), [ACTIVE_KEY]: true };
+  // A backed entry adds the record to the store it shares (D15); its stored object is what the response reads.
+  const stored = entry.backing === undefined ? created : BACKINGS[entry.backing].insert(store, tenantId, created);
+  if (entry.backing === undefined) rows.push(created);
   plan?.apply(created[entry.idKey]);
-  return enrich(store, tenantId, entry, created, ctx);
+  return enrich(store, tenantId, entry, stored, ctx);
 }
 
 /** @param {any} store @param {string} tenantId @param {string} catalog @param {string} id @param {Record<string, any>} body @param {import('./context.js').RequestContext} [ctx] @param {ParentLink} [link] */
@@ -150,10 +153,12 @@ export function updateRecord(store, tenantId, catalog, id, body, ctx, link) {
   const stamps = stampsOf(store, tenantId, entry, ctx);
   const row = findRow(store, tenantId, entry, id, ctx, link);
   if (link && row[ACTIVE_KEY] === false) throw notFound(`${entry.slug} ${id} not found`);
-  const merged = withRuleDerived(entry, blankHidden(entry, { ...row, ...pickWritable(entry, body) }));
+  // A backed record is edited through its presented form (the flags as booleans), so a body that leaves a checkbox out keeps it.
+  const merged = withRuleDerived(entry, blankHidden(entry, { ...(entry.backing === undefined ? row : BACKINGS[entry.backing].present(row)), ...pickWritable(entry, body) }));
   validateRecord(store, tenantId, entry, merged, { selfId: id, ctx, mode: 'UPDATE', parentId: link?.id });
   const plan = link ? null : planChildren(store, tenantId, entry, body.children, { ctx, parentId: id });
-  Object.assign(row, storePasswords(entry, merged, id), derivedValues(entry, merged), stamps);
+  Object.assign(row, storePasswords(entry, merged, id), derivedValues(entry, merged), refDerived(store, tenantId, entry, merged, ctx), stamps);
+  if (entry.backing !== undefined) BACKINGS[entry.backing].stored(row);
   plan?.apply(id);
   return enrich(store, tenantId, entry, row, ctx);
 }

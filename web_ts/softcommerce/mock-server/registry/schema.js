@@ -8,6 +8,7 @@ import { applyPreset } from './presets.js';
 import { PERMISSION_FLAG_NAMES } from './flags.js';
 import { PARAM_KEYS, isGateParam } from './paramKeys.js';
 import { PICKERS } from './pickers.js';
+import { BACKINGS } from './backings.js';
 import { PROJECTIONS } from './project.js';
 import { BUILTIN_SOURCES } from './sources.js';
 
@@ -17,8 +18,8 @@ import { BUILTIN_SOURCES } from './sources.js';
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
  *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string | string[], modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
- *   rules?: { name: string }[], search?: string[], lookupFilters?: Record<string, any>, compat?: any, project?: string,
- *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when: { field: string, in: string[] }, then: unknown, else: unknown }[] }} CatalogDef
+ *   rules?: { name: string }[], search?: string[], lookupFilters?: Record<string, any>, compat?: any, project?: string, backing?: string,
+ *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when?: { field: string, in: string[] }, then?: unknown, else?: unknown, fromRef?: { field: string, key: string } }[] }} CatalogDef
  */
 
 export const SCOPES = ['tenant', 'empresa', 'shared'];
@@ -205,6 +206,13 @@ function assertStored(where, entry, names, known) {
     if (typeof rule.target !== 'string' || rule.target === '') fail(where, 'derive needs a target');
     if (names.has(rule.target)) fail(where, `derive target "${rule.target}" is also a field`);
     if (constants && Object.hasOwn(constants, rule.target)) fail(where, `derive target "${rule.target}" is also a constant`);
+    // `fromRef` (D15): the column copies `key` of the row the select or lookup `field` points to; the server owns it.
+    if (rule.fromRef !== undefined) {
+      const source = entry.fields.find((/** @type {any} */ f) => f.name === rule.fromRef.field);
+      if (!source || !['select', 'lookup'].includes(source.kind)) fail(where, `derive fromRef must name a select or lookup field, not "${rule.fromRef.field}"`);
+      if (typeof rule.fromRef.key !== 'string' || rule.fromRef.key === '') fail(where, 'derive fromRef needs a key');
+      continue;
+    }
     if (typeof rule.when?.field !== 'string' || !Array.isArray(rule.when.in)) fail(where, 'derive needs a condition { field, in }');
     known('derive', rule.when.field);
     if (!('then' in rule) || !('else' in rule) || rule.then === undefined || rule.else === undefined) fail(where, 'derive needs then and else');
@@ -419,6 +427,14 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
     if (entry.scope !== 'tenant') fail(where, 'project needs scope tenant');
   }
 
+  // A backing (D15) gives a master write access to records another part of the store holds: no seed of its own, and never a projection as well.
+  if (entry.backing !== undefined) {
+    if (!Object.hasOwn(BACKINGS, entry.backing)) fail(where, `unknown backing "${entry.backing}"`);
+    if (entry.project !== undefined) fail(where, 'backing and project exclude each other');
+    if (entry.seed !== null) fail(where, 'backing needs seed null');
+    if (entry.scope !== 'tenant') fail(where, 'backing needs scope tenant');
+  }
+
   const names = new Set(entry.fields.map((/** @type {any} */ f) => f.name));
   /** @param {string} context @param {string} name */
   const known = (context, name) => {
@@ -514,7 +530,9 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
     const labels = entry.optionLabel;
     if (Array.isArray(labels) ? labels.some((name) => typeof name !== 'string') : typeof labels !== 'string') fail(where, 'optionLabel must be a field name or a list of field names');
     if (Array.isArray(labels) && labels.length === 0) fail(where, 'optionLabel needs at least one field');
-    for (const name of [labels].flat()) known('optionLabel', name);
+    // A stored-only column a `derive` rule computes (the Usuario nombre) is a valid label too.
+    const derived = new Set((entry.derive ?? []).map((/** @type {any} */ d) => d.target));
+    for (const name of [labels].flat()) if (!derived.has(name)) known('optionLabel', name);
   }
   const byName = new Map(entry.fields.map((/** @type {any} */ f) => [f.name, f]));
   for (const { name, params } of entry.rules ?? []) {

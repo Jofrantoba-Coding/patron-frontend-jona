@@ -1,4 +1,5 @@
 import { REGISTRY } from '../registry/index.js';
+import { BACKINGS } from '../registry/backings.js';
 import { PROJECTIONS } from '../registry/project.js';
 import { MockError } from './errors.js';
 
@@ -74,7 +75,7 @@ function snapshot(seed, registry) {
   return {
     tenantList: /** @type {Tenant[]} */ (structuredClone(seed.tenants)),
     shared: /** @type {SharedData} */ ({
-      users: structuredClone(seed.users),
+      users: BACKINGS.users.seed(structuredClone(seed.users)),
       menu: structuredClone(seed.menu),
       permissions: structuredClone(seed.permissions),
       ubigeo: structuredClone(seed.ubigeo),
