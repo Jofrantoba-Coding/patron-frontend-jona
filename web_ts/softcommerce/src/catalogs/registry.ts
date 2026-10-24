@@ -92,7 +92,7 @@ function baseField(entry: CatalogDef, field: any, registry: Registry): FieldConf
   if (field.kind === 'select') {
     // The lookup filters travel as query strings, so a boolean or numeric `where` value is sent as its text.
     const where = field.source.where && Object.fromEntries(Object.entries(field.source.where).map(([key, value]) => [key, String(value)]));
-    return { kind: 'select', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, where }, ...(field.dependsOn?.length ? { dependsOn: field.dependsOn } : {}), ...(field.defaultOption ? { defaultOption: field.defaultOption } : {}), ...(field.default !== undefined ? { default: field.default } : {}), ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}) };
+    return { kind: 'select', name: field.name, label: field.label, required: Boolean(field.required), source: { catalog: field.source.catalog, where }, ...(field.dependsOn?.length ? { dependsOn: field.dependsOn } : {}), ...(field.defaultOption ? { defaultOption: field.defaultOption } : {}), ...(field.default !== undefined ? { default: field.default } : {}), ...(field.readOnlyOn ? { readOnlyOn: field.readOnlyOn } : {}), ...(field.message ? { message: field.message } : {}) };
   }
   throw new Error(`${entry.slug}.${field.name}: the UI does not support kind "${field.kind}" yet`);
 }

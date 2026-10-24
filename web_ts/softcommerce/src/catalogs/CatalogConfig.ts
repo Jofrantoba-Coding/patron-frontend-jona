@@ -133,6 +133,8 @@ type PlainField =
       dependsOn?: { field: string; filterKey: string }[];
       /** `first` selects the first option after each load or parent change (S-CRUD-41). */
       defaultOption?: 'first';
+      /** The sentence of a blank required value when no entry gives one (an action dialog: `Seleccione Padron`). */
+      message?: string;
     }
   | {
       /** A code box over a search dialog (R-CRUD-19): the form state and the payload carry the id; `display` is the record key that holds its description. */

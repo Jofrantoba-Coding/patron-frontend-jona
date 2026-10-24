@@ -27,6 +27,12 @@ type DateRule = 'DATE' | 'NOT_FUTURE' | 'MIN_DATE' | 'AFTER_FIELD';
 type DateMessage = (name: string, rule: DateRule) => string;
 
 /** A typed date must be real, then pass the optional rules (S-CRUD-28): not in the future, not before `min`, not before `afterField`. */
+/** The sentence a text or select field declares for its blank value, unless it is a template an entry fills in (`Para {modo} ...`). */
+const ownMessage = (field: FieldConfig) => {
+  const message = field.kind === 'text' || field.kind === 'select' ? field.message : undefined;
+  return message?.includes('{') ? undefined : message;
+};
+
 function dateError(field: Extract<FieldConfig, { kind: 'date' }>, values: FormValues, message?: DateMessage): FieldError | undefined {
   const fail = (rule: DateRule) => ({ name: field.name, message: message?.(field.name, rule) ?? `${field.label} no es una fecha válida.` });
   const iso = displayToIso(values[field.name] ?? '');
@@ -88,7 +94,7 @@ function fieldError(field: FieldConfig, values: FormValues, { required: required
   if (!state.visible || !state.enabled) return undefined;
   if (field.kind === 'password') return passwordError(field, values, mode, requiredMessage);
   const value = values[field.name];
-  if (state.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? (field.kind === 'text' ? field.message : undefined) ?? `${field.label} es obligatorio.` };
+  if (state.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? ownMessage(field) ?? `${field.label} es obligatorio.` };
   const limit = field.kind === 'text' ? maxLengthOf(field, values) : undefined;
   if (field.kind === 'text' && limit !== undefined && (value?.length ?? 0) > limit) {
     return { name: field.name, message: `${field.label} no puede superar ${limit} caracteres.` };

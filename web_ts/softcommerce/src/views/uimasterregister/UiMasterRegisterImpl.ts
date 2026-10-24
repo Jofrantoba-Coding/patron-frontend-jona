@@ -113,8 +113,10 @@ export function useUiMasterRegisterImpl<T>(
       const refusal = rule.guard?.(call);
       if (refusal) throw new Error(refusal);
       const effect = rule.apply(call);
-      if (effect.insert) draftsRef.current.add(child.name, effect.insert);
+      // The grid shows the joined name of a picked select (the padron) on the pending row too, as the server adds it to the persisted ones.
+      if (effect.insert) draftsRef.current.add(child.name, await withNames(child, effect.insert));
       if (effect.change && row) draftsRef.current.change(child.name, row._key, effect.change.patch ?? {}, effect.change.estado);
+      if (effect.remove && row) remove(child, row._key);
       for (const [name, value] of Object.entries(effect.parent ?? {})) register.onFieldChange(name, value);
       return;
     }

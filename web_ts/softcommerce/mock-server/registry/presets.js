@@ -100,13 +100,14 @@ function padron({ master }) {
       padrones: {
         tab: 'Padrones', removal: 'none', entry: 'none',
         fields: [select, { name: 'f_inicio', kind: 'date', label: 'Fecha Inicio', default: 'today' }, { name: 'f_fin', kind: 'date', label: 'Fecha Fin' }],
+        joins: [{ as: 'padron', ref: 'id_padron', display: 'descripcion' }],
         columns: [{ key: 'padron', header: 'PADRON' }, { key: 'f_inicio', header: 'F_INICIO', type: 'date' }, { key: 'f_fin', header: 'F_FIN', type: 'date' }],
         actions: [
           {
-            id: 'activar', label: 'Activar', kind: 'deferred', rule: 'activarPadron', enabledWhen: { modes: ['INSERT', 'UPDATE'] },
+            id: 'activar', label: 'Activar', kind: 'deferred', rule: 'activarPadron', params: { flags }, enabledWhen: { modes: ['INSERT', 'UPDATE'] },
             dialog: { title: 'Agregar Padron', fields: [select, { name: 'f_inicio', kind: 'date', label: 'Fecha Inicio', required: true, default: 'today' }] },
           },
-          { id: 'desactivar', label: 'Desactivar', kind: 'deferred', rule: 'desactivarPadron', confirm: 'Desea Desactivar Padron?', enabledWhen: { modes: ['INSERT', 'UPDATE'] } },
+          { id: 'desactivar', label: 'Desactivar', kind: 'deferred', rule: 'desactivarPadron', params: { flags }, confirm: 'Desea Desactivar Padron?', enabledWhen: { modes: ['INSERT', 'UPDATE'] } },
         ],
       },
     },
