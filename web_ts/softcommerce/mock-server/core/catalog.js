@@ -1,4 +1,6 @@
-import { methodNotAllowed, modeNotSupported, notFound } from './errors.js';
+import { MockError, methodNotAllowed, modeNotSupported, notFound } from './errors.js';
+import { joinLabel } from './lookups.js';
+import { acceptedListKeys, matchesTerms, searchTerms } from './search.js';
 import { isModeMap } from '../registry/schema.js';
 import { scopeFilter, stampsOf } from './context.js';
 import { todayIso } from './dates.js';
@@ -45,7 +47,8 @@ function enrich(store, tenantId, entry, row, ctx) {
     const key = join.prefixLen ? value.slice(0, join.prefixLen) : value;
     const found = target.rows.find((/** @type {any} */ r) => String(r[target.idKey]) === key);
     const active = found && (!target.activeKey || found[target.activeKey] !== false);
-    out[join.as] = active ? String(found[join.display] ?? '') : '';
+    // `display` is one field of the target, or a list joined with " - " (the optionLabel a lookup join carries, D3).
+    out[join.as] = active ? joinLabel(join.display, found) : '';
   }
   for (const f of entry.fields.filter((/** @type {any} */ f) => f.kind === 'options')) {
     out[`${f.name}_label`] = f.options.find((/** @type {any} */ o) => o.value === String(row[f.name]))?.label ?? '';
@@ -61,13 +64,19 @@ function enrich(store, tenantId, entry, row, ctx) {
  */
 export function listCatalog(store, tenantId, catalog, query = {}, ctx) {
   const entry = entryOf(store, catalog);
-  const { page: rawPage, pageSize: rawSize, ...filters } = query;
+  const { page: rawPage, pageSize: rawSize, q, ...filters } = query;
   const page = positiveInt(rawPage, 1);
   const pageSize = positiveInt(rawSize, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
+  const accepted = acceptedListKeys(store, entry);
+  const unknown = Object.keys(filters).find((key) => !accepted.has(key));
+  if (unknown) throw new MockError(400, 'INVALID_FILTER', `Unknown filter "${unknown}" for ${catalog}`);
+  const terms = searchTerms(q);
   let rows = rowsOf(store, tenantId, entry)
     .filter(scopeFilter(store, tenantId, entry, ctx))
     .filter((/** @type {any} */ r) => r[ACTIVE_KEY] !== false)
     .map((/** @type {any} */ r) => enrich(store, tenantId, entry, r, ctx));
+  // `q` (R-MOCK-20): every term in some declared search field; an entry with no `search` has nothing to match, so the list is empty.
+  if (terms.length > 0) rows = rows.filter((/** @type {any} */ r) => matchesTerms(r, entry.search ?? [], terms));
   for (const [field, value] of Object.entries(filters)) {
     const needle = String(value).toLowerCase();
     rows = rows.filter((/** @type {any} */ r) => String(r[field] ?? '').toLowerCase().includes(needle));

@@ -13,13 +13,13 @@ import { BUILTIN_SOURCES } from './sources.js';
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
  *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string | string[], modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
- *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any, project?: string,
+ *   rules?: { name: string }[], search?: string[], lookupFilters?: Record<string, any>, compat?: any, project?: string,
  *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when: { field: string, in: string[] }, then: unknown, else: unknown }[] }} CatalogDef
  */
 
 export const SCOPES = ['tenant', 'empresa', 'shared'];
 export const MODES = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
-const KINDS = ['code', 'text', 'number', 'boolean', 'date', 'select', 'options'];
+const KINDS = ['code', 'text', 'number', 'boolean', 'date', 'select', 'options', 'lookup'];
 const STYLES = ['M1', 'M2', 'MS', 'label', 'w1'];
 const STAMPS = ['id_usuario', 'id_empresa'];
 /** Closed set of named rules (D9): the hooks live in `core/entryRules.js`. */
@@ -217,11 +217,43 @@ function assertAcyclic(where, fields) {
 }
 
 /**
- * @param {any} raw @param {Set<string>} slugs @param {Record<string, any>} sources
+ * `lookup` fields (R-REG-13, D3). The source must be a registered catalog (a W1 builtin source has no search) and the field names the `search`
+ * fields of its picker, each a field or joined display key of the source. The description shown beside the code comes from a derived join
+ * `{ as, ref: <field>, display: <source optionLabel> }` (R-REG-8), named by `display` or after the field without its `id_` prefix; a join the entry already
+ * declares over the field is reused. The field keeps the join key in `display`. Replaces `entry.fields` and `entry.joins` with new values.
+ * @param {string} where @param {any} entry @param {Map<string, any>} rawBySlug @param {Record<string, any>} sources
  */
-function resolveEntry(raw, slugs, sources) {
+function applyLookups(where, entry, rawBySlug, sources) {
+  if (!entry.fields.some((/** @type {any} */ f) => f.kind === 'lookup')) return;
+  const joins = [...(entry.joins ?? [])];
+  const taken = new Set([...entry.fields.map((/** @type {any} */ f) => f.name), ...joins.map((join) => join.as)]);
+  entry.fields = entry.fields.map((/** @type {any} */ f) => {
+    if (f.kind !== 'lookup') return f;
+    const at = `${where} field "${f.name}"`;
+    if (!f.source?.catalog) fail(at, 'lookup needs a source');
+    const target = rawBySlug.get(f.source.catalog);
+    if (!target) fail(at, Object.hasOwn(sources, f.source.catalog) ? `lookup source "${f.source.catalog}" is not a registered catalog` : `unknown catalog "${f.source.catalog}"`);
+    if (!Array.isArray(f.search) || f.search.length === 0 || f.search.some((/** @type {unknown} */ name) => typeof name !== 'string')) fail(at, 'lookup needs search fields');
+    const targetNames = new Set([...target.fields.map((/** @type {any} */ t) => t.name), ...(target.joins ?? []).map((/** @type {any} */ join) => join.as)]);
+    for (const name of f.search) if (!targetNames.has(name)) fail(at, `search names unknown field "${name}" of "${target.slug}"`);
+    const existing = joins.find((join) => join.ref === f.name);
+    if (existing) return { ...f, display: existing.as };
+    const as = f.display ?? (f.name.startsWith('id_') ? f.name.slice('id_'.length) : `${f.name}_display`);
+    if (taken.has(as)) fail(at, `display "${as}" is also a field or a join`);
+    taken.add(as);
+    joins.push({ as, ref: f.name, display: target.optionLabel ?? 'descripcion' });
+    return { ...f, display: as };
+  });
+  entry.joins = joins;
+}
+
+/**
+ * @param {any} raw @param {Set<string>} slugs @param {Record<string, any>} sources @param {Map<string, any>} rawBySlug
+ */
+function resolveEntry(raw, slugs, sources, rawBySlug) {
   const where = `entry "${raw.slug}"`;
   const entry = { section: raw.slug, modes: MODES, ...raw, fields: raw.fields.map(applyPreset).map(withDisplay) };
+  applyLookups(where, entry, rawBySlug, sources);
   if (!SCOPES.includes(entry.scope)) fail(where, `unknown scope "${entry.scope}"`);
   if (!STYLES.includes(entry.messages?.style)) fail(where, `unknown messages style "${entry.messages?.style}"`);
   if (entry.seed !== null && typeof entry.seed !== 'string') fail(where, 'seed must be a file name or null (W1 section)');
@@ -310,6 +342,13 @@ function resolveEntry(raw, slugs, sources) {
     known('unique', key.errorField);
   }
   for (const join of entry.joins ?? []) known('joins', join.ref);
+  // `search` (R-REG-16): the fields or joined display keys the free-text `q` looks in.
+  if (entry.search !== undefined) {
+    if (!Array.isArray(entry.search) || entry.search.some((/** @type {unknown} */ name) => typeof name !== 'string')) fail(where, 'search must be a list of field names');
+    for (const name of entry.search) {
+      if (!names.has(name) && !(entry.joins ?? []).some((/** @type {any} */ join) => join.as === name)) fail(where, `search names unknown field "${name}"`);
+    }
+  }
   // `optionLabel` is a field name, or a list of them joined with " - " (the tabla SUNAT shows as `nombre - descripcion`).
   if (entry.optionLabel !== undefined) {
     const labels = entry.optionLabel;
@@ -337,7 +376,8 @@ function resolveEntry(raw, slugs, sources) {
   }
 
   // A transient select is a form-only level: it has no ref, and a parent that is transient is not one the server can check.
-  const selects = entry.fields.filter((/** @type {any} */ f) => f.kind === 'select' && !f.transient);
+  // A `lookup` is a ref like a select (R-REG-13, R-REG-6): it is checked against its source and its parents.
+  const selects = entry.fields.filter((/** @type {any} */ f) => (f.kind === 'select' || f.kind === 'lookup') && !f.transient);
   const transient = new Set(entry.fields.filter((/** @type {any} */ f) => f.transient).map((/** @type {any} */ f) => f.name));
   // Refs come from the field `source` and its `dependsOn` parents (R-REG-6).
   const refs = selects.map((/** @type {any} */ f) => ({
@@ -393,8 +433,9 @@ export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {})
     }
   }
   const slugs = new Set(rawEntries.map((e) => e.slug));
+  const rawBySlug = new Map(rawEntries.map((e) => [e.slug, e]));
   /** @type {any[]} */
-  const entries = rawEntries.map((raw) => resolveEntry(raw, slugs, sources));
+  const entries = rawEntries.map((raw) => resolveEntry(raw, slugs, sources, rawBySlug));
   for (const entry of entries) {
     for (const { via } of Object.values(entry.lookupFilters ?? {}).filter((/** @type {any} */ f) => f.via)) {
       const target = entries.find((e) => e.slug === via.catalog);
