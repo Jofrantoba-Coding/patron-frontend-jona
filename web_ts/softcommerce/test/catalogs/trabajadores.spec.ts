@@ -5,7 +5,6 @@ import permissions from '../../mock-server/data/permissions.json';
 import { loadSeed } from '../../mock-server/http/loadSeed.js';
 import { useTestServer } from '../../mock-server/http/test-server';
 import { REGISTRY } from '../../mock-server/registry/index.js';
-import { actionsForModes, DEFAULT_ACTIONS } from '../../src/domain/crud/toolbarGate';
 import { ApiError } from '../../src/services/ApiError';
 import { createActionServiceHttp } from '../../src/services/ActionServiceHttp';
 import { createCatalogServiceHttp } from '../../src/services/CatalogServiceHttp';
@@ -32,9 +31,8 @@ describe('R-MST-4 the trabajadores entry', () => {
     expect([entry.formId, entry.title, entry.entity, entry.modes]).toEqual(['miTrabajador', 'Trabajador', 'un Trabajador', ['INSERT', 'UPDATE', 'DETAIL']]);
   });
 
-  it('does not offer CLONE: PanelTFTrabajador.controlClone is empty, so the toolbar drops it (R-CRUD-16, R-MST-1)', () => {
+  it('does not offer CLONE: PanelTFTrabajador.controlClone is empty, so the entry offers no CLONE mode (R-CRUD-16, R-MST-1; the toolbar drop is asserted in the UI spec)', () => {
     expect(entry.modes).not.toContain('CLONE');
-    expect(actionsForModes(DEFAULT_ACTIONS, entry.modes)).not.toContain('clone');
   });
 
   it('has the fields in the desktop order, the derived nombre and the read-only estado', () => {
