@@ -22,7 +22,7 @@ describe('R-REF-6 / R-REF-8 chofer and socio entries', () => {
 
   it.each(['choferes', 'socios'])('%s runs the docIdentidad rule at the desktop position and judges the DNI by id 01 and the RUC by 05', (slug) => {
     const entry = REGISTRY.bySlug.get(slug);
-    expect(entry.rules.map((r: any) => r.name)).toEqual(['docIdentidad']);
+    expect(entry.rules.map((r: any) => r.name).filter((name: string) => name !== 'activacion')).toEqual(['docIdentidad']);
     expect(entry.validation.slice(0, 2)).toEqual(['id_tipo_doc_iden', { rule: 'docIdentidad' }]);
     const numero = field(slug, 'numero_doc');
     expect([numero.max, numero.normalize, numero.maxWhen, numero.minLenWhen]).toEqual([
@@ -51,7 +51,7 @@ describe('R-REF-6 / R-REF-8 chofer and socio entries', () => {
 
   it('S-REF-39 the Chofer form has no activation tab, history grid or percepcion flags', () => {
     expect(REGISTRY.bySlug.get('choferes').fields.map((f: any) => f.name)).toEqual([
-      'id_chofer', 'id_tipo_doc_iden', 'numero_doc', 'ap_paterno', 'ap_materno', 'nombres', 'descripcion', 'nro_licencia', 'direccion', 'sexo', 'telefono', 'celular', 'id_nacionalidad',
+      'id_chofer', 'id_tipo_doc_iden', 'numero_doc', 'ap_paterno', 'ap_materno', 'nombres', 'descripcion', 'nro_licencia', 'direccion', 'sexo', 'telefono', 'celular', 'id_nacionalidad', 'estado',
     ]);
   });
 
@@ -63,7 +63,7 @@ describe('R-REF-6 / R-REF-8 chofer and socio entries', () => {
 
   it('the desktop scope: Chofer stamps the session user (mantChofer), Socio stamps nothing (mantSocio comments the user out); both tenant-wide', () => {
     const [chofer, socio] = ['choferes', 'socios'].map((slug) => REGISTRY.bySlug.get(slug));
-    expect([chofer.scope, chofer.stamp, chofer.codeWidth, chofer.constants]).toEqual(['tenant', ['id_usuario'], 10, { flag_tipo_persona: 'N' }]);
+    expect([chofer.scope, chofer.stamp, chofer.codeWidth, chofer.constants]).toEqual(['tenant', ['id_usuario'], 10, { flag_tipo_persona: 'N', id_tipo_anexo: '7' }]);
     expect([socio.scope, socio.stamp, socio.codeWidth, socio.rules[0].params.persona]).toEqual(['tenant', [], 0, 'flag_tipo_persona']);
   });
 

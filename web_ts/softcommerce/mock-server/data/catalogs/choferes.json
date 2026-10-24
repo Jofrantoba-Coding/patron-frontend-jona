@@ -16,7 +16,19 @@
       "id_nacionalidad": "001",
       "flag_tipo_persona": "N",
       "id_usuario": 7,
-      "activo": true
+      "activo": true,
+      "id_tipo_anexo": "7",
+      "estado": true,
+      "activaciones": [
+        {
+          "id": "1",
+          "estado": "A",
+          "f_inicio": "2025-01-02",
+          "f_fin": "",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": ""
+        }
+      ]
     },
     {
       "id_chofer": "0000000002",
@@ -34,7 +46,19 @@
       "id_nacionalidad": "002",
       "flag_tipo_persona": "N",
       "id_usuario": 7,
-      "activo": true
+      "activo": true,
+      "id_tipo_anexo": "7",
+      "estado": true,
+      "activaciones": [
+        {
+          "id": "2",
+          "estado": "A",
+          "f_inicio": "2025-01-02",
+          "f_fin": "",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": ""
+        }
+      ]
     },
     {
       "id_chofer": "0000000003",
@@ -52,7 +76,19 @@
       "id_nacionalidad": "001",
       "flag_tipo_persona": "N",
       "id_usuario": 7,
-      "activo": false
+      "activo": false,
+      "id_tipo_anexo": "7",
+      "estado": true,
+      "activaciones": [
+        {
+          "id": "3",
+          "estado": "A",
+          "f_inicio": "2025-01-02",
+          "f_fin": "",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": ""
+        }
+      ]
     }
   ]
 }
