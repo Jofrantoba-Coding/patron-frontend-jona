@@ -107,7 +107,8 @@ export function toCatalogConfig(entry: CatalogDef, registry: Registry = REGISTRY
     catalog: entry.slug,
     idKey: entry.idKey,
     columns: entry.columns.map(({ key, header, type }) => ({ key, header, sortable: true, ...(type === 'bool' || type === 'dec' || type === 'date' ? { format: type as 'bool' | 'dec' | 'date' } : {}) })),
-    fields: entry.fields.map((field) => toField(entry, field, registry)),
+    // A store child shows only the owner's fields it picks, in that order (`entryFields`, R-REG-14); everything else is the owner's.
+    fields: ((entry as any).entryFields?.map((name: string) => entry.fields.find((field) => field.name === name)) ?? entry.fields).map((field: any) => toField(entry, field, registry)),
     modes: entry.modes as CatalogConfig<Row>['modes'],
     entry,
     // A child is a nested config of its own (R-REG-14): the child dialog is the unchanged crud register over it.

@@ -21,7 +21,7 @@ const EXCLUDED = /activaci|presentaci|propietario|unidad base|percepci|retenci|e
 const NESTED_CREATE = /nuev[ao]|crear|activar|desactivar/i;
 
 describe('S-REF-39 excluded behaviors are absent from the register', () => {
-  it.each(['subfamilias', 'tipos-cambio', 'unidades-medida', 'vehiculos'])('%s shows no nested-create button, activation tab, presentation panel or propietario picker', async (slug) => {
+  it.each(['subfamilias', 'tipos-cambio', 'unidades-medida'])('%s shows no nested-create button, activation tab, presentation panel or propietario picker', async (slug) => {
     const services = createAppServicesMock('exitoso', { getSession: session, getRequestContext: () => ctx, delayMs: 0, seed });
     render(
       <ServicesProvider services={services}>

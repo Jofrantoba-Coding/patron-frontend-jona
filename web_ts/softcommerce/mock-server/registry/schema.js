@@ -540,11 +540,17 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
     parents: (f.dependsOn ?? []).filter((/** @type {any} */ p) => !transient.has(p.field)),
   }));
   // Default order (D10): fields, then refs, then unique keys.
-  const steps = entry.validation ?? [
+  const declared = entry.validation ?? [
     ...entry.fields.filter((/** @type {any} */ f) => f.kind !== 'code').map((/** @type {any} */ f) => f.name),
     ...selects.map((/** @type {any} */ f) => ({ ref: f.name })),
     ...(entry.unique ?? []).map((/** @type {any} */ _k, /** @type {number} */ i) => ({ unique: i })),
   ];
+  // A lookup is a ref the desktop never checks (the Vehiculo propietario): an explicit `validation` that leaves it out still gets it as a trailing step, so a
+  // propietario that is not an active transportista is a 422 on the field and the declared order of the desktop checks stays as written (W3-10, S-MST-12).
+  const refSteps = declared.some((/** @type {any} */ s) => typeof s === 'object' && 'ref' in s);
+  const named = new Set(declared.map((/** @type {any} */ s) => (typeof s === 'string' ? s : s.ref)));
+  const trailing = entry.validation === undefined ? [] : selects.filter((/** @type {any} */ f) => f.kind === 'lookup' && !named.has(f.name)).map((/** @type {any} */ f) => (refSteps ? { ref: f.name } : f.name));
+  const steps = [...declared, ...trailing];
   for (const step of steps) {
     if (typeof step === 'string') known('validation', step);
     else if ('unique' in step) {
@@ -609,6 +615,21 @@ const childList = (parent) =>
 const OWNER_PARTS = ['fields', 'unique', 'joins', 'validation', 'refs'];
 
 /**
+ * `entryFields: [{ name, message? }]` of a store child (R-REG-14): the owner's fields the entry of its parent shows, in order, each with an optional required message.
+ * @param {string} at @param {any} view @param {any} owner @param {string} ownerSlug @param {string} key @returns {{ name: string, message?: string }[]}
+ */
+function assertEntryFields(at, view, owner, ownerSlug, key) {
+  if (view === undefined) return [];
+  if (!Array.isArray(view) || view.length === 0) fail(at, 'entryFields needs a list of fields');
+  for (const { name } of view) {
+    if (!owner.fields.some((/** @type {any} */ f) => f.name === name)) fail(at, `entryFields names unknown field "${name}" of "${ownerSlug}"`);
+    if (name === owner.idKey) fail(at, `entryFields cannot name the code "${name}"`);
+    if (name === key) fail(at, `entryFields cannot name the parent key "${key}"`);
+  }
+  return view;
+}
+
+/**
  * The internal entry of a store child: the owning entry under the slug `parent/name`, linked to the parent through `store.key`.
  * @param {any} parent @param {any} def @param {string} at @param {string} removal @param {string} entry @param {Map<string, any>} resolved @param {(raw: any) => any} resolve
  */
@@ -621,8 +642,15 @@ function storeChild(parent, def, at, removal, entry, resolved, resolve) {
   for (const part of OWNER_PARTS) if (def[part] !== undefined) fail(at, `a store child takes ${part} from "${ownerSlug}"`);
   const { menu: _menu, children: _children, actions: _actions, ...rest } = owner;
   const slug = `${parent.slug}/${def.name}`;
+  // The nested route binds every row to its parent, so the parent key is never ref-checked again; `entryFields` (W3-10) picks, orders and words the fields of the entry.
+  const view = assertEntryFields(at, def.entryFields, owner, ownerSlug, key);
+  const names = view.map((/** @type {any} */ v) => v.name);
+  const words = new Map(view.filter((/** @type {any} */ v) => v.message !== undefined).map((/** @type {any} */ v) => [v.name, v.message]));
+  const fields = owner.fields.map((/** @type {any} */ f) => (words.has(f.name) ? { ...f, message: words.get(f.name) } : f));
+  const owned = owner.steps.filter((/** @type {any} */ s) => s !== key && !(typeof s === 'object' && s.ref === key));
+  const steps = view.length === 0 ? owned : [...names, ...owned.filter((/** @type {any} */ s) => !(typeof s === 'string' && names.includes(s)))];
   const actions = normalizeActions(at, { actions: def.actions, parent: parent.slug, slug, entity: owner.entity, messages: owner.messages }, new Set([...owner.fields.map((/** @type {any} */ f) => f.name), 'id', 'estado']), resolve);
-  return { ...rest, ...(actions && { actions }), slug, parent: parent.slug, childName: def.name, parentKey: key, seed: null, removal, entry, store: def.store, tab: def.tab, gate: def.gate, quitar: def.quitar, columns: def.columns ?? owner.columns };
+  return { ...rest, fields, steps, ...(view.length > 0 && { entryFields: names }), ...(actions && { actions }), slug, parent: parent.slug, childName: def.name, parentKey: key, seed: null, removal, entry, store: def.store, tab: def.tab, gate: def.gate, quitar: def.quitar, columns: def.columns ?? owner.columns };
 }
 
 /**
@@ -651,6 +679,7 @@ function expandChildren(parent, slugs, sources, rawBySlug, resolved) {
       if ([...RESERVED_CHILD_FIELDS, parent.idKey].includes(f.name)) fail(`${at} field "${f.name}"`, 'reserved name');
     }
     const resolve = (/** @type {any} */ raw) => resolveEntry(raw, slugs, sources, rawBySlug);
+    if (def.entryFields !== undefined && def.store === undefined) fail(at, 'entryFields needs a store child');
     if (def.store !== undefined) return storeChild(parent, def, at, removal, entry, resolved, resolve);
     const fieldNames = new Set((def.fields ?? []).map((/** @type {any} */ f) => f.name));
     assertInitial(at, def.initial, fieldNames);

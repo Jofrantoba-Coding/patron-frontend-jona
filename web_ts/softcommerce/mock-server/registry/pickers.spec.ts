@@ -142,10 +142,9 @@ describe('a lookup with no desktop dialog declares the three inline (R-REG-13)',
 const GAPS: Record<string, string[]> = {
   buscarTrabajador: ['empresa'],
   panelCargarTrabajador: ['punto_venta'],
-  formBuscarVehiculo: ['transportista', 'transportista_ruc'],
 };
-/** Select filters of registered sources that are not yet a declared `lookupFilters` key (the exact list match); W3-10 declares them. */
-const SELECT_GAPS: Record<string, string[]> = { formBuscarVehiculo: ['id_marca', 'id_modelo'] };
+/** Select filters of registered sources that are not yet a declared `lookupFilters` key (the exact list match); none is left since W3-10. */
+const SELECT_GAPS: Record<string, string[]> = {};
 const LATER_SOURCES = ['clientes', 'items'];
 
 describe('lazy consistency of every picker with its registered source', () => {

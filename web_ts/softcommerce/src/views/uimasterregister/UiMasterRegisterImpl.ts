@@ -175,6 +175,22 @@ export function useUiMasterRegisterImpl<T>(
     return [{ ...today, ...initial, _key: '~initial', estado: 'A' }];
   };
 
+  // A pending row holds the ids the entry sent; the grid shows the joined names too (`MARCA`, `MODELO`), which the server adds only on the persisted rows. A join over a
+  // select field of the entry takes the name of its option (the lookup option name is the display of the join); one over a field the entry does not show stays empty.
+  const withNames = async (child: ChildConfig, row: ChildRow): Promise<ChildRow> => {
+    const joins = (child.config.entry as { joins?: { as: string; ref: string }[] } | undefined)?.joins ?? [];
+    if (!app) return row;
+    const named = await Promise.all(
+      joins.map(async ({ as, ref }) => {
+        const field = child.config.fields.find((candidate) => candidate.name === ref);
+        if (field?.kind !== 'select' || !field.source || !row[ref]) return [];
+        const hit = (await app.lookup.options(field.source.catalog, field.source.where)).find((option) => option.id === String(row[ref]));
+        return hit ? [[as, hit.name]] : [];
+      }),
+    );
+    return { ...row, ...Object.fromEntries(named.flat()) };
+  };
+
   // One draft service per child, built once: the register hook reloads when its service changes.
   const services = useMemo(
     () =>
@@ -184,7 +200,7 @@ export function useUiMasterRegisterImpl<T>(
           createDraftCatalogService<ChildRow>({
             unique: (child.config.entry as { unique?: DraftUniqueKey[] } | undefined)?.unique ?? [],
             siblings: () => draftsRef.current.siblings(child.name),
-            onRow: (row) => draftsRef.current.add(child.name, row),
+            onRow: async (row) => draftsRef.current.add(child.name, await withNames(child, row)),
           }) as MasterChildDialog['service'],
         ]),
       ),

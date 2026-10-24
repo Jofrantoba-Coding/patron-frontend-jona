@@ -63,6 +63,24 @@ describe('R-REG-6 a lookup is validated as a ref', () => {
   });
 });
 
+describe('R-REG-6 a lookup outside an explicit validation is still a ref (W3-10, S-MST-12)', () => {
+  it('appends it as a trailing step, so the declared order of the desktop checks stays as written', () => {
+    const registry = validateRegistry(withLookup(lookup({ required: false }), { validation: ['motivo'] }));
+    expect(citas(registry).validation).toEqual(['motivo']);
+    expect(citas(registry).steps).toEqual(['motivo', 'id_persona']);
+  });
+
+  it('does not repeat a lookup the validation already names', () => {
+    expect(citas(validateRegistry(withLookup(lookup(), { validation: ['id_persona', 'motivo'] }))).steps).toEqual(['id_persona', 'motivo']);
+  });
+
+  it('appends a ref step when the validation already uses ref steps', () => {
+    const otro = { name: 'id_otro', kind: 'select', label: 'Otro', source: { catalog: 'personas' } };
+    const registry = validateRegistry(withLookup(lookup({ required: false }), { fields: [text('motivo'), otro, lookup({ required: false })], validation: ['motivo', { ref: 'id_otro' }] }));
+    expect(citas(registry).steps).toEqual(['motivo', { ref: 'id_otro' }, { ref: 'id_persona' }]);
+  });
+});
+
 describe('D3 derived display join', () => {
   it('adds a join named after the field without its id_ prefix, showing the source optionLabel', () => {
     const registry = validateRegistry(withLookup(lookup()));
