@@ -51,5 +51,6 @@
   { "id_menu": 50, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Seguridad - Perfil", "nombre": "mi_SeguridadPerfil" },
   { "id_menu": 51, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Proveedor", "nombre": "miProveedor" },
   { "id_menu": 52, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Cliente", "nombre": "miCliente" },
-  { "id_menu": 53, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Item", "nombre": "miItem" }
+  { "id_menu": 53, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Item", "nombre": "miItem" },
+  { "id_menu": 54, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Acciones de Socio", "nombre": "miAccionSocio" }
 ]
