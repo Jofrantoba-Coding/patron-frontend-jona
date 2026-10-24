@@ -1,8 +1,128 @@
 {
   "demo": [
-    { "id_trabajador": "001", "nombre": "JUAN PEREZ LOPEZ", "activo": true },
-    { "id_trabajador": "002", "nombre": "MARIA GARCIA RAMOS", "activo": true },
-    { "id_trabajador": "003", "nombre": "CARLOS TORRES DIAZ", "activo": true },
-    { "id_trabajador": "004", "nombre": "LUIS RETIRADO SOTO", "activo": false }
+    {
+      "id_trabajador": "001",
+      "id_tipo_trabajador": "001",
+      "id_tipo_perfil": "1",
+      "ap_paterno": "PEREZ",
+      "ap_materno": "LOPEZ",
+      "nombres": "JUAN",
+      "nombre": "JUAN PEREZ LOPEZ",
+      "direccion": "",
+      "email": "",
+      "sexo": "M",
+      "fecha_nac": "1990-05-10",
+      "dni": "40123456",
+      "telefono": "",
+      "celular": "",
+      "id_tipo_anexo": "9",
+      "estado": true,
+      "id_usuario": 7,
+      "id_empresa": "1",
+      "activo": true,
+      "activaciones": [
+        {
+          "id": "1",
+          "estado": "A",
+          "f_inicio": "2025-01-02",
+          "f_fin": "",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": ""
+        }
+      ]
+    },
+    {
+      "id_trabajador": "002",
+      "id_tipo_trabajador": "002",
+      "id_tipo_perfil": "2",
+      "ap_paterno": "GARCIA",
+      "ap_materno": "RAMOS",
+      "nombres": "MARIA",
+      "nombre": "MARIA GARCIA RAMOS",
+      "direccion": "",
+      "email": "",
+      "sexo": "F",
+      "fecha_nac": "1990-05-10",
+      "dni": "40234567",
+      "telefono": "",
+      "celular": "",
+      "id_tipo_anexo": "9",
+      "estado": true,
+      "id_usuario": 7,
+      "id_empresa": "1",
+      "activo": true,
+      "activaciones": [
+        {
+          "id": "2",
+          "estado": "A",
+          "f_inicio": "2025-01-02",
+          "f_fin": "",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": ""
+        }
+      ]
+    },
+    {
+      "id_trabajador": "003",
+      "id_tipo_trabajador": "001",
+      "id_tipo_perfil": "1",
+      "ap_paterno": "TORRES",
+      "ap_materno": "DIAZ",
+      "nombres": "CARLOS",
+      "nombre": "CARLOS TORRES DIAZ",
+      "direccion": "",
+      "email": "",
+      "sexo": "M",
+      "fecha_nac": "1990-05-10",
+      "dni": "40345678",
+      "telefono": "",
+      "celular": "",
+      "id_tipo_anexo": "9",
+      "estado": false,
+      "id_usuario": 7,
+      "id_empresa": "1",
+      "activo": true,
+      "activaciones": [
+        {
+          "id": "3",
+          "estado": "D",
+          "f_inicio": "2025-01-02",
+          "f_fin": "2025-06-30",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": "CIERRE"
+        }
+      ]
+    },
+    {
+      "id_trabajador": "004",
+      "id_tipo_trabajador": "001",
+      "id_tipo_perfil": "1",
+      "ap_paterno": "RETIRADO",
+      "ap_materno": "SOTO",
+      "nombres": "LUIS",
+      "nombre": "LUIS RETIRADO SOTO",
+      "direccion": "",
+      "email": "",
+      "sexo": "M",
+      "fecha_nac": "1990-05-10",
+      "dni": "40456789",
+      "telefono": "",
+      "celular": "",
+      "id_tipo_anexo": "9",
+      "estado": false,
+      "id_usuario": 7,
+      "id_empresa": "1",
+      "activo": false,
+      "activaciones": [
+        {
+          "id": "4",
+          "estado": "D",
+          "f_inicio": "2025-01-02",
+          "f_fin": "2025-06-30",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": "CIERRE"
+        }
+      ]
+    }
   ]
 }

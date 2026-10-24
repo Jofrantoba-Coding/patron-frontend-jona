@@ -1,4 +1,5 @@
 import {
+  getAllPermissions,
   getMenu,
   getParams,
   getPermissions,
@@ -7,15 +8,26 @@ import {
   login,
   sessionOptions,
 } from '../../../mock-server/core/auth.js';
+import { runChildAction, runEntryAction } from '../../../mock-server/core/actions.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../../../mock-server/core/catalog.js';
 import { MockError } from '../../../mock-server/core/errors.js';
+import { getPerfilMenu, getPerfilPermiso, getPerfilPermisos, putPerfilMenu, putPerfilPermisos } from '../../../mock-server/core/grants.js';
 import { lookupOptions } from '../../../mock-server/core/lookups.js';
+import { createChild, getChild, listChild, removeChild, updateChild } from '../../../mock-server/core/nested.js';
+import { getSocioAcciones, putSocioAcciones, withSocioAccionesSeed } from '../../../mock-server/core/socioAcciones.js';
 import { createStore } from '../../../mock-server/core/store.js';
 import { childrenOf } from '../../../mock-server/core/ubigeo.js';
+import socioAccionesSeed from '../../../mock-server/data/catalogs/socio-acciones.json';
 import { ApiError } from '../ApiError';
 import type { InterAuthService } from '../InterAuthService';
+import type { InterActionService } from '../InterActionService';
 import type { InterCatalogService, Page } from '../InterCatalogService';
+import type { InterChildService } from '../InterChildService';
+import type { InterGrantsService } from '../InterGrantsService';
 import type { InterLookupService } from '../InterLookupService';
+import type { Permissions } from '../../domain/permissions';
+import type { InterPerfilGrantsService, PerfilForm } from '../InterPerfilGrantsService';
+import type { InterSocioAccionesService } from '../InterSocioAccionesService';
 import type { InterShellService } from '../InterShellService';
 import type { RequestContext, SessionContext } from '../httpClient';
 import type { ApiScenario } from '../serviceComposer';
@@ -46,9 +58,19 @@ export interface AppServicesMockOptions {
 export interface AppServicesMock {
   auth: InterAuthService;
   shell: InterShellService;
+  /** The login snapshot of the acting user's grants (R-AUTH-11). */
+  grants: InterGrantsService;
+  /** The perfil permission editor (R-PRM-5), over the same store as the HTTP routes. */
+  perfilGrants: InterPerfilGrantsService;
+  /** The Socio acciones screen (R-MOCK-26), over the same store as the HTTP routes. */
+  socioAcciones: InterSocioAccionesService;
   lookup: InterLookupService;
   /** One service per catalog name, all over the same store. */
   catalog<T>(catalog: string): InterCatalogService<T>;
+  /** The nested child routes of one catalog (R-MOCK-19), over the same store. */
+  children(catalog: string): InterChildService;
+  /** The immediate row actions of one catalog (R-MOCK-22), over the same store. */
+  actions(catalog: string): InterActionService;
 }
 
 type Store = ReturnType<typeof createStore>;
@@ -73,7 +95,7 @@ export function createAppServicesMock(
   { getSession = () => ({}), getRequestContext = () => ({}), delayMs = DEFAULT_DELAY_MS, registry, seed }: AppServicesMockOptions = {},
 ): AppServicesMock {
   const fixture = FIXTURES[scenario];
-  const store = fixture.kind === 'data' ? createStore(seed ?? fixture.seed, registry) : undefined;
+  const store = fixture.kind === 'data' ? createStore(seed ?? withSocioAccionesSeed(fixture.seed, socioAccionesSeed), registry) : undefined;
 
   /** One simulated request: latency, scenario failure, then the core rule mapped to ApiError. */
   const call = async <T>(rule: (store: Store) => T): Promise<T> => {
@@ -101,6 +123,9 @@ export function createAppServicesMock(
     return tenantId;
   };
 
+  /** The acting user and the tenant the grants resolve for, like `X-User-Id` and `X-Tenant-Id` over HTTP. */
+  const grantContext = (s: Store) => ({ ...getRequestContext(), tenantId: tenantGate(s) });
+
   const auth: InterAuthService = {
     sessionOptions: () => call((s) => sessionOptions(s).items),
     login: (tenantId, credentials) => call((s) => login(s, tenantGate(s, tenantId), credentials)),
@@ -113,13 +138,35 @@ export function createAppServicesMock(
     menu: () =>
       call((s) => {
         tenantGate(s);
-        return getMenu(s).items;
+        return getMenu(s, grantContext(s)).items;
       }),
     permissions: (formId) =>
       call((s) => {
         tenantGate(s);
-        return getPermissions(s, formId);
+        return getPermissions(s, formId, grantContext(s));
       }),
+  };
+
+  const grants: InterGrantsService = {
+    snapshot: () =>
+      call((s) => {
+        const ctx = grantContext(s);
+        return { menu: getMenu(s, ctx).items, permissions: getAllPermissions(s, ctx) as any };
+      }),
+  };
+
+  const perfilGrants: InterPerfilGrantsService = {
+    menu: (perfilId) => call((s) => getPerfilMenu(s, tenantGate(s), perfilId).items),
+    saveMenu: (perfilId, changes) => call((s) => putPerfilMenu(s, tenantGate(s), perfilId, changes).items),
+    permisos: (perfilId) => call((s) => getPerfilPermisos(s, tenantGate(s), perfilId).items as PerfilForm[]),
+    permiso: (perfilId, formId) => call((s) => getPerfilPermiso(s, tenantGate(s), perfilId, formId) as Permissions),
+    savePermisos: (perfilId, changes) => call((s) => (putPerfilPermisos(s, tenantGate(s), perfilId, changes) as { items: PerfilForm[] }).items),
+    savePermiso: (perfilId, formId, changes) => call((s) => putPerfilPermisos(s, tenantGate(s), perfilId, changes, formId) as Permissions),
+  };
+
+  const socioAcciones: InterSocioAccionesService = {
+    load: () => call((s) => getSocioAcciones(s, tenantGate(s)) as any),
+    save: (body) => call((s) => putSocioAcciones(s, tenantGate(s), body) as any),
   };
 
   const lookup: InterLookupService = {
@@ -137,5 +184,23 @@ export function createAppServicesMock(
     remove: (id) => call((s) => deleteRecord(s, tenantGate(s), name, id, getRequestContext())),
   });
 
-  return { auth, shell, lookup, catalog };
+  const children = (name: string): InterChildService => ({
+    list: (parentId, child, { page, pageSize, filters } = {}) =>
+      call((s) => listChild(s, tenantGate(s), name, parentId, child, { page, pageSize, ...filters }, getRequestContext()) as Page<any>),
+    get: (parentId, child, id) => call((s) => getChild(s, tenantGate(s), name, parentId, child, id, getRequestContext())),
+    create: (parentId, child, values) => call((s) => createChild(s, tenantGate(s), name, parentId, child, values, getRequestContext())),
+    update: (parentId, child, id, values) => call((s) => updateChild(s, tenantGate(s), name, parentId, child, id, values, getRequestContext())),
+    remove: (parentId, child, id) => call((s) => removeChild(s, tenantGate(s), name, parentId, child, id, getRequestContext())),
+  });
+
+  const actions = (name: string): InterActionService => ({
+    run: (target, action, input = {}) =>
+      call((s) =>
+        target.child === undefined
+          ? runEntryAction(s, tenantGate(s), name, target.id, action, input, getRequestContext())
+          : runChildAction(s, tenantGate(s), name, target.id, target.child, target.childId, action, input, getRequestContext()),
+      ) as Promise<any>,
+  });
+
+  return { auth, shell, grants, perfilGrants, socioAcciones, lookup, catalog, children, actions };
 }

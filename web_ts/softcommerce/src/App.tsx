@@ -14,7 +14,7 @@ export function App({ services, store }: { services: AppServices; store: Session
     <SessionProvider store={store}>
       <Routes>
         <Route path="/login" element={<UiLogin service={services.auth} />} />
-        <Route path="/contexto" element={<UiContexto service={services.auth} />} />
+        <Route path="/contexto" element={<UiContexto service={services.auth} grants={services.grants} />} />
         <Route
           path="/"
           element={

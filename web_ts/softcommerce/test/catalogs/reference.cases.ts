@@ -123,7 +123,7 @@ const refId = (field: any, empresa: string | undefined, chosen: Record<string, s
 const refsFor = (entry: any, empresa?: string): Record<string, string> => {
   const chosen: Record<string, string> = Object.fromEntries(entry.fields.filter((f: any) => f.kind === 'options' && f.required).map((f: any) => [f.name, f.options[0].value]));
   // A transient select (the ubigeo cascade of a ZonaDistancia) is a form-only level: a body never carries it.
-  for (const f of entry.fields.filter((f: any) => f.kind === 'select' && f.required && !f.transient)) chosen[f.name] = refId(f, empresa, chosen);
+  for (const f of entry.fields.filter((f: any) => (f.kind === 'select' || f.kind === 'lookup') && f.required && !f.transient)) chosen[f.name] = refId(f, empresa, chosen);
   return chosen;
 };
 
@@ -214,7 +214,7 @@ function genericCases(entry: any): CatalogCase[] {
     } else cases.push(list('the list stays tenant-wide: it needs no empresa header', '', { ok: true, total: active.length }));
   }
   // S-REF-34: a required ref that is blank, unknown or inactive is a 422 on that field, for every catalog with a select.
-  for (const { name, required, source, default: starts } of entry.fields.filter((f: any) => f.kind === 'select' && !f.transient)) {
+  for (const { name, required, source, default: starts } of entry.fields.filter((f: any) => (f.kind === 'select' || f.kind === 'lookup') && !f.transient)) {
     if (required) {
       const { [name]: _omitted, ...without } = valid;
       // A select with a default (the moneda of a tipo de cambio) is filled when the body omits it; a blank one is still a 422.

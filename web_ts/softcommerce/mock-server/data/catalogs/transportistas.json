@@ -1,0 +1,96 @@
+{
+  "demo": [
+    {
+      "id_transportista": "0000000001",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20123456789",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "TRANSPORTES RAPIDO SAC",
+      "direccion": "AV. ARGENTINA 2020 CALLAO",
+      "sexo": "",
+      "telefono": "4519000",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "flota@rapido.pe",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "6",
+      "estado": true,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "1", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ]
+    },
+    {
+      "id_transportista": "0000000002",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "10456789012",
+      "ap_paterno": "QUISPE",
+      "ap_materno": "MAMANI",
+      "nombres": "LUIS",
+      "descripcion": "QUISPE MAMANI LUIS",
+      "direccion": "JR. HUANCAVELICA 310 LIMA",
+      "sexo": "M",
+      "telefono": "",
+      "celular": "987111222",
+      "id_nacionalidad": "001",
+      "email": "",
+      "flag_tipo_persona": "N",
+      "id_tipo_anexo": "6",
+      "estado": true,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "2", "estado": "A", "f_inicio": "2025-01-02", "f_fin": "", "motivo_activacion": "INICIO", "motivo_desactivacion": "" }
+      ]
+    },
+    {
+      "id_transportista": "0000000003",
+      "id_tipo_doc_iden": "04",
+      "numero_doc": "001234568",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "LEE KIM TRANSPORT",
+      "direccion": "JR. LAMPA 460 LIMA",
+      "sexo": "",
+      "telefono": "",
+      "celular": "987654322",
+      "id_nacionalidad": "002",
+      "email": "",
+      "flag_tipo_persona": "N",
+      "id_tipo_anexo": "6",
+      "estado": false,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        { "id": "3", "estado": "D", "f_inicio": "2024-02-01", "f_fin": "2024-12-31", "motivo_activacion": "INICIO", "motivo_desactivacion": "CIERRE" }
+      ]
+    },
+    {
+      "id_transportista": "0000000004",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20555555552",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "TRANSPORTISTA RETIRADO SA",
+      "direccion": "",
+      "sexo": "",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "6",
+      "estado": false,
+      "id_usuario": 7,
+      "activo": false,
+      "activaciones": [
+        { "id": "4", "estado": "D", "f_inicio": "2024-01-02", "f_fin": "2024-03-01", "motivo_activacion": "INICIO", "motivo_desactivacion": "CIERRE" }
+      ]
+    }
+  ]
+}

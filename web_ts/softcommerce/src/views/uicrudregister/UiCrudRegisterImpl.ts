@@ -2,15 +2,17 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogConfig, FieldConfig } from '../../catalogs/CatalogConfig';
 import { ruleDerived, ruleEffects } from '../../../mock-server/core/entryRules.js';
+import { confirmationOf } from '../../../mock-server/core/password.js';
 import { decodeValue } from '../../domain/crud/codec';
 import { changeField, isEnabled, isVisible } from '../../domain/crud/conditional';
-import { applyModeDefaults, initialValues, isFieldReadOnly } from '../../domain/crud/modeDefaults';
+import { applyModeDefaults, initialValues, isFieldReadOnly, namesOf } from '../../domain/crud/modeDefaults';
 import { blurNormalize, normalize } from '../../domain/crud/normalize';
-import { mapServerError } from '../../domain/crud/serverErrors';
+import { mapServerError, type ChildServerError } from '../../domain/crud/serverErrors';
 import { validate, type FormValues } from '../../domain/crud/validate';
 import type { InterCatalogService } from '../../services/InterCatalogService';
 import type { InterLookupService, LookupItem } from '../../services/InterLookupService';
 import { fieldsToClear, type ChainNode } from '../../shared/dependentChain';
+import { useOptionalServices } from '../../services/ServicesContext';
 import { toFailure, type Failure } from '../../shared/toFailure';
 import { useGuardedClose } from '../uishell/DialogStackProvider';
 import type { InterUiCrudRegister, RegisterConfirm, RegisterMode } from './InterUiCrudRegister';
@@ -25,16 +27,32 @@ export interface CrudRegisterHandlers {
   onClose: () => void;
 }
 
+/** What a master register adds to the generic register (R-MD-1): its child drafts ride along with the parent's load, dirty state, payload and first error. */
+export interface RegisterExtension {
+  /** Loads what the extension restores (the persisted child rows, D11); it runs with the record's own load and the form waits for both. */
+  restore?: () => Promise<unknown>;
+  /** True while the extension holds a change of its own (a pending child row). */
+  dirty?: () => boolean;
+  /** Merged into the body of a create or update. */
+  payload?: () => Record<string, unknown>;
+  /** The field a failed submit points at, so the host can make it visible before it is focused. */
+  firstError?: (name: string) => void;
+  /** The child rows a failed save named, or `[]` when a new save starts (R-MD-5); called before `firstError`, so a parent field keeps the tab. */
+  childErrors?: (errors: ChildServerError[]) => void;
+  /** The register sits inside its host (an inline child entry, R-MD-3): it takes no place in the dialog stack and a valid submit executes without asking. */
+  embedded?: boolean;
+}
+
 type Load = { status: 'loading' } | { status: 'ready' } | { status: 'failed'; message: string };
 
-const fieldNames = (fields: FieldConfig[]) => fields.flatMap((f) => (f.kind === 'cascade' ? f.levels.map((l) => l.name) : [f.name]));
+const fieldNames = namesOf;
 
 function fromRecord(fields: FieldConfig[], record: unknown, mode: RegisterMode): FormValues {
   const source = record as Record<string, unknown>;
   // The codec reads each wire value into its string form (a boolean becomes 'true' | 'false').
   const values: FormValues = Object.fromEntries(
     fields.flatMap((field) =>
-      field.kind === 'cascade' ? field.levels.map((level) => [level.name, String(source[level.name] ?? '')]) : [[field.name, decodeValue(field, source[field.name])]],
+      field.kind === 'cascade' ? field.levels.map((level) => [level.name, String(source[level.name] ?? '')]) : [[field.name, decodeValue(field, source[field.name])], ...(field.kind === 'password' && field.confirm ? [[confirmationOf(field.name), '']] : [])],
     ),
   );
   // A cascade stores only its leaf; the levels above come from the leaf's ancestors. A cascade that stores nothing (`restoreFrom`) takes
@@ -70,9 +88,12 @@ export function useUiCrudRegisterImpl<T>(
   mode: RegisterMode,
   id: string | undefined,
   { lookups, lookup, onDone, onClose }: CrudRegisterHandlers,
+  extension?: RegisterExtension,
 ): InterUiCrudRegister {
   const [load, setLoad] = useState<Load>({ status: 'loading' });
   const [values, setValues] = useState<FormValues>(() => initialValues(config.fields, mode));
+  const [lookupDisplay, setLookupDisplay] = useState<Record<string, string>>({});
+  const services = useOptionalServices();
   const [selectOptions, setSelectOptions] = useState<Record<string, LookupItem[]>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirm, setConfirm] = useState<RegisterConfirm | undefined>();
@@ -91,6 +112,8 @@ export function useUiCrudRegisterImpl<T>(
   lookupsRef.current = lookups;
   const lookupRef = useRef(lookup);
   lookupRef.current = lookup;
+  const extensionRef = useRef(extension);
+  extensionRef.current = extension;
 
   useEffect(() => {
     let active = true;
@@ -98,11 +121,14 @@ export function useUiCrudRegisterImpl<T>(
       lookupsRef.current?.(),
       mode === 'INSERT' ? undefined : service.get(id as string),
       loadSelectOptions(config.fields, lookupRef.current),
+      extensionRef.current?.restore?.(),
     ])
       .then(([, record, options]) => {
         if (!active) return;
         setSelectOptions(options);
         if (record) {
+          // The joined display of each lookup comes with the record (R-CRUD-19); it is not a form value.
+          setLookupDisplay(Object.fromEntries(config.fields.flatMap((f) => (f.kind === 'lookup' ? [[f.name, String((record as Record<string, unknown>)[f.display] ?? '')]] : []))));
           baseline.current = fromRecord(config.fields, record, mode);
           setValues(baseline.current);
         }
@@ -121,15 +147,16 @@ export function useUiCrudRegisterImpl<T>(
     }
   }, [focusName, confirm]);
 
-  const dirty = Object.keys(values).some((name) => values[name] !== baseline.current[name]);
+  const dirty = Object.keys(values).some((name) => values[name] !== baseline.current[name]) || Boolean(extension?.dirty?.());
   // A dirty editable form asks before discarding; anything else just closes.
-  const guardedClose = useGuardedClose(true, () => (dirty && mode !== 'DELETE' && mode !== 'DETAIL' ? setConfirm('discard') : onClose()));
+  const guardedClose = useGuardedClose(!extension?.embedded, () => (dirty && mode !== 'DELETE' && mode !== 'DETAIL' ? setConfirm('discard') : onClose()));
 
   async function execute() {
     setSubmitting(true);
     setSubmitFailure(undefined);
+    extension?.childErrors?.([]);
     try {
-      const data = normalize(config.fields, values) as Partial<T>;
+      const data = { ...normalize(config.fields, values, mode), ...extension?.payload?.() } as Partial<T>;
       let resultId = id;
       if (mode === 'INSERT' || mode === 'CLONE') resultId = String((await service.create(data))[config.idKey]);
       else if (mode === 'UPDATE') await service.update(id as string, data);
@@ -139,6 +166,8 @@ export function useUiCrudRegisterImpl<T>(
     } catch (error) {
       const mapped = mapServerError(error, fieldNames(config.fields));
       setErrors(mapped.fields);
+      extension?.childErrors?.(mapped.children ?? []);
+      if (mapped.first) extension?.firstError?.(mapped.first);
       setFocusName(mapped.first);
       setSubmitFailure(mapped.form);
       setSubmitting(false);
@@ -162,10 +191,18 @@ export function useUiCrudRegisterImpl<T>(
       const known = new Set(fieldNames(config.fields));
       next = { ...next, ...Object.fromEntries(Object.entries(ruleDerived(config.entry, next)).filter(([key]) => known.has(key))) };
     }
+    // A select that names a field to fill (`fillLabel`, R-MST-11) copies the name of the chosen option there; the ids in `unless` leave it empty to be typed.
+    const own = config.fields.find((f) => f.name === name);
+    if (own?.kind === 'select' && own.fillLabel) {
+      const { target, unless = [] } = own.fillLabel;
+      next = { ...next, [target]: unless.includes(value) ? '' : (selectOptions[name]?.find((option) => option.id === value)?.name ?? '') };
+      cleared.push(target);
+    }
     valuesRef.current = next;
     setValues(next);
     setRuleAlert(alert);
-    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && !cleared.includes(key))));
+    // Editing a password also drops the error of its confirmation (they are one decision).
+    setErrors((current) => Object.fromEntries(Object.entries(current).filter(([key]) => key !== name && key !== confirmationOf(name) && !cleared.includes(key))));
   };
 
   return {
@@ -183,7 +220,9 @@ export function useUiCrudRegisterImpl<T>(
     isFieldReadOnly: (name) => {
       const field = config.fields.find((f) => f.name === name);
       // A disabled conditional field (`enabledWhen`) is shown but not editable.
-      return field ? isFieldReadOnly(field, mode, mode === 'DELETE' || mode === 'DETAIL') || !isEnabled(field, values) : mode === 'DELETE' || mode === 'DETAIL';
+      // A field a lookup fills and locks (`fillReadOnly`) is shown, never typed.
+      const locked = config.fields.some((f) => f.kind === 'lookup' && f.fillReadOnly?.includes(name));
+      return field ? locked || isFieldReadOnly(field, mode, mode === 'DELETE' || mode === 'DETAIL') || !isEnabled(field, values) : mode === 'DELETE' || mode === 'DETAIL';
     },
     isFieldVisible: (name) => {
       const field = config.fields.find((f) => f.name === name);
@@ -196,6 +235,18 @@ export function useUiCrudRegisterImpl<T>(
     loadOptions: async (catalog, filters) => (await lookupRef.current?.options(catalog, filters)) ?? [],
     // A filtered cascade (`has: 'zonas'`) asks the lookup route; the plain one keeps the W1 route.
     loadChildren: async (parent, filter) => (filter ? await lookupRef.current?.options('ubigeo', { parent, ...filter }) : await lookupRef.current?.ubigeoChildren(parent)) ?? [],
+    lookupDisplay,
+    onLookupChange: (name, value, description, row) => {
+      setLookupDisplay((current) => ({ ...current, [name]: description }));
+      edit(name, value);
+      // A pick copies its row into the declared fields; clearing or editing the code takes the copy away (R-REG-13 `fill`).
+      const lookupField = config.fields.find((f) => f.name === name);
+      if (lookupField?.kind === 'lookup' && (row || value === '')) for (const [target, key] of Object.entries(lookupField.fill ?? {})) edit(target, row ? String(row[key] ?? '') : '');
+    },
+    lookupList: (catalog, where) => ({ filters, page, pageSize }) => {
+      if (!services) return Promise.reject(new Error('A lookup field needs a ServicesProvider.'));
+      return services.catalog<Record<string, string>>(catalog).list({ page, pageSize, filters: { ...where, ...filters } });
+    },
     registerField: (name) => (element) => {
       fieldRefs.current[name] = element;
     },
@@ -217,8 +268,14 @@ export function useUiCrudRegisterImpl<T>(
       if (mode === 'DETAIL' || load.status !== 'ready' || submitting || confirm) return;
       const found = mode === 'DELETE' ? [] : validate(config.fields, values, config.entry && { entry: config.entry, mode });
       setErrors(Object.fromEntries(found.map((e) => [e.name, e.message])));
-      if (found.length > 0) fieldRefs.current[found[0].name]?.focus();
-      else setConfirm('submit');
+      if (found.length === 0) {
+        if (extension?.embedded) void execute();
+        else setConfirm('submit');
+      } else if (extension?.firstError) {
+        // The field may sit on a hidden tab: the host shows it first, the focus effect runs once it is visible.
+        extension.firstError(found[0].name);
+        setFocusName(found[0].name);
+      } else fieldRefs.current[found[0].name]?.focus();
     },
     onConfirm: () => (confirm === 'discard' ? onClose() : void execute()),
     onConfirmCancel: () => setConfirm(undefined),

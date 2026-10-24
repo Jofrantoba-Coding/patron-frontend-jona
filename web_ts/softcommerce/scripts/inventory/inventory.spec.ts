@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildInventory, categorize, scanClasses, toCsv, WAVE_RULES, waveFor, writeInventory } from './lib.mjs';
+import { buildInventory, categorize, parseOverrides, scanClasses, toCsv, WAVE_RULES, waveFor, writeInventory } from './lib.mjs';
 import { main } from './inventory.mjs';
 import { spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
@@ -243,9 +243,120 @@ describe('encoding and determinism', () => {
   });
 });
 
+describe('wave overrides', () => {
+  const cli = path.join(__dirname, 'inventory.mjs');
+  const form = (pkg: string, name: string, base = 'JDialog') => `package ${pkg};\npublic class ${name} extends ${base} { }`;
+  const mapFile = (text: string) => {
+    const file = path.join(tmp, 'wave-overrides.json');
+    fs.writeFileSync(file, text);
+    return file;
+  };
+  const run = (...args: string[]) => spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8' });
+
+  it('S-INV-13 an override beats the heuristic wave and the package rule', () => {
+    const src = writeTree({
+      'com/x/view/catalogos/CambiarEmpresa.java': form('com.x.view.catalogos', 'CambiarEmpresa'),
+      'com/x/view/ventas/FormCaja.java': form('com.x.view.ventas', 'FormCaja'),
+    });
+    const heuristic = Object.fromEntries(buildInventory(src).rows.map((r) => [r.name, r.wave]));
+    expect(heuristic).toEqual({ CambiarEmpresa: 'W3', FormCaja: 'W4' });
+    const overridden = buildInventory(src, { overrides: { CambiarEmpresa: 'shell', FormCaja: 'W6' } });
+    expect(Object.fromEntries(overridden.rows.map((r) => [r.name, r.wave]))).toEqual({ CambiarEmpresa: 'shell', FormCaja: 'W6' });
+  });
+
+  it('S-INV-13 waveFor checks the map before the heuristic rules', () => {
+    expect(waveFor({ name: 'FormX', pkg: 'com.x.view.ventas', category: 'process/detail form' }, { FormX: 'W6' })).toBe('W6');
+    expect(waveFor({ name: 'FormX', pkg: 'com.x.view.catalogos', category: 'process/detail form' }, { FormX: 'drop' })).toBe('drop');
+  });
+
+  it('S-INV-14 a class with no override keeps the heuristic wave', () => {
+    const files = {
+      'com/x/view/catalogos/FormOtro.java': form('com.x.view.catalogos', 'FormOtro'),
+      'com/x/view/ventas/FormCaja.java': form('com.x.view.ventas', 'FormCaja'),
+    };
+    const src = writeTree(files);
+    const heuristic = buildInventory(src).rows;
+    const withMap = buildInventory(src, { overrides: { FormCaja: 'W6' } }).rows;
+    expect(withMap.find((r) => r.name === 'FormOtro')).toEqual(heuristic.find((r) => r.name === 'FormOtro'));
+    expect(waveFor({ name: 'FormOtro', pkg: 'com.x.view.catalogos', category: 'process/detail form' }, { FormCaja: 'W6' })).toBe('W3');
+    expect(waveFor({ name: 'toString', pkg: 'com.x.view.catalogos', category: 'other' }, {})).toBe('W3');
+  });
+
+  it('R-INV-11 adding an unmapped class changes only its own row', () => {
+    const base = { 'com/x/view/catalogos/CambiarEmpresa.java': form('com.x.view.catalogos', 'CambiarEmpresa') };
+    const overrides = { CambiarEmpresa: 'shell' };
+    const before = buildInventory(writeTree(base), { overrides }).rows;
+    const after = buildInventory(
+      writeTree({ ...base, 'com/x/view/catalogos/FormNueva.java': form('com.x.view.catalogos', 'FormNueva') }),
+      { overrides },
+    ).rows;
+    expect(after.filter((r) => r.name !== 'FormNueva')).toEqual(before);
+    expect(after.find((r) => r.name === 'FormNueva')?.wave).toBe('W3');
+  });
+
+  it('S-INV-15 an override naming a class the scan did not find aborts and writes no csv', () => {
+    writeTree({ 'com/x/view/FormOk.java': form('com.x.view', 'FormOk') });
+    const out = path.join(tmp, 'o.csv');
+    const result = run(tmp, '--out', out, '--overrides', mapFile('{"NoSuchClass":"W2","FormOk":"W2"}'));
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('NoSuchClass');
+    expect(result.stderr).not.toContain('FormOk');
+    expect(fs.existsSync(out)).toBe(false);
+  });
+
+  it('S-INV-15 buildInventory throws naming every stale key', () => {
+    const src = writeTree({ 'com/x/view/FormOk.java': form('com.x.view', 'FormOk') });
+    expect(() => buildInventory(src, { overrides: { Ghost: 'W2', Phantom: 'drop' } })).toThrow(/Ghost[^]*Phantom/);
+  });
+
+  it.each([
+    ['a duplicate key', '{"FormOk":"W2","FormOk":"W3"}', ['FormOk']],
+    ['the value W9', '{"FormOk":"W9"}', ['FormOk', 'W9']],
+    ['the value done', '{"FormOk":"done"}', ['FormOk', 'done']],
+    ['a non-string value', '{"FormOk":3}', ['FormOk']],
+    ['a non-object map', '["FormOk"]', ['object']],
+    ['malformed json', '{"FormOk":', ['JSON']],
+  ])('S-INV-16 %s exits non-zero naming the offender and writes no csv', (_label, text, needles) => {
+    writeTree({ 'com/x/view/FormOk.java': form('com.x.view', 'FormOk') });
+    const out = path.join(tmp, 'o.csv');
+    const result = run(tmp, '--out', out, '--overrides', mapFile(text));
+    expect(result.status).not.toBe(0);
+    for (const needle of needles) expect(result.stderr).toContain(needle);
+    expect(fs.existsSync(out)).toBe(false);
+  });
+
+  it('S-INV-16 parseOverrides reports every offender at once and accepts the allowed values', () => {
+    const allowed = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'shell', 'infra', 'drop'];
+    const ok = Object.fromEntries(allowed.map((v, i) => [`Class${i}`, v]));
+    expect(parseOverrides(JSON.stringify(ok))).toEqual(ok);
+    expect(() => parseOverrides('{"A":"W9","B":"done"}')).toThrow(/"A".*W9[^]*"B".*done/);
+    expect(() => parseOverrides('{"A":"W2","A":"W3"}')).toThrow(/duplicate[^]*"A"/);
+  });
+
+  it('S-INV-20 two runs with the map are byte-identical; S-INV-21 the map file is not rewritten', () => {
+    writeTree({ 'com/x/view/FormOk.java': form('com.x.view', 'FormOk'), 'com/x/view/CambiarEmpresa.java': form('com.x.view', 'CambiarEmpresa') });
+    const map = mapFile('{"CambiarEmpresa":"shell"}');
+    const mapBefore = fs.readFileSync(map);
+    const one = path.join(tmp, 'one.csv');
+    const two = path.join(tmp, 'two.csv');
+    expect(run(tmp, '--out', one, '--overrides', map).status).toBe(0);
+    expect(run(tmp, '--out', two, '--overrides', map).status).toBe(0);
+    expect(fs.readFileSync(one).equals(fs.readFileSync(two))).toBe(true);
+    expect(fs.readFileSync(one, 'utf8')).toContain('"CambiarEmpresa"');
+    expect(fs.readFileSync(one, 'utf8').split('\n')[0]).toBe('"class","path","package","base","category","wave"');
+    expect(fs.readFileSync(map).equals(mapBefore)).toBe(true);
+  });
+});
+
 describe('cli', () => {
   const cli = path.join(__dirname, 'inventory.mjs');
   const FORM = 'package com.x.view;\npublic class FormOk extends JInternalFrame { }';
+  /** The committed map names real classes; fixture trees run with an empty one. */
+  const emptyMap = () => {
+    const file = path.join(tmp, 'empty-overrides.json');
+    fs.writeFileSync(file, '{}');
+    return file;
+  };
 
   /** Hash of every path and content under a directory, in sorted order. */
   function hashTree(dir: string): string {
@@ -280,7 +391,7 @@ describe('cli', () => {
     writeTree({ 'com/x/view/FormOk.java': FORM, 'com/x/view/FormBad.java': FORM.replace('FormOk', 'FormBad') });
     const out = path.join(tmp, 'o.csv');
     const errors: string[] = [];
-    const code = main([tmp, '--out', out], {
+    const code = main([tmp, '--out', out, '--overrides', emptyMap()], {
       stderr: (m: string) => errors.push(m),
       readFile: (file: string) => {
         if (file.endsWith('FormBad.java')) throw new Error('EACCES: denied');
@@ -299,9 +410,9 @@ describe('cli', () => {
   it('accepts the root alone (default output) and --out before the root', () => {
     writeTree({ 'com/x/view/FormOk.java': FORM });
     const fallback = path.join(tmp, 'default.csv');
-    expect(main([tmp], { defaultOut: fallback })).toBe(0);
+    expect(main([tmp, '--overrides', emptyMap()], { defaultOut: fallback })).toBe(0);
     const explicit = path.join(tmp, 'explicit.csv');
-    expect(main(['--out', explicit, tmp], { defaultOut: fallback })).toBe(0);
+    expect(main(['--out', explicit, tmp, '--overrides', emptyMap()], { defaultOut: fallback })).toBe(0);
     expect(fs.readFileSync(fallback, 'utf8')).toContain('"FormOk"');
     expect(fs.readFileSync(explicit, 'utf8')).toBe(fs.readFileSync(fallback, 'utf8'));
   });
@@ -311,7 +422,7 @@ describe('cli', () => {
     const java = path.join(tmp, 'src');
     const before = hashTree(java);
     const out = path.join(tmp, 'o.csv');
-    const run = spawnSync(process.execPath, [cli, tmp, '--out', out], { encoding: 'utf8' });
+    const run = spawnSync(process.execPath, [cli, tmp, '--out', out, '--overrides', emptyMap()], { encoding: 'utf8' });
     expect(run.status).toBe(0);
     expect(fs.readFileSync(out, 'utf8')).toContain('"FormOk"');
     expect(hashTree(java)).toBe(before);

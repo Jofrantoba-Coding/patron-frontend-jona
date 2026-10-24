@@ -1,23 +1,32 @@
 // Layer: View. Pure render of props already resolved by the Impl; no state, effects or services.
 import { JAlert, JButton, JComboBox, JDialog } from 'jona-ui';
+import type { ComponentProps, ReactNode } from 'react';
 import { BooleanField } from '../../shared/ui/BooleanField';
 import { CascadeSelect } from '../../shared/ui/CascadeSelect';
 import { CatalogSelect } from '../../shared/ui/CatalogSelect';
 import { DateField } from '../../shared/ui/DateField';
 import { DependentSelect } from '../../shared/ui/DependentSelect';
+import { LookupField } from '../../shared/ui/LookupField';
 import { NumberField } from '../../shared/ui/NumberField';
 import { OptionsField } from '../../shared/ui/OptionsField';
+import { PasswordField } from '../../shared/ui/PasswordField';
+import { confirmationOf } from '../../../mock-server/core/password.js';
+import { TextAreaField } from '../../shared/ui/TextAreaField';
 import { maxLengthOf } from '../../../mock-server/core/predicates.js';
 import { typedNormalize } from '../../domain/crud/normalize';
 import { UppercaseTextField } from '../../shared/ui/UppercaseTextField';
 import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { UICRUDREGISTER_DEFAULTS, type InterUiCrudRegister } from './InterUiCrudRegister';
 
-type UiCrudRegisterViewProps = InterUiCrudRegister & typeof UICRUDREGISTER_DEFAULTS;
+/** `inline` draws only the fields and the alerts, with no dialog around them: an inline child entry sits in its host (R-MD-3). */
+export type UiCrudRegisterViewProps = InterUiCrudRegister & typeof UICRUDREGISTER_DEFAULTS & { inline?: boolean };
+
+const Bare = ({ children }: Partial<ComponentProps<typeof JDialog>> & { children?: ReactNode }) => <>{children}</>;
 
 export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
   const { mode, modeLabels, status, confirm } = props;
   const title = `${modeLabels[mode]}: ${props.title}`;
+  const Frame = props.inline ? Bare : JDialog;
   const footer = (
     <>
       <JButton variant="outline" className="min-h-11 sm:min-h-9" onClick={props.onClose}>
@@ -32,7 +41,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
   );
   return (
     <>
-      <JDialog open title={title} onClose={props.onClose} footer={footer}>
+      <Frame open title={title} onClose={props.onClose} footer={footer}>
         <div style={{ display: 'grid', gap: 12 }}>
           {status === 'loading' && <p>{props.loadingLabel}</p>}
           {status === 'failed' && <JAlert variant="danger" role="alert">{props.loadError}</JAlert>}
@@ -44,7 +53,7 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
             </JAlert>
           )}
           {status === 'ready' &&
-            props.fields.filter((field) => props.isFieldVisible(field.name)).map((field) =>
+            props.arrange(props.fields.filter((field) => props.isFieldVisible(field.name)).map((field) =>
               field.kind === 'code' ? (
                 // The server issues the code: shown read-only once the record exists, never in INSERT or CLONE.
                 mode !== 'INSERT' && mode !== 'CLONE' && (
@@ -53,6 +62,51 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                     <UppercaseTextField value={props.values[field.name]} readOnly onChange={() => undefined} />
                   </label>
                 )
+              ) : field.kind === 'password' ? (
+                // Never rendered on DETAIL or DELETE, and never prefilled (R-CRUD-17).
+                !props.readOnly && (
+                  <div key={field.name}>
+                    <PasswordField
+                      ref={props.registerField(field.name)}
+                      name={field.name}
+                      label={field.label}
+                      value={props.values[field.name]}
+                      maxLength={field.maxLength}
+                      readOnly={props.isFieldReadOnly(field.name)}
+                      hasError={Boolean(props.errors[field.name])}
+                      onChange={(value) => props.onFieldChange(field.name, value)}
+                      {...(field.confirm
+                        ? {
+                            confirmLabel: `Confirmar ${field.label}`,
+                            confirmValue: props.values[confirmationOf(field.name)],
+                            confirmHasError: Boolean(props.errors[confirmationOf(field.name)]),
+                            confirmRef: props.registerField(confirmationOf(field.name)),
+                            onConfirmChange: (value: string) => props.onFieldChange(confirmationOf(field.name), value),
+                          }
+                        : {})}
+                    />
+                    {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                    {props.errors[confirmationOf(field.name)] && <small role="alert">{props.errors[confirmationOf(field.name)]}</small>}
+                  </div>
+                )
+              ) : field.kind === 'text' && field.multiline ? (
+                <div key={field.name}>
+                  <TextAreaField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    value={props.values[field.name]}
+                    rows={field.rows}
+                    maxLength={maxLengthOf(field, props.values)}
+                    uppercase={field.uppercase}
+                    transform={(typed) => typedNormalize(field, typed)}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    onBlur={() => props.onFieldBlur(field.name)}
+                    onChange={(value) => props.onFieldChange(field.name, value)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
               ) : field.kind === 'text' ? (
                 <div key={field.name}>
                   <label style={{ display: 'grid', gap: 4 }}>
@@ -173,6 +227,23 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                   </label>
                   {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
                 </div>
+              ) : field.kind === 'lookup' ? (
+                <div key={field.name}>
+                  <LookupField
+                    ref={props.registerField(field.name)}
+                    name={field.name}
+                    label={field.label}
+                    value={props.values[field.name]}
+                    description={props.lookupDisplay[field.name] ?? ''}
+                    codeWidth={field.codeWidth}
+                    readOnly={props.isFieldReadOnly(field.name)}
+                    hasError={Boolean(props.errors[field.name])}
+                    dialog={{ config: field.picker, idKey: field.idKey, list: props.lookupList(field.source.catalog, field.source.where), loadOptions: props.loadOptions }}
+                    describe={(row) => row[field.optionLabel]}
+                    onChange={(value, description, row) => props.onLookupChange(field.name, value, description, row)}
+                  />
+                  {props.errors[field.name] && <small role="alert">{props.errors[field.name]}</small>}
+                </div>
               ) : (
                 <CascadeSelect
                   key={field.name}
@@ -186,9 +257,9 @@ export function UiCrudRegisterView(props: UiCrudRegisterViewProps) {
                   onChange={props.onFieldChange}
                 />
               ),
-            )}
+            ))}
         </div>
-      </JDialog>
+      </Frame>
       <GuardedOptionPane
         open={confirm !== undefined}
         variant={mode === 'DELETE' ? 'danger' : 'info'}

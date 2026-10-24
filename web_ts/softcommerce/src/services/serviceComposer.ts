@@ -1,14 +1,25 @@
+import { createActionServiceHttp } from './ActionServiceHttp';
 import { createAuthServiceHttp } from './AuthServiceHttp';
+import type { InterActionService } from './InterActionService';
 import type { InterAuthService } from './InterAuthService';
 import { createCatalogServiceHttp } from './CatalogServiceHttp';
+import { createChildServiceHttp } from './ChildServiceHttp';
+import type { InterChildService } from './InterChildService';
 import type { InterCatalogService } from './InterCatalogService';
+import type { GrantsSnapshot, InterGrantsService } from './InterGrantsService';
 import type { InterLookupService } from './InterLookupService';
+import type { InterPerfilGrantsService } from './InterPerfilGrantsService';
+import type { InterSocioAccionesService } from './InterSocioAccionesService';
 import type { InterShellService } from './InterShellService';
+import { createGrantsServiceHttp } from './GrantsServiceHttp';
 import { createLookupServiceHttp } from './LookupServiceHttp';
+import { createPerfilGrantsServiceHttp } from './PerfilGrantsServiceHttp';
+import { createSocioAccionesServiceHttp } from './SocioAccionesServiceHttp';
 import { createShellServiceHttp } from './ShellServiceHttp';
 import { createHttpClient, type RequestContext, type SessionContext } from './httpClient';
 import { lazyService } from './lazyService';
 import type { AppServicesMock } from './mock/AppServicesMock';
+import { withGrantsSnapshot } from './withGrantsSnapshot';
 
 export const API_MODES = ['mock', 'http'] as const;
 export const API_SCENARIOS = ['exitoso', 'vacio', 'errorServidor'] as const;
@@ -72,18 +83,30 @@ export interface ComposeDeps {
   getSession?: () => SessionContext;
   /** Live user and empresa sent as session headers (D13). */
   getRequestContext?: () => RequestContext;
+  /** The grants snapshot of the open session; the shell answers from it (R-AUTH-11). */
+  getGrants?: () => GrantsSnapshot | undefined;
 }
 
 export interface AppServices {
   auth: InterAuthService;
   shell: InterShellService;
+  /** Takes the grants of the acting user at login. */
+  grants: InterGrantsService;
+  /** The perfil permission editor (`/v1/tipos-trabajador-perfil/{id}/menu|permisos`, R-PRM-5). */
+  perfilGrants: InterPerfilGrantsService;
+  /** The Socio acciones screen (`/v1/socio-acciones`, R-MOCK-26). */
+  socioAcciones: InterSocioAccionesService;
   lookup: InterLookupService;
   /** A service for one catalog (`/v1/{catalog}`); cheap to build, nothing loads until a call. */
   catalog<T>(catalog: string): InterCatalogService<T>;
+  /** The nested child routes of one catalog (`/v1/{catalog}/{id}/{child}`, R-MOCK-19). */
+  children(catalog: string): InterChildService;
+  /** The immediate row actions of one catalog (`POST /v1/{catalog}/{id}/.../actions/{action}`, R-MOCK-22). */
+  actions(catalog: string): InterActionService;
 }
 
 /** Validates the env and builds every service. Throws a configuration error at startup. */
-export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestContext }: ComposeDeps = {}): AppServices {
+export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestContext, getGrants }: ComposeDeps = {}): AppServices {
   const config = parseApiEnv(env);
   const client = (baseUrl: string) => createHttpClient({ baseUrl, fetchFn, getSession, getRequestContext });
 
@@ -98,9 +121,24 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestCo
       createHttp: (baseUrl) => createAuthServiceHttp(client(baseUrl)),
       loadMock: async (scenario) => (await loadMock(scenario)).auth,
     }),
-    shell: composeService<InterShellService>(config, {
-      createHttp: (baseUrl) => createShellServiceHttp(client(baseUrl)),
-      loadMock: async (scenario) => (await loadMock(scenario)).shell,
+    shell: withGrantsSnapshot(
+      composeService<InterShellService>(config, {
+        createHttp: (baseUrl) => createShellServiceHttp(client(baseUrl)),
+        loadMock: async (scenario) => (await loadMock(scenario)).shell,
+      }),
+      () => getGrants?.(),
+    ),
+    grants: composeService<InterGrantsService>(config, {
+      createHttp: (baseUrl) => createGrantsServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).grants,
+    }),
+    perfilGrants: composeService<InterPerfilGrantsService>(config, {
+      createHttp: (baseUrl) => createPerfilGrantsServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).perfilGrants,
+    }),
+    socioAcciones: composeService<InterSocioAccionesService>(config, {
+      createHttp: (baseUrl) => createSocioAccionesServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).socioAcciones,
     }),
     lookup: composeService<InterLookupService>(config, {
       createHttp: (baseUrl) => createLookupServiceHttp(client(baseUrl)),
@@ -110,6 +148,16 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestCo
       composeService<InterCatalogService<T>>(config, {
         createHttp: (baseUrl) => createCatalogServiceHttp<T>(client(baseUrl), name),
         loadMock: async (scenario) => (await loadMock(scenario)).catalog<T>(name),
+      }),
+    children: (name: string) =>
+      composeService<InterChildService>(config, {
+        createHttp: (baseUrl) => createChildServiceHttp(client(baseUrl), name),
+        loadMock: async (scenario) => (await loadMock(scenario)).children(name),
+      }),
+    actions: (name: string) =>
+      composeService<InterActionService>(config, {
+        createHttp: (baseUrl) => createActionServiceHttp(client(baseUrl), name),
+        loadMock: async (scenario) => (await loadMock(scenario)).actions(name),
       }),
   };
 }

@@ -26,11 +26,40 @@ function renderCatalog() {
 }
 type User = ReturnType<typeof userEvent.setup>;
 const select = (label: string) => screen.getByLabelText(label) as HTMLSelectElement;
-const dialog = () => screen.getByRole('dialog');
-const options = (label: string) => [...select(label).options].map((o) => o.textContent);
-const shown = (label: string) => select(label).selectedOptions[0]?.textContent;
+const dialog = () => screen.getAllByRole('dialog')[0];
+// The Trabajador is the BuscarTrabajador lookup (W3-3, R-MST-18): a code box with a read-only nombre beside it and a search dialog, not a select.
+const TRABAJADOR = 'Trabajador';
+const NONE = '--- Seleccione ---';
+let offered: string[] = [];
+const lookupDialog = () => within(screen.getAllByRole('dialog')[1]);
+const dialogNames = () => {
+  const grid = lookupDialog();
+  const column = grid.getAllByRole('columnheader').findIndex((h) => h.textContent === 'NOMBRE');
+  return grid.getAllByRole('row').slice(1).map((row) => within(row).getAllByRole('cell')[column].textContent as string);
+};
+const openSearch = async (user: User) => {
+  await user.click(within(dialog()).getByRole('button', { name: 'Buscar' }));
+  await waitFor(() => expect(screen.getAllByRole('dialog')).toHaveLength(2));
+};
+/** Reads what the search dialog offers (its rows), then cancels it. */
+const readOffered = async (user: User) => {
+  await openSearch(user);
+  await lookupDialog().findByRole('group', { name: 'Resultados' });
+  offered = dialogNames();
+  await user.click(lookupDialog().getByRole('button', { name: 'Cancelar' }));
+  await waitFor(() => expect(screen.getAllByRole('dialog')).toHaveLength(1));
+};
+const options = (label: string) => (label === TRABAJADOR ? [NONE, ...offered] : [...select(label).options].map((o) => o.textContent));
+const shown = (label: string) => (label === TRABAJADOR ? (screen.getByLabelText(`${TRABAJADOR} descripción`) as HTMLInputElement).value : select(label).selectedOptions[0]?.textContent);
 const submit = (user: User) => user.click(within(dialog()).getByRole('button', { name: 'Aceptar' }));
 const choose = async (user: User, label: string, text: string) => {
+  if (label === TRABAJADOR) {
+    await openSearch(user);
+    await user.click(await lookupDialog().findByText(text));
+    await user.click(lookupDialog().getByRole('button', { name: 'Agregar' }));
+    await waitFor(() => expect(shown(TRABAJADOR)).toBe(text));
+    return;
+  }
   await waitFor(() => expect(options(label)).toContain(text));
   await user.selectOptions(select(label), text);
 };
@@ -42,6 +71,7 @@ async function openAdd() {
   await screen.findAllByText('MARIA GARCIA RAMOS');
   await rendered.user.click(screen.getByRole('button', { name: 'Agregar' }));
   await screen.findByLabelText('Trabajador');
+  await readOffered(rendered.user);
   return rendered;
 }
 async function fillChain(user: User, trabajador: string) {

@@ -1,0 +1,260 @@
+{
+  "demo": [
+    {
+      "id_cliente": "0000000001",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20601234567",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "COMERCIAL LOS ANDES SAC",
+      "direccion": "AV. AREQUIPA 2450 LIMA",
+      "sexo": "",
+      "telefono": "4410000",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "compras@losandes.pe",
+      "id_clasif_cliente": "1",
+      "condicion_pago": "CREDITO",
+      "numero_dias": 30,
+      "flag_contado": "N",
+      "flag_credito": "S",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "2",
+      "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": true,
+      "flag_exceptuado": false,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        {
+          "id": "1",
+          "estado": "A",
+          "f_inicio": "2025-01-02",
+          "f_fin": "",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": ""
+        }
+      ],
+      "direcciones": [
+        {
+          "id": "1",
+          "estado": "A",
+          "id_ubigeo": "150101",
+          "id_zona": "1",
+          "direccion": "AV. AREQUIPA 2450"
+        },
+        {
+          "id": "2",
+          "estado": "D",
+          "id_ubigeo": "150103",
+          "id_zona": "2",
+          "direccion": "AV. NICOLAS AYLLON 100"
+        },
+        {
+          "id": "3",
+          "estado": "A",
+          "id_ubigeo": "150101",
+          "id_zona": "1",
+          "direccion": "JR. BORRADA 1",
+          "activo": false
+        }
+      ],
+      "sustitutos": [
+        {
+          "id": "1",
+          "estado": "A",
+          "id_hijo": "0000000002"
+        },
+        {
+          "id": "2",
+          "estado": "D",
+          "id_hijo": "0000000003"
+        }
+      ],
+      "creditos": [
+        {
+          "id": "1",
+          "estado": "A",
+          "motivo": "LINEA INICIAL",
+          "monto": 5000,
+          "f_inicio": "2025-01-02"
+        }
+      ],
+      "creditos_temp": [
+        {
+          "id": "1",
+          "estado": "A",
+          "motivo": "CAMPANA NAVIDAD",
+          "monto": 1200,
+          "f_inicio": "2025-11-01",
+          "f_fin": "2025-12-31"
+        }
+      ],
+      "padrones": [
+        {
+          "id": "1",
+          "id_padron": "02",
+          "estado": "A",
+          "f_inicio": "2025-02-01",
+          "f_fin": ""
+        }
+      ],
+      "contactos": [
+        {
+          "id": "1",
+          "estado": "A",
+          "paterno": "SOTO",
+          "materno": "VEGA",
+          "nombre": "MARIA",
+          "correo": "msoto@losandes.pe",
+          "telef": "4410001",
+          "celular": "987000111"
+        }
+      ],
+      "cuentas": [
+        {
+          "id": "1",
+          "estado": "A",
+          "id_cuenta": "56",
+          "descripcion": "BANCO DE CREDITO DEL PERU",
+          "num_cuenta": "19123456789012"
+        },
+        {
+          "id": "2",
+          "estado": "A",
+          "id_cuenta": "58",
+          "descripcion": "CAJA RURAL SUR",
+          "num_cuenta": "0011223344"
+        }
+      ]
+    },
+    {
+      "id_cliente": "0000000002",
+      "id_tipo_doc_iden": "01",
+      "numero_doc": "45678912",
+      "ap_paterno": "RAMOS",
+      "ap_materno": "DIAZ",
+      "nombres": "ELENA",
+      "descripcion": "RAMOS DIAZ ELENA",
+      "direccion": "JR. UNION 120 LIMA",
+      "sexo": "F",
+      "telefono": "",
+      "celular": "987654321",
+      "id_nacionalidad": "001",
+      "email": "",
+      "id_clasif_cliente": "1",
+      "condicion_pago": "CONTADO",
+      "numero_dias": 0,
+      "flag_contado": "S",
+      "flag_credito": "N",
+      "flag_tipo_persona": "N",
+      "id_tipo_anexo": "2",
+      "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_exceptuado": false,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        {
+          "id": "2",
+          "estado": "A",
+          "f_inicio": "2025-01-02",
+          "f_fin": "",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": ""
+        }
+      ],
+      "contactos": [
+        {
+          "id": "2",
+          "estado": "A",
+          "paterno": "RAMOS",
+          "materno": "DIAZ",
+          "nombre": "ELENA",
+          "correo": "",
+          "telef": "",
+          "celular": "987654321"
+        }
+      ]
+    },
+    {
+      "id_cliente": "0000000003",
+      "id_tipo_doc_iden": "04",
+      "numero_doc": "001234999",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "KIM TRADING",
+      "direccion": "JR. LAMPA 500 LIMA",
+      "sexo": "",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "002",
+      "email": "",
+      "id_clasif_cliente": "1",
+      "condicion_pago": "",
+      "numero_dias": 0,
+      "flag_contado": "N",
+      "flag_credito": "N",
+      "flag_tipo_persona": "N",
+      "id_tipo_anexo": "2",
+      "estado": false,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_exceptuado": false,
+      "id_usuario": 7,
+      "activo": true,
+      "activaciones": [
+        {
+          "id": "3",
+          "estado": "D",
+          "f_inicio": "2024-02-01",
+          "f_fin": "2024-12-31",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": "CIERRE"
+        }
+      ]
+    },
+    {
+      "id_cliente": "0000000004",
+      "id_tipo_doc_iden": "05",
+      "numero_doc": "20555555554",
+      "ap_paterno": "",
+      "ap_materno": "",
+      "nombres": "",
+      "descripcion": "CLIENTE RETIRADO SA",
+      "direccion": "",
+      "sexo": "",
+      "telefono": "",
+      "celular": "",
+      "id_nacionalidad": "001",
+      "email": "",
+      "id_clasif_cliente": "1",
+      "condicion_pago": "",
+      "numero_dias": 0,
+      "flag_contado": "N",
+      "flag_credito": "N",
+      "flag_tipo_persona": "J",
+      "id_tipo_anexo": "2",
+      "estado": true,
+      "flag_percepcion": false,
+      "flag_retencion": false,
+      "flag_exceptuado": false,
+      "id_usuario": 7,
+      "activo": false,
+      "activaciones": [
+        {
+          "id": "4",
+          "estado": "A",
+          "f_inicio": "2023-01-02",
+          "f_fin": "",
+          "motivo_activacion": "INICIO",
+          "motivo_desactivacion": ""
+        }
+      ]
+    }
+  ]
+}

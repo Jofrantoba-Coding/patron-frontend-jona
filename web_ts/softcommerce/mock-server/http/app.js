@@ -1,11 +1,19 @@
 import { randomUUID } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { join } from 'node:path';
 import {
-  getMenu, getParams, getPermissions, listEmpresas, listPuntosVenta, login, sessionOptions,
+  getAllPermissions, getMenu, getParams, getPermissions, listEmpresas, listPuntosVenta, login, sessionOptions,
 } from '../core/auth.js';
+import { runChildAction, runEntryAction } from '../core/actions.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../core/catalog.js';
 import { MockError, notFound, toErrorBody } from '../core/errors.js';
+import { createChild, getChild, listChild, removeChild, updateChild } from '../core/nested.js';
 import { lookupOptions } from '../core/lookups.js';
+import {
+  getPerfilMenu, getPerfilPermiso, getPerfilPermisos, putPerfilMenu, putPerfilPermisos,
+} from '../core/grants.js';
+import { getSocioAcciones, putSocioAcciones, withSocioAccionesSeed } from '../core/socioAcciones.js';
 import { createStore } from '../core/store.js';
 import { REGISTRY } from '../registry/index.js';
 import { childrenOf } from '../core/ubigeo.js';
@@ -32,8 +40,20 @@ const CORS_HEADERS = {
 const ROUTES = [
   { method: 'GET', pattern: /^\/auth\/session-options$/, isPublic: true, handle: ({ store }) => ({ body: sessionOptions(store) }) },
   { method: 'POST', pattern: /^\/auth\/login$/, handle: ({ store, tenant, body }) => ({ body: login(store, tenant, body) }) },
-  { method: 'GET', pattern: /^\/menu$/, handle: ({ store }) => ({ body: getMenu(store) }) },
-  { method: 'GET', pattern: /^\/forms\/([^/]+)\/permissions$/, handle: ({ store, params }) => ({ body: getPermissions(store, params[0]) }) },
+  // Grants resolve for the user of `X-User-Id` through its perfil, and for the seeded defaults without one (R-AUTH-11).
+  { method: 'GET', pattern: /^\/menu$/, handle: ({ store, tenant, ctx }) => ({ body: getMenu(store, { ...ctx, tenantId: tenant }) }) },
+  { method: 'GET', pattern: /^\/forms\/permissions$/, handle: ({ store, tenant, ctx }) => ({ body: getAllPermissions(store, { ...ctx, tenantId: tenant }) }) },
+  { method: 'GET', pattern: /^\/forms\/([^/]+)\/permissions$/, handle: ({ store, tenant, params, ctx }) => ({ body: getPermissions(store, params[0], { ...ctx, tenantId: tenant }) }) },
+  // The perfil grants editor (R-PRM-5): `menu` and `permisos` are reserved child names, so they never reach the generic child routes.
+  { method: 'GET', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/menu$/, handle: ({ store, tenant, params }) => ({ body: getPerfilMenu(store, tenant, params[0]) }) },
+  { method: 'PUT', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/menu$/, handle: ({ store, tenant, params, body }) => ({ body: putPerfilMenu(store, tenant, params[0], body) }) },
+  { method: 'GET', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos$/, handle: ({ store, tenant, params }) => ({ body: getPerfilPermisos(store, tenant, params[0]) }) },
+  { method: 'PUT', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos$/, handle: ({ store, tenant, params, body }) => ({ body: putPerfilPermisos(store, tenant, params[0], body) }) },
+  { method: 'GET', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos\/([^/]+)$/, handle: ({ store, tenant, params }) => ({ body: getPerfilPermiso(store, tenant, params[0], params[1]) }) },
+  { method: 'PUT', pattern: /^\/v1\/tipos-trabajador-perfil\/([^/]+)\/permisos\/([^/]+)$/, handle: ({ store, tenant, params, body }) => ({ body: putPerfilPermisos(store, tenant, params[0], body, params[1]) }) },
+  // Socio acciones (R-MOCK-26): a custom resource, so it must win over the generic `/v1/{slug}` match.
+  { method: 'GET', pattern: /^\/v1\/socio-acciones$/, handle: ({ store, tenant }) => ({ body: getSocioAcciones(store, tenant) }) },
+  { method: 'PUT', pattern: /^\/v1\/socio-acciones$/, handle: ({ store, tenant, body }) => ({ body: putSocioAcciones(store, tenant, body) }) },
   // Lookups come before the generic catalog routes so they win the match.
   { method: 'GET', pattern: /^\/v1\/ubigeo$/, handle: ({ store, query }) => ({ body: childrenOf(store, query.parent) }) },
   { method: 'GET', pattern: /^\/v1\/lookups\/([^/]+)$/, handle: ({ store, tenant, params, query, ctx }) => ({ body: lookupOptions(store, tenant, params[0], query, ctx) }) },
@@ -54,8 +74,22 @@ const ROUTES = [
       return { status: 204 };
     },
   },
+  // Nested child routes (R-MOCK-19): the parent is checked once in the core.
+  { method: 'GET', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, query, ctx }) => ({ body: listChild(store, tenant, params[0], params[1], params[2], query, ctx) }) },
+  { method: 'POST', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ status: 201, body: createChild(store, tenant, params[0], params[1], params[2], body ?? {}, ctx) }) },
+  { method: 'GET', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, ctx }) => ({ body: getChild(store, tenant, params[0], params[1], params[2], params[3], ctx) }) },
+  { method: 'PUT', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: updateChild(store, tenant, params[0], params[1], params[2], params[3], body ?? {}, ctx) }) },
+  { method: 'DELETE', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, ctx }) => { removeChild(store, tenant, params[0], params[1], params[2], params[3], ctx); return { status: 204 }; } },
+  // Row actions (R-MOCK-22): on an entry row, on a child row, and the collection form that creates a child row. None collides with the routes above: they
+  // end in the literal `actions/{action}`.
+  { method: 'POST', pattern: /^\/v1\/([^/]+)\/([^/]+)\/actions\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: runEntryAction(store, tenant, params[0], params[1], params[2], body, ctx) }) },
+  { method: 'POST', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/actions\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: runChildAction(store, tenant, params[0], params[1], params[2], undefined, params[3], body, ctx) }) },
+  { method: 'POST', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)\/actions\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: runChildAction(store, tenant, params[0], params[1], params[2], params[3], params[4], body, ctx) }) },
   { method: 'POST', pattern: /^\/__mock\/reset$/, isPublic: true, handle: ({ store }) => { store.reset(); return { status: 204 }; } },
 ];
+
+/** The Socio acciones seed of a data dir; a dir without the file has none (R-MOCK-26). @param {string} path */
+const optionalJson = (path) => (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : undefined);
 
 /** @param {import('node:http').IncomingMessage} req */
 async function readJson(req) {
@@ -77,7 +111,7 @@ async function readJson(req) {
  */
 export function createApp({ seed, dataDir, registry = REGISTRY }) {
   if (!seed && !dataDir) throw new Error('createApp needs a seed or a dataDir');
-  const store = createStore(seed ?? loadSeed(/** @type {string} */ (dataDir), registry), registry);
+  const store = createStore(seed ?? withSocioAccionesSeed(loadSeed(/** @type {string} */ (dataDir), registry), optionalJson(join(/** @type {string} */ (dataDir), 'catalogs', 'socio-acciones.json'))), registry);
 
   const server = createServer(async (req, res) => {
     const correlationId = String(req.headers['x-correlation-id'] || randomUUID());

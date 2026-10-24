@@ -1,5 +1,6 @@
 /** Register-form rules driven by `config.fields`. Pure. */
-import { fieldMessage } from '../../../mock-server/core/messages.js';
+import { MISMATCH_TEXT, fieldMessage } from '../../../mock-server/core/messages.js';
+import { confirmationOf } from '../../../mock-server/core/password.js';
 import { displayToIso, todayIso } from '../../../mock-server/core/dates.js';
 import { DECIMAL_TEXT, outOfBounds } from '../../../mock-server/core/numbers.js';
 import { fieldState, maxLengthOf, minLengthOf } from '../../../mock-server/core/predicates.js';
@@ -26,6 +27,12 @@ type DateRule = 'DATE' | 'NOT_FUTURE' | 'MIN_DATE' | 'AFTER_FIELD';
 type DateMessage = (name: string, rule: DateRule) => string;
 
 /** A typed date must be real, then pass the optional rules (S-CRUD-28): not in the future, not before `min`, not before `afterField`. */
+/** The sentence a text or select field declares for its blank value, unless it is a template an entry fills in (`Para {modo} ...`). */
+const ownMessage = (field: FieldConfig) => {
+  const message = field.kind === 'text' || field.kind === 'select' ? field.message : undefined;
+  return message?.includes('{') ? undefined : message;
+};
+
 function dateError(field: Extract<FieldConfig, { kind: 'date' }>, values: FormValues, message?: DateMessage): FieldError | undefined {
   const fail = (rule: DateRule) => ({ name: field.name, message: message?.(field.name, rule) ?? `${field.label} no es una fecha válida.` });
   const iso = displayToIso(values[field.name] ?? '');
@@ -54,9 +61,27 @@ interface Messages {
   range?: (name: string) => string;
   date?: DateMessage;
   minLen?: (name: string) => string;
+  /** The mode being submitted: a password is required everywhere but UPDATE. Absent reads as INSERT. */
+  mode?: CrudMode;
 }
 
-function fieldError(field: FieldConfig, values: FormValues, { required: requiredMessage, range: rangeMessage, date: dateMessage, minLen: minLenMessage }: Messages = {}, skipRange = false): FieldError | undefined {
+/**
+ * A password (R-CRUD-17): required unless UPDATE (a blank pair keeps the stored one), at most `maxLength`, and equal to its confirmation, whose error
+ * names the confirmation field. The messages never name the value.
+ */
+function passwordError(field: Extract<FieldConfig, { kind: 'password' }>, values: FormValues, mode: CrudMode | undefined, requiredMessage?: (name: string) => string): FieldError | undefined {
+  const value = values[field.name] ?? '';
+  const confirmation = values[confirmationOf(field.name)] ?? '';
+  const mismatch = { name: confirmationOf(field.name), message: field.confirmMessage ?? MISMATCH_TEXT };
+  if (value === '') {
+    if (mode !== 'UPDATE') return { name: field.name, message: requiredMessage?.(field.name) ?? `${field.label} es obligatorio.` };
+    return field.confirm && confirmation !== '' ? mismatch : undefined;
+  }
+  if (value.length > field.maxLength) return { name: field.name, message: `${field.label} no puede superar ${field.maxLength} caracteres.` };
+  return field.confirm && confirmation !== value ? mismatch : undefined;
+}
+
+function fieldError(field: FieldConfig, values: FormValues, { required: requiredMessage, range: rangeMessage, date: dateMessage, minLen: minLenMessage, mode }: Messages = {}, skipRange = false): FieldError | undefined {
   // A code is server-issued and a checkbox is always valid: neither can be blank.
   if (field.kind === 'code' || field.kind === 'boolean') return undefined;
   if (field.kind === 'cascade') {
@@ -67,8 +92,9 @@ function fieldError(field: FieldConfig, values: FormValues, { required: required
   // A hidden or disabled field is not validated (R-CRUD-5); `requiredWhen` makes a visible one required (R-CRUD-13).
   const state = fieldState(field, values);
   if (!state.visible || !state.enabled) return undefined;
+  if (field.kind === 'password') return passwordError(field, values, mode, requiredMessage);
   const value = values[field.name];
-  if (state.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? `${field.label} es obligatorio.` };
+  if (state.required && isBlank(value)) return { name: field.name, message: requiredMessage?.(field.name) ?? ownMessage(field) ?? `${field.label} es obligatorio.` };
   const limit = field.kind === 'text' ? maxLengthOf(field, values) : undefined;
   if (field.kind === 'text' && limit !== undefined && (value?.length ?? 0) > limit) {
     return { name: field.name, message: `${field.label} no puede superar ${limit} caracteres.` };
@@ -103,6 +129,7 @@ export function validate(fields: FieldConfig[], values: FormValues, rules?: Vali
     range: (name) => fieldMessage(entry, entryFields.get(name), 'RANGE', mode as 'INSERT'),
     date: (name, rule) => fieldMessage(entry, entryFields.get(name), rule, mode as 'INSERT'),
     minLen: (name) => fieldMessage(entry, entryFields.get(name), 'MIN_LENGTH', mode as 'INSERT'),
+    mode,
   };
   const steps: any[] = (entry as any).steps;
   // A `{range: name}` step takes that field's range check out of its field step (R-REF-7 Turno order).

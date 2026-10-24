@@ -13,6 +13,8 @@ import { referenceCatalog } from './reference.js';
  * Habilitar starts checked (`setSelected(true)`) and is stored S / N by the desktop, a boolean here. The localidad, punto de venta and tipo are stored
  * although the desktop only keeps the correlativo: the form needs them to restore its chain. [DEVIATION] the desktop skips the pair check on CLONE; the
  * generic create applies it, and the duplicate message is reported on `id_correlativo` (the desktop focuses the serie combo).
+ * The same rows are the series of a usuario in Autorizar Series (W3-14, R-PRM-7): `habilitar` is the authorization estado, and `fecha_inicio` (the creation day
+ * [ASSUMPTION] when this screen creates the row) and `fecha_fin` are kept by the rule `fechaAutorizacion`.
  */
 export const usuarioCorrelativos = referenceCatalog({
   slug: 'usuario-correlativos', idKey: 'id_usuario_correlativo', codeWidth: 5, entity: 'una Asignasion de Usuario - Correlativo', formId: 'mi_usuariocorrelativo',
@@ -44,4 +46,6 @@ export const usuarioCorrelativos = referenceCatalog({
     message: 'Ya existe una asignacion del documento con la serie elegida al mismo usuario, por favor elija otra serie u otro usuario disponible.',
   }],
   validation: ['id_usuario', 'id_localidad', 'id_punto_venta', 'id_tipo_doc', 'id_correlativo', { unique: 0 }, 'habilitar'],
+  // `fecha_inicio` / `fecha_fin` are stored-only and server-managed (the rule owns them): the W2 form neither shows nor writes them (R-PRM-7).
+  rules: [{ name: 'fechaAutorizacion' }],
 });

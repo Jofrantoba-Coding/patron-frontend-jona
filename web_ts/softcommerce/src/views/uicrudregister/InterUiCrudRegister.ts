@@ -1,7 +1,9 @@
 // Layer: Interface. Public contract of the generic crud register dialog: shapes and defaults only, no logic.
+import type { ReactNode } from 'react';
 import type { CrudMode, FieldConfig } from '../../catalogs/CatalogConfig';
 import type { FormValues } from '../../domain/crud/validate';
 import type { LookupItem } from '../../services/InterLookupService';
+import type { LookupQuery } from '../../shared/ui/LookupDialog/InterLookupDialog';
 
 export type RegisterMode = CrudMode;
 export type RegisterStatus = 'loading' | 'ready' | 'failed';
@@ -44,6 +46,12 @@ export interface InterUiCrudRegister {
   loadOptions: (catalog: string, filters: Record<string, string>) => Promise<LookupItem[]>;
   /** Children of a cascade parent id; '' asks for the top level. The cascade `filter`, when it has one, narrows them. */
   loadChildren: (parent: string, filter?: Record<string, string>) => Promise<LookupItem[]>;
+  /** The description of each lookup field's picked record, by field name (kept out of the form values: it is never sent). */
+  lookupDisplay: Record<string, string>;
+  /** Value-first: a lookup picked, resolved, cleared or edited; `('', '')` clears. */
+  onLookupChange: (name: string, value: string, description: string, row?: Record<string, string>) => void;
+  /** The paged search over a lookup source (`where` is its static filter). */
+  lookupList: (catalog: string, where?: Record<string, string>) => (query: LookupQuery) => Promise<{ items: Record<string, string>[]; pagination: { total: number } }>;
   /** Ref callback per field name, so a blocked submit can focus the first invalid one. */
   registerField: (name: string) => (element: HTMLElement | null) => void;
   onSubmit: () => void;
@@ -65,4 +73,6 @@ export const UICRUDREGISTER_DEFAULTS = {
   confirmMessage: '¿Desea continuar con esta operación?',
   discardTitle: 'Descartar cambios',
   discardMessage: '¿Descartar los cambios sin guardar?',
+  /** Lays out the rendered fields (each element keyed by its field name); a master register sets them in tabs (R-MD-1). */
+  arrange: (nodes: ReactNode[]): ReactNode => nodes,
 };

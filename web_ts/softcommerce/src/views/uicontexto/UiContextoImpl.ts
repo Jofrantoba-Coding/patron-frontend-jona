@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { validatePeriod, type PeriodError } from '../../domain/period';
 import type { Empresa, InterAuthService, PuntoVenta } from '../../services/InterAuthService';
+import type { InterGrantsService } from '../../services/InterGrantsService';
 import { useSession } from '../../session/SessionProvider';
 import { toFailure } from '../../shared/toFailure';
 import type { InterUiContexto } from './InterUiContexto';
@@ -16,7 +17,7 @@ const PERIOD_MESSAGES: Record<PeriodError, string> = {
 
 type Failure = ReturnType<typeof toFailure>;
 
-export function useUiContextoImpl(service: InterAuthService): InterUiContexto {
+export function useUiContextoImpl(service: InterAuthService, grantsService?: InterGrantsService): InterUiContexto {
   const { pending, startSession } = useSession();
   const navigate = useNavigate();
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
@@ -89,10 +90,12 @@ export function useUiContextoImpl(service: InterAuthService): InterUiContexto {
     setIsSubmitting(true);
     service
       .params()
-      .then((params) => {
+      .then(async (params) => {
         const periodError = validatePeriod({ fechaInicio, fechaFin, inicioActividades: params.INICIO_ACTIVIDADES });
         setErrors({ ...selectionErrors, periodError: periodError ? PERIOD_MESSAGES[periodError] : undefined });
         if (periodError) return setIsSubmitting(false);
+        // The menu and the flags of the user's perfil are taken once, here (R-AUTH-11).
+        const grants = await grantsService?.snapshot();
         startSession({
           tenantId: pending.tenantId,
           token: pending.result.token,
@@ -101,6 +104,7 @@ export function useUiContextoImpl(service: InterAuthService): InterUiContexto {
           puntoVenta,
           periodo: { fechaInicio, fechaFin },
           params,
+          ...(grants ? { grants } : {}),
         });
         navigate('/');
       })

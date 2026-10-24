@@ -42,5 +42,15 @@
   { "id_menu": 41, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Zona Distancia", "nombre": "miZonaDistancia" },
   { "id_menu": 42, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Trabajador - PuntoVenta", "nombre": "miTrabajadorPuntoVenta" },
   { "id_menu": 43, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Chofer", "nombre": "PanelTFChofer" },
-  { "id_menu": 44, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Socio", "nombre": "PanelTFSocio" }
+  { "id_menu": 44, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Socio", "nombre": "PanelTFSocio" },
+  { "id_menu": 45, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Banco", "nombre": "miBancoAnexo" },
+  { "id_menu": 46, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Trabajador", "nombre": "miTrabajador" },
+  { "id_menu": 47, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Vendedor", "nombre": "miVendedor" },
+  { "id_menu": 48, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Transportista", "nombre": "miTransportista" },
+  { "id_menu": 49, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Usuario", "nombre": "mi_usuario" },
+  { "id_menu": 50, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Seguridad - Perfil", "nombre": "mi_SeguridadPerfil" },
+  { "id_menu": 51, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Proveedor", "nombre": "miProveedor" },
+  { "id_menu": 52, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Cliente", "nombre": "miCliente" },
+  { "id_menu": 53, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Item", "nombre": "miProducto" },
+  { "id_menu": 54, "id_menu_padre": 2, "menu_item": "S", "descripcion": "Acciones de Socio", "nombre": "miAccionSocio" }
 ]

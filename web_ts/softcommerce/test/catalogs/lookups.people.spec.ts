@@ -15,8 +15,11 @@ import type { CatalogCase } from './cases';
 import { describeRegistryContract } from './registryContract';
 
 const dataDir = fileURLToPath(new URL('../../mock-server/data', import.meta.url));
-const notAllowed = { status: 405, code: 'METHOD_NOT_ALLOWED' };
+// S-REF-43 (R-MST-18 exception 2): trabajadores is a writable master from Wave 3, so its three write cases expect the master outcome instead of the 405.
+const WRITER = { userId: '7', empresaId: '1' };
+const MASTER_BODY = { id_tipo_trabajador: '001', id_tipo_perfil: '1', ap_paterno: 'x', ap_materno: 'y', nombres: 'z', dni: '1' };
 const USUARIOS = 'usuarios';
+const USUARIO_BODY = { id_trabajador: '001', usuario: 'nuevo', clave: 'secreto1', clave_confirmacion: 'secreto1' };
 const TRABAJADORES = 'trabajadores';
 
 // usuarios (R-REF-11, S-MOCK-38): the users of the tenant, projected from the auth users.json; the desktop listarGeneral() lists them all by nombre.
@@ -24,15 +27,15 @@ const DEMO_USUARIOS = [{ id: '1', name: 'Administrador' }, { id: '2', name: 'Caj
 // trabajadores: minimal demo rows, shown by their nombre (the TrabajadorPuntoVenta picker, R-REF-12).
 const DEMO_TRABAJADORES = [{ id: '001', name: 'JUAN PEREZ LOPEZ' }, { id: '002', name: 'MARIA GARCIA RAMOS' }, { id: '003', name: 'CARLOS TORRES DIAZ' }];
 const CASES: CatalogCase[] = [
-  { name: `${USUARIOS} S-MOCK-29 create is 405 METHOD_NOT_ALLOWED`, slug: USUARIOS, steps: [{ op: 'create', body: { nombre: 'X' } }], expect: notAllowed },
-  { name: `${USUARIOS} S-MOCK-29 update is 405 METHOD_NOT_ALLOWED`, slug: USUARIOS, steps: [{ op: 'update', id: '1', body: { nombre: 'X' } }], expect: notAllowed },
-  { name: `${USUARIOS} S-MOCK-29 remove is 405 and the row stays`, slug: USUARIOS, steps: [{ op: 'remove', id: '1' }], expect: notAllowed },
+  { name: `${USUARIOS} S-REF-43 create is 201, no longer 405`, slug: USUARIOS, steps: [{ op: 'create', body: USUARIO_BODY }], expect: { ok: true } },
+  { name: `${USUARIOS} S-REF-43 update is allowed, no longer 405`, slug: USUARIOS, steps: [{ op: 'update', id: '1', body: { id_trabajador: '001', usuario: 'admin' } }], expect: { ok: true } },
+  { name: `${USUARIOS} S-REF-43 remove is the logical delete, no longer 405`, slug: USUARIOS, steps: [{ op: 'remove', id: '1' }], expect: { ok: true } },
   { name: `${USUARIOS} S-MOCK-15 lists the tenant users without any session context`, slug: USUARIOS, steps: [{ op: 'list' }], expect: { ok: true, total: 4 } },
   { name: `${USUARIOS} get resolves a user by its id`, slug: USUARIOS, steps: [{ op: 'get', id: '2' }], expect: { ok: true, match: { id_usuario: '2', usuario: 'cajero', nombre: 'Cajero Uno' } } },
   { name: `${USUARIOS} R-REF-11 the options carry the id and the nombre`, slug: USUARIOS, steps: [{ op: 'options' }], expect: { ok: true, items: DEMO_USUARIOS } },
-  { name: `${TRABAJADORES} S-MOCK-29 create is 405 METHOD_NOT_ALLOWED`, slug: TRABAJADORES, steps: [{ op: 'create', body: { nombre: 'X' } }], expect: notAllowed },
-  { name: `${TRABAJADORES} S-MOCK-29 update is 405 METHOD_NOT_ALLOWED`, slug: TRABAJADORES, steps: [{ op: 'update', id: '001', body: { nombre: 'X' } }], expect: notAllowed },
-  { name: `${TRABAJADORES} S-MOCK-29 remove is 405 and the row stays`, slug: TRABAJADORES, steps: [{ op: 'remove', id: '001' }], expect: notAllowed },
+  { name: `${TRABAJADORES} S-REF-43 create is 201, no longer 405`, slug: TRABAJADORES, ctx: WRITER, steps: [{ op: 'create', body: MASTER_BODY }], expect: { ok: true } },
+  { name: `${TRABAJADORES} S-REF-43 update is allowed, no longer 405`, slug: TRABAJADORES, ctx: WRITER, steps: [{ op: 'update', id: '001', body: { telefono: '1' } }], expect: { ok: true } },
+  { name: `${TRABAJADORES} S-REF-43 remove is 405 MODE_NOT_SUPPORTED and the row stays`, slug: TRABAJADORES, ctx: WRITER, steps: [{ op: 'remove', id: '001' }], expect: { status: 405, code: 'MODE_NOT_SUPPORTED' } },
   { name: `${TRABAJADORES} S-MOCK-15 lists the active rows without any session context`, slug: TRABAJADORES, steps: [{ op: 'list' }], expect: { ok: true, total: 3 } },
   { name: `${TRABAJADORES} S-MOCK-15 get resolves a retired row`, slug: TRABAJADORES, steps: [{ op: 'get', id: '004' }], expect: { ok: true, match: { activo: false } } },
   { name: `${TRABAJADORES} R-REF-11 the options carry the id and the nombre`, slug: TRABAJADORES, steps: [{ op: 'options' }], expect: { ok: true, items: DEMO_TRABAJADORES } },
@@ -78,9 +81,9 @@ describe.each(sources('botica'))('S-MOCK-38 a tenant sees only its own people (%
 describe('usuarios are projected from the auth users seed, never copied', () => {
   const seed = loadSeed(dataDir);
 
-  it('is a readOnly tenant entry over a W1 section: no seed file of its own', () => {
+  it('is a writable tenant master backed by the W1 users section (S-REF-43): no seed file of its own', () => {
     const entry = REGISTRY.bySlug.get(USUARIOS);
-    expect([entry.scope, entry.readOnly, entry.seed, entry.project, entry.formId, entry.menu]).toEqual(['tenant', true, null, 'users', undefined, undefined]);
+    expect([entry.scope, entry.readOnly, entry.seed, entry.backing, entry.formId, entry.menu]).toEqual(['tenant', undefined, null, 'users', 'mi_usuario', { parent: 'mnGenerales', label: 'Usuario' }]);
     expect(Object.keys(seed)).not.toContain(USUARIOS);
   });
 
@@ -98,8 +101,8 @@ describe('usuarios are projected from the auth users seed, never copied', () => 
     expect(listCatalog(createStore(extended), 'botica', USUARIOS).items.map((r: any) => r.nombre)).toEqual(['Administrador', 'Nuevo']);
   });
 
-  it('trabajadores is a readOnly tenant entry with a demo-only seed and no screen', () => {
+  it('trabajadores is a writable tenant master with a demo-only seed and its own screen (S-REF-43)', () => {
     const entry = REGISTRY.bySlug.get(TRABAJADORES);
-    expect([entry.scope, entry.readOnly, entry.formId, entry.menu, Object.keys(seed[TRABAJADORES])]).toEqual(['tenant', true, undefined, undefined, ['demo']]);
+    expect([entry.scope, entry.readOnly, entry.formId, entry.menu, Object.keys(seed[TRABAJADORES])]).toEqual(['tenant', undefined, 'miTrabajador', { parent: 'mnGenerales', label: 'Trabajador' }, ['demo']]);
   });
 });

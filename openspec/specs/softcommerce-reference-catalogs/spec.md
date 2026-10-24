@@ -99,26 +99,31 @@ Correlativo MUST store `num_inicial` = `0000000001`, `num_final` = `9999999999`,
 Every chain in R-REF-5/6 MUST: leave the dependent select disabled and empty until its parent is chosen (in INSERT/UPDATE/CLONE only); clear and reload it when the parent changes; clear the whole sub-chain below when a higher level is cleared; restore all levels with options loaded in UPDATE, DELETE, DETAIL and CLONE; and ignore stale responses (S-LOC-10). Dependent options are requested with filter parameters on the lookup list (R-MOCK-16).
 
 ### R-REF-11 Read-only seeded lookups
-The mock MUST expose these lookups as read-only (R-REG-11; writes answer 405 `METHOD_NOT_ALLOWED`). Scope per entry: `shared` (global, W6 to confirm) for monedas, tipos-doc-iden, tablas-sunat, tablas-detalle-sunat, tipos-doc-venta, familias-sunat and subfamilias-sunat; `tenant` for usuarios and trabajadores. The DNI id of tipos-doc-iden and every `codeWidth` are read from the desktop at apply time.
+The mock MUST expose these lookups as read-only (R-REG-11; writes answer 405 `METHOD_NOT_ALLOWED`). Scope per entry: `shared` (global, W6 to confirm) for monedas, tipos-doc-iden, tablas-sunat, tablas-detalle-sunat, tipos-doc-venta, familias-sunat and subfamilias-sunat. The DNI id of tipos-doc-iden and every `codeWidth` are read from the desktop at apply time. `usuarios` and `trabajadores` are NO LONGER read-only lookups: from Wave 3 they are writable masters (softcommerce-masters R-MST-4, R-MST-7) that keep the slugs, the row shapes (`{ id_usuario, usuario, nombre }`, `{ id_trabajador, nombre }`), the `tenant` scope and the `/v1/lookups/{slug}` behavior of Wave 2, so UsuarioCorrelativo and TrabajadorPuntoVenta are unchanged (R-MST-17); the lookups of Wave 3 stubs (`cuentas-contables`, `parametros-prov`, `clases-sunat`, `padrones`) are defined in softcommerce-mock-api R-MOCK-25.
 
 | Slug | Purpose | Needed seed |
 |---|---|---|
 | monedas | TipoCambio | includes `DOLAR AMERICANO` |
-| tipos-doc-iden | Chofer, Socio | includes `DNI` (`01`) and `RUC` (`05`), with the `persona` (persons) and `estado` (active) flags, `optionLabel` `abreviatura`; selects use `where {persona: true, estado: true}` |
+| tipos-doc-iden | Chofer, Socio, and the anexo masters | includes `DNI` (`01`) and `RUC` (`05`), with the `persona` (persons) and `estado` (active) flags, `optionLabel` `abreviatura`; selects use `where {persona: true, estado: true}` |
 | tablas-sunat | TipoMovInventario, UnidadMedida | at least 6 rows; the 6th is the units table |
-| tablas-detalle-sunat | same, filter `id_tabla_sunat` | detail rows per tabla |
+| tablas-detalle-sunat | same, filter `id_tabla_sunat`; the Cliente `Cuenta` bank list (tabla `3`) | detail rows per tabla |
 | tipos-doc-venta | Correlativo, UsuarioCorrelativo | includes `TI`; filter `id_punto_venta` |
-| usuarios | UsuarioCorrelativo | projection (`project: 'users'`) of the auth seed, per tenant |
-| trabajadores | TrabajadorPuntoVenta | minimal rows |
 | familias-sunat, subfamilias-sunat | Familia, SubFamilia | `subfamilias-sunat` filtered by `codigo_familia_sunat` |
 
-All lookups above are confirmed read-only seeded lookups; they are the W6 / W2b contract and have no screens in Wave 2.
+All lookups above are confirmed read-only seeded lookups; they are the W6 / W2b contract. In Wave 2 they had no screens; in Wave 3 `usuarios` and `trabajadores` have their master screens (softcommerce-masters).
 
 ### R-REF-12 Excluded desktop behaviors
-The following are NOT part of Wave 2: nested "create related" buttons (SubFamilia familia, TipoCambio moneda); the Chofer "Activación" tab with its activar / desactivar actions and history grid (G11/G12, W2b; the server records the initial activation on create); the UnidadMedida presentation panel (Presentación / Unidad Base, FP, UP: not persisted or validated by the desktop); the Vehiculo "Propietario" transportista picker (G10 and Transportista, W2b); entity-picker dialogs (the TrabajadorPuntoVenta trabajador is a select).
+The following are NOT part of Wave 3 (W2 list, as amended): nested "create related" buttons (SubFamilia familia, TipoCambio moneda, and the Usuario `Nuevo Trabajador` button); the UnidadMedida presentation panel (Presentación / Unidad Base, FP, UP: not persisted or validated by the desktop). The three items that Wave 2 excluded are CLOSED in Wave 3 and are no longer exclusions: the Chofer "Activación" tab with its activar / desactivar actions and history grid (G11 / G12, now softcommerce-anexo R-ANX-10), the Vehiculo "Propietario" transportista picker (G10 and Transportista, now softcommerce-masters R-MST-6), and the entity-picker dialogs (the TrabajadorPuntoVenta trabajador, now softcommerce-lookup-dialog R-LKP-8). Out of scope for Wave 3 too: image / file upload and the real cuentas contables.
 
 ### R-REF-13 Table-driven tests and dual-source parity
 Every rule row in R-REF-4..R-REF-9 MUST have at least one test generated from the registry entry (required, max length, normalization, range, uniqueness, conditional, chain) and the same table MUST run against the in-browser mock and the HTTP mock through the same `InterCatalogService` (R-LOC-7). Server-side rules (required, max length, ref existence, uniqueness) MUST be enforced by both mocks, not only by the UI.
+
+### R-REF-14 Wave 3 amendments to W2 catalogs
+These rows of R-REF-4..R-REF-6 are amended, and the quoted W2 notes cease to apply:
+- `choferes` (R-REF-6): "activation tab excluded (R-REF-12)" no longer applies. The register MUST gain the `Activación de Chofer` tab on the shared Anexo grid (softcommerce-anexo R-ANX-10); its `modes` stay `[INSERT, UPDATE, DETAIL, CLONE]`; the seeded rows get an `INICIO` activation; the server-recorded initial activation of W2 is now visible and editable through the grid. S-REF-25..S-REF-29 pass unchanged.
+- `vehiculos` (R-REF-6): "propietario excluded (R-REF-12)" no longer applies. The register MUST gain the optional `id_anexo_empresa_transportista` (`Propietario`) as a `lookup` over `transportistas` with typed-code resolution (softcommerce-masters R-MST-6, softcommerce-lookup-dialog R-LKP-6); the W2 field rules, uniqueness and messages stay; the list gains the joined `Propietario` (razón social of the transportista, empty when none); `Vehiculos` of a Transportista and this catalog are ONE store.
+- `trabajador-punto-venta` (R-REF-6): "the desktop trabajador picker is a select (R-REF-12)" no longer applies. `id_trabajador` MUST become a `lookup` over `trabajadores` (the BuscarTrabajador picker, softcommerce-lookup-dialog R-LKP-8); its required message `Para {modo} un Trabajador, debes especificar su Nombre.` (field label stays `Trabajador`, as in W2; the sentence names `su Nombre`), the unique (trabajador, punto de venta) rule and its literal message, the chain `empresa -> localidad -> punto de venta`, the `habilitar` default and the tenant-wide list (all W2 **[DEVIATION]** notes) stay; S-REF-21 keeps its meaning and assertions (W2-test exception, softcommerce-masters R-MST-18: only the UI field helpers of `src/catalogs/registry.trabajadorPuntoVenta.ui.spec.tsx` change).
+All other rows are unchanged.
 
 ## Scenarios
 
@@ -198,4 +203,12 @@ Every rule row in R-REF-4..R-REF-9 MUST have at least one test generated from th
 
 **S-REF-38 W1 unchanged** — Given Localidad and its W1 suites, When the Wave 2 stack is in place, Then all W1 scenarios (S-LOC-1..20) pass unchanged.
 
-**S-REF-39 excluded behaviors absent** — Given SubFamilia, TipoCambio, Chofer, UnidadMedida and Vehiculo, Then no nested-create button, activation tab, presentation panel or propietario picker is rendered.
+**S-REF-39 excluded behaviors absent** — Given SubFamilia, TipoCambio and UnidadMedida, Then no nested-create button or presentation panel is rendered; Given Usuario, Then no `Nuevo Trabajador` button is rendered. (Chofer now shows its activation tab and Vehiculo its propietario lookup: S-REF-40, S-REF-41.)
+
+**S-REF-40 chofer activation tab** — Given the Chofer register in UPDATE on a seeded chofer, Then the `Activación de Chofer` tab shows the seeded `INICIO` activation; `Desactivar` on it with a motivo marks it deactivated and unchecks `Estado`; the toolbar still offers no DELETE and `DELETE` answers 405 `MODE_NOT_SUPPORTED`.
+
+**S-REF-41 vehiculo propietario** — Given the Vehiculo register, Then `Propietario` is an optional lookup over active transportistas; saving with no propietario succeeds; saving with transportista T shows `Propietario` T in the list and the vehiculo appears in T's `Vehiculos` grid.
+
+**S-REF-42 trabajador-punto-venta lookup** — Given the TrabajadorPuntoVenta register, Then the `Trabajador` field is a lookup opening BuscarTrabajador; a blank value shows `Para agregar un Trabajador, debes especificar su Nombre.`; a duplicate (trabajador, punto de venta) still answers 409 on `id_trabajador` with the W2 literal message.
+
+**S-REF-43 usuarios and trabajadores no longer read-only** — Given `usuarios` and `trabajadores`, Then `POST` creates records (201) instead of answering 405 `METHOD_NOT_ALLOWED`, `GET /v1/lookups/usuarios|trabajadores` keep `{ items: [{ id, name }] }` of active records, and S-REF-17 and S-REF-21 keep their assertions (S-REF-21 under the R-MST-18 helper exception).

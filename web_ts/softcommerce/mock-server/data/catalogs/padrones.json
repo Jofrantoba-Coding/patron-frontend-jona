@@ -1,0 +1,6 @@
+[
+  { "id_padron": "01", "descripcion": "EXCEPTUADO", "para_cliente": true, "para_proveedor": false, "activo": true },
+  { "id_padron": "02", "descripcion": "AG. RETENCION", "para_cliente": true, "para_proveedor": true, "activo": true },
+  { "id_padron": "03", "descripcion": "AG. PERCEPCION", "para_cliente": true, "para_proveedor": true, "activo": true },
+  { "id_padron": "04", "descripcion": "BUEN CONTRIBUYENTE", "para_cliente": false, "para_proveedor": true, "activo": true }
+]

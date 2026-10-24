@@ -1,9 +1,15 @@
+import { AGGREGATE_OPS } from '../core/aggregate.js';
 import { DOC_DEFAULTS } from '../core/docIdentidad.js';
 import { ENTRY_RULE_NAMES, ruleStates } from '../core/entryRules.js';
 import { NORMALIZE_STEP } from '../core/normalize.js';
+import { paramToken } from '../core/predicates.js';
 import { isIsoDate } from '../core/dates.js';
 import { DECIMAL_TEXT } from '../core/numbers.js';
 import { applyPreset } from './presets.js';
+import { PERMISSION_FLAG_NAMES } from './flags.js';
+import { PARAM_KEYS, isGateParam } from './paramKeys.js';
+import { PICKERS } from './pickers.js';
+import { BACKINGS } from './backings.js';
 import { PROJECTIONS } from './project.js';
 import { BUILTIN_SOURCES } from './sources.js';
 
@@ -13,14 +19,14 @@ import { BUILTIN_SOURCES } from './sources.js';
  * @typedef {{ slug: string, idKey: string, codeWidth: number, entity: string, scope: 'tenant'|'shared'|'empresa',
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
  *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string | string[], modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
- *   rules?: { name: string }[], lookupFilters?: Record<string, any>, compat?: any, project?: string,
- *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when: { field: string, in: string[] }, then: unknown, else: unknown }[] }} CatalogDef
+ *   rules?: { name: string }[], search?: string[], lookupFilters?: Record<string, any>, compat?: any, project?: string, backing?: string,
+ *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when?: { field: string, in: string[] }, then?: unknown, else?: unknown, fromRef?: { field: string, key: string } }[], children?: Record<string, any>, actions?: any[], generalTab?: string }} CatalogDef
  */
 
 export const SCOPES = ['tenant', 'empresa', 'shared'];
 export const MODES = ['INSERT', 'UPDATE', 'DELETE', 'DETAIL', 'CLONE'];
-const KINDS = ['code', 'text', 'number', 'boolean', 'date', 'select', 'options'];
-const STYLES = ['M1', 'M2', 'MS', 'label', 'w1'];
+const KINDS = ['code', 'text', 'textarea', 'password', 'number', 'boolean', 'date', 'select', 'options', 'lookup'];
+const STYLES = ['M1', 'M2', 'MS', 'label', 'dialog', 'w1'];
 const STAMPS = ['id_usuario', 'id_empresa'];
 /** Closed set of named rules (D9): the hooks live in `core/entryRules.js`. */
 const ENTRY_RULES = ENTRY_RULE_NAMES;
@@ -46,6 +52,55 @@ function fail(where, message) {
 /** An `options` field renders as a select unless it asks for radios. @param {any} field */
 const withDisplay = (field) => (field.kind === 'options' && field.display === undefined ? { ...field, display: 'select' } : field);
 
+/** A password confirms itself unless the entry says otherwise (R-REG-13). @param {any} field */
+const withConfirm = (field) => (field.kind === 'password' && field.confirm === undefined ? { ...field, confirm: true } : field);
+
+/** The literal defaults of a field: a `$params.X` token (D27b) is resolved at write time, so it is not a value to check against the kind. @param {any} f @returns {unknown[]} */
+const literalDefaults = (f) => (isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default]).filter((value) => paramToken(value) === undefined);
+
+/**
+ * A `gate: { param, in? }` (R-REG-17, D25): `param` must be a boolean key of the `GET /v1/params` payload (a number such as `PORC_IGV` is a value source,
+ * not a gate) and `in`, when given, a non-empty list.
+ * @param {string} at @param {any} gate
+ */
+function assertGate(at, gate) {
+  if (gate === undefined) return;
+  if (typeof gate?.param !== 'string') fail(at, 'gate needs a param');
+  if (!Object.hasOwn(PARAM_KEYS, gate.param)) fail(at, `gate.param "${gate.param}" is not a params key`);
+  if (!isGateParam(gate.param)) fail(at, `gate.param "${gate.param}" is a value, not a gate`);
+  if (gate.in !== undefined && (!Array.isArray(gate.in) || gate.in.length === 0)) fail(at, 'gate.in must be a non-empty list');
+  // `or`: more params that open the gate by the same test; each follows the rules of `param`.
+  if (gate.or === undefined) return;
+  if (!Array.isArray(gate.or) || gate.or.length === 0) fail(at, 'gate.or must be a non-empty list');
+  for (const param of gate.or) assertGate(at, { param });
+}
+
+/** A `$params.X` default must name a params key. @param {string} at @param {any} f */
+function assertParamDefaults(at, f) {
+  const defaults = isModeMap(f.default) ? Object.values(f.default) : [f.default];
+  for (const value of defaults) {
+    const key = paramToken(value);
+    if (key !== undefined && !Object.hasOwn(PARAM_KEYS, key)) fail(at, `default names unknown params key "${key}"`);
+  }
+}
+
+/**
+ * `follows: { field, map?, otherwise? }` (D27b): the value of the field is computed from another field of the entry (a copy, or a lookup in `map` with an `otherwise`); a `$params.X` value in
+ * `map` or `otherwise` must name a params key. The server applies it to a locked follower and the register after every edit of the source. @param {string} at @param {any} f @param {(where: string, name: string) => void} known
+ */
+function assertFollows(at, f, known) {
+  if (f.follows === undefined) return;
+  const { field, map, otherwise } = f.follows;
+  if (typeof field !== 'string') fail(at, 'follows needs a field');
+  if (field === f.name) fail(at, 'follows cannot name its own field');
+  known(`field "${f.name}" follows`, field);
+  if (map !== undefined && (typeof map !== 'object' || map === null || Array.isArray(map))) fail(at, 'follows.map must be an object');
+  for (const value of [...Object.values(map ?? {}), otherwise]) {
+    const key = paramToken(value);
+    if (key !== undefined && !Object.hasOwn(PARAM_KEYS, key)) fail(at, `follows names unknown params key "${key}"`);
+  }
+}
+
 /** A `default` given per mode (`{ INSERT: true }`) rather than as one value. @param {unknown} value */
 export const isModeMap = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -59,7 +114,7 @@ function assertOptions(at, f) {
     if (seen.has(option.value)) fail(at, `duplicate option value "${option.value}"`);
     seen.add(option.value);
   }
-  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  const defaults = literalDefaults(f);
   for (const value of defaults) if (!seen.has(value)) fail(at, `default "${value}" is not one of the options`);
 }
 
@@ -72,7 +127,7 @@ function assertNumber(at, f) {
   if (!Number.isInteger(f.scale)) fail(at, 'number needs a scale');
   if (f.max !== undefined && !(Number.isInteger(f.max) && f.max > 0)) fail(at, 'number max must be a positive integer');
   for (const bound of ['min', 'exclusiveMin']) if (f[bound] !== undefined && typeof f[bound] !== 'number') fail(at, `${bound} must be a number`);
-  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  const defaults = literalDefaults(f);
   for (const value of defaults) if (!DECIMAL_TEXT.test(String(value))) fail(at, `default "${value}" is not a number`);
   if (f.range === undefined) return;
   const { min, max } = f.range;
@@ -87,7 +142,7 @@ function assertNumber(at, f) {
  * @param {string} at @param {any} f
  */
 function assertDate(at, f) {
-  const defaults = isModeMap(f.default) ? Object.values(f.default) : f.default === undefined ? [] : [f.default];
+  const defaults = literalDefaults(f);
   for (const value of defaults) if (value !== 'today' && !isIsoDate(value)) fail(at, `default "${value}" is not today or an ISO date`);
   if (f.min !== undefined && !isIsoDate(f.min)) fail(at, `min "${f.min}" is not an ISO date`);
   if (f.notFuture !== undefined && typeof f.notFuture !== 'boolean') fail(at, 'notFuture must be a boolean');
@@ -173,10 +228,44 @@ function assertStored(where, entry, names, known) {
     if (typeof rule.target !== 'string' || rule.target === '') fail(where, 'derive needs a target');
     if (names.has(rule.target)) fail(where, `derive target "${rule.target}" is also a field`);
     if (constants && Object.hasOwn(constants, rule.target)) fail(where, `derive target "${rule.target}" is also a constant`);
+    // `fromRef` (D15): the column copies `key` of the row the select or lookup `field` points to; the server owns it.
+    if (rule.fromRef !== undefined) {
+      const source = entry.fields.find((/** @type {any} */ f) => f.name === rule.fromRef.field);
+      if (!source || !['select', 'lookup'].includes(source.kind)) fail(where, `derive fromRef must name a select or lookup field, not "${rule.fromRef.field}"`);
+      if (typeof rule.fromRef.key !== 'string' || rule.fromRef.key === '') fail(where, 'derive fromRef needs a key');
+      continue;
+    }
     if (typeof rule.when?.field !== 'string' || !Array.isArray(rule.when.in)) fail(where, 'derive needs a condition { field, in }');
     known('derive', rule.when.field);
     if (!('then' in rule) || !('else' in rule) || rule.then === undefined || rule.else === undefined) fail(where, 'derive needs then and else');
   }
+}
+
+/**
+ * `fillLabel: { target, unless? }` (R-MST-11): choosing an option of this select copies its name into the field `target`, except for the option ids in `unless`, which leave it
+ * empty to be typed (the banco OTROS of a Cliente cuenta). Client side, like `fill`: the server stores what the body carries. @param {string} at @param {any} f @param {(where: string, name: string) => void} known
+ */
+function assertFillLabel(at, f, known) {
+  if (f.fillLabel === undefined) return;
+  if (f.kind !== 'select') fail(at, 'fillLabel needs a select field');
+  if (typeof f.fillLabel.target !== 'string') fail(at, 'fillLabel needs a target field');
+  if (f.fillLabel.target === f.name) fail(at, 'fillLabel cannot target its own field');
+  known(`field "${f.name}" fillLabel`, f.fillLabel.target);
+  const { unless } = f.fillLabel;
+  if (unless !== undefined && (!Array.isArray(unless) || unless.some((/** @type {unknown} */ id) => typeof id !== 'string'))) fail(at, 'fillLabel.unless must be a list of ids');
+}
+
+const BY_PARAM_KEYS = ['required', 'filter'];
+/**
+ * `byParam: { param, in?, set }` (R-MST-11): the field takes the overrides in `set` (only `required` and `filter`) while the company parameter holds a listed value;
+ * `param` and `in` follow the gate rules. @param {string} at @param {any} f
+ */
+function assertByParam(at, f) {
+  if (f.byParam === undefined) return;
+  assertGate(at, f.byParam);
+  const set = f.byParam.set;
+  if (typeof set !== 'object' || set === null || Array.isArray(set) || Object.keys(set).length === 0) fail(at, 'byParam needs a non-empty set');
+  for (const key of Object.keys(set)) if (!BY_PARAM_KEYS.includes(key)) fail(at, `byParam.set names unknown key "${key}"`);
 }
 
 /**
@@ -217,11 +306,159 @@ function assertAcyclic(where, fields) {
 }
 
 /**
- * @param {any} raw @param {Set<string>} slugs @param {Record<string, any>} sources
+ * A lookup naming a picker (D2) takes its `search`, `columns`, `filters` and `pickLabel` from `registry/pickers.js` and its source from the picker (a static `where`
+ * of the picker or of the field narrows it); what the field declares itself wins.
+ * @param {string} at @param {any} f
  */
-function resolveEntry(raw, slugs, sources) {
+function expandPicker(at, f) {
+  if (f.picker === undefined) return f;
+  if (!Object.hasOwn(PICKERS, f.picker)) fail(at, `unknown picker "${f.picker}"`);
+  const picker = PICKERS[f.picker];
+  if (f.source?.catalog !== undefined && f.source.catalog !== picker.source) fail(at, `picker "${f.picker}" is over "${picker.source}", not "${f.source.catalog}"`);
+  const where = f.source?.where ?? picker.where;
+  return { search: picker.search, columns: picker.columns, filters: picker.filters, pickLabel: picker.pickLabel, ...f, source: { catalog: picker.source, ...(where ? { where } : {}) } };
+}
+
+/**
+ * The `columns` and `filters` of a lookup (R-REG-13). Every filter is a `text` or a `select` over a field or joined display key of the source (a select also needs
+ * its own source catalog, and may depend on another filter); a column only names its key, which the consistency spec checks against the source.
+ * @param {string} at @param {any} f @param {any} target @param {Set<string>} targetNames @param {Map<string, any>} rawBySlug @param {Record<string, any>} sources
+ */
+function assertPickerParts(at, f, target, targetNames, rawBySlug, sources) {
+  if (!Array.isArray(f.columns) || f.columns.length === 0 || f.columns.some((/** @type {any} */ c) => typeof c?.key !== 'string' || typeof c?.header !== 'string')) fail(at, 'lookup needs columns');
+  if (!Array.isArray(f.filters) || f.filters.length === 0) fail(at, 'lookup needs filters');
+  const filterFields = new Set(f.filters.map((/** @type {any} */ filter) => filter.field));
+  for (const filter of f.filters) {
+    const name = `filter "${filter.field}"`;
+    if (!['text', 'select'].includes(filter.type)) fail(at, `${name} has unknown type "${filter.type}"`);
+    if (!targetNames.has(filter.field)) fail(at, `filter names unknown field "${filter.field}" of "${target.slug}"`);
+    if (filter.type === 'select') {
+      if (!filter.source) fail(at, `${name} needs a source`);
+      // A select sends an exact key: only a declared lookupFilters key is exact on the list route (R-MOCK-20).
+      if (!Object.hasOwn(target.lookupFilters ?? {}, filter.field)) fail(at, `select ${name} must be a declared lookupFilters key of "${target.slug}"`);
+      if (!rawBySlug.has(filter.source) && !Object.hasOwn(sources, filter.source)) fail(at, `${name} names unknown catalog "${filter.source}"`);
+    }
+    if (filter.dependsOn !== undefined && !filterFields.has(filter.dependsOn.field)) fail(at, `${name} dependsOn names unknown filter "${filter.dependsOn.field}"`);
+  }
+}
+
+/**
+ * `fill: { targetField: sourceKey }` (R-REG-13): what a pick copies into the entry's own fields, each source key a field or joined display key of the
+ * source; `fillReadOnly` lists the targets the register then shows read-only. The UI does the copying; the server only stores the body.
+ * @param {string} at @param {any} f @param {Set<string>} names the entry's field names @param {any} target @param {Set<string>} targetNames
+ */
+function assertFill(at, f, names, target, targetNames) {
+  const fill = f.fill ?? {};
+  for (const [name, key] of Object.entries(fill)) {
+    if (name === f.name) fail(at, 'fill cannot name the lookup itself');
+    if (!names.has(name)) fail(at, `fill names unknown field "${name}"`);
+    if (!targetNames.has(/** @type {string} */ (key))) fail(at, `fill names unknown source key "${key}" of "${target.slug}"`);
+  }
+  for (const name of f.fillReadOnly ?? []) if (!Object.hasOwn(fill, name)) fail(at, `fillReadOnly names "${name}", which fill does not set`);
+}
+
+/**
+ * `lookup` fields (R-REG-13, D3). The source must be a registered catalog (a W1 builtin source has no search) and the field names the `search`
+ * fields of its picker, each a field or joined display key of the source. The description shown beside the code comes from a derived join
+ * `{ as, ref: <field>, display: <source optionLabel> }` (R-REG-8), named by `display` or after the field without its `id_` prefix; a join the entry already
+ * declares over the field is reused. The field keeps the join key in `display`. Replaces `entry.fields` and `entry.joins` with new values.
+ * @param {string} where @param {any} entry @param {Map<string, any>} rawBySlug @param {Record<string, any>} sources
+ */
+function applyLookups(where, entry, rawBySlug, sources) {
+  if (!entry.fields.some((/** @type {any} */ f) => f.kind === 'lookup')) return;
+  const joins = [...(entry.joins ?? [])];
+  const taken = new Set([...entry.fields.map((/** @type {any} */ f) => f.name), ...joins.map((join) => join.as)]);
+  entry.fields = entry.fields.map((/** @type {any} */ declared) => {
+    if (declared.kind !== 'lookup') return declared;
+    const at = `${where} field "${declared.name}"`;
+    const f = expandPicker(at, declared);
+    if (!f.source?.catalog) fail(at, 'lookup needs a source');
+    const target = rawBySlug.get(f.source.catalog);
+    if (!target) fail(at, Object.hasOwn(sources, f.source.catalog) ? `lookup source "${f.source.catalog}" is not a registered catalog` : `unknown catalog "${f.source.catalog}"`);
+    if (!Array.isArray(f.search) || f.search.length === 0 || f.search.some((/** @type {unknown} */ name) => typeof name !== 'string')) fail(at, 'lookup needs search fields');
+    const targetNames = new Set([...target.fields.map((/** @type {any} */ t) => t.name), ...(target.joins ?? []).map((/** @type {any} */ join) => join.as)]);
+    for (const name of f.search) if (!targetNames.has(name)) fail(at, `search names unknown field "${name}" of "${target.slug}"`);
+    assertPickerParts(at, f, target, targetNames, rawBySlug, sources);
+    assertFill(at, f, new Set(entry.fields.map((/** @type {any} */ t) => t.name)), target, targetNames);
+    const existing = joins.find((join) => join.ref === f.name);
+    if (existing) return { ...f, display: existing.as };
+    const as = f.display ?? (f.name.startsWith('id_') ? f.name.slice('id_'.length) : `${f.name}_display`);
+    if (taken.has(as)) fail(at, `display "${as}" is also a field or a join`);
+    taken.add(as);
+    joins.push({ as, ref: f.name, display: target.optionLabel ?? 'descripcion' });
+    return { ...f, display: as };
+  });
+  entry.joins = joins;
+}
+
+const ACTION_KINDS = ['deferred', 'immediate'];
+// `api` is served by the endpoints only and never rendered (the anexo `activar` / `desactivar` of S-MOCK-47..49).
+const ACTION_PLACEMENTS = { entry: ['list-toolbar', 'register', 'api'], child: ['child'] };
+const ACTION_WHEN_KEYS = ['modes', 'selection', 'row', 'noRow'];
+
+/**
+ * The `actions` of an entry or a child (R-ACT-1, R-REG-15, R-REG-20): `{ id, label, placement, flag, enabledWhen, dialog?, kind, confirm?, server?, rule? }`.
+ * The `flag` is one of the 13 permission flags (default `modify`); `enabledWhen` is `{ modes, selection, row, noRow }` over the register mode, the selected row
+ * and the rows of the grid, its conditions naming only known fields; an `immediate` action names its `server` action (R-MOCK-22) and a `deferred` one the
+ * client `rule` that changes a pending row. A `dialog` is `{ title, fields }`, its fields checked like the fields of any entry. Returns the normalized list.
+ * @param {string} where @param {any} owner the entry, or the child entry, that declares them @param {Set<string>} names the field names a condition may name
+ * @param {(raw: any) => any} resolve resolves a raw entry (the dialog's fields)
+ */
+function normalizeActions(where, owner, names, resolve) {
+  const { actions } = owner;
+  if (actions === undefined) return undefined;
+  if (!Array.isArray(actions)) fail(where, 'actions must be a list');
+  const owned = owner.parent === undefined ? 'entry' : 'child';
+  const seen = new Set();
+  return actions.map((/** @type {any} */ declared) => {
+    const at = `${where} action "${declared?.id}"`;
+    if (typeof declared?.id !== 'string' || declared.id === '') fail(where, 'an action needs an id');
+    if (declared.id === 'actions') fail(at, 'reserved name');
+    if (seen.has(declared.id)) fail(at, 'duplicate action id');
+    seen.add(declared.id);
+    if (typeof declared.label !== 'string' || declared.label.trim() === '') fail(at, 'needs a label');
+    if (!ACTION_KINDS.includes(declared.kind)) fail(at, `unknown kind "${declared.kind}"`);
+    const flag = declared.flag ?? 'modify';
+    if (!PERMISSION_FLAG_NAMES.includes(flag)) fail(at, `flag "${flag}" is not a permission flag`);
+    const placement = declared.placement ?? (owned === 'child' ? 'child' : 'register');
+    if (!Object.values(ACTION_PLACEMENTS).flat().includes(placement)) fail(at, `unknown placement "${placement}"`);
+    if (!ACTION_PLACEMENTS[owned].includes(placement)) fail(at, `placement "${placement}" is not for ${owned === 'child' ? 'a child' : 'an entry'}`);
+    if (declared.kind === 'immediate') {
+      if (typeof declared.server !== 'string' || declared.server === '') fail(at, 'an immediate action needs a server action');
+      if (declared.rule !== undefined) fail(at, 'an immediate action has no client rule');
+    } else {
+      if (typeof declared.rule !== 'string' || declared.rule === '') fail(at, 'a deferred action needs a rule');
+      if (declared.server !== undefined) fail(at, 'a deferred action has no server action');
+    }
+    // `params` are the constants the named rule reads (the entity word of the anexo messages).
+    if (declared.params !== undefined && (typeof declared.params !== 'object' || declared.params === null || Array.isArray(declared.params))) fail(at, 'params must be an object');
+    const when = declared.enabledWhen;
+    if (when !== undefined) {
+      for (const key of Object.keys(when)) if (!ACTION_WHEN_KEYS.includes(key)) fail(at, `enabledWhen names unknown key "${key}"`);
+      for (const mode of when.modes ?? []) if (!MODES.includes(mode)) fail(at, `enabledWhen names unknown mode "${mode}"`);
+      if (when.noRow !== undefined && owned !== 'child') fail(at, 'enabledWhen.noRow needs a child action');
+      for (const cond of [when.row, when.noRow].filter((c) => c !== undefined)) {
+        if (typeof cond.field !== 'string' || !Array.isArray(cond.in)) fail(at, 'enabledWhen needs conditions { field, in }');
+        if (!names.has(cond.field)) fail(at, `enabledWhen names unknown field "${cond.field}"`);
+      }
+    }
+    let dialog;
+    if (declared.dialog !== undefined) {
+      if (!Array.isArray(declared.dialog.fields) || declared.dialog.fields.length === 0) fail(at, 'dialog needs fields');
+      const raw = { slug: `${owner.slug}#${declared.id}`, idKey: 'id', codeWidth: 0, entity: owner.entity, scope: 'tenant', seed: null, messages: owner.messages, columns: [], fields: [{ name: 'id', kind: 'code', label: 'Codigo' }, ...declared.dialog.fields] };
+      dialog = { title: declared.dialog.title ?? declared.label, fields: resolve(raw).fields.filter((/** @type {any} */ f) => f.kind !== 'code') };
+    }
+    return { ...declared, placement, flag, ...(dialog && { dialog }) };
+  });
+}
+
+/**
+ * @param {any} raw @param {Set<string>} slugs @param {Record<string, any>} sources @param {Map<string, any>} rawBySlug
+ */
+function resolveEntry(raw, slugs, sources, rawBySlug) {
   const where = `entry "${raw.slug}"`;
-  const entry = { section: raw.slug, modes: MODES, ...raw, fields: raw.fields.map(applyPreset).map(withDisplay) };
+  const entry = { section: raw.slug, modes: MODES, ...raw, fields: raw.fields.map(applyPreset).map(withDisplay).map(withConfirm) };
+  applyLookups(where, entry, rawBySlug, sources);
   if (!SCOPES.includes(entry.scope)) fail(where, `unknown scope "${entry.scope}"`);
   if (!STYLES.includes(entry.messages?.style)) fail(where, `unknown messages style "${entry.messages?.style}"`);
   if (entry.seed !== null && typeof entry.seed !== 'string') fail(where, 'seed must be a file name or null (W1 section)');
@@ -237,6 +474,14 @@ function resolveEntry(raw, slugs, sources) {
     if (entry.seed !== null) fail(where, 'project needs seed null');
     if (entry.readOnly !== true) fail(where, 'project needs readOnly');
     if (entry.scope !== 'tenant') fail(where, 'project needs scope tenant');
+  }
+
+  // A backing (D15) gives a master write access to records another part of the store holds: no seed of its own, and never a projection as well.
+  if (entry.backing !== undefined) {
+    if (!Object.hasOwn(BACKINGS, entry.backing)) fail(where, `unknown backing "${entry.backing}"`);
+    if (entry.project !== undefined) fail(where, 'backing and project exclude each other');
+    if (entry.seed !== null) fail(where, 'backing needs seed null');
+    if (entry.scope !== 'tenant') fail(where, 'backing needs scope tenant');
   }
 
   const names = new Set(entry.fields.map((/** @type {any} */ f) => f.name));
@@ -257,6 +502,16 @@ function resolveEntry(raw, slugs, sources) {
       if (!slugs.has(f.source.catalog) && !Object.hasOwn(sources, f.source.catalog)) fail(at, `unknown catalog "${f.source.catalog}"`);
     }
     if (f.kind === 'options') assertOptions(at, f);
+    if (f.kind !== 'lookup') for (const key of ['fill', 'fillReadOnly']) if (f[key] !== undefined) fail(at, `${key} needs a lookup field`);
+    // A textarea is a text with visible lines (R-REG-13): `rows` is a positive integer and means nothing elsewhere.
+    if (f.kind === 'textarea') {
+      if (f.rows !== undefined && !(Number.isInteger(f.rows) && f.rows > 0)) fail(at, 'rows must be a positive integer');
+    } else if (f.rows !== undefined) fail(at, 'rows needs a textarea field');
+    // A password (R-REG-13) needs a `max` (the desktop document length) and may switch its confirmation off; neither means anything elsewhere.
+    if (f.kind === 'password') {
+      if (!(Number.isInteger(f.max) && f.max > 0)) fail(at, 'password needs a max (a positive integer)');
+      if (typeof f.confirm !== 'boolean') fail(at, 'confirm must be a boolean');
+    } else if (f.confirm !== undefined) fail(at, 'confirm needs a password field');
     if (f.kind === 'date') assertDate(at, f);
     else if (f.notFuture !== undefined) fail(at, 'notFuture needs a date field');
     if (f.kind === 'number') assertNumber(at, f);
@@ -267,6 +522,11 @@ function resolveEntry(raw, slugs, sources) {
     assertMaxWhen(at, f);
     for (const rule of f.maxWhen ?? []) known(`field "${f.name}" maxWhen`, rule.when.field);
     for (const rule of f.minLenWhen ?? []) known(`field "${f.name}" minLenWhen`, rule.when.field);
+    assertGate(at, f.gate);
+    assertByParam(at, f);
+    assertFillLabel(at, f, known);
+    assertParamDefaults(at, f);
+    assertFollows(at, f, known);
     if (f.blankToDefault && f.default === undefined) fail(at, 'blankToDefault needs a default');
     for (const mode of f.readOnlyOn ?? []) if (!MODES.includes(mode)) fail(at, `readOnlyOn names unknown mode "${mode}"`);
     if (isModeMap(f.default)) for (const mode of Object.keys(f.default)) if (!MODES.includes(mode)) fail(at, `default names unknown mode "${mode}"`);
@@ -296,6 +556,7 @@ function resolveEntry(raw, slugs, sources) {
   }
   assertAcyclic(where, entry.fields);
   assertStored(where, entry, names, known);
+  assertAggregate(where, entry);
   for (const column of entry.columns) {
     // `<name>_label` is the label the server adds beside an options field (R-MOCK-14).
     const base = column.key.endsWith('_label') ? column.key.slice(0, -'_label'.length) : undefined;
@@ -303,6 +564,8 @@ function resolveEntry(raw, slugs, sources) {
       fail(where, `column "${column.key}" has no options field "${base}"`);
     }
     if (column.type !== undefined && !COLUMN_TYPES.includes(column.type)) fail(where, `column "${column.key}" has unknown type "${column.type}"`);
+    // A column gated by a company parameter is left out of the list while it is off (R-MST-10: CONDICION PAGO, NUMERO DIAS).
+    assertGate(`${where} column "${column.key}"`, column.gate);
   }
 
   for (const key of entry.unique ?? []) {
@@ -310,12 +573,21 @@ function resolveEntry(raw, slugs, sources) {
     known('unique', key.errorField);
   }
   for (const join of entry.joins ?? []) known('joins', join.ref);
+  // `search` (R-REG-16): the fields or joined display keys the free-text `q` looks in.
+  if (entry.search !== undefined) {
+    if (!Array.isArray(entry.search) || entry.search.some((/** @type {unknown} */ name) => typeof name !== 'string')) fail(where, 'search must be a list of field names');
+    for (const name of entry.search) {
+      if (!names.has(name) && !(entry.joins ?? []).some((/** @type {any} */ join) => join.as === name)) fail(where, `search names unknown field "${name}"`);
+    }
+  }
   // `optionLabel` is a field name, or a list of them joined with " - " (the tabla SUNAT shows as `nombre - descripcion`).
   if (entry.optionLabel !== undefined) {
     const labels = entry.optionLabel;
     if (Array.isArray(labels) ? labels.some((name) => typeof name !== 'string') : typeof labels !== 'string') fail(where, 'optionLabel must be a field name or a list of field names');
     if (Array.isArray(labels) && labels.length === 0) fail(where, 'optionLabel needs at least one field');
-    for (const name of [labels].flat()) known('optionLabel', name);
+    // A stored-only column a `derive` rule computes (the Usuario nombre) is a valid label too.
+    const derived = new Set((entry.derive ?? []).map((/** @type {any} */ d) => d.target));
+    for (const name of [labels].flat()) if (!derived.has(name)) known('optionLabel', name);
   }
   const byName = new Map(entry.fields.map((/** @type {any} */ f) => [f.name, f]));
   for (const { name, params } of entry.rules ?? []) {
@@ -337,7 +609,8 @@ function resolveEntry(raw, slugs, sources) {
   }
 
   // A transient select is a form-only level: it has no ref, and a parent that is transient is not one the server can check.
-  const selects = entry.fields.filter((/** @type {any} */ f) => f.kind === 'select' && !f.transient);
+  // A `lookup` is a ref like a select (R-REG-13, R-REG-6): it is checked against its source and its parents.
+  const selects = entry.fields.filter((/** @type {any} */ f) => (f.kind === 'select' || f.kind === 'lookup') && !f.transient);
   const transient = new Set(entry.fields.filter((/** @type {any} */ f) => f.transient).map((/** @type {any} */ f) => f.name));
   // Refs come from the field `source` and its `dependsOn` parents (R-REG-6).
   const refs = selects.map((/** @type {any} */ f) => ({
@@ -348,11 +621,17 @@ function resolveEntry(raw, slugs, sources) {
     parents: (f.dependsOn ?? []).filter((/** @type {any} */ p) => !transient.has(p.field)),
   }));
   // Default order (D10): fields, then refs, then unique keys.
-  const steps = entry.validation ?? [
+  const declared = entry.validation ?? [
     ...entry.fields.filter((/** @type {any} */ f) => f.kind !== 'code').map((/** @type {any} */ f) => f.name),
     ...selects.map((/** @type {any} */ f) => ({ ref: f.name })),
     ...(entry.unique ?? []).map((/** @type {any} */ _k, /** @type {number} */ i) => ({ unique: i })),
   ];
+  // A lookup is a ref the desktop never checks (the Vehiculo propietario): an explicit `validation` that leaves it out still gets it as a trailing step, so a
+  // propietario that is not an active transportista is a 422 on the field and the declared order of the desktop checks stays as written (W3-10, S-MST-12).
+  const refSteps = declared.some((/** @type {any} */ s) => typeof s === 'object' && 'ref' in s);
+  const named = new Set(declared.map((/** @type {any} */ s) => (typeof s === 'string' ? s : s.ref)));
+  const trailing = entry.validation === undefined ? [] : selects.filter((/** @type {any} */ f) => f.kind === 'lookup' && !named.has(f.name)).map((/** @type {any} */ f) => (refSteps ? { ref: f.name } : f.name));
+  const steps = [...declared, ...trailing];
   for (const step of steps) {
     if (typeof step === 'string') known('validation', step);
     else if ('unique' in step) {
@@ -373,7 +652,209 @@ function resolveEntry(raw, slugs, sources) {
     Object.defineProperty(ruled, 'ruleState', { value: (/** @type {any} */ values) => ruleStates(entry, values)[f.name], enumerable: false });
     return ruled;
   });
-  return { ...entry, fields, refs, steps };
+  // The row actions (R-ACT-1): a condition may name a field of the entry; a child row also has its `id` and `estado`.
+  const actions = normalizeActions(where, entry, new Set([...names, ...(entry.parent === undefined ? [] : ['id', 'estado'])]), (dialogEntry) => resolveEntry(dialogEntry, slugs, sources, rawBySlug));
+  return { ...entry, fields, refs, steps, ...(actions && { actions }) };
+}
+
+/**
+ * `aggregate: [{ as, child, op, field?, where? }]` (D27a): a count or sum over the rows of a declared child. `as` is a read-only column the server adds to every answer, so it may
+ * name a `number` field (the Credito total of the register) but never a stored field of another kind; a sum names a field of the child.
+ * @param {string} at @param {any} entry
+ */
+function assertAggregate(at, entry) {
+  if (entry.aggregate === undefined) return;
+  if (!Array.isArray(entry.aggregate)) fail(at, 'aggregate must be a list');
+  const kids = childList(entry);
+  const seen = new Set();
+  for (const def of entry.aggregate) {
+    const name = `aggregate "${def?.as}"`;
+    if (typeof def?.as !== 'string' || def.as === '') fail(at, 'an aggregate needs an as');
+    if (seen.has(def.as)) fail(at, `duplicate aggregate "${def.as}"`);
+    seen.add(def.as);
+    const target = entry.fields.find((/** @type {any} */ f) => f.name === def.as);
+    if (target && target.kind !== 'number') fail(at, `${name} is also a field with a kind other than number`);
+    const child = kids.find((/** @type {any} */ k) => k.name === def.child);
+    if (!child) fail(at, `${name} names unknown child "${def.child}"`);
+    if (!AGGREGATE_OPS.includes(def.op)) fail(at, `${name} has unknown op "${def.op}"`);
+    if (def.op === 'sum') {
+      if (typeof def.field !== 'string') fail(at, `${name} needs a field to sum`);
+      if (!(child.fields ?? []).some((/** @type {any} */ f) => f.name === def.field)) fail(at, `${name} names unknown field "${def.field}" of child "${def.child}"`);
+    }
+  }
+}
+
+const REMOVALS = ['deactivate', 'delete', 'none'];
+const QUITAR_KEYS = ['none', 'confirm', 'already'];
+
+/**
+ * The first row the server creates for every new parent of a child (the `INICIO` activation, R-MD-9): stored field values.
+ * @param {string} at @param {any} initial @param {Set<string>} fieldNames
+ */
+function assertInitial(at, initial, fieldNames) {
+  if (initial === undefined) return;
+  if (typeof initial !== 'object' || initial === null || Array.isArray(initial)) fail(at, 'initial must be an object');
+  for (const name of Object.keys(initial)) if (!fieldNames.has(name)) fail(at, `initial names unknown field "${name}"`);
+}
+
+/**
+ * The grid messages of a child `Quitar` (R-MD-4): `none` (no selected row), `confirm` (the question; absent when the desktop did not ask) and
+ * `already` (a deactivated row pressed again). @param {string} at @param {any} quitar
+ */
+function assertQuitar(at, quitar) {
+  if (quitar === undefined) return;
+  if (typeof quitar !== 'object' || quitar === null || Array.isArray(quitar)) fail(at, 'quitar must be an object');
+  for (const [key, text] of Object.entries(quitar)) {
+    if (!QUITAR_KEYS.includes(key)) fail(at, `quitar names unknown key "${key}"`);
+    if (typeof text !== 'string' || text.trim() === '') fail(at, `quitar.${key} must be a non-empty text`);
+  }
+}
+/**
+ * The register layout tabs of an entry (R-MD-1): `[{ title, fields }]`, the extra field tabs after `General` (which keeps every field no tab lists). A title is a
+ * non-empty text that is neither `General` nor another layout or child tab; its fields are a non-empty list of fields of the entry, each placed once (the code is never placed).
+ * @param {string} at @param {any} entry
+ */
+function assertLayout(at, entry) {
+  const layout = entry.layout;
+  // `generalTab` renames the base tab (the Item `Datos de Item`): a non-empty text no child tab already uses.
+  if (entry.generalTab !== undefined) {
+    if (typeof entry.generalTab !== 'string' || entry.generalTab.trim() === '') fail(at, 'generalTab must be a non-empty text');
+    if (childList(entry).some((/** @type {any} */ c) => c.tab === entry.generalTab)) fail(at, `generalTab "${entry.generalTab}" is also a child tab`);
+  }
+  if (layout === undefined) return;
+  if (!Array.isArray(layout) || layout.length === 0) fail(at, 'layout must be a non-empty list');
+  const childTabs = childList(entry).map((/** @type {any} */ c) => c.tab);
+  const titles = new Set();
+  const placed = new Set();
+  for (const tab of layout) {
+    if (typeof tab?.title !== 'string' || tab.title.trim() === '') fail(at, 'layout tab needs a title');
+    if (tab.title === (entry.generalTab ?? 'General')) fail(at, `layout tab "${tab.title}" is the base tab`);
+    if (titles.has(tab.title)) fail(at, `layout tab "${tab.title}" is repeated`);
+    if (childTabs.includes(tab.title)) fail(at, `layout tab "${tab.title}" is also a child tab`);
+    titles.add(tab.title);
+    if (!Array.isArray(tab.fields) || tab.fields.length === 0) fail(at, `layout tab "${tab.title}" needs a non-empty list of fields`);
+    for (const name of tab.fields) {
+      const field = entry.fields.find((/** @type {any} */ f) => f.name === name);
+      if (!field) fail(at, `layout tab "${tab.title}" names unknown field "${name}"`);
+      if (field.kind === 'code') fail(at, `layout tab "${tab.title}" cannot place the code field "${name}"`);
+      if (placed.has(name)) fail(at, `layout places field "${name}" twice`);
+      placed.add(name);
+    }
+  }
+}
+
+// `none`: the grid has no Agregar; its rows come from the actions (the activation history).
+const CHILD_ENTRIES = ['dialog', 'inline', 'none', 'picker'];
+
+/**
+ * `pick: { picker, field, message, copy? }` of a `picker` child (R-MST-12): `Agregar` opens the named picker (`registry/pickers.js`) instead of a dialog; a pick adds a row whose `field`
+ * holds the id of the picked row and whose `copy` columns (`{ column: pickerKey }`) hold the display values the grid shows before the save; `message` is the host veto text of the
+ * picker (the cliente is already in the grid). `reactivable` lets a composite `A` op set a deactivated row active again (a child that is never removed by deletion otherwise only closes).
+ * @param {string} at @param {any} def @param {string} entry @param {Set<string>} fieldNames
+ */
+function assertPick(at, def, entry, fieldNames) {
+  if (def.reactivable !== undefined && typeof def.reactivable !== 'boolean') fail(at, 'reactivable must be a boolean');
+  // `closeDate` names the row column a deactivation fills with today (the Item almacen closes its F_FIN: `desactivarAlmacen` sets `fechaFin`); it is a column of the grid, not a field of the dialog.
+  if (def.closeDate !== undefined && (typeof def.closeDate !== 'string' || def.closeDate === '')) fail(at, 'closeDate must be a column name');
+  if ((entry === 'picker') !== (def.pick !== undefined)) fail(at, 'a picker child needs pick, and only a picker child takes it');
+  if (def.pick === undefined) return;
+  const { picker, field, message, copy = {} } = def.pick;
+  if (!Object.hasOwn(PICKERS, picker)) fail(at, `pick names unknown picker "${picker}"`);
+  if (!fieldNames.has(field)) fail(at, `pick names unknown field "${field}"`);
+  if (typeof message !== 'string' || message === '') fail(at, 'pick needs a message');
+  for (const [column, key] of Object.entries(copy)) {
+    if (typeof key !== 'string') fail(at, `pick copy "${column}" needs a picker key`);
+  }
+}
+/** Route words and row keys a child name or field may not take (R-REG-14, R-REG-20). */
+const RESERVED_CHILD_NAMES = ['actions', 'menu', 'permisos'];
+const RESERVED_CHILD_FIELDS = ['id', 'estado', 'op'];
+
+/** The children of an entry as an ordered `{ name, ...def }` list: a map (R-REG-14) or a list, which can repeat a name. @param {any} parent */
+const childList = (parent) =>
+  Array.isArray(parent.children) ? parent.children : Object.entries(parent.children ?? {}).map(([name, def]) => ({ ...(/** @type {any} */ (def)), name }));
+
+/** What a store child takes from its owning entry instead of declaring it. */
+const OWNER_PARTS = ['fields', 'unique', 'joins', 'validation', 'refs'];
+
+/**
+ * `entryFields: [{ name, message? }]` of a store child (R-REG-14): the owner's fields the entry of its parent shows, in order, each with an optional required message.
+ * @param {string} at @param {any} view @param {any} owner @param {string} ownerSlug @param {string} key @returns {{ name: string, message?: string }[]}
+ */
+function assertEntryFields(at, view, owner, ownerSlug, key) {
+  if (view === undefined) return [];
+  if (!Array.isArray(view) || view.length === 0) fail(at, 'entryFields needs a list of fields');
+  for (const { name } of view) {
+    if (!owner.fields.some((/** @type {any} */ f) => f.name === name)) fail(at, `entryFields names unknown field "${name}" of "${ownerSlug}"`);
+    if (name === owner.idKey) fail(at, `entryFields cannot name the code "${name}"`);
+    if (name === key) fail(at, `entryFields cannot name the parent key "${key}"`);
+  }
+  return view;
+}
+
+/**
+ * The internal entry of a store child: the owning entry under the slug `parent/name`, linked to the parent through `store.key`.
+ * @param {any} parent @param {any} def @param {string} at @param {string} removal @param {string} entry @param {Map<string, any>} resolved @param {(raw: any) => any} resolve
+ */
+function storeChild(parent, def, at, removal, entry, resolved, resolve) {
+  const { entry: ownerSlug, key } = def.store;
+  if (typeof ownerSlug !== 'string' || typeof key !== 'string' || key === '') fail(at, 'store needs an entry and a key');
+  const owner = resolved.get(ownerSlug);
+  if (!owner) fail(at, `store names unknown entry "${ownerSlug}"`);
+  if (ownerSlug === parent.slug) fail(at, 'store cannot name its own parent');
+  for (const part of OWNER_PARTS) if (def[part] !== undefined) fail(at, `a store child takes ${part} from "${ownerSlug}"`);
+  const { menu: _menu, children: _children, actions: _actions, ...rest } = owner;
+  const slug = `${parent.slug}/${def.name}`;
+  // The nested route binds every row to its parent, so the parent key is never ref-checked again; `entryFields` (W3-10) picks, orders and words the fields of the entry.
+  const view = assertEntryFields(at, def.entryFields, owner, ownerSlug, key);
+  const names = view.map((/** @type {any} */ v) => v.name);
+  const words = new Map(view.filter((/** @type {any} */ v) => v.message !== undefined).map((/** @type {any} */ v) => [v.name, v.message]));
+  const fields = owner.fields.map((/** @type {any} */ f) => (words.has(f.name) ? { ...f, message: words.get(f.name) } : f));
+  const owned = owner.steps.filter((/** @type {any} */ s) => s !== key && !(typeof s === 'object' && s.ref === key));
+  const steps = view.length === 0 ? owned : [...names, ...owned.filter((/** @type {any} */ s) => !(typeof s === 'string' && names.includes(s)))];
+  const actions = normalizeActions(at, { actions: def.actions, parent: parent.slug, slug, entity: owner.entity, messages: owner.messages }, new Set([...owner.fields.map((/** @type {any} */ f) => f.name), 'id', 'estado']), resolve);
+  return { ...rest, fields, steps, ...(view.length > 0 && { entryFields: names }), ...(actions && { actions }), slug, parent: parent.slug, childName: def.name, parentKey: key, seed: null, removal, entry, store: def.store, tab: def.tab, gate: def.gate, quitar: def.quitar, columns: def.columns ?? owner.columns };
+}
+
+/**
+ * Expands the children of a resolved parent into internal entries (D5): slug `parent/name` (no single-segment route reaches it), the parent's scope,
+ * stamp, formId and flags, a `id` code, the parent key as link column and a constant `estado`. Each goes through `resolveEntry`, so unknown field names in
+ * `unique`, `joins`, `columns` and `validation` fail like in a top-level entry.
+ * A `store: { entry, key }` child is a filtered view of another entry's section (R-REG-14): it takes the owner's rows and rules, links its rows to the
+ * parent through `key`, and has no seed of its own.
+ * @param {any} parent @param {Set<string>} slugs @param {Record<string, any>} sources @param {Map<string, any>} rawBySlug @param {Map<string, any>} resolved the resolved top-level entries
+ */
+function expandChildren(parent, slugs, sources, rawBySlug, resolved) {
+  const seen = new Set();
+  return childList(parent).map((/** @type {any} */ def) => {
+    const at = `entry "${parent.slug}" child "${def.name}"`;
+    if (seen.has(def.name)) fail(at, 'duplicate child name');
+    seen.add(def.name);
+    if (RESERVED_CHILD_NAMES.includes(def.name)) fail(at, 'reserved name');
+    if (parent.fields.some((/** @type {any} */ f) => f.name === def.name)) fail(at, 'collides with a field of the parent');
+    const removal = def.removal ?? 'delete';
+    if (!REMOVALS.includes(removal)) fail(at, `unknown removal "${removal}"`);
+    const entry = def.entry ?? 'dialog';
+    if (!CHILD_ENTRIES.includes(entry)) fail(at, `unknown entry "${entry}"`);
+    assertGate(at, def.gate);
+    assertQuitar(at, def.quitar);
+    for (const f of def.fields ?? []) {
+      if ([...RESERVED_CHILD_FIELDS, parent.idKey].includes(f.name)) fail(`${at} field "${f.name}"`, 'reserved name');
+    }
+    const resolve = (/** @type {any} */ raw) => resolveEntry(raw, slugs, sources, rawBySlug);
+    if (def.entryFields !== undefined && def.store === undefined) fail(at, 'entryFields needs a store child');
+    if (def.store !== undefined) return storeChild(parent, def, at, removal, entry, resolved, resolve);
+    const fieldNames = new Set((def.fields ?? []).map((/** @type {any} */ f) => f.name));
+    assertInitial(at, def.initial, fieldNames);
+    assertPick(at, def, entry, fieldNames);
+    for (const ref of def.refs ?? []) if (!fieldNames.has(ref.field)) fail(`entry "${parent.slug}/${def.name}"`, `refs names unknown field "${ref.field}"`);
+    const { name, refs: _refs, ...rest } = def;
+    return resolveEntry({
+      entity: parent.entity, messages: parent.messages, ...rest, slug: `${parent.slug}/${name}`, section: `${parent.section}/${name}`, parent: parent.slug, childName: name,
+      parentKey: parent.idKey, idKey: 'id', codeWidth: 0, scope: parent.scope, seed: null, stamp: parent.stamp, formId: parent.formId, readOnly: parent.readOnly,
+      removal, entry, constants: { estado: 'A' }, fields: [{ name: 'id', kind: 'code', label: 'Codigo' }, ...(def.fields ?? [])], columns: def.columns ?? [],
+    }, slugs, sources, rawBySlug);
+  });
 }
 
 /**
@@ -393,8 +874,9 @@ export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {})
     }
   }
   const slugs = new Set(rawEntries.map((e) => e.slug));
+  const rawBySlug = new Map(rawEntries.map((e) => [e.slug, e]));
   /** @type {any[]} */
-  const entries = rawEntries.map((raw) => resolveEntry(raw, slugs, sources));
+  const entries = rawEntries.map((raw) => resolveEntry(raw, slugs, sources, rawBySlug));
   for (const entry of entries) {
     for (const { via } of Object.values(entry.lookupFilters ?? {}).filter((/** @type {any} */ f) => f.via)) {
       const target = entries.find((e) => e.slug === via.catalog);
@@ -409,5 +891,9 @@ export function validateRegistry(rawEntries, { sources = BUILTIN_SOURCES } = {})
       }
     }
   }
-  return { entries, bySlug: /** @type {Map<string, any>} */ (new Map(entries.map((e) => [e.slug, e]))), sources };
+  for (const entry of entries) assertLayout(`entry "${entry.slug}"`, entry);
+  const resolved = new Map(entries.map((e) => [e.slug, e]));
+  // A child is reachable by `bySlug` under `parent/name` only; it is not a top-level entry (no menu, no form, no route of its own).
+  const childEntries = entries.flatMap((entry) => (entry.children === undefined ? [] : expandChildren(entry, slugs, sources, rawBySlug, resolved)));
+  return { entries, childEntries, bySlug: /** @type {Map<string, any>} */ (new Map([...entries, ...childEntries].map((e) => [e.slug, e]))), sources };
 }

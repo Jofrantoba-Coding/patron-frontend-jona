@@ -198,9 +198,11 @@ const W1_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { empresa: 'ten
  * user (the line is commented out) and `listarSocio(0, "")` takes no empresa.
  */
 const DOC_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { choferes: 'tenant', socios: 'tenant' };
+/** The Wave 3 masters (R-MST-18 exception 3): each audited from its Register file (`mantBanco` passes the session user and no empresa). */
+const MASTER_SCOPE: Record<string, 'empresa' | 'stamp' | 'tenant'> = { bancos: 'tenant', trabajadores: 'stamp', vendedores: 'tenant', transportistas: 'tenant', proveedores: 'tenant', clientes: 'tenant', items: 'empresa', usuarios: 'tenant' };
 
 describe('W2 reference catalogs are registered', () => {
-  it.each(Object.entries({ ...SCOPE, ...W1_SCOPE, ...DOC_SCOPE }))('5.6b %s keeps its audited empresa scope', (slug, scope) => {
+  it.each(Object.entries({ ...SCOPE, ...W1_SCOPE, ...DOC_SCOPE, ...MASTER_SCOPE }))('5.6b %s keeps its audited empresa scope', (slug, scope) => {
     const entry = REGISTRY.bySlug.get(slug);
     const decided = entry.scope === 'empresa' ? 'empresa' : (entry.stamp ?? []).includes('id_empresa') ? 'stamp' : 'tenant';
     expect(decided).toBe(scope);
@@ -209,7 +211,7 @@ describe('W2 reference catalogs are registered', () => {
   it('5.6b the audit covers every reference catalog', () => {
     expect(Object.keys(SCOPE).sort()).toEqual(Object.keys(ENTITIES).sort());
     // Every other entry is Localidad (compat), a read-only lookup (shared, or the per-tenant usuarios and trabajadores) or one of the two W1-section entries.
-    expect(REGISTRY.entries.filter((e: any) => !e.readOnly && !e.compat && !(e.slug in SCOPE)).map((e: any) => e.slug).sort()).toEqual([...Object.keys(W1_SCOPE), ...Object.keys(DOC_SCOPE)].sort());
+    expect(REGISTRY.entries.filter((e: any) => !e.readOnly && !e.compat && !(e.slug in SCOPE)).map((e: any) => e.slug).sort()).toEqual([...Object.keys(W1_SCOPE), ...Object.keys(DOC_SCOPE), ...Object.keys(MASTER_SCOPE)].sort());
   });
 
   it.each(Object.entries(REFS))('R-REG-6 %s refs its desktop source', (path, [catalog, where]) => {
@@ -307,10 +309,10 @@ describe('W2 reference catalogs are registered', () => {
     expect([entry.stamp, entry.scope, field('estado').default]).toEqual([['id_usuario'], 'tenant', { INSERT: true }]);
   });
 
-  it('S-REF-39 vehiculos has no propietario picker: the form is marca, modelo, placa, constancia, peso and estado', () => {
+  it('S-REF-39 (modified by R-MST-6) vehiculos: the form is marca, modelo, placa, constancia, peso, the Propietario lookup and estado', () => {
     const fields = toCatalogConfig(REGISTRY.bySlug.get('vehiculos')).fields;
-    expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_vehiculo', 'select:id_marca', 'select:id_modelo', 'text:placa', 'text:constancia_inscripcion', 'number:peso', 'boolean:estado']);
-    expect(fields.map((f: any) => f.label)).toEqual(['Código', 'Marca', 'Modelo', 'Placa', 'Const inscripcion', 'Peso(KG)', 'Activo']);
+    expect(fields.map((f: any) => `${f.kind}:${f.name}`)).toEqual(['code:id_vehiculo', 'select:id_marca', 'select:id_modelo', 'text:placa', 'text:constancia_inscripcion', 'number:peso', 'lookup:id_anexo_empresa_transportista', 'boolean:estado']);
+    expect(fields.map((f: any) => f.label)).toEqual(['Código', 'Marca', 'Modelo', 'Placa', 'Const inscripcion', 'Peso(KG)', 'Propietario', 'Activo']);
   });
 
   it('S-REF-17 / S-CRUD-40 usuario-correlativos keeps the desktop order, the label style and the multi-parent chain', () => {

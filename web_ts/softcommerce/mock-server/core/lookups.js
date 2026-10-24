@@ -9,10 +9,11 @@ import { ACTIVE_KEY, existsRow, rowsOf, viaValue } from './validators.js';
  * the static `where` those selects declare (the UI forwards them as parameters).
  * @param {any} store @param {any} target
  */
-function acceptedKeys(store, target) {
+export function acceptedKeys(store, target) {
   const keys = new Set([...target.refs.map((/** @type {any} */ ref) => ref.field), ...Object.keys(target.lookupFilters ?? {})]);
-  for (const entry of store.registry.entries) {
-    for (const f of entry.fields.filter((/** @type {any} */ f) => f.kind === 'select' && f.source.catalog === target.slug)) {
+  // The selects of a child entry (the padron of a Proveedor) count too: their `where` keys are valid filters of the source.
+  for (const entry of [...store.registry.entries, ...(store.registry.childEntries ?? [])]) {
+    for (const f of entry.fields.filter((/** @type {any} */ f) => (f.kind === 'select' || f.kind === 'lookup') && f.source.catalog === target.slug)) {
       for (const parent of f.dependsOn ?? []) keys.add(parent.filterKey);
       for (const key of Object.keys(f.source.where ?? {})) keys.add(key);
     }
@@ -24,7 +25,14 @@ function acceptedKeys(store, target) {
  * The option name of a row: the `optionLabel` field, or several joined with " - " (an empty one is left out).
  * @param {any} entry @param {any} row
  */
-const labelOf = (entry, row) => [entry.optionLabel ?? 'descripcion'].flat().map((name) => String(row[name] ?? '')).filter(Boolean).join(' - ');
+const labelOf = (entry, row) => joinLabel(entry.optionLabel ?? 'descripcion', row);
+
+/**
+ * The text a display names: one field of the row, or several joined with " - " (an empty one is left out). A derived lookup join (D3) shows the
+ * `optionLabel` of its source through this.
+ * @param {string | string[]} display @param {any} row
+ */
+export const joinLabel = (display, row) => [display].flat().map((name) => String(row[name] ?? '')).filter(Boolean).join(' - ');
 
 /**
  * Options of a registry catalog for a select (R-MOCK-16): active rows only, each

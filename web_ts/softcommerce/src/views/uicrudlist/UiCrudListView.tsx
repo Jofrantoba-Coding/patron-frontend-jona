@@ -1,5 +1,6 @@
 // Layer: View. Pure render of props already resolved by the Impl; no state, effects or services.
 import { JAlert, JButton, JTextBox } from 'jona-ui';
+import { GuardedOptionPane } from '../uishell/DialogStackProvider';
 import { CrudGrid } from '../../shared/ui/CrudGrid';
 import { CrudToolbar } from '../../shared/ui/CrudToolbar';
 import { UICRUDLIST_DEFAULTS, type InterUiCrudList } from './InterUiCrudList';
@@ -18,6 +19,18 @@ export function UiCrudListView<T>(props: UiCrudListViewProps<T>) {
         shortcutScope={props.shortcutScope}
         shortcutsBlocked={props.shortcutsBlocked}
       />
+      {props.listActions && props.listActions.length > 0 && (
+        <div role="toolbar" aria-label="Acciones de lista" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {props.listActions.map(({ id, label, enabled }) => (
+            <JButton key={id} variant="outline" className="min-h-11 sm:min-h-9" disabled={!enabled} onClick={() => props.onListAction?.(id)}>
+              {label}
+            </JButton>
+          ))}
+        </div>
+      )}
+      {props.notice && (
+        <GuardedOptionPane open variant="info" title={props.notice.title} description={props.notice.message} confirmLabel="Aceptar" cancelLabel="Cerrar" onConfirm={() => props.onCloseNotice?.()} onClose={() => props.onCloseNotice?.()} />
+      )}
       <JTextBox aria-label={filterLabel} value={props.filterText} onChange={props.onFilterChange} />
       {status === 'loading' && <p>{loadingLabel}</p>}
       {status === 'failed' && (

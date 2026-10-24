@@ -4,7 +4,7 @@ import { CRUDGRID_DEFAULTS, type InterCrudGrid } from './InterCrudGrid';
 
 export function CrudGrid<T>(props: InterCrudGrid<T>) {
   const { ariaLabel, columns, rows, idKey, selectedId, sort, page, pageCount } = { ...CRUDGRID_DEFAULTS, ...props };
-  const { onRowSelect, onRowOpen, onSortChange, onPageChange } = props;
+  const { onRowSelect, onRowOpen, onSortChange, onPageChange, renderCell, hidePagination } = props;
   return (
     <div style={{ display: 'grid', gap: 8 }}>
       <JTable aria-label={ariaLabel}>
@@ -34,14 +34,14 @@ export function CrudGrid<T>(props: InterCrudGrid<T>) {
                 onDoubleClick={() => onRowOpen?.(id)}
               >
                 {columns.map(({ key }) => (
-                  <JTableCell key={key}>{String(row[key] ?? '')}</JTableCell>
+                  <JTableCell key={key}>{renderCell?.(row, key) ?? String(row[key] ?? '')}</JTableCell>
                 ))}
               </JTableRow>
             );
           })}
         </JTableBody>
       </JTable>
-      <JPagination currentPage={page} totalPages={pageCount} onPageChange={onPageChange} />
+      {!hidePagination && <JPagination currentPage={page} totalPages={pageCount} onPageChange={onPageChange} />}
     </div>
   );
 }

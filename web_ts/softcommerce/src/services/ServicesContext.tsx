@@ -8,6 +8,11 @@ export function ServicesProvider({ services, children }: { services: AppServices
   return <ServicesContext.Provider value={services}>{children}</ServicesContext.Provider>;
 }
 
+/** The composed services, or `undefined` outside a provider (a register without lookup fields needs none). */
+export function useOptionalServices(): AppServices | undefined {
+  return useContext(ServicesContext);
+}
+
 export function useServices(): AppServices {
   const services = useContext(ServicesContext);
   if (!services) throw new Error('useServices needs a ServicesProvider.');

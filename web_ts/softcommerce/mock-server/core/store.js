@@ -1,4 +1,5 @@
 import { REGISTRY } from '../registry/index.js';
+import { BACKINGS } from '../registry/backings.js';
 import { PROJECTIONS } from '../registry/project.js';
 import { MockError } from './errors.js';
 
@@ -9,11 +10,38 @@ import { MockError } from './errors.js';
  */
 
 /** W1 seed sections keyed by tenant id; registry entries (Localidad included) add theirs by scope. */
-const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'params'];
+const TENANT_SECTIONS = ['empresas', 'puntosVenta', 'params', 'perfil-overrides', 'socio-acciones-precios', 'socio-acciones-socios'];
 
 /** @param {ReturnType<typeof import('../registry/schema.js').validateRegistry>} registry @param {boolean} shared */
 const sectionsOf = (registry, shared) =>
-  registry.entries.filter((e) => (e.scope === 'shared') === shared).map((e) => e.section);
+  [...registry.entries, ...(registry.childEntries ?? []).filter((c) => c.store === undefined)].filter((e) => (e.scope === 'shared') === shared).map((e) => e.section);
+
+/**
+ * Splits the child rows nested in the parent seed rows (R-REG-14) into the child sections: each child row links to its parent through
+ * `parentKey`, takes the parent's `id_empresa` when the scope is `empresa`, and gets the next id when the seed gives none. Returns the
+ * parent rows without the nested lists, so a parent section never holds child data.
+ * @param {ReturnType<typeof import('../registry/schema.js').validateRegistry>} registry @param {any} parent @param {any[]} rows
+ * @returns {{ parents: any[], children: Record<string, any[]> }}
+ */
+function splitChildren(registry, parent, rows) {
+  // A store child has no section or seed of its own: its rows are the owning entry's (R-REG-14).
+  const kids = (registry.childEntries ?? []).filter((c) => c.parent === parent.slug && c.store === undefined);
+  /** @type {Record<string, any[]>} */
+  const children = Object.fromEntries(kids.map((c) => [c.section, []]));
+  const parents = rows.map((row) => {
+    const { ...rest } = row;
+    for (const kid of kids) {
+      const nested = rest[kid.childName];
+      delete rest[kid.childName];
+      for (const child of nested ?? []) {
+        const id = child.id ?? String(children[kid.section].length + 1);
+        children[kid.section].push({ ...child, id, [kid.parentKey]: row[parent.idKey], ...(kid.scope === 'empresa' ? { id_empresa: row.id_empresa } : {}), estado: child.estado ?? 'A' });
+      }
+    }
+    return rest;
+  });
+  return { parents, children };
+}
 
 /**
  * Builds an independent mutable copy of the seed. Store sections come from the
@@ -30,17 +58,28 @@ function snapshot(seed, registry) {
     tenants[id] = /** @type {TenantData} */ (
       Object.fromEntries(tenantSections.map((s) => [s, structuredClone(seed[s]?.[id] ?? [])]))
     );
+    for (const parent of registry.entries.filter((e) => e.scope !== 'shared' && e.children !== undefined)) {
+      const { parents, children } = splitChildren(registry, parent, tenants[id][parent.section]);
+      tenants[id][parent.section] = parents;
+      Object.assign(tenants[id], children);
+    }
     // A projected entry (the auth users) takes its rows from another seed section, so there is one source (R-REG-2).
     for (const entry of registry.entries.filter((e) => e.project !== undefined)) tenants[id][entry.section] = PROJECTIONS[entry.project].rows(seed, id);
+  }
+  const shared = Object.fromEntries(sectionsOf(registry, true).map((s) => [s, structuredClone(seed[s] ?? [])]));
+  for (const parent of registry.entries.filter((e) => e.scope === 'shared' && e.children !== undefined)) {
+    const { parents, children } = splitChildren(registry, parent, shared[parent.section]);
+    shared[parent.section] = parents;
+    Object.assign(shared, children);
   }
   return {
     tenantList: /** @type {Tenant[]} */ (structuredClone(seed.tenants)),
     shared: /** @type {SharedData} */ ({
-      users: structuredClone(seed.users),
+      users: BACKINGS.users.seed(structuredClone(seed.users)),
       menu: structuredClone(seed.menu),
       permissions: structuredClone(seed.permissions),
       ubigeo: structuredClone(seed.ubigeo),
-      ...Object.fromEntries(sectionsOf(registry, true).map((s) => [s, structuredClone(seed[s] ?? [])])),
+      ...shared,
     }),
     tenants,
   };

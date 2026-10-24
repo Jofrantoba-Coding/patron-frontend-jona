@@ -4,8 +4,11 @@ import { isIsoDate, todayIso } from './dates.js';
 import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
-import { ruleDetail } from './entryRules.js';
-import { fieldState, maxLengthOf, minLengthOf } from './predicates.js';
+import { ownedFields, ruleDetail } from './entryRules.js';
+import { BACKINGS } from '../registry/backings.js';
+import { confirmationOf } from './password.js';
+import { effectiveField, fieldState, gateOpen, maxLengthOf, minLengthOf } from './predicates.js';
+import { findConflict, isActive, isActiveSibling, same } from './unique.js';
 
 /** Logical-delete flag shared by every registry catalog (R-MOCK-7). */
 export const ACTIVE_KEY = 'activo';
@@ -16,10 +19,11 @@ export const ACTIVE_KEY = 'activo';
  */
 
 const isBlank = (/** @type {unknown} */ value) => String(value ?? '').trim() === '';
-const same = (/** @type {unknown} */ a, /** @type {unknown} */ b) => String(a ?? '').trim() === String(b ?? '').trim();
 
 /** Rows of an entry: the tenant dataset, or the global one for `shared` entries. @param {any} store @param {string} tenantId @param {any} entry */
 export function rowsOf(store, tenantId, entry) {
+  // A backed entry reads the records another part of the store holds (D15): the live ones of the tenant.
+  if (entry.backing !== undefined) return BACKINGS[entry.backing].rows(store, tenantId);
   return entry.scope === 'shared' ? store.shared[entry.section] : store.data(tenantId)[entry.section];
 }
 
@@ -68,16 +72,40 @@ export function targetOf(store, tenantId, catalog, ctx, scoped = true) {
 }
 
 /**
- * The writable part of a body (R-MOCK-9): only declared non-code fields, strings
- * trimmed and normalized (D15). `compat` entries keep the raw W1 values.
- * @param {any} entry @param {Record<string, any>} body
+ * The columns `derive` copies from a referenced row (`fromRef`, the Usuario nombre from its trabajador): the value `key` of the row `field` points to, or ''.
+ * Server-owned: a body never writes them, and every write recomputes them.
+ * @param {any} store @param {string} tenantId @param {any} entry @param {Record<string, any>} record @param {import('./context.js').RequestContext} [ctx]
  */
-export function pickWritable(entry, body) {
+export function refDerived(store, tenantId, entry, record, ctx) {
+  /** @type {Record<string, string>} */
+  const out = {};
+  for (const { target, fromRef } of (entry.derive ?? []).filter((/** @type {any} */ d) => d.fromRef)) {
+    const ref = entry.refs.find((/** @type {any} */ r) => r.field === fromRef.field);
+    const source = targetOf(store, tenantId, ref.catalog, ctx);
+    const row = source.rows.find((/** @type {any} */ r) => String(r[source.idKey]) === String(record[fromRef.field] ?? ''));
+    out[target] = String(row?.[fromRef.key] ?? '');
+  }
+  return out;
+}
+
+/**
+ * The writable part of a body (R-MOCK-9): only declared non-code fields, strings
+ * trimmed and normalized (D15). `compat` entries keep the raw W1 values. A field whose company-parameter gate is off is absent: its body value is ignored (R-REG-17).
+ * @param {any} entry @param {Record<string, any>} body @param {Record<string, unknown>} [params] the tenant company params; without them no gate is applied
+ */
+export function pickWritable(entry, body, params) {
   /** @type {Record<string, any>} */
   const record = {};
+  // The aggregates (D27a) are derived on every read: a body never writes them.
+  const owned = [...ownedFields(entry), ...(entry.aggregate ?? []).map((/** @type {any} */ a) => a.as)];
   for (const f of entry.fields) {
-    // A code is the server's and a transient select is a form-only level (the ubigeo cascade): neither is written.
-    if (f.kind === 'code' || f.transient || !(f.name in body)) continue;
+    // A password travels untrimmed with its confirmation (R-CRUD-17); the store keeps only its hash (D16).
+    if (f.kind === 'password') {
+      for (const key of [f.name, confirmationOf(f.name)]) if (key in body) record[key] = String(body[key] ?? '');
+      continue;
+    }
+    // A code is the server's, a transient select is a form-only level (the ubigeo cascade) and a field a named rule owns is derived by it: none is written.
+    if (f.kind === 'code' || f.transient || owned.includes(f.name) || !(f.name in body) || (params !== undefined && !gateOpen(f.gate, params))) continue;
     record[f.name] = entry.compat ? body[f.name] : normalizeValue(body[f.name], f.normalize);
   }
   return record;
@@ -92,11 +120,29 @@ function rangeDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
   return n < min || n > max ? { field: f.name, code: 'RANGE', message: fieldMessage(entry, f, 'RANGE', mode) } : null;
 }
 
+/**
+ * A password (R-CRUD-17): required on a create, a blank one on UPDATE keeps the stored value; at most `max` characters; the confirmation must equal it
+ * (422 on `<name>_confirmacion`). No message names the value.
+ * @returns {Detail|null}
+ */
+function passwordDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode) {
+  const value = String(record[f.name] ?? '');
+  const confirmation = String(record[confirmationOf(f.name)] ?? '');
+  const mismatch = { field: confirmationOf(f.name), code: 'MISMATCH', message: fieldMessage(entry, f, 'MISMATCH', mode) };
+  if (value === '') {
+    if (mode !== 'UPDATE') return { field: f.name, code: 'REQUIRED', message: fieldMessage(entry, f, 'REQUIRED', mode) };
+    return f.confirm && confirmation !== '' ? mismatch : null;
+  }
+  if (value.length > f.max) return { field: f.name, code: 'MAX_LENGTH', message: fieldMessage(entry, f, 'MAX_LENGTH', mode) };
+  return f.confirm && confirmation !== value ? mismatch : null;
+}
+
 /** Required, length, option, number and boolean checks of one field. A `skipRange` field leaves its range to a `{range}` step. @returns {Detail|null} */
 function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {Record<string, any>} */ record, /** @type {keyof typeof import('./messages.js').MODO} */ mode, skipRange = false) {
   // A hidden or disabled field is not validated (R-CRUD-5); `requiredWhen` makes a visible one required (R-CRUD-13).
   const state = fieldState(f, record);
   if (!state.visible || !state.enabled) return null;
+  if (f.kind === 'password') return passwordDetail(entry, f, record, mode);
   const value = record[f.name];
   // `maxWhen` (R-REG-2): the limit may depend on another field; the message names the limit that applied.
   const limit = maxLengthOf(f, record);
@@ -106,7 +152,7 @@ function fieldDetail(/** @type {any} */ entry, /** @type {any} */ f, /** @type {
     return state.required && !optional ? bad('REQUIRED') : null;
   }
   const text = String(value);
-  if ((f.kind === 'text' || f.kind === 'code') && limit !== undefined && text.length > limit) {
+  if ((f.kind === 'text' || f.kind === 'textarea' || f.kind === 'code') && limit !== undefined && text.length > limit) {
     return bad('MAX_LENGTH');
   }
   // `minLen` / `minLenWhen` (R-REG-4): a value shorter than the length that applies is judged like a missing one.
@@ -168,16 +214,18 @@ function refDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /**
   return parent ? { ...missing, message: `${ref.field} does not belong to ${parent.field}` } : null;
 }
 
-/** @returns {Detail|null} */
-function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {any} */ key, /** @type {Record<string, any>} */ record, /** @type {string|undefined} */ selfId, /** @type {any} */ ctx) {
+/**
+ * A unique key over the active rows (S-REG-9, S-REG-10). A child key is scoped by its parent and only counts ACTIVE siblings, so a deactivated
+ * (`estado` `D`) or deleted row never conflicts (R-MD-6); `siblings` replaces the stored rows with the working view of a composite write.
+ * @returns {Detail|null}
+ */
+function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, /** @type {any} */ entry, /** @type {any} */ key, /** @type {Record<string, any>} */ record, /** @type {string|undefined} */ selfId, /** @type {any} */ ctx, /** @type {string|undefined} */ parentId, /** @type {any[]|undefined} */ siblings) {
   // The session empresa is part of the key only with `includeEmpresa` (R-REG-7).
   const empresa = key.includeEmpresa ? sessionEmpresa(store, tenantId, ctx) : undefined;
-  // Deleted rows and the record itself never conflict (S-REG-9, S-REG-10).
-  const taken = rowsOf(store, tenantId, entry).some(
-    (/** @type {any} */ r) =>
-      r[ACTIVE_KEY] !== false && String(r[entry.idKey]) !== selfId && (empresa === undefined || String(r.id_empresa) === empresa) &&
-      key.fields.every((/** @type {string} */ f) => same(r[f], record[f])),
+  const pool = siblings ?? rowsOf(store, tenantId, entry).filter(
+    (/** @type {any} */ r) => (entry.parentKey === undefined || String(r[entry.parentKey]) === String(parentId)) && (empresa === undefined || String(r.id_empresa) === empresa),
   );
+  const taken = findConflict(pool, key.fields, record, { selfId, idKey: entry.idKey, active: entry.parentKey === undefined ? isActive : isActiveSibling });
   return taken ? { field: key.errorField, code: 'DUPLICATE', message: key.message } : null;
 }
 
@@ -188,11 +236,13 @@ function uniqueDetail(/** @type {any} */ store, /** @type {string} */ tenantId, 
  * field and ref failure in one 422, uniqueness checked afterwards. `{rule}` steps
  * run the named rule's validate hook.
  * @param {any} store @param {string} tenantId @param {any} entry @param {Record<string, any>} record
- * @param {{ selfId?: string, ctx?: import('./context.js').RequestContext, mode?: keyof typeof import('./messages.js').MODO }} [options]
- * `mode` words the messages: INSERT on create, UPDATE on update.
+ * @param {{ selfId?: string, ctx?: import('./context.js').RequestContext, mode?: keyof typeof import('./messages.js').MODO, parentId?: string, siblings?: any[] }} [options]
+ * `mode` words the messages: INSERT on create, UPDATE on update. `parentId` scopes a child's unique key to the rows of its parent; `siblings` is the
+ * working view of those rows during a composite write (stored rows plus the ops planned before this one).
  */
-export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mode = 'INSERT' } = {}) {
+export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mode = 'INSERT', parentId, siblings } = {}) {
   const failed = new Set();
+  const params = store.data(tenantId).params;
   const fields = new Map(entry.fields.map((/** @type {any} */ f) => [f.name, f]));
   const inlineRefs = !entry.steps.some((/** @type {any} */ s) => typeof s === 'object' && 'ref' in s);
   const isUnique = (/** @type {any} */ step) => typeof step === 'object' && 'unique' in step;
@@ -203,15 +253,17 @@ export function validateRecord(store, tenantId, entry, record, { selfId, ctx, mo
     const name = typeof step === 'string' ? step : step.ref;
     // The client validates a transient level; the server never sees it.
     if (typeof step === 'string' && fields.get(name).transient) return null;
-    let detail = typeof step === 'string' ? fieldDetail(entry, fields.get(name), record, mode, ranged.has(name)) : null;
-    if (!detail && !failed.has(name) && (typeof step === 'object' ? 'ref' in step : inlineRefs && fields.get(name).kind === 'select')) {
+    // A field whose company-parameter gate is off is neither required nor validated (R-REG-17).
+    if (!gateOpen(fields.get(name).gate, params)) return null;
+    let detail = typeof step === 'string' ? fieldDetail(entry, effectiveField(fields.get(name), params), record, mode, ranged.has(name)) : null;
+    if (!detail && !failed.has(name) && (typeof step === 'object' ? 'ref' in step : inlineRefs && ['select', 'lookup'].includes(fields.get(name).kind))) {
       detail = refDetail(store, tenantId, entry.refs.find((/** @type {any} */ r) => r.field === name), record, ctx);
     }
     if (detail) failed.add(name);
     return detail;
   };
   /** @param {any} step */
-  const uniqueOf = (step) => uniqueDetail(store, tenantId, entry, entry.unique[step.unique], record, selfId, ctx);
+  const uniqueOf = (step) => uniqueDetail(store, tenantId, entry, entry.unique[step.unique], record, selfId, ctx, parentId, siblings);
 
   /** @type {Detail[]} */
   const details = [];

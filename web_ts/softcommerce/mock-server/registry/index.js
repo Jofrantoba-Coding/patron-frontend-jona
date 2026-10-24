@@ -1,7 +1,12 @@
 import { aduanas } from './catalogs/aduanas.js';
+import { bancos } from './catalogs/bancos.js';
 import { almacenes } from './catalogs/almacenes.js';
 import { choferes } from './catalogs/choferes.js';
 import { socios } from './catalogs/socios.js';
+import { clasesSunat } from './catalogs/clases-sunat.js';
+import { cuentasContables } from './catalogs/cuentas-contables.js';
+import { padrones } from './catalogs/padrones.js';
+import { parametrosProv } from './catalogs/parametros-prov.js';
 import { clasifClientes } from './catalogs/clasif-clientes.js';
 import { clasifInventarios } from './catalogs/clasif-inventarios.js';
 import { colores } from './catalogs/colores.js';
@@ -40,6 +45,11 @@ import { ubicaciones } from './catalogs/ubicaciones.js';
 import { tiposTrabajador } from './catalogs/tipos-trabajador.js';
 import { tiposTrabajadorPerfil } from './catalogs/tipos-trabajador-perfil.js';
 import { trabajadores } from './catalogs/trabajadores.js';
+import { vendedores } from './catalogs/vendedores.js';
+import { transportistas } from './catalogs/transportistas.js';
+import { proveedores } from './catalogs/proveedores.js';
+import { clientes } from './catalogs/clientes.js';
+import { items } from './catalogs/items.js';
 import { trabajadorPuntoVenta } from './catalogs/trabajador-punto-venta.js';
 import { turnos } from './catalogs/turnos.js';
 import { usuarioCorrelativos } from './catalogs/usuario-correlativos.js';
@@ -55,4 +65,8 @@ import { validateRegistry } from './schema.js';
 export const REGISTRY = validateRegistry([
   localidades, aduanas, colores, estadosDocumento, laboratorios, marcas, nacionalidades, motivosTraslado, clasifClientes,
   clasifInventarios, tamanos, tiposAnexo, tiposDescuento, condicionesPago, tiposTrabajador, marcasVehiculo, turnos, familiasSunat, motivosDescuento, motivosNc, tiposTrabajadorPerfil, familias, modelosVehiculo, subfamiliasSunat, subfamilias, monedas, tiposCambio, promociones, empresa, puntoVenta, almacenes, zonas, tiposDocVenta, correlativos, ubicaciones, tablasSunat, tablasDetalleSunat, tiposMovInventario, unidadesMedida, vehiculos, usuarios, trabajadores, usuarioCorrelativos, zonasDistancia, trabajadorPuntoVenta, tiposDocIden, choferes, socios,
+  // Wave 3 read-only stubs of W6 data (R-MOCK-25).
+  cuentasContables, parametrosProv, clasesSunat, padrones,
+  // Wave 3 masters (rich registers with children and actions).
+  bancos, vendedores, transportistas, proveedores, clientes, items,
 ]);

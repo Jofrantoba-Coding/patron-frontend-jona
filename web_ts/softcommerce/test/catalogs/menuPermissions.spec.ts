@@ -3,7 +3,7 @@ import menu from '../../mock-server/data/menu.json';
 import permissions from '../../mock-server/data/permissions.json';
 import { REGISTRY } from '../../mock-server/registry/index.js';
 import { PERMISSION_FLAGS } from '../../src/domain/permissions';
-import { menuPermissionProblems } from './menuPermissions';
+import { CUSTOM_SCREENS, customScreenProblems, menuPermissionProblems } from './menuPermissions';
 
 const flags = Object.fromEntries(PERMISSION_FLAGS.map((f) => [f, true]));
 const entry = (over: Record<string, unknown> = {}) => ({
@@ -44,5 +44,44 @@ describe('R-REG-9 menu and permissions consistency', () => {
 
   it('the real registry, menu.json and permissions.json agree', () => {
     expect(menuPermissionProblems(REGISTRY.entries, menu, permissions)).toEqual([]);
+  });
+});
+
+describe('S-REG-27 custom screens in the consistency test (R-REG-19)', () => {
+  const custom = [{ formId: 'mi_SeguridadPerfil', menu: { parent: 'mnGenerales', label: 'Seguridad - Perfil' } }];
+  const customNodes = [...nodes, { id_menu: 50, id_menu_padre: 2, menu_item: 'S', descripcion: 'Seguridad - Perfil', nombre: 'mi_SeguridadPerfil' }];
+
+  it('is consistent when the custom screen has its menu node and its 13 flags', () => {
+    expect(customScreenProblems(custom, customNodes, { mi_SeguridadPerfil: flags })).toEqual([]);
+  });
+
+  it('names the formId missing in permissions.json, missing in menu.json or placed under the wrong parent', () => {
+    expect(customScreenProblems(custom, customNodes, {})).toEqual(['custom screen: formId "mi_SeguridadPerfil" has no permissions.json grant']);
+    expect(customScreenProblems(custom, nodes, { mi_SeguridadPerfil: flags })).toEqual(['custom screen: formId "mi_SeguridadPerfil" has no menu.json node']);
+    expect(customScreenProblems([{ ...custom[0], menu: { parent: 'mnVentas', label: 'Seguridad - Perfil' } }], customNodes, { mi_SeguridadPerfil: flags })).toEqual([
+      'custom screen: menu node "mi_SeguridadPerfil" is not under "mnVentas"',
+    ]);
+  });
+
+  it('the real custom-screen list, menu.json and permissions.json agree', () => {
+    expect(CUSTOM_SCREENS.map((s) => s.formId)).toContain('mi_SeguridadPerfil');
+    expect(customScreenProblems(CUSTOM_SCREENS, menu, permissions)).toEqual([]);
+  });
+});
+
+describe('S-REG-27 miAccionSocio is a custom screen too (R-REG-19, W3-20)', () => {
+  const acciones = CUSTOM_SCREENS.find((s) => s.formId === 'miAccionSocio');
+
+  it('is in the custom-screen list and agrees with the real menu.json and permissions.json', () => {
+    expect(acciones).toEqual({ formId: 'miAccionSocio', menu: { parent: 'mnGenerales', label: 'Acciones de Socio' } });
+    expect(customScreenProblems(CUSTOM_SCREENS, menu, permissions)).toEqual([]);
+  });
+
+  it('fails naming the formId when its grant or its menu node is missing', () => {
+    const { miAccionSocio: _grant, ...withoutGrant } = permissions as Record<string, unknown>;
+    expect(customScreenProblems([acciones!], menu, withoutGrant)).toEqual(['custom screen: formId "miAccionSocio" has no permissions.json grant']);
+    expect(customScreenProblems([acciones!], menu.filter((n) => n.nombre !== 'miAccionSocio'), permissions)).toEqual([
+      'custom screen: formId "miAccionSocio" has no menu.json node',
+    ]);
   });
 });

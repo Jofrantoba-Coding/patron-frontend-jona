@@ -1,0 +1,9 @@
+[
+  { "id_clase_sunat": "01010101", "descripcion": "CABALLOS REPRODUCTORES", "codigo_subfamilia_sunat": "0101", "activo": true },
+  { "id_clase_sunat": "01010102", "descripcion": "ASNOS REPRODUCTORES", "codigo_subfamilia_sunat": "0101", "activo": true },
+  { "id_clase_sunat": "01010201", "descripcion": "GANADO BOVINO", "codigo_subfamilia_sunat": "01010", "activo": true },
+  { "id_clase_sunat": "01020101", "descripcion": "GANADO PORCINO", "codigo_subfamilia_sunat": "0102", "activo": true },
+  { "id_clase_sunat": "01020102", "descripcion": "CLASE RETIRADA", "codigo_subfamilia_sunat": "0102", "activo": false },
+  { "id_clase_sunat": "50101538", "descripcion": "MANZANAS", "codigo_subfamilia_sunat": "501015", "activo": true },
+  { "id_clase_sunat": "50101539", "descripcion": "PERAS", "codigo_subfamilia_sunat": "501015", "activo": true }
+]

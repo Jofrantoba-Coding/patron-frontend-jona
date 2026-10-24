@@ -82,8 +82,77 @@ export const WAVE_RULES = [
   { wave: 'W3', test: () => true },
 ];
 
-/** @param {{ name: string, pkg: string, category: string }} cls */
-export function waveFor(cls) {
+/** Waves `W1`..`W7` plus the three dispositions an override may assign (R-INV-8). */
+export const ALLOWED_WAVES = new Set(['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'shell', 'infra', 'drop']);
+
+/** Raised for an invalid override map or an override the scan cannot resolve. */
+export class InventoryError extends Error {}
+
+/**
+ * Top-level keys of a JSON object text, in source order, duplicates included
+ * (`JSON.parse` silently keeps the last one). The text must already be valid JSON.
+ * @param {string} text
+ * @returns {string[]}
+ */
+function topLevelKeys(text) {
+  /** @type {string[]} */
+  const keys = [];
+  let depth = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      let end = i + 1;
+      while (text[end] !== '"') end += text[end] === '\\' ? 2 : 1;
+      if (depth === 1 && /^\s*:/.test(text.slice(end + 1))) keys.push(JSON.parse(text.slice(i, end + 1)));
+      i = end;
+    } else if (ch === '{' || ch === '[') depth++;
+    else if (ch === '}' || ch === ']') depth--;
+  }
+  return keys;
+}
+
+/**
+ * Parses and validates the wave override map: a JSON object `class -> wave or disposition`.
+ * Reports every offender at once (R-INV-7).
+ * @param {string} text
+ * @returns {Record<string, string>}
+ */
+export function parseOverrides(text) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (error) {
+    throw new InventoryError(`override map is not valid JSON: ${/** @type {Error} */ (error).message}`);
+  }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new InventoryError('override map must be a JSON object of class name to wave');
+  }
+  /** @type {string[]} */
+  const problems = [];
+  const seen = new Set();
+  for (const key of topLevelKeys(text)) {
+    if (seen.has(key)) problems.push(`duplicate key ${JSON.stringify(key)}`);
+    seen.add(key);
+  }
+  for (const [key, value] of Object.entries(parsed)) {
+    if (typeof value !== 'string' || !ALLOWED_WAVES.has(value)) {
+      problems.push(`${JSON.stringify(key)}: invalid value ${JSON.stringify(value)} (allowed: ${[...ALLOWED_WAVES].join(', ')})`);
+    }
+  }
+  if (problems.length > 0) throw new InventoryError(`invalid override map:\n  ${problems.join('\n  ')}`);
+  return parsed;
+}
+
+/** @param {string} file path of the override map @returns {Record<string, string>} */
+export const loadOverrides = (file) => parseOverrides(fs.readFileSync(file, 'utf8'));
+
+/**
+ * Wave of a class: the override map first (R-INV-7), then the heuristic rules.
+ * @param {{ name: string, pkg: string, category: string }} cls
+ * @param {Record<string, string>} [overrides]
+ */
+export function waveFor(cls, overrides = {}) {
+  if (Object.hasOwn(overrides, cls.name)) return overrides[cls.name];
   return (WAVE_RULES.find((r) => r.test(cls)) ?? WAVE_RULES[WAVE_RULES.length - 1]).wave;
 }
 
@@ -186,9 +255,9 @@ function chainOf(name, bases) {
  * Builds the inventory rows for every Java file under `srcRoot`. A file that
  * cannot be read is reported through `onSkip` and left out (R-INV-6).
  * @param {string} srcRoot
- * @param {{ readFile?: (file: string) => Buffer, onSkip?: (rel: string, error: Error) => void }} [options]
+ * @param {{ readFile?: (file: string) => Buffer, onSkip?: (rel: string, error: Error) => void, overrides?: Record<string, string> }} [options]
  */
-export function buildInventory(srcRoot, { readFile = fs.readFileSync, onSkip = () => {} } = {}) {
+export function buildInventory(srcRoot, { readFile = fs.readFileSync, onSkip = () => {}, overrides = {} } = {}) {
   const files = [];
   for (const rel of listJavaFiles(srcRoot)) {
     let source;
@@ -220,9 +289,12 @@ export function buildInventory(srcRoot, { readFile = fs.readFileSync, onSkip = (
     const implemented = [name, ...chain].flatMap((n) => implementsOf.get(n) ?? []);
     if (isExcluded({ name, path: file.rel, chain, implemented })) continue;
     const category = categorize(name, chain);
-    const wave = waveFor({ name, pkg: file.pkg, category });
+    const wave = waveFor({ name, pkg: file.pkg, category }, overrides);
     rows.push({ name, path: file.rel, pkg: file.pkg, base: top.extends ?? '', category, wave });
   }
+  const found = new Set(rows.map((r) => r.name));
+  const stale = Object.keys(overrides).filter((name) => !found.has(name));
+  if (stale.length > 0) throw new InventoryError(`override names classes the scan did not find: ${stale.join(', ')}`);
   return { rows };
 }
 
