@@ -8,9 +8,11 @@ import type { InterChildService } from './InterChildService';
 import type { InterCatalogService } from './InterCatalogService';
 import type { GrantsSnapshot, InterGrantsService } from './InterGrantsService';
 import type { InterLookupService } from './InterLookupService';
+import type { InterPerfilGrantsService } from './InterPerfilGrantsService';
 import type { InterShellService } from './InterShellService';
 import { createGrantsServiceHttp } from './GrantsServiceHttp';
 import { createLookupServiceHttp } from './LookupServiceHttp';
+import { createPerfilGrantsServiceHttp } from './PerfilGrantsServiceHttp';
 import { createShellServiceHttp } from './ShellServiceHttp';
 import { createHttpClient, type RequestContext, type SessionContext } from './httpClient';
 import { lazyService } from './lazyService';
@@ -88,6 +90,8 @@ export interface AppServices {
   shell: InterShellService;
   /** Takes the grants of the acting user at login. */
   grants: InterGrantsService;
+  /** The perfil permission editor (`/v1/tipos-trabajador-perfil/{id}/menu|permisos`, R-PRM-5). */
+  perfilGrants: InterPerfilGrantsService;
   lookup: InterLookupService;
   /** A service for one catalog (`/v1/{catalog}`); cheap to build, nothing loads until a call. */
   catalog<T>(catalog: string): InterCatalogService<T>;
@@ -123,6 +127,10 @@ export function composeServices(env: ApiEnv, { fetchFn, getSession, getRequestCo
     grants: composeService<InterGrantsService>(config, {
       createHttp: (baseUrl) => createGrantsServiceHttp(client(baseUrl)),
       loadMock: async (scenario) => (await loadMock(scenario)).grants,
+    }),
+    perfilGrants: composeService<InterPerfilGrantsService>(config, {
+      createHttp: (baseUrl) => createPerfilGrantsServiceHttp(client(baseUrl)),
+      loadMock: async (scenario) => (await loadMock(scenario)).perfilGrants,
     }),
     lookup: composeService<InterLookupService>(config, {
       createHttp: (baseUrl) => createLookupServiceHttp(client(baseUrl)),
