@@ -1,5 +1,6 @@
 import { activacion } from './activacionRule.js';
 import { docIdentidad } from './docIdentidad.js';
+import { fechaAutorizacion } from './fechaAutorizacion.js';
 import { nombreCompuesto } from './nombreCompuesto.js';
 
 /**
@@ -7,7 +8,7 @@ import { nombreCompuesto } from './nombreCompuesto.js';
  * `derive`); an entry lists `rules: [{ name, params? }]` and a `{ rule: name }` step in its `validation`. The UI and both mocks go through
  * these helpers, so the three apply the same rule. Kept apart from `rules.js` (lookup filters), which reads the store.
  */
-export const ENTRY_RULE_HOOKS = { docIdentidad, activacion, nombreCompuesto };
+export const ENTRY_RULE_HOOKS = { docIdentidad, activacion, nombreCompuesto, fechaAutorizacion };
 export const ENTRY_RULE_NAMES = Object.keys(ENTRY_RULE_HOOKS);
 
 /**

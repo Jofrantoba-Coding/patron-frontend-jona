@@ -3,19 +3,20 @@ import { getRecord } from './catalog.js';
 import { gatedChildOf, liveParent } from './children.js';
 import { MockError, notFound, validationError } from './errors.js';
 import { getChild } from './nested.js';
+import { activarSerie, desactivarSerie } from './series.js';
 import { ACTIVE_KEY, rowsOf } from './validators.js';
 
 /**
  * Row actions (R-MOCK-22, D12). An `immediate` action declared on an entry or a child names its `server` action; the server action is a hook that runs the
  * rule in one write: it changes the store, answers `{ id?, message? }` and rejects with `actionNotAllowed` (409) or `validationError` (422). The set is
- * `activarAnexo` and `desactivarAnexo` are the anexo history actions (W3-7); Autorizar Series registers its own in W3-14.
+ * `activarAnexo` and `desactivarAnexo` are the anexo history actions (W3-7); `activarSerie` and `desactivarSerie` are those of Autorizar Series (W3-14).
  *
  * A hook gets `{ store, tenantId, entry, parent, parentRow, row, input, ctx }`: `entry` is the entry that declares the action (the child, for a nested one),
  * `parent` its parent entry (absent for an entry action), `parentRow` the stored parent row, `row` the stored row the action targets (the parent row for an
  * entry action, absent for the collection form) and `input` the body.
  * @type {Record<string, (call: any) => { id?: string, message?: string } | void>}
  */
-export const ACTION_HOOKS = { activarAnexo, desactivarAnexo };
+export const ACTION_HOOKS = { activarAnexo, desactivarAnexo, activarSerie, desactivarSerie };
 
 /** The body of an action call is its input: absent is empty, anything but an object is refused. @param {unknown} body @returns {Record<string, any>} */
 function inputOf(body) {

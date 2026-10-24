@@ -19,7 +19,7 @@ import { BUILTIN_SOURCES } from './sources.js';
  *   seed: string|null, messages: { style: string }, fields: any[], columns: any[], section?: string, formId?: string,
  *   title?: string, menu?: { parent: string, label: string }, optionLabel?: string | string[], modes?: string[], readOnly?: boolean, stamp?: string[], joins?: any[], unique?: any[], validation?: any[],
  *   rules?: { name: string }[], search?: string[], lookupFilters?: Record<string, any>, compat?: any, project?: string, backing?: string,
- *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when?: { field: string, in: string[] }, then?: unknown, else?: unknown, fromRef?: { field: string, key: string } }[] }} CatalogDef
+ *   constants?: Record<string, string|number|boolean>, derive?: { target: string, when?: { field: string, in: string[] }, then?: unknown, else?: unknown, fromRef?: { field: string, key: string } }[], children?: Record<string, any>, actions?: any[] }} CatalogDef
  */
 
 export const SCOPES = ['tenant', 'empresa', 'shared'];
