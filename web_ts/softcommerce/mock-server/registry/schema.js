@@ -5,6 +5,7 @@ import { paramToken } from '../core/predicates.js';
 import { isIsoDate } from '../core/dates.js';
 import { DECIMAL_TEXT } from '../core/numbers.js';
 import { applyPreset } from './presets.js';
+import { PERMISSION_FLAG_NAMES } from './flags.js';
 import { PARAM_KEYS, isGateParam } from './paramKeys.js';
 import { PICKERS } from './pickers.js';
 import { PROJECTIONS } from './project.js';
@@ -314,6 +315,64 @@ function applyLookups(where, entry, rawBySlug, sources) {
   entry.joins = joins;
 }
 
+const ACTION_KINDS = ['deferred', 'immediate'];
+const ACTION_PLACEMENTS = { entry: ['list-toolbar', 'register'], child: ['child'] };
+const ACTION_WHEN_KEYS = ['modes', 'selection', 'row', 'noRow'];
+
+/**
+ * The `actions` of an entry or a child (R-ACT-1, R-REG-15, R-REG-20): `{ id, label, placement, flag, enabledWhen, dialog?, kind, confirm?, server?, rule? }`.
+ * The `flag` is one of the 13 permission flags (default `modify`); `enabledWhen` is `{ modes, selection, row, noRow }` over the register mode, the selected row
+ * and the rows of the grid, its conditions naming only known fields; an `immediate` action names its `server` action (R-MOCK-22) and a `deferred` one the
+ * client `rule` that changes a pending row. A `dialog` is `{ title, fields }`, its fields checked like the fields of any entry. Returns the normalized list.
+ * @param {string} where @param {any} owner the entry, or the child entry, that declares them @param {Set<string>} names the field names a condition may name
+ * @param {(raw: any) => any} resolve resolves a raw entry (the dialog's fields)
+ */
+function normalizeActions(where, owner, names, resolve) {
+  const { actions } = owner;
+  if (actions === undefined) return undefined;
+  if (!Array.isArray(actions)) fail(where, 'actions must be a list');
+  const owned = owner.parent === undefined ? 'entry' : 'child';
+  const seen = new Set();
+  return actions.map((/** @type {any} */ declared) => {
+    const at = `${where} action "${declared?.id}"`;
+    if (typeof declared?.id !== 'string' || declared.id === '') fail(where, 'an action needs an id');
+    if (declared.id === 'actions') fail(at, 'reserved name');
+    if (seen.has(declared.id)) fail(at, 'duplicate action id');
+    seen.add(declared.id);
+    if (typeof declared.label !== 'string' || declared.label.trim() === '') fail(at, 'needs a label');
+    if (!ACTION_KINDS.includes(declared.kind)) fail(at, `unknown kind "${declared.kind}"`);
+    const flag = declared.flag ?? 'modify';
+    if (!PERMISSION_FLAG_NAMES.includes(flag)) fail(at, `flag "${flag}" is not a permission flag`);
+    const placement = declared.placement ?? (owned === 'child' ? 'child' : 'register');
+    if (!Object.values(ACTION_PLACEMENTS).flat().includes(placement)) fail(at, `unknown placement "${placement}"`);
+    if (!ACTION_PLACEMENTS[owned].includes(placement)) fail(at, `placement "${placement}" is not for ${owned === 'child' ? 'a child' : 'an entry'}`);
+    if (declared.kind === 'immediate') {
+      if (typeof declared.server !== 'string' || declared.server === '') fail(at, 'an immediate action needs a server action');
+      if (declared.rule !== undefined) fail(at, 'an immediate action has no client rule');
+    } else {
+      if (typeof declared.rule !== 'string' || declared.rule === '') fail(at, 'a deferred action needs a rule');
+      if (declared.server !== undefined) fail(at, 'a deferred action has no server action');
+    }
+    const when = declared.enabledWhen;
+    if (when !== undefined) {
+      for (const key of Object.keys(when)) if (!ACTION_WHEN_KEYS.includes(key)) fail(at, `enabledWhen names unknown key "${key}"`);
+      for (const mode of when.modes ?? []) if (!MODES.includes(mode)) fail(at, `enabledWhen names unknown mode "${mode}"`);
+      if (when.noRow !== undefined && owned !== 'child') fail(at, 'enabledWhen.noRow needs a child action');
+      for (const cond of [when.row, when.noRow].filter((c) => c !== undefined)) {
+        if (typeof cond.field !== 'string' || !Array.isArray(cond.in)) fail(at, 'enabledWhen needs conditions { field, in }');
+        if (!names.has(cond.field)) fail(at, `enabledWhen names unknown field "${cond.field}"`);
+      }
+    }
+    let dialog;
+    if (declared.dialog !== undefined) {
+      if (!Array.isArray(declared.dialog.fields) || declared.dialog.fields.length === 0) fail(at, 'dialog needs fields');
+      const raw = { slug: `${owner.slug}#${declared.id}`, idKey: 'id', codeWidth: 0, entity: owner.entity, scope: 'tenant', seed: null, messages: owner.messages, columns: [], fields: [{ name: 'id', kind: 'code', label: 'Codigo' }, ...declared.dialog.fields] };
+      dialog = { title: declared.dialog.title ?? declared.label, fields: resolve(raw).fields.filter((/** @type {any} */ f) => f.kind !== 'code') };
+    }
+    return { ...declared, placement, flag, ...(dialog && { dialog }) };
+  });
+}
+
 /**
  * @param {any} raw @param {Set<string>} slugs @param {Record<string, any>} sources @param {Map<string, any>} rawBySlug
  */
@@ -482,7 +541,9 @@ function resolveEntry(raw, slugs, sources, rawBySlug) {
     Object.defineProperty(ruled, 'ruleState', { value: (/** @type {any} */ values) => ruleStates(entry, values)[f.name], enumerable: false });
     return ruled;
   });
-  return { ...entry, fields, refs, steps };
+  // The row actions (R-ACT-1): a condition may name a field of the entry; a child row also has its `id` and `estado`.
+  const actions = normalizeActions(where, entry, new Set([...names, ...(entry.parent === undefined ? [] : ['id', 'estado'])]), (dialogEntry) => resolveEntry(dialogEntry, slugs, sources, rawBySlug));
+  return { ...entry, fields, refs, steps, ...(actions && { actions }) };
 }
 
 const REMOVALS = ['deactivate', 'delete', 'none'];
@@ -524,17 +585,19 @@ const OWNER_PARTS = ['fields', 'unique', 'joins', 'validation', 'refs'];
 
 /**
  * The internal entry of a store child: the owning entry under the slug `parent/name`, linked to the parent through `store.key`.
- * @param {any} parent @param {any} def @param {string} at @param {string} removal @param {string} entry @param {Map<string, any>} resolved
+ * @param {any} parent @param {any} def @param {string} at @param {string} removal @param {string} entry @param {Map<string, any>} resolved @param {(raw: any) => any} resolve
  */
-function storeChild(parent, def, at, removal, entry, resolved) {
+function storeChild(parent, def, at, removal, entry, resolved, resolve) {
   const { entry: ownerSlug, key } = def.store;
   if (typeof ownerSlug !== 'string' || typeof key !== 'string' || key === '') fail(at, 'store needs an entry and a key');
   const owner = resolved.get(ownerSlug);
   if (!owner) fail(at, `store names unknown entry "${ownerSlug}"`);
   if (ownerSlug === parent.slug) fail(at, 'store cannot name its own parent');
   for (const part of OWNER_PARTS) if (def[part] !== undefined) fail(at, `a store child takes ${part} from "${ownerSlug}"`);
-  const { menu: _menu, children: _children, ...rest } = owner;
-  return { ...rest, slug: `${parent.slug}/${def.name}`, parent: parent.slug, childName: def.name, parentKey: key, seed: null, removal, entry, store: def.store, tab: def.tab, gate: def.gate, quitar: def.quitar, columns: def.columns ?? owner.columns };
+  const { menu: _menu, children: _children, actions: _actions, ...rest } = owner;
+  const slug = `${parent.slug}/${def.name}`;
+  const actions = normalizeActions(at, { actions: def.actions, parent: parent.slug, slug, entity: owner.entity, messages: owner.messages }, new Set([...owner.fields.map((/** @type {any} */ f) => f.name), 'id', 'estado']), resolve);
+  return { ...rest, ...(actions && { actions }), slug, parent: parent.slug, childName: def.name, parentKey: key, seed: null, removal, entry, store: def.store, tab: def.tab, gate: def.gate, quitar: def.quitar, columns: def.columns ?? owner.columns };
 }
 
 /**
@@ -562,7 +625,8 @@ function expandChildren(parent, slugs, sources, rawBySlug, resolved) {
     for (const f of def.fields ?? []) {
       if ([...RESERVED_CHILD_FIELDS, parent.idKey].includes(f.name)) fail(`${at} field "${f.name}"`, 'reserved name');
     }
-    if (def.store !== undefined) return storeChild(parent, def, at, removal, entry, resolved);
+    const resolve = (/** @type {any} */ raw) => resolveEntry(raw, slugs, sources, rawBySlug);
+    if (def.store !== undefined) return storeChild(parent, def, at, removal, entry, resolved, resolve);
     const fieldNames = new Set((def.fields ?? []).map((/** @type {any} */ f) => f.name));
     assertInitial(at, def.initial, fieldNames);
     for (const ref of def.refs ?? []) if (!fieldNames.has(ref.field)) fail(`entry "${parent.slug}/${def.name}"`, `refs names unknown field "${ref.field}"`);

@@ -4,7 +4,7 @@ import { isIsoDate, todayIso } from './dates.js';
 import { fieldMessage } from './messages.js';
 import { normalizeValue } from './normalize.js';
 import { DECIMAL_TEXT, outOfBounds } from './numbers.js';
-import { ruleDetail } from './entryRules.js';
+import { ownedFields, ruleDetail } from './entryRules.js';
 import { fieldState, maxLengthOf, minLengthOf } from './predicates.js';
 import { findConflict, isActive, isActiveSibling, same } from './unique.js';
 
@@ -75,9 +75,10 @@ export function targetOf(store, tenantId, catalog, ctx, scoped = true) {
 export function pickWritable(entry, body) {
   /** @type {Record<string, any>} */
   const record = {};
+  const owned = ownedFields(entry);
   for (const f of entry.fields) {
-    // A code is the server's and a transient select is a form-only level (the ubigeo cascade): neither is written.
-    if (f.kind === 'code' || f.transient || !(f.name in body)) continue;
+    // A code is the server's, a transient select is a form-only level (the ubigeo cascade) and a field a named rule owns is derived by it: none is written.
+    if (f.kind === 'code' || f.transient || owned.includes(f.name) || !(f.name in body)) continue;
     record[f.name] = entry.compat ? body[f.name] : normalizeValue(body[f.name], f.normalize);
   }
   return record;

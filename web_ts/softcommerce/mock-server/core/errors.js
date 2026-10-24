@@ -31,6 +31,9 @@ export const validationError = (details) =>
 /** A unique-key violation (R-MOCK-11). @param {FieldDetail[]} details */
 export const duplicateError = (details) => new MockError(409, 'DUPLICATE', 'Duplicate record', details);
 
+/** A row action the state of the row does not allow (R-MOCK-22); the message is the rule's own. @param {string} message */
+export const actionNotAllowed = (message) => new MockError(409, 'ACTION_NOT_ALLOWED', message);
+
 /** A write outside the entry `modes` (R-MOCK-17). @param {string} message */
 export const modeNotSupported = (message) => new MockError(405, 'MODE_NOT_SUPPORTED', message);
 

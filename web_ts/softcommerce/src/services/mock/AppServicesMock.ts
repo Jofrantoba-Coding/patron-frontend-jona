@@ -7,6 +7,7 @@ import {
   login,
   sessionOptions,
 } from '../../../mock-server/core/auth.js';
+import { runChildAction, runEntryAction } from '../../../mock-server/core/actions.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../../../mock-server/core/catalog.js';
 import { MockError } from '../../../mock-server/core/errors.js';
 import { lookupOptions } from '../../../mock-server/core/lookups.js';
@@ -15,6 +16,7 @@ import { createStore } from '../../../mock-server/core/store.js';
 import { childrenOf } from '../../../mock-server/core/ubigeo.js';
 import { ApiError } from '../ApiError';
 import type { InterAuthService } from '../InterAuthService';
+import type { InterActionService } from '../InterActionService';
 import type { InterCatalogService, Page } from '../InterCatalogService';
 import type { InterChildService } from '../InterChildService';
 import type { InterLookupService } from '../InterLookupService';
@@ -53,6 +55,8 @@ export interface AppServicesMock {
   catalog<T>(catalog: string): InterCatalogService<T>;
   /** The nested child routes of one catalog (R-MOCK-19), over the same store. */
   children(catalog: string): InterChildService;
+  /** The immediate row actions of one catalog (R-MOCK-22), over the same store. */
+  actions(catalog: string): InterActionService;
 }
 
 type Store = ReturnType<typeof createStore>;
@@ -150,5 +154,14 @@ export function createAppServicesMock(
     remove: (parentId, child, id) => call((s) => removeChild(s, tenantGate(s), name, parentId, child, id, getRequestContext())),
   });
 
-  return { auth, shell, lookup, catalog, children };
+  const actions = (name: string): InterActionService => ({
+    run: (target, action, input = {}) =>
+      call((s) =>
+        target.child === undefined
+          ? runEntryAction(s, tenantGate(s), name, target.id, action, input, getRequestContext())
+          : runChildAction(s, tenantGate(s), name, target.id, target.child, target.childId, action, input, getRequestContext()),
+      ) as Promise<any>,
+  });
+
+  return { auth, shell, lookup, catalog, children, actions };
 }

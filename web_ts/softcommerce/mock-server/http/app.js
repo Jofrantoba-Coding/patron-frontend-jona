@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import {
   getMenu, getParams, getPermissions, listEmpresas, listPuntosVenta, login, sessionOptions,
 } from '../core/auth.js';
+import { runChildAction, runEntryAction } from '../core/actions.js';
 import { createRecord, deleteRecord, getRecord, listCatalog, updateRecord } from '../core/catalog.js';
 import { MockError, notFound, toErrorBody } from '../core/errors.js';
 import { createChild, getChild, listChild, removeChild, updateChild } from '../core/nested.js';
@@ -61,6 +62,11 @@ const ROUTES = [
   { method: 'GET', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, ctx }) => ({ body: getChild(store, tenant, params[0], params[1], params[2], params[3], ctx) }) },
   { method: 'PUT', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: updateChild(store, tenant, params[0], params[1], params[2], params[3], body ?? {}, ctx) }) },
   { method: 'DELETE', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)$/, handle: ({ store, tenant, params, ctx }) => { removeChild(store, tenant, params[0], params[1], params[2], params[3], ctx); return { status: 204 }; } },
+  // Row actions (R-MOCK-22): on an entry row, on a child row, and the collection form that creates a child row. None collides with the routes above: they
+  // end in the literal `actions/{action}`.
+  { method: 'POST', pattern: /^\/v1\/([^/]+)\/([^/]+)\/actions\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: runEntryAction(store, tenant, params[0], params[1], params[2], body, ctx) }) },
+  { method: 'POST', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/actions\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: runChildAction(store, tenant, params[0], params[1], params[2], undefined, params[3], body, ctx) }) },
+  { method: 'POST', pattern: /^\/v1\/([^/]+)\/([^/]+)\/([^/]+)\/([^/]+)\/actions\/([^/]+)$/, handle: ({ store, tenant, params, body, ctx }) => ({ body: runChildAction(store, tenant, params[0], params[1], params[2], params[3], params[4], body, ctx) }) },
   { method: 'POST', pattern: /^\/__mock\/reset$/, isPublic: true, handle: ({ store }) => { store.reset(); return { status: 204 }; } },
 ];
 
