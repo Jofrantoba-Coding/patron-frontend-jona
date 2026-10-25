@@ -27,7 +27,7 @@ const iconByVariant: Record<JOptionPaneVariant, React.ReactNode> = {
 };
 
 const iconBg: Record<JOptionPaneVariant, string> = {
-  danger:  'bg-danger-50',
+  danger:  '',
   warning: 'bg-yellow-50',
   info:    'bg-primary-50',
 };

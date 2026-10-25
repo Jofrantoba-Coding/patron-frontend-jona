@@ -39,7 +39,7 @@ export const JNavbarView: React.FC<JNavbarViewProps> = ({
     radius="none"
     className={cn('sticky top-0 z-40 border-b border-neutral-200/70 bg-white/80 backdrop-blur-md', className)}
   >
-    <JPanel as="nav" variant="ghost" padding="none" radius="none" className="mx-auto flex h-16 w-full max-w-content items-center justify-between gap-4 px-4 sm:px-6 lg:px-8" aria-label="Navegación principal">
+    <JPanel as="nav" variant="ghost" padding="none" radius="none" className="mx-auto flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8" aria-label="Navegación principal">
       {brand}
       <JPanel variant="ghost" padding="none" radius="none" className="hidden items-center gap-1 lg:flex">
         {children}

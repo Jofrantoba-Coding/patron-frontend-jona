@@ -5,15 +5,15 @@ import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const toneClasses: Record<StatCardTone, string> = {
   neutral: 'bg-neutral-100 text-neutral-600',
-  success: 'bg-success-50 text-success-700',
-  warning: 'bg-warning-50 text-warning-700',
-  danger: 'bg-danger-50 text-danger-700',
+  success: '',
+  warning: '',
+  danger: '',
   info: 'bg-primary-50 text-primary-700',
 };
 
 const trendClasses: Record<StatCardTrend, string> = {
-  up: 'text-success-700',
-  down: 'text-danger-700',
+  up: '',
+  down: '',
   flat: 'text-neutral-500',
 };
 

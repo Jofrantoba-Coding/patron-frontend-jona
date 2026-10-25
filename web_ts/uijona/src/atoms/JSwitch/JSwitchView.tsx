@@ -72,7 +72,7 @@ export const JSwitchView: React.FC<JSwitchViewProps> = ({
         trackSize[size],
         effectiveChecked
           ? hasError ? 'bg-danger-500'  : 'bg-primary-600'
-          : hasError ? 'bg-danger-200'  : 'bg-neutral-300',
+          : !hasError && 'bg-neutral-300',
         className
       )}
     >

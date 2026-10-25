@@ -27,9 +27,9 @@ const sizeClasses: Record<JTimerSize, { display: string; label: string; button: 
 
 const toneClasses: Record<JTimerTone, string> = {
   neutral: 'text-neutral-900',
-  success: 'text-success-700',
-  warning: 'text-warning-700',
-  danger:  'text-danger-700',
+  success: '',
+  warning: '',
+  danger:  '',
   info:    'text-primary-700',
 };
 

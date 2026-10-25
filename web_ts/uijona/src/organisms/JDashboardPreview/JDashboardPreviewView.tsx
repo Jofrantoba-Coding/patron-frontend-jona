@@ -28,7 +28,7 @@ export const JDashboardPreviewView: React.FC<InterJDashboardPreview> = ({
         <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
         <JLabel as="span" className="ml-2 text-xs font-medium text-neutral-500">{title}</JLabel>
         {statusLabel && (
-          <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-success-50 px-2 py-0.5 text-[11px] font-medium text-success-700">
+          <span className="ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium">
             <span className="h-1.5 w-1.5 rounded-full bg-success-500" /> {statusLabel}
           </span>
         )}
