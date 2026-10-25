@@ -21,6 +21,7 @@ import { JTable, JTableBody, JTableCell, JTableRow } from '../../molecules/JTabl
 import { JDashboardPreview } from '../../organisms/JDashboardPreview';
 import { JLogoMarquee } from '../../organisms/JLogoMarquee';
 import { JNavbar } from '../../organisms/JNavbar';
+import { resolveRootTokens, rgbOf } from './tokenCascade';
 
 const ENGINE_SELECTOR = /\.jpanel|\.jona-layout-mobile-grid|\.jona-gridbag|\.jona-group-layout|\.jona-spring-layout/;
 
@@ -397,13 +398,39 @@ describe('JTableRow selection is visible (S-DAT-2, light)', () => {
     );
     const row = screen.getByTestId('row');
     const selectedBackground = resolveProperty(css, row, 'background-color', 1024)?.value ?? '';
-    const hoverBackground = resolveRule(css, '.hover\\:bg-neutral-50:hover').decls['background-color'];
+    const hoverBackground = resolveRule(css, '.hover\\:bg-\\[rgb\\(var\\(--jona-surface-muted\\)\\)\\]:hover').decls['background-color'];
+    const selectedHover = resolveRule(css, '.hover\\:bg-\\[rgb\\(var\\(--jona-selection\\)\\)\\]:hover').decls['background-color'];
 
-    expect(selectedBackground).toContain('--jona-primary-50');
-    expect(hoverBackground).toContain('--jona-neutral-50');
-    expect(resolveRule(css, '.hover\\:bg-primary-50:hover').decls['background-color']).toContain('--jona-primary-50');
+    expect(selectedBackground).toContain('--jona-selection');
+    expect(hoverBackground).toContain('--jona-surface-muted');
+    expect(selectedHover).toContain('--jona-selection');
     expect(resolveProperty(css, row, 'border-inline-start-width', 1024)?.value).toBe('3px');
     expect(resolveProperty(css, row, 'border-inline-start-color', 1024)?.value).toContain('--jona-primary-600');
+  });
+});
+
+describe('JTableRow selection is visible (S-DAT-2, dark)', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it.each([
+    ['light', {}],
+    ['dark', { 'data-theme-mode': 'dark' }],
+  ])('%s: the selection token differs from the hover and surface tokens', (_mode, attrs) => {
+    const tokens = resolveRootTokens(css, { attrs });
+
+    expect(rgbOf(tokens, '--jona-selection')).not.toEqual(rgbOf(tokens, '--jona-surface-muted'));
+    expect(rgbOf(tokens, '--jona-selection')).not.toEqual(rgbOf(tokens, '--jona-surface'));
+  });
+
+  it('dark repaints the selection, so a selected row does not keep the light tint', () => {
+    const light = rgbOf(resolveRootTokens(css), '--jona-selection');
+    const dark = rgbOf(resolveRootTokens(css, { attrs: { 'data-theme-mode': 'dark' } }), '--jona-selection');
+
+    expect(dark).not.toEqual(light);
   });
 });
 

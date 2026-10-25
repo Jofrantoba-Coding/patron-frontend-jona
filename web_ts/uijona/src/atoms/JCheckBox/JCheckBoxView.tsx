@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '../../lib/cn';
 import { InterJCheckBox, JCheckBoxSize, JCheckBoxLabelPosition } from './InterJCheckBox';
+import { CONTROL_BORDER, FG } from '../../theme/tokenClasses';
 
 interface JCheckBoxViewProps extends InterJCheckBox {
   forwardedRef?: React.Ref<HTMLInputElement>;
@@ -74,7 +75,7 @@ export const JCheckBoxView: React.FC<JCheckBoxViewProps> = ({
       className={cn(
         'jcheckbox',
         sizeClasses[size],
-        hasError ? 'border-danger-500 accent-danger-500' : 'border-neutral-300 accent-primary-600',
+        hasError ? 'border-danger-500 accent-danger-500' : `${CONTROL_BORDER} accent-primary-600`,
         className,
       )}
       style={style}
@@ -96,7 +97,7 @@ export const JCheckBoxView: React.FC<JCheckBoxViewProps> = ({
     )}>
       {input}
       <span className={cn(
-        'text-sm text-neutral-700 select-none leading-none',
+        `text-sm ${FG} select-none leading-none`,
         disabled && 'opacity-50',
         labelClassName,
       )}>

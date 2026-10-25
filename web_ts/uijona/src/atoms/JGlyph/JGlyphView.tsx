@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJGlyph, JGlyphSize, JGlyphTone } from './InterJGlyph';
+import { FG, FG_MUTED } from '../../theme/tokenClasses';
 
 const sizeClasses: Record<JGlyphSize, string> = {
   xs: 'h-3.5 w-3.5',
@@ -15,8 +16,8 @@ const toneClasses: Record<JGlyphTone, string> = {
   current: '',
   primary: 'text-primary-600',
   accent:  'text-accent-600',
-  neutral: 'text-neutral-700',
-  muted:   'text-neutral-400',
+  neutral: `${FG}`,
+  muted:   `${FG_MUTED}`,
   success: 'text-success-600',
   warning: 'text-warning-600',
   danger:  'text-danger-600',

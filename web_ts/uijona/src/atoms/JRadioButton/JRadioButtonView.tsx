@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JRADIOBUTTON_DEFAULTS, InterJRadioButton, JRadioButtonLabelPosition } from './InterJRadioButton';
+import { CONTROL_BORDER, FG } from '../../theme/tokenClasses';
 
 type JRadioButtonViewProps = InterJRadioButton &
   Omit<React.InputHTMLAttributes<HTMLInputElement>,
@@ -59,7 +60,7 @@ export const JRadioButtonView: React.FC<JRadioButtonViewProps> = ({
         'transition-colors duration-150',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary-500',
         'disabled:pointer-events-none disabled:opacity-50',
-        hasError ? 'border-danger-500 text-danger-500' : 'border-neutral-300 text-primary-600',
+        hasError ? 'border-danger-500 text-danger-500' : `${CONTROL_BORDER} text-primary-600`,
         className
       )}
       {...htmlProps}
@@ -77,7 +78,7 @@ export const JRadioButtonView: React.FC<JRadioButtonViewProps> = ({
     )}>
       {input}
       <span className={cn(
-        'text-sm text-neutral-700 select-none leading-none',
+        `text-sm ${FG} select-none leading-none`,
         disabled && 'opacity-50',
         labelClassName,
       )}>
