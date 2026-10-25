@@ -179,6 +179,16 @@
       "require": "./dist/molecules/JField.cjs",
       "types": "./dist/molecules/JField.d.ts"
     },
+    "./molecules/JFormSection": {
+      "import": "./dist/molecules/JFormSection.js",
+      "require": "./dist/molecules/JFormSection.cjs",
+      "types": "./dist/molecules/JFormSection.d.ts"
+    },
+    "./molecules/JErrorSummary": {
+      "import": "./dist/molecules/JErrorSummary.js",
+      "require": "./dist/molecules/JErrorSummary.cjs",
+      "types": "./dist/molecules/JErrorSummary.d.ts"
+    },
     "./molecules/JCheckBoxField": {
       "import": "./dist/molecules/JCheckBoxField.js",
       "require": "./dist/molecules/JCheckBoxField.cjs",

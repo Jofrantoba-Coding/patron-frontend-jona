@@ -78,6 +78,8 @@ describe('package exports', () => {
     const SUBPATHS_160 = [
       'molecules/JField',
       'layouts/JFieldGrid',
+      'molecules/JFormSection',
+      'molecules/JErrorSummary',
     ];
 
     SUBPATHS_160.forEach((subpath) => {
