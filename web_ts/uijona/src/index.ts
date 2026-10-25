@@ -39,6 +39,7 @@ export * from './molecules/JErrorSummary';
 export * from './molecules/JToolbar';
 export * from './molecules/JPageHeader';
 export * from './molecules/JInputGroup';
+export * from './molecules/JDataGrid';
 export * from './molecules/JCheckBoxField';
 export * from './molecules/JRadioGroup';
 export * from './molecules/JSelectField';

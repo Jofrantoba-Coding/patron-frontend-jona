@@ -46,6 +46,8 @@ export const HOVER_LINE_BG_STRONG = 'hover:bg-[rgb(var(--jona-line-strong)/0.45)
 
 /* ── Focus and selection ──────────────────────────────────────────────────── */
 export const FOCUS_RING = 'focus-visible:ring-[rgb(var(--jona-focus))]';
+/** Focus color for elements that cannot carry a ring, such as table rows. */
+export const FOCUS_OUTLINE = 'focus-visible:outline-[rgb(var(--jona-focus))]';
 export const SELECTION = 'bg-[rgb(var(--jona-selection))]';
 export const HOVER_SELECTION = 'hover:bg-[rgb(var(--jona-selection))]';
 export const SELECTED_STATE = 'data-[state=selected]:bg-[rgb(var(--jona-selection))]';

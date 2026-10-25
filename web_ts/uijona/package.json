@@ -204,6 +204,11 @@
       "require": "./dist/molecules/JInputGroup.cjs",
       "types": "./dist/molecules/JInputGroup.d.ts"
     },
+    "./molecules/JDataGrid": {
+      "import": "./dist/molecules/JDataGrid.js",
+      "require": "./dist/molecules/JDataGrid.cjs",
+      "types": "./dist/molecules/JDataGrid.d.ts"
+    },
     "./molecules/JCheckBoxField": {
       "import": "./dist/molecules/JCheckBoxField.js",
       "require": "./dist/molecules/JCheckBoxField.cjs",
