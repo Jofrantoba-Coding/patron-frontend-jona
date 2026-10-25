@@ -146,6 +146,16 @@ describe('JAppShell (R-CHR-1)', () => {
     expect(utilityStyle(css, container, 1023, 'display')).toBe('flex');
   });
 
+  it('the brand keeps its width and the topbar end shrinks first', () => {
+    render(shell());
+    const brand = screen.getByText('SoftCommerce').parentElement as HTMLElement;
+    const end = screen.getByRole('button', { name: 'Administrador' }).parentElement as HTMLElement;
+
+    expect(utilityStyle(css, brand, 375, 'flex-shrink')).toBe('0');
+    expect(utilityStyle(css, end, 375, 'min-width')).toBe('0px');
+    expect(utilityStyle(css, end, 375, 'flex')).toBe('1 1 0%');
+  });
+
   it('uses the custom labels', () => {
     render(shell({ openMenuLabel: 'Menú', closeMenuLabel: 'Cerrar', collapseLabel: 'Riel' }));
 
