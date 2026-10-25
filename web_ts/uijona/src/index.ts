@@ -109,6 +109,7 @@ export * from './pages/JHomeError';
 
 // Hooks
 export * from './hooks/useToast';
+export * from './hooks/useConfirm';
 
 // Theme
 export * from './theme';
