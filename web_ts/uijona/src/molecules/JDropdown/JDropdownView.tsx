@@ -5,6 +5,7 @@ import { cn } from '../../lib/cn';
 import { JSeparator } from '../../atoms/JSeparator';
 import { JButton } from '../../atoms/JButton/JButton';
 import { InterJDropdown, JDropdownGroup } from './InterJDropdown';
+import { FG, FG_MUTED, FOCUS_OVERLAY, HOVER_OVERLAY, LINE, SURFACE_RAISED } from '../../theme/tokenClasses';
 
 export interface JDropdownViewProps extends InterJDropdown {
   open:           boolean;
@@ -30,7 +31,7 @@ export const JDropdownView: React.FC<JDropdownViewProps> = ({
         role="menu"
         style={menuStyle}
         className={cn(
-          'max-w-[calc(100vw-1rem)] overflow-hidden rounded-md border border-neutral-200 bg-white py-1 shadow-lg',
+          `max-w-[calc(100vw-1rem)] overflow-hidden rounded-md border ${LINE} ${SURFACE_RAISED} py-1 shadow-lg`,
           className,
         )}
       >
@@ -38,7 +39,7 @@ export const JDropdownView: React.FC<JDropdownViewProps> = ({
           <React.Fragment key={gi}>
             {gi > 0 && <JSeparator className="my-1" />}
             {group.label && (
-              <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              <p className={`px-3 py-1 text-xs font-semibold uppercase tracking-wide ${FG_MUTED}`}>
                 {group.label}
               </p>
             )}
@@ -54,11 +55,11 @@ export const JDropdownView: React.FC<JDropdownViewProps> = ({
                   onItemClick(item);
                 }}
                 className={cn(
-                  'flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors duration-150 focus-visible:bg-neutral-100 focus-visible:outline-none',
+                  `flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors duration-150 ${FOCUS_OVERLAY} focus-visible:outline-none`,
                   item.disabled && 'cursor-not-allowed opacity-50',
                   item.variant === 'destructive'
                     ? 'text-danger-500 hover:bg-red-50'
-                    : 'text-neutral-700 hover:bg-neutral-100',
+                    : `${FG} ${HOVER_OVERLAY}`,
                 )}
               >
                 {item.icon && (
@@ -66,7 +67,7 @@ export const JDropdownView: React.FC<JDropdownViewProps> = ({
                 )}
                 <span className="min-w-0 flex-1 truncate">{item.label}</span>
                 {item.shortcut && (
-                  <span className="ml-auto shrink-0 text-xs text-neutral-400">{item.shortcut}</span>
+                  <span className={`ml-auto shrink-0 text-xs ${FG_MUTED}`}>{item.shortcut}</span>
                 )}
               </JButton>
             ))}

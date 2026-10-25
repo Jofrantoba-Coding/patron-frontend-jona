@@ -4,6 +4,7 @@ import { JTextBox } from '../../atoms/JTextBox';
 import { JSpinner } from '../../atoms/JSpinner';
 import { InterJSearchInput } from './InterJSearchInput';
 import { JPanel } from '../../atoms/JPanel/JPanel';
+import { CONTROL_BORDER, FG, FG_MUTED, HOVER_FG, HOVER_OVERLAY, ON_PRIMARY, PLACEHOLDER, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 type JSearchInputViewProps = Omit<InterJSearchInput, 'onChange' | 'onSearch' | 'onClear' | 'onBlur' | 'onEnterPress'> & {
   inputValue: string;
@@ -48,7 +49,7 @@ export const JSearchInputView: React.FC<JSearchInputViewProps> = ({
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('flex flex-row w-full min-w-0 items-center gap-2', containerClassName)}>
     <JPanel variant="ghost" padding="none" radius="none" className="relative min-w-0 flex-1">
-      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+      <span className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${FG_MUTED}`}>
         {loading ? <JSpinner size="sm" /> : <SearchIcon />}
       </span>
       <JTextBox
@@ -64,8 +65,8 @@ export const JSearchInputView: React.FC<JSearchInputViewProps> = ({
         onBlur={(_, event) => onInputBlur(event)}
         onKeyDown={onInputKeyDown}
         className={cn(
-          'flex h-9 w-full min-w-0 rounded-md border border-neutral-300 bg-neutral-50 py-1 pl-9 pr-12 text-sm sm:pr-9 text-neutral-900',
-          'placeholder:text-neutral-400 transition-colors duration-200',
+          `flex h-9 w-full min-w-0 rounded-md border ${CONTROL_BORDER} ${SURFACE_MUTED} py-1 pl-9 pr-12 text-sm sm:pr-9 ${FG}`,
+          `${PLACEHOLDER} transition-colors duration-200`,
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
           'disabled:cursor-not-allowed disabled:opacity-50',
           className
@@ -76,7 +77,7 @@ export const JSearchInputView: React.FC<JSearchInputViewProps> = ({
           type="button"
           aria-label="Clear search"
           onClick={onClearClick}
-          className="absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 sm:right-2 sm:h-6 sm:w-6 items-center justify-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          className={`absolute right-0 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 sm:right-2 sm:h-6 sm:w-6 items-center justify-center rounded ${FG_MUTED} ${HOVER_OVERLAY} ${HOVER_FG} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500`}
         >
           <XIcon />
         </button>
@@ -86,7 +87,7 @@ export const JSearchInputView: React.FC<JSearchInputViewProps> = ({
       type="button"
       disabled={disabled}
       onClick={onSearchClick}
-      className="inline-flex min-h-11 shrink-0 sm:min-h-9 items-center justify-center rounded-md bg-primary-600 px-3 text-sm font-medium text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50"
+      className={`inline-flex min-h-11 shrink-0 sm:min-h-9 items-center justify-center rounded-md bg-primary-600 px-3 text-sm font-medium ${ON_PRIMARY} transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50`}
     >
       Search
     </button>

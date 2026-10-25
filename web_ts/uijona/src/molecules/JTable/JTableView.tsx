@@ -11,12 +11,15 @@ import {
 import { useTableContext } from './JTableContext';
 import { JTextBox } from '../../atoms/JTextBox';
 import { JPanel } from '../../atoms/JPanel/JPanel';
-import { HOVER_SELECTION, HOVER_SURFACE_MUTED, LINE, SELECTED_STATE, SELECTION } from '../../theme/tokenClasses';
+import {
+  BEFORE_FG_MUTED, CONTROL_BORDER, FG, FG_MUTED, HOVER_FG, HOVER_OVERLAY, HOVER_SELECTION, HOVER_SURFACE_MUTED, LINE, MD_LINE,
+  ON_PRIMARY, PLACEHOLDER, SELECTED_STATE, SELECTION, SURFACE, SURFACE_MUTED,
+} from '../../theme/tokenClasses';
 
 const outerClasses: Record<JTableResponsiveMode, string> = {
-  scroll: 'relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200',
-  cards: 'relative flex w-full max-w-full flex-col md:rounded-md md:border md:border-neutral-200',
-  none: 'relative flex w-full max-w-full flex-col rounded-md border border-neutral-200',
+  scroll: `relative flex w-full max-w-full flex-col md:rounded-md md:border ${MD_LINE}`,
+  cards: `relative flex w-full max-w-full flex-col md:rounded-md md:border ${MD_LINE}`,
+  none: `relative flex w-full max-w-full flex-col rounded-md border ${LINE}`,
 };
 
 const innerScrollClasses: Record<JTableResponsiveMode, string> = {
@@ -33,7 +36,7 @@ export const JTableView = React.forwardRef<HTMLTableElement, InterJTable>(
       {/* Scroll mode: tell phone users the table scrolls sideways, and make the
           scroll container keyboard reachable (arrow keys scroll it once focused). */}
       {responsiveMode === 'scroll' && (
-        <p className="px-1 pb-2 text-xs text-neutral-500 sm:hidden">
+        <p className={`px-1 pb-2 text-xs ${FG_MUTED} sm:hidden`}>
           Deslice horizontalmente para consultar todas las columnas.
         </p>
       )}
@@ -50,7 +53,7 @@ export const JTableView = React.forwardRef<HTMLTableElement, InterJTable>(
           ref={ref}
           style={responsiveMode !== 'none' ? undefined : style}
           className={cn(
-            'caption-bottom text-sm text-neutral-900',
+            `caption-bottom text-sm ${FG}`,
             responsiveMode === 'scroll' && 'w-full min-w-max',
             responsiveMode === 'cards' && 'block w-full min-w-0 md:table',
             responsiveMode === 'none' && 'w-full min-w-max',
@@ -95,7 +98,7 @@ function PaginationButton({
       className={cn(
         'flex h-11 min-w-[2.75rem] items-center justify-center rounded-md px-2 text-sm font-medium transition-colors sm:h-8 sm:min-w-[2rem]',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
-        active ? 'bg-primary-600 text-white' : 'text-neutral-600 hover:bg-neutral-100',
+        active ? `bg-primary-600 ${ON_PRIMARY}` : `${FG_MUTED} ${HOVER_OVERLAY}`,
         disabled && 'pointer-events-none opacity-40'
       )}
       {...props}
@@ -123,22 +126,22 @@ function TablePaginationView({
   const pages = getPageNumbers(safeCurrentPage, totalPages);
 
   return (
-    <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col gap-3 border-t border-neutral-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <JPanel variant="ghost" padding="none" radius="none" className={`flex flex-col gap-3 border-t ${LINE} px-4 py-3 sm:flex-row sm:items-center sm:justify-between`}>
       {showRowsInfo && (
-        <p className="shrink-0 text-sm text-neutral-500">
+        <p className={`shrink-0 text-sm ${FG_MUTED}`}>
           Mostrando{' '}
-          <span className="font-medium text-neutral-700">{firstRow}</span>
+          <span className={`font-medium ${FG}`}>{firstRow}</span>
           {' - '}
-          <span className="font-medium text-neutral-700">{lastRow}</span>
+          <span className={`font-medium ${FG}`}>{lastRow}</span>
           {' '}de{' '}
-          <span className="font-medium text-neutral-700">{totalRows}</span>
+          <span className={`font-medium ${FG}`}>{totalRows}</span>
           {' '}resultados
         </p>
       )}
 
       <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row flex-wrap items-center gap-4">
         {showPageSizeSelector && onPageSizeChange && (
-          <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row items-center gap-2 text-sm text-neutral-600">
+          <JPanel variant="ghost" padding="none" radius="none" className={`flex flex-row items-center gap-2 text-sm ${FG_MUTED}`}>
             <span className="shrink-0">Filas por pagina</span>
             <select
               value={pageSize}
@@ -146,7 +149,7 @@ function TablePaginationView({
                 onPageSizeChange(Number(event.target.value));
                 onPageChange(1);
               }}
-              className="h-11 rounded-md border border-neutral-300 bg-white px-2 text-base focus:outline-none focus:ring-2 focus:ring-primary-500 sm:h-8 sm:text-sm"
+              className={`h-11 rounded-md border ${CONTROL_BORDER} ${SURFACE} px-2 text-base focus:outline-none focus:ring-2 focus:ring-primary-500 sm:h-8 sm:text-sm`}
             >
               {pageSizeOptions.map((size) => (
                 <option key={size} value={size}>{size}</option>
@@ -174,7 +177,7 @@ function TablePaginationView({
 
           {pages.map((page, index) =>
             page === 'ellipsis' ? (
-              <span key={`ellipsis-${index}`} className="select-none px-1 text-neutral-400">...</span>
+              <span key={`ellipsis-${index}`} className={`select-none px-1 ${FG_MUTED}`}>...</span>
             ) : (
               <PaginationButton
                 key={page}
@@ -211,7 +214,7 @@ function TablePaginationView({
 
 export const TableCaptionView = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttributes<HTMLTableCaptionElement>>(
   ({ className, ...props }, ref) => (
-    <caption ref={ref} className={cn('mt-4 text-sm text-neutral-500', className)} {...props} />
+    <caption ref={ref} className={cn(`mt-4 text-sm ${FG_MUTED}`, className)} {...props} />
   )
 );
 TableCaptionView.displayName = 'JTableCaption';
@@ -224,7 +227,7 @@ export const TableHeaderView = React.forwardRef<HTMLTableSectionElement, React.H
         ref={ref}
         className={cn(
           responsiveMode === 'cards' ? 'hidden md:table-header-group' : 'table-header-group',
-          'bg-neutral-50 [&_tr]:border-b',
+          `${SURFACE_MUTED} [&_tr]:border-b`,
           className
         )}
         {...props}
@@ -260,7 +263,7 @@ export const TableFooterView = React.forwardRef<HTMLTableSectionElement, React.H
         ref={ref}
         className={cn(
           responsiveMode === 'cards' ? 'block md:table-footer-group' : 'table-footer-group',
-          'bg-neutral-50 font-medium [&>tr]:last:border-b-0',
+          `${SURFACE_MUTED} font-medium [&>tr]:last:border-b-0`,
           className
         )}
         {...props}
@@ -284,7 +287,7 @@ export const TableRowView = React.forwardRef<HTMLTableRowElement, InterJTableRow
         className={cn(
           `transition-colors ${HOVER_SURFACE_MUTED} ${SELECTED_STATE}`,
           responsiveMode === 'cards'
-            ? 'mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b md:border-neutral-200 md:bg-transparent md:p-0 md:shadow-none'
+            ? `mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border ${LINE} ${SURFACE} p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b ${MD_LINE} md:bg-transparent md:p-0 md:shadow-none`
             : `border-b ${LINE}`,
           selected && SELECTED_ROW_CLASSES,
           className
@@ -327,8 +330,8 @@ function clampWidth(width: number, minWidth?: number, maxWidth?: number) {
 function SortIcon({ direction }: { direction: JTableSortDirection }) {
   return (
     <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
-      <polyline points="6 9 12 3 18 9" className={direction === 'asc' ? 'text-primary-600' : 'text-neutral-300'} />
-      <polyline points="6 15 12 21 18 15" className={direction === 'desc' ? 'text-primary-600' : 'text-neutral-300'} />
+      <polyline points="6 9 12 3 18 9" className={direction === 'asc' ? 'text-primary-600' : `${FG_MUTED}`} />
+      <polyline points="6 15 12 21 18 15" className={direction === 'desc' ? 'text-primary-600' : `${FG_MUTED}`} />
     </svg>
   );
 }
@@ -444,8 +447,8 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
         }}
         aria-sort={canSort ? getAriaSort(sortDirection) : props['aria-sort']}
         className={cn(
-          'relative h-10 px-4 text-left align-middle font-medium text-neutral-500 whitespace-nowrap',
-          isGroupedHeader && 'border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700',
+          `relative h-10 px-4 text-left align-middle font-medium ${FG_MUTED} whitespace-nowrap`,
+          isGroupedHeader && `border-b ${LINE} ${SURFACE_MUTED} text-center ${FG}`,
           (canSort || filterable) && 'select-none',
           resizable && 'pr-6',
           className
@@ -466,7 +469,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
             <button
               type="button"
               className={cn(
-                'inline-flex min-h-11 min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none hover:text-neutral-800 focus-visible:ring-2 focus-visible:ring-primary-500 sm:min-h-9',
+                `inline-flex min-h-11 min-w-0 items-center gap-1 rounded-sm text-left font-medium text-inherit outline-none ${HOVER_FG} focus-visible:ring-2 focus-visible:ring-primary-500 sm:min-h-9`,
                 sortButtonClassName
               )}
               onClick={handleSortClick}
@@ -499,7 +502,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
               }}
               onBlur={filterInputOnBlur ? (_, event) => filterInputOnBlur(event) : undefined}
               className={cn(
-                'h-11 w-full min-w-[8rem] rounded-md border border-neutral-300 bg-white px-2 text-base font-normal text-neutral-900 placeholder:text-neutral-400 sm:h-8 sm:text-xs',
+                `h-11 w-full min-w-[8rem] rounded-md border ${CONTROL_BORDER} ${SURFACE} px-2 text-base font-normal ${FG} ${PLACEHOLDER} sm:h-8 sm:text-xs`,
                 'focus:outline-none focus:ring-2 focus:ring-primary-500',
                 filterInputClassName
               )}
@@ -530,11 +533,11 @@ export const TableCellView = React.forwardRef<HTMLTableCellElement, React.TdHTML
       <td
         ref={ref}
         className={cn(
-          'break-words text-neutral-900',
+          `break-words ${FG}`,
           responsiveMode === 'cards'
             ? cn(
               'flex min-w-0 flex-col gap-1 text-sm md:table-cell md:px-4 md:py-3 md:align-middle',
-              'before:break-words before:text-[10px] before:font-semibold before:uppercase before:tracking-wide before:text-neutral-400',
+              `before:break-words before:text-[10px] before:font-semibold before:uppercase before:tracking-wide ${BEFORE_FG_MUTED}`,
               'before:content-[attr(data-label)] md:before:content-none',
               colSpan && colSpan > 1 && 'md:text-center'
             )

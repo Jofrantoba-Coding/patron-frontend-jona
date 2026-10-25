@@ -5,6 +5,7 @@ import { cn } from '../../lib/cn';
 import { JButton } from '../../atoms/JButton';
 import { JOptionPaneVariant } from './InterJOptionPane';
 import { JPanel } from '../../atoms/JPanel/JPanel';
+import { BACKDROP, DANGER_BG, FG, FG_MUTED, SURFACE_RAISED } from '../../theme/tokenClasses';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -27,7 +28,7 @@ const iconByVariant: Record<JOptionPaneVariant, React.ReactNode> = {
 };
 
 const iconBg: Record<JOptionPaneVariant, string> = {
-  danger:  '',
+  danger:  DANGER_BG,
   warning: 'bg-yellow-50',
   info:    'bg-primary-50',
 };
@@ -83,7 +84,7 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
         variant="ghost"
         padding="none"
         radius="none"
-        className="absolute inset-0 bg-black/50"
+        className={`absolute inset-0 ${BACKDROP}`}
         aria-hidden="true"
         onClick={onCancel}
       />
@@ -102,7 +103,7 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
         aria-describedby={description ? 'joptionpane-desc' : undefined}
         tabIndex={-1}
         onKeyDown={onPanelKeyDown}
-        className="relative z-10 max-h-[calc(100dvh-1rem)] w-full max-w-sm overflow-y-auto rounded-lg bg-white shadow-xl focus:outline-none sm:max-w-md"
+        className={`relative z-10 max-h-[calc(100dvh-1rem)] w-full max-w-sm overflow-y-auto rounded-lg ${SURFACE_RAISED} shadow-xl focus:outline-none sm:max-w-md`}
       >
         {/* West: ícono con fondo semántico — mobile: centrado / tablet+: izquierda */}
         <JPanel
@@ -124,11 +125,11 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
           data-panel-area="center"
           className="flex min-w-0 flex-col gap-1 px-5 pb-4 text-center sm:px-0 sm:pt-5 sm:pr-5 sm:text-left"
         >
-          <h2 id="joptionpane-title" className="break-words text-base font-semibold text-neutral-900">
+          <h2 id="joptionpane-title" className={`break-words text-base font-semibold ${FG}`}>
             {title}
           </h2>
           {description && (
-            <p id="joptionpane-desc" className="break-words text-sm text-neutral-500">
+            <p id="joptionpane-desc" className={`break-words text-sm ${FG_MUTED}`}>
               {description}
             </p>
           )}
