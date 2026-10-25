@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastProvider, useToast } from './useToast';
 import { JToastPosition, JTOAST_POSITION_DEFAULT } from '../../molecules/JToast';
 import { JButton } from '../../atoms/JButton/JButton';
@@ -10,7 +10,15 @@ import { cn } from '../../lib/cn';
 const meta: Meta = {
   title: 'Hooks/useToast',
   tags: ['autodocs'],
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          '`ToastProvider` + `useToast()`. Posición por defecto `bottom-right` (1.5.1); para apps de captura de datos se recomienda `top-right`, porque abajo el toast tapa la paginación. `danger` se anuncia como `role="alert"`; el resto como `role="status"` educado.',
+      },
+    },
+  },
 };
 export default meta;
 
@@ -200,3 +208,30 @@ function InteractiveForm() {
     </form>
   );
 }
+
+/** Shows a success toast and a persistent error on mount, so the stack is visible without a click. */
+function RecommendedDemo() {
+  const { toast } = useToast();
+  useEffect(() => {
+    toast({ variant: 'success', title: 'Registro creado', message: '0002 · CUSCO', duration: 0 });
+    toast({ variant: 'danger', title: 'Error', message: 'No se pudo guardar los cambios', duration: 0 });
+  }, [toast]);
+  return <JTextBox aria-label="Filtro" placeholder="El foco se queda aquí" />;
+}
+
+export const RecommendedForForms: StoryObj = {
+  name: 'Recomendado para formularios (top-right)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Para apps de captura de datos se recomienda `position="top-right"`: abajo, el toast tapa la paginación. `label`, `dismissLabel` y `offset` permiten textos en español y otra separación del borde sin cambiar los valores por defecto de 1.5.1. Los toasts `danger` se anuncian como `role="alert"`; `duration: 0` los mantiene hasta cerrarlos; el temporizador se pausa con el puntero encima o con el foco dentro, y mostrar un toast nunca mueve el foco.',
+      },
+    },
+  },
+  render: () => (
+    <ToastProvider position="top-right" label="Notificaciones" dismissLabel="Cerrar notificación">
+      <RecommendedDemo />
+    </ToastProvider>
+  ),
+};

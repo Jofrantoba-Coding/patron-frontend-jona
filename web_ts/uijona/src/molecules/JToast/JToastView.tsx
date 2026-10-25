@@ -13,19 +13,30 @@ const variantClasses: Record<JToastVariant, string> = {
 
 export interface JToastViewProps {
   id:               string;
-  message:          string;
+  message?:         string;
   title?:           string;
   variant?:         JToastVariant;
   className?:       string;
+  dismissLabel?:    string;
   onDismissClick?:  () => void;
+  onMouseEnter?:    () => void;
+  onMouseLeave?:    () => void;
+  onFocus?:         () => void;
+  onBlur?:          (event: React.FocusEvent<HTMLDivElement>) => void;
 }
 
 export const JToastView: React.FC<JToastViewProps> = ({
-  message, title, variant = 'default', className, onDismissClick,
+  message, title, variant = 'default', className, dismissLabel = 'Dismiss notification', onDismissClick,
+  onMouseEnter, onMouseLeave, onFocus, onBlur,
 }) => (
   <div
-    role="status"
-    aria-live="polite"
+    // danger is announced at once (R-FBK-5); every other variant waits politely
+    role={variant === 'danger' ? 'alert' : 'status'}
+    aria-live={variant === 'danger' ? 'assertive' : 'polite'}
+    onMouseEnter={onMouseEnter}
+    onMouseLeave={onMouseLeave}
+    onFocus={onFocus}
+    onBlur={onBlur}
     className={cn(
       'flex w-full min-w-0 max-w-sm items-start gap-3 rounded-md px-4 py-3 shadow-lg sm:min-w-[240px]',
       variantClasses[variant],
@@ -45,7 +56,7 @@ export const JToastView: React.FC<JToastViewProps> = ({
     {/* 44px hit area on mobile; the negative margin keeps the toast's visual height. */}
     <button
       type="button"
-      aria-label="Dismiss notification"
+      aria-label={dismissLabel}
       onClick={onDismissClick}
       className="-m-3.5 inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current sm:m-0 sm:h-auto sm:w-auto"
     >
