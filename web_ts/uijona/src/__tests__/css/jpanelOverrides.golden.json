@@ -289,14 +289,16 @@
       "items-center",
       "max-w-full",
       "md:flex",
-      "min-w-0"
+      "min-w-0",
+      "w-auto"
     ],
     "organisms/JHeaderPage/JHeaderPageView.tsx": [
       "flex",
       "flex-row",
       "gap-2",
       "items-center",
-      "min-w-0"
+      "min-w-0",
+      "w-auto"
     ],
     "organisms/JLogoMarquee/JLogoMarqueeView.tsx": [
       "flex",
@@ -318,6 +320,7 @@
       "justify-between",
       "lg:flex",
       "lg:hidden",
+      "max-w-7xl",
       "max-w-sm",
       "w-[85vw]",
       "w-full"
@@ -451,13 +454,28 @@
     },
     {
       "file": "organisms/JFooterPage/JFooterPageView.tsx",
+      "line": 22,
+      "token": "w-auto"
+    },
+    {
+      "file": "organisms/JFooterPage/JFooterPageView.tsx",
       "line": 28,
       "token": "flex-row"
     },
     {
       "file": "organisms/JFooterPage/JFooterPageView.tsx",
+      "line": 28,
+      "token": "w-auto"
+    },
+    {
+      "file": "organisms/JFooterPage/JFooterPageView.tsx",
       "line": 35,
       "token": "flex-row"
+    },
+    {
+      "file": "organisms/JHeaderPage/JHeaderPageView.tsx",
+      "line": 21,
+      "token": "w-auto"
     },
     {
       "file": "organisms/JHeaderPage/JHeaderPageView.tsx",
@@ -478,6 +496,11 @@
       "file": "organisms/JNavbar/JNavbarView.tsx",
       "line": 42,
       "token": "flex-row"
+    },
+    {
+      "file": "organisms/JNavbar/JNavbarView.tsx",
+      "line": 42,
+      "token": "max-w-7xl"
     },
     {
       "file": "organisms/JNavbar/JNavbarView.tsx",

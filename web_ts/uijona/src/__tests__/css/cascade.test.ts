@@ -21,6 +21,8 @@ import { JTable, JTableBody, JTableCell, JTableRow } from '../../molecules/JTabl
 import { JDashboardPreview } from '../../organisms/JDashboardPreview';
 import { JLogoMarquee } from '../../organisms/JLogoMarquee';
 import { JNavbar } from '../../organisms/JNavbar';
+import { JFooterPage } from '../../organisms/JFooterPage';
+import { JHeaderPage } from '../../organisms/JHeaderPage';
 import { resolveRootTokens, rgbOf } from './tokenCascade';
 
 const ENGINE_SELECTOR = /\.jpanel|\.jona-layout-mobile-grid|\.jona-gridbag|\.jona-group-layout|\.jona-spring-layout/;
@@ -492,6 +494,46 @@ describe('D1a corrections of the Views without a story', () => {
 
     expect(resolveProperty(css, wrapper, 'display', 1024)?.value).toBe('inline-block');
     expect(resolveProperty(css, menu, 'min-width', 1024)?.value).toBe('9rem');
+  });
+
+  it('JNavbar caps its content row at the content width', () => {
+    render(React.createElement(JNavbar, {
+      brand: 'Marca', mobileOpen: false, onMobileToggle: () => {}, onMobileClose: () => {},
+    }, React.createElement('a', { href: '#a' }, 'Inicio')));
+    const nav = screen.getByRole('navigation', { name: 'Navegación principal' });
+
+    expect(resolveProperty(css, nav, 'max-width', 1920)?.value).toBe('80rem');
+  });
+});
+
+/* a1 finding: the box engine's width:100% stacked the slots of these flex rows. */
+describe('JHeaderPage and JFooterPage slots take their content width', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it('JHeaderPage: the title panel is auto width at every breakpoint', () => {
+    render(React.createElement(JHeaderPage, {
+      title: 'Marca', nav: React.createElement('a', { href: '#a' }, 'Inicio'), actions: React.createElement('button', null, 'Salir'),
+    }));
+    const title = screen.getByText('Marca').closest('.jpanel') as HTMLElement;
+
+    expect(resolveProperty(css, title, 'width', 375)?.value).toBe('auto');
+    expect(resolveProperty(css, title, 'width', 1024)?.value).toBe('auto');
+  });
+
+  it('JFooterPage: the left and center slots are auto width', () => {
+    render(React.createElement(JFooterPage, {
+      left: React.createElement('span', null, 'Izquierda'), center: React.createElement('span', null, 'Centro'),
+      right: React.createElement('span', null, 'Derecha'),
+    }));
+
+    ['Izquierda', 'Centro'].forEach((text) => {
+      const slot = screen.getByText(text).closest('.jpanel') as HTMLElement;
+      expect([text, resolveProperty(css, slot, 'width', 1024)?.value]).toEqual([text, 'auto']);
+    });
   });
 });
 
