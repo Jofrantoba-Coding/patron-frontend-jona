@@ -228,3 +228,94 @@ describe('JDataGrid keyboard (R-DAT-3)', () => {
     expect(rowOf('Cliente 4')).toHaveFocus();
   });
 });
+
+describe('JDataGrid states and slots (R-DAT-4)', () => {
+  it('S-DAT-12: initial loading shows skeleton rows and a Cargando... status', () => {
+    renderGrid({ rows: [], loading: 'initial' });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Cargando...');
+    expect(grid().querySelectorAll('tbody tr[aria-hidden="true"]').length).toBeGreaterThan(0);
+    expect(dataRows()).toHaveLength(0);
+  });
+
+  it('S-DAT-12: takes a custom loading label', () => {
+    renderGrid({ rows: [], loading: 'initial', loadingLabel: 'Buscando...' });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Buscando...');
+  });
+
+  it('S-DAT-13: refresh keeps the rows, marks the grid busy and shows a progress indicator', () => {
+    const { rerender } = renderGrid({ rows: rowsOf(5) });
+    expect(grid()).not.toHaveAttribute('aria-busy');
+    expect(screen.queryByRole('progressbar')).toBeNull();
+
+    rerender(
+      <JDataGrid<Cliente> ariaLabel="Cliente" columns={COLUMNS} rows={rowsOf(5)} rowKey={(row) => row.id}
+        loading="refresh" onSelect={vi.fn()} onOpen={vi.fn()} />,
+    );
+
+    expect(dataRows()).toHaveLength(5);
+    expect(grid()).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('progressbar', { name: 'Cargando...' })).toBeInTheDocument();
+  });
+
+  it('S-DAT-14: no rows renders the empty slot', () => {
+    renderGrid({ rows: [], empty: <p>No hay registros.</p> });
+
+    expect(screen.getByText('No hay registros.')).toBeVisible();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('S-DAT-15: a row error marks the row invalid and describes it', () => {
+    renderGrid({ rowState: (row) => (row.id === '2' ? { error: 'Padron duplicado' } : {}) });
+
+    const row = rowOf('Cliente 2');
+    expect(row).toHaveAttribute('aria-invalid', 'true');
+    expect(row).toHaveAccessibleDescription(expect.stringContaining('Padron duplicado'));
+    expect(screen.getByText('Padron duplicado')).toBeVisible();
+    expect(rowOf('Cliente 1')).not.toHaveAttribute('aria-invalid');
+    expect(rowOf('Cliente 1')).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('a badge is the row description, outside its name; muted dims the row', () => {
+    renderGrid({
+      rowState: (row) => (row.id === '3' ? { badge: { label: 'Inactivo', variant: 'secondary' }, muted: true } : {}),
+    });
+
+    const row = rowOf('Cliente 3');
+    expect(row).toHaveAccessibleDescription('Inactivo');
+    expect(screen.getByText('Inactivo').closest('[aria-hidden="true"]')).not.toBeNull();
+    expect(row).toHaveAttribute('data-muted', 'true');
+    expect(rowOf('Cliente 1')).not.toHaveAttribute('data-muted');
+  });
+
+  it('maxHeight caps the scroll area through a CSS variable', () => {
+    const { container, rerender } = renderGrid();
+    const scroller = container.firstElementChild as HTMLElement;
+    expect(scroller.style.getPropertyValue('--jona-grid-max-h')).toBe('');
+    expect(scroller).toHaveClass('max-h-[var(--jona-grid-max-h)]');
+
+    rerender(
+      <JDataGrid<Cliente> ariaLabel="Cliente" columns={COLUMNS} rows={rowsOf(3)} rowKey={(row) => row.id}
+        maxHeight="24rem" onSelect={vi.fn()} onOpen={vi.fn()} />,
+    );
+
+    expect(scroller.style.getPropertyValue('--jona-grid-max-h')).toBe('24rem');
+  });
+
+  it('has no serious axe violations in the loading, empty and row-state cases', async () => {
+    const loading = renderGrid({ rows: [], loading: 'initial' });
+    expect(await seriousViolations(loading.container)).toEqual([]);
+    loading.unmount();
+
+    const empty = renderGrid({ rows: [], empty: <p>No hay registros.</p> });
+    expect(await seriousViolations(empty.container)).toEqual([]);
+    empty.unmount();
+
+    const states = renderGrid({
+      loading: 'refresh',
+      rowState: (row) => (row.id === '2' ? { error: 'Padron duplicado', badge: { label: 'Nuevo', variant: 'default' } } : {}),
+    });
+    expect(await seriousViolations(states.container)).toEqual([]);
+  });
+});

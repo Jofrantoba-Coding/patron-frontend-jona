@@ -1,11 +1,12 @@
 // JDataGridImpl.tsx — JONA Implementation
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useEffect, useId, useImperativeHandle, useRef, useState } from 'react';
 import { nextRovingIndex } from '../../lib/roving';
-import { InterJDataGrid, JDataGridHandle, JDATAGRID_PAGE_STEP } from './InterJDataGrid';
+import { InterJDataGrid, JDataGridHandle, JDATAGRID_DEFAULTS, JDATAGRID_PAGE_STEP } from './InterJDataGrid';
 import { JDataGridView } from './JDataGridView';
 
 function JDataGridInner<T>(props: InterJDataGrid<T>, ref: React.ForwardedRef<JDataGridHandle>) {
-  const { ariaLabel, columns, rows, rowKey, selectedKey, sort, onSelect, onOpen, onSortChange } = props;
+  const { ariaLabel, columns, rows, rowKey, selectedKey, empty, maxHeight, sort, rowState, onSelect, onOpen, onSortChange } = props;
+  const baseId = useId();
   const keys = rows.map(rowKey);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const rowRefs = useRef(new Map<string, HTMLTableRowElement>());
@@ -58,7 +59,18 @@ function JDataGridInner<T>(props: InterJDataGrid<T>, ref: React.ForwardedRef<JDa
     <JDataGridView<T>
       ariaLabel={ariaLabel}
       columns={columns}
-      rows={rows.map((row, index) => ({ key: keys[index], row, selected: keys[index] === selectedKey }))}
+      rows={rows.map((row, index) => ({
+        key: keys[index],
+        row,
+        selected: keys[index] === selectedKey,
+        state: rowState?.(row) ?? {},
+        badgeId: `${baseId}-badge-${index}`,
+        errorId: `${baseId}-error-${index}`,
+      }))}
+      loading={props.loading ?? JDATAGRID_DEFAULTS.loading}
+      loadingLabel={props.loadingLabel ?? JDATAGRID_DEFAULTS.loadingLabel}
+      empty={empty}
+      maxHeight={maxHeight}
       tabStop={tabStop}
       sort={sort}
       setRowRef={(key) => (element) => {
