@@ -36,9 +36,12 @@ export const JShortcutSheetView: React.FC<JShortcutSheetViewProps> = ({ open, ti
           <h3 id={groupId(index)} className={cn('mb-2', TEXT_SECTION, FG)}>
             {group.title}
           </h3>
-          <ul aria-labelledby={groupId(index)} className={cn('flex flex-col divide-y', LINE)}>
+          <ul aria-labelledby={groupId(index)} className="flex flex-col">
             {group.items.map((item) => (
-              <li key={`${item.keys.join('+')}-${item.label}`} className="flex items-center justify-between gap-3 py-2">
+              <li
+                key={`${item.keys.join('+')}-${item.label}`}
+                className={cn('flex items-center justify-between gap-3 border-b py-2 last:border-b-0', LINE)}
+              >
                 <span className={cn('min-w-0', TEXT_BODY, FG)}>{item.label}</span>
                 <span className={cn('flex shrink-0 items-center gap-1', FG_MUTED)}>
                   {item.keys.map((key) => (

@@ -3,6 +3,13 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { vi } from 'vitest';
 import { InterJShortcutSheet, JShortcutGroup, JShortcutSheet } from '../JShortcutSheet';
 import { seriousViolations } from '../../__tests__/quality/axe';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import postcss from 'postcss';
+import postcssImport from 'postcss-import';
+import tailwindcss from 'tailwindcss';
+import tailwindConfig from '../../../tailwind.config.js';
+import { utilityStyle } from '../../__tests__/css/utilityStyle';
 
 const GROUPS: JShortcutGroup[] = [
   {
@@ -80,6 +87,17 @@ describe('JShortcutSheet (R-CHR-8)', () => {
 
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('separates the rows with the line token in both modes (not the preflight gray)', async () => {
+    const from = resolve(process.cwd(), 'src/styles/index.css');
+    const css = (await postcss([postcssImport(), tailwindcss(tailwindConfig)]).process(readFileSync(from, 'utf8'), { from })).root;
+    render(<JShortcutSheet open groups={GROUPS} onClose={() => undefined} />);
+    const rows = within(screen.getByRole('list', { name: 'Lista' })).getAllByRole('listitem');
+
+    expect(utilityStyle(css, rows[0], 1024, 'border-color')).toBe('rgb(var(--jona-line))');
+    expect(utilityStyle(css, rows[0], 1024, 'border-bottom-width')).toBe('1px');
+    expect(utilityStyle(css, rows[rows.length - 1], 1024, 'border-color')).toBe('rgb(var(--jona-line))');
   });
 
   it('has no serious axe violations', async () => {
