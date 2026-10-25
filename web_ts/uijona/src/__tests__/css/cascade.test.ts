@@ -9,13 +9,17 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import postcss, { type AtRule, type Root, type Rule } from 'postcss';
 import postcssImport from 'postcss-import';
 import tailwindcss from 'tailwindcss';
 import tailwindConfig from '../../../tailwind.config.js';
 import { JPanel } from '../../atoms/JPanel';
 import { JSidebarLayout } from '../../layouts/JSidebarLayout';
+import { JLanguageSwitcher } from '../../molecules/JLanguageSwitcher';
+import { JDashboardPreview } from '../../organisms/JDashboardPreview';
+import { JLogoMarquee } from '../../organisms/JLogoMarquee';
+import { JNavbar } from '../../organisms/JNavbar';
 
 const ENGINE_SELECTOR = /\.jpanel|\.jona-layout-mobile-grid|\.jona-gridbag|\.jona-group-layout|\.jona-spring-layout/;
 
@@ -373,6 +377,67 @@ describe('stylesheet cascade (D1, D2)', () => {
 
     expect(resolveProperty(css, el, 'display', 375)?.value).toBe('none');
     expect(resolveProperty(css, el, 'display', 1920)?.value).toBe('none');
+  });
+});
+
+/* Views with no Storybook story: their D1a corrections are checked here instead of the Storybook audit. */
+describe('D1a corrections of the Views without a story', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  const FLEX_TOKEN = /^(?:[\w-]+:)*(?:inline-)?flex$/;
+  /** Panels that turn flex on and do not ask for a column. */
+  const flexRowPanels = (container: HTMLElement): HTMLElement[] =>
+    Array.from(container.querySelectorAll<HTMLElement>('.jpanel')).filter((panel) => {
+      const tokens = Array.from(panel.classList);
+      return tokens.some((token) => FLEX_TOKEN.test(token)) && !tokens.some((token) => /^flex-col/.test(token));
+    });
+
+  it.each([
+    ['JNavbar', () => React.createElement(JNavbar, {
+      brand: 'Marca', mobileOpen: true, onMobileToggle: () => {}, onMobileClose: () => {},
+      actions: React.createElement('button', null, 'Entrar'), drawer: 'menu',
+    }, React.createElement('a', { href: '#a' }, 'Inicio')), 4],
+    ['JDashboardPreview', () => React.createElement(JDashboardPreview, {
+      title: 'Panel', statusLabel: 'En línea', stats: [{ label: 'Ventas', value: '12' }],
+    }), 2],
+    ['JLogoMarquee', () => React.createElement(JLogoMarquee, { items: ['Uno', 'Dos'] }), 2],
+  ])('%s lays out every flex panel as a row', (_name, element, minimum) => {
+    const { container } = render(element());
+    const panels = flexRowPanels(container);
+
+    expect(panels.length).toBeGreaterThanOrEqual(minimum);
+    panels.forEach((panel) => {
+      expect(resolveProperty(css, panel, 'flex-direction', 1024)?.value).toBe('row');
+    });
+  });
+
+  it('JNavbar hides its desktop links below lg and shows them as a row from lg', () => {
+    render(React.createElement(JNavbar, {
+      brand: 'Marca', mobileOpen: false, onMobileToggle: () => {}, onMobileClose: () => {},
+    }, React.createElement('a', { href: '#a' }, 'Inicio')));
+    const links = screen.getByRole('link', { name: 'Inicio' }).parentElement as HTMLElement;
+
+    expect(resolveProperty(css, links, 'display', 375)?.value).toBe('none');
+    expect(resolveProperty(css, links, 'display', 1024)?.value).toBe('flex');
+    expect(resolveProperty(css, links, 'flex-direction', 1024)?.value).toBe('row');
+  });
+
+  it('JLanguageSwitcher wraps inline-block and opens a menu of at least 9rem', () => {
+    const { container } = render(React.createElement(JLanguageSwitcher, {
+      languages: [{ code: 'es', label: 'Español' }, { code: 'en', label: 'English' }],
+      value: 'es',
+      onChange: () => {},
+    }));
+    const wrapper = container.querySelector<HTMLElement>('.jpanel') as HTMLElement;
+    fireEvent.click(screen.getByRole('button'));
+    const menu = container.querySelectorAll<HTMLElement>('.jpanel')[1];
+
+    expect(resolveProperty(css, wrapper, 'display', 1024)?.value).toBe('inline-block');
+    expect(resolveProperty(css, menu, 'min-width', 1024)?.value).toBe('9rem');
   });
 });
 

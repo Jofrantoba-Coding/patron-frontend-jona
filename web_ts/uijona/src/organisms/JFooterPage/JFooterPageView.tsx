@@ -25,14 +25,14 @@ export const JFooterPageView: React.FC<InterJFooterPage> = ({
 
     {/* Center slot */}
     {center && (
-      <JPanel variant="ghost" padding="none" radius="none" className="hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex">
+      <JPanel variant="ghost" padding="none" radius="none" className="hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex flex-row">
         {center}
       </JPanel>
     )}
 
     {/* Right slot */}
     {right && (
-      <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center gap-2">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row shrink-0 items-center gap-2">
         {right}
       </JPanel>
     )}

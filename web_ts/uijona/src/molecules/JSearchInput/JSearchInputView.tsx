@@ -46,7 +46,7 @@ export const JSearchInputView: React.FC<JSearchInputViewProps> = ({
   'aria-label': ariaLabel = 'Search',
   ...props
 }) => (
-  <JPanel variant="ghost" padding="none" radius="none" className={cn('flex w-full min-w-0 items-center gap-2', containerClassName)}>
+  <JPanel variant="ghost" padding="none" radius="none" className={cn('flex flex-row w-full min-w-0 items-center gap-2', containerClassName)}>
     <JPanel variant="ghost" padding="none" radius="none" className="relative min-w-0 flex-1">
       <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
         {loading ? <JSpinner size="sm" /> : <SearchIcon />}

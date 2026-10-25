@@ -41,7 +41,7 @@ export const JLogoMarqueeView: React.FC<InterJLogoMarquee> = ({
           padding="none"
           radius="none"
           className={cn(
-            'flex w-max items-center gap-14 pr-14',
+            'flex flex-row w-max items-center gap-14 pr-14',
             speedClasses[speed],
             pauseOnHover && 'group-hover:[animation-play-state:paused]',
             'motion-reduce:animate-none',
@@ -53,7 +53,7 @@ export const JLogoMarqueeView: React.FC<InterJLogoMarquee> = ({
               variant="ghost"
               padding="none"
               radius="none"
-              className="flex shrink-0 items-center text-neutral-400 grayscale transition-colors"
+              className="flex flex-row shrink-0 items-center text-neutral-400 grayscale transition-colors"
               aria-hidden={i >= items.length ? true : undefined}
             >
               {item}

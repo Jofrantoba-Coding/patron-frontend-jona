@@ -80,7 +80,7 @@ export const JDrawerView: React.FC<JDrawerViewProps> = ({
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 items-start justify-between gap-4 border-b border-neutral-200 p-4 sm:p-5">
+          <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row shrink-0 items-start justify-between gap-4 border-b border-neutral-200 p-4 sm:p-5">
             <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-0.5">
               {title && <h2 id="drawer-title" className="break-words text-base font-semibold text-neutral-900">{title}</h2>}
               {description && <p id="drawer-desc" className="break-words text-sm text-neutral-500">{description}</p>}

@@ -39,12 +39,12 @@ export const JNavbarView: React.FC<JNavbarViewProps> = ({
     radius="none"
     className={cn('sticky top-0 z-40 border-b border-neutral-200/70 bg-white/80 backdrop-blur-md', className)}
   >
-    <JPanel as="nav" variant="ghost" padding="none" radius="none" className="mx-auto flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8" aria-label="Navegación principal">
+    <JPanel as="nav" variant="ghost" padding="none" radius="none" className="mx-auto flex flex-row h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8" aria-label="Navegación principal">
       {brand}
-      <JPanel variant="ghost" padding="none" radius="none" className="hidden items-center gap-1 lg:flex">
+      <JPanel variant="ghost" padding="none" radius="none" className="hidden items-center gap-1 lg:flex flex-row">
         {children}
       </JPanel>
-      <JPanel variant="ghost" padding="none" radius="none" className="flex items-center gap-2">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row items-center gap-2">
         {actions}
         <button
           onClick={onMobileToggle}
@@ -63,7 +63,7 @@ export const JNavbarView: React.FC<JNavbarViewProps> = ({
       <JPanel variant="ghost" padding="none" radius="none" className="fixed inset-0 z-50 lg:hidden">
         <JPanel variant="ghost" padding="none" radius="none" className="absolute inset-0 bg-neutral-900/40 backdrop-blur-sm" onClick={onMobileClose} aria-hidden="true" />
         <JPanel variant="ghost" padding="none" radius="none" className="absolute left-0 top-0 flex h-full w-[85vw] max-w-sm flex-col overflow-y-auto bg-white shadow-2xl">
-          <JPanel variant="ghost" padding="none" radius="none" className="flex h-16 shrink-0 items-center justify-between border-b border-neutral-200 px-5">
+          <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row h-16 shrink-0 items-center justify-between border-b border-neutral-200 px-5">
             {brand}
             <button onClick={onMobileClose} aria-label="Cerrar menú" className="grid h-11 w-11 place-items-center rounded-lg text-neutral-600 hover:bg-neutral-100">
               <CloseIcon />

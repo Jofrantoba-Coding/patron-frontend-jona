@@ -134,9 +134,9 @@ function TablePaginationView({
         </p>
       )}
 
-      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-wrap items-center gap-4">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row flex-wrap items-center gap-4">
         {showPageSizeSelector && onPageSizeChange && (
-          <JPanel variant="ghost" padding="none" radius="none" className="flex items-center gap-2 text-sm text-neutral-600">
+          <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row items-center gap-2 text-sm text-neutral-600">
             <span className="shrink-0">Filas por pagina</span>
             <select
               value={pageSize}

@@ -22,7 +22,7 @@ export const JDashboardPreviewView: React.FC<InterJDashboardPreview> = ({
     <JPanel variant="ghost" padding="none" radius="none" className="pointer-events-none absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-tr from-primary-100/60 to-transparent blur-2xl" aria-hidden="true" />
     <JPanel variant="ghost" padding="none" radius="none" className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-[0_24px_70px_-24px_rgba(15,23,42,0.25)]">
       {/* Toolbar */}
-      <JPanel variant="ghost" padding="none" radius="none" className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50/60 px-4 py-3">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row items-center gap-2 border-b border-neutral-100 bg-neutral-50/60 px-4 py-3">
         <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
         <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
         <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
@@ -52,7 +52,7 @@ export const JDashboardPreviewView: React.FC<InterJDashboardPreview> = ({
         {chart && chart.length > 0 && (
           <JPanel variant="ghost" padding="none" radius="none" className="col-span-2 rounded-xl border border-neutral-200 p-3">
             {chartLabel && <JLabel as="span" className="mb-2 block text-[11px] font-medium text-neutral-500">{chartLabel}</JLabel>}
-            <JPanel variant="ghost" padding="none" radius="none" className="flex h-16 items-end gap-1.5">
+            <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row h-16 items-end gap-1.5">
               {chart.map((h, i) => (
                 <span key={i} className="flex-1 rounded-t bg-gradient-to-t from-primary-500 to-primary-300" style={{ height: `${h}%` }} />
               ))}

@@ -30,7 +30,7 @@ export const JStatCardView: React.FC<InterJStatCard> = ({
   ...props
 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className={cn('min-w-0 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-5', className)} {...props}>
-    <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 items-start justify-between gap-3">
+    <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row min-w-0 items-start justify-between gap-3">
       <JPanel variant="ghost" padding="none" radius="none" className="min-w-0">
         {valueFirst ? (
           <>
@@ -44,10 +44,10 @@ export const JStatCardView: React.FC<InterJStatCard> = ({
           </>
         )}
       </JPanel>
-      {icon && <JPanel variant="ghost" padding="none" radius="none" className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-md', toneClasses[tone])}>{icon}</JPanel>}
+      {icon && <JPanel variant="ghost" padding="none" radius="none" className={cn('flex flex-row h-10 w-10 shrink-0 items-center justify-center rounded-md', toneClasses[tone])}>{icon}</JPanel>}
     </JPanel>
     {(description || trendLabel) && (
-      <JPanel variant="ghost" padding="none" radius="none" className="mt-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+      <JPanel variant="ghost" padding="none" radius="none" className="mt-3 flex flex-row min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
         {trendLabel && <span className={cn('font-medium', trendClasses[trend])}>{trendLabel}</span>}
         {description && <span className="break-words text-neutral-500">{description}</span>}
       </JPanel>
