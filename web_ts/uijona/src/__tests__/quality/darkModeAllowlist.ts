@@ -6,7 +6,6 @@
 export const DARK_MODE_ALLOWLIST: Record<string, string[]> = {
   'layouts/JBorderLayout/InterJBorderLayout.ts': ['border-neutral-200'],
   'layouts/JBorderLayout/JBorderLayoutView.tsx': ['bg-neutral-50'],
-  'molecules/JAccordion/JAccordionView.tsx': ['bg-white', 'border-neutral-200', 'divide-neutral-100', 'divide-neutral-200', 'hover:bg-neutral-50', 'text-neutral-400', 'text-neutral-500', 'text-neutral-600', 'text-neutral-900'],
   'molecules/JCard/JCardView.tsx': ['bg-white', 'border-neutral-200', 'text-neutral-500', 'text-neutral-900'],
   'molecules/JCombobox/JComboboxView.tsx': ['bg-neutral-100', 'bg-neutral-50', 'bg-white', 'border-neutral-100', 'border-neutral-200', 'border-neutral-300', 'hover:bg-neutral-50', 'placeholder:text-neutral-400', 'text-neutral-400', 'text-neutral-700'],
   'molecules/JContactMethodCard/JContactMethodCardView.tsx': ['bg-neutral-50', 'border-neutral-200', 'text-neutral-500', 'text-neutral-900', 'text-white'],
