@@ -214,6 +214,16 @@
       "require": "./dist/molecules/JTreeNav.cjs",
       "types": "./dist/molecules/JTreeNav.d.ts"
     },
+    "./molecules/JUserMenu": {
+      "import": "./dist/molecules/JUserMenu.js",
+      "require": "./dist/molecules/JUserMenu.cjs",
+      "types": "./dist/molecules/JUserMenu.d.ts"
+    },
+    "./molecules/JContextChip": {
+      "import": "./dist/molecules/JContextChip.js",
+      "require": "./dist/molecules/JContextChip.cjs",
+      "types": "./dist/molecules/JContextChip.d.ts"
+    },
     "./molecules/JCheckBoxField": {
       "import": "./dist/molecules/JCheckBoxField.js",
       "require": "./dist/molecules/JCheckBoxField.cjs",
