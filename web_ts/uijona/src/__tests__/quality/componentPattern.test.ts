@@ -18,6 +18,8 @@ interface Piece {
 const PIECES_160: Piece[] = [
   { layer: 'molecules', name: 'JField' },
   { layer: 'layouts', name: 'JFieldGrid' },
+  { layer: 'molecules', name: 'JFormSection' },
+  { layer: 'molecules', name: 'JErrorSummary' },
 ];
 
 const SRC = resolve(process.cwd(), 'src');
