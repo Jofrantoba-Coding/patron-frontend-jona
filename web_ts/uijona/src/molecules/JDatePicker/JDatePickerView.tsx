@@ -3,6 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { JTextBox } from '../../atoms/JTextBox';
+import { CONTROL_BORDER, FG, FG_MUTED, HOVER_OVERLAY, LINE, ON_PRIMARY, PLACEHOLDER, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 const DAYS   = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -67,11 +68,11 @@ function pad(value: number): string {
 
 // Mobile first: 44px / 16px below sm:, compact desktop size from sm: up.
 const inputClass =
-  'h-11 w-full rounded-md border border-neutral-300 bg-white px-2 text-base text-neutral-900 sm:h-8 sm:text-sm ' +
+  `h-11 w-full rounded-md border ${CONTROL_BORDER} ${SURFACE} px-2 text-base ${FG} sm:h-8 sm:text-sm ` +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500';
 
 const navButtonClass =
-  'flex h-11 w-11 items-center justify-center rounded hover:bg-neutral-100 disabled:opacity-30 sm:h-7 sm:w-7 ' +
+  `flex h-11 w-11 items-center justify-center rounded ${HOVER_OVERLAY} disabled:opacity-30 sm:h-7 sm:w-7 ` +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500';
 
 export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
@@ -93,7 +94,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
       <div
         ref={triggerRef}
         className={cn(
-          'flex h-11 w-full flex-row items-center rounded-md border border-neutral-300 bg-neutral-50 text-sm transition-colors sm:h-9',
+          `flex h-11 w-full flex-row items-center rounded-md border ${CONTROL_BORDER} ${SURFACE_MUTED} text-sm transition-colors sm:h-9`,
           'focus-within:ring-2 focus-within:ring-primary-500',
           disabled && 'cursor-not-allowed opacity-50',
           open      && 'ring-2 ring-primary-500',
@@ -108,8 +109,8 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           placeholder={placeholder}
           aria-label={placeholder || 'Fecha'}
           className={cn(
-            'h-full min-h-0 min-w-0 flex-1 rounded-l-md rounded-r-none border-0 bg-transparent px-3 py-1 text-base text-neutral-900 sm:text-sm',
-            'placeholder:text-neutral-400 focus-visible:ring-0 disabled:cursor-not-allowed',
+            `h-full min-h-0 min-w-0 flex-1 rounded-l-md rounded-r-none border-0 bg-transparent px-3 py-1 text-base ${FG} sm:text-sm`,
+            `${PLACEHOLDER} focus-visible:ring-0 disabled:cursor-not-allowed`,
           )}
         />
         <button
@@ -120,8 +121,8 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           aria-haspopup="dialog"
           aria-expanded={open}
           className={cn(
-            'flex h-full w-11 shrink-0 items-center justify-center rounded-r-md text-neutral-500 transition-colors sm:w-9',
-            'hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
+            `flex h-full w-11 shrink-0 items-center justify-center rounded-r-md ${FG_MUTED} transition-colors sm:w-9`,
+            `${HOVER_OVERLAY} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500`,
             'disabled:cursor-not-allowed disabled:opacity-50',
           )}
         >
@@ -141,7 +142,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           role="dialog"
           aria-label="Calendario"
           style={panelStyle}
-          className="z-50 max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[22rem] overflow-y-auto rounded-lg border border-neutral-200 bg-white p-3 shadow-xl sm:w-80"
+          className={`z-50 max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[22rem] overflow-y-auto rounded-lg border ${LINE} ${SURFACE} p-3 shadow-xl sm:w-80`}
         >
           {/* Navegación mes/año */}
           <div className="mb-2 flex flex-row items-center justify-between gap-2">
@@ -156,7 +157,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                 <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
-            <span className="text-sm font-semibold text-neutral-900">
+            <span className={`text-sm font-semibold ${FG}`}>
               {MONTHS[viewMonth]} {viewYear}
             </span>
             <button
@@ -175,7 +176,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           {/* Cabecera días de la semana */}
           <div className="mb-1 grid grid-cols-7 text-center">
             {DAYS.map((d) => (
-              <span key={d} className="text-xs font-medium text-neutral-400">{d}</span>
+              <span key={d} className={`text-xs font-medium ${FG_MUTED}`}>{d}</span>
             ))}
           </div>
 
@@ -202,8 +203,8 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
                     isDisabled
                       ? 'cursor-not-allowed opacity-30'
-                      : 'cursor-pointer hover:bg-neutral-100',
-                    isSelected && 'bg-primary-600 font-semibold text-white hover:bg-primary-700',
+                      : `cursor-pointer ${HOVER_OVERLAY}`,
+                    isSelected && `bg-primary-600 font-semibold ${ON_PRIMARY} hover:bg-primary-700`,
                     isToday && !isSelected && 'border border-primary-400 font-medium text-primary-600',
                   )}
                 >
@@ -215,11 +216,11 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
 
           {/* Hora y timezone */}
           {(showTime || showTimezone) && (
-            <div className="mt-3 border-t border-neutral-200 pt-3 flex flex-col gap-2">
+            <div className={`mt-3 border-t ${LINE} pt-3 flex flex-col gap-2`}>
 
               {showTime && (
                 <div className="grid grid-cols-3 gap-2">
-                  <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                  <label className={`flex flex-col gap-1 text-xs font-medium ${FG_MUTED}`}>
                     HH
                     <JTextBox
                       type="number"
@@ -230,7 +231,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                       className={inputClass}
                     />
                   </label>
-                  <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                  <label className={`flex flex-col gap-1 text-xs font-medium ${FG_MUTED}`}>
                     mm
                     <JTextBox
                       type="number"
@@ -242,7 +243,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
                     />
                   </label>
                   {showSeconds && (
-                    <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                    <label className={`flex flex-col gap-1 text-xs font-medium ${FG_MUTED}`}>
                       ss
                       <JTextBox
                         type="number"
@@ -258,7 +259,7 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
               )}
 
               {showTimezone && (
-                <label className="flex flex-col gap-1 text-xs font-medium text-neutral-600">
+                <label className={`flex flex-col gap-1 text-xs font-medium ${FG_MUTED}`}>
                   Timezone
                   {timezoneOptions?.length ? (
                     <select

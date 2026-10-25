@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJPagination } from './InterJPagination';
 import { JButton } from '../../atoms/JButton/JButton';
+import { FG, FG_MUTED, HOVER_OVERLAY, LINE, ON_PRIMARY } from '../../theme/tokenClasses';
 
 function buildRange(current: number, total: number, siblings: number): (number | '...')[] {
   const range: number[] = [];
@@ -30,19 +31,19 @@ export const JPaginationView: React.FC<InterJPagination> = ({
     <nav aria-label="JPagination" className={cn('flex w-full max-w-full items-center gap-1 overflow-x-auto py-1', className)}>
       <JButton variant="ghost" type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
         onClick={() => { if (currentPage <= 1) { onFirstPageReached?.(); return; } onPrevious?.(currentPage); onPageChange?.(currentPage - 1); }}
-        className={cn(btnBase, 'gap-1 pr-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}>
+        className={cn(btnBase, `gap-1 pr-3 ${FG_MUTED} ${HOVER_OVERLAY} border ${LINE}`)}>
         <ChevronLeft /><span className="hidden sm:inline">Previous</span>
       </JButton>
       {pages.map((page, i) => page === '...' ? (
-        <span key={`e-${i}`} className="shrink-0 px-2 text-neutral-400 select-none">…</span>
+        <span key={`e-${i}`} className={`shrink-0 px-2 ${FG_MUTED} select-none`}>…</span>
       ) : (
         <JButton variant="ghost" key={page} type="button" aria-label={`Page ${page}`} aria-current={page === currentPage ? 'page' : undefined}
           onClick={() => onPageChange?.(page as number)}
-          className={cn(btnBase, page === currentPage ? 'bg-primary-600 text-white border border-primary-600' : 'text-neutral-700 hover:bg-neutral-100 border border-neutral-200')}>{page}</JButton>
+          className={cn(btnBase, page === currentPage ? `bg-primary-600 ${ON_PRIMARY} border border-primary-600` : `${FG} ${HOVER_OVERLAY} border ${LINE}`)}>{page}</JButton>
       ))}
       <JButton variant="ghost" type="button" aria-label="Go to next page" disabled={currentPage >= totalPages}
         onClick={() => { if (currentPage >= totalPages) { onLastPageReached?.(); return; } onNext?.(currentPage); onPageChange?.(currentPage + 1); }}
-        className={cn(btnBase, 'gap-1 pl-3 text-neutral-600 hover:bg-neutral-100 border border-neutral-200')}>
+        className={cn(btnBase, `gap-1 pl-3 ${FG_MUTED} ${HOVER_OVERLAY} border ${LINE}`)}>
         <span className="hidden sm:inline">Next</span><ChevronRight />
       </JButton>
     </nav>

@@ -5,6 +5,7 @@ import { cn } from '../../lib/cn';
 import { JButton } from '../../atoms/JButton';
 import { InterJDrawer, JDrawerSide } from './InterJDrawer';
 import { JPanel } from '../../atoms/JPanel/JPanel';
+import { BACKDROP, FG, FG_MUTED, LINE, SURFACE_RAISED, TEXT_SECTION } from '../../theme/tokenClasses';
 
 const sideStyles: Record<JDrawerSide, { panel: string; open: string }> = {
   right:  { panel: 'inset-y-0 right-0 h-full flex-col', open: 'translate-x-0' },
@@ -54,7 +55,7 @@ export const JDrawerView: React.FC<JDrawerViewProps> = ({
         aria-hidden="true"
         onClick={onOverlayClick}
         className={cn(
-          'fixed inset-0 z-40 bg-black/50 transition-opacity duration-300',
+          `fixed inset-0 z-40 ${BACKDROP} transition-opacity duration-300`,
           open ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
       />
@@ -68,7 +69,7 @@ export const JDrawerView: React.FC<JDrawerViewProps> = ({
         tabIndex={-1}
         onKeyDown={onPanelKeyDown}
         className={cn(
-          'fixed z-50 flex bg-white shadow-xl transition-transform duration-300 ease-in-out focus:outline-none',
+          `fixed z-50 flex ${SURFACE_RAISED} shadow-xl transition-transform duration-300 ease-in-out focus:outline-none`,
           panel,
           sizeClass,
           // Nunca exceder el viewport en pantallas más estrechas/bajas que el panel
@@ -80,10 +81,10 @@ export const JDrawerView: React.FC<JDrawerViewProps> = ({
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row shrink-0 items-start justify-between gap-4 border-b border-neutral-200 p-4 sm:p-5">
+          <JPanel variant="ghost" padding="none" radius="none" className={`flex flex-row shrink-0 items-start justify-between gap-4 border-b ${LINE} p-4 sm:p-5`}>
             <JPanel variant="ghost" padding="none" radius="none" className="flex min-w-0 flex-col gap-0.5">
-              {title && <h2 id="drawer-title" className="break-words text-base font-semibold text-neutral-900">{title}</h2>}
-              {description && <p id="drawer-desc" className="break-words text-sm text-neutral-500">{description}</p>}
+              {title && <h2 id="drawer-title" className={`break-words ${TEXT_SECTION} ${FG}`}>{title}</h2>}
+              {description && <p id="drawer-desc" className={`break-words text-sm ${FG_MUTED}`}>{description}</p>}
             </JPanel>
             {showCloseButton && (
               <JButton variant="ghost" size="icon" onClick={onClose} aria-label="Cerrar panel" className="shrink-0">
@@ -100,7 +101,7 @@ export const JDrawerView: React.FC<JDrawerViewProps> = ({
         </JPanel>
         {/* Footer */}
         {footer && (
-          <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 flex-col-reverse gap-2 border-t border-neutral-200 p-4 sm:flex-row sm:justify-end sm:p-5">
+          <JPanel variant="ghost" padding="none" radius="none" className={`flex shrink-0 flex-col-reverse gap-2 border-t ${LINE} p-4 sm:flex-row sm:justify-end sm:p-5`}>
             {footer}
           </JPanel>
         )}
