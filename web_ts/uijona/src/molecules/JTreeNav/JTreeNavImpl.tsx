@@ -1,7 +1,7 @@
 // JTreeNavImpl.tsx — JONA Implementation
-import React, { useId, useMemo, useRef, useState } from 'react';
+import React, { useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { nextRovingIndex } from '../../lib/roving';
-import { InterJTreeNav, JTREENAV_DEFAULTS, JTreeNavNode } from './InterJTreeNav';
+import { InterJTreeNav, JTREENAV_DEFAULTS, JTreeNavHandle, JTreeNavNode } from './InterJTreeNav';
 import { filterTree, foldText } from './filterTree';
 import { isTreeBranch, JTreeNavView } from './JTreeNavView';
 
@@ -28,10 +28,10 @@ const flattenVisible = (
 const isPrintable = (event: React.KeyboardEvent): boolean =>
   event.key.length === 1 && event.key !== ' ' && !event.ctrlKey && !event.metaKey && !event.altKey;
 
-export const JTreeNavImpl: React.FC<InterJTreeNav> = ({
+export const JTreeNavImpl = React.forwardRef<JTreeNavHandle, InterJTreeNav>(({
   ariaLabel, nodes, expandedIds, activeId = null, variant, checkedIds, filter, showFilter, filterLabel, noResultsLabel,
   maxHeight, onToggle, onSelect, onCheckedChange, onFilterChange,
-}) => {
+}, ref) => {
   const resolvedVariant = variant ?? JTREENAV_DEFAULTS.variant;
   const checkbox = resolvedVariant === 'checkbox';
   const [focused, setFocused] = useState<string | null>(null);
@@ -41,6 +41,14 @@ export const JTreeNavImpl: React.FC<InterJTreeNav> = ({
   const baseId = useId();
   const itemRefs = useRef(new Map<string, HTMLDivElement>());
   const typeAhead = useRef({ text: '', at: 0 });
+  const filterRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focusFilter: () => {
+      filterRef.current?.focus();
+      filterRef.current?.select();
+    },
+  }), []);
 
   const filterText = filter ?? innerFilter;
   const filterKey = foldText(filterText.trim());
@@ -159,6 +167,7 @@ export const JTreeNavImpl: React.FC<InterJTreeNav> = ({
       noResults={noResults}
       maxHeight={maxHeight}
       badgeId={(id) => `${baseId}-badge-${id}`}
+      filterRef={filterRef}
       setItemRef={(id) => (element) => {
         if (element) itemRefs.current.set(id, element);
         else itemRefs.current.delete(id);
@@ -186,6 +195,6 @@ export const JTreeNavImpl: React.FC<InterJTreeNav> = ({
       onItemFocus={setFocused}
     />
   );
-};
+});
 
 JTreeNavImpl.displayName = 'JTreeNav';
