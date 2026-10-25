@@ -81,6 +81,7 @@ describe('package exports', () => {
       'molecules/JFormSection',
       'molecules/JErrorSummary',
       'hooks/useConfirm',
+      'molecules/JToolbar',
     ];
 
     SUBPATHS_160.forEach((subpath) => {
