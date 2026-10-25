@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import type { AppServices } from './services/serviceComposer';
 import { ServicesProvider } from './services/ServicesContext';
+import { RedirectIfSession } from './session/RedirectIfSession';
 import { RequireSession } from './session/RequireSession';
 import { SessionProvider } from './session/SessionProvider';
 import type { SessionStore } from './session/sessionStore';
@@ -13,8 +14,11 @@ export function App({ services, store }: { services: AppServices; store: Session
   return (
     <SessionProvider store={store}>
       <Routes>
-        <Route path="/login" element={<UiLogin service={services.auth} />} />
-        <Route path="/contexto" element={<UiContexto service={services.auth} grants={services.grants} />} />
+        <Route path="/login" element={<RedirectIfSession><UiLogin service={services.auth} /></RedirectIfSession>} />
+        <Route
+          path="/contexto"
+          element={<RedirectIfSession><UiContexto service={services.auth} grants={services.grants} /></RedirectIfSession>}
+        />
         <Route
           path="/"
           element={

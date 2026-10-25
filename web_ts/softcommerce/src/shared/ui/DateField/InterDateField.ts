@@ -8,6 +8,8 @@ export interface InterDateField {
   /** Shown but not editable (the register is read-only or the field is `readOnlyOn` this mode). */
   readOnly?: boolean;
   hasError?: boolean;
+  /** Id of the element that describes the field's error (`aria-describedby` on the input). */
+  describedBy?: string;
   /** Value-first: the masked text after a keystroke or a calendar pick; no DOM event. */
   onChange: (value: string) => void;
 }

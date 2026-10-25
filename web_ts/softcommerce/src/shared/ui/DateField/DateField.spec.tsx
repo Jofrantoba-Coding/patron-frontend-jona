@@ -49,6 +49,13 @@ describe('DateField (S-CRUD-27: masked dd/MM/yyyy over jona-ui JDatePicker)', ()
     expect(input().getAttribute('aria-invalid')).toBeNull();
   });
 
+  it('points the input at the element that describes its error, and drops the link without one', () => {
+    const { rerender } = render(<DateField name="fecha" label="Fecha" value="" hasError describedBy="fecha-error" onChange={vi.fn()} />);
+    expect(input().getAttribute('aria-describedby')).toBe('fecha-error');
+    rerender(<DateField name="fecha" label="Fecha" value="" onChange={vi.fn()} />);
+    expect(input().getAttribute('aria-describedby')).toBeNull();
+  });
+
   it('a read-only date is disabled and cannot be edited or opened', async () => {
     const onChange = vi.fn();
     render(<DateField name="fecha" label="Fecha" value="15/01/2026" readOnly onChange={onChange} />);

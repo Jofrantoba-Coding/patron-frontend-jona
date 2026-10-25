@@ -1,0 +1,32 @@
+/*
+ * App-side stopgap over `jona-ui/index.css`. softcommerce has no Tailwind build: the lib CSS is compiled with
+ * the lib's own sources as Tailwind content only, so a utility the app writes exists only if some lib component
+ * happens to use it too. Loaded after the lib CSS (src/main.tsx). Remove each rule once the design system ships it
+ * (src/styles/appStyles.spec.ts lists what is still needed).
+ */
+
+/* The HTML `hidden` attribute must win over a display utility on the same element (inactive tab panels carry
+   `grid`); the lib preflight hides [hidden] with the weight of a single class, so `.grid` used to show them. */
+[hidden]:not([hidden='until-found']) {
+  display: none !important;
+}
+
+/* Utilities the app uses that the lib CSS does not contain (Tailwind v3 values). */
+.m-0 { margin: 0; }
+.list-none { list-style-type: none; }
+.max-h-80 { max-height: 20rem; }
+.max-h-96 { max-height: 24rem; }
+.content-start { align-content: flex-start; }
+.justify-self-start { justify-self: start; }
+
+@media (min-width: 640px) {
+  .sm\:items-end { align-items: flex-end; }
+  .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sm\:grid-cols-\[10rem_1fr_auto_auto\] { grid-template-columns: 10rem 1fr auto auto; }
+}
+
+/* A JPanel's own `display` rule (`.jpanel[data-jpanel-desktop-layout=box]`) outranks the lib `.lg\:hidden`, so the
+   JSidebarLayout phone bar (hamburger) stayed on screen from `lg` up next to the permanent sidebar. */
+@media (min-width: 1024px) {
+  .jpanel.lg\:hidden { display: none !important; }
+}

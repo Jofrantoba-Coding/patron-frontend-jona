@@ -122,8 +122,10 @@ describe('the cross-UI and compatibility scenarios stay in place', () => {
 /**
  * R-MST-18 / S-REG-29 / S-CRUD-50: the W1 and W2 test files that Wave 3 changed, against the commit that archived Wave 2. Each is recorded in R-MST-18 (and in the
  * apply-progress of its slice); a W1 / W2 test edited without a record fails here. The check needs the git history, so it is skipped where the base is not available.
+ * The range ends at the merge that closed Wave 3: later fixes that edit a W1 / W2 test are outside what R-MST-18 records.
  */
 const W2_BASE = '7c99e11';
+const W3_END = '7c3d915c';
 const RECORDED_W2_TEST_EDITS = [
   'scripts/inventory/inventory.spec.ts',
   'src/catalogs/registry.choferes.ui.spec.tsx',
@@ -143,8 +145,8 @@ const RECORDED_W2_TEST_EDITS = [
 function changedW2Tests(): string[] | undefined {
   const cwd = dirname(here('package.json'));
   try {
-    execFileSync('git', ['cat-file', '-e', `${W2_BASE}^{commit}`], { cwd, stdio: 'ignore' });
-    const out = execFileSync('git', ['diff', '--name-status', '--relative', W2_BASE, '--', '.'], { cwd, encoding: 'utf8' });
+    for (const ref of [W2_BASE, W3_END]) execFileSync('git', ['cat-file', '-e', `${ref}^{commit}`], { cwd, stdio: 'ignore' });
+    const out = execFileSync('git', ['diff', '--name-status', '--relative', W2_BASE, W3_END, '--', '.'], { cwd, encoding: 'utf8' });
     return out
       .split(/\r?\n/)
       .filter((line) => line !== '' && !line.startsWith('A'))
