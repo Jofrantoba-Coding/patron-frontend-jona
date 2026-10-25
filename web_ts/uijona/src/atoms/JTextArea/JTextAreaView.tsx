@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { cn } from '../../lib/cn';
 import { InterJTextArea, JTextAreaResize, JTextAreaSize, JTextAreaVariant } from './InterJTextArea';
+import { CONTROL_BORDER, FG, LINE, PLACEHOLDER, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 interface JTextAreaViewProps extends InterJTextArea {
   forwardedRef?: React.Ref<HTMLTextAreaElement>;
@@ -21,8 +22,8 @@ const sizeClasses: Record<JTextAreaSize, string> = {
 };
 
 const variantClasses: Record<JTextAreaVariant, string> = {
-  default: 'bg-white border-neutral-300',
-  filled:  'bg-neutral-50 border-neutral-200',
+  default: `${SURFACE} ${CONTROL_BORDER}`,
+  filled:  `${SURFACE_MUTED} ${LINE}`,
 };
 
 export const JTextAreaView: React.FC<JTextAreaViewProps> = ({
@@ -81,8 +82,8 @@ export const JTextAreaView: React.FC<JTextAreaViewProps> = ({
       data-jtextarea-autoresize={autoResize ? 'true' : undefined}
       className={cn(
         'jtextarea',
-        'w-full rounded-md border text-neutral-900',
-        'placeholder:text-neutral-400 transition-colors duration-150',
+        `w-full rounded-md border ${FG}`,
+        `${PLACEHOLDER} transition-colors duration-150`,
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
         'disabled:cursor-not-allowed disabled:opacity-50',
         sizeClasses[size],

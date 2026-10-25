@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJComboBox, JComboBoxSize, JComboBoxVariant } from './InterJComboBox';
+import { CONTROL_BORDER, LINE, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 interface JComboBoxViewProps extends InterJComboBox {
   forwardedRef?: React.Ref<HTMLSelectElement>;
@@ -14,8 +15,8 @@ const sizeClasses: Record<JComboBoxSize, string> = {
 };
 
 const variantClasses: Record<JComboBoxVariant, string> = {
-  default: 'bg-white border-neutral-300',
-  filled:  'bg-neutral-50 border-neutral-200',
+  default: `${SURFACE} ${CONTROL_BORDER}`,
+  filled:  `${SURFACE_MUTED} ${LINE}`,
 };
 
 export const JComboBoxView: React.FC<JComboBoxViewProps> = ({

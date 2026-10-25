@@ -1,21 +1,22 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJLabel, JLabelAs, JLabelColor, JLabelSize, JLabelVariant } from './InterJLabel';
+import { FG, FG_MUTED, ON_PRIMARY } from '../../theme/tokenClasses';
 
 interface JLabelViewProps extends InterJLabel {
   forwardedRef?: React.Ref<HTMLElement>;
 }
 
 const variantClasses: Record<JLabelVariant, string> = {
-  'body':        'text-neutral-900',
-  'heading':     'font-semibold text-neutral-900',
-  'label':       'text-sm font-medium text-neutral-700',
+  'body':        `${FG}`,
+  'heading':     `font-semibold ${FG}`,
+  'label':       `text-sm font-medium ${FG}`,
   'link':        'text-primary-600 underline-offset-4 hover:underline cursor-pointer',
-  'link-muted':  'text-neutral-500 underline-offset-4 hover:underline cursor-pointer',
-  'link-button': 'inline-flex items-center justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 cursor-pointer',
+  'link-muted':  `${FG_MUTED} underline-offset-4 hover:underline cursor-pointer`,
+  'link-button': `inline-flex items-center justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium ${ON_PRIMARY} hover:bg-primary-700 cursor-pointer`,
   'link-danger': 'text-danger-500 underline-offset-4 hover:underline cursor-pointer',
   'error':       'text-xs text-danger-500',
-  'description': 'text-xs text-neutral-500',
+  'description': `text-xs ${FG_MUTED}`,
 };
 
 const variantDefaultAs: Record<JLabelVariant, JLabelAs> = {
@@ -48,7 +49,7 @@ const sizeClasses: Record<JLabelSize, string> = {
 
 const colorClasses: Record<JLabelColor, string> = {
   'default': '',
-  'muted':   'text-neutral-500',
+  'muted':   `${FG_MUTED}`,
   'primary': 'text-primary-600',
   'danger':  'text-danger-500',
   'success': 'text-success-600',

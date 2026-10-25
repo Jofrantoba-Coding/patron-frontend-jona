@@ -1,11 +1,12 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JSKELETON_DEFAULTS, InterJSkeleton, JSkeletonVariant } from './InterJSkeleton';
+import { LINE_BG } from '../../theme/tokenClasses';
 
 const variantClasses: Record<JSkeletonVariant, string> = {
-  pulse: 'animate-pulse bg-neutral-200',
+  pulse: `animate-pulse ${LINE_BG}`,
   wave:  'jskeleton-wave',
-  none:  'bg-neutral-200',
+  none:  `${LINE_BG}`,
 };
 
 type JSkeletonViewProps = InterJSkeleton & {
