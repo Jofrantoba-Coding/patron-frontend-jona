@@ -11,6 +11,7 @@
 export type {
   InterTableHeadProps,
   InterJTable,
+  InterJTableRow,
   JTablePaginationConfig,
   JTableResponsiveMode,
   JTableSortDirection,

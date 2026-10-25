@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { JButton } from '../JButton';
+import { seriousViolations } from '../../__tests__/quality/axe';
 
 describe('JButton', () => {
   it('renders children', () => {
@@ -102,5 +103,19 @@ describe('JButton density (S-FND-18, 1.5.2)', () => {
 
     expect(heightClasses(button)).toEqual(['min-h-9', 'sm:min-h-9']);
     expect(button).toHaveClass('min-w-11', 'sm:min-w-9');
+  });
+});
+
+describe('JButton accessibility audit', () => {
+  it('has no serious or critical axe violations with density and a11y props', async () => {
+    const { container } = render(
+      <div>
+        <JButton density="touch" title="Agregar (Alt+A)" aria-keyshortcuts="Alt+A">Agregar</JButton>
+        <JButton size="icon" density="compact" aria-label="Cerrar" aria-pressed={false}>x</JButton>
+        <JButton aria-haspopup="menu" aria-expanded={false}>Más acciones</JButton>
+      </div>,
+    );
+
+    expect(await seriousViolations(container)).toEqual([]);
   });
 });

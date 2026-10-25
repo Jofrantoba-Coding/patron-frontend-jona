@@ -17,6 +17,7 @@ import tailwindConfig from '../../../tailwind.config.js';
 import { JPanel } from '../../atoms/JPanel';
 import { JSidebarLayout } from '../../layouts/JSidebarLayout';
 import { JLanguageSwitcher } from '../../molecules/JLanguageSwitcher';
+import { JTable, JTableBody, JTableCell, JTableRow } from '../../molecules/JTable';
 import { JDashboardPreview } from '../../organisms/JDashboardPreview';
 import { JLogoMarquee } from '../../organisms/JLogoMarquee';
 import { JNavbar } from '../../organisms/JNavbar';
@@ -377,6 +378,32 @@ describe('stylesheet cascade (D1, D2)', () => {
 
     expect(resolveProperty(css, el, 'display', 375)?.value).toBe('none');
     expect(resolveProperty(css, el, 'display', 1920)?.value).toBe('none');
+  });
+});
+
+describe('JTableRow selection is visible (S-DAT-2, light)', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it('paints the selected row with another background than hover, plus a 3px primary start border', () => {
+    render(
+      React.createElement(JTable, null,
+        React.createElement(JTableBody, null,
+          React.createElement(JTableRow, { selected: true, 'data-testid': 'row' },
+            React.createElement(JTableCell, null, '0002')))),
+    );
+    const row = screen.getByTestId('row');
+    const selectedBackground = resolveProperty(css, row, 'background-color', 1024)?.value ?? '';
+    const hoverBackground = resolveRule(css, '.hover\\:bg-neutral-50:hover').decls['background-color'];
+
+    expect(selectedBackground).toContain('--jona-primary-50');
+    expect(hoverBackground).toContain('--jona-neutral-50');
+    expect(resolveRule(css, '.hover\\:bg-primary-50:hover').decls['background-color']).toContain('--jona-primary-50');
+    expect(resolveProperty(css, row, 'border-inline-start-width', 1024)?.value).toBe('3px');
+    expect(resolveProperty(css, row, 'border-inline-start-color', 1024)?.value).toContain('--jona-primary-600');
   });
 });
 

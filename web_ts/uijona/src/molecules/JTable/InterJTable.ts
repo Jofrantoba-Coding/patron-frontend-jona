@@ -3,6 +3,11 @@
 export type JTableResponsiveMode = 'scroll' | 'cards' | 'none';
 export type JTableSortDirection = 'asc' | 'desc' | null;
 
+/** A table row. `selected` sets `aria-selected`, `data-state="selected"` and the selection style. */
+export interface InterJTableRow extends React.HTMLAttributes<HTMLTableRowElement> {
+  selected?: boolean;
+}
+
 export interface JTableContextValue {
   responsiveMode: JTableResponsiveMode;
   labelsRef: React.MutableRefObject<string[]>;
