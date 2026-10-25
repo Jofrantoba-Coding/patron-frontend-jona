@@ -1,5 +1,6 @@
 ﻿import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
+import ts from 'typescript';
 
 const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as {
   exports: Record<string, unknown>;
@@ -59,5 +60,16 @@ describe('package exports', () => {
     expect(isSideEffect('dist/index.css')).toBe(true);
     expect(isSideEffect('dist/theme/tokens.css')).toBe(true);
     expect(isSideEffect('dist/index.js')).toBe(false);
+  });
+
+  it('keeps test-only sources out of the declaration build', () => {
+    const configPath = resolve(process.cwd(), 'tsconfig.build.json');
+    const { config } = ts.readConfigFile(configPath, ts.sys.readFile);
+    const { fileNames } = ts.parseJsonConfigFileContent(config, ts.sys, process.cwd());
+    const testOnly = fileNames
+      .map((file) => relative(process.cwd(), file).replace(/\\/g, '/'))
+      .filter((file) => /^src\/(?:test|__tests__)\//.test(file));
+
+    expect(testOnly).toEqual([]);
   });
 });
