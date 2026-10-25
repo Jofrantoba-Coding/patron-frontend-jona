@@ -73,6 +73,23 @@ describe('package exports', () => {
     expect(testOnly).toEqual([]);
   });
 
+  it('R-FND-8: exposes every 1.6.0 component and hook from the root entry and a subpath', () => {
+    const indexSource = readFileSync(resolve(process.cwd(), 'src/index.ts'), 'utf8');
+    const SUBPATHS_160 = [
+      'molecules/JField',
+      'layouts/JFieldGrid',
+    ];
+
+    SUBPATHS_160.forEach((subpath) => {
+      expect(indexSource).toContain(`export * from './${subpath}';`);
+      expect(packageJson.exports[`./${subpath}`]).toEqual({
+        import: `./dist/${subpath}.js`,
+        require: `./dist/${subpath}.cjs`,
+        types: `./dist/${subpath}.d.ts`,
+      });
+    });
+  });
+
   it('R-FND-1, R-FND-5: exposes the opt-in base stylesheet next to index.css', () => {
     expect(packageJson.exports['./base.css']).toBe('./dist/base.css');
     expect(packageJson.exports['./index.css']).toBe('./dist/index.css');

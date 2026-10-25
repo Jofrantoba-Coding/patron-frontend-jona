@@ -33,6 +33,7 @@ export * from './molecules/JServiceCard';
 export * from './molecules/JCard';
 export * from './molecules/JAlert';
 export * from './molecules/JFormField';
+export * from './molecules/JField';
 export * from './molecules/JCheckBoxField';
 export * from './molecules/JRadioGroup';
 export * from './molecules/JSelectField';
@@ -75,6 +76,7 @@ export * from './layouts/JGridBagLayout';
 export * from './layouts/JGroupLayout';
 export * from './layouts/JSpringLayout';
 export * from './layouts/JSidebarLayout';
+export * from './layouts/JFieldGrid';
 
 // Organisms
 export * from './organisms/JHeroDynamic';
