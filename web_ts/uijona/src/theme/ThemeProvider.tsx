@@ -12,18 +12,39 @@ export type JonaThemeTokens = {
   primary700?: string;
   primary800?: string;
   primary900?: string;
+  // Accent
+  accent50?: string;
+  accent100?: string;
+  accent200?: string;
+  accent300?: string;
+  accent400?: string;
+  accent500?: string;
+  accent600?: string;
+  accent700?: string;
+  accent800?: string;
+  accent900?: string;
+  white?: string;
   // Danger
+  danger50?: string;
+  danger100?: string;
   danger400?: string;
   danger500?: string;
   danger600?: string;
+  danger700?: string;
   // Success
+  success50?: string;
+  success100?: string;
   success400?: string;
   success500?: string;
   success600?: string;
+  success700?: string;
   // Warning
+  warning50?: string;
+  warning100?: string;
   warning400?: string;
   warning500?: string;
   warning600?: string;
+  warning700?: string;
   // Neutral
   neutral50?: string;
   neutral100?: string;
@@ -35,6 +56,17 @@ export type JonaThemeTokens = {
   neutral700?: string;
   neutral800?: string;
   neutral900?: string;
+  // Semantic (an override is inline on the target, so it applies in both modes)
+  surface?: string;
+  surfaceMuted?: string;
+  surfaceRaised?: string;
+  fg?: string;
+  fgMuted?: string;
+  line?: string;
+  lineStrong?: string;
+  focus?: string;
+  selection?: string;
+  onPrimary?: string;
   // Shape
   radiusSm?: string;
   radius?: string;
@@ -63,15 +95,35 @@ const TOKEN_MAP: Record<keyof JonaThemeTokens, string> = {
   primary700: '--jona-primary-700',
   primary800: '--jona-primary-800',
   primary900: '--jona-primary-900',
+  accent50:   '--jona-accent-50',
+  accent100:  '--jona-accent-100',
+  accent200:  '--jona-accent-200',
+  accent300:  '--jona-accent-300',
+  accent400:  '--jona-accent-400',
+  accent500:  '--jona-accent-500',
+  accent600:  '--jona-accent-600',
+  accent700:  '--jona-accent-700',
+  accent800:  '--jona-accent-800',
+  accent900:  '--jona-accent-900',
+  white:      '--jona-white',
+  danger50:   '--jona-danger-50',
+  danger100:  '--jona-danger-100',
   danger400:  '--jona-danger-400',
   danger500:  '--jona-danger-500',
   danger600:  '--jona-danger-600',
+  danger700:  '--jona-danger-700',
+  success50:  '--jona-success-50',
+  success100: '--jona-success-100',
   success400: '--jona-success-400',
   success500: '--jona-success-500',
   success600: '--jona-success-600',
+  success700: '--jona-success-700',
+  warning50:  '--jona-warning-50',
+  warning100: '--jona-warning-100',
   warning400: '--jona-warning-400',
   warning500: '--jona-warning-500',
   warning600: '--jona-warning-600',
+  warning700: '--jona-warning-700',
   neutral50:  '--jona-neutral-50',
   neutral100: '--jona-neutral-100',
   neutral200: '--jona-neutral-200',
@@ -82,7 +134,17 @@ const TOKEN_MAP: Record<keyof JonaThemeTokens, string> = {
   neutral700: '--jona-neutral-700',
   neutral800: '--jona-neutral-800',
   neutral900: '--jona-neutral-900',
-  radiusSm:   '--jona-radius-sm',
+  surface:       '--jona-surface',
+  surfaceMuted:  '--jona-surface-muted',
+  surfaceRaised: '--jona-surface-raised',
+  fg:            '--jona-fg',
+  fgMuted:       '--jona-fg-muted',
+  line:          '--jona-line',
+  lineStrong:    '--jona-line-strong',
+  focus:         '--jona-focus',
+  selection:     '--jona-selection',
+  onPrimary:     '--jona-on-primary',
+  radiusSm:  '--jona-radius-sm',
   radius:     '--jona-radius',
   radiusMd:   '--jona-radius-md',
   radiusLg:   '--jona-radius-lg',
@@ -117,6 +179,11 @@ export const JonaThemeProvider: React.FC<InterThemeProvider> = ({
         ? document.documentElement
         : (document.querySelector(scope) as HTMLElement) ?? document.documentElement;
 
+    // A non-root scope re-declares the semantic tokens (tokens.css), so they
+    // resolve against the palette overrides set on it.
+    const markScope = target !== document.documentElement && !target.hasAttribute('data-jona-scope');
+    if (markScope) target.setAttribute('data-jona-scope', '');
+
     const entries = Object.entries(theme) as [keyof JonaThemeTokens, string][];
     entries.forEach(([key, value]) => {
       const cssVar = TOKEN_MAP[key];
@@ -130,6 +197,7 @@ export const JonaThemeProvider: React.FC<InterThemeProvider> = ({
         const cssVar = TOKEN_MAP[key];
         if (cssVar) target.style.removeProperty(cssVar);
       });
+      if (markScope) target.removeAttribute('data-jona-scope');
     };
   }, [theme, scope]);
 
