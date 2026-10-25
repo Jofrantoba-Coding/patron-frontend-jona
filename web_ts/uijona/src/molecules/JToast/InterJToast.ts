@@ -10,14 +10,18 @@ export const JTOAST_POSITION_DEFAULT: JToastPosition = 'bottom-right';
 
 export interface InterJToast {
   id:        string;
-  message:   string;
+  message?:  string;
   title?:    string;
   variant?:  JToastVariant;
+  /** Auto-dismiss delay in ms; `0` keeps the toast until it is dismissed. Paused while hovered or focused. */
   duration?: number;
+  /** Accessible name of the dismiss button. */
+  dismissLabel?: string;
   onDismiss?: (id: string) => void;
 }
 
-export const JTOAST_DEFAULTS: Required<Pick<InterJToast, 'variant' | 'duration'>> = {
-  variant:  'default',
-  duration: 4000,
+export const JTOAST_DEFAULTS: Required<Pick<InterJToast, 'variant' | 'duration' | 'dismissLabel'>> = {
+  variant:      'default',
+  duration:     4000,
+  dismissLabel: 'Dismiss notification',
 };

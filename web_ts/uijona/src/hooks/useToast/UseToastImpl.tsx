@@ -1,7 +1,7 @@
 // UseToastImpl.tsx — JONA Implementation
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { JToast, JToastPosition, JTOAST_POSITION_DEFAULT } from '../../molecules/JToast';
-import { ToastData, InterUseToast } from './InterUseToast';
+import { ToastData, InterUseToast, ToastProviderProps, TOAST_PROVIDER_DEFAULTS } from './InterUseToast';
 import { cn } from '../../lib/cn';
 
 const POSITION_CLASSES: Record<JToastPosition, string> = {
@@ -16,14 +16,36 @@ const POSITION_CLASSES: Record<JToastPosition, string> = {
   'bottom-right':  'bottom-4 right-4',
 };
 
-const ToastContext = createContext<InterUseToast | null>(null);
+/** The viewport edges each position is offset from. */
+const OFFSET_SIDES: Record<JToastPosition, ('top' | 'right' | 'bottom' | 'left')[]> = {
+  'top-left':      ['top', 'left'],
+  'top-center':    ['top'],
+  'top-right':     ['top', 'right'],
+  'center-left':   ['left'],
+  'center':        [],
+  'center-right':  ['right'],
+  'bottom-left':   ['bottom', 'left'],
+  'bottom-center': ['bottom'],
+  'bottom-right':  ['bottom', 'right'],
+};
 
-interface ToastProviderProps {
-  children: React.ReactNode;
-  position?: JToastPosition;
+/** Pure: inline geometry for a non-default offset (D4); the default keeps the 1.5.1 classes alone. */
+export function toastOffsetStyle(position: JToastPosition, offset: string): React.CSSProperties | undefined {
+  if (offset === TOAST_PROVIDER_DEFAULTS.offset) return undefined;
+  const style: React.CSSProperties = { maxWidth: `calc(100vw - 2 * ${offset})` };
+  OFFSET_SIDES[position].forEach((side) => { style[side] = offset; });
+  return style;
 }
 
-export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position = JTOAST_POSITION_DEFAULT }) => {
+const ToastContext = createContext<InterUseToast | null>(null);
+
+export const ToastProvider: React.FC<ToastProviderProps> = ({
+  children,
+  position = JTOAST_POSITION_DEFAULT,
+  label = TOAST_PROVIDER_DEFAULTS.label,
+  dismissLabel = TOAST_PROVIDER_DEFAULTS.dismissLabel,
+  offset = TOAST_PROVIDER_DEFAULTS.offset,
+}) => {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const dismiss = useCallback((id: string) => {
@@ -39,7 +61,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position
     <ToastContext.Provider value={{ toast, dismiss }}>
       {children}
       <div
-        aria-label="Notifications"
+        aria-label={label}
+        style={toastOffsetStyle(position, offset)}
         className={cn(
           // Phone: viewport width minus the 1rem gutters of every position; 20rem from sm:.
           'pointer-events-none fixed z-[100] flex w-[calc(100vw-2rem)] flex-col gap-2 sm:w-80',
@@ -48,7 +71,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children, position
       >
         {toasts.map((t) => (
           <div key={t.id} className="pointer-events-auto">
-            <JToast {...t} onDismiss={dismiss} />
+            <JToast {...t} dismissLabel={dismissLabel} onDismiss={dismiss} />
           </div>
         ))}
       </div>
