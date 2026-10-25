@@ -418,3 +418,40 @@ export const SortFilterResize: Story = {
     );
   },
 };
+
+export const SelectedRow: Story = {
+  args: { responsiveMode: 'scroll' },
+  parameters: {
+    docs: {
+      description: {
+        story: '`selected` en `JTableRow` marca la fila con `aria-selected="true"` y `data-state="selected"`, fondo `primary-50` (también al pasar el puntero) y un borde inicial de 3px `primary-600`. Haga clic en una fila para seleccionarla.',
+      },
+    },
+  },
+  render: (args) => {
+    const [selectedCode, setSelectedCode] = useState('0002');
+    const rows = [
+      { code: '0001', name: 'AREQUIPA' },
+      { code: '0002', name: 'CUSCO' },
+      { code: '0003', name: 'LIMA' },
+    ];
+    return (
+      <JTable responsiveMode={args.responsiveMode} caption="Localidades">
+        <JTableHeader>
+          <JTableRow>
+            <JTableHead>Código</JTableHead>
+            <JTableHead>Nombre</JTableHead>
+          </JTableRow>
+        </JTableHeader>
+        <JTableBody>
+          {rows.map((row) => (
+            <JTableRow key={row.code} selected={row.code === selectedCode} onClick={() => setSelectedCode(row.code)}>
+              <JTableCell>{row.code}</JTableCell>
+              <JTableCell>{row.name}</JTableCell>
+            </JTableRow>
+          ))}
+        </JTableBody>
+      </JTable>
+    );
+  },
+};

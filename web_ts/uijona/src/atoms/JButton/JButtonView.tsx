@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JSpinner } from '../JSpinner';
-import type { InterJButton, JButtonVariant, JButtonSize } from './InterJButton';
+import type { InterJButton, JButtonVariant, JButtonSize, JButtonDensity } from './InterJButton';
 
 const variantClasses: Record<JButtonVariant, string> = {
   default:     'bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500',
@@ -33,6 +33,13 @@ const sizeClasses: Record<JButtonSize, string> = {
   icon:    'h-9 w-9 min-h-11 min-w-11 sm:min-h-9 sm:min-w-9 p-0 rounded-md',
 };
 
+// Both breakpoints are set so the density replaces the size's height through twMerge (D8).
+const densityClasses: Record<JButtonDensity, string> = {
+  touch:   'min-h-11 sm:min-h-11',
+  compact: 'min-h-9 sm:min-h-9',
+  auto:    'min-h-11 sm:min-h-9',
+};
+
 interface JButtonViewProps extends InterJButton {
   forwardedRef?: React.Ref<HTMLButtonElement>;
   [key: string]: unknown;
@@ -44,6 +51,7 @@ export const JButtonView: React.FC<JButtonViewProps> = ({
   iconPosition = 'left',
   loading = false,
   fullWidth = false,
+  density,
   disabled,
   type = 'button',
   className,
@@ -73,6 +81,7 @@ export const JButtonView: React.FC<JButtonViewProps> = ({
     'disabled:pointer-events-none disabled:opacity-50',
     variantClasses[variant],
     sizeClasses[size],
+    density && densityClasses[density],
     hasIcon && iconPositionClasses[iconPosition],
     isIconOnly && 'gap-0',
     fullWidth && 'w-full',

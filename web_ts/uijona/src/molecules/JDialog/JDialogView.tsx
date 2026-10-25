@@ -55,7 +55,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
       radius="none"
       ref={overlayRef}
       role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
+      className="fixed inset-0 z-50 flex flex-row items-center justify-center p-2 sm:p-4"
     >
       {/* Backdrop */}
       <JPanel

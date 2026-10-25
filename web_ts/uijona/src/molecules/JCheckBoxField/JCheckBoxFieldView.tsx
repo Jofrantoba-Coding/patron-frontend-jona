@@ -12,7 +12,7 @@ export const JCheckBoxFieldView: React.FC<InterJCheckBoxField> = ({
   const hasError = !!errorMessage;
   return (
     <JPanel variant="ghost" padding="none" radius="none" className={cn('flex flex-col gap-1', className)}>
-      <JPanel variant="ghost" padding="none" radius="none" className="flex items-start gap-2">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row items-start gap-2">
         <JCheckBox id={id} checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} hasError={hasError} aria-label={label} />
         <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col gap-0.5">
           <JLabel variant="label" htmlFor={id} className="cursor-pointer leading-tight">{label}</JLabel>

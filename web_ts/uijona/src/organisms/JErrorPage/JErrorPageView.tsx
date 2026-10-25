@@ -31,7 +31,7 @@ export const JErrorPageView: React.FC<InterJErrorPage> = ({
       <JLabel as="p" size="base" color="muted" className="mb-8 break-words">
         {message}
       </JLabel>
-      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-wrap gap-3 justify-center">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row flex-wrap gap-3 justify-center">
         {onGoHome && (
           <JButton variant="link" onClick={onGoHome}>
             {primaryLabel}

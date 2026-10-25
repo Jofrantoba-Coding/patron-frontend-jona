@@ -51,7 +51,7 @@ export const JProgressItemView: React.FC<InterJProgressItem> = ({
       )}
       style={style}
     >
-      <JPanel variant="ghost" padding="none" className="mb-2 flex items-center justify-between gap-2">
+      <JPanel variant="ghost" padding="none" className="mb-2 flex flex-row items-center justify-between gap-2">
         <span className={cn('font-medium text-neutral-800 leading-snug', TEXT_SIZE[size])}>
           {label}
         </span>

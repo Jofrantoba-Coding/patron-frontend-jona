@@ -28,5 +28,5 @@ export const CardContentView: React.FC<React.HTMLAttributes<HTMLDivElement>> = (
 );
 
 export const CardFooterView: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...props }) => (
-  <JPanel variant="ghost" padding="none" radius="none" className={cn('flex min-w-0 flex-wrap items-center gap-2 p-4 pt-0 sm:p-6 sm:pt-0', className)} {...props}>{children}</JPanel>
+  <JPanel variant="ghost" padding="none" radius="none" className={cn('flex flex-row min-w-0 flex-wrap items-center gap-2 p-4 pt-0 sm:p-6 sm:pt-0', className)} {...props}>{children}</JPanel>
 );

@@ -27,7 +27,14 @@ export default defineConfig({
     react(),
     dts({
       include: ['src'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/*.stories.ts', 'src/**/*.stories.tsx'],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/**/*.test.tsx',
+        'src/**/*.stories.ts',
+        'src/**/*.stories.tsx',
+        'src/test/**',
+        'src/__tests__/**',
+      ],
       outDir: 'dist',
       insertTypesEntry: true,
     }),

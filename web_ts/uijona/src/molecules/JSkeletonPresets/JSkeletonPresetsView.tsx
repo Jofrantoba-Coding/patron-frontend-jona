@@ -5,7 +5,7 @@ import { InterSkeletonTableRows, InterSkeletonForm } from './InterJSkeletonPrese
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 export const SkeletonUserRowView: React.FC = () => (
-  <JPanel variant="ghost" padding="none" radius="none" className="flex items-center gap-3">
+  <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row items-center gap-3">
     <JSkeleton circle className="w-10 h-10 shrink-0" />
     <JPanel variant="ghost" padding="none" radius="none" className="flex flex-col gap-2 flex-1">
       <JSkeleton className="h-3 w-32" />
@@ -25,7 +25,7 @@ export const SkeletonCardView: React.FC = () => (
       <JSkeleton className="h-3 w-full" />
       <JSkeleton className="h-3 w-3/4" />
     </JPanel>
-    <JPanel variant="ghost" padding="none" radius="none" className="flex gap-2 pt-2">
+    <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row gap-2 pt-2">
       <JSkeleton className="h-8 w-20 rounded-md" />
       <JSkeleton className="h-8 w-20 rounded-md" />
     </JPanel>
@@ -35,7 +35,7 @@ export const SkeletonCardView: React.FC = () => (
 export const SkeletonTableRowsView: React.FC<InterSkeletonTableRows> = ({ rows = 4, cols = 4 }) => (
   <JPanel variant="ghost" padding="none" radius="none" className="space-y-2">
     {Array.from({ length: rows }).map((_, r) => (
-      <JPanel variant="ghost" padding="none" radius="none" key={r} className="flex gap-4">
+      <JPanel variant="ghost" padding="none" radius="none" key={r} className="flex flex-row gap-4">
         {Array.from({ length: cols }).map((_, c) => <JSkeleton key={c} className="h-4 flex-1" />)}
       </JPanel>
     ))}

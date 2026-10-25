@@ -27,9 +27,9 @@ const sizeClasses: Record<JTimerSize, { display: string; label: string; button: 
 
 const toneClasses: Record<JTimerTone, string> = {
   neutral: 'text-neutral-900',
-  success: 'text-success-700',
-  warning: 'text-warning-700',
-  danger:  'text-danger-700',
+  success: '',
+  warning: '',
+  danger:  '',
   info:    'text-primary-700',
 };
 
@@ -129,7 +129,7 @@ export const JTimerView: React.FC<JTimerViewProps> = ({
         </JPanel>
       )}
 
-      <JPanel variant="ghost" padding="none" radius="none" className={cn('min-w-0', isInline && 'flex items-center gap-3')}>
+      <JPanel variant="ghost" padding="none" radius="none" className={cn('min-w-0', isInline && 'flex flex-row items-center gap-3')}>
         <output
           aria-live={status === 'running' ? 'off' : 'polite'}
           aria-label="Timer"
@@ -148,7 +148,7 @@ export const JTimerView: React.FC<JTimerViewProps> = ({
             variant="ghost"
             padding="none"
             radius="none"
-            className={cn('flex flex-wrap items-center gap-2', isInline ? 'ml-1' : 'mt-3')}
+            className={cn('flex flex-row flex-wrap items-center gap-2', isInline ? 'ml-1' : 'mt-3')}
           >
             {canStart && (
               <button

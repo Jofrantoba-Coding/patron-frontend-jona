@@ -45,7 +45,7 @@ export const JMultiSelectView: React.FC<JMultiSelectViewProps> = ({
         aria-disabled={disabled}
         onClick={disabled ? undefined : onTriggerClick}
         className={cn(
-          'flex min-h-11 w-full flex-wrap items-center gap-1 rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1 text-base transition-colors sm:min-h-9 sm:text-sm',
+          'flex flex-row min-h-11 w-full flex-wrap items-center gap-1 rounded-md border border-neutral-300 bg-neutral-50 px-2 py-1 text-base transition-colors sm:min-h-9 sm:text-sm',
           open && 'ring-2 ring-primary-500',
           disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
         )}

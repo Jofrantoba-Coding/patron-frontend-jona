@@ -31,7 +31,7 @@ export const JHeaderPageView: React.FC<InterJHeaderPage> = ({
 
     {/* Actions */}
     {actions && (
-      <JPanel variant="ghost" padding="none" radius="none" className="flex shrink-0 items-center gap-2">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row shrink-0 items-center gap-2">
         {actions}
       </JPanel>
     )}

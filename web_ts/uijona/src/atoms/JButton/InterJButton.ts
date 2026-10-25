@@ -3,6 +3,8 @@ import React from 'react';
 export type JButtonVariant = 'default' | 'outline' | 'ghost' | 'destructive' | 'secondary' | 'link' | 'accent';
 export type JButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon' | 'default';
 export type JButtonIconPosition = 'left' | 'right' | 'top' | 'bottom';
+/** Control height: `touch` 44 px, `compact` 36 px, `auto` 44 px below sm and 36 px from sm. */
+export type JButtonDensity = 'auto' | 'compact' | 'touch';
 
 export interface InterJButton {
   children?: React.ReactNode;
@@ -21,6 +23,17 @@ export interface InterJButton {
   // Fusiona el estilo de botón sobre el ÚNICO hijo (patrón asChild).
   // Útil para envolver <Link> de un router conservando su tipado y la navegación SPA.
   asChild?: boolean;
+  /** Height override. No default: without it the size keeps its 1.5.1 height. */
+  density?: JButtonDensity;
+  title?: string;
+  id?: string;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
+  'aria-keyshortcuts'?: string;
+  'aria-pressed'?: React.AriaAttributes['aria-pressed'];
+  'aria-expanded'?: React.AriaAttributes['aria-expanded'];
+  'aria-controls'?: string;
+  'aria-haspopup'?: React.AriaAttributes['aria-haspopup'];
   className?: string;
   style?: React.CSSProperties;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -56,6 +69,12 @@ export const JBUTTON_SIZES: Record<JButtonSize, string> = {
   lg:      '44px min-height. Acciones destacadas.',
   xl:      '56px min-height. Hero o calls to action.',
   icon:    '44×44 mínimo en móvil, 36×36 desde sm:. Solo icono, sin texto.',
+};
+
+export const JBUTTON_DENSITIES: Record<JButtonDensity, string> = {
+  touch:   '44px min-height en todos los anchos. Gana sobre el tamaño.',
+  compact: '36px min-height en todos los anchos. Gana sobre el tamaño.',
+  auto:    '44px min-height en móvil, 36px desde sm:.',
 };
 
 export const JBUTTON_ICON_POSITIONS: Record<JButtonIconPosition, string> = {
