@@ -3,6 +3,7 @@ import { cn } from '../../lib/cn';
 import {
   InterTableHeadProps,
   InterJTable,
+  InterJTableRow,
   JTablePaginationConfig,
   JTableResponsiveMode,
   JTableSortDirection,
@@ -268,17 +269,23 @@ export const TableFooterView = React.forwardRef<HTMLTableSectionElement, React.H
 );
 TableFooterView.displayName = 'JTableFooter';
 
-export const TableRowView = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
-  ({ className, ...props }, ref) => {
+// 1.5.2 selection: primary-50 background (kept on hover) and a 3px primary-600 start border (R-DAT-1).
+const SELECTED_ROW_CLASSES = 'bg-primary-50 hover:bg-primary-50 border-s-[3px] border-s-primary-600';
+
+export const TableRowView = React.forwardRef<HTMLTableRowElement, InterJTableRow>(
+  ({ className, selected, ...props }, ref) => {
     const { responsiveMode } = useTableContext();
     return (
       <tr
         ref={ref}
+        aria-selected={selected ? true : undefined}
+        data-state={selected ? 'selected' : undefined}
         className={cn(
           'transition-colors hover:bg-neutral-50 data-[state=selected]:bg-primary-50',
           responsiveMode === 'cards'
             ? 'mb-3 grid min-w-0 grid-cols-1 gap-3 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm md:table-row md:rounded-none md:border-0 md:border-b md:border-neutral-200 md:bg-transparent md:p-0 md:shadow-none'
             : 'border-b border-neutral-200',
+          selected && SELECTED_ROW_CLASSES,
           className
         )}
         {...props}

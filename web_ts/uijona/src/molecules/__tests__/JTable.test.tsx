@@ -8,6 +8,7 @@ import {
   JTableHead,
   JTableCell,
 } from '../JTable';
+import { seriousViolations } from '../../__tests__/quality/axe';
 
 function BasicTable({ responsiveMode = 'scroll' }: { responsiveMode?: 'scroll' | 'cards' | 'none' }) {
   return (
@@ -307,5 +308,78 @@ describe('JTable', () => {
     fireEvent.change(screen.getByRole('combobox'), { target: { value: '25' } });
     expect(onPageSizeChange).toHaveBeenCalledWith(25);
     expect(onPageChange).toHaveBeenCalledWith(1);
+  });
+});
+
+describe('JTableRow selected (S-DAT-1)', () => {
+  function SelectableTable({ selected }: { selected?: boolean }) {
+    return (
+      <JTable>
+        <JTableBody>
+          <JTableRow selected={selected} data-testid="row">
+            <JTableCell>0002</JTableCell>
+            <JTableCell>CUSCO</JTableCell>
+          </JTableRow>
+        </JTableBody>
+      </JTable>
+    );
+  }
+
+  it('marks the selected row for assistive technology and styling', () => {
+    render(<SelectableTable selected />);
+    const row = screen.getByTestId('row');
+
+    expect(row).toHaveAttribute('aria-selected', 'true');
+    expect(row).toHaveAttribute('data-state', 'selected');
+    expect(row).toHaveClass('bg-primary-50', 'border-s-[3px]', 'border-s-primary-600');
+  });
+
+  it('keeps the selection background while the row is hovered', () => {
+    render(<SelectableTable selected />);
+    const row = screen.getByTestId('row');
+
+    expect(row).toHaveClass('hover:bg-primary-50');
+    expect(row).not.toHaveClass('hover:bg-neutral-50');
+  });
+
+  it('renders an unselected row as in 1.5.1', () => {
+    const { container, rerender } = render(<SelectableTable />);
+    const plain = container.innerHTML;
+    rerender(<SelectableTable selected={false} />);
+    const row = screen.getByTestId('row');
+
+    expect(row).not.toHaveAttribute('aria-selected');
+    expect(row).not.toHaveAttribute('data-state');
+    expect(row.className).toBe(
+      'transition-colors hover:bg-neutral-50 data-[state=selected]:bg-primary-50 border-b border-neutral-200',
+    );
+    expect(container.innerHTML).toBe(plain);
+  });
+});
+
+describe('JTableRow selected accessibility audit', () => {
+  it('has no serious or critical axe violations', async () => {
+    const { container } = render(
+      <JTable>
+        <JTableHeader>
+          <JTableRow>
+            <JTableHead>Código</JTableHead>
+            <JTableHead>Nombre</JTableHead>
+          </JTableRow>
+        </JTableHeader>
+        <JTableBody>
+          <JTableRow selected>
+            <JTableCell>0002</JTableCell>
+            <JTableCell>CUSCO</JTableCell>
+          </JTableRow>
+          <JTableRow>
+            <JTableCell>0003</JTableCell>
+            <JTableCell>LIMA</JTableCell>
+          </JTableRow>
+        </JTableBody>
+      </JTable>,
+    );
+
+    expect(await seriousViolations(container)).toEqual([]);
   });
 });
