@@ -25,6 +25,7 @@ const PIECES_160: Piece[] = [
   { layer: 'molecules', name: 'JFormSection' },
   { layer: 'molecules', name: 'JErrorSummary' },
   { layer: 'hooks', name: 'useConfirm', unit: 'UseConfirm', defaults: 'CONFIRM_DEFAULTS' },
+  { layer: 'molecules', name: 'JToolbar' },
 ];
 
 const SRC = resolve(process.cwd(), 'src');
