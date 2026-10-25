@@ -439,6 +439,11 @@
       "require": "./dist/layouts/JAppShell.cjs",
       "types": "./dist/layouts/JAppShell.d.ts"
     },
+    "./layouts/JAuthLayout": {
+      "import": "./dist/layouts/JAuthLayout.js",
+      "require": "./dist/layouts/JAuthLayout.cjs",
+      "types": "./dist/layouts/JAuthLayout.d.ts"
+    },
     "./organisms/JHeroDynamic": {
       "import": "./dist/organisms/JHeroDynamic.js",
       "require": "./dist/organisms/JHeroDynamic.cjs",
