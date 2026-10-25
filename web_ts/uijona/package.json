@@ -194,6 +194,16 @@
       "require": "./dist/molecules/JToolbar.cjs",
       "types": "./dist/molecules/JToolbar.d.ts"
     },
+    "./molecules/JPageHeader": {
+      "import": "./dist/molecules/JPageHeader.js",
+      "require": "./dist/molecules/JPageHeader.cjs",
+      "types": "./dist/molecules/JPageHeader.d.ts"
+    },
+    "./molecules/JInputGroup": {
+      "import": "./dist/molecules/JInputGroup.js",
+      "require": "./dist/molecules/JInputGroup.cjs",
+      "types": "./dist/molecules/JInputGroup.d.ts"
+    },
     "./molecules/JCheckBoxField": {
       "import": "./dist/molecules/JCheckBoxField.js",
       "require": "./dist/molecules/JCheckBoxField.cjs",

@@ -31,6 +31,20 @@ export const LastPage: Story = {
   args: { currentPage: 10, totalPages: 10 },
 };
 
+/** Rows info (R-DAT-7): `{first}–{last} de {total}`. */
+export const RowsInfo: Story = {
+  args: { currentPage: 1, totalPages: 7, totalRows: 134, pageSize: 20, showRowsInfo: true },
+};
+
+export const RowsInfoLastPage: Story = {
+  args: { currentPage: 7, totalPages: 7, totalRows: 134, pageSize: 20, showRowsInfo: true },
+};
+
+/** With no rows only the info shows: `0 de 0`. */
+export const RowsInfoEmpty: Story = {
+  args: { currentPage: 1, totalPages: 1, totalRows: 0, pageSize: 20, showRowsInfo: true },
+};
+
 export const Interactive: Story = {
   parameters: {
     docs: {

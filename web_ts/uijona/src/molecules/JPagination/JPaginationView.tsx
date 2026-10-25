@@ -1,9 +1,9 @@
 ﻿// JPaginationView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
-import { InterJPagination } from './InterJPagination';
+import { InterJPagination, formatRowsInfo } from './InterJPagination';
 import { JButton } from '../../atoms/JButton/JButton';
-import { FG, FG_MUTED, HOVER_OVERLAY, LINE, ON_PRIMARY } from '../../theme/tokenClasses';
+import { FG, FG_MUTED, HOVER_OVERLAY, LINE, ON_PRIMARY, TEXT_SMALL } from '../../theme/tokenClasses';
 
 function buildRange(current: number, total: number, siblings: number): (number | '...')[] {
   const range: number[] = [];
@@ -21,13 +21,20 @@ const ChevronRight = () => <svg className="w-4 h-4" viewBox="0 0 24 24" fill="no
 
 export const JPaginationView: React.FC<InterJPagination> = ({
   currentPage, totalPages, onPageChange, onPrevious, onNext, onFirstPageReached, onLastPageReached, siblingCount = 1, className,
+  totalRows, pageSize, showRowsInfo, rowsInfoLabel = formatRowsInfo,
 }) => {
-  if (totalPages <= 1) return null;
+  // Rows info (R-DAT-7): only with showRowsInfo, totalRows and pageSize; otherwise the 1.5.1 output.
+  const info = showRowsInfo && totalRows !== undefined && pageSize ? (
+    <p className={cn('shrink-0 tabular-nums', TEXT_SMALL, FG_MUTED)}>
+      {rowsInfoLabel(totalRows === 0 ? 0 : (currentPage - 1) * pageSize + 1, Math.min(currentPage * pageSize, totalRows), totalRows)}
+    </p>
+  ) : null;
+  if (totalPages <= 1) return info;
   const pages = buildRange(currentPage, totalPages, siblingCount);
   // 44px touch targets below sm:, 36px from sm: up
   const btnBase = cn('inline-flex items-center justify-center h-11 min-w-[2.75rem] px-2 rounded text-sm sm:h-9 sm:min-w-[2.25rem] transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50');
 
-  return (
+  const nav = (
     <nav aria-label="JPagination" className={cn('flex w-full max-w-full items-center gap-1 overflow-x-auto py-1', className)}>
       <JButton variant="ghost" type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
         onClick={() => { if (currentPage <= 1) { onFirstPageReached?.(); return; } onPrevious?.(currentPage); onPageChange?.(currentPage - 1); }}
@@ -47,5 +54,12 @@ export const JPaginationView: React.FC<InterJPagination> = ({
         <span className="hidden sm:inline">Next</span><ChevronRight />
       </JButton>
     </nav>
+  );
+  if (!info) return nav;
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      {info}
+      {nav}
+    </div>
   );
 };
