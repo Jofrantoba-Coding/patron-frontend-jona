@@ -200,3 +200,210 @@ describe('JTreeNav (R-CHR-2)', () => {
     expect(await seriousViolations(container)).toEqual([]);
   });
 });
+
+const MANY: JTreeNavNode[] = [
+  {
+    id: 'maestros',
+    label: 'Maestros',
+    children: [
+      {
+        id: 'generales',
+        label: 'Generales',
+        children: [
+          { id: 'cliente', label: 'Cliente' },
+          { id: 'clinica', label: 'Clínica' },
+          { id: 'tipo-cliente', label: 'Tipo de Cliente' },
+          ...Array.from({ length: 46 }, (_, index) => ({ id: `op-${index}`, label: `Opción ${index + 1}` })),
+        ],
+      },
+    ],
+  },
+  {
+    id: 'ventas',
+    label: 'Ventas',
+    children: [{ id: 'registro', label: 'Registro de Ventas' }],
+  },
+];
+
+describe('JTreeNav filter (R-CHR-3)', () => {
+  it('S-CHR-11: shows only the leaves that contain the text, accents ignored, with their ancestors expanded', () => {
+    render(<Host nodes={MANY} filter="cli" />);
+
+    expect(screen.getAllByRole('treeitem').map((node) => node.textContent)).toEqual([
+      'Maestros', 'Generales', 'Cliente', 'Clínica', 'Tipo de Cliente',
+    ]);
+    expect(item('Maestros')).toHaveAttribute('aria-expanded', 'true');
+    expect(item('Generales')).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.queryByText('Sin resultados')).not.toBeInTheDocument();
+  });
+
+  it('S-CHR-11: a text with no match shows the no-results message (default and custom)', () => {
+    const { rerender } = render(<Host nodes={MANY} filter="zzz" />);
+
+    expect(screen.queryAllByRole('treeitem')).toEqual([]);
+    expect(screen.getByText('Sin resultados')).toBeVisible();
+
+    rerender(<Host nodes={MANY} filter="zzz" noResultsLabel="No hay opciones" />);
+    expect(screen.getByText('No hay opciones')).toBeVisible();
+  });
+
+  it('the filter box is a named search box that reports its text and filters the tree', () => {
+    const onFilterChange = vi.fn();
+    render(<Host nodes={MANY} showFilter onFilterChange={onFilterChange} />);
+
+    const box = screen.getByRole('searchbox', { name: 'Buscar en el menú' });
+    fireEvent.change(box, { target: { value: 'regis' } });
+
+    expect(onFilterChange).toHaveBeenLastCalledWith('regis');
+    expect(screen.getAllByRole('treeitem').map((node) => node.textContent)).toEqual(['Ventas', 'Registro de Ventas']);
+  });
+
+  it('a controlled filter box shows the host text under a custom label', () => {
+    render(<Host nodes={MANY} showFilter filter="cli" filterLabel="Buscar opción" />);
+
+    expect(screen.getByRole('searchbox', { name: 'Buscar opción' })).toHaveValue('cli');
+    expect(screen.queryByRole('searchbox', { name: 'Buscar en el menú' })).not.toBeInTheDocument();
+  });
+
+  it('S-CHR-12: clearing the filter restores the expansion the tree had before filtering', () => {
+    const onToggle = vi.fn();
+    render(<Host nodes={MANY} showFilter initialExpanded={['maestros']} onToggle={onToggle} />);
+    const box = screen.getByRole('searchbox', { name: 'Buscar en el menú' });
+    expect(item('Ventas')).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.change(box, { target: { value: 'ventas' } });
+    expect(item('Ventas')).toHaveAttribute('aria-expanded', 'true');
+
+    item('Ventas').focus();
+    keyDown('ArrowLeft');
+    expect(item('Ventas')).toHaveAttribute('aria-expanded', 'false');
+    expect(onToggle).not.toHaveBeenCalled();
+
+    fireEvent.change(box, { target: { value: '' } });
+    expect(item('Ventas')).toHaveAttribute('aria-expanded', 'false');
+    expect(item('Maestros')).toHaveAttribute('aria-expanded', 'true');
+    expect(item('Generales')).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('has no serious axe violations with the filter box', async () => {
+    const { container } = render(<Host nodes={MANY} showFilter filter="cli" />);
+
+    expect(await seriousViolations(container)).toEqual([]);
+  });
+});
+
+const CHECK_NODES: JTreeNavNode[] = [
+  {
+    id: 'p',
+    label: 'Padre',
+    children: [
+      { id: 'c1', label: 'Hijo uno' },
+      { id: 'c2', label: 'Hijo dos' },
+    ],
+  },
+];
+
+describe('JTreeNav checkbox variant (R-CHR-4)', () => {
+  const setup = () => {
+    const calls = { onCheckedChange: vi.fn(), onSelect: vi.fn(), onToggle: vi.fn() };
+    const utils = render(
+      <Host
+        nodes={CHECK_NODES}
+        variant="checkbox"
+        checkedIds={['p', 'c1']}
+        initialExpanded={['p']}
+        onCheckedChange={calls.onCheckedChange}
+        onSelect={calls.onSelect}
+        onToggle={calls.onToggle}
+      />,
+    );
+    return { ...calls, ...utils };
+  };
+
+  it('every node carries aria-checked', () => {
+    setup();
+
+    expect(item('Padre')).toHaveAttribute('aria-checked', 'true');
+    expect(item('Hijo uno')).toHaveAttribute('aria-checked', 'true');
+    expect(item('Hijo dos')).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('S-CHR-13: Space on a checked parent unchecks it alone, with no other callback', () => {
+    const { onCheckedChange, onSelect, onToggle } = setup();
+
+    item('Padre').focus();
+    keyDown(' ');
+
+    expect(onCheckedChange).toHaveBeenCalledTimes(1);
+    expect(onCheckedChange).toHaveBeenCalledWith('p', false);
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(onToggle).not.toHaveBeenCalled();
+  });
+
+  it('S-CHR-13: a click on the node text only selects it; a click on its box only checks it', () => {
+    const { onCheckedChange, onSelect, onToggle } = setup();
+
+    fireEvent.click(screen.getByText('Padre'));
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onSelect).toHaveBeenCalledWith('p');
+    expect(onCheckedChange).not.toHaveBeenCalled();
+    expect(onToggle).not.toHaveBeenCalled();
+
+    fireEvent.click(item('Hijo dos').querySelector('[data-jtreenav-check]') as Element);
+    expect(onCheckedChange).toHaveBeenCalledTimes(1);
+    expect(onCheckedChange).toHaveBeenCalledWith('c2', true);
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('the chevron and Enter toggle a branch; the arrow keys select the node they move to', () => {
+    const { onCheckedChange, onSelect, onToggle } = setup();
+
+    fireEvent.click(item('Padre').querySelector('[data-jtreenav-toggle]') as Element);
+    expect(onToggle).toHaveBeenCalledWith('p', false);
+    expect(onSelect).not.toHaveBeenCalled();
+
+    item('Padre').focus();
+    keyDown('Enter');
+    expect(onToggle).toHaveBeenLastCalledWith('p', true);
+
+    keyDown('ArrowDown');
+    expect(item('Hijo uno')).toHaveFocus();
+    expect(onSelect).toHaveBeenCalledWith('c1');
+    expect(onCheckedChange).not.toHaveBeenCalled();
+  });
+
+  it('a disabled node is not checked by Space', () => {
+    const onCheckedChange = vi.fn();
+    render(
+      <Host
+        nodes={[{ id: 'x', label: 'Bloqueado', disabled: true }]}
+        variant="checkbox"
+        checkedIds={[]}
+        onCheckedChange={onCheckedChange}
+      />,
+    );
+
+    item('Bloqueado').focus();
+    keyDown(' ');
+    expect(onCheckedChange).not.toHaveBeenCalled();
+  });
+
+  it('has no serious axe violations', async () => {
+    const { container } = setup();
+
+    expect(await seriousViolations(container)).toEqual([]);
+  });
+});
+
+describe('JTreeNav maxHeight (R-CHR-4)', () => {
+  it('caps the scroll area through a CSS variable, and sets nothing without it', () => {
+    const { rerender } = render(<Host maxHeight="20rem" />);
+    const area = screen.getByRole('tree').parentElement as HTMLElement;
+
+    expect(area.style.getPropertyValue('--jona-tree-max-h')).toBe('20rem');
+    expect(area.className).toContain('max-h-[var(--jona-tree-max-h)]');
+
+    rerender(<Host />);
+    expect((screen.getByRole('tree').parentElement as HTMLElement).style.getPropertyValue('--jona-tree-max-h')).toBe('');
+  });
+});
