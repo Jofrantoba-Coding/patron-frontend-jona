@@ -28,6 +28,7 @@ const PIECES_160: Piece[] = [
   { layer: 'molecules', name: 'JToolbar' },
   { layer: 'molecules', name: 'JPageHeader' },
   { layer: 'molecules', name: 'JInputGroup' },
+  { layer: 'molecules', name: 'JDataGrid' },
 ];
 
 const SRC = resolve(process.cwd(), 'src');
