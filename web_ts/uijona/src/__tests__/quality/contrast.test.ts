@@ -10,6 +10,7 @@ import postcssImport from 'postcss-import';
 import tailwindcss from 'tailwindcss';
 import tailwindConfig from '../../../tailwind.config.js';
 import { contrastRatio, resolveRootTokens, rgbOf } from '../css/tokenCascade';
+import { BACKDROP } from '../../theme/tokenClasses';
 
 async function compileStylesheet(): Promise<Root> {
   const from = resolve(process.cwd(), 'src/styles/index.css');
@@ -52,5 +53,40 @@ describe('token contrast (S-FND-7)', () => {
   it('computes the WCAG ratio of known colors', () => {
     expect(contrastRatio([255, 255, 255], [0, 0, 0])).toBeCloseTo(21, 5);
     expect(contrastRatio([100, 116, 139], [255, 255, 255])).toBeCloseTo(4.76, 2);
+  });
+});
+
+/** The color a translucent layer gives over an opaque one. */
+const over = (top: [number, number, number], alpha: number, bottom: [number, number, number]): [number, number, number] =>
+  [0, 1, 2].map((i) => top[i] * alpha + bottom[i] * (1 - alpha)) as [number, number, number];
+
+describe('modal backdrop (a5 deferred: visible over a dark page)', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it('paints through the backdrop tokens', () => {
+    expect(BACKDROP).toBe('bg-[rgb(var(--jona-backdrop)/var(--jona-backdrop-alpha))]');
+  });
+
+  it('keeps the 1.5.x light backdrop: neutral-900 at 50%', () => {
+    const tokens = resolveRootTokens(css);
+
+    expect(rgbOf(tokens, '--jona-backdrop')).toEqual(rgbOf(tokens, '--jona-neutral-900'));
+    expect(tokens.get('--jona-backdrop-alpha')).toBe('0.5');
+  });
+
+  it.each([
+    ['light', {}],
+    ['dark', { 'data-theme-mode': 'dark' }],
+    ['system dark', { 'data-theme-mode': 'system' }],
+  ])('%s mode: a dialog surface beneath the backdrop dims by at least 1.3:1', (mode, attrs) => {
+    const tokens = resolveRootTokens(css, { attrs, osDark: mode === 'system dark' });
+    const raised = rgbOf(tokens, '--jona-surface-raised');
+    const dimmed = over(rgbOf(tokens, '--jona-backdrop'), Number(tokens.get('--jona-backdrop-alpha')), raised);
+
+    expect(contrastRatio(raised, dimmed)).toBeGreaterThanOrEqual(1.3);
   });
 });
