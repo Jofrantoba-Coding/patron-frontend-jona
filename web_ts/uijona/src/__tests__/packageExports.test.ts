@@ -86,6 +86,7 @@ describe('package exports', () => {
       'molecules/JInputGroup',
       'molecules/JDataGrid',
       'molecules/JTreeNav',
+      'layouts/JAppShell',
     ];
 
     SUBPATHS_160.forEach((subpath) => {
