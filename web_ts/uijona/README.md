@@ -25,6 +25,8 @@ Importa los estilos globales una sola vez, normalmente en `main.tsx`, `App.tsx` 
 import 'jona-ui/index.css';
 ```
 
+Desde 1.5.2 el paquete declara `"sideEffects": ["**/*.css"]`: el JS sigue siendo tree-shakeable y el bundler conserva los imports de CSS (`jona-ui/index.css`, `jona-ui/theme/tokens.css`) en el build de produccion.
+
 Si necesitas tokens CSS de tema, tambien puedes importar:
 
 ```tsx
@@ -95,6 +97,19 @@ export function App() {
 }
 ```
 
+Densidad de botones: desde 1.5.2, `JButton` y `JIcon` aceptan `density`, que fija la altura minima del control por encima de la altura de `size`. Sin `density`, cada `size` conserva su altura anterior.
+
+| `density` | Altura minima |
+| --- | --- |
+| `touch` | 44 px en todos los anchos |
+| `compact` | 36 px en todos los anchos |
+| `auto` | 44 px en movil, 36 px desde `sm` |
+
+```tsx
+<JButton density="touch">Guardar</JButton>
+<JIcon icon={<SearchIcon />} label="Buscar" density="compact" />
+```
+
 ## Que Incluye
 
 El paquete publica ESM, CJS, tipos TypeScript y CSS compilado.
@@ -133,7 +148,7 @@ import { JHomeLogin } from 'jona-ui/pages/JHomeLogin';
 | --- | --- |
 | `JAvatar` | Avatar con imagen, fallback e iniciales |
 | `JBadge` | Indicadores de estado |
-| `JButton` | Botones con variantes, tamanos y loading |
+| `JButton` | Botones con variantes, tamanos, densidad y loading |
 | `JCheckBox` | Checkbox accesible |
 | `JChip` | Chip seleccionable o removible |
 | `JLabel` | Mensaje de error o ayuda |
