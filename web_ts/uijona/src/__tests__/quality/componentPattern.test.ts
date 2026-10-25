@@ -11,8 +11,12 @@ import { resolve } from 'node:path';
 import ts from 'typescript';
 
 interface Piece {
-  layer: 'atoms' | 'molecules' | 'layouts' | 'organisms';
+  layer: 'atoms' | 'molecules' | 'layouts' | 'organisms' | 'hooks';
   name: string;
+  /** File prefix of the JONA layers when it differs from the name (hooks: `UseConfirm`). */
+  unit?: string;
+  /** DEFAULTS export when it differs from `<NAME>_DEFAULTS`. */
+  defaults?: string;
 }
 
 const PIECES_160: Piece[] = [
@@ -20,16 +24,17 @@ const PIECES_160: Piece[] = [
   { layer: 'layouts', name: 'JFieldGrid' },
   { layer: 'molecules', name: 'JFormSection' },
   { layer: 'molecules', name: 'JErrorSummary' },
+  { layer: 'hooks', name: 'useConfirm', unit: 'UseConfirm', defaults: 'CONFIRM_DEFAULTS' },
 ];
 
 const SRC = resolve(process.cwd(), 'src');
 const STATE_KEY = /^(value|open|selected.*|checked.*)$/;
 
-const expectedFiles = ({ layer, name }: Piece): string[] => [
-  `${layer}/${name}/Inter${name}.ts`,
-  `${layer}/${name}/${name}Impl.tsx`,
-  `${layer}/${name}/${name}View.tsx`,
-  `${layer}/${name}/${name}.tsx`,
+const expectedFiles = ({ layer, name, unit = name }: Piece): string[] => [
+  `${layer}/${name}/Inter${unit}.ts`,
+  `${layer}/${name}/${unit}Impl.tsx`,
+  `${layer}/${name}/${unit}View.tsx`,
+  `${layer}/${name}/${name}.${layer === 'hooks' ? 'ts' : 'tsx'}`,
   `${layer}/${name}/index.ts`,
   `${layer}/${name}/${name}.stories.tsx`,
   `${layer}/__tests__/${name}.test.tsx`,
@@ -75,10 +80,10 @@ describe('component pattern (S-FND-22)', () => {
   });
 
   it.each(PIECES_160)('$layer/$name has DEFAULTS without state values', (piece) => {
-    const path = resolve(SRC, `${piece.layer}/${piece.name}/Inter${piece.name}.ts`);
+    const path = resolve(SRC, `${piece.layer}/${piece.name}/Inter${piece.unit ?? piece.name}.ts`);
     const defaults = existsSync(path) ? defaultsKeys(readFileSync(path, 'utf8')) : {};
 
-    expect(Object.keys(defaults)).toContain(`${piece.name.toUpperCase()}_DEFAULTS`);
+    expect(Object.keys(defaults)).toContain(piece.defaults ?? `${piece.name.toUpperCase()}_DEFAULTS`);
     expect(stateKeys(defaults)).toEqual([]);
   });
 

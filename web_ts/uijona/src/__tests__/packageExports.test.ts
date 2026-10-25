@@ -80,6 +80,7 @@ describe('package exports', () => {
       'layouts/JFieldGrid',
       'molecules/JFormSection',
       'molecules/JErrorSummary',
+      'hooks/useConfirm',
     ];
 
     SUBPATHS_160.forEach((subpath) => {

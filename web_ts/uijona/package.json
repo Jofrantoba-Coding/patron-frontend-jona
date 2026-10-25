@@ -514,6 +514,11 @@
       "require": "./dist/hooks/useToast.cjs",
       "types": "./dist/hooks/useToast.d.ts"
     },
+    "./hooks/useConfirm": {
+      "import": "./dist/hooks/useConfirm.js",
+      "require": "./dist/hooks/useConfirm.cjs",
+      "types": "./dist/hooks/useConfirm.d.ts"
+    },
     "./theme": {
       "import": "./dist/theme/index.js",
       "require": "./dist/theme/index.cjs",
