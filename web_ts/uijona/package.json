@@ -18,6 +18,7 @@
       "types": "./dist/index.d.ts"
     },
     "./index.css": "./dist/index.css",
+    "./base.css": "./dist/base.css",
     "./atoms/JButton": {
       "import": "./dist/atoms/JButton.js",
       "require": "./dist/atoms/JButton.cjs",

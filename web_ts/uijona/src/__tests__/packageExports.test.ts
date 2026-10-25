@@ -72,4 +72,9 @@ describe('package exports', () => {
 
     expect(testOnly).toEqual([]);
   });
+
+  it('R-FND-1, R-FND-5: exposes the opt-in base stylesheet next to index.css', () => {
+    expect(packageJson.exports['./base.css']).toBe('./dist/base.css');
+    expect(packageJson.exports['./index.css']).toBe('./dist/index.css');
+  });
 });
