@@ -30,6 +30,7 @@ const PIECES_160: Piece[] = [
   { layer: 'molecules', name: 'JInputGroup' },
   { layer: 'molecules', name: 'JDataGrid' },
   { layer: 'molecules', name: 'JTreeNav' },
+  { layer: 'layouts', name: 'JAppShell' },
 ];
 
 const SRC = resolve(process.cwd(), 'src');

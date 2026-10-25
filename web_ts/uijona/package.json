@@ -419,6 +419,11 @@
       "require": "./dist/layouts/JFieldGrid.cjs",
       "types": "./dist/layouts/JFieldGrid.d.ts"
     },
+    "./layouts/JAppShell": {
+      "import": "./dist/layouts/JAppShell.js",
+      "require": "./dist/layouts/JAppShell.cjs",
+      "types": "./dist/layouts/JAppShell.d.ts"
+    },
     "./organisms/JHeroDynamic": {
       "import": "./dist/organisms/JHeroDynamic.js",
       "require": "./dist/organisms/JHeroDynamic.cjs",
