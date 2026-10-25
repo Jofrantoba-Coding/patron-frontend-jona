@@ -38,14 +38,19 @@ export default defineConfig({
       outDir: 'dist',
       insertTypesEntry: true,
     }),
-    // Copy CSS token file to dist/theme after build
+    // Copy the plain CSS files to dist after build: the token file and the
+    // opt-in base styles (D7).
     {
       name: 'copy-theme-css',
       closeBundle() {
-        const src = resolve(__dirname, 'src/theme/tokens.css');
-        const destDir = resolve(__dirname, 'dist/theme');
-        mkdirSync(destDir, { recursive: true });
-        copyFileSync(src, resolve(destDir, 'tokens.css'));
+        [
+          ['src/theme/tokens.css', 'dist/theme/tokens.css'],
+          ['src/styles/base.css', 'dist/base.css'],
+        ].forEach(([from, to]) => {
+          const dest = resolve(__dirname, to);
+          mkdirSync(resolve(dest, '..'), { recursive: true });
+          copyFileSync(resolve(__dirname, from), dest);
+        });
       },
     },
   ],
