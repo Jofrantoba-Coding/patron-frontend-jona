@@ -334,3 +334,49 @@ const [done, setDone] = useState(false);
     );
   },
 };
+
+export const Density: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: '`density` fija la altura sobre la del tamaño: `touch` 44 px en todos los anchos, `compact` 36 px en todos los anchos, `auto` 44 px en móvil y 36 px desde sm. No tiene default: sin `density` el botón conserva la altura de 1.5.1.',
+      },
+    },
+  },
+  render: () => (
+    <JPanel layout="flow" gap="sm" alignItems="center">
+      <JButton>Sin density</JButton>
+      <JButton density="touch">Touch</JButton>
+      <JButton density="compact">Compact</JButton>
+      <JButton density="auto">Auto</JButton>
+      <JButton size="icon" density="compact" aria-label="Agregar"><PlusIcon /></JButton>
+    </JPanel>
+  ),
+};
+
+export const Accessibility: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Props de accesibilidad tipadas que llegan al `<button>` nativo: `title`, `aria-keyshortcuts`, `aria-describedby`, `aria-pressed`, `aria-expanded`, `aria-controls` y `aria-haspopup`.',
+      },
+    },
+  },
+  render: () => {
+    const [pressed, setPressed] = useState(false);
+    return (
+      <JPanel layout="flow" gap="sm" alignItems="center">
+        <JButton icon={<PlusIcon />} title="Agregar (Alt+A)" aria-keyshortcuts="Alt+A" aria-describedby="jbutton-a11y-hint">
+          Agregar
+        </JButton>
+        <JButton variant="outline" aria-pressed={pressed} onClick={() => setPressed((value) => !value)}>
+          {pressed ? 'Filtro activo' : 'Filtro inactivo'}
+        </JButton>
+        <JButton variant="ghost" aria-haspopup="menu" aria-expanded={false} aria-controls="jbutton-a11y-menu">
+          Más acciones
+        </JButton>
+        <span id="jbutton-a11y-hint" className="text-xs text-neutral-500">Alt+A agrega un registro.</span>
+      </JPanel>
+    );
+  },
+};

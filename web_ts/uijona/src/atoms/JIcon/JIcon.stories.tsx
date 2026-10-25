@@ -164,3 +164,20 @@ export const Interactive: Story = {
     );
   },
 };
+
+export const DensityAndShortcut: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: '`density` fija la altura (`touch` 44 px, `compact` 36 px, `auto` 44 px en móvil y 36 px desde sm). Sin `density` mantiene la altura de 1.5.1. Los atajos se anuncian con `aria-keyshortcuts` y se muestran en `title`.',
+      },
+    },
+  },
+  render: () => (
+    <JPanel layout="flow" gap="sm" alignItems="center">
+      <JIcon icon={<SearchIcon />} label="Buscar" density="touch" title="Buscar (Alt+B)" aria-keyshortcuts="Alt+B" />
+      <JIcon icon={<SearchIcon />} label="Buscar compacto" density="compact" />
+      <JIcon icon={<SearchIcon />} label="Buscar automático" density="auto" />
+    </JPanel>
+  ),
+};
