@@ -209,6 +209,11 @@
       "require": "./dist/molecules/JDataGrid.cjs",
       "types": "./dist/molecules/JDataGrid.d.ts"
     },
+    "./molecules/JTreeNav": {
+      "import": "./dist/molecules/JTreeNav.js",
+      "require": "./dist/molecules/JTreeNav.cjs",
+      "types": "./dist/molecules/JTreeNav.d.ts"
+    },
     "./molecules/JCheckBoxField": {
       "import": "./dist/molecules/JCheckBoxField.js",
       "require": "./dist/molecules/JCheckBoxField.cjs",
