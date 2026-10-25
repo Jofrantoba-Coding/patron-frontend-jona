@@ -38,4 +38,26 @@ describe('package exports', () => {
     expect(legacyLayerNames).toEqual([]);
     expect(unprefixedComponents).toEqual([]);
   });
+
+  it('S-FND-1: declares the CSS files as side effects so bundlers keep the stylesheet import', () => {
+    const { sideEffects } = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as {
+      sideEffects: unknown;
+    };
+    const globToRegExp = (glob: string): RegExp =>
+      new RegExp(
+        `^${glob
+          .replace(/^\.\//, '')
+          .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+          .split('**/')
+          .map((part) => part.replace(/\*/g, '[^/]*'))
+          .join('(?:.*/)?')}$`,
+      );
+    const isSideEffect = (file: string): boolean =>
+      Array.isArray(sideEffects) && sideEffects.some((glob: string) => globToRegExp(glob).test(file));
+
+    expect(Array.isArray(sideEffects)).toBe(true);
+    expect(isSideEffect('dist/index.css')).toBe(true);
+    expect(isSideEffect('dist/theme/tokens.css')).toBe(true);
+    expect(isSideEffect('dist/index.js')).toBe(false);
+  });
 });
