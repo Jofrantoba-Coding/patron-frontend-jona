@@ -96,7 +96,7 @@ const ToastTriggers = () => {
   return (
     <div className="flex flex-wrap gap-2">
       <JButton variant="outline"     size="sm" onClick={() => fire('default', '',           'Operación completada')}>Default</JButton>
-      <JButton size="sm" className="bg-success-600 hover:bg-success-700 text-white"
+      <JButton size="sm" className="bg-success-600 hover:bg-success-600 text-white"
                                                onClick={() => fire('success', '¡Éxito!',     'Guardado correctamente')}>Success</JButton>
       <JButton size="sm" className="bg-warning-500 hover:bg-warning-600 text-white"
                                                onClick={() => fire('warning', 'Advertencia', 'Revisa tu conexión')}>Warning</JButton>

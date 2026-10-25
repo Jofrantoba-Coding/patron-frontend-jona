@@ -27,7 +27,7 @@ const iconByVariant: Record<JOptionPaneVariant, React.ReactNode> = {
 };
 
 const iconBg: Record<JOptionPaneVariant, string> = {
-  danger:  'bg-danger-50',
+  danger:  '',
   warning: 'bg-yellow-50',
   info:    'bg-primary-50',
 };
@@ -76,7 +76,7 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
       variant="ghost"
       padding="none"
       radius="none"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
+      className="fixed inset-0 z-50 flex flex-row items-center justify-center p-2 sm:p-4"
     >
       {/* Backdrop */}
       <JPanel

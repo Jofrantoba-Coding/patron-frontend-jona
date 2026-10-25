@@ -42,7 +42,7 @@ export const JNumberInputView: React.FC<JNumberInputViewProps> = ({
   onIncrementClick,
   ...props
 }) => (
-  <JPanel variant="ghost" padding="none" radius="none" className={cn('inline-flex max-w-full min-w-0 items-stretch rounded-md border bg-white', hasError ? 'border-danger-500' : 'border-neutral-300', className)}>
+  <JPanel variant="ghost" padding="none" radius="none" className={cn('inline-flex flex-row max-w-full min-w-0 items-stretch rounded-md border bg-white', hasError ? 'border-danger-500' : 'border-neutral-300', className)}>
     <button
       type="button"
       aria-label="Decrement"

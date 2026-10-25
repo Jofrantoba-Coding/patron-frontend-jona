@@ -820,6 +820,12 @@
     box-sizing: border-box;
   }
 
+  /* ── JDot, JGlyph ───────────────────────────────────────────────── */
+  .jdot,
+  .jglyph {
+    box-sizing: border-box;
+  }
+
   /* ── JAvatar ────────────────────────────────────────────────────── */
   .javatar {
     position: relative;

@@ -1,0 +1,498 @@
+{
+  "kept": {
+    "layouts/JBoxLayout/JBoxLayoutView.tsx": [
+      "max-w-full",
+      "min-w-0",
+      "w-full"
+    ],
+    "layouts/JCardLayout/JCardLayoutView.tsx": [
+      "max-w-full",
+      "min-w-0",
+      "w-full"
+    ],
+    "layouts/JFlowLayout/JFlowLayoutView.tsx": [
+      "max-w-full",
+      "min-w-0",
+      "w-full"
+    ],
+    "layouts/JGridBagLayout/JGridBagLayoutView.tsx": [
+      "max-w-full",
+      "min-w-0",
+      "w-full"
+    ],
+    "layouts/JGridLayout/JGridLayoutView.tsx": [
+      "max-w-full",
+      "min-w-0",
+      "w-full"
+    ],
+    "layouts/JGroupLayout/JGroupLayoutView.tsx": [
+      "max-w-full",
+      "min-w-0",
+      "w-full"
+    ],
+    "layouts/JSidebarLayout/JSidebarLayoutView.tsx": [
+      "lg:hidden",
+      "min-w-0"
+    ],
+    "layouts/JSpringLayout/JSpringLayoutView.tsx": [
+      "max-w-full",
+      "min-w-0",
+      "w-full"
+    ],
+    "molecules/JAccordion/JAccordionView.tsx": [
+      "flex",
+      "flex-col",
+      "gap-2",
+      "w-full"
+    ],
+    "molecules/JAlert/JAlertView.tsx": [
+      "min-w-0",
+      "w-full"
+    ],
+    "molecules/JCard/JCardView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "flex-wrap",
+      "gap-1.5",
+      "gap-2",
+      "items-center",
+      "min-w-0"
+    ],
+    "molecules/JCheckBoxField/JCheckBoxFieldView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "gap-0.5",
+      "gap-1",
+      "gap-2",
+      "items-start"
+    ],
+    "molecules/JCombobox/JComboboxView.tsx": [
+      "flex",
+      "flex-col",
+      "inline-block",
+      "max-w-[calc(100vw-1rem)]",
+      "w-full"
+    ],
+    "molecules/JDataTable/JDataTableView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "gap-1",
+      "gap-2",
+      "gap-3",
+      "items-center",
+      "max-w-full",
+      "w-full"
+    ],
+    "molecules/JDialog/JDialogView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "flex-wrap",
+      "items-center",
+      "justify-center",
+      "max-w-lg",
+      "max-w-md",
+      "max-w-sm",
+      "max-w-xl",
+      "min-w-0",
+      "w-full"
+    ],
+    "molecules/JDrawer/JDrawerView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-col-reverse",
+      "flex-row",
+      "gap-0.5",
+      "gap-2",
+      "gap-4",
+      "items-start",
+      "justify-between",
+      "max-w-[85vw]",
+      "min-w-0",
+      "sm:flex-row",
+      "sm:justify-end",
+      "w-64",
+      "w-80",
+      "w-[28rem]",
+      "w-full"
+    ],
+    "molecules/JEmptyState/JEmptyStateView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "flex-wrap",
+      "gap-1",
+      "gap-2",
+      "gap-4",
+      "items-center",
+      "justify-center",
+      "max-w-md",
+      "min-w-0",
+      "w-12",
+      "w-full"
+    ],
+    "molecules/JFileUpload/JFileUploadView.tsx": [
+      "flex",
+      "flex-col",
+      "gap-3",
+      "min-w-0",
+      "w-full"
+    ],
+    "molecules/JLanguageSwitcher/JLanguageSwitcherView.tsx": [
+      "inline-block",
+      "min-w-[9rem]"
+    ],
+    "molecules/JMultiSelect/JMultiSelectView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "flex-wrap",
+      "gap-1",
+      "items-center",
+      "max-w-[calc(100vw-1rem)]",
+      "w-full"
+    ],
+    "molecules/JNumberInput/JNumberInputView.tsx": [
+      "flex-row",
+      "inline-flex",
+      "items-stretch",
+      "max-w-full",
+      "min-w-0"
+    ],
+    "molecules/JOptionPane/JOptionPaneView.tsx": [
+      "flex",
+      "flex-row",
+      "items-center",
+      "justify-center",
+      "max-w-sm",
+      "sm:max-w-md",
+      "w-full"
+    ],
+    "molecules/JPopover/JPopoverView.tsx": [
+      "inline-block",
+      "max-w-[calc(100vw-1rem)]",
+      "min-w-[12rem]"
+    ],
+    "molecules/JProgressItem/JProgressItemView.tsx": [
+      "flex",
+      "flex-row",
+      "gap-2",
+      "items-center",
+      "justify-between",
+      "w-full"
+    ],
+    "molecules/JRadioGroup/JRadioGroupView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "flex-wrap",
+      "gap-3"
+    ],
+    "molecules/JSearchInput/JSearchInputView.tsx": [
+      "flex",
+      "flex-row",
+      "gap-2",
+      "items-center",
+      "min-w-0",
+      "w-full"
+    ],
+    "molecules/JSelectField/JSelectFieldView.tsx": [
+      "flex",
+      "flex-col",
+      "gap-1.5"
+    ],
+    "molecules/JSkeletonPresets/JSkeletonPresetsView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "gap-2",
+      "gap-3",
+      "gap-4",
+      "items-center"
+    ],
+    "molecules/JStatCard/JStatCardView.tsx": [
+      "flex",
+      "flex-row",
+      "flex-wrap",
+      "gap-3",
+      "gap-x-2",
+      "gap-y-1",
+      "items-center",
+      "items-start",
+      "justify-between",
+      "justify-center",
+      "min-w-0",
+      "w-10"
+    ],
+    "molecules/JTable/JTableView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "flex-wrap",
+      "gap-1",
+      "gap-2",
+      "gap-3",
+      "gap-4",
+      "items-center",
+      "items-stretch",
+      "justify-center",
+      "max-w-full",
+      "min-w-0",
+      "sm:flex-row",
+      "sm:items-center",
+      "sm:justify-between",
+      "w-full"
+    ],
+    "molecules/JTimer/JTimerView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "flex-wrap",
+      "gap-2",
+      "gap-3",
+      "inline-flex",
+      "items-center",
+      "min-w-0"
+    ],
+    "organisms/JDashboardPreview/JDashboardPreviewView.tsx": [
+      "flex",
+      "flex-row",
+      "gap-1.5",
+      "gap-2",
+      "gap-3",
+      "grid",
+      "grid-cols-2",
+      "items-center",
+      "items-end"
+    ],
+    "organisms/JErrorPage/JErrorPageView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "flex-wrap",
+      "gap-3",
+      "items-center",
+      "justify-center",
+      "max-w-sm",
+      "sm:max-w-md",
+      "w-full"
+    ],
+    "organisms/JFooterPage/JFooterPageView.tsx": [
+      "flex",
+      "flex-row",
+      "gap-2",
+      "gap-4",
+      "hidden",
+      "items-center",
+      "max-w-full",
+      "md:flex",
+      "min-w-0"
+    ],
+    "organisms/JHeaderPage/JHeaderPageView.tsx": [
+      "flex",
+      "flex-row",
+      "gap-2",
+      "items-center",
+      "min-w-0"
+    ],
+    "organisms/JLogoMarquee/JLogoMarqueeView.tsx": [
+      "flex",
+      "flex-row",
+      "gap-14",
+      "items-center",
+      "w-max"
+    ],
+    "organisms/JNavbar/JNavbarView.tsx": [
+      "flex",
+      "flex-col",
+      "flex-row",
+      "gap-1",
+      "gap-2",
+      "gap-4",
+      "gap-6",
+      "hidden",
+      "items-center",
+      "justify-between",
+      "lg:flex",
+      "lg:hidden",
+      "max-w-sm",
+      "w-[85vw]",
+      "w-full"
+    ]
+  },
+  "added": [
+    {
+      "file": "molecules/JCard/JCardView.tsx",
+      "line": 31,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JCheckBoxField/JCheckBoxFieldView.tsx",
+      "line": 15,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JDataTable/JDataTableView.tsx",
+      "line": 54,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JDialog/JDialogView.tsx",
+      "line": 52,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JDrawer/JDrawerView.tsx",
+      "line": 83,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JEmptyState/JEmptyStateView.tsx",
+      "line": 16,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JEmptyState/JEmptyStateView.tsx",
+      "line": 25,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JMultiSelect/JMultiSelectView.tsx",
+      "line": 40,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JNumberInput/JNumberInputView.tsx",
+      "line": 45,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JOptionPane/JOptionPaneView.tsx",
+      "line": 75,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JProgressItem/JProgressItemView.tsx",
+      "line": 54,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JSearchInput/JSearchInputView.tsx",
+      "line": 49,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JSkeletonPresets/JSkeletonPresetsView.tsx",
+      "line": 8,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JSkeletonPresets/JSkeletonPresetsView.tsx",
+      "line": 28,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JSkeletonPresets/JSkeletonPresetsView.tsx",
+      "line": 38,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JStatCard/JStatCardView.tsx",
+      "line": 33,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JStatCard/JStatCardView.tsx",
+      "line": 47,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JStatCard/JStatCardView.tsx",
+      "line": 50,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JTable/JTableView.tsx",
+      "line": 137,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JTable/JTableView.tsx",
+      "line": 139,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JTimer/JTimerView.tsx",
+      "line": 132,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JTimer/JTimerView.tsx",
+      "line": 147,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JDashboardPreview/JDashboardPreviewView.tsx",
+      "line": 25,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JDashboardPreview/JDashboardPreviewView.tsx",
+      "line": 55,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JErrorPage/JErrorPageView.tsx",
+      "line": 34,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JFooterPage/JFooterPageView.tsx",
+      "line": 28,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JFooterPage/JFooterPageView.tsx",
+      "line": 35,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JHeaderPage/JHeaderPageView.tsx",
+      "line": 34,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JLogoMarquee/JLogoMarqueeView.tsx",
+      "line": 39,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JLogoMarquee/JLogoMarqueeView.tsx",
+      "line": 51,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JNavbar/JNavbarView.tsx",
+      "line": 42,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JNavbar/JNavbarView.tsx",
+      "line": 44,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JNavbar/JNavbarView.tsx",
+      "line": 47,
+      "token": "flex-row"
+    },
+    {
+      "file": "organisms/JNavbar/JNavbarView.tsx",
+      "line": 66,
+      "token": "flex-row"
+    }
+  ]
+}

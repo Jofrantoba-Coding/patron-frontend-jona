@@ -13,7 +13,7 @@ export const JEmptyStateView: React.FC<InterJEmptyState> = ({
     {...props}
   >
     {icon && (
-      <JPanel variant="ghost" padding="none" radius="none" className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-500">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-500">
         {icon}
       </JPanel>
     )}
@@ -22,7 +22,7 @@ export const JEmptyStateView: React.FC<InterJEmptyState> = ({
       {description && <p className="break-words text-sm text-neutral-500">{description}</p>}
     </JPanel>
     {actions && actions.length > 0 && (
-      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-wrap items-center justify-center gap-2">
+      <JPanel variant="ghost" padding="none" radius="none" className="flex flex-row flex-wrap items-center justify-center gap-2">
         {actions.map((action) => (
           <JButton
             key={action.label}

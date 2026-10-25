@@ -113,7 +113,7 @@ export const Position: StoryObj = {
       return (
         <div className="flex flex-wrap gap-2">
           <JButton variant="outline"     size="sm" onClick={() => toast({ message: 'Notificación por defecto' })}>Default</JButton>
-          <JButton size="sm" className="bg-success-600 hover:bg-success-700 text-white"
+          <JButton size="sm" className="bg-success-600 hover:bg-success-600 text-white"
                                                    onClick={() => toast({ variant: 'success', title: '¡Éxito!',     message: 'Guardado correctamente' })}>Success</JButton>
           <JButton size="sm" className="bg-warning-500 hover:bg-warning-600 text-white"
                                                    onClick={() => toast({ variant: 'warning', title: 'Advertencia', message: 'Revisa tu conexión' })}>Warning</JButton>

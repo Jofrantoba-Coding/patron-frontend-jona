@@ -11,7 +11,7 @@ const VARIANT_CLASSES: Record<JAlertVariant, string> = {
   info:    'bg-primary-50  border-primary-300  text-primary-800',
   success: 'bg-green-50    border-green-300    text-green-800',
   warning: 'bg-yellow-50   border-yellow-300   text-yellow-800',
-  danger:  'bg-red-50      border-danger-500   text-danger-700',
+  danger:  'bg-red-50      border-danger-500',
 };
 
 const DISMISS_VARIANT_CLASSES: Record<JAlertVariant, string> = {
@@ -19,7 +19,7 @@ const DISMISS_VARIANT_CLASSES: Record<JAlertVariant, string> = {
   info:    'text-primary-400 hover:text-primary-700',
   success: 'text-green-400   hover:text-green-700',
   warning: 'text-yellow-500  hover:text-yellow-800',
-  danger:  'text-danger-400  hover:text-danger-700',
+  danger:  'text-danger-400',
 };
 
 // ── View ──────────────────────────────────────────────────────────────────────
