@@ -103,6 +103,17 @@ describe('component pattern (S-FND-22)', () => {
     expect(packageExports).toHaveProperty([`./${layer}/${name}`]);
   });
 
+  it('S-FND-22 sweep: the list holds every 1.6.0 piece of the design placement', () => {
+    const DESIGN_160 = [
+      'molecules/JField', 'molecules/JFormSection', 'molecules/JErrorSummary', 'molecules/JInputGroup', 'molecules/JDataGrid',
+      'molecules/JToolbar', 'molecules/JPageHeader', 'molecules/JTreeNav', 'molecules/JUserMenu', 'molecules/JContextChip',
+      'molecules/JShortcutSheet', 'layouts/JFieldGrid', 'layouts/JAppShell', 'layouts/JAuthLayout', 'organisms/JWorkspaceTabs',
+      'hooks/useConfirm',
+    ];
+
+    expect(PIECES_160.map(({ layer, name }) => `${layer}/${name}`).sort()).toEqual([...DESIGN_160].sort());
+  });
+
   it('flags state keys in a DEFAULTS literal', () => {
     const fixture = [
       "export const JX_DEFAULTS = { open: false, size: 'md', selectedId: null } as const;",
