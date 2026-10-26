@@ -19,6 +19,7 @@ import { JSidebarLayout } from '../../layouts/JSidebarLayout';
 import { JLanguageSwitcher } from '../../molecules/JLanguageSwitcher';
 import { JTable, JTableBody, JTableCell, JTableRow } from '../../molecules/JTable';
 import { JTableHead, JTableHeader } from '../../molecules/JTable';
+import { JPagination } from '../../molecules/JPagination';
 import { JDashboardPreview } from '../../organisms/JDashboardPreview';
 import { JLogoMarquee } from '../../organisms/JLogoMarquee';
 import { JNavbar } from '../../organisms/JNavbar';
@@ -566,6 +567,25 @@ describe('JTableHead lays its label out as a row', () => {
     const panel = screen.getByText('Ciudad').closest('.jpanel') as HTMLElement;
 
     expect(resolveProperty(css, panel, 'flex-direction', 1024)?.value).toBe('column');
+  });
+});
+
+/* a6 finding: the Previous/Next chevron is an svg (preflight display:block) inside an inline span, so it stacked over the label. */
+describe('JPagination keeps each chevron beside its label', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it.each([['Go to previous page'], ['Go to next page']])('%s: the chevron and the label share one row', (name) => {
+    render(React.createElement(JPagination, { currentPage: 3, totalPages: 10, onPageChange: () => {} }));
+    const chevron = screen.getByRole('button', { name }).querySelector('svg') as SVGElement;
+    const row = chevron.parentElement as HTMLElement;
+
+    expect(row.textContent).toMatch(/Previous|Next/);
+    expect(resolveProperty(css, row, 'display', 1024)?.value).toBe('inline-flex');
+    expect(resolveProperty(css, row, 'align-items', 1024)?.value).toBe('center');
   });
 });
 
