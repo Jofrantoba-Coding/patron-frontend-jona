@@ -529,6 +529,11 @@
       "require": "./dist/organisms/JFooterPage.cjs",
       "types": "./dist/organisms/JFooterPage.d.ts"
     },
+    "./organisms/JWorkspaceTabs": {
+      "import": "./dist/organisms/JWorkspaceTabs.js",
+      "require": "./dist/organisms/JWorkspaceTabs.cjs",
+      "types": "./dist/organisms/JWorkspaceTabs.d.ts"
+    },
     "./pages/JHomeLogin": {
       "import": "./dist/pages/JHomeLogin.js",
       "require": "./dist/pages/JHomeLogin.cjs",
