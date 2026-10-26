@@ -34,6 +34,7 @@ const PIECES_160: Piece[] = [
   { layer: 'molecules', name: 'JUserMenu' },
   { layer: 'molecules', name: 'JContextChip' },
   { layer: 'organisms', name: 'JWorkspaceTabs' },
+  { layer: 'molecules', name: 'JShortcutSheet' },
 ];
 
 const SRC = resolve(process.cwd(), 'src');

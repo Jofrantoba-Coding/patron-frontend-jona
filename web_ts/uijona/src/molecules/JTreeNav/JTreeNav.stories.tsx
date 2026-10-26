@@ -99,7 +99,7 @@ const meta: Meta<typeof JTreeNav> = {
     docs: {
       description: {
         component:
-          'JTreeNav es un árbol ARIA (`role="tree"`) con una sola parada de tabulación: ↑ ↓ Home End recorren los nodos visibles, → abre una rama o entra en ella, ← la cierra o sube al padre, Enter y Espacio activan, y una letra salta al siguiente nodo que empieza por ella. La expansión es controlada (`expandedIds`, `onToggle`). Un nodo `disabled` sigue enfocable y reporta `onSelect`; su `badge` es la descripción accesible. `filterTree` filtra hojas sin distinguir mayúsculas ni tildes.',
+          'JTreeNav es un árbol ARIA (`role="tree"`) con una sola parada de tabulación: ↑ ↓ Home End recorren los nodos visibles, → abre una rama o entra en ella, ← la cierra o sube al padre, Enter y Espacio activan, y una letra salta al siguiente nodo que empieza por ella. La expansión es controlada (`expandedIds`, `onToggle`). Un nodo `disabled` sigue enfocable y reporta `onSelect`; su `badge` es la descripción accesible. `filterTree` filtra hojas sin distinguir mayúsculas ni tildes. El handle `focusFilter()` (por `ref`) enfoca la caja de filtro y selecciona su texto, para atajos como Ctrl+K o `/`.',
       },
     },
   },

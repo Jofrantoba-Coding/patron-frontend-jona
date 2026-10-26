@@ -224,6 +224,11 @@
       "require": "./dist/molecules/JContextChip.cjs",
       "types": "./dist/molecules/JContextChip.d.ts"
     },
+    "./molecules/JShortcutSheet": {
+      "import": "./dist/molecules/JShortcutSheet.js",
+      "require": "./dist/molecules/JShortcutSheet.cjs",
+      "types": "./dist/molecules/JShortcutSheet.d.ts"
+    },
     "./molecules/JCheckBoxField": {
       "import": "./dist/molecules/JCheckBoxField.js",
       "require": "./dist/molecules/JCheckBoxField.cjs",

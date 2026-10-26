@@ -26,6 +26,7 @@ export interface JTreeNavViewProps {
   maxHeight?: string;
   badgeId: (id: string) => string;
   setItemRef: (id: string) => (element: HTMLDivElement | null) => void;
+  filterRef: React.Ref<HTMLInputElement>;
   onFilterChange: (text: string) => void;
   onItemKeyDown: (node: JTreeNavNode, event: React.KeyboardEvent<HTMLDivElement>) => void;
   onItemClick: (node: JTreeNavNode) => void;
@@ -73,7 +74,7 @@ const CheckBox: React.FC<{ checked: boolean; disabled?: boolean; onClick: (event
 
 export const JTreeNavView: React.FC<JTreeNavViewProps> = ({
   ariaLabel, nodes, variant, isExpanded, isChecked, activeId, tabStop, showFilter, filterText, filterLabel, noResults,
-  maxHeight, badgeId, setItemRef, onFilterChange, onItemKeyDown, onItemClick, onToggleClick, onCheckClick, onItemFocus,
+  maxHeight, badgeId, setItemRef, filterRef, onFilterChange, onItemKeyDown, onItemClick, onToggleClick, onCheckClick, onItemFocus,
 }) => {
   const checkbox = variant === 'checkbox';
   const renderNodes = (list: JTreeNavNode[], level: number): React.ReactNode =>
@@ -135,6 +136,7 @@ export const JTreeNavView: React.FC<JTreeNavViewProps> = ({
     <div className="flex w-full min-w-0 flex-col gap-2">
       {showFilter && (
         <JTextBox
+          ref={filterRef}
           type="search"
           aria-label={filterLabel}
           placeholder={filterLabel}
