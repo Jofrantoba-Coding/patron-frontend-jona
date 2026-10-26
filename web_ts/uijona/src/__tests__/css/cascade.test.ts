@@ -18,6 +18,7 @@ import { JPanel } from '../../atoms/JPanel';
 import { JSidebarLayout } from '../../layouts/JSidebarLayout';
 import { JLanguageSwitcher } from '../../molecules/JLanguageSwitcher';
 import { JTable, JTableBody, JTableCell, JTableRow } from '../../molecules/JTable';
+import { JTableHead, JTableHeader } from '../../molecules/JTable';
 import { JDashboardPreview } from '../../organisms/JDashboardPreview';
 import { JLogoMarquee } from '../../organisms/JLogoMarquee';
 import { JNavbar } from '../../organisms/JNavbar';
@@ -534,6 +535,37 @@ describe('JHeaderPage and JFooterPage slots take their content width', () => {
       const slot = screen.getByText(text).closest('.jpanel') as HTMLElement;
       expect([text, resolveProperty(css, slot, 'width', 1024)?.value]).toEqual([text, 'auto']);
     });
+  });
+});
+
+/* a6 finding: the JTableHead label panel turned flex on without a direction, so the engine stacked and centered it. */
+describe('JTableHead lays its label out as a row', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  const header = (head: React.ReactElement) =>
+    render(React.createElement(JTable, null, React.createElement(JTableHeader, null, React.createElement(JTableRow, null, head))));
+
+  it('a plain and a sortable header put the label at the start of a row', () => {
+    header(React.createElement(React.Fragment, null,
+      React.createElement(JTableHead, null, 'Código'),
+      React.createElement(JTableHead, { sortable: true, sortDirection: 'asc', onSortChange: () => {} }, 'Nombre')));
+
+    ['Código', 'Nombre'].forEach((label) => {
+      const panel = screen.getByText(label).closest('.jpanel') as HTMLElement;
+      expect([label, resolveProperty(css, panel, 'flex-direction', 1024)?.value]).toEqual([label, 'row']);
+      expect([label, resolveProperty(css, panel, 'align-items', 1024)?.value]).toEqual([label, 'center']);
+    });
+  });
+
+  it('a filterable header keeps its label above the filter box', () => {
+    header(React.createElement(JTableHead, { filterable: true, filterPlaceholder: 'Filtrar' }, 'Ciudad'));
+    const panel = screen.getByText('Ciudad').closest('.jpanel') as HTMLElement;
+
+    expect(resolveProperty(css, panel, 'flex-direction', 1024)?.value).toBe('column');
   });
 });
 

@@ -460,7 +460,7 @@ export const TableHeadView = React.forwardRef<HTMLTableCellElement, InterTableHe
       >
         <JPanel variant="ghost" padding="none" radius="none"
           className={cn(
-            'flex min-w-0 items-center gap-2',
+            'flex min-w-0 flex-row items-center gap-2',
             filterable && 'flex-col items-stretch gap-1 py-2',
             isGroupedHeader && !filterable && 'justify-center'
           )}
