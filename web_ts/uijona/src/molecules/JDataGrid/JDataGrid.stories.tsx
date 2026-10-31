@@ -89,3 +89,29 @@ const KeyboardDemo = () => {
 export const Keyboard: Story = {
   render: () => <KeyboardDemo />,
 };
+
+/** First load: skeleton rows and a hidden `Cargando...` status. */
+export const InitialLoading: Story = {
+  args: { rows: [], loading: 'initial' },
+};
+
+/** A refresh keeps the rows, marks the grid busy and shows a progress bar. */
+export const Refreshing: Story = {
+  args: { loading: 'refresh' },
+};
+
+export const Empty: Story = {
+  args: { rows: [], empty: <p>No hay registros.</p> },
+};
+
+/** rowState: an error linked to its row, a badge as the description and a muted row. */
+export const RowStates: Story = {
+  args: {
+    rowState: (row: Localidad) => {
+      if (row.id === '3') return { error: 'Padron duplicado' };
+      if (row.id === '5') return { badge: { label: 'Inactivo', variant: 'secondary' }, muted: true };
+      if (row.id === '6') return { badge: { label: 'Nuevo', variant: 'default' } };
+      return {};
+    },
+  },
+};
