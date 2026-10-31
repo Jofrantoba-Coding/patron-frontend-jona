@@ -215,6 +215,8 @@
   --jona-focus:          var(--jona-primary-500);
   --jona-selection:      var(--jona-primary-50);
   --jona-on-primary:     var(--jona-white);
+  --jona-backdrop:       var(--jona-neutral-900);
+  --jona-backdrop-alpha: 0.5;
 }
 
 /* ── Semantic tokens, dark (D6, opt-in) ────────────────────
@@ -243,6 +245,8 @@
   --jona-warning-50:  66  32  6;
   --jona-warning-100: 113 63  18;
   --jona-warning-700: 253 224 71;
+  --jona-backdrop:    0   0   0;
+  --jona-backdrop-alpha: 0.7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -268,6 +272,8 @@
     --jona-warning-50:  66  32  6;
     --jona-warning-100: 113 63  18;
     --jona-warning-700: 253 224 71;
+    --jona-backdrop:    0   0   0;
+    --jona-backdrop-alpha: 0.7;
   }
 }
 

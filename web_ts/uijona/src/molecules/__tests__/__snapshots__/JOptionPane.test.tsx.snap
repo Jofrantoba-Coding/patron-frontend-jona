@@ -25,7 +25,7 @@ exports[`JOptionPane details and initial focus (R-FBK-4) > S-FBK-11: without det
 >
   <div
     aria-hidden="true"
-    class="jpanel border-0 p-0 rounded-none absolute inset-0 bg-[rgb(var(--jona-neutral-900)/0.5)]"
+    class="jpanel border-0 p-0 rounded-none absolute inset-0 bg-[rgb(var(--jona-backdrop)/var(--jona-backdrop-alpha))]"
     data-jpanel-dense="false"
     data-jpanel-desktop-dense="false"
     data-jpanel-desktop-layout="box"

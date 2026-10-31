@@ -35,6 +35,7 @@ const PIECES_160: Piece[] = [
   { layer: 'molecules', name: 'JContextChip' },
   { layer: 'organisms', name: 'JWorkspaceTabs' },
   { layer: 'molecules', name: 'JShortcutSheet' },
+  { layer: 'layouts', name: 'JAuthLayout' },
 ];
 
 const SRC = resolve(process.cwd(), 'src');
@@ -100,6 +101,17 @@ describe('component pattern (S-FND-22)', () => {
   it.each(PIECES_160)('$layer/$name is exported from the root entry and the export map', ({ layer, name }) => {
     expect(indexSource).toContain(`export * from './${layer}/${name}';`);
     expect(packageExports).toHaveProperty([`./${layer}/${name}`]);
+  });
+
+  it('S-FND-22 sweep: the list holds every 1.6.0 piece of the design placement', () => {
+    const DESIGN_160 = [
+      'molecules/JField', 'molecules/JFormSection', 'molecules/JErrorSummary', 'molecules/JInputGroup', 'molecules/JDataGrid',
+      'molecules/JToolbar', 'molecules/JPageHeader', 'molecules/JTreeNav', 'molecules/JUserMenu', 'molecules/JContextChip',
+      'molecules/JShortcutSheet', 'layouts/JFieldGrid', 'layouts/JAppShell', 'layouts/JAuthLayout', 'organisms/JWorkspaceTabs',
+      'hooks/useConfirm',
+    ];
+
+    expect(PIECES_160.map(({ layer, name }) => `${layer}/${name}`).sort()).toEqual([...DESIGN_160].sort());
   });
 
   it('flags state keys in a DEFAULTS literal', () => {
