@@ -331,15 +331,15 @@ describe('JTableRow selected (S-DAT-1)', () => {
 
     expect(row).toHaveAttribute('aria-selected', 'true');
     expect(row).toHaveAttribute('data-state', 'selected');
-    expect(row).toHaveClass('bg-primary-50', 'border-s-[3px]', 'border-s-primary-600');
+    expect(row).toHaveClass('bg-[rgb(var(--jona-selection))]', 'border-s-[3px]', 'border-s-primary-600');
   });
 
   it('keeps the selection background while the row is hovered', () => {
     render(<SelectableTable selected />);
     const row = screen.getByTestId('row');
 
-    expect(row).toHaveClass('hover:bg-primary-50');
-    expect(row).not.toHaveClass('hover:bg-neutral-50');
+    expect(row).toHaveClass('hover:bg-[rgb(var(--jona-selection))]');
+    expect(row).not.toHaveClass('hover:bg-[rgb(var(--jona-surface-muted))]');
   });
 
   it('renders an unselected row as in 1.5.1', () => {
@@ -351,7 +351,8 @@ describe('JTableRow selected (S-DAT-1)', () => {
     expect(row).not.toHaveAttribute('aria-selected');
     expect(row).not.toHaveAttribute('data-state');
     expect(row.className).toBe(
-      'transition-colors hover:bg-neutral-50 data-[state=selected]:bg-primary-50 border-b border-neutral-200',
+      'transition-colors hover:bg-[rgb(var(--jona-surface-muted))] data-[state=selected]:bg-[rgb(var(--jona-selection))] ' +
+        'border-b border-[rgb(var(--jona-line))]',
     );
     expect(container.innerHTML).toBe(plain);
   });

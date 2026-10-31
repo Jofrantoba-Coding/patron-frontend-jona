@@ -18,9 +18,14 @@ import { JPanel } from '../../atoms/JPanel';
 import { JSidebarLayout } from '../../layouts/JSidebarLayout';
 import { JLanguageSwitcher } from '../../molecules/JLanguageSwitcher';
 import { JTable, JTableBody, JTableCell, JTableRow } from '../../molecules/JTable';
+import { JTableHead, JTableHeader } from '../../molecules/JTable';
+import { JPagination } from '../../molecules/JPagination';
 import { JDashboardPreview } from '../../organisms/JDashboardPreview';
 import { JLogoMarquee } from '../../organisms/JLogoMarquee';
 import { JNavbar } from '../../organisms/JNavbar';
+import { JFooterPage } from '../../organisms/JFooterPage';
+import { JHeaderPage } from '../../organisms/JHeaderPage';
+import { resolveRootTokens, rgbOf } from './tokenCascade';
 
 const ENGINE_SELECTOR = /\.jpanel|\.jona-layout-mobile-grid|\.jona-gridbag|\.jona-group-layout|\.jona-spring-layout/;
 
@@ -397,13 +402,39 @@ describe('JTableRow selection is visible (S-DAT-2, light)', () => {
     );
     const row = screen.getByTestId('row');
     const selectedBackground = resolveProperty(css, row, 'background-color', 1024)?.value ?? '';
-    const hoverBackground = resolveRule(css, '.hover\\:bg-neutral-50:hover').decls['background-color'];
+    const hoverBackground = resolveRule(css, '.hover\\:bg-\\[rgb\\(var\\(--jona-surface-muted\\)\\)\\]:hover').decls['background-color'];
+    const selectedHover = resolveRule(css, '.hover\\:bg-\\[rgb\\(var\\(--jona-selection\\)\\)\\]:hover').decls['background-color'];
 
-    expect(selectedBackground).toContain('--jona-primary-50');
-    expect(hoverBackground).toContain('--jona-neutral-50');
-    expect(resolveRule(css, '.hover\\:bg-primary-50:hover').decls['background-color']).toContain('--jona-primary-50');
+    expect(selectedBackground).toContain('--jona-selection');
+    expect(hoverBackground).toContain('--jona-surface-muted');
+    expect(selectedHover).toContain('--jona-selection');
     expect(resolveProperty(css, row, 'border-inline-start-width', 1024)?.value).toBe('3px');
     expect(resolveProperty(css, row, 'border-inline-start-color', 1024)?.value).toContain('--jona-primary-600');
+  });
+});
+
+describe('JTableRow selection is visible (S-DAT-2, dark)', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it.each([
+    ['light', {}],
+    ['dark', { 'data-theme-mode': 'dark' }],
+  ])('%s: the selection token differs from the hover and surface tokens', (_mode, attrs) => {
+    const tokens = resolveRootTokens(css, { attrs });
+
+    expect(rgbOf(tokens, '--jona-selection')).not.toEqual(rgbOf(tokens, '--jona-surface-muted'));
+    expect(rgbOf(tokens, '--jona-selection')).not.toEqual(rgbOf(tokens, '--jona-surface'));
+  });
+
+  it('dark repaints the selection, so a selected row does not keep the light tint', () => {
+    const light = rgbOf(resolveRootTokens(css), '--jona-selection');
+    const dark = rgbOf(resolveRootTokens(css, { attrs: { 'data-theme-mode': 'dark' } }), '--jona-selection');
+
+    expect(dark).not.toEqual(light);
   });
 });
 
@@ -465,6 +496,96 @@ describe('D1a corrections of the Views without a story', () => {
 
     expect(resolveProperty(css, wrapper, 'display', 1024)?.value).toBe('inline-block');
     expect(resolveProperty(css, menu, 'min-width', 1024)?.value).toBe('9rem');
+  });
+
+  it('JNavbar caps its content row at the content width', () => {
+    render(React.createElement(JNavbar, {
+      brand: 'Marca', mobileOpen: false, onMobileToggle: () => {}, onMobileClose: () => {},
+    }, React.createElement('a', { href: '#a' }, 'Inicio')));
+    const nav = screen.getByRole('navigation', { name: 'Navegación principal' });
+
+    expect(resolveProperty(css, nav, 'max-width', 1920)?.value).toBe('80rem');
+  });
+});
+
+/* a1 finding: the box engine's width:100% stacked the slots of these flex rows. */
+describe('JHeaderPage and JFooterPage slots take their content width', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it('JHeaderPage: the title panel is auto width at every breakpoint', () => {
+    render(React.createElement(JHeaderPage, {
+      title: 'Marca', nav: React.createElement('a', { href: '#a' }, 'Inicio'), actions: React.createElement('button', null, 'Salir'),
+    }));
+    const title = screen.getByText('Marca').closest('.jpanel') as HTMLElement;
+
+    expect(resolveProperty(css, title, 'width', 375)?.value).toBe('auto');
+    expect(resolveProperty(css, title, 'width', 1024)?.value).toBe('auto');
+  });
+
+  it('JFooterPage: the left and center slots are auto width', () => {
+    render(React.createElement(JFooterPage, {
+      left: React.createElement('span', null, 'Izquierda'), center: React.createElement('span', null, 'Centro'),
+      right: React.createElement('span', null, 'Derecha'),
+    }));
+
+    ['Izquierda', 'Centro'].forEach((text) => {
+      const slot = screen.getByText(text).closest('.jpanel') as HTMLElement;
+      expect([text, resolveProperty(css, slot, 'width', 1024)?.value]).toEqual([text, 'auto']);
+    });
+  });
+});
+
+/* a6 finding: the JTableHead label panel turned flex on without a direction, so the engine stacked and centered it. */
+describe('JTableHead lays its label out as a row', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  const header = (head: React.ReactElement) =>
+    render(React.createElement(JTable, null, React.createElement(JTableHeader, null, React.createElement(JTableRow, null, head))));
+
+  it('a plain and a sortable header put the label at the start of a row', () => {
+    header(React.createElement(React.Fragment, null,
+      React.createElement(JTableHead, null, 'Código'),
+      React.createElement(JTableHead, { sortable: true, sortDirection: 'asc', onSortChange: () => {} }, 'Nombre')));
+
+    ['Código', 'Nombre'].forEach((label) => {
+      const panel = screen.getByText(label).closest('.jpanel') as HTMLElement;
+      expect([label, resolveProperty(css, panel, 'flex-direction', 1024)?.value]).toEqual([label, 'row']);
+      expect([label, resolveProperty(css, panel, 'align-items', 1024)?.value]).toEqual([label, 'center']);
+    });
+  });
+
+  it('a filterable header keeps its label above the filter box', () => {
+    header(React.createElement(JTableHead, { filterable: true, filterPlaceholder: 'Filtrar' }, 'Ciudad'));
+    const panel = screen.getByText('Ciudad').closest('.jpanel') as HTMLElement;
+
+    expect(resolveProperty(css, panel, 'flex-direction', 1024)?.value).toBe('column');
+  });
+});
+
+/* a6 finding: the Previous/Next chevron is an svg (preflight display:block) inside an inline span, so it stacked over the label. */
+describe('JPagination keeps each chevron beside its label', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it.each([['Go to previous page'], ['Go to next page']])('%s: the chevron and the label share one row', (name) => {
+    render(React.createElement(JPagination, { currentPage: 3, totalPages: 10, onPageChange: () => {} }));
+    const chevron = screen.getByRole('button', { name }).querySelector('svg') as SVGElement;
+    const row = chevron.parentElement as HTMLElement;
+
+    expect(row.textContent).toMatch(/Previous|Next/);
+    expect(resolveProperty(css, row, 'display', 1024)?.value).toBe('inline-flex');
+    expect(resolveProperty(css, row, 'align-items', 1024)?.value).toBe('center');
   });
 });
 

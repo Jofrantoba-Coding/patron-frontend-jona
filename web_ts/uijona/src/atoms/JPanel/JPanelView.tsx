@@ -17,6 +17,7 @@ import {
   JPanelVariant,
   JPanelWrap,
 } from './InterJPanel';
+import { CONTROL_BORDER, LINE, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 type JPanelCssVars = React.CSSProperties & Record<`--${string}`, string | number | undefined>;
 
@@ -26,10 +27,10 @@ type JPanelViewProps = InterJPanel &
   };
 
 const variantClasses: Record<JPanelVariant, string> = {
-  default: 'bg-white border border-neutral-200',
-  outlined: 'bg-transparent border border-neutral-300',
-  elevated: 'bg-white shadow-md border-0',
-  flat: 'bg-neutral-50 border-0',
+  default: `${SURFACE} border ${LINE}`,
+  outlined: `bg-transparent border ${CONTROL_BORDER}`,
+  elevated: `${SURFACE} shadow-md border-0`,
+  flat: `${SURFACE_MUTED} border-0`,
   ghost: 'bg-transparent border-0',
 };
 

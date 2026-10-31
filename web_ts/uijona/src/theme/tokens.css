@@ -49,20 +49,31 @@
   --jona-neutral-800: 30  41  59;
   --jona-neutral-900: 15  23  42;
 
+  --jona-white: 255 255 255;
+
   /* ── Danger ──────────────────────────────────────────── */
+  --jona-danger-50:  254 242 242;
+  --jona-danger-100: 254 226 226;
   --jona-danger-400: 248 113 113;
   --jona-danger-500: 239 68  68;
   --jona-danger-600: 220 38  38;
+  --jona-danger-700: 185 28  28;
 
   /* ── Success ─────────────────────────────────────────── */
+  --jona-success-50:  240 253 244;
+  --jona-success-100: 220 252 231;
   --jona-success-400: 74  222 128;
   --jona-success-500: 34  197 94;
   --jona-success-600: 22  163 74;
+  --jona-success-700: 21  128 61;
 
   /* ── Warning ─────────────────────────────────────────── */
+  --jona-warning-50:  254 252 232;
+  --jona-warning-100: 254 249 195;
   --jona-warning-400: 251 191 36;
   --jona-warning-500: 234 179 8;
   --jona-warning-600: 202 138 4;
+  --jona-warning-700: 161 98  7;
 
   /* ── Border radius ───────────────────────────────────── */
   --jona-radius-sm:   0.25rem;
@@ -82,6 +93,34 @@
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --jona-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
+
+  /* ── Type scale (D7): size / line height / weight ────── */
+  --jona-text-page-size:       1.25rem;
+  --jona-text-page-leading:    1.75rem;
+  --jona-text-page-weight:     600;
+  --jona-text-section-size:    1rem;
+  --jona-text-section-leading: 1.5rem;
+  --jona-text-section-weight:  600;
+  --jona-text-body-size:       0.875rem;
+  --jona-text-body-leading:    1.25rem;
+  --jona-text-body-weight:     400;
+  --jona-text-small-size:      0.8125rem;
+  --jona-text-small-leading:   1.125rem;
+  --jona-text-small-weight:    400;
+  --jona-text-caption-size:    0.75rem;
+  --jona-text-caption-leading: 1rem;
+  --jona-text-caption-weight:  400;
+  --jona-text-table-size:      0.8125rem;
+  --jona-text-table-leading:   1.125rem;
+  --jona-text-table-weight:    400;
+  --jona-text-table-numeric:   tabular-nums;
+
+  /* ── Density (D8) ────────────────────────────────────── */
+  --jona-control-h: 2.75rem;
+  --jona-row-h:     2.25rem;
+  --jona-toolbar-h: 2.5rem;
+  --jona-topbar-h:  3rem;
+  --jona-tabs-h:    2.5rem;
 
   /* ── Shadows ─────────────────────────────────────────── */
   --jona-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -142,6 +181,100 @@
   --jona-chart-div-neg: 235 104 52;
   --jona-chart-div-mid: 240 239 236;
   --jona-chart-div-pos: 37  99  235;
+}
+
+/* Control height from sm: 36px (D8). An ancestor [data-jona-density]
+ * overrides only the control height. */
+@media (min-width: 640px) {
+  :root {
+    --jona-control-h: 2.25rem;
+  }
+}
+
+[data-jona-density='compact'] {
+  --jona-control-h: 2.25rem;
+}
+
+[data-jona-density='touch'] {
+  --jona-control-h: 2.75rem;
+}
+
+/* ── Semantic tokens (D5), light ───────────────────────────
+ * References to the palette, declared again on every JonaThemeProvider scope
+ * so palette overrides flow into them. Components paint with these through
+ * the class constants of src/theme/tokenClasses.ts. */
+:root,
+[data-jona-scope] {
+  --jona-surface:        var(--jona-white);
+  --jona-surface-muted:  var(--jona-neutral-50);
+  --jona-surface-raised: var(--jona-white);
+  --jona-fg:             var(--jona-neutral-900);
+  --jona-fg-muted:       var(--jona-neutral-500);
+  --jona-line:           var(--jona-neutral-200);
+  --jona-line-strong:    var(--jona-neutral-500);
+  --jona-focus:          var(--jona-primary-500);
+  --jona-selection:      var(--jona-primary-50);
+  --jona-on-primary:     var(--jona-white);
+  --jona-backdrop:       var(--jona-neutral-900);
+  --jona-backdrop-alpha: 0.5;
+}
+
+/* ── Semantic tokens, dark (D6, opt-in) ────────────────────
+ * Only under data-theme-mode, set by JonaThemeModeProvider or the init
+ * script. Without the attribute every component stays light, as in 1.5.x.
+ * The two blocks below must stay identical. */
+:root[data-theme-mode='dark'],
+:root[data-theme-mode='dark'] [data-jona-scope] {
+  color-scheme: dark;
+  --jona-surface:        var(--jona-neutral-900);
+  --jona-surface-muted:  var(--jona-neutral-800);
+  --jona-surface-raised: var(--jona-neutral-800);
+  --jona-fg:             var(--jona-neutral-50);
+  --jona-fg-muted:       var(--jona-neutral-400);
+  --jona-line:           var(--jona-neutral-700);
+  --jona-line-strong:    var(--jona-neutral-500);
+  --jona-focus:          var(--jona-primary-400);
+  --jona-selection:      var(--jona-primary-900);
+  --jona-on-primary:     var(--jona-white);
+  --jona-danger-50:   69  10  10;
+  --jona-danger-100:  127 29  29;
+  --jona-danger-700:  252 165 165;
+  --jona-success-50:  5   46  22;
+  --jona-success-100: 20  83  45;
+  --jona-success-700: 134 239 172;
+  --jona-warning-50:  66  32  6;
+  --jona-warning-100: 113 63  18;
+  --jona-warning-700: 253 224 71;
+  --jona-backdrop:    0   0   0;
+  --jona-backdrop-alpha: 0.7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme-mode='system'],
+  :root[data-theme-mode='system'] [data-jona-scope] {
+    color-scheme: dark;
+    --jona-surface:        var(--jona-neutral-900);
+    --jona-surface-muted:  var(--jona-neutral-800);
+    --jona-surface-raised: var(--jona-neutral-800);
+    --jona-fg:             var(--jona-neutral-50);
+    --jona-fg-muted:       var(--jona-neutral-400);
+    --jona-line:           var(--jona-neutral-700);
+    --jona-line-strong:    var(--jona-neutral-500);
+    --jona-focus:          var(--jona-primary-400);
+    --jona-selection:      var(--jona-primary-900);
+    --jona-on-primary:     var(--jona-white);
+    --jona-danger-50:   69  10  10;
+    --jona-danger-100:  127 29  29;
+    --jona-danger-700:  252 165 165;
+    --jona-success-50:  5   46  22;
+    --jona-success-100: 20  83  45;
+    --jona-success-700: 134 239 172;
+    --jona-warning-50:  66  32  6;
+    --jona-warning-100: 113 63  18;
+    --jona-warning-700: 253 224 71;
+    --jona-backdrop:    0   0   0;
+    --jona-backdrop-alpha: 0.7;
+  }
 }
 
 /* Modo oscuro: pasos PROPIOS de las mismas rampas, no una inversión automática.

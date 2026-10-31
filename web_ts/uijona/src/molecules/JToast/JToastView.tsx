@@ -2,29 +2,41 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JToastVariant } from './InterJToast';
+import { INVERSE, ON_PRIMARY } from '../../theme/tokenClasses';
 
 const variantClasses: Record<JToastVariant, string> = {
-  default: 'bg-neutral-900 text-white',
-  success: 'bg-success-600 text-white',
-  warning: 'bg-warning-500 text-white',
-  danger:  'bg-danger-500 text-white',
+  default: INVERSE,
+  success: `bg-success-600 ${ON_PRIMARY}`,
+  warning: `bg-warning-500 ${ON_PRIMARY}`,
+  danger:  `bg-danger-500 ${ON_PRIMARY}`,
 };
 
 export interface JToastViewProps {
   id:               string;
-  message:          string;
+  message?:         string;
   title?:           string;
   variant?:         JToastVariant;
   className?:       string;
+  dismissLabel?:    string;
   onDismissClick?:  () => void;
+  onMouseEnter?:    () => void;
+  onMouseLeave?:    () => void;
+  onFocus?:         () => void;
+  onBlur?:          (event: React.FocusEvent<HTMLDivElement>) => void;
 }
 
 export const JToastView: React.FC<JToastViewProps> = ({
-  message, title, variant = 'default', className, onDismissClick,
+  message, title, variant = 'default', className, dismissLabel = 'Dismiss notification', onDismissClick,
+  onMouseEnter, onMouseLeave, onFocus, onBlur,
 }) => (
   <div
-    role="status"
-    aria-live="polite"
+    // danger is announced at once (R-FBK-5); every other variant waits politely
+    role={variant === 'danger' ? 'alert' : 'status'}
+    aria-live={variant === 'danger' ? 'assertive' : 'polite'}
+    onMouseEnter={onMouseEnter}
+    onMouseLeave={onMouseLeave}
+    onFocus={onFocus}
+    onBlur={onBlur}
     className={cn(
       'flex w-full min-w-0 max-w-sm items-start gap-3 rounded-md px-4 py-3 shadow-lg sm:min-w-[240px]',
       variantClasses[variant],
@@ -44,9 +56,9 @@ export const JToastView: React.FC<JToastViewProps> = ({
     {/* 44px hit area on mobile; the negative margin keeps the toast's visual height. */}
     <button
       type="button"
-      aria-label="Dismiss notification"
+      aria-label={dismissLabel}
       onClick={onDismissClick}
-      className="-m-3.5 inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:m-0 sm:h-auto sm:w-auto"
+      className="-m-3.5 inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current sm:m-0 sm:h-auto sm:w-auto"
     >
       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
         <line x1="18" y1="6" x2="6" y2="18" />

@@ -71,7 +71,7 @@ describe('JButton density (S-FND-18, 1.5.2)', () => {
     'jbutton inline-flex items-center justify-center gap-2 font-medium transition-colors duration-200 ' +
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ' +
     'disabled:pointer-events-none disabled:opacity-50 ' +
-    'bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500 ' +
+    'bg-primary-600 text-[rgb(var(--jona-on-primary))] hover:bg-primary-700 focus-visible:ring-primary-500 ' +
     'min-h-11 sm:min-h-9 px-4 py-2 text-sm rounded-md';
 
   const heightClasses = (button: HTMLElement): string[] =>
@@ -92,9 +92,9 @@ describe('JButton density (S-FND-18, 1.5.2)', () => {
     expect(heightClasses(screen.getByRole('button'))).toEqual(['min-h-9', 'sm:min-h-9']);
   });
 
-  it('auto is 44 px below sm and 36 px from sm, even on a size that is 44 px', () => {
+  it('auto follows --jona-control-h at every width, even on a size that is 44 px (1.6.0)', () => {
     render(<JButton size="lg" density="auto">Guardar</JButton>);
-    expect(heightClasses(screen.getByRole('button'))).toEqual(['min-h-11', 'sm:min-h-9']);
+    expect(heightClasses(screen.getByRole('button'))).toEqual(['min-h-[var(--jona-control-h)]', 'sm:min-h-[var(--jona-control-h)]']);
   });
 
   it('applies to the icon size without changing its square target', () => {
@@ -103,6 +103,32 @@ describe('JButton density (S-FND-18, 1.5.2)', () => {
 
     expect(heightClasses(button)).toEqual(['min-h-9', 'sm:min-h-9']);
     expect(button).toHaveClass('min-w-11', 'sm:min-w-9');
+  });
+});
+
+describe('JButton density with an ancestor (S-FND-18, 1.6.0)', () => {
+  const heightClasses = (button: HTMLElement): string[] =>
+    Array.from(button.classList).filter((token) => /(^|:)min-h-/.test(token)).sort();
+
+  it('auto reads the control height token, so an ancestor [data-jona-density] changes it', () => {
+    render(<div data-jona-density="compact"><JButton density="auto">Guardar</JButton></div>);
+    const button = screen.getByRole('button');
+
+    expect(button.closest('[data-jona-density]')).toHaveAttribute('data-jona-density', 'compact');
+    expect(button).toHaveClass('min-h-[var(--jona-control-h)]', 'sm:min-h-[var(--jona-control-h)]');
+    expect(button).not.toHaveClass('min-h-11');
+  });
+
+  it('an explicit touch or compact wins over the ancestor attribute', () => {
+    render(
+      <div data-jona-density="compact">
+        <JButton density="touch">Touch</JButton>
+        <JButton density="compact">Compact</JButton>
+      </div>,
+    );
+
+    expect(heightClasses(screen.getByRole('button', { name: 'Touch' }))).toEqual(['min-h-11', 'sm:min-h-11']);
+    expect(heightClasses(screen.getByRole('button', { name: 'Compact' }))).toEqual(['min-h-9', 'sm:min-h-9']);
   });
 });
 

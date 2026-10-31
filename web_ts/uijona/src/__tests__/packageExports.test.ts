@@ -1,4 +1,5 @@
 ﻿import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import ts from 'typescript';
 
@@ -71,5 +72,56 @@ describe('package exports', () => {
       .filter((file) => /^src\/(?:test|__tests__)\//.test(file));
 
     expect(testOnly).toEqual([]);
+  });
+
+  it('R-FND-8: exposes every 1.6.0 component and hook from the root entry and a subpath', () => {
+    const indexSource = readFileSync(resolve(process.cwd(), 'src/index.ts'), 'utf8');
+    const SUBPATHS_160 = [
+      'molecules/JField',
+      'layouts/JFieldGrid',
+      'molecules/JFormSection',
+      'molecules/JErrorSummary',
+      'hooks/useConfirm',
+      'molecules/JToolbar',
+      'molecules/JPageHeader',
+      'molecules/JInputGroup',
+      'molecules/JDataGrid',
+      'molecules/JTreeNav',
+      'layouts/JAppShell',
+      'molecules/JUserMenu',
+      'molecules/JContextChip',
+      'organisms/JWorkspaceTabs',
+      'molecules/JShortcutSheet',
+      'layouts/JAuthLayout',
+    ];
+
+    SUBPATHS_160.forEach((subpath) => {
+      expect(indexSource).toContain(`export * from './${subpath}';`);
+      expect(packageJson.exports[`./${subpath}`]).toEqual({
+        import: `./dist/${subpath}.js`,
+        require: `./dist/${subpath}.cjs`,
+        types: `./dist/${subpath}.d.ts`,
+      });
+    });
+  });
+
+  it('S-FND-19 sweep: every component and hook folder imports from jona-ui and has a subpath', () => {
+    const indexSource = readFileSync(resolve(process.cwd(), 'src/index.ts'), 'utf8');
+    const folders = ['atoms', 'molecules', 'layouts', 'organisms', 'pages', 'hooks'].flatMap((layer) =>
+      readdirSync(resolve(process.cwd(), 'src', layer))
+        .filter((name) => existsSync(resolve(process.cwd(), 'src', layer, name, 'index.ts')))
+        .map((name) => `${layer}/${name}`),
+    );
+    const missing = folders.filter(
+      (subpath) => !indexSource.includes(`export * from './${subpath}';`) || !(`./${subpath}` in packageJson.exports),
+    );
+
+    expect(folders.length).toBeGreaterThan(100);
+    expect(missing).toEqual([]);
+  });
+
+  it('R-FND-1, R-FND-5: exposes the opt-in base stylesheet next to index.css', () => {
+    expect(packageJson.exports['./base.css']).toBe('./dist/base.css');
+    expect(packageJson.exports['./index.css']).toBe('./dist/index.css');
   });
 });

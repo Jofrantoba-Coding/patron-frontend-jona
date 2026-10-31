@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJDot, JDotSize, JDotTone } from './InterJDot';
+import { LINE_BG_STRONG } from '../../theme/tokenClasses';
 
 const sizeClasses: Record<JDotSize, string> = {
   sm: 'h-1.5 w-1.5',
@@ -15,7 +16,7 @@ const toneClasses: Record<JDotTone, string> = {
   success: 'bg-success-500',
   warning: 'bg-warning-500',
   danger:  'bg-danger-500',
-  neutral: 'bg-neutral-300',
+  neutral: `${LINE_BG_STRONG}`,
 };
 
 export const JDotView: React.FC<InterJDot> = ({

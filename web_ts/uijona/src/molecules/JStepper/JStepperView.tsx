@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJStepper, JStepperStepStatus } from './InterJStepper';
+import { CONTROL_BORDER, FG, FG_MUTED, ON_PRIMARY, SURFACE } from '../../theme/tokenClasses';
 
 export type JStepperViewProps = Omit<InterJStepper, 'currentStep' | 'defaultStep' | 'onStepChange'> & {
   activeStep:  number;
@@ -38,9 +39,10 @@ export const JStepperView: React.FC<JStepperViewProps> = ({
 
       const indicatorCn = cn(
         'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold',
-        status === 'complete'  && 'border-primary-600 bg-primary-600 text-white',
-        status === 'current'   && 'border-primary-600 bg-white text-primary-700',
-        status === 'upcoming'  && 'border-neutral-300 bg-white text-neutral-500',
+        status === 'complete'  && `border-primary-600 bg-primary-600 ${ON_PRIMARY}`,
+        // FG, not primary-700: the number must read on the dark surface too (2.66:1 before).
+        status === 'current'   && `border-primary-600 ${SURFACE} ${FG}`,
+        status === 'upcoming'  && `${CONTROL_BORDER} ${SURFACE} ${FG_MUTED}`,
         step.disabled          && 'opacity-50',
       );
 
@@ -50,11 +52,11 @@ export const JStepperView: React.FC<JStepperViewProps> = ({
             {status === 'complete' ? <CheckIcon /> : index + 1}
           </span>
           <span className="min-w-0">
-            <span className={cn('block break-words text-sm font-medium', status === 'current' ? 'text-neutral-900' : 'text-neutral-700')}>
+            <span className={cn('block break-words text-sm font-medium', status === 'current' ? `${FG}` : `${FG}`)}>
               {step.label}
             </span>
             {step.description && (
-              <span className="mt-0.5 block break-words text-sm text-neutral-500">{step.description}</span>
+              <span className={`mt-0.5 block break-words text-sm ${FG_MUTED}`}>{step.description}</span>
             )}
           </span>
         </>

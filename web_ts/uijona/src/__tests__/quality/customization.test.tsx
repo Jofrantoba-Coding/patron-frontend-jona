@@ -51,10 +51,10 @@ describe('Customization — twMerge: consumer class wins over default', () => {
     expect(btn.className).not.toContain('bg-primary-600');
   });
 
-  it('JSwitch: bg override replaces default bg-neutral-300 (off state)', () => {
+  it('JSwitch: bg override replaces the default off-state track color', () => {
     const { getByRole } = render(<JSwitch className="bg-red-500" aria-label="s" />);
     const sw = getByRole('switch');
     expect(sw.className).toContain('bg-red-500');
-    expect(sw.className).not.toContain('bg-neutral-300');
+    expect(sw.className).not.toContain('bg-[rgb(var(--jona-line-strong)/0.45)]');
   });
 });

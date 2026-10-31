@@ -1,6 +1,6 @@
 {
   "name": "jona-ui",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "JONA Design System - Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
@@ -18,6 +18,7 @@
       "types": "./dist/index.d.ts"
     },
     "./index.css": "./dist/index.css",
+    "./base.css": "./dist/base.css",
     "./atoms/JButton": {
       "import": "./dist/atoms/JButton.js",
       "require": "./dist/atoms/JButton.cjs",
@@ -172,6 +173,61 @@
       "import": "./dist/molecules/JFormField.js",
       "require": "./dist/molecules/JFormField.cjs",
       "types": "./dist/molecules/JFormField.d.ts"
+    },
+    "./molecules/JField": {
+      "import": "./dist/molecules/JField.js",
+      "require": "./dist/molecules/JField.cjs",
+      "types": "./dist/molecules/JField.d.ts"
+    },
+    "./molecules/JFormSection": {
+      "import": "./dist/molecules/JFormSection.js",
+      "require": "./dist/molecules/JFormSection.cjs",
+      "types": "./dist/molecules/JFormSection.d.ts"
+    },
+    "./molecules/JErrorSummary": {
+      "import": "./dist/molecules/JErrorSummary.js",
+      "require": "./dist/molecules/JErrorSummary.cjs",
+      "types": "./dist/molecules/JErrorSummary.d.ts"
+    },
+    "./molecules/JToolbar": {
+      "import": "./dist/molecules/JToolbar.js",
+      "require": "./dist/molecules/JToolbar.cjs",
+      "types": "./dist/molecules/JToolbar.d.ts"
+    },
+    "./molecules/JPageHeader": {
+      "import": "./dist/molecules/JPageHeader.js",
+      "require": "./dist/molecules/JPageHeader.cjs",
+      "types": "./dist/molecules/JPageHeader.d.ts"
+    },
+    "./molecules/JInputGroup": {
+      "import": "./dist/molecules/JInputGroup.js",
+      "require": "./dist/molecules/JInputGroup.cjs",
+      "types": "./dist/molecules/JInputGroup.d.ts"
+    },
+    "./molecules/JDataGrid": {
+      "import": "./dist/molecules/JDataGrid.js",
+      "require": "./dist/molecules/JDataGrid.cjs",
+      "types": "./dist/molecules/JDataGrid.d.ts"
+    },
+    "./molecules/JTreeNav": {
+      "import": "./dist/molecules/JTreeNav.js",
+      "require": "./dist/molecules/JTreeNav.cjs",
+      "types": "./dist/molecules/JTreeNav.d.ts"
+    },
+    "./molecules/JUserMenu": {
+      "import": "./dist/molecules/JUserMenu.js",
+      "require": "./dist/molecules/JUserMenu.cjs",
+      "types": "./dist/molecules/JUserMenu.d.ts"
+    },
+    "./molecules/JContextChip": {
+      "import": "./dist/molecules/JContextChip.js",
+      "require": "./dist/molecules/JContextChip.cjs",
+      "types": "./dist/molecules/JContextChip.d.ts"
+    },
+    "./molecules/JShortcutSheet": {
+      "import": "./dist/molecules/JShortcutSheet.js",
+      "require": "./dist/molecules/JShortcutSheet.cjs",
+      "types": "./dist/molecules/JShortcutSheet.d.ts"
     },
     "./molecules/JCheckBoxField": {
       "import": "./dist/molecules/JCheckBoxField.js",
@@ -373,6 +429,21 @@
       "require": "./dist/layouts/JSidebarLayout.cjs",
       "types": "./dist/layouts/JSidebarLayout.d.ts"
     },
+    "./layouts/JFieldGrid": {
+      "import": "./dist/layouts/JFieldGrid.js",
+      "require": "./dist/layouts/JFieldGrid.cjs",
+      "types": "./dist/layouts/JFieldGrid.d.ts"
+    },
+    "./layouts/JAppShell": {
+      "import": "./dist/layouts/JAppShell.js",
+      "require": "./dist/layouts/JAppShell.cjs",
+      "types": "./dist/layouts/JAppShell.d.ts"
+    },
+    "./layouts/JAuthLayout": {
+      "import": "./dist/layouts/JAuthLayout.js",
+      "require": "./dist/layouts/JAuthLayout.cjs",
+      "types": "./dist/layouts/JAuthLayout.d.ts"
+    },
     "./organisms/JHeroDynamic": {
       "import": "./dist/organisms/JHeroDynamic.js",
       "require": "./dist/organisms/JHeroDynamic.cjs",
@@ -468,6 +539,11 @@
       "require": "./dist/organisms/JFooterPage.cjs",
       "types": "./dist/organisms/JFooterPage.d.ts"
     },
+    "./organisms/JWorkspaceTabs": {
+      "import": "./dist/organisms/JWorkspaceTabs.js",
+      "require": "./dist/organisms/JWorkspaceTabs.cjs",
+      "types": "./dist/organisms/JWorkspaceTabs.d.ts"
+    },
     "./pages/JHomeLogin": {
       "import": "./dist/pages/JHomeLogin.js",
       "require": "./dist/pages/JHomeLogin.cjs",
@@ -492,6 +568,11 @@
       "import": "./dist/hooks/useToast.js",
       "require": "./dist/hooks/useToast.cjs",
       "types": "./dist/hooks/useToast.d.ts"
+    },
+    "./hooks/useConfirm": {
+      "import": "./dist/hooks/useConfirm.js",
+      "require": "./dist/hooks/useConfirm.cjs",
+      "types": "./dist/hooks/useConfirm.d.ts"
     },
     "./theme": {
       "import": "./dist/theme/index.js",

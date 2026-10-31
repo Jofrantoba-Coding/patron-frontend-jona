@@ -2,15 +2,16 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { JSpinner } from '../JSpinner';
 import type { InterJButton, JButtonVariant, JButtonSize, JButtonDensity } from './InterJButton';
+import { CONTROL_BORDER, CONTROL_H, FG, FOCUS_RING, HOVER_LINE_BG_STRONG, HOVER_OVERLAY, LINE_BG, ON_PRIMARY } from '../../theme/tokenClasses';
 
 const variantClasses: Record<JButtonVariant, string> = {
-  default:     'bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500',
-  outline:     'border border-neutral-300 bg-transparent text-neutral-900 hover:bg-neutral-100 focus-visible:ring-neutral-400',
-  ghost:       'bg-transparent text-neutral-700 hover:bg-neutral-100 focus-visible:ring-neutral-400',
-  destructive: 'bg-danger-500 text-white hover:bg-danger-600 focus-visible:ring-danger-500',
-  secondary:   'bg-neutral-200 text-neutral-700 hover:bg-neutral-300 focus-visible:ring-neutral-400',
+  default:     `bg-primary-600 ${ON_PRIMARY} hover:bg-primary-700 focus-visible:ring-primary-500`,
+  outline:     `border ${CONTROL_BORDER} bg-transparent ${FG} ${HOVER_OVERLAY} ${FOCUS_RING}`,
+  ghost:       `bg-transparent ${FG} ${HOVER_OVERLAY} ${FOCUS_RING}`,
+  destructive: `bg-danger-500 ${ON_PRIMARY} hover:bg-danger-600 focus-visible:ring-danger-500`,
+  secondary:   `${LINE_BG} ${FG} ${HOVER_LINE_BG_STRONG} ${FOCUS_RING}`,
   link:        'bg-transparent text-primary-600 underline-offset-4 hover:underline p-0 h-auto focus-visible:ring-primary-500',
-  accent:      'bg-accent-600 text-white hover:bg-accent-700 focus-visible:ring-accent-500',
+  accent:      `bg-accent-600 ${ON_PRIMARY} hover:bg-accent-700 focus-visible:ring-accent-500`,
 };
 
 // Posición del icono vía Tailwind (no depende del CSS embarcado)
@@ -37,7 +38,7 @@ const sizeClasses: Record<JButtonSize, string> = {
 const densityClasses: Record<JButtonDensity, string> = {
   touch:   'min-h-11 sm:min-h-11',
   compact: 'min-h-9 sm:min-h-9',
-  auto:    'min-h-11 sm:min-h-9',
+  auto:    CONTROL_H, // follows --jona-control-h, so an ancestor [data-jona-density] changes it
 };
 
 interface JButtonViewProps extends InterJButton {

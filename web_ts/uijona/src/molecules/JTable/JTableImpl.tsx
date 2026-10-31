@@ -18,6 +18,7 @@ import {
   TableHeadView,
   TableCellView,
 } from './JTableView';
+import { FG_MUTED } from '../../theme/tokenClasses';
 
 // ─── Data-driven helpers ───────────────────────────────────────────────────────
 
@@ -375,7 +376,7 @@ function DataDrivenTableContent({
         ) : (
           <TableRowView>
             <TableCellView colSpan={leafCols.length}>
-              <span className="block py-6 text-center text-neutral-400">{emptyMessage}</span>
+              <span className={`block py-6 text-center ${FG_MUTED}`}>{emptyMessage}</span>
             </TableCellView>
           </TableRowView>
         )}

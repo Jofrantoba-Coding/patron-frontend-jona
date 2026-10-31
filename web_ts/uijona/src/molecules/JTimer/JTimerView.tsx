@@ -1,6 +1,7 @@
 // JTimerView.tsx — JONA View (render puro)
 import React from 'react';
 import { cn } from '../../lib/cn';
+import { DANGER_FG, SUCCESS_FG, WARNING_FG } from '../../theme/tokenClasses';
 import {
   InterJTimer,
   JTimerFormatContext,
@@ -27,9 +28,9 @@ const sizeClasses: Record<JTimerSize, { display: string; label: string; button: 
 
 const toneClasses: Record<JTimerTone, string> = {
   neutral: 'text-neutral-900',
-  success: '',
-  warning: '',
-  danger:  '',
+  success: SUCCESS_FG,
+  warning: WARNING_FG,
+  danger:  DANGER_FG,
   info:    'text-primary-700',
 };
 

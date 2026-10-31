@@ -1,0 +1,182 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`JOptionPane details and initial focus (R-FBK-4) > S-FBK-11: without details the output equals the pre-1.6.0 pane (approval snapshot) 1`] = `
+<div
+  class="jpanel bg-transparent border-0 rounded-none fixed inset-0 z-50 flex flex-row items-center justify-center p-2 sm:p-4"
+  data-jpanel-dense="false"
+  data-jpanel-desktop-dense="false"
+  data-jpanel-desktop-layout="box"
+  data-jpanel-desktop-mode="sequential"
+  data-jpanel-layout="box"
+  data-jpanel-mobile-large-dense="false"
+  data-jpanel-mobile-large-layout="box"
+  data-jpanel-mobile-large-mode="sequential"
+  data-jpanel-mobile-small-dense="false"
+  data-jpanel-mobile-small-layout="box"
+  data-jpanel-mobile-small-mode="sequential"
+  data-jpanel-mode="sequential"
+  data-jpanel-tablet-dense="false"
+  data-jpanel-tablet-layout="box"
+  data-jpanel-tablet-mode="sequential"
+  data-jpanel-tv-dense="false"
+  data-jpanel-tv-layout="box"
+  data-jpanel-tv-mode="sequential"
+  style="--jpanel-gap: 0; --jpanel-direction: column; --jpanel-wrap: nowrap; --jpanel-align-items: stretch; --jpanel-justify-content: flex-start; --jpanel-auto-fit-min: 12rem; --jpanel-spring-min-height: 16rem; --jpanel-mobile-large-gap: 0; --jpanel-mobile-large-direction: column; --jpanel-mobile-large-wrap: nowrap; --jpanel-mobile-large-align-items: stretch; --jpanel-mobile-large-justify-content: flex-start; --jpanel-mobile-large-auto-fit-min: 12rem; --jpanel-mobile-large-spring-min-height: 16rem; --jpanel-tablet-gap: 0; --jpanel-tablet-direction: column; --jpanel-tablet-wrap: nowrap; --jpanel-tablet-align-items: stretch; --jpanel-tablet-justify-content: flex-start; --jpanel-tablet-auto-fit-min: 12rem; --jpanel-tablet-spring-min-height: 16rem; --jpanel-desktop-gap: 0; --jpanel-desktop-direction: column; --jpanel-desktop-wrap: nowrap; --jpanel-desktop-align-items: stretch; --jpanel-desktop-justify-content: flex-start; --jpanel-desktop-auto-fit-min: 12rem; --jpanel-desktop-spring-min-height: 16rem; --jpanel-tv-gap: 0; --jpanel-tv-direction: column; --jpanel-tv-wrap: nowrap; --jpanel-tv-align-items: stretch; --jpanel-tv-justify-content: flex-start; --jpanel-tv-auto-fit-min: 12rem; --jpanel-tv-spring-min-height: 16rem;"
+>
+  <div
+    aria-hidden="true"
+    class="jpanel border-0 p-0 rounded-none absolute inset-0 bg-[rgb(var(--jona-backdrop)/var(--jona-backdrop-alpha))]"
+    data-jpanel-dense="false"
+    data-jpanel-desktop-dense="false"
+    data-jpanel-desktop-layout="box"
+    data-jpanel-desktop-mode="sequential"
+    data-jpanel-layout="box"
+    data-jpanel-mobile-large-dense="false"
+    data-jpanel-mobile-large-layout="box"
+    data-jpanel-mobile-large-mode="sequential"
+    data-jpanel-mobile-small-dense="false"
+    data-jpanel-mobile-small-layout="box"
+    data-jpanel-mobile-small-mode="sequential"
+    data-jpanel-mode="sequential"
+    data-jpanel-tablet-dense="false"
+    data-jpanel-tablet-layout="box"
+    data-jpanel-tablet-mode="sequential"
+    data-jpanel-tv-dense="false"
+    data-jpanel-tv-layout="box"
+    data-jpanel-tv-mode="sequential"
+    style="--jpanel-gap: 0; --jpanel-direction: column; --jpanel-wrap: nowrap; --jpanel-align-items: stretch; --jpanel-justify-content: flex-start; --jpanel-auto-fit-min: 12rem; --jpanel-spring-min-height: 16rem; --jpanel-mobile-large-gap: 0; --jpanel-mobile-large-direction: column; --jpanel-mobile-large-wrap: nowrap; --jpanel-mobile-large-align-items: stretch; --jpanel-mobile-large-justify-content: flex-start; --jpanel-mobile-large-auto-fit-min: 12rem; --jpanel-mobile-large-spring-min-height: 16rem; --jpanel-tablet-gap: 0; --jpanel-tablet-direction: column; --jpanel-tablet-wrap: nowrap; --jpanel-tablet-align-items: stretch; --jpanel-tablet-justify-content: flex-start; --jpanel-tablet-auto-fit-min: 12rem; --jpanel-tablet-spring-min-height: 16rem; --jpanel-desktop-gap: 0; --jpanel-desktop-direction: column; --jpanel-desktop-wrap: nowrap; --jpanel-desktop-align-items: stretch; --jpanel-desktop-justify-content: flex-start; --jpanel-desktop-auto-fit-min: 12rem; --jpanel-desktop-spring-min-height: 16rem; --jpanel-tv-gap: 0; --jpanel-tv-direction: column; --jpanel-tv-wrap: nowrap; --jpanel-tv-align-items: stretch; --jpanel-tv-justify-content: flex-start; --jpanel-tv-auto-fit-min: 12rem; --jpanel-tv-spring-min-height: 16rem;"
+  />
+  <div
+    aria-describedby="joptionpane-desc"
+    aria-labelledby="joptionpane-title"
+    aria-modal="true"
+    class="jpanel border-0 p-0 relative z-10 max-h-[calc(100dvh-1rem)] w-full max-w-sm overflow-y-auto rounded-lg bg-[rgb(var(--jona-surface-raised))] shadow-xl focus:outline-none sm:max-w-md"
+    data-jpanel-dense="false"
+    data-jpanel-desktop-dense="false"
+    data-jpanel-desktop-layout="border"
+    data-jpanel-desktop-mode="sequential"
+    data-jpanel-layout="border"
+    data-jpanel-mobile-large-dense="false"
+    data-jpanel-mobile-large-layout="border"
+    data-jpanel-mobile-large-mode="sequential"
+    data-jpanel-mobile-small-dense="false"
+    data-jpanel-mobile-small-layout="border"
+    data-jpanel-mobile-small-mode="sequential"
+    data-jpanel-mode="sequential"
+    data-jpanel-tablet-dense="false"
+    data-jpanel-tablet-layout="border"
+    data-jpanel-tablet-mode="sequential"
+    data-jpanel-tv-dense="false"
+    data-jpanel-tv-layout="border"
+    data-jpanel-tv-mode="sequential"
+    role="alertdialog"
+    style="--jpanel-gap: 0; --jpanel-direction: column; --jpanel-wrap: nowrap; --jpanel-align-items: flex-start; --jpanel-justify-content: flex-start; --jpanel-auto-fit-min: 12rem; --jpanel-spring-min-height: 16rem; --jpanel-mobile-large-gap: 0; --jpanel-mobile-large-direction: column; --jpanel-mobile-large-wrap: nowrap; --jpanel-mobile-large-align-items: flex-start; --jpanel-mobile-large-justify-content: flex-start; --jpanel-mobile-large-auto-fit-min: 12rem; --jpanel-mobile-large-spring-min-height: 16rem; --jpanel-tablet-gap: 0; --jpanel-tablet-direction: column; --jpanel-tablet-wrap: nowrap; --jpanel-tablet-align-items: flex-start; --jpanel-tablet-justify-content: flex-start; --jpanel-tablet-auto-fit-min: 12rem; --jpanel-tablet-spring-min-height: 16rem; --jpanel-desktop-gap: 0; --jpanel-desktop-direction: column; --jpanel-desktop-wrap: nowrap; --jpanel-desktop-align-items: flex-start; --jpanel-desktop-justify-content: flex-start; --jpanel-desktop-auto-fit-min: 12rem; --jpanel-desktop-spring-min-height: 16rem; --jpanel-tv-gap: 0; --jpanel-tv-direction: column; --jpanel-tv-wrap: nowrap; --jpanel-tv-align-items: flex-start; --jpanel-tv-justify-content: flex-start; --jpanel-tv-auto-fit-min: 12rem; --jpanel-tv-spring-min-height: 16rem;"
+    tabindex="-1"
+  >
+    <div
+      class="jpanel bg-transparent border-0 p-0 rounded-none pt-5 pb-3 sm:pl-5 sm:pr-3 sm:pb-0"
+      data-jpanel-dense="false"
+      data-jpanel-desktop-dense="false"
+      data-jpanel-desktop-layout="box"
+      data-jpanel-desktop-mode="sequential"
+      data-jpanel-layout="box"
+      data-jpanel-mobile-large-dense="false"
+      data-jpanel-mobile-large-layout="box"
+      data-jpanel-mobile-large-mode="sequential"
+      data-jpanel-mobile-small-dense="false"
+      data-jpanel-mobile-small-layout="box"
+      data-jpanel-mobile-small-mode="sequential"
+      data-jpanel-mode="sequential"
+      data-jpanel-tablet-dense="false"
+      data-jpanel-tablet-layout="box"
+      data-jpanel-tablet-mode="sequential"
+      data-jpanel-tv-dense="false"
+      data-jpanel-tv-layout="box"
+      data-jpanel-tv-mode="sequential"
+      data-panel-area="left"
+      style="grid-area: left; --jpanel-gap: 0; --jpanel-direction: column; --jpanel-wrap: nowrap; --jpanel-align-items: center; --jpanel-justify-content: flex-start; --jpanel-auto-fit-min: 12rem; --jpanel-spring-min-height: 16rem; --jpanel-mobile-large-gap: 0; --jpanel-mobile-large-direction: column; --jpanel-mobile-large-wrap: nowrap; --jpanel-mobile-large-align-items: center; --jpanel-mobile-large-justify-content: flex-start; --jpanel-mobile-large-auto-fit-min: 12rem; --jpanel-mobile-large-spring-min-height: 16rem; --jpanel-tablet-gap: 0; --jpanel-tablet-direction: column; --jpanel-tablet-wrap: nowrap; --jpanel-tablet-align-items: flex-start; --jpanel-tablet-justify-content: flex-start; --jpanel-tablet-auto-fit-min: 12rem; --jpanel-tablet-spring-min-height: 16rem; --jpanel-desktop-gap: 0; --jpanel-desktop-direction: column; --jpanel-desktop-wrap: nowrap; --jpanel-desktop-align-items: flex-start; --jpanel-desktop-justify-content: flex-start; --jpanel-desktop-auto-fit-min: 12rem; --jpanel-desktop-spring-min-height: 16rem; --jpanel-tv-gap: 0; --jpanel-tv-direction: column; --jpanel-tv-wrap: nowrap; --jpanel-tv-align-items: flex-start; --jpanel-tv-justify-content: flex-start; --jpanel-tv-auto-fit-min: 12rem; --jpanel-tv-spring-min-height: 16rem;"
+    >
+      <div
+        class="flex h-10 w-10 items-center justify-center rounded-full bg-[rgb(var(--jona-danger-50))]"
+      >
+        <svg
+          aria-hidden="true"
+          class="h-6 w-6 text-danger-500"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+    <div
+      class="flex min-w-0 flex-col gap-1 px-5 pb-4 text-center sm:px-0 sm:pt-5 sm:pr-5 sm:text-left"
+      data-panel-area="center"
+      style="grid-area: center;"
+    >
+      <h2
+        class="break-words text-base font-semibold text-[rgb(var(--jona-fg))]"
+        id="joptionpane-title"
+      >
+        Eliminar
+      </h2>
+      <p
+        class="break-words text-sm text-[rgb(var(--jona-fg-muted))]"
+        id="joptionpane-desc"
+      >
+        Se eliminará el registro.
+      </p>
+    </div>
+    <div
+      class="jpanel bg-transparent border-0 p-0 rounded-none px-5 pb-5"
+      data-jpanel-dense="false"
+      data-jpanel-desktop-dense="false"
+      data-jpanel-desktop-layout="flow"
+      data-jpanel-desktop-mode="sequential"
+      data-jpanel-layout="flow"
+      data-jpanel-mobile-large-dense="false"
+      data-jpanel-mobile-large-layout="flow"
+      data-jpanel-mobile-large-mode="sequential"
+      data-jpanel-mobile-small-dense="false"
+      data-jpanel-mobile-small-layout="flow"
+      data-jpanel-mobile-small-mode="sequential"
+      data-jpanel-mode="sequential"
+      data-jpanel-tablet-dense="false"
+      data-jpanel-tablet-layout="flow"
+      data-jpanel-tablet-mode="sequential"
+      data-jpanel-tv-dense="false"
+      data-jpanel-tv-layout="flow"
+      data-jpanel-tv-mode="sequential"
+      data-panel-area="bottom"
+      style="grid-area: bottom; --jpanel-gap: 0.5rem; --jpanel-direction: column; --jpanel-wrap: wrap; --jpanel-align-items: stretch; --jpanel-justify-content: center; --jpanel-auto-fit-min: 12rem; --jpanel-spring-min-height: 16rem; --jpanel-mobile-large-gap: 0.5rem; --jpanel-mobile-large-direction: column; --jpanel-mobile-large-wrap: wrap; --jpanel-mobile-large-align-items: stretch; --jpanel-mobile-large-justify-content: center; --jpanel-mobile-large-auto-fit-min: 12rem; --jpanel-mobile-large-spring-min-height: 16rem; --jpanel-tablet-gap: 0.5rem; --jpanel-tablet-direction: column; --jpanel-tablet-wrap: wrap; --jpanel-tablet-align-items: stretch; --jpanel-tablet-justify-content: flex-end; --jpanel-tablet-auto-fit-min: 12rem; --jpanel-tablet-spring-min-height: 16rem; --jpanel-desktop-gap: 0.5rem; --jpanel-desktop-direction: column; --jpanel-desktop-wrap: wrap; --jpanel-desktop-align-items: stretch; --jpanel-desktop-justify-content: flex-end; --jpanel-desktop-auto-fit-min: 12rem; --jpanel-desktop-spring-min-height: 16rem; --jpanel-tv-gap: 0.5rem; --jpanel-tv-direction: column; --jpanel-tv-wrap: wrap; --jpanel-tv-align-items: stretch; --jpanel-tv-justify-content: flex-end; --jpanel-tv-auto-fit-min: 12rem; --jpanel-tv-spring-min-height: 16rem;"
+    >
+      <button
+        class="jbutton inline-flex items-center justify-center gap-2 font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-danger-500 text-[rgb(var(--jona-on-primary))] hover:bg-danger-600 focus-visible:ring-danger-500 min-h-11 sm:min-h-9 px-4 py-2 text-sm rounded-md"
+        type="button"
+      >
+        <span
+          class="jbutton-text"
+        >
+          Eliminar
+        </span>
+      </button>
+      <button
+        class="jbutton inline-flex items-center justify-center gap-2 font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[rgb(var(--jona-line-strong)/0.45)] bg-transparent text-[rgb(var(--jona-fg))] hover:bg-[rgb(var(--jona-fg)/0.06)] focus-visible:ring-[rgb(var(--jona-focus))] min-h-11 sm:min-h-9 px-4 py-2 text-sm rounded-md"
+        type="button"
+      >
+        <span
+          class="jbutton-text"
+        >
+          No
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+`;

@@ -254,3 +254,24 @@ export const Interactive: Story = {
     );
   },
 };
+
+export const WithDetails: Story = {
+  name: 'Con detalles del registro',
+  args: {
+    open:         true,
+    title:        'Eliminar',
+    description:  'Se eliminará el registro.',
+    details:      '000123 · ACME SAC',
+    variant:      'danger',
+    confirmLabel: 'Eliminar',
+    cancelLabel:  'No',
+    initialFocus: 'cancel',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: '`details` muestra el resumen del registro entre la descripción y los botones, y forma parte de la descripción accesible. `initialFocus` elige el botón que recibe el foco al abrir (`cancel` para acciones destructivas); sin él, el foco va al panel.',
+      },
+    },
+  },
+};

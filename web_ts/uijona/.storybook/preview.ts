@@ -1,4 +1,4 @@
-import type { Preview } from '@storybook/react';
+import type { Decorator, Preview } from '@storybook/react';
 import '../src/styles/index.css';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -254,9 +254,45 @@ const formatJsxSource = (
   return reformatJsxTags(normalized);
 };
 
+// ─── theme mode toolbar (dark is opt-in, D6) ──────────────────────────────────
+
+/** Sets data-theme-mode on the preview root for the `Tema` toolbar, and paints the body with the tokens. */
+const withThemeMode: Decorator = (Story, context) => {
+  const root = document.documentElement;
+  const body = document.body.style;
+  if (context.globals.themeMode === 'dark') {
+    root.setAttribute('data-theme-mode', 'dark');
+    root.setAttribute('data-theme', 'dark');
+    root.setAttribute('data-sb-theme-mode', '');
+    body.setProperty('background', 'rgb(var(--jona-surface))', 'important');
+    body.setProperty('color', 'rgb(var(--jona-fg))');
+  } else if (root.hasAttribute('data-sb-theme-mode')) {
+    ['data-theme-mode', 'data-theme', 'data-sb-theme-mode'].forEach((name) => root.removeAttribute(name));
+    body.removeProperty('background');
+    body.removeProperty('color');
+  }
+  return Story();
+};
+
 // ─── preview config ───────────────────────────────────────────────────────────
 
 const preview: Preview = {
+  globalTypes: {
+    themeMode: {
+      description: 'Modo de tema (data-theme-mode)',
+      toolbar: {
+        title: 'Tema',
+        icon: 'mirror',
+        items: [
+          { value: 'light', title: 'Claro' },
+          { value: 'dark', title: 'Oscuro' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  initialGlobals: { themeMode: 'light' },
+  decorators: [withThemeMode],
   parameters: {
     actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {

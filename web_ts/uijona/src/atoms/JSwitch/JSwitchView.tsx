@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { cn } from '../../lib/cn';
 import { JSWITCH_DEFAULTS, InterJSwitch, JSwitchSize } from './InterJSwitch';
+import { DANGER_BG_STRONG, LINE_BG_STRONG, ON_PRIMARY_BG } from '../../theme/tokenClasses';
 
 const trackSize: Record<JSwitchSize, string> = {
   sm: 'w-8 h-4',
@@ -72,13 +73,13 @@ export const JSwitchView: React.FC<JSwitchViewProps> = ({
         trackSize[size],
         effectiveChecked
           ? hasError ? 'bg-danger-500'  : 'bg-primary-600'
-          : !hasError && 'bg-neutral-300',
+          : hasError ? DANGER_BG_STRONG : LINE_BG_STRONG,
         className
       )}
     >
       <span
         className={cn(
-          'inline-block rounded-full bg-white shadow transition-transform duration-200',
+          `inline-block rounded-full ${ON_PRIMARY_BG} shadow transition-transform duration-200`,
           thumbSize[size],
           effectiveChecked ? thumbTranslate[size].on : thumbTranslate[size].off
         )}

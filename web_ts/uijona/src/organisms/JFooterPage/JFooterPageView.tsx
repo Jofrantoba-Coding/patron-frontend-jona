@@ -19,13 +19,13 @@ export const JFooterPageView: React.FC<InterJFooterPage> = ({
     )}
   >
     {/* Left slot or fallback text */}
-    <JPanel variant="ghost" padding="none" radius="none" className="min-w-0 flex-1 break-words md:flex-none">
+    <JPanel variant="ghost" padding="none" radius="none" className="w-auto min-w-0 flex-1 break-words md:flex-none">
       {left ?? <span>{text}</span>}
     </JPanel>
 
     {/* Center slot */}
     {center && (
-      <JPanel variant="ghost" padding="none" radius="none" className="hidden min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex flex-row">
+      <JPanel variant="ghost" padding="none" radius="none" className="hidden w-auto min-w-0 max-w-full items-center gap-4 overflow-x-auto md:flex flex-row">
         {center}
       </JPanel>
     )}

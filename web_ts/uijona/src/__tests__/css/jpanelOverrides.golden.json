@@ -289,14 +289,16 @@
       "items-center",
       "max-w-full",
       "md:flex",
-      "min-w-0"
+      "min-w-0",
+      "w-auto"
     ],
     "organisms/JHeaderPage/JHeaderPageView.tsx": [
       "flex",
       "flex-row",
       "gap-2",
       "items-center",
-      "min-w-0"
+      "min-w-0",
+      "w-auto"
     ],
     "organisms/JLogoMarquee/JLogoMarqueeView.tsx": [
       "flex",
@@ -318,6 +320,7 @@
       "justify-between",
       "lg:flex",
       "lg:hidden",
+      "max-w-7xl",
       "max-w-sm",
       "w-[85vw]",
       "w-full"
@@ -341,22 +344,22 @@
     },
     {
       "file": "molecules/JDialog/JDialogView.tsx",
-      "line": 52,
+      "line": 53,
       "token": "flex-row"
     },
     {
       "file": "molecules/JDrawer/JDrawerView.tsx",
-      "line": 83,
+      "line": 84,
       "token": "flex-row"
     },
     {
       "file": "molecules/JEmptyState/JEmptyStateView.tsx",
-      "line": 16,
+      "line": 17,
       "token": "flex-row"
     },
     {
       "file": "molecules/JEmptyState/JEmptyStateView.tsx",
-      "line": 25,
+      "line": 26,
       "token": "flex-row"
     },
     {
@@ -371,7 +374,7 @@
     },
     {
       "file": "molecules/JOptionPane/JOptionPaneView.tsx",
-      "line": 75,
+      "line": 83,
       "token": "flex-row"
     },
     {
@@ -381,7 +384,7 @@
     },
     {
       "file": "molecules/JSearchInput/JSearchInputView.tsx",
-      "line": 49,
+      "line": 50,
       "token": "flex-row"
     },
     {
@@ -401,47 +404,52 @@
     },
     {
       "file": "molecules/JStatCard/JStatCardView.tsx",
-      "line": 33,
+      "line": 34,
       "token": "flex-row"
     },
     {
       "file": "molecules/JStatCard/JStatCardView.tsx",
-      "line": 47,
+      "line": 48,
       "token": "flex-row"
     },
     {
       "file": "molecules/JStatCard/JStatCardView.tsx",
-      "line": 50,
+      "line": 51,
       "token": "flex-row"
     },
     {
       "file": "molecules/JTable/JTableView.tsx",
-      "line": 137,
+      "line": 142,
       "token": "flex-row"
     },
     {
       "file": "molecules/JTable/JTableView.tsx",
-      "line": 139,
+      "line": 144,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JTable/JTableView.tsx",
+      "line": 461,
       "token": "flex-row"
     },
     {
       "file": "molecules/JTimer/JTimerView.tsx",
-      "line": 132,
+      "line": 133,
       "token": "flex-row"
     },
     {
       "file": "molecules/JTimer/JTimerView.tsx",
-      "line": 147,
+      "line": 148,
       "token": "flex-row"
     },
     {
       "file": "organisms/JDashboardPreview/JDashboardPreviewView.tsx",
-      "line": 25,
+      "line": 26,
       "token": "flex-row"
     },
     {
       "file": "organisms/JDashboardPreview/JDashboardPreviewView.tsx",
-      "line": 55,
+      "line": 56,
       "token": "flex-row"
     },
     {
@@ -451,13 +459,28 @@
     },
     {
       "file": "organisms/JFooterPage/JFooterPageView.tsx",
+      "line": 22,
+      "token": "w-auto"
+    },
+    {
+      "file": "organisms/JFooterPage/JFooterPageView.tsx",
       "line": 28,
       "token": "flex-row"
     },
     {
       "file": "organisms/JFooterPage/JFooterPageView.tsx",
+      "line": 28,
+      "token": "w-auto"
+    },
+    {
+      "file": "organisms/JFooterPage/JFooterPageView.tsx",
       "line": 35,
       "token": "flex-row"
+    },
+    {
+      "file": "organisms/JHeaderPage/JHeaderPageView.tsx",
+      "line": 21,
+      "token": "w-auto"
     },
     {
       "file": "organisms/JHeaderPage/JHeaderPageView.tsx",
@@ -478,6 +501,11 @@
       "file": "organisms/JNavbar/JNavbarView.tsx",
       "line": 42,
       "token": "flex-row"
+    },
+    {
+      "file": "organisms/JNavbar/JNavbarView.tsx",
+      "line": 42,
+      "token": "max-w-7xl"
     },
     {
       "file": "organisms/JNavbar/JNavbarView.tsx",

@@ -16,6 +16,7 @@ import postcssImport from 'postcss-import';
 import tailwindcss from 'tailwindcss';
 import ts from 'typescript';
 import tailwindConfig from '../../../tailwind.config.js';
+import * as tokenClasses from '../../theme/tokenClasses';
 
 const SRC = resolve(process.cwd(), 'src');
 const CLASS_FUNCTIONS = new Set(['cn', 'clsx', 'twMerge']);
@@ -256,6 +257,20 @@ describe('class coverage (S-FND-2)', () => {
     expect(scan.tokens.size).toBeGreaterThan(500);
     expect(scan.tokens.has('jpanel')).toBe(true);
     expect(missingTokens(scan, classes)).toEqual([]);
+  });
+
+  it('D5: every token class constant is in the compiled CSS', () => {
+    const constants = Object.entries(tokenClasses);
+    const missing = constants.flatMap(([name, value]) =>
+      String(value).split(/\s+/).filter((token) => !classes.has(token)).map((token) => `${name}: ${token}`),
+    );
+
+    expect(constants.map(([name]) => name)).toEqual(expect.arrayContaining([
+      'SURFACE', 'SURFACE_MUTED', 'SURFACE_RAISED', 'FG', 'FG_MUTED', 'ON_PRIMARY', 'LINE', 'LINE_STRONG',
+      'FOCUS_RING', 'SELECTION', 'CONTROL_H',
+      'TEXT_PAGE', 'TEXT_SECTION', 'TEXT_BODY', 'TEXT_SMALL', 'TEXT_CAPTION', 'TEXT_TABLE',
+    ]));
+    expect(missing).toEqual([]);
   });
 
   it('no lib class token is built by interpolation (D4)', () => {
