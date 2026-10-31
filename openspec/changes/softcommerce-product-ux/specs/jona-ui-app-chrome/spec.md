@@ -27,19 +27,19 @@ Marker legend: **[ASSUMPTION]** = working assumption, easy to revise. Requiremen
 A click on a branch toggles it, and a click on a leaf selects it. The node whose id equals `activeId` MUST carry `aria-current="page"` and a visible highlight. A `disabled` node MUST set `aria-disabled="true"`, MUST still be focusable, and MUST still report `onSelect(id)`, so the host can explain why it is unavailable. A node `badge` MUST be exposed as the node's accessible description, never as part of its name.
 
 ### R-CHR-3 JTreeNav filter
-With a `filter` value, the tree MUST show only the leaves whose label contains it, ignoring case and accents **[ASSUMPTION]**, together with their ancestors, which show expanded. With no match, a no-match message shows (default `Sin resultados` **[ASSUMPTION]**). Clearing the filter MUST restore the expansion the tree had before filtering. The filter input is a search box with an accessible name, and it reports `onFilterChange(text)`.
+With a `filter` value, the tree MUST show only the leaves whose label contains it, ignoring case and accents **[ASSUMPTION]**, together with their ancestors, which show expanded. With no match, a no-match message shows (default `Sin resultados` **[ASSUMPTION]**). Clearing the filter MUST restore the expansion the tree had before filtering; while a filter is active, expanding or collapsing is local to the filtered view and is not reported through `onToggle`. The filter input is a search box with an accessible name, and it reports `onFilterChange(text)`. A host can focus it without querying the DOM through the `focusFilter()` handle of a `JTreeNav` ref, which also selects its text (for shortcuts such as Ctrl+K or `/`; additive in 1.6.0).
 
 ### R-CHR-4 JTreeNav checkbox variant
-With `variant="checkbox"`, each node MUST carry `aria-checked`. An optional `maxHeight` caps the scroll area of the tree, in any variant. Space (or a click on the checkbox) MUST call `onCheckedChange(id, checked)` for that node only, with no propagation to parents or children. A click on the node text MUST only focus and select it (`onSelect(id)`), keeping text and checkbox as separate targets.
+With `variant="checkbox"`, each node MUST carry `aria-checked`. An optional `maxHeight` caps the scroll area of the tree, in any variant. Space (or a click on the checkbox) MUST call `onCheckedChange(id, checked)` for that node only, with no propagation to parents or children. A click on the node text MUST only focus and select it (`onSelect(id)`), keeping text and checkbox as separate targets. In this variant the arrow keys also select the node they move to, and the branch chevron and Enter expand or collapse. A `disabled` node is not checked.
 
 ### R-CHR-5 JWorkspaceTabs and JTabs keepMounted
 `JWorkspaceTabs` MUST render a `tablist` that contains only `tab` elements. Each tab has `aria-selected` and `aria-controls` pointing at its `tabpanel`, and each panel is named by its tab.
-- Every tab has a close button next to it, outside the `tab` element, named `Cerrar pestaña {title}` by default.
+- Every tab has a close button next to it, outside the `tab` element and outside the `tablist`, named `Cerrar pestaña {title}` by default. Only the active tab's close button is in the tab order.
 - The close button and a middle-click on the tab call `onCloseRequest(id)`. The component MUST NOT remove a tab itself: the host decides.
 - A `dirty` tab MUST show a dot and the accessible description `Cambios sin guardar` **[ASSUMPTION]**, with its name unchanged.
 - ← / → / Home / End move between tabs and select them on focus **[ASSUMPTION]**.
 - Inactive panels MUST stay mounted and `hidden`.
-- When the tabs do not fit (`maxVisible`), the extra tabs MUST be listed in a menu button `Más pestañas` **[ASSUMPTION]**, and selecting an entry selects its tab.
+- When the tabs do not fit (`maxVisible`), the extra tabs MUST be listed in a menu button `Más pestañas` **[ASSUMPTION]**, and selecting an entry selects its tab. An overflowed active tab takes the last visible slot.
 
 `JTabs` MUST accept `keepMounted`. With it, inactive `JTabsContent` panels stay mounted and `hidden`. Without it, the 1.5.1 behavior holds.
 
@@ -54,12 +54,12 @@ With `variant="checkbox"`, each node MUST carry `aria-checked`. An optional `max
 `JContextChip` MUST be read-only text: it joins the item values with ` · ` and exposes each `label: value` pair in its accessible description and tooltip. It MUST have no button role.
 
 ### R-CHR-8 JShortcutSheet
-`JShortcutSheet` MUST render a dialog (default title `Atajos de teclado` **[ASSUMPTION]**) that lists groups. Each group has a heading, and each shortcut shows its keys as `kbd` elements beside its label. Esc and the close button close it, and focus returns to the invoker.
+`JShortcutSheet` MUST render a dialog (default title `Atajos de teclado` **[ASSUMPTION]**) that lists groups. Each group has a heading, and each shortcut shows its keys as `kbd` elements beside its label. Esc, the backdrop and the close button (`Cerrar`, in the footer) close it, and focus returns to the invoker.
 
 ### R-CHR-9 JAuthLayout
 `JAuthLayout` MUST render a `main` landmark with a card that shows the product name and the page heading.
 - From 1024 px a brand panel shows the name and the optional tagline. Below 1024 px only the card shows, with 16 px gutters.
-- With `steps`, it shows a `JStepper` whose current step carries `aria-current="step"`.
+- With `steps`, it shows a `JStepper` whose current step (`currentStep`, a step id) carries `aria-current="step"`.
 - It has a `footer` slot.
 - It MUST hold no form logic: the host renders the form as children.
 

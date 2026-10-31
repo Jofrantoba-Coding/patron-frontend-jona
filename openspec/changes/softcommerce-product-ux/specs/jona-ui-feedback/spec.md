@@ -42,7 +42,7 @@ While a confirm is open, Esc MUST resolve only that confirm and MUST NOT reach a
 
 **S-FBK-1 confirm resolves true** — Given `confirm({ title: 'Eliminar', description: 'Se eliminará el registro.', confirmLabel: 'Eliminar', cancelLabel: 'No', variant: 'danger' })`, When `Eliminar` is clicked, Then the promise resolves `true` and the `alertdialog` is gone.
 
-**S-FBK-2 decline paths** — Given an open confirm, When `No` is clicked, or Esc is pressed, or the close control is used, Then the promise resolves `false` each time, and only once.
+**S-FBK-2 decline paths** — Given an open confirm, When `No` is clicked, or Esc is pressed, or the close control is used (the `JOptionPane` backdrop; the pane has no close button), Then the promise resolves `false` each time, and only once.
 
 **S-FBK-3 accessible name and description** — Given the confirm of S-FBK-1, Then `getByRole('alertdialog', { name: 'Eliminar' })` exists and its accessible description contains `Se eliminará el registro.`.
 
@@ -60,7 +60,7 @@ While a confirm is open, Esc MUST resolve only that confirm and MUST NOT reach a
 
 **S-FBK-10 unmount resolves false** — Given a pending confirm, When the provider unmounts, Then the promise resolves `false`.
 
-**S-FBK-11 option pane details** — Given `JOptionPane` with `details` showing `000123 · ACME SAC`, Then that text is inside the `alertdialog` and in its accessible description. Given no `details`, Then the snapshot equals 1.5.1.
+**S-FBK-11 option pane details** — Given `JOptionPane` with `details` showing `000123 · ACME SAC`, Then that text is inside the `alertdialog` and in its accessible description. Given no `details`, Then the snapshot equals 1.5.1 (the approval snapshot is taken before the change, on the a2b-tokenized classes; a10 regenerates it once for the dark backdrop token, the only change being the `BACKDROP` class string).
 
 **S-FBK-12 success toast** — Given `toast({ variant: 'success', title: 'Registro creado' })`, Then a `status` element with `aria-live="polite"` contains the title. After 4000 ms (fake timers), Then it is gone.
 
