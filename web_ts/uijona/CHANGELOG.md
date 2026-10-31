@@ -6,6 +6,8 @@ All notable changes to `jona-ui` are listed here. The format follows [Keep a Cha
 
 An additive minor release: semantic tokens, an opt-in dark theme and base stylesheet, a type scale and density tokens, and the application-chrome, form, data and feedback pieces listed below. No export or prop was removed. Dark mode and `base.css` are **opt-in**: without `JonaThemeModeProvider` (or `themeInitScript`) and without `import 'jona-ui/base.css'`, components render light, as in 1.5.x. The 1.5.1 test suite passes unchanged against this release.
 
+1.6.0 also ships every 1.5.2 change: 1.5.2 was not published to npm, so 1.6.0 is the first release after 1.5.1. When upgrading from 1.5.1, read the 1.5.2 entry below too, in particular "Who sees a visible change".
+
 ### Added
 
 - **Semantic tokens** in `jona-ui/theme/tokens.css` and the compiled `index.css`: `surface`, `surface-muted`, `surface-raised`, `fg`, `fg-muted`, `line`, `line-strong`, `focus`, `selection`, `on-primary`, the `danger`/`success`/`warning` 50, 100 and 700 tints, and `--jona-backdrop`/`--jona-backdrop-alpha`. Light values reference the palette, on `:root` and `[data-jona-scope]`, so `JonaThemeProvider` overrides flow through. `JonaThemeTokens` gains `white`, `accent50`…`accent900`, the tints and the semantic keys.
@@ -80,6 +82,8 @@ An additive minor release: semantic tokens, an opt-in dark theme and base styles
 - New tests: token lint with the dark allowlist, WCAG contrast per mode (text 4.5:1, focus and line 3:1, backdrop dimming), the theme mode and init script, the component pattern of every 1.6.0 folder, the export-map sweep, and a compiled-CSS resolver for responsive utilities. The JOptionPane (S-FBK-11) and JPagination (S-DAT-22) approval snapshots were regenerated for the backdrop token and the chevron fix.
 
 ## 1.5.2
+
+Not published to npm; these changes ship in 1.6.0.
 
 A bug-fix release. No export, prop or default behavior was removed or changed in its meaning, and the 1.5.1 test suite passes unchanged. The layout fixes are **visible**: class names that 1.5.1 silently ignored now apply, so some components render the layout their markup always asked for. See "Who sees a visible change" below.
 
