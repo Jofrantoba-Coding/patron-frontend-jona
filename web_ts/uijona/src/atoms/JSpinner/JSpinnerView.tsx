@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JSPINNER_DEFAULTS, InterJSpinner, JSpinnerSize, JSpinnerColor } from './InterJSpinner';
+import { LINE_STRONG, ON_PRIMARY_BORDER } from '../../theme/tokenClasses';
 
 const sizeClasses: Record<JSpinnerSize, string> = {
   sm: 'w-3.5 h-3.5 border-2',
@@ -12,8 +13,8 @@ const sizeClasses: Record<JSpinnerSize, string> = {
 const colorClasses: Record<JSpinnerColor, string> = {
   current: 'border-current border-t-transparent',
   primary: 'border-primary-600 border-t-transparent',
-  white:   'border-white border-t-transparent',
-  neutral: 'border-neutral-400 border-t-transparent',
+  white:   `${ON_PRIMARY_BORDER} border-t-transparent`,
+  neutral: `${LINE_STRONG} border-t-transparent`,
 };
 
 type JSpinnerViewProps = InterJSpinner & {

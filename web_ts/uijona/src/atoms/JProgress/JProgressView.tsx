@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JPROGRESS_DEFAULTS, InterJProgress, JProgressVariant, JProgressSize } from './InterJProgress';
+import { FG_MUTED, FG_MUTED_FILL, LINE_BG, LINE_STROKE } from '../../theme/tokenClasses';
 
 // ── Bar ──────────────────────────────────────────────────────────────────────
 
@@ -31,11 +32,12 @@ const circleStrokeWidth: Record<JProgressSize, number> = {
   lg: 8,
 };
 
-const circleColor: Record<JProgressVariant, string> = {
-  default: '#2563eb',
-  success: '#16a34a',
-  warning: '#f59e0b',
-  danger:  '#ef4444',
+// Stroke classes, so the circle follows the theme tokens (an SVG attribute cannot read var()).
+const circleStroke: Record<JProgressVariant, string> = {
+  default: 'stroke-primary-600',
+  success: 'stroke-success-600',
+  warning: 'stroke-warning-500',
+  danger:  'stroke-danger-500',
 };
 
 const circleFontSize: Record<JProgressSize, number> = {
@@ -97,14 +99,14 @@ export const JProgressView: React.FC<JProgressViewProps> = ({
           <circle
             cx={sz / 2} cy={sz / 2} r={r}
             fill="none"
-            stroke="#e5e7eb"
+            className={LINE_STROKE}
             strokeWidth={sw}
           />
           {/* fill */}
           <circle
             cx={sz / 2} cy={sz / 2} r={r}
             fill="none"
-            stroke={circleColor[variant]}
+            className={circleStroke[variant]}
             strokeWidth={sw}
             strokeLinecap="round"
             strokeDasharray={circ}
@@ -118,7 +120,7 @@ export const JProgressView: React.FC<JProgressViewProps> = ({
               x="50%" y="50%"
               dominantBaseline="central"
               textAnchor="middle"
-              fill="#6b7280"
+              className={FG_MUTED_FILL}
               fontWeight={600}
               style={{ fontSize: circleFontSize[size], fontVariantNumeric: 'tabular-nums' }}
             >
@@ -147,7 +149,7 @@ export const JProgressView: React.FC<JProgressViewProps> = ({
         aria-valuemax={max}
         aria-label={displayLabel}
         className={cn(
-          'relative flex-1 rounded-full bg-neutral-200 overflow-hidden',
+          `relative flex-1 rounded-full ${LINE_BG} overflow-hidden`,
           barHeight[size]
         )}
       >
@@ -161,7 +163,7 @@ export const JProgressView: React.FC<JProgressViewProps> = ({
         />
       </div>
       {showLabel && (
-        <span className="text-xs text-neutral-500 tabular-nums w-9 text-right shrink-0">
+        <span className={`text-xs ${FG_MUTED} tabular-nums w-9 text-right shrink-0`}>
           {displayLabel}
         </span>
       )}

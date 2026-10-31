@@ -1,11 +1,12 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import type { InterJTextBox, JTextBoxVariant, JTextBoxSize } from './InterJTextBox';
+import { CONTROL_BORDER, FG, PLACEHOLDER, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 const variantClasses: Record<JTextBoxVariant, string> = {
-  default: 'border border-neutral-300 bg-neutral-50 text-neutral-900',
-  filled:  'border-0 bg-neutral-100 text-neutral-900',
-  ghost:   'border-0 bg-transparent text-neutral-900',
+  default: `border ${CONTROL_BORDER} ${SURFACE_MUTED} ${FG}`,
+  filled:  `border-0 ${SURFACE_MUTED} ${FG}`,
+  ghost:   `border-0 bg-transparent ${FG}`,
 };
 
 // Mobile first: 16px text (iOS zooms into smaller focused fields) and a 44px
@@ -83,7 +84,7 @@ export const JTextBoxView: React.FC<JTextBoxViewProps> = ({
         className={cn(
           'jtextbox',
           'w-full transition-colors duration-200',
-          'placeholder:text-neutral-400',
+          `${PLACEHOLDER}`,
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0',
           'disabled:cursor-not-allowed disabled:opacity-50',
           variantClasses[variant],

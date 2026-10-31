@@ -725,7 +725,7 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    color: #6b7280; /* neutral-500 */
+    color: rgb(var(--jona-fg-muted));
     line-height: 1;
   }
 
@@ -737,7 +737,7 @@
   .jtextbox-root[data-jtextbox-has-icon-right='true'] .jtextbox { padding-right: 2.25rem; }
 
   /* Error: tiñe el icono también */
-  .jtextbox-root[data-jtextbox-error='true'] .jtextbox-icon { color: var(--danger-500, #ef4444); }
+  .jtextbox-root[data-jtextbox-error='true'] .jtextbox-icon { color: rgb(var(--jona-danger-500)); }
 
   /* ── JLabel ──────────────────────────────────────────────────────── */
   .jlabel-truncate {
@@ -777,7 +777,7 @@
 
   .jcheckbox:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--primary-500, #3b82f6);
+    box-shadow: 0 0 0 2px rgb(var(--jona-surface)), 0 0 0 4px rgb(var(--jona-focus));
   }
 
   .jcheckbox:disabled {
@@ -787,11 +787,11 @@
   }
 
   .jcheckbox[data-jcheckbox-error='true'] {
-    accent-color: var(--danger-500, #ef4444);
+    accent-color: rgb(var(--jona-danger-500));
   }
 
   .jcheckbox[data-jcheckbox-indeterminate='true'] {
-    accent-color: var(--primary-600, #2563eb);
+    accent-color: rgb(var(--jona-primary-600));
   }
 
   /* ── JComboBox ───────────────────────────────────────────────────── */
@@ -806,7 +806,7 @@
   }
 
   .jcombobox[data-jcombobox-error='true'] {
-    border-color: var(--danger-500, #ef4444);
+    border-color: rgb(var(--jona-danger-500));
   }
 
   /* ── JBadge ─────────────────────────────────────────────────────── */
@@ -872,7 +872,7 @@
   .jradiobutton {
     box-sizing: border-box;
     flex-shrink: 0;
-    accent-color: var(--color-primary-600, #2563eb);
+    accent-color: rgb(var(--jona-primary-600));
   }
 
   /* ── JSkeleton ───────────────────────────────────────────────────── */
@@ -884,9 +884,9 @@
   .jskeleton-wave {
     background: linear-gradient(
       90deg,
-      #e5e7eb 0%,
-      #f9fafb 40%,
-      #e5e7eb 80%
+      rgb(var(--jona-line)) 0%,
+      rgb(var(--jona-surface-muted)) 40%,
+      rgb(var(--jona-line)) 80%
     );
     background-size: 200% 100%;
     animation: jskeleton-wave 1.5s ease-in-out infinite;
@@ -921,7 +921,7 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255, 255, 255, 0.38) 50%,
+      rgb(var(--jona-white) / 0.38) 50%,
       transparent 100%
     );
     animation: jprogress-shimmer 1.4s ease-in-out infinite;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../../lib/cn';
 import { JSEPARATOR_DEFAULTS, InterJSeparator } from './InterJSeparator';
+import { LINE_BG } from '../../theme/tokenClasses';
 
 type JSeparatorViewProps = InterJSeparator & {
   forwardedRef?: React.Ref<HTMLDivElement>;
@@ -20,7 +21,7 @@ export const JSeparatorView: React.FC<JSeparatorViewProps> = ({
     style={style}
     className={cn(
       'jseparator',
-      'bg-neutral-200 shrink-0',
+      `${LINE_BG} shrink-0`,
       orientation === 'horizontal' ? 'h-px w-full' : 'w-px h-full',
       className
     )}
