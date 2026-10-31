@@ -195,3 +195,50 @@ export const Interactive: Story = {
     );
   },
 };
+
+export const WithLabelAndError: Story = {
+  name: 'Con label y error',
+  args: {
+    label:       'Desde',
+    required:    true,
+    mask:        'dd/MM/yyyy',
+    placeholder: 'dd/mm/aaaa',
+    error:       'Fecha inválida',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: '`label` nombra el input; `error` marca `aria-invalid` y se suma a su descripción (no es una región `alert`). Dentro de un `JField`, pase `id`, `aria-describedby` y `aria-invalid` del cableado en lugar de `label`.',
+      },
+    },
+  },
+};
+
+export const IsoRecipe: Story = {
+  name: 'Receta dd/MM/yyyy + ISO',
+  parameters: {
+    docs: {
+      description: {
+        story: 'Receta para formularios de datos: `mask="dd/MM/yyyy"` con `valueFormat="iso"`. El input muestra `dd/MM/yyyy`; un valor ISO (`2026-01-15`) se muestra como `15/01/2026`, y una fecha completa y válida se reporta como ISO (`yyyy-MM-dd`) en `onChange` y `onBlur`. Mientras la fecha está incompleta se reporta tal como se escribió.',
+      },
+    },
+  },
+  render: (args) => {
+    const [date, setDate] = useState('2026-01-15');
+    return (
+      <JPanel variant="ghost" padding="none" className="flex w-80 flex-col gap-3 pb-96">
+        <JDatePicker
+          label="Desde"
+          value={date}
+          mask="dd/MM/yyyy"
+          valueFormat="iso"
+          placeholder="dd/mm/aaaa"
+          onChange={(v) => { args.onChange?.(v); setDate(v); }}
+        />
+        <JLabel size="sm" color="muted">
+          {date ? `Valor: ${date}` : 'Sin fecha seleccionada'}
+        </JLabel>
+      </JPanel>
+    );
+  },
+};

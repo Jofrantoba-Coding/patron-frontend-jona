@@ -3,7 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../lib/cn';
 import { JTextBox } from '../../atoms/JTextBox';
-import { CONTROL_BORDER, FG, FG_MUTED, HOVER_OVERLAY, LINE, ON_PRIMARY, PLACEHOLDER, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
+import { CONTROL_BORDER, DANGER_FG, FG, FG_MUTED, HOVER_OVERLAY, LINE, ON_PRIMARY, PLACEHOLDER, SURFACE, SURFACE_MUTED, TEXT_CAPTION } from '../../theme/tokenClasses';
 
 const DAYS   = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -34,6 +34,16 @@ export interface JDatePickerViewProps {
   timezoneOptions?: string[];
   timeParts:        JDatePickerTimeParts;
   className?:       string;
+  inputId?:         string;
+  name?:            string;
+  label?:           string;
+  error?:           string;
+  errorId:          string;
+  required:         boolean;
+  /** Name of an unlabelled input (the 1.5.1 placeholder name). */
+  ariaLabel?:       string;
+  describedBy?:     string;
+  invalid?:         boolean | 'true' | 'false';
   panelStyle:       React.CSSProperties;
   triggerRef:       React.RefObject<HTMLDivElement>;
   panelRef:         React.RefObject<HTMLDivElement>;
@@ -45,6 +55,7 @@ export interface JDatePickerViewProps {
   onSelectDay:      (date: Date) => void;
   onTimeChange:     (part: 'hour' | 'minute' | 'second', value: string) => void;
   onTimezoneChange: (value: string) => void;
+  onInputBlur:      (text: string) => void;
 }
 
 function buildCalendarDays(year: number, month: number): (Date | null)[] {
@@ -79,9 +90,10 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
   inputValue, open, viewYear, viewMonth, selectedDate, today,
   min, max, disabled, placeholder, showTime, showSeconds, showTimezone,
   timezoneOptions, timeParts, className, panelStyle,
+  inputId, name, label, error, errorId, required, ariaLabel, describedBy, invalid,
   triggerRef, panelRef, inputRef,
   onInputChange, onTriggerClick, onPrevMonth, onNextMonth,
-  onSelectDay, onTimeChange, onTimezoneChange,
+  onSelectDay, onTimeChange, onTimezoneChange, onInputBlur,
 }) => {
   const cells   = buildCalendarDays(viewYear, viewMonth);
   const canPrev = !min || new Date(viewYear, viewMonth, 0) >= min;
@@ -89,6 +101,13 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
 
   return (
     <div className={cn('relative w-full', className)}>
+
+      {label && (
+        <label htmlFor={inputId} className={`mb-1.5 block text-sm font-medium ${FG}`}>
+          {label}
+          {required && <span className={cn('ml-0.5', DANGER_FG)} aria-hidden="true">*</span>}
+        </label>
+      )}
 
       {/* ── Trigger: input + botón calendario ─────────────────────────── */}
       <div
@@ -98,16 +117,23 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           'focus-within:ring-2 focus-within:ring-primary-500',
           disabled && 'cursor-not-allowed opacity-50',
           open      && 'ring-2 ring-primary-500',
+          (invalid === true || invalid === 'true') && 'border-danger-500',
         )}
       >
         <JTextBox
           ref={inputRef}
           type="text"
+          id={inputId}
+          name={name}
+          required={required || undefined}
+          aria-describedby={describedBy}
+          aria-invalid={invalid}
+          onBlur={onInputBlur}
           disabled={disabled}
           value={inputValue}
           onChange={onInputChange}
           placeholder={placeholder}
-          aria-label={placeholder || 'Fecha'}
+          aria-label={ariaLabel}
           className={cn(
             `h-full min-h-0 min-w-0 flex-1 rounded-l-md rounded-r-none border-0 bg-transparent px-3 py-1 text-base ${FG} sm:text-sm`,
             `${PLACEHOLDER} focus-visible:ring-0 disabled:cursor-not-allowed`,
@@ -134,6 +160,8 @@ export const JDatePickerView: React.FC<JDatePickerViewProps> = ({
           </svg>
         </button>
       </div>
+
+      {error && <p id={errorId} className={cn('mt-1', TEXT_CAPTION, DANGER_FG)}>{error}</p>}
 
       {/* ── Panel calendario (portal) ──────────────────────────────────── */}
       {open && createPortal(

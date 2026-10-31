@@ -1,5 +1,5 @@
 // JDatePickerImpl.tsx — JONA Implementation
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useId, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { InterJDatePicker, JDATEPICKER_DEFAULTS } from './InterJDatePicker';
 import { JDatePickerView } from './JDatePickerView';
 import { computeFloatingPosition, floatingStyle } from '../../lib/floating';
@@ -204,7 +204,7 @@ function clampNumber(value: string, min: number, max: number): number {
   return Math.min(max, Math.max(min, parsed));
 }
 
-export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
+export const JDatePickerImpl = React.forwardRef<HTMLInputElement, InterJDatePicker>((props, ref) => {
   const merged = { ...JDATEPICKER_DEFAULTS, ...props };
   const today  = new Date();
   today.setHours(0, 0, 0, 0);
@@ -218,11 +218,23 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
   const showTimezone        = hasTimezoneInMask  || !!props.timezoneOptions?.length;
   const effectiveTimezoneOptions = props.timezoneOptions ?? (showTimezone ? ALL_TIMEZONES : undefined);
 
+  const isIso = merged.valueFormat === 'iso';
+  // R-FRM-6 recipe: an ISO value is shown through the mask, and a complete
+  // valid entry is reported as ISO; anything else is shown and reported as typed.
+  const toDisplay = (value: string): string => {
+    const parts = isIso && value ? parseIsoLike(value, props.timezone) : null;
+    return parts ? formatWithMask(parts, mask) : value;
+  };
+  const toReported = (text: string): string => {
+    const parts = isIso ? parseWithMask(text, mask, props.timezone) : null;
+    return parts ? formatIso(parts, showTime, showSeconds) : text;
+  };
+
   const [internalValue, setInternalValue] = useState('');
   const effectiveValue = props.value ?? internalValue;
-  const [inputValue, setInputValue] = useState(effectiveValue);
+  const [inputValue, setInputValue] = useState(() => toDisplay(effectiveValue));
 
-  useEffect(() => { setInputValue(effectiveValue); }, [effectiveValue]);
+  useEffect(() => { setInputValue(toDisplay(effectiveValue)); }, [effectiveValue]);
 
   const selectedParts   = useMemo(
     () => parseWithMask(inputValue, mask, props.timezone),
@@ -239,6 +251,13 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
   const triggerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const panelRef   = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const inputRef   = useRef<HTMLInputElement>(null) as React.RefObject<HTMLInputElement>;
+  useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
+
+  const generatedId = useId();
+  const inputId = props.id ?? (props.label || props.error ? `${generatedId}-input` : undefined);
+  const errorId = `${inputId ?? generatedId}-error`;
+  const describedBy = [props['aria-describedby'], props.error && errorId].filter(Boolean).join(' ') || undefined;
+  const invalid = props.error ? true : props['aria-invalid'];
 
   const minDate = partsToDate(parseWithMask(props.min, mask, props.timezone));
   const maxDate = partsToDate(parseWithMask(props.max, mask, props.timezone));
@@ -246,7 +265,7 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
   const emitValue = (parts: DateParts) => {
     const next = formatValue(parts, mask, merged.valueFormat, showTime, showSeconds);
     setInternalValue(next);
-    setInputValue(next);
+    setInputValue(toDisplay(next));
     props.onChange?.(next);
   };
 
@@ -279,9 +298,10 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
 
   const handleInputChange = (value: string) => {
     const next = merged.autoApplyMask ? applyInputMask(value, mask) : value;
-    setInternalValue(next);
+    const reported = toReported(next);
+    setInternalValue(reported);
     setInputValue(next);
-    props.onChange?.(next);
+    props.onChange?.(reported);
   };
 
   const handleSelect = (date: Date) => {
@@ -347,6 +367,16 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
       timezoneOptions={effectiveTimezoneOptions}
       timeParts={selectedParts ?? partsFromDate(effectiveSelected ?? today, null, props.timezone)}
       className={props.className}
+      inputId={inputId}
+      name={props.name}
+      label={props.label}
+      error={props.error}
+      errorId={errorId}
+      required={!!props.required}
+      ariaLabel={props.label || props.id ? undefined : merged.placeholder || 'Fecha'}
+      describedBy={describedBy}
+      invalid={invalid}
+      onInputBlur={(text) => props.onBlur?.(toReported(text))}
       panelStyle={panelStyle}
       triggerRef={triggerRef}
       panelRef={panelRef}
@@ -366,6 +396,6 @@ export const JDatePickerImpl: React.FC<InterJDatePicker> = (props) => {
       onTimezoneChange={handleTimezoneChange}
     />
   );
-};
+});
 
 JDatePickerImpl.displayName = 'JDatePicker';
