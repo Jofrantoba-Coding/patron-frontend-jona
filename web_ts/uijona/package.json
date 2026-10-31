@@ -1,6 +1,6 @@
 {
   "name": "jona-ui",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "JONA Design System - Atomic Design + Observer pattern. Tree-shakeable React component library.",
   "author": "jofrantoba",
   "license": "MIT",
@@ -438,6 +438,11 @@
       "import": "./dist/layouts/JAppShell.js",
       "require": "./dist/layouts/JAppShell.cjs",
       "types": "./dist/layouts/JAppShell.d.ts"
+    },
+    "./layouts/JAuthLayout": {
+      "import": "./dist/layouts/JAuthLayout.js",
+      "require": "./dist/layouts/JAuthLayout.cjs",
+      "types": "./dist/layouts/JAuthLayout.d.ts"
     },
     "./organisms/JHeroDynamic": {
       "import": "./dist/organisms/JHeroDynamic.js",

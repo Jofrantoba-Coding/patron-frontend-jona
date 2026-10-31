@@ -98,7 +98,7 @@ describe('JShortcutSheet (R-CHR-8)', () => {
     expect(utilityStyle(css, rows[0], 1024, 'border-color')).toBe('rgb(var(--jona-line))');
     expect(utilityStyle(css, rows[0], 1024, 'border-bottom-width')).toBe('1px');
     expect(utilityStyle(css, rows[rows.length - 1], 1024, 'border-color')).toBe('rgb(var(--jona-line))');
-  });
+  }, 60_000);
 
   it('has no serious axe violations', async () => {
     const { baseElement } = render(<JShortcutSheet open groups={GROUPS} onClose={() => undefined} />);

@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJAccordion, JAccordionItem, JAccordionSize, JAccordionVariant } from './InterJAccordion';
 import { JPanel } from '../../atoms/JPanel/JPanel';
+import { DIVIDE, FG, FG_MUTED, HOVER_SURFACE_MUTED, LINE, SURFACE } from '../../theme/tokenClasses';
 
 // ── Style maps ────────────────────────────────────────────────────────────────
 
@@ -19,14 +20,14 @@ const CONTENT_SIZE: Record<JAccordionSize, string> = {
 };
 
 const CONTAINER_VARIANT: Record<JAccordionVariant, string> = {
-  default:  'w-full divide-y divide-neutral-200 rounded-md border border-neutral-200 bg-white',
+  default:  `w-full divide-y ${DIVIDE} rounded-md border ${LINE} ${SURFACE}`,
   bordered: 'w-full flex flex-col gap-2',
-  ghost:    'w-full divide-y divide-neutral-100',
+  ghost:    `w-full divide-y ${DIVIDE}`,
 };
 
 const ITEM_VARIANT: Record<JAccordionVariant, string> = {
   default:  '',
-  bordered: 'rounded-md border border-neutral-200 bg-white overflow-hidden',
+  bordered: `rounded-md border ${LINE} ${SURFACE} overflow-hidden`,
   ghost:    '',
 };
 
@@ -80,8 +81,8 @@ export const JAccordionView: React.FC<JAccordionViewProps> = ({
               onClick={() => onItemToggle(item)}
               style={{ ...headerStyle, ...item.headerStyle }}
               className={cn(
-                'flex w-full items-center justify-between gap-3 text-left font-medium text-neutral-900',
-                'transition-colors hover:bg-neutral-50',
+                `flex w-full items-center justify-between gap-3 text-left font-medium ${FG}`,
+                `transition-colors ${HOVER_SURFACE_MUTED}`,
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 TRIGGER_SIZE[size],
@@ -91,7 +92,7 @@ export const JAccordionView: React.FC<JAccordionViewProps> = ({
             >
               <span className="flex min-w-0 items-center gap-2">
                 {item.icon && (
-                  <span className="shrink-0 text-neutral-500" aria-hidden="true">
+                  <span className={cn('shrink-0', FG_MUTED)} aria-hidden="true">
                     {item.icon}
                   </span>
                 )}
@@ -101,7 +102,8 @@ export const JAccordionView: React.FC<JAccordionViewProps> = ({
               <span
                 aria-hidden="true"
                 className={cn(
-                  'shrink-0 text-neutral-400 transition-transform duration-200',
+                  'shrink-0 transition-transform duration-200',
+                  FG_MUTED,
                   open && 'rotate-180',
                 )}
               >
@@ -126,7 +128,7 @@ export const JAccordionView: React.FC<JAccordionViewProps> = ({
               <div className="overflow-hidden">
                 <div
                   style={{ ...contentStyle, ...item.contentStyle }}
-                  className={cn('text-neutral-600', CONTENT_SIZE[size], contentClassName, item.contentClassName)}
+                  className={cn(FG_MUTED, CONTENT_SIZE[size], contentClassName, item.contentClassName)}
                 >
                   {item.content}
                 </div>

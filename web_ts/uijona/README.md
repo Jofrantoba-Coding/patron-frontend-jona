@@ -33,6 +33,57 @@ Si necesitas tokens CSS de tema, tambien puedes importar:
 import 'jona-ui/theme/tokens.css';
 ```
 
+### Estilos base (opcional, desde 1.6.0)
+
+`jona-ui/base.css` aplica la escala tipografica al `body` (texto base sobre `surface`/`fg`) y a `h1`-`h3`. No lo importa `index.css`: es opt-in. Importalo despues de `index.css`:
+
+```tsx
+import 'jona-ui/index.css';
+import 'jona-ui/base.css';
+```
+
+### Tema claro, oscuro o del sistema (opcional, desde 1.6.0)
+
+Sin configuracion los componentes se ven claros, como en 1.5.x. Para ofrecer `light`, `dark` o `system`, monta `JonaThemeModeProvider` y usa `useThemeMode()` para leer o cambiar el modo (se guarda en `localStorage['jona-theme-mode']`):
+
+```tsx
+import { JonaThemeModeProvider, useThemeMode } from 'jona-ui';
+
+<JonaThemeModeProvider defaultMode="system">
+  <App />
+</JonaThemeModeProvider>;
+
+const { mode, resolved, setMode } = useThemeMode();
+```
+
+Para evitar el parpadeo claro antes del primer render, inyecta `themeInitScript()` en el `<head>` de `index.html`. Con Vite, por ejemplo:
+
+```ts
+// vite.config.ts
+import { themeInitScript } from 'jona-ui/theme';
+
+export default defineConfig({
+  plugins: [{
+    name: 'jona-theme-init',
+    transformIndexHtml: () => [{ tag: 'script', children: themeInitScript(), injectTo: 'head-prepend' }],
+  }],
+});
+```
+
+El script aplica el modo guardado y pone `data-theme-mode` (la eleccion) y `data-theme` (`light` o `dark`) en `<html>`. Algunas vistas de marketing aun conservan sus colores claros en modo oscuro (ver `CHANGELOG.md`).
+
+### Notificaciones
+
+Monta un solo `ToastProvider` en la raiz de la app. Para pantallas de aplicacion recomendamos `position="top-right"`, asi los toasts no tapan las acciones del pie de pagina. Los toasts `danger` se anuncian como `role="alert"` y conviene darles `duration: 0` para que el usuario los cierre:
+
+```tsx
+import { ToastProvider } from 'jona-ui';
+
+<ToastProvider position="top-right" label="Notificaciones" dismissLabel="Cerrar">
+  <App />
+</ToastProvider>;
+```
+
 ## Uso Rapido
 
 Import directo recomendado para favorecer tree-shaking:
@@ -103,7 +154,7 @@ Densidad de botones: desde 1.5.2, `JButton` y `JIcon` aceptan `density`, que fij
 | --- | --- |
 | `touch` | 44 px en todos los anchos |
 | `compact` | 36 px en todos los anchos |
-| `auto` | 44 px en movil, 36 px desde `sm` |
+| `auto` | 44 px en movil, 36 px desde `sm`; desde 1.6.0 sigue `--jona-control-h`, asi que un ancestro con `data-jona-density="compact"` o `"touch"` la cambia |
 
 ```tsx
 <JButton density="touch">Guardar</JButton>
@@ -178,6 +229,12 @@ import { JHomeLogin } from 'jona-ui/pages/JHomeLogin';
 | `JCheckBoxField` | Checkbox con label y descripcion |
 | `JCombobox` | JCombobox con busqueda y seleccion |
 | `JContactMethodCard` | Medio de contacto con icono, texto y accion |
+| `JContextChip` | Contexto de trabajo de solo lectura (empresa, punto de venta, periodo) |
+| `JDataGrid` | Grilla seleccionable con teclado, estados de carga y de fila |
+| `JErrorSummary` | Resumen de errores de un formulario (role=alert) |
+| `JField` | Campo que cablea label, ayuda, error y aria a cualquier control |
+| `JFormSection` | Grupo de campos con titulo y error |
+| `JInputGroup` | Grupo de controles en linea, con preset para lookups |
 | `JOptionPane` | Dialogo de confirmacion |
 | `JDataTable` | Tabla de datos con columnas configurables |
 | `JDatePicker` | Selector de fecha |
@@ -192,6 +249,7 @@ import { JHomeLogin } from 'jona-ui/pages/JHomeLogin';
 | `JMultiSelect` | Selector multiple con busqueda |
 | `JNumberedStep` | Paso numerado con titulo y descripcion |
 | `JNumberInput` | Entrada numerica con stepper, min y max |
+| `JPageHeader` | Encabezado de pagina con migas, conteo, acciones y busqueda |
 | `JPagination` | Navegacion paginada |
 | `JPopover` | Contenido flotante anclado a un trigger |
 | `JProgressItem` | Metrica con porcentaje y barra de progreso |
@@ -202,6 +260,7 @@ import { JHomeLogin } from 'jona-ui/pages/JHomeLogin';
 | `JSectionHeading` | Encabezado de seccion con eyebrow y descripcion |
 | `JSelectField` | Select con label, ayuda y error |
 | `JServiceCard` | Tarjeta de servicio con icono y accion |
+| `JShortcutSheet` | Dialogo con los atajos de teclado |
 | `JSkeletonPresets` | Presets de skeleton |
 | `JStatCard` | Metrica compacta para dashboards |
 | `JStepper` | Indicador de progreso por pasos |
@@ -210,15 +269,18 @@ import { JHomeLogin } from 'jona-ui/pages/JHomeLogin';
 | `JTabs` | Navegacion por tabs |
 | `JTimer` | Temporizador visual |
 | `JToast` | Unidad visual de notificacion |
+| `JToolbar` | Barra de acciones con grupos, atajos y menu de desborde |
 | `JTooltip` | Tooltip con portal |
+| `JTreeNav` | Arbol de navegacion con filtro, insignias y variante checkbox |
 | `JUserAvatar` | Avatar con metadata de usuario |
+| `JUserMenu` | Menu de usuario con acciones y grupo de opciones |
 
 ### Layouts, Organisms Y Pages
 
 | Tipo | Exports |
 | --- | --- |
-| Layouts | `JBorderLayout`, `JFlowLayout`, `JBoxLayout`, `JGridLayout`, `JCardLayout`, `JGridBagLayout`, `JGroupLayout`, `JSpringLayout`, `JSidebarLayout` |
-| Organisms | `JMarketingHero`, `JMetricsBand`, `JContactMethods`, `JContactSteps`, `JDetailHero`, `JDetailCTA`, `JSiteFooter`, `JMarketingCTA`, `JLogin`, `JRecoverPassword`, `JCreateAccount`, `JErrorPage`, `JHeaderPage`, `JFooterPage` |
+| Layouts | `JBorderLayout`, `JFlowLayout`, `JBoxLayout`, `JGridLayout`, `JCardLayout`, `JGridBagLayout`, `JGroupLayout`, `JSpringLayout`, `JSidebarLayout`, `JFieldGrid`, `JAppShell`, `JAuthLayout` |
+| Organisms | `JMarketingHero`, `JMetricsBand`, `JContactMethods`, `JContactSteps`, `JDetailHero`, `JDetailCTA`, `JSiteFooter`, `JMarketingCTA`, `JLogin`, `JRecoverPassword`, `JCreateAccount`, `JErrorPage`, `JHeaderPage`, `JFooterPage`, `JWorkspaceTabs` |
 | Pages | `JHomeLogin`, `JHomeRecoverPassword`, `JHomeCreateAccount`, `JHomeError` |
 
 ### Hooks Y Tema
@@ -228,8 +290,12 @@ import { JHomeLogin } from 'jona-ui/pages/JHomeLogin';
 | `ToastProvider` | Provider de notificaciones |
 | `useToast` | API base para crear y cerrar toasts |
 | `useToastHelpers` | Helpers `success`, `error`, `warning`, `info` |
+| `ConfirmProvider` / `useConfirm` | Confirmaciones con promesa (`await confirm({ title })`), en cola FIFO |
+| `JonaThemeModeProvider` / `useThemeMode` | Modo de tema `light`, `dark` o `system`, persistido |
+| `themeInitScript` | Script para aplicar el modo guardado antes del primer render |
 | `theme` | Tokens y helpers de tema |
 | `tokens.css` | Variables CSS base |
+| `base.css` | Estilos base opcionales: `body` y `h1`-`h3` |
 
 ## Patron JONA
 

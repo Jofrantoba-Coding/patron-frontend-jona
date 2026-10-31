@@ -88,6 +88,7 @@ export * from './layouts/JSpringLayout';
 export * from './layouts/JSidebarLayout';
 export * from './layouts/JFieldGrid';
 export * from './layouts/JAppShell';
+export * from './layouts/JAuthLayout';
 
 // Organisms
 export * from './organisms/JHeroDynamic';

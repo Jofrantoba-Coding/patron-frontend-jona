@@ -16,7 +16,8 @@ export const HOVER_SURFACE_MUTED = 'hover:bg-[rgb(var(--jona-surface-muted))]';
 /** A translucent fg wash: a hover that shows on any surface, in both modes. */
 export const HOVER_OVERLAY = 'hover:bg-[rgb(var(--jona-fg)/0.06)]';
 export const FOCUS_OVERLAY = 'focus-visible:bg-[rgb(var(--jona-fg)/0.06)]';
-export const BACKDROP = 'bg-[rgb(var(--jona-neutral-900)/0.5)]';
+/** Modal scrim: neutral-900 at 50% in light; black at 70% in dark, so it still dims a dark page. */
+export const BACKDROP = 'bg-[rgb(var(--jona-backdrop)/var(--jona-backdrop-alpha))]';
 /** Inverted pair for dark-on-light chrome (toasts, tooltips); flips with the mode. */
 export const INVERSE = 'bg-[rgb(var(--jona-fg))] text-[rgb(var(--jona-surface))]';
 

@@ -39,7 +39,7 @@ export const JPaginationView: React.FC<InterJPagination> = ({
       <JButton variant="ghost" type="button" aria-label="Go to previous page" disabled={currentPage <= 1}
         onClick={() => { if (currentPage <= 1) { onFirstPageReached?.(); return; } onPrevious?.(currentPage); onPageChange?.(currentPage - 1); }}
         className={cn(btnBase, `gap-1 pr-3 ${FG_MUTED} ${HOVER_OVERLAY} border ${LINE}`)}>
-        <ChevronLeft /><span className="hidden sm:inline">Previous</span>
+        <span className="inline-flex items-center gap-1"><ChevronLeft /><span className="hidden sm:inline">Previous</span></span>
       </JButton>
       {pages.map((page, i) => page === '...' ? (
         <span key={`e-${i}`} className={`shrink-0 px-2 ${FG_MUTED} select-none`}>…</span>
@@ -51,7 +51,7 @@ export const JPaginationView: React.FC<InterJPagination> = ({
       <JButton variant="ghost" type="button" aria-label="Go to next page" disabled={currentPage >= totalPages}
         onClick={() => { if (currentPage >= totalPages) { onLastPageReached?.(); return; } onNext?.(currentPage); onPageChange?.(currentPage + 1); }}
         className={cn(btnBase, `gap-1 pl-3 ${FG_MUTED} ${HOVER_OVERLAY} border ${LINE}`)}>
-        <span className="hidden sm:inline">Next</span><ChevronRight />
+        <span className="inline-flex items-center gap-1"><span className="hidden sm:inline">Next</span><ChevronRight /></span>
       </JButton>
     </nav>
   );

@@ -344,22 +344,22 @@
     },
     {
       "file": "molecules/JDialog/JDialogView.tsx",
-      "line": 52,
+      "line": 53,
       "token": "flex-row"
     },
     {
       "file": "molecules/JDrawer/JDrawerView.tsx",
-      "line": 83,
+      "line": 84,
       "token": "flex-row"
     },
     {
       "file": "molecules/JEmptyState/JEmptyStateView.tsx",
-      "line": 16,
+      "line": 17,
       "token": "flex-row"
     },
     {
       "file": "molecules/JEmptyState/JEmptyStateView.tsx",
-      "line": 25,
+      "line": 26,
       "token": "flex-row"
     },
     {
@@ -374,7 +374,7 @@
     },
     {
       "file": "molecules/JOptionPane/JOptionPaneView.tsx",
-      "line": 75,
+      "line": 83,
       "token": "flex-row"
     },
     {
@@ -384,7 +384,7 @@
     },
     {
       "file": "molecules/JSearchInput/JSearchInputView.tsx",
-      "line": 49,
+      "line": 50,
       "token": "flex-row"
     },
     {
@@ -404,47 +404,52 @@
     },
     {
       "file": "molecules/JStatCard/JStatCardView.tsx",
-      "line": 33,
+      "line": 34,
       "token": "flex-row"
     },
     {
       "file": "molecules/JStatCard/JStatCardView.tsx",
-      "line": 47,
+      "line": 48,
       "token": "flex-row"
     },
     {
       "file": "molecules/JStatCard/JStatCardView.tsx",
-      "line": 50,
+      "line": 51,
       "token": "flex-row"
     },
     {
       "file": "molecules/JTable/JTableView.tsx",
-      "line": 137,
+      "line": 142,
       "token": "flex-row"
     },
     {
       "file": "molecules/JTable/JTableView.tsx",
-      "line": 139,
+      "line": 144,
+      "token": "flex-row"
+    },
+    {
+      "file": "molecules/JTable/JTableView.tsx",
+      "line": 461,
       "token": "flex-row"
     },
     {
       "file": "molecules/JTimer/JTimerView.tsx",
-      "line": 132,
+      "line": 133,
       "token": "flex-row"
     },
     {
       "file": "molecules/JTimer/JTimerView.tsx",
-      "line": 147,
+      "line": 148,
       "token": "flex-row"
     },
     {
       "file": "organisms/JDashboardPreview/JDashboardPreviewView.tsx",
-      "line": 25,
+      "line": 26,
       "token": "flex-row"
     },
     {
       "file": "organisms/JDashboardPreview/JDashboardPreviewView.tsx",
-      "line": 55,
+      "line": 56,
       "token": "flex-row"
     },
     {
