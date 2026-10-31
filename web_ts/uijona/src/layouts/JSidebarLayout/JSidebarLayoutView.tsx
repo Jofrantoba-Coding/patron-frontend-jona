@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '../../lib/cn';
 import { InterJSidebarLayout, SidebarNavItem, SidebarNavGroup } from './InterJSidebarLayout';
 import { JPanel } from '../../atoms/JPanel/JPanel';
+import { BACKDROP, FG_MUTED, HOVER_FG, HOVER_OVERLAY, LINE, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 interface JSidebarLayoutViewProps extends Omit<InterJSidebarLayout, 'defaultCollapsed' | 'collapsible'> {
   collapsed: boolean;
@@ -25,7 +26,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
   return (
     <JPanel>
       {group.label && !collapsed && (
-        <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-neutral-400">{group.label}</p>
+        <p className={`px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider ${FG_MUTED}`}>{group.label}</p>
       )}
       {group.items.map((item) => {
         const isActive = item.key === activeKey;
@@ -41,7 +42,7 @@ function NavGroup({ group, activeKey, collapsed, onItemClick }: {
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
               isActive
                 ? 'bg-primary-50 text-primary-700'
-                : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                : `${FG_MUTED} ${HOVER_OVERLAY} ${HOVER_FG}`
             )}
           >
             {item.icon && <span className="shrink-0" aria-hidden="true">{item.icon}</span>}
@@ -69,11 +70,11 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
     <JPanel
       layout="box"
       direction="row"
-      className={cn('min-h-screen bg-neutral-50', className)}
+      className={cn(`min-h-screen ${SURFACE_MUTED}`, className)}
     >
       {mobileOpen && (
         <JPanel
-          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          className={`fixed inset-0 z-30 ${BACKDROP} lg:hidden`}
           aria-hidden="true"
           onClick={onCloseMobile}
         />
@@ -92,7 +93,7 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
         tabIndex={mobileOpen ? -1 : undefined}
         onKeyDown={onSidebarKeyDown}
         className={cn(
-          'fixed inset-y-0 left-0 z-40 shrink-0 border-r border-neutral-200 bg-white transition-all duration-300 ease-in-out',
+          `fixed inset-y-0 left-0 z-40 shrink-0 border-r ${LINE} ${SURFACE} transition-all duration-300 ease-in-out`,
           'lg:static lg:z-auto',
           mobileOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full lg:translate-x-0',
           sidebarClassName
@@ -103,7 +104,7 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
             type="button"
             onClick={onCloseMobile}
             aria-label="Cerrar menú"
-            className="absolute right-1 top-1 z-10 inline-flex h-11 w-11 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 lg:hidden"
+            className={`absolute right-1 top-1 z-10 inline-flex h-11 w-11 items-center justify-center rounded-md ${FG_MUTED} ${HOVER_OVERLAY} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 lg:hidden`}
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -116,7 +117,7 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
             direction="row"
             alignItems="center"
             justifyContent={collapsed ? 'center' : 'start'}
-            className="shrink-0 border-b border-neutral-100 px-3 py-3"
+            className={`shrink-0 border-b ${LINE} px-3 py-3`}
           >
             {header}
           </JPanel>
@@ -147,7 +148,7 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
         <JPanel
           layout="box"
           gap="xs"
-          className="shrink-0 border-t border-neutral-100 p-2"
+          className={`shrink-0 border-t ${LINE} p-2`}
         >
           {footer && !collapsed && (
             <JPanel className="min-w-0 px-1 py-1">{footer}</JPanel>
@@ -158,7 +159,7 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
               onClick={onToggleCollapse}
               aria-label={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
               className={cn(
-                'flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-800',
+                `flex items-center gap-2 rounded-md px-3 py-2 text-sm ${FG_MUTED} transition-colors ${HOVER_OVERLAY} ${HOVER_FG}`,
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
                 collapsed && 'justify-center'
               )}
@@ -182,14 +183,14 @@ export const JSidebarLayoutView: React.FC<JSidebarLayoutViewProps> = ({
           layout="box"
           direction="row"
           alignItems="center"
-          className="shrink-0 border-b border-neutral-200 bg-white px-4 py-3 lg:hidden"
+          className={`shrink-0 border-b ${LINE} ${SURFACE} px-4 py-3 lg:hidden`}
         >
           <button
             type="button"
             onClick={onToggleMobile}
             aria-label="Abrir menú"
             aria-expanded={mobileOpen}
-            className="-ml-1.5 mr-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className={`-ml-1.5 mr-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-md ${FG_MUTED} ${HOVER_OVERLAY} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500`}
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>

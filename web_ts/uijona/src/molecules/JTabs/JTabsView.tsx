@@ -3,6 +3,7 @@ import React, { createContext, useContext } from 'react';
 import { cn } from '../../lib/cn';
 import { JButton } from '../../atoms/JButton/JButton';
 import { InterJTabs } from './InterJTabs';
+import { FG, FG_MUTED, HOVER_CONTROL_BORDER, HOVER_FG, LINE, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 // ── Context ────────────────────────────────────────────────────────────────
 interface JTabsContextValue {
@@ -55,8 +56,8 @@ export const JTabsListView: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
           ? 'flex-row overflow-x-auto sm:flex-col sm:overflow-visible'
           : 'flex-row overflow-x-auto',
         variant === 'pill'
-          ? 'gap-1 rounded-md bg-neutral-100 p-1'
-          : 'gap-0 border-b border-neutral-200',
+          ? `gap-1 rounded-md ${SURFACE_MUTED} p-1`
+          : `gap-0 border-b ${LINE}`,
         className,
       )}
       {...props}
@@ -96,14 +97,14 @@ export const JTabsTriggerView: React.FC<JTabsTriggerViewProps> = ({
           ? cn(
               'rounded px-3 py-1.5',
               isActive
-                ? 'bg-white text-neutral-900 shadow-sm'
-                : 'text-neutral-500 hover:text-neutral-700',
+                ? `${SURFACE} ${FG} shadow-sm`
+                : `${FG_MUTED} ${HOVER_FG}`,
             )
           : cn(
               '-mb-px rounded-none border-b-2 px-4 py-2',
               isActive
                 ? 'border-primary-600 text-primary-600'
-                : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700',
+                : `border-transparent ${FG_MUTED} ${HOVER_CONTROL_BORDER} ${HOVER_FG}`,
             ),
         className,
       )}

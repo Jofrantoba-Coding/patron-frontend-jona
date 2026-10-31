@@ -5,6 +5,7 @@ import { cn } from '../../lib/cn';
 import { JButton } from '../../atoms/JButton';
 import { InterJDialog, JDialogSize } from './InterJDialog';
 import { JPanel } from '../../atoms/JPanel/JPanel';
+import { BACKDROP, FG, FG_MUTED, HOVER_FG, HOVER_OVERLAY, LINE, SURFACE_MUTED, SURFACE_RAISED, TEXT_SECTION } from '../../theme/tokenClasses';
 
 // ── Style maps ────────────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         variant="ghost"
         padding="none"
         radius="none"
-        className="absolute inset-0 bg-black/50"
+        className={`absolute inset-0 ${BACKDROP}`}
         aria-hidden="true"
         onClick={onOverlayClick}
       />
@@ -83,7 +84,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         onClick={(e) => e.stopPropagation()}
         onKeyDown={onPanelKeyDown}
         className={cn(
-          'relative z-10 flex w-full flex-col rounded-lg bg-white shadow-xl focus:outline-none overflow-hidden',
+          `relative z-10 flex w-full flex-col rounded-lg ${SURFACE_RAISED} shadow-xl focus:outline-none overflow-hidden`,
           'max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)]',
           SIZE_CLASS[size],
           className,
@@ -92,13 +93,13 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
         {/* ── North: Barra de título ───────────────────────────────────── */}
         <div
           className={cn(
-            'flex shrink-0 flex-row items-center bg-neutral-50 border-b border-neutral-200',
+            `flex shrink-0 flex-row items-center ${SURFACE_MUTED} border-b ${LINE}`,
             titleBarClassName,
           )}
         >
           {/* West: ícono opcional */}
           {titleIcon && (
-            <span className="flex items-center pl-3 pr-1 py-3 shrink-0 text-neutral-500">
+            <span className={`flex items-center pl-3 pr-1 py-3 shrink-0 ${FG_MUTED}`}>
               {titleIcon}
             </span>
           )}
@@ -114,7 +115,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
             {title && (
               <h2
                 id="jdialog-title"
-                className="truncate text-sm font-semibold text-neutral-900 leading-tight"
+                className={`truncate ${TEXT_SECTION} ${FG}`}
               >
                 {title}
               </h2>
@@ -122,7 +123,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
             {description && (
               <p
                 id="jdialog-desc"
-                className="break-words text-xs text-neutral-500 leading-snug"
+                className={`break-words text-xs ${FG_MUTED} leading-snug`}
               >
                 {description}
               </p>
@@ -137,7 +138,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
                 size="icon"
                 onClick={onCloseClick}
                 aria-label="Close dialog"
-                className="h-11 w-11 sm:h-8 sm:w-8 sm:min-h-8 sm:min-w-8 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-200"
+                className={`h-11 w-11 sm:h-8 sm:w-8 sm:min-h-8 sm:min-w-8 ${FG_MUTED} ${HOVER_FG} ${HOVER_OVERLAY}`}
               >
                 <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -153,7 +154,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
           variant="ghost"
           padding="none"
           radius="none"
-          className={cn('min-h-0 min-w-0 flex-1 overflow-auto p-3 text-sm text-neutral-700 sm:p-4', contentClassName)}
+          className={cn(`min-h-0 min-w-0 flex-1 overflow-auto p-3 text-sm ${FG} sm:p-4`, contentClassName)}
         >
           {children}
         </JPanel>
@@ -168,7 +169,7 @@ export const JDialogView: React.FC<JDialogViewProps> = ({
             justifyContent="end"
             gap="sm"
             className={cn(
-              'flex shrink-0 flex-wrap px-4 py-3 bg-neutral-50 border-t border-neutral-200',
+              `flex shrink-0 flex-wrap px-4 py-3 ${SURFACE_MUTED} border-t ${LINE}`,
               footerClassName,
             )}
           >

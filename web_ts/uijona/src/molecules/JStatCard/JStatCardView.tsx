@@ -1,19 +1,20 @@
 ﻿import React from 'react';
 import { cn } from '../../lib/cn';
+import { DANGER_BG, DANGER_FG, SUCCESS_BG, SUCCESS_FG, WARNING_BG, WARNING_FG } from '../../theme/tokenClasses';
 import { InterJStatCard, StatCardTone, StatCardTrend } from './InterJStatCard';
 import { JPanel } from '../../atoms/JPanel/JPanel';
 
 const toneClasses: Record<StatCardTone, string> = {
   neutral: 'bg-neutral-100 text-neutral-600',
-  success: '',
-  warning: '',
-  danger: '',
+  success: `${SUCCESS_BG} ${SUCCESS_FG}`,
+  warning: `${WARNING_BG} ${WARNING_FG}`,
+  danger: `${DANGER_BG} ${DANGER_FG}`,
   info: 'bg-primary-50 text-primary-700',
 };
 
 const trendClasses: Record<StatCardTrend, string> = {
-  up: '',
-  down: '',
+  up: SUCCESS_FG,
+  down: DANGER_FG,
   flat: 'text-neutral-500',
 };
 

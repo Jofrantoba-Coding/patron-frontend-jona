@@ -18,7 +18,7 @@ export const JHeaderPageView: React.FC<InterJHeaderPage> = ({
     )}
   >
     {/* Title / Logo */}
-    <JPanel variant="ghost" padding="none" radius="none" className="min-w-0 flex-1 truncate text-lg font-semibold text-primary-600 md:flex-none">
+    <JPanel variant="ghost" padding="none" radius="none" className="w-auto min-w-0 flex-1 truncate text-lg font-semibold text-primary-600 md:flex-none">
       {title}
     </JPanel>
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { cn } from '../../lib/cn';
 import { JSWITCH_DEFAULTS, InterJSwitch, JSwitchSize } from './InterJSwitch';
-import { LINE_BG_STRONG, ON_PRIMARY_BG } from '../../theme/tokenClasses';
+import { DANGER_BG_STRONG, LINE_BG_STRONG, ON_PRIMARY_BG } from '../../theme/tokenClasses';
 
 const trackSize: Record<JSwitchSize, string> = {
   sm: 'w-8 h-4',
@@ -73,7 +73,7 @@ export const JSwitchView: React.FC<JSwitchViewProps> = ({
         trackSize[size],
         effectiveChecked
           ? hasError ? 'bg-danger-500'  : 'bg-primary-600'
-          : !hasError && LINE_BG_STRONG,
+          : hasError ? DANGER_BG_STRONG : LINE_BG_STRONG,
         className
       )}
     >
