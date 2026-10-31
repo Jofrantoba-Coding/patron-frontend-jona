@@ -1,0 +1,17 @@
+[
+  {
+    "regla": "JONA-N3",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la vista importa servicios/AuthServiceHttp.ts, un servicio"
+  },
+  {
+    "regla": "JONA-N3",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la vista importa servicios/InterAuthService.ts, un servicio"
+  },
+  {
+    "regla": "JONA-N4",
+    "archivo": "App.ts",
+    "mensaje": "importa uilogin/UiLoginView.ts, interno de la unidad uilogin; use su entrada: uilogin/UiLoginImpl.ts"
+  }
+]
