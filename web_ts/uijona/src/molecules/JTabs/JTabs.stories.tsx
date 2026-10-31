@@ -3,6 +3,7 @@ import { fn } from '@storybook/test';
 import { useState } from 'react';
 import { JTabs, JTabsList, JTabsTrigger, JTabsContent, JTABS_DEFAULTS } from './JTabs';
 import { JLabel } from '../../atoms/JLabel';
+import { JTextBox } from '../../atoms/JTextBox';
 
 const meta: Meta<typeof JTabs> = {
   title: 'Molecules/JTabs',
@@ -173,6 +174,50 @@ export const Interactive: Story = {
               {tabData.notificaciones.split('\n').map((line, i) => <JLabel key={i} size="sm" color="muted">{line}</JLabel>)}
             </div>
           </JTabsContent>
+        </JTabs>
+      </div>
+    );
+  },
+};
+
+export const KeepMounted: Story = {
+  parameters: {
+    docs: { description: { story: '`keepMounted`: los paneles inactivos quedan montados y `hidden`, así conservan su estado (escriba en `General`, cambie de pestaña y vuelva).' } },
+  },
+  render: () => {
+    const [tab, setTab] = useState('general');
+    return (
+      <div style={{ width: '420px' }}>
+        <JTabs value={tab} onChange={setTab} variant="line" keepMounted>
+          <JTabsList>
+            <JTabsTrigger value="general">General</JTabsTrigger>
+            <JTabsTrigger value="direcciones">Direcciones</JTabsTrigger>
+          </JTabsList>
+          <JTabsContent value="general" className="mt-2"><JTextBox aria-label="Nombre" defaultValue="Comercial Demo" /></JTabsContent>
+          <JTabsContent value="direcciones" className="mt-2">Dos direcciones registradas</JTabsContent>
+        </JTabs>
+      </div>
+    );
+  },
+};
+
+export const TriggerIndicators: Story = {
+  parameters: {
+    docs: { description: { story: '`JTabsTrigger invalid` muestra un punto y añade la descripción `Con errores`; `count` muestra un contador. Ninguno cambia el nombre accesible de la pestaña.' } },
+  },
+  render: () => {
+    const [tab, setTab] = useState('direcciones');
+    return (
+      <div style={{ width: '420px' }}>
+        <JTabs value={tab} onChange={setTab} variant="line">
+          <JTabsList>
+            <JTabsTrigger value="general" invalid>General</JTabsTrigger>
+            <JTabsTrigger value="direcciones" count={2}>Direcciones</JTabsTrigger>
+            <JTabsTrigger value="padrones" invalid count={1}>Padrones</JTabsTrigger>
+          </JTabsList>
+          <JTabsContent value="general" className="mt-2">Campos generales</JTabsContent>
+          <JTabsContent value="direcciones" className="mt-2">Dos direcciones registradas</JTabsContent>
+          <JTabsContent value="padrones" className="mt-2">Un padrón con error</JTabsContent>
         </JTabs>
       </div>
     );

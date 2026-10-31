@@ -3,7 +3,7 @@ import React, { createContext, useContext } from 'react';
 import { cn } from '../../lib/cn';
 import { JButton } from '../../atoms/JButton/JButton';
 import { InterJTabs } from './InterJTabs';
-import { FG, FG_MUTED, HOVER_CONTROL_BORDER, HOVER_FG, LINE, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
+import { FG, FG_MUTED, HOVER_CONTROL_BORDER, HOVER_FG, LINE, LINE_BG, SURFACE, SURFACE_MUTED } from '../../theme/tokenClasses';
 
 // ── Context ────────────────────────────────────────────────────────────────
 interface JTabsContextValue {
@@ -13,19 +13,20 @@ interface JTabsContextValue {
   onDisabledTabClick?: (v: string) => void;
   variant:             'pill' | 'line';
   orientation:         'horizontal' | 'vertical';
+  keepMounted:         boolean;
 }
 
 export const JTabsContext = createContext<JTabsContextValue>({
-  value: '', onChange: () => {}, variant: 'pill', orientation: 'horizontal',
+  value: '', onChange: () => {}, variant: 'pill', orientation: 'horizontal', keepMounted: false,
 });
 
 // ── Root ───────────────────────────────────────────────────────────────────
 export const JTabsView: React.FC<InterJTabs> = ({
   value, onChange, onTabFocus, onDisabledTabClick,
-  variant = 'pill', orientation = 'horizontal', className, children,
+  variant = 'pill', orientation = 'horizontal', keepMounted = false, className, children,
 }) => (
   <JTabsContext.Provider
-    value={{ value, onChange: onChange ?? (() => {}), onTabFocus, onDisabledTabClick, variant, orientation }}
+    value={{ value, onChange: onChange ?? (() => {}), onTabFocus, onDisabledTabClick, variant, orientation, keepMounted }}
   >
     <div
       className={cn(
@@ -70,10 +71,15 @@ export const JTabsListView: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 // ── TabsTrigger ────────────────────────────────────────────────────────────
 interface JTabsTriggerViewProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string;
+  /** Set when the trigger is invalid: the id of its hidden description. */
+  invalidId?: string;
+  invalidLabel?: string;
+  countId?: string;
+  count?: number;
 }
 
 export const JTabsTriggerView: React.FC<JTabsTriggerViewProps> = ({
-  value, className, children, disabled, ...props
+  value, className, children, disabled, invalidId, invalidLabel, countId, count, ...props
 }) => {
   const { value: activeValue, onChange, onTabFocus, onDisabledTabClick, variant } = useContext(JTabsContext);
   const isActive = activeValue === value;
@@ -111,6 +117,17 @@ export const JTabsTriggerView: React.FC<JTabsTriggerViewProps> = ({
       {...props}
     >
       {children}
+      {invalidId && (
+        <>
+          <span className="ms-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-danger-600 align-middle" aria-hidden="true" />
+          <span id={invalidId} hidden>{invalidLabel}</span>
+        </>
+      )}
+      {countId && (
+        <span id={countId} aria-hidden="true" className={cn('ms-1.5 inline-block rounded-full px-1.5 align-middle text-xs leading-4', LINE_BG, FG)}>
+          {count}
+        </span>
+      )}
     </JButton>
   );
 };
@@ -123,11 +140,13 @@ interface JTabsContentViewProps extends React.HTMLAttributes<HTMLDivElement> {
 export const JTabsContentView: React.FC<JTabsContentViewProps> = ({
   value, className, children, ...props
 }) => {
-  const { value: activeValue } = useContext(JTabsContext);
-  if (activeValue !== value) return null;
+  const { value: activeValue, keepMounted } = useContext(JTabsContext);
+  const active = activeValue === value;
+  if (!active && !keepMounted) return null;
   return (
     <div
       role="tabpanel"
+      hidden={!active}
       tabIndex={0}
       className={cn(
         'min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
