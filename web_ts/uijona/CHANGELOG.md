@@ -35,6 +35,7 @@ An additive minor release: semantic tokens, an opt-in dark theme and base styles
 - **Modal backdrop in dark mode:** the scrim is black at 70% in dark (neutral-900 at 50% in light, unchanged), so a dialog beneath a confirm and the JAppShell drawer backdrop visibly dim a dark page (at least 1.3:1; it was 1.11:1).
 - **JPagination:** the Previous and Next chevrons sit beside their labels from `sm`. The chevron is an svg, which preflight makes `display: block`, so it stacked above the label.
 - **JTable header labels** start at the cell start and are centered vertically. The JTableHead label panel turned `flex` on without a direction, so the JPanel engine stacked and centered it. A filterable header still stacks its label above the filter box.
+- **JStepper current step in dark mode:** the current step number is painted with the `fg` token instead of `primary-700`, so it reads on the dark surface (it was 2.66:1; it now reaches 4.5:1 in light and dark). In light, the number is neutral-900 instead of primary-700; the `primary-600` ring is unchanged. This also applies to the JAuthLayout steps.
 
 ### Changed
 

@@ -9,8 +9,12 @@ import postcss, { type Root } from 'postcss';
 import postcssImport from 'postcss-import';
 import tailwindcss from 'tailwindcss';
 import tailwindConfig from '../../../tailwind.config.js';
+import { render } from '@testing-library/react';
+import { createElement } from 'react';
 import { contrastRatio, resolveRootTokens, rgbOf } from '../css/tokenCascade';
+import { utilityStyle } from '../css/utilityStyle';
 import { BACKDROP } from '../../theme/tokenClasses';
+import { JStepper } from '../../molecules/JStepper';
 
 async function compileStylesheet(): Promise<Root> {
   const from = resolve(process.cwd(), 'src/styles/index.css');
@@ -88,5 +92,41 @@ describe('modal backdrop (a5 deferred: visible over a dark page)', () => {
     const dimmed = over(rgbOf(tokens, '--jona-backdrop'), Number(tokens.get('--jona-backdrop-alpha')), raised);
 
     expect(contrastRatio(raised, dimmed)).toBeGreaterThanOrEqual(1.3);
+  });
+});
+
+/** The `--jona-*` token a compiled `rgb(var(--jona-x) ...)` color value paints with. */
+const tokenOf = (value: string | undefined): string => {
+  const match = /var\((--jona-[\w-]+)\)/.exec(value ?? '');
+  if (!match) throw new Error(`not a token color: ${value}`);
+  return match[1];
+};
+
+describe('JStepper current step number (a10 finding: unreadable in dark)', () => {
+  let css: Root;
+
+  beforeAll(async () => {
+    css = await compileStylesheet();
+  }, 60_000);
+
+  it.each([
+    ['light', {}],
+    ['dark', { 'data-theme-mode': 'dark' }],
+    ['system dark', { 'data-theme-mode': 'system' }],
+  ])('%s mode: the number reaches 4.5:1 on its indicator surface', (mode, attrs) => {
+    const steps = [
+      { id: 'company', label: 'Company' },
+      { id: 'branch', label: 'Branch' },
+      { id: 'warehouse', label: 'Warehouse' },
+    ];
+    const { container } = render(createElement(JStepper, { steps, currentStep: 1 }));
+    const indicator = container.querySelector('li[aria-current="step"] span') as Element;
+    expect(indicator.textContent).toBe('2');
+
+    const tokens = resolveRootTokens(css, { attrs, osDark: mode === 'system dark' });
+    const number = rgbOf(tokens, tokenOf(utilityStyle(css, indicator, 1024, 'color')));
+    const surface = rgbOf(tokens, tokenOf(utilityStyle(css, indicator, 1024, 'background-color')));
+
+    expect(Math.round(contrastRatio(number, surface) * 100) / 100).toBeGreaterThanOrEqual(4.5);
   });
 });
