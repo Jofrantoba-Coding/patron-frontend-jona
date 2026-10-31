@@ -717,6 +717,7 @@ Las dependencias no son las mismas en todas las formas. Una regla universal como
 | La Plantilla, el modelo base o la vista importan servicios | Nunca (N3) | Nunca (N3) | Nunca (N3) | Nunca (N3) |
 | La entrada compone | — (la Impl es la entrada) | Impl + vista + `DEFAULTS` | Reexporta la Impl | Impl + vista + `DEFAULTS` |
 | El resto de la aplicación importa | `UiLoginImpl` | `UiLogin` | `JButton` | `UiLogin` |
+| Composiciones de demostración o prueba (`*.stories`, `*.test`; nada de la aplicación las importa) | Instancian la Plantilla, sin integración | Vista con `DEFAULTS` o estado fijo; entrada con servicio falso | Vista con `DEFAULTS` | Vista con el modelo base o con `DEFAULTS`; entrada con servicio falso |
 
 ```mermaid
 flowchart LR
@@ -793,7 +794,7 @@ flowchart LR
 | Interfaz sin integración | Sí, con la Plantilla | Con un servicio falso o el servidor mock | Sí, con el modelo base |
 | Cantidad de piezas de la unidad | 3 | 4 | 5 a 6 |
 | Pureza de la vista | Mezclada con el comportamiento por defecto | Pura | Pura |
-| Contratos (N1, N2) | Interfaz de capacidades + `InterAuthService` | Modelo de vista con `DEFAULTS`; + `InterAuthService` en la variante a, ninguno de servicio en la b | Modelo de vista con `DEFAULTS` + `InterAuthService` |
+| Contratos (N1, N2) | Interfaz de capacidades; si la unidad depende del sistema, + un contrato de servicio por dependencia (`InterAuthService`) | Modelo de vista con `DEFAULTS`; si depende del sistema, + contrato de servicio (en los ejemplos, la variante a lo tiene y la b no lo necesita) | Modelo de vista con `DEFAULTS`; si depende del sistema, + contrato de servicio (`InterAuthService`) |
 
 La estructura de cualquiera de las tres formas se puede verificar de forma automática, con reglas sobre las dependencias entre archivos. El capítulo 9 muestra cómo.
 

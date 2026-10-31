@@ -39,7 +39,7 @@ Antes de implementar una funcionalidad, frontend y backend se reúnen en una ses
 | Artefacto | Contenido | Responsable | Lo revisa |
 |---|---|---|---|
 | **Contrato de UI** (`InterUiLogin`) | Capacidades o modelo de vista, eventos y `DEFAULTS` | Frontend (diseño e integración) | Revisión de UI |
-| **Contrato de servicio** (`InterAuthService`) | Operaciones asíncronas con tipos de dominio y un modelo de error | Integración (frontend) | Backend |
+| **Contrato de servicio** (`InterAuthService`) | Operaciones que no bloquean la interfaz (asíncronas, o síncronas ejecutadas fuera del hilo de UI), con tipos de dominio y un modelo de error | Integración (frontend) | Backend |
 | **Contrato de API** | Rutas, cuerpos, códigos de estado, cuerpo de error y cabeceras | Frontend y backend, en conjunto | Ambos |
 
 Antes de cerrar la sesión, conviene comprobar que cada contrato responde estas preguntas:
@@ -677,7 +677,7 @@ El capítulo 12 trata estos casos, junto con otros antipatrones observados en la
 - El servidor mock se construye a partir del contrato de API el mismo día, y el desarrollo continúa contra él.
 - El contrato de UI declara capacidades, datos de entrada, eventos de salida y valores por defecto. Admite dos estilos: capacidades como funciones (forma clásica) y modelo de vista (formas por composición).
 - En el estilo de modelo de vista, los eventos entregan primero el valor, `DEFAULTS` lleva solo configuración, un `undefined` explícito resuelve al valor por defecto y la decisión entre controlado y no controlado es parte del contrato.
-- El contrato de servicio es el puerto del frontend: devuelve tipos de dominio, es asíncrono y tiene un solo modelo de error, como `ApiError` en `softcommerce`.
+- El contrato de servicio es el puerto del frontend: devuelve tipos de dominio, no bloquea la interfaz (con una firma asíncrona o, como en Java, ejecutado fuera del hilo de UI) y tiene un solo modelo de error, como `ApiError` en `softcommerce`.
 - El contrato de API describe rutas, cuerpos, códigos, errores y cabeceras. Lo ideal es una especificación legible por máquinas: los ejemplos usan OpenAPI; el proyecto de referencia, un README y pruebas.
 - Una suite de contrato ejecutada contra cada implementación mantiene honestos al mock y al backend.
 - Los contratos evolucionan primero con cambios aditivos; los cambios que rompen se negocian y se versionan.
