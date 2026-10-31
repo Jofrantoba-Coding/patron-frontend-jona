@@ -189,6 +189,11 @@
       "require": "./dist/molecules/JErrorSummary.cjs",
       "types": "./dist/molecules/JErrorSummary.d.ts"
     },
+    "./molecules/JToolbar": {
+      "import": "./dist/molecules/JToolbar.js",
+      "require": "./dist/molecules/JToolbar.cjs",
+      "types": "./dist/molecules/JToolbar.d.ts"
+    },
     "./molecules/JCheckBoxField": {
       "import": "./dist/molecules/JCheckBoxField.js",
       "require": "./dist/molecules/JCheckBoxField.cjs",
