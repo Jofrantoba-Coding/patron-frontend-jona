@@ -108,6 +108,7 @@ export * from './organisms/JCreateAccount';
 export * from './organisms/JErrorPage';
 export * from './organisms/JHeaderPage';
 export * from './organisms/JFooterPage';
+export * from './organisms/JWorkspaceTabs';
 
 // Pages
 export * from './pages/JHomeLogin';

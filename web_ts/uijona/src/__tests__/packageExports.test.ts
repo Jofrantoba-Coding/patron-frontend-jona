@@ -89,6 +89,7 @@ describe('package exports', () => {
       'layouts/JAppShell',
       'molecules/JUserMenu',
       'molecules/JContextChip',
+      'organisms/JWorkspaceTabs',
     ];
 
     SUBPATHS_160.forEach((subpath) => {
