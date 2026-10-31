@@ -1,0 +1,2 @@
+Constructor <jona.gobierno.fixtures.deuda.legado.uilogin.UiLoginView.<init>()> calls constructor <java.util.Timer.<init>()> in (UiLoginView.java:6)
+Field <jona.gobierno.fixtures.deuda.legado.uilogin.UiLoginView.temporizador> has type <java.util.Timer> in (UiLoginView.java:0)

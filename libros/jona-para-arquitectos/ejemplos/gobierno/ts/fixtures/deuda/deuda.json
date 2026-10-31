@@ -1,0 +1,12 @@
+[
+  {
+    "regla": "JONA-N3",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la vista usa sessionStorage; los efectos van en la Implementación o en un adaptador"
+  },
+  {
+    "regla": "JONA-N4",
+    "archivo": "App.ts",
+    "mensaje": "importa uilogin/UiLoginImpl.ts, interno de la unidad uilogin; use su entrada: uilogin/UiLogin.ts o uilogin/index.ts"
+  }
+]
