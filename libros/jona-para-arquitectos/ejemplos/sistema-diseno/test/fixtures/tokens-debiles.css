@@ -1,0 +1,33 @@
+/* Fixture: igual que tokens.css, pero el texto atenuado del tema oscuro es demasiado tenue. */
+:root {
+  --ds-primary-600: 37 99 235;
+  --ds-neutral-50: 248 250 252;
+  --ds-neutral-400: 148 163 184;
+  --ds-neutral-500: 100 116 139;
+  --ds-neutral-600: 71 85 105;
+  --ds-neutral-900: 15 23 42;
+
+  --ds-surface: var(--ds-neutral-50);
+  --ds-fg: var(--ds-neutral-900);
+  --ds-fg-muted: var(--ds-neutral-600);
+  --ds-line-strong: var(--ds-neutral-500);
+  --ds-focus: var(--ds-primary-600);
+  --ds-primary: var(--ds-primary-600);
+  --ds-on-primary: var(--ds-neutral-50);
+}
+
+:root[data-theme-mode='dark'] {
+  --ds-surface: var(--ds-neutral-900);
+  --ds-fg: var(--ds-neutral-50);
+  --ds-fg-muted: var(--ds-neutral-600);
+  --ds-line-strong: var(--ds-neutral-500);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme-mode='system'] {
+    --ds-surface: var(--ds-neutral-900);
+    --ds-fg: var(--ds-neutral-50);
+    --ds-fg-muted: var(--ds-neutral-400);
+    --ds-line-strong: var(--ds-neutral-500);
+  }
+}
