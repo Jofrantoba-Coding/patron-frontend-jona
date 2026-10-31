@@ -1,0 +1,210 @@
+{
+  "generadoPor": "npm run medir (herramientas/medir.ts); lo protege test/resultados.test.ts",
+  "unidad": "líneas de código sin líneas en blanco ni comentarios; diferencias por LCS contra v0, sin espacios",
+  "variantes": {
+    "directo": {
+      "base": {
+        "prod": {
+          "archivos": 1,
+          "lineas": 80
+        },
+        "prueba": {
+          "archivos": 1,
+          "lineas": 52
+        }
+      },
+      "cambios": {
+        "estilo-boton": {
+          "tocados": [
+            "src/login.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": true,
+          "prod": {
+            "agregadas": 2,
+            "eliminadas": 2
+          },
+          "prueba": {
+            "agregadas": 0,
+            "eliminadas": 0
+          }
+        },
+        "campo-recordarme": {
+          "tocados": [
+            "src/login.ts",
+            "test/login.test.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": true,
+          "prod": {
+            "agregadas": 6,
+            "eliminadas": 2
+          },
+          "prueba": {
+            "agregadas": 10,
+            "eliminadas": 1
+          }
+        },
+        "formato-backend": {
+          "tocados": [
+            "src/login.ts",
+            "test/login.test.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": true,
+          "prod": {
+            "agregadas": 12,
+            "eliminadas": 9
+          },
+          "prueba": {
+            "agregadas": 6,
+            "eliminadas": 6
+          }
+        },
+        "segunda-vista": {
+          "tocados": [
+            "src/login.ts",
+            "test/login.test.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": true,
+          "prod": {
+            "agregadas": 8,
+            "eliminadas": 2
+          },
+          "prueba": {
+            "agregadas": 10,
+            "eliminadas": 0
+          }
+        },
+        "prueba-bloqueado": {
+          "tocados": [
+            "test/login.test.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": false,
+          "prod": {
+            "agregadas": 0,
+            "eliminadas": 0
+          },
+          "prueba": {
+            "agregadas": 5,
+            "eliminadas": 0
+          }
+        }
+      }
+    },
+    "jona": {
+      "base": {
+        "prod": {
+          "archivos": 8,
+          "lineas": 209
+        },
+        "prueba": {
+          "archivos": 2,
+          "lineas": 80
+        }
+      },
+      "cambios": {
+        "estilo-boton": {
+          "tocados": [
+            "src/InterUiLogin.ts",
+            "src/UiLoginView.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": false,
+          "prod": {
+            "agregadas": 2,
+            "eliminadas": 2
+          },
+          "prueba": {
+            "agregadas": 0,
+            "eliminadas": 0
+          }
+        },
+        "campo-recordarme": {
+          "tocados": [
+            "src/AuthServiceHttp.ts",
+            "src/InterAuthService.ts",
+            "src/InterUiLogin.ts",
+            "src/UiLoginImpl.ts",
+            "src/UiLoginView.ts",
+            "test/AuthServiceHttp.test.ts",
+            "test/UiLogin.test.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": true,
+          "prod": {
+            "agregadas": 19,
+            "eliminadas": 8
+          },
+          "prueba": {
+            "agregadas": 19,
+            "eliminadas": 3
+          }
+        },
+        "formato-backend": {
+          "tocados": [
+            "src/AuthServiceHttp.ts",
+            "test/AuthServiceHttp.test.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": false,
+          "prod": {
+            "agregadas": 10,
+            "eliminadas": 12
+          },
+          "prueba": {
+            "agregadas": 5,
+            "eliminadas": 5
+          }
+        },
+        "segunda-vista": {
+          "tocados": [
+            "src/UiLoginCompacto.ts",
+            "src/UiLoginCompactoView.ts",
+            "test/UiLogin.test.ts"
+          ],
+          "nuevos": [
+            "src/UiLoginCompacto.ts",
+            "src/UiLoginCompactoView.ts"
+          ],
+          "eliminados": [],
+          "tocaLogica": false,
+          "prod": {
+            "agregadas": 42,
+            "eliminadas": 0
+          },
+          "prueba": {
+            "agregadas": 9,
+            "eliminadas": 0
+          }
+        },
+        "prueba-bloqueado": {
+          "tocados": [
+            "test/UiLogin.test.ts"
+          ],
+          "nuevos": [],
+          "eliminados": [],
+          "tocaLogica": false,
+          "prod": {
+            "agregadas": 0,
+            "eliminadas": 0
+          },
+          "prueba": {
+            "agregadas": 4,
+            "eliminadas": 0
+          }
+        }
+      }
+    }
+  }
+}
