@@ -8,7 +8,15 @@ export const JOptionPaneImpl: React.FC<InterJOptionPane> = (props) => {
   const merged = { ...JOPTIONPANE_DEFAULTS, ...props };
   const panelRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   // Focus goes to the panel (not "Confirm") so a stray Enter is not destructive
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
   const onPanelKeyDown = useFocusTrap(panelRef, props.open);
+
+  // Runs after the trap has focused the panel: move on to the requested button.
+  useEffect(() => {
+    if (!props.open || !props.initialFocus) return;
+    (props.initialFocus === 'cancel' ? cancelRef : confirmRef).current?.focus();
+  }, [props.open, props.initialFocus]);
 
   useEffect(() => {
     if (!props.open) return;
@@ -22,6 +30,7 @@ export const JOptionPaneImpl: React.FC<InterJOptionPane> = (props) => {
       open={props.open}
       title={props.title}
       description={props.description}
+      details={props.details}
       variant={merged.variant}
       confirmLabel={merged.confirmLabel}
       cancelLabel={merged.cancelLabel}
@@ -30,6 +39,8 @@ export const JOptionPaneImpl: React.FC<InterJOptionPane> = (props) => {
       onCancel={props.onCancel}
       panelRef={panelRef}
       onPanelKeyDown={onPanelKeyDown}
+      confirmRef={confirmRef}
+      cancelRef={cancelRef}
     />
   );
 };

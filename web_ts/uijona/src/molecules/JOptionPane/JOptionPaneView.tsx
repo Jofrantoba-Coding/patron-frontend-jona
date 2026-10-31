@@ -45,6 +45,7 @@ interface JOptionPaneViewProps {
   open:         boolean;
   title:        string;
   description?: string;
+  details?:     React.ReactNode;
   variant:      JOptionPaneVariant;
   confirmLabel: string;
   cancelLabel:  string;
@@ -53,6 +54,8 @@ interface JOptionPaneViewProps {
   onCancel:     () => void;
   panelRef:       React.RefObject<HTMLDivElement>;
   onPanelKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
+  confirmRef?:    React.Ref<HTMLButtonElement>;
+  cancelRef?:     React.Ref<HTMLButtonElement>;
 }
 
 // ── View ──────────────────────────────────────────────────────────────────────
@@ -61,6 +64,7 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
   open,
   title,
   description,
+  details,
   variant,
   confirmLabel,
   cancelLabel,
@@ -69,8 +73,11 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
   onCancel,
   panelRef,
   onPanelKeyDown,
+  confirmRef,
+  cancelRef,
 }) => {
   if (!open) return null;
+  const describedBy = [description && 'joptionpane-desc', details && 'joptionpane-details'].filter(Boolean).join(' ') || undefined;
 
   return createPortal(
     <JPanel
@@ -100,7 +107,7 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="joptionpane-title"
-        aria-describedby={description ? 'joptionpane-desc' : undefined}
+        aria-describedby={describedBy}
         tabIndex={-1}
         onKeyDown={onPanelKeyDown}
         className={`relative z-10 max-h-[calc(100dvh-1rem)] w-full max-w-sm overflow-y-auto rounded-lg ${SURFACE_RAISED} shadow-xl focus:outline-none sm:max-w-md`}
@@ -133,6 +140,11 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
               {description}
             </p>
           )}
+          {details && (
+            <div id="joptionpane-details" className={`mt-1 break-words text-sm font-medium ${FG}`}>
+              {details}
+            </div>
+          )}
         </div>
 
         {/* South: botones — mobile: centrado / tablet+: derecha */}
@@ -147,10 +159,10 @@ export const JOptionPaneView: React.FC<JOptionPaneViewProps> = ({
           gap="sm"
           className="px-5 pb-5"
         >
-          <JButton variant={confirmVariant[variant]} onClick={onConfirm} loading={isLoading}>
+          <JButton ref={confirmRef} variant={confirmVariant[variant]} onClick={onConfirm} loading={isLoading}>
             {confirmLabel}
           </JButton>
-          <JButton variant="outline" onClick={onCancel} disabled={isLoading}>
+          <JButton ref={cancelRef} variant="outline" onClick={onCancel} disabled={isLoading}>
             {cancelLabel}
           </JButton>
         </JPanel>
