@@ -37,6 +37,11 @@ export interface InterJTreeNav {
   onFilterChange?: (text: string) => void;
 }
 
+export interface JTreeNavHandle {
+  /** Focuses the filter box and selects its text (for Ctrl+K or `/`). Does nothing without `showFilter`. */
+  focusFilter: () => void;
+}
+
 export const JTREENAV_DEFAULTS = {
   variant: 'nav',
   showFilter: false,

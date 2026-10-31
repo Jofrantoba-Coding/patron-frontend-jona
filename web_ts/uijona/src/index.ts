@@ -43,6 +43,7 @@ export * from './molecules/JDataGrid';
 export * from './molecules/JTreeNav';
 export * from './molecules/JUserMenu';
 export * from './molecules/JContextChip';
+export * from './molecules/JShortcutSheet';
 export * from './molecules/JCheckBoxField';
 export * from './molecules/JRadioGroup';
 export * from './molecules/JSelectField';

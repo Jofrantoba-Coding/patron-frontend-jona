@@ -3,6 +3,9 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { vi } from 'vitest';
 import { JTreeNav, JTreeNavNode, InterJTreeNav } from '../JTreeNav';
 import { seriousViolations } from '../../__tests__/quality/axe';
+import { createRef } from 'react';
+import { act } from '@testing-library/react';
+import type { JTreeNavHandle } from '../JTreeNav';
 
 const NODES: JTreeNavNode[] = [
   {
@@ -405,5 +408,31 @@ describe('JTreeNav maxHeight (R-CHR-4)', () => {
 
     rerender(<Host />);
     expect((screen.getByRole('tree').parentElement as HTMLElement).style.getPropertyValue('--jona-tree-max-h')).toBe('');
+  });
+});
+
+describe('JTreeNav focusFilter handle (1.6.0, additive)', () => {
+  it('focusFilter() focuses the filter box and selects its text', () => {
+    const ref = createRef<JTreeNavHandle>();
+    render(
+      <JTreeNav ref={ref} ariaLabel="Menú principal" nodes={NODES} expandedIds={[]} showFilter filterLabel="Buscar opción" filter="cli" onToggle={() => undefined} onSelect={() => undefined} />,
+    );
+    const box = screen.getByRole('searchbox', { name: 'Buscar opción' }) as HTMLInputElement;
+
+    act(() => ref.current?.focusFilter());
+
+    expect(box).toHaveFocus();
+    expect([box.selectionStart, box.selectionEnd]).toEqual([0, 3]);
+  });
+
+  it('focusFilter() does nothing without the filter box', () => {
+    const ref = createRef<JTreeNavHandle>();
+    render(<JTreeNav ref={ref} ariaLabel="Menú principal" nodes={NODES} expandedIds={[]} onToggle={() => undefined} onSelect={() => undefined} />);
+    const before = document.activeElement;
+
+    act(() => ref.current?.focusFilter());
+
+    expect(screen.queryByRole('searchbox')).toBeNull();
+    expect(document.activeElement).toBe(before);
   });
 });

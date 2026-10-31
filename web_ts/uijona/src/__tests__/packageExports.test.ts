@@ -90,6 +90,7 @@ describe('package exports', () => {
       'molecules/JUserMenu',
       'molecules/JContextChip',
       'organisms/JWorkspaceTabs',
+      'molecules/JShortcutSheet',
     ];
 
     SUBPATHS_160.forEach((subpath) => {
