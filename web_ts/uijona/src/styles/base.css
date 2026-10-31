@@ -1,0 +1,37 @@
+/* jona-ui — opt-in base styles (R-FND-5, D7)
+ *
+ * Not imported by index.css. Import it AFTER the main stylesheet so it wins
+ * over preflight at equal specificity:
+ *
+ *   import 'jona-ui/index.css';
+ *   import 'jona-ui/base.css';
+ *
+ * Plain CSS (no layer): component utilities still win over these element
+ * rules by specificity.
+ */
+
+body {
+  font-size: var(--jona-text-body-size);
+  line-height: var(--jona-text-body-leading);
+  font-weight: var(--jona-text-body-weight);
+  color: rgb(var(--jona-fg));
+  background-color: rgb(var(--jona-surface));
+}
+
+h1 {
+  font-size: var(--jona-text-page-size);
+  line-height: var(--jona-text-page-leading);
+  font-weight: var(--jona-text-page-weight);
+}
+
+h2 {
+  font-size: var(--jona-text-section-size);
+  line-height: var(--jona-text-section-leading);
+  font-weight: var(--jona-text-section-weight);
+}
+
+h3 {
+  font-size: var(--jona-text-body-size);
+  line-height: var(--jona-text-body-leading);
+  font-weight: var(--jona-text-section-weight);
+}
