@@ -1,0 +1,35 @@
+{
+  "name": "jona-ejemplo-electron",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/main/main.cjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "mock": "node ../mock-server/src/server.mjs",
+    "build": "tsc --noEmit && vite build && node build-electron.mjs",
+    "start": "npm run build && electron .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.0",
+    "@testing-library/react": "16.3.0",
+    "@testing-library/user-event": "14.6.1",
+    "@types/node": "22.15.30",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "@vitejs/plugin-react": "4.5.2",
+    "electron": "37.10.3",
+    "esbuild": "0.25.12",
+    "jsdom": "26.1.0",
+    "typescript": "5.8.3",
+    "vite": "6.3.5",
+    "vitest": "3.2.4"
+  }
+}
