@@ -1,0 +1,12 @@
+{
+  "descripcion": "Nomenclatura anterior -> canónica (capítulo 2). {U} es el nombre de la unidad: el de su contrato Inter{U}. Los renombres se aplican a la vez, no en cadena: el orquestador y el render intercambian nombres.",
+  "reglas": [
+    { "rol": "orquestador (instancia la Implementación y se la entrega al render)", "antes": "{U}View", "despues": "{U}" },
+    { "rol": "render puro", "antes": "{U}", "despues": "{U}View" },
+    { "rol": "modelo base", "antes": "{U}TemplateModel", "despues": "{U}Base" },
+    { "rol": "función del modelo base", "antes": "use{U}", "despues": "use{U}Base" },
+    { "rol": "contrato de UI", "antes": "Inter{U}", "despues": "Inter{U}" },
+    { "rol": "Implementación", "antes": "{U}Impl", "despues": "{U}Impl" },
+    { "rol": "props del render", "antes": "{U}Props", "despues": "{U}Props" }
+  ]
+}

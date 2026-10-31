@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": ["herramientas", "nomenclatura", "thc-c", "test"],
+  "exclude": [
+    "thc-c/fixtures/emailDuplicado",
+    "thc-c/fixtures/emailServiceUnavailable"
+  ]
+}
