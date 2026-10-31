@@ -1,0 +1,9 @@
+<form aria-label="Iniciar sesión" (ngSubmit)="login(email(), password())">
+  <h1>Iniciar sesión</h1>
+  <input type="email" name="email" aria-label="Correo" [(ngModel)]="email" [disabled]="busy()" />
+  <input type="password" name="password" aria-label="Contraseña" [(ngModel)]="password" [disabled]="busy()" />
+  <p role="status">{{ message() }}</p>
+  <button type="submit" [disabled]="busy()">Ingresar</button>
+  <button type="button" (click)="goToCreateAccount()">Crear cuenta</button>
+  <button type="button" (click)="goToRecoverPassword()">Recuperar contraseña</button>
+</form>

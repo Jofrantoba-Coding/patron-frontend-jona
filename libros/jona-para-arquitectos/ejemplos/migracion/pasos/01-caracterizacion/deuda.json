@@ -1,0 +1,37 @@
+[
+  {
+    "regla": "JONA-N1",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la unidad uilogin no tiene contrato de UI (Inter*.ts)"
+  },
+  {
+    "regla": "JONA-N3",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la vista usa localStorage; los efectos van en la Implementación o en un adaptador"
+  },
+  {
+    "regla": "JONA-N3",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la vista usa setTimeout; los efectos van en la Implementación o en un adaptador"
+  },
+  {
+    "regla": "JONA-N3",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la vista usa fetch; los efectos van en la Implementación o en un adaptador"
+  },
+  {
+    "regla": "JONA-N3",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la vista usa localStorage; los efectos van en la Implementación o en un adaptador"
+  },
+  {
+    "regla": "JONA-N3",
+    "archivo": "uilogin/UiLoginView.ts",
+    "mensaje": "la vista usa localStorage; los efectos van en la Implementación o en un adaptador"
+  },
+  {
+    "regla": "JONA-N4",
+    "archivo": "App.ts",
+    "mensaje": "importa uilogin/UiLoginView.ts, interno de la unidad uilogin; use su entrada: (no tiene)"
+  }
+]

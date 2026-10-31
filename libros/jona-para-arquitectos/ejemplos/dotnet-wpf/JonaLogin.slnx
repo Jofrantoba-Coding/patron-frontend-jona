@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="JonaLogin.Core/JonaLogin.Core.csproj" />
+  <Project Path="JonaLogin.Tests/JonaLogin.Tests.csproj" />
+  <Project Path="JonaLogin.Wpf/JonaLogin.Wpf.csproj" />
+</Solution>

@@ -1,0 +1,150 @@
+openapi: 3.1.0
+info:
+  title: Contrato de API del inicio de sesión (ejemplos de "JONA para arquitectos")
+  version: 1.0.0
+  description: |
+    Fuente única del contrato de API entre frontend y backend.
+    De este archivo dependen el servidor mock (ejemplos/mock-server), los adaptadores
+    AuthServiceHttp (web-react y java-swing) y cualquier backend real.
+
+    Datos de prueba acordados (el servidor mock y el backend deben tenerlos):
+      - ana@ejemplo.com / secreta123      -> 200
+      - bloqueado@ejemplo.com / secreta123 -> 403 USER_DISABLED
+      - cualquier otra combinación        -> 401 INVALID_CREDENTIALS
+      - usuario o clave vacíos            -> 422 VALIDATION_ERROR
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      summary: Inicia sesión y devuelve el token y el usuario.
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              usuario: ana@ejemplo.com
+              clave: secreta123
+      responses:
+        '200':
+          description: Credenciales válidas.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Credenciales inválidas (code INVALID_CREDENTIALS).
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: Usuario bloqueado (code USER_DISABLED).
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Petición inválida (code VALIDATION_ERROR); details indica cada campo.
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '500':
+          description: Error interno (code INTERNAL_ERROR).
+          headers:
+            X-Correlation-Id:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+components:
+  parameters:
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      description: Si el cliente lo envía, el servidor lo reenvía; si no, lo genera.
+      schema:
+        type: string
+  headers:
+    CorrelationId:
+      description: Identificador de correlación; coincide con traceId en las respuestas de error.
+      required: true
+      schema:
+        type: string
+        minLength: 1
+  schemas:
+    LoginRequest:
+      type: object
+      required: [usuario, clave]
+      properties:
+        usuario:
+          type: string
+          description: Identificador del usuario (en estos ejemplos, su correo).
+        clave:
+          type: string
+    LoginUser:
+      type: object
+      additionalProperties: false
+      required: [id, usuario, nombre]
+      properties:
+        id:
+          type: integer
+        usuario:
+          type: string
+        nombre:
+          type: string
+    LoginResponse:
+      type: object
+      additionalProperties: false
+      required: [token, user]
+      properties:
+        token:
+          type: string
+          minLength: 1
+        user:
+          $ref: '#/components/schemas/LoginUser'
+    ApiErrorDetail:
+      type: object
+      additionalProperties: false
+      required: [field, message]
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [code, message, details, traceId]
+      properties:
+        code:
+          type: string
+          enum: [INVALID_CREDENTIALS, USER_DISABLED, VALIDATION_ERROR, INTERNAL_ERROR]
+        message:
+          type: string
+          minLength: 1
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiErrorDetail'
+        traceId:
+          type: string
+          minLength: 1

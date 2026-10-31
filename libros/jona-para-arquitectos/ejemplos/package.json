@@ -1,0 +1,10 @@
+{
+  "name": "jona-para-arquitectos-ejemplos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ejecuta todos los ejemplos del libro: npm run all",
+  "scripts": {
+    "all": "node run-all.mjs",
+    "all:limpio": "node run-all.mjs --limpio"
+  }
+}

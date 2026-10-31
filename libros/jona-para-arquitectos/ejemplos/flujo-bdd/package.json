@@ -1,0 +1,13 @@
+{
+  "name": "jona-ejemplo-flujo-bdd",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Trazabilidad entre el plan de pruebas (Gherkin) y los escenarios del servidor mock. Sin dependencias.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/gherkin.test.mjs test/trazabilidad.test.mjs"
+  }
+}

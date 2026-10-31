@@ -1,0 +1,11 @@
+{
+  "name": "jona-libro-antipatrones",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mantiene el catálogo de antipatrones del capítulo 12 igual a las fichas de los capítulos.",
+  "type": "module",
+  "scripts": {
+    "generar": "node generar.mjs",
+    "test": "node --test test/catalogo.test.mjs"
+  }
+}

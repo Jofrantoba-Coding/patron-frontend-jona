@@ -1,0 +1,72 @@
+/*
+ * Tokens del sistema de diseño. Dos capas:
+ *   PRIMITIVA: la paleta, como tripletes RGB ("r g b") sin significado de uso.
+ *   SEMÁNTICA: el uso (superficie, texto, foco...), siempre con var() a un primitivo.
+ * Las Vistas pintan con las clases del final, que solo leen tokens semánticos.
+ * El tema oscuro es opcional: solo rige bajo data-theme-mode en <html>.
+ */
+
+:root {
+  /* ── Capa primitiva ─────────────────────────────────── */
+  --ds-primary-600: 37 99 235;
+  --ds-neutral-50: 248 250 252;
+  --ds-neutral-100: 241 245 249;
+  --ds-neutral-200: 226 232 240;
+  --ds-neutral-300: 203 213 225;
+  --ds-neutral-400: 148 163 184;
+  --ds-neutral-500: 100 116 139;
+  --ds-neutral-600: 71 85 105;
+  --ds-neutral-700: 51 65 85;
+  --ds-neutral-800: 30 41 59;
+  --ds-neutral-900: 15 23 42;
+
+  /* ── Capa semántica (tema claro) ────────────────────── */
+  --ds-surface: var(--ds-neutral-50);
+  --ds-fg: var(--ds-neutral-900);
+  --ds-fg-muted: var(--ds-neutral-600);
+  --ds-line-strong: var(--ds-neutral-500);
+  --ds-focus: var(--ds-primary-600);
+  --ds-primary: var(--ds-primary-600);
+  --ds-on-primary: var(--ds-neutral-50);
+}
+
+/* ── Tema oscuro: elegido explícitamente ─────────────── */
+:root[data-theme-mode='dark'] {
+  --ds-surface: var(--ds-neutral-900);
+  --ds-fg: var(--ds-neutral-50);
+  --ds-fg-muted: var(--ds-neutral-400);
+  --ds-line-strong: var(--ds-neutral-500);
+}
+
+/* ── Tema oscuro: "system" y el sistema operativo lo pide ── */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme-mode='system'] {
+    --ds-surface: var(--ds-neutral-900);
+    --ds-fg: var(--ds-neutral-50);
+    --ds-fg-muted: var(--ds-neutral-400);
+    --ds-line-strong: var(--ds-neutral-500);
+  }
+}
+
+/* ── Clases de token (las constantes de clasesToken.ts) ── */
+.ds-surface {
+  background-color: rgb(var(--ds-surface));
+}
+.ds-fg {
+  color: rgb(var(--ds-fg));
+}
+.ds-fg-muted {
+  color: rgb(var(--ds-fg-muted));
+}
+.ds-line-strong {
+  border: 1px solid rgb(var(--ds-line-strong));
+}
+.ds-focus-ring:focus-visible {
+  outline: 2px solid rgb(var(--ds-focus));
+  outline-offset: 2px;
+}
+.ds-primary {
+  background-color: rgb(var(--ds-primary));
+  color: rgb(var(--ds-on-primary));
+  border: 1px solid transparent;
+}

@@ -1,0 +1,168 @@
+{
+  "generadoPor": "npm run medir (herramientas/medir.ts); lo protege test/progreso.test.ts",
+  "unidad": "violaciones de herramientas/jona-check.ts sobre src/; líneas de código sin líneas en blanco ni comentarios",
+  "pasos": [
+    {
+      "paso": "00-legado",
+      "reglas": {
+        "JONA-N1": 1,
+        "JONA-N2": 0,
+        "JONA-N3": 5,
+        "JONA-N4": 1
+      },
+      "total": 7,
+      "prod": {
+        "archivos": 2,
+        "lineas": 100
+      },
+      "prueba": {
+        "archivos": 0,
+        "lineas": 0
+      }
+    },
+    {
+      "paso": "01-caracterizacion",
+      "reglas": {
+        "JONA-N1": 1,
+        "JONA-N2": 0,
+        "JONA-N3": 5,
+        "JONA-N4": 1
+      },
+      "total": 7,
+      "prod": {
+        "archivos": 2,
+        "lineas": 100
+      },
+      "prueba": {
+        "archivos": 1,
+        "lineas": 2
+      }
+    },
+    {
+      "paso": "02-costura-servicio",
+      "reglas": {
+        "JONA-N1": 1,
+        "JONA-N2": 0,
+        "JONA-N3": 5,
+        "JONA-N4": 1
+      },
+      "total": 7,
+      "prod": {
+        "archivos": 4,
+        "lineas": 128
+      },
+      "prueba": {
+        "archivos": 2,
+        "lineas": 51
+      }
+    },
+    {
+      "paso": "03-servicio-falso",
+      "reglas": {
+        "JONA-N1": 1,
+        "JONA-N2": 0,
+        "JONA-N3": 5,
+        "JONA-N4": 1
+      },
+      "total": 7,
+      "prod": {
+        "archivos": 5,
+        "lineas": 147
+      },
+      "prueba": {
+        "archivos": 3,
+        "lineas": 92
+      }
+    },
+    {
+      "paso": "04-implementacion",
+      "reglas": {
+        "JONA-N1": 1,
+        "JONA-N2": 0,
+        "JONA-N3": 5,
+        "JONA-N4": 1
+      },
+      "total": 7,
+      "prod": {
+        "archivos": 6,
+        "lineas": 189
+      },
+      "prueba": {
+        "archivos": 4,
+        "lineas": 171
+      }
+    },
+    {
+      "paso": "05-contrato-ui",
+      "reglas": {
+        "JONA-N1": 0,
+        "JONA-N2": 0,
+        "JONA-N3": 5,
+        "JONA-N4": 1
+      },
+      "total": 6,
+      "prod": {
+        "archivos": 7,
+        "lineas": 197
+      },
+      "prueba": {
+        "archivos": 5,
+        "lineas": 180
+      }
+    },
+    {
+      "paso": "06-vista-pura",
+      "reglas": {
+        "JONA-N1": 0,
+        "JONA-N2": 0,
+        "JONA-N3": 2,
+        "JONA-N4": 1
+      },
+      "total": 3,
+      "prod": {
+        "archivos": 7,
+        "lineas": 194
+      },
+      "prueba": {
+        "archivos": 6,
+        "lineas": 222
+      }
+    },
+    {
+      "paso": "07-entrada",
+      "reglas": {
+        "JONA-N1": 0,
+        "JONA-N2": 0,
+        "JONA-N3": 0,
+        "JONA-N4": 0
+      },
+      "total": 0,
+      "prod": {
+        "archivos": 8,
+        "lineas": 198
+      },
+      "prueba": {
+        "archivos": 7,
+        "lineas": 248
+      }
+    },
+    {
+      "paso": "08-cambio-de-vista",
+      "reglas": {
+        "JONA-N1": 0,
+        "JONA-N2": 0,
+        "JONA-N3": 0,
+        "JONA-N4": 0
+      },
+      "total": 0,
+      "prod": {
+        "archivos": 8,
+        "lineas": 170
+      },
+      "prueba": {
+        "archivos": 7,
+        "lineas": 255
+      }
+    }
+  ]
+}

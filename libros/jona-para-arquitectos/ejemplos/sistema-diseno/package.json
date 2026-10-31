@@ -1,0 +1,46 @@
+{
+  "name": "sistema-diseno-ejemplo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de diseño mínimo con JONA: tokens, temas, accesibilidad y versionado (capítulo 8)",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./tokens.css": "./src/tema/tokens.css"
+  },
+  "files": [
+    "dist",
+    "src/tema/tokens.css"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "api:actualizar": "node scripts/actualizar-api.mjs"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.0",
+    "@testing-library/react": "16.3.0",
+    "@types/node": "22.15.30",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "axe-core": "4.11.4",
+    "jsdom": "26.1.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "typescript": "5.8.3",
+    "vitest": "3.2.4"
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "version": "1.0.0",
+  "exports": {
+    "InterJButton": {
+      "kind": "type",
+      "definition": "InterJButtonConTexto | InterJButtonSoloIcono"
+    },
+    "InterJButtonBase": {
+      "kind": "contract",
+      "props": {
+        "aria-describedby": {
+          "optional": true,
+          "type": "string"
+        },
+        "aria-pressed": {
+          "optional": true,
+          "type": "boolean"
+        },
+        "disabled": {
+          "optional": true,
+          "type": "boolean"
+        },
+        "onClick": {
+          "optional": true,
+          "type": "() => void"
+        },
+        "type": {
+          "optional": true,
+          "type": "'button' | 'submit' | 'reset'"
+        },
+        "variant": {
+          "optional": true,
+          "type": "'primary' | 'secondary'"
+        }
+      }
+    },
+    "InterJButtonConTexto": {
+      "kind": "contract",
+      "props": {
+        "aria-describedby": {
+          "optional": true,
+          "type": "string"
+        },
+        "aria-label": {
+          "optional": true,
+          "type": "string"
+        },
+        "aria-pressed": {
+          "optional": true,
+          "type": "boolean"
+        },
+        "children": {
+          "optional": false,
+          "type": "ReactNode"
+        },
+        "disabled": {
+          "optional": true,
+          "type": "boolean"
+        },
+        "icon": {
+          "optional": true,
+          "type": "ReactNode"
+        },
+        "onClick": {
+          "optional": true,
+          "type": "() => void"
+        },
+        "type": {
+          "optional": true,
+          "type": "'button' | 'submit' | 'reset'"
+        },
+        "variant": {
+          "optional": true,
+          "type": "'primary' | 'secondary'"
+        }
+      }
+    },
+    "InterJButtonSoloIcono": {
+      "kind": "contract",
+      "props": {
+        "aria-describedby": {
+          "optional": true,
+          "type": "string"
+        },
+        "aria-label": {
+          "optional": false,
+          "type": "string"
+        },
+        "aria-pressed": {
+          "optional": true,
+          "type": "boolean"
+        },
+        "children": {
+          "optional": true,
+          "type": "never"
+        },
+        "disabled": {
+          "optional": true,
+          "type": "boolean"
+        },
+        "icon": {
+          "optional": false,
+          "type": "ReactNode"
+        },
+        "onClick": {
+          "optional": true,
+          "type": "() => void"
+        },
+        "type": {
+          "optional": true,
+          "type": "'button' | 'submit' | 'reset'"
+        },
+        "variant": {
+          "optional": true,
+          "type": "'primary' | 'secondary'"
+        }
+      }
+    },
+    "InterJCheckbox": {
+      "kind": "contract",
+      "props": {
+        "aria-describedby": {
+          "optional": true,
+          "type": "string"
+        },
+        "checked": {
+          "optional": true,
+          "type": "boolean"
+        },
+        "disabled": {
+          "optional": true,
+          "type": "boolean"
+        },
+        "label": {
+          "optional": false,
+          "type": "string"
+        },
+        "onChange": {
+          "optional": true,
+          "type": "(checked: boolean) => void"
+        }
+      }
+    },
+    "InterModoTema": {
+      "kind": "contract",
+      "props": {
+        "cambiarModo": {
+          "optional": false,
+          "type": "(modo: ModoTema) => void"
+        },
+        "modo": {
+          "optional": false,
+          "type": "ModoTema"
+        }
+      }
+    },
+    "JBUTTON_DEFAULTS": {
+      "kind": "constant"
+    },
+    "JButton": {
+      "kind": "component"
+    },
+    "JCHECKBOX_DEFAULTS": {
+      "kind": "constant"
+    },
+    "JCheckbox": {
+      "kind": "component"
+    },
+    "MODO_TEMA_DEFAULTS": {
+      "kind": "constant"
+    },
+    "ModoTema": {
+      "kind": "type",
+      "definition": "'system' | 'light' | 'dark'"
+    },
+    "ModoTemaImpl": {
+      "kind": "class"
+    },
+    "OpcionesModoTema": {
+      "kind": "contract",
+      "props": {
+        "modoInicial": {
+          "optional": true,
+          "type": "ModoTema"
+        }
+      }
+    }
+  }
+}

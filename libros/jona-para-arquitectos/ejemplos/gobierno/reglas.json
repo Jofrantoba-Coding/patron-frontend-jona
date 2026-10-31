@@ -1,0 +1,25 @@
+{
+  "descripcion": "Catálogo de la norma JONA. Cada lenguaje la implementa y una prueba falla si falta o sobra una regla.",
+  "reglas": [
+    {
+      "id": "JONA-N1",
+      "titulo": "Contratos explícitos",
+      "descripcion": "Toda unidad tiene un contrato de UI (Inter*). Si la unidad usa un servicio, depende de su contrato de servicio (Inter*Service), nunca de un adaptador concreto."
+    },
+    {
+      "id": "JONA-N2",
+      "titulo": "Los contratos no llevan comportamiento",
+      "descripcion": "Un contrato solo declara tipos, eventos y valores DEFAULTS literales: sin funciones, sin clases con lógica y sin importar módulos de ejecución."
+    },
+    {
+      "id": "JONA-N3",
+      "titulo": "Efectos solo en la Implementación y en los adaptadores",
+      "descripcion": "Las vistas y los contratos no importan servicios ni adaptadores, y ningún archivo de la unidad fuera de la Implementación produce efectos (red, almacenamiento, temporizadores, hilos)."
+    },
+    {
+      "id": "JONA-N4",
+      "titulo": "El resto de la aplicación solo conoce la entrada",
+      "descripcion": "El código fuera de una unidad solo importa su entrada; nunca su Implementación, su vista ni sus archivos internos. Las pruebas y las historias quedan exentas."
+    }
+  ]
+}

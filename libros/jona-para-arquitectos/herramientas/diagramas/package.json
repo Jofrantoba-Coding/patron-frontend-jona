@@ -1,0 +1,14 @@
+{
+  "name": "jona-libro-diagramas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Verifica la sintaxis de los diagramas Mermaid de los capítulos.",
+  "type": "module",
+  "scripts": {
+    "test": "node verificar.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "mermaid": "^11.4.1"
+  }
+}

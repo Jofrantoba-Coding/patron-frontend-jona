@@ -1,0 +1,13 @@
+{
+  "name": "jona-contrato-typescript",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "tsc -p . && node --test \"dist/**/*.test.js\""
+  },
+  "devDependencies": {
+    "@types/node": "22.15.30",
+    "typescript": "5.8.3"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "jona-libro-enlaces",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Verifica que los enlaces relativos del libro apunten a archivos que existen.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test enlaces.test.mjs"
+  }
+}
