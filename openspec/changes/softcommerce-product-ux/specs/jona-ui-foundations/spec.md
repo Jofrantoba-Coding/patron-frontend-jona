@@ -15,11 +15,11 @@ Component state and slot rules MUST keep their 1.5.1 selectors and specificity, 
 
 The `hidden` attribute MUST always hide (`[hidden]` with `display: none !important`, except `until-found`).
 
-Making the engine rules zero-specificity lets JPanel `className`s that 1.5.1 silently overrode apply, which is a **visible layout correction**. Every such call site MUST be listed by a reviewed snapshot test, audited in Storybook at 375, 1024 and 1920 px before release, and named in the CHANGELOG.
+Making the engine rules zero-specificity lets JPanel `className`s that 1.5.1 silently overrode apply, which is a **visible layout correction**. Every such call site MUST be listed by a reviewed snapshot test, audited in Storybook at 375, 1024 and 1920 px before release, and named in the CHANGELOG. Where a View's `flex` meant a row, the row direction MUST be made explicit (`flex-row`), because the engine still sets `flex-direction` (column by default) and Tailwind's `flex` sets none; these additions are listed with the other corrections.
 
 ### R-FND-3 Semantic tokens, light and dark
 The theme MUST define these semantic color tokens, each for light and dark: `surface`, `surface-muted`, `surface-raised`, `fg`, `fg-muted`, `line`, `line-strong`, `focus`, `selection`, `on-primary`. It MUST also define `50`, `100` and `700` tints for `danger`, `success` and `warning`.
-- **Format**: they are RGB-triplet CSS custom properties. Light values are `var()` references to the palette, declared on `:root` and `[data-jona-scope]`, so `JonaThemeProvider` overrides flow through. `JonaThemeTokens` gains the matching keys.
+- **Format**: they are RGB-triplet CSS custom properties. Light values of the semantic tokens are `var()` references to the palette, declared on `:root` and `[data-jona-scope]`, so `JonaThemeProvider` overrides flow through. The tints are palette steps themselves (RGB triplets on `:root`, next to the existing 400/500/600 steps). `JonaThemeTokens` gains the matching keys.
 - **Use**: lib components MUST paint with them through the arbitrary-value class constants of `src/theme/tokenClasses.ts` (for example `bg-[rgb(var(--jona-surface))]`). These classes also generate in consumers that run their own Tailwind over `dist/**/*.js`.
 - **Lint**: View source MUST NOT use raw `white`, `black`, `neutral`, `gray`, `slate` or `zinc` color utilities (bg, text, border, ring, outline, divide, fill, stroke, placeholder and gradient stops), nor hex or rgb literals. The hard-coded colors of `index.css` move to tokens. Exceptions live only in an explicit allowlist held by the token-lint test.
 - **Contrast**: in both modes, `fg` and `fg-muted` on `surface` and on `surface-muted` MUST reach at least 4.5:1, and `focus` and `line-strong` on `surface` at least 3:1.
@@ -63,11 +63,12 @@ The theme MUST define the control height as 44 px below 640 px (`sm`) and 36 px 
 - An explicit `touch` or `compact` always wins over an ancestor attribute.
 
 ### R-FND-8 Versioning, export map and release
-- `1.5.2` MUST contain only R-FND-1, R-FND-2, R-FND-7 and the `JTableRow` selection of jona-ui-data R-DAT-1. `1.6.0` MUST contain every requirement of the jona-ui-* capabilities.
+- `1.5.2` MUST contain only R-FND-1, R-FND-2, R-FND-7 and the `JTableRow` selection of jona-ui-data R-DAT-1, plus packaging hygiene that changes no export (test-only declarations are kept out of `dist/`). `1.6.0` MUST contain every requirement of the jona-ui-* capabilities.
 - Every new public component and hook MUST be exported from the root entry and listed in the `package.json` export map, and the package-exports test MUST list each one.
 - No existing export, prop or default behavior MAY change in either release, except these bug fixes, each named in the CHANGELOG:
   - the R-FND-2 visible layout corrections and `[hidden]` precedence;
-  - `danger` toasts announced as `role="alert"` (jona-ui-feedback R-FBK-5).
+  - `danger` toasts announced as `role="alert"` (jona-ui-feedback R-FBK-5);
+  - in 1.6.0, the layout fixes of the JPagination Previous/Next chevrons (jona-ui-data R-DAT-7) and of the JTable header label (a JPanel that now states `flex-row`, an R-FND-2 D1a site), and the dark modal backdrop.
 - Each release MUST have a CHANGELOG entry.
 - A version MUST be published only from a GitHub Release of a commit on `main` (`publish-npm.yml`), never with `workflow_dispatch`. The release tag MUST equal the `package.json` version; this is checked in the release checklist before the Release is published. A published version MUST NOT be republished: a defect is fixed forward with a new patch.
 
@@ -86,7 +87,7 @@ Every new or extended piece (jona-ui-feedback, -forms, -data, -app-chrome) MUST 
 
 **S-FND-5 hamburger hidden on desktop** — Given `JSidebarLayout` at 1024 px or more, Then the `Abrir menú` bar is hidden; below 1024 px it is shown.
 
-**S-FND-6 semantic tokens defined** — Given the built CSS, Then each semantic token of R-FND-3 and each status tint has a light value and a dark value. The dark values sit only under the `data-theme-mode` selectors.
+**S-FND-6 semantic tokens defined** — Given the built CSS, Then each semantic token of R-FND-3 (a palette reference) and each status tint (a palette triplet) has a light value and a dark value. The dark values sit only under the `data-theme-mode` selectors.
 
 **S-FND-7 contrast** — Given the token values of each mode, When contrast is computed, Then `fg` and `fg-muted` reach 4.5:1 on `surface` and on `surface-muted`, and `focus` and `line-strong` reach 3:1 on `surface`.
 

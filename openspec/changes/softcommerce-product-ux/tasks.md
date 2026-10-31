@@ -109,24 +109,24 @@ Record each exact result and the changed-line count in the PR body. Each slice i
 ### Release checklists
 
 **jona-ui 1.5.2 (slice rel152, Gate 1)**
-- [ ] Owner confirms the version number `1.5.2` before anything is bumped (the orchestrator asks once). `npm view jona-ui versions` does not list it.
-- [ ] `npm version 1.5.2 --no-git-tag-version` in `web_ts/uijona` (updates `package.json` and the lock).
-- [ ] `CHANGELOG.md` (new), entry `1.5.2`: Fixed = every D1a correction from the a1.5 snapshot (file, token), `[hidden]` precedence, `sideEffects`. Added = JButton/JIcon typed a11y props and `density`, `JTableRow selected`.
-- [ ] `npm run lint`, `npm test`, `npm run build`, `npm run build-storybook`, `npm pack --dry-run` (lists `dist/index.css` and the types).
-- [ ] Storybook audit of the D1a call sites at 375/1024/1920, recorded in the PR body.
-- [ ] Owner merges the tracker into `main` (merge commit).
-- [ ] Owner publishes a GitHub Release `v1.5.2` on that `main` commit; tag == `package.json` version. **Never `workflow_dispatch`** (D15; `publish-npm.yml` unchanged).
-- [ ] `npm view jona-ui@1.5.2 version` returns `1.5.2` before b1a starts.
+- [x] Owner confirms the version number `1.5.2` before anything is bumped (the orchestrator asks once). `npm view jona-ui versions` does not list it.
+- [x] `npm version 1.5.2 --no-git-tag-version` in `web_ts/uijona` (updates `package.json` and the lock).
+- [x] `CHANGELOG.md` (new), entry `1.5.2`: Fixed = every D1a correction from the a1.5 snapshot (file, token), `[hidden]` precedence, `sideEffects`. Added = JButton/JIcon typed a11y props and `density`, `JTableRow selected`.
+- [x] `npm run lint`, `npm test`, `npm run build`, `npm run build-storybook`, `npm pack --dry-run` (lists `dist/index.css` and the types).
+- [x] Storybook audit of the D1a call sites at 375/1024/1920, recorded in the PR body. (Done in a1.5 on the same CSS and Views; rel152 changes no CSS or View. The orchestrator copies the a1.5 sheets list into the PR body.)
+- [x] Owner merges the tracker into `main` (merge commit). Done in #108 (2026-10-25).
+- [x] ~~Owner publishes a GitHub Release `v1.5.2` on that `main` commit.~~ Superseded: 1.5.2 was never released; its changes ship in 1.6.0 (see the 1.6.0 CHANGELOG entry).
+- [x] ~~`npm view jona-ui@1.5.2 version` returns `1.5.2` before b1a starts.~~ Superseded with the item above; npm went from 1.5.1 to 1.6.0.
 
 **jona-ui 1.6.0 (slice a10, Gate 2)**
-- [ ] Owner confirms the version number `1.6.0` before the bump. `npm view jona-ui versions` does not list it.
-- [ ] `npm version 1.6.0 --no-git-tag-version` (package and lock).
-- [ ] CHANGELOG entry `1.6.0`: Added = tokens, theme mode, `base.css`, type scale, density, every new component and hook, the JDatePicker/JTabs/JPagination/JOptionPane/ToastProvider extensions. Fixed = `danger` toasts announced as `role="alert"`. Notes = dark and base styles are opt-in.
-- [ ] README: `jona-ui/base.css`, `themeInitScript`, the `top-right` toast recommendation.
-- [ ] `npm run lint`, `npm test`, `npm run build`, `npm run build-storybook`, `npm pack --dry-run` (lists `dist/base.css` and every new subpath).
-- [ ] Owner merges the tracker into `main` (merge commit).
-- [ ] Owner publishes the GitHub Release `v1.6.0` on that `main` commit; tag == `package.json`. **Never `workflow_dispatch`.**
-- [ ] `npm view jona-ui@1.6.0 version` returns `1.6.0` before b1 starts.
+- [x] Owner confirms the version number `1.6.0` before the bump. `npm view jona-ui versions` does not list it. (2026-10-30)
+- [x] `npm version 1.6.0 --no-git-tag-version` (package and lock). `a5feb5ca`.
+- [x] CHANGELOG entry `1.6.0`: Added = tokens, theme mode, `base.css`, type scale, density, every new component and hook, the JDatePicker/JTabs/JPagination/JOptionPane/ToastProvider extensions. Fixed = `danger` toasts announced as `role="alert"`. Notes = dark and base styles are opt-in.
+- [x] README: `jona-ui/base.css`, `themeInitScript`, the `top-right` toast recommendation.
+- [x] `npm run lint`, `npm test`, `npm run build`, `npm run build-storybook`, `npm pack --dry-run` (lists `dist/base.css` and every new subpath). Run on the a10 tip with the version still 1.5.2; rerun after the bump.
+- [x] Owner merges the tracker into `main` (merge commit). #113–#132 merged in order into the tracker, then #133 into `main` (`490ce807`, 2026-10-31).
+- [x] Owner publishes the GitHub Release `v1.6.0` on that `main` commit; tag == `package.json`. **Never `workflow_dispatch`.** `publish-npm.yml` run 41246244698 (event `release`) succeeded.
+- [x] `npm view jona-ui@1.6.0 version` returns `1.6.0` before b1 starts. Published 2026-10-31T22:04:32Z, `latest`, 2509 files.
 
 ### Suggested Work Units
 
@@ -165,8 +165,10 @@ Record each exact result and the changed-line count in the PR body. Each slice i
 
 Specs: R-FND-1, R-FND-2; S-FND-1, 2, 3, 4, 5, 23, 24. Design: D1, D1a, D2, D3, D4. Forecast ~720 (flagged).
 
-- [ ] a1.1 Preflight: `git switch -c feat/softcommerce-a1-css-cascade feat/softcommerce-product-ux`. Record a green lib baseline (all four gate commands).
-- [ ] a1.2 RED `src/__tests__/css/cascade.test.ts`, compiled in memory with `postcss([postcssImport, tailwindcss(config)])`:
+**Applied as the fallback split** (a1-i 725 lines + a1-ii, over 800 together): `feat/softcommerce-a1-css-cascade-i` = a1.2-a1.3, `feat/softcommerce-a1-css-cascade-ii` = a1.4-a1.6; the planned name `feat/softcommerce-a1-css-cascade` points at the a1-ii tip (a1-ii stayed at 673 lines, no `-iii`).
+
+- [x] a1.1 Preflight: `git switch -c feat/softcommerce-a1-css-cascade feat/softcommerce-product-ux`. Record a green lib baseline (all four gate commands).
+- [x] a1.2 RED `src/__tests__/css/cascade.test.ts`, compiled in memory with `postcss([postcssImport, tailwindcss(config)])`:
   - S-FND-3: every layout-engine selector sits inside `:where(`;
   - S-FND-4: `lg:hidden` beats a box JPanel at >= 1024;
   - S-FND-5: the JSidebarLayout `Abrir menú` bar is hidden from `lg`;
@@ -174,18 +176,20 @@ Specs: R-FND-1, R-FND-2; S-FND-1, 2, 3, 4, 5, 23, 24. Design: D1, D1a, D2, D3, D
   - D2: `[hidden]` is `display:none !important` in `@layer base`.
 
   GREEN `src/styles/index.css`: the engine rules leave `@layer utilities`, sit between `@tailwind base` and `@tailwind utilities`, and are wrapped in `:where()`; add the `[hidden]` rule; the card `hidden` and the iOS rule are untouched. Keep the diff small by moving the layer boundary rather than the blocks. Add the `postcss-import` devDependency.
-- [ ] a1.3 RED `src/__tests__/packageExports.test.ts`: S-FND-1 (`sideEffects` is an array that matches `index.css`). GREEN `package.json` `"sideEffects": ["**/*.css"]`.
-- [ ] a1.4 RED `src/__tests__/css/classCoverage.test.ts`:
+- [x] a1.3 RED `src/__tests__/packageExports.test.ts`: S-FND-1 (`sideEffects` is an array that matches `index.css`). GREEN `package.json` `"sideEffects": ["**/*.css"]`.
+- [x] a1.4 RED `src/__tests__/css/classCoverage.test.ts`:
   - S-FND-2: zero tokens of `src/**/*.{ts,tsx}` are missing from the compiled CSS;
   - a fixture token present only in a template literal fails and is named;
   - no `${`-interpolated class fragment exists.
 
-  GREEN: replace any interpolated fragment with a CSS variable in inline `style` (D4).
-- [ ] a1.5 RED `src/__tests__/css/jpanelOverrides.test.ts`: S-FND-24, an authored, reviewed list of every JPanel `className` token that sets an engine property, per View. GREEN:
+  GREEN: replace any interpolated fragment with a CSS variable in inline `style` (D4). Also drop the class tokens 1.5.1 wrote but Tailwind never generated (they rendered nothing, so there is no visual change; the status tints return with the 1.6.0 tokens in a2b), and give the `jdot`/`jglyph` hook classes a CSS rule.
+- [x] a1.5 RED `src/__tests__/css/jpanelOverrides.test.ts`: S-FND-24, an authored, reviewed list of every JPanel `className` token that sets an engine property, per View. GREEN:
   - audit each site in Storybook at 375/1024/1920 (`JNavbarView.tsx:44,65`, JFooterPage, JErrorPage, JDataTable, JCombobox, JCheckBoxField, JHeaderPage, ...);
   - remove each class that is wrong once honored;
   - write the final list (file, token, verdict) in the PR body for the CHANGELOG.
-- [ ] a1.6 Run the 1.5.1 lib suite (S-FND-20). Any assertion changed by D1a/D2 is listed for the CHANGELOG; nothing else changes. Gate.
+
+  **Resolved (orchestrator, option A):** 34 JPanels whose `flex` meant a row (no `flex-col`, no `direction`) rendered as columns because the engine sets `flex-direction: var(--jpanel-direction, column)`; each now carries `flex-row`, listed under `added` in `jpanelOverrides.golden.json`, and a test fails on any JPanel that turns flex on without a direction. No token was wrong once honored. The four Views without a story (JNavbar, JDashboardPreview, JLogoMarquee, JLanguageSwitcher) are checked in `cascade.test.ts` instead.
+- [x] a1.6 Run the 1.5.1 lib suite (S-FND-20). Any assertion changed by D1a/D2 is listed for the CHANGELOG; nothing else changes. Gate.
 
 W1-W3 assertions changed: none (lib only). Commits: (1) `fix(uijona): zero-specificity layout engine rules and hidden precedence` a1.2; (2) `fix(uijona): declare css side effects and add class coverage test` a1.3-a1.4; (3) `fix(uijona): audit JPanel classes honored by the cascade fix` a1.5-a1.6.
 
@@ -193,14 +197,14 @@ W1-W3 assertions changed: none (lib only). Commits: (1) `fix(uijona): zero-speci
 
 Specs: R-FND-7 (1.5.2 part), R-DAT-1 (1.5.2 part); S-FND-17, S-FND-18 (1.5.2 half), S-DAT-1, S-DAT-2 (light half). Forecast ~450.
 
-- [ ] a3.1 RED `src/atoms/__tests__/JButton.test.tsx`:
+- [x] a3.1 RED `src/atoms/__tests__/JButton.test.tsx`:
   - S-FND-17: `title`, `id`, `aria-label`, `aria-describedby`, `aria-keyshortcuts`, `aria-pressed`, `aria-expanded`, `aria-controls` and `aria-haspopup` reach the native button;
-  - S-FND-18 (1.5.2 half): `touch` = `min-h-11`, `compact` = `min-h-9`, `auto` = `min-h-11 sm:min-h-9`; no density = the 1.5.1 class string.
+  - S-FND-18 (1.5.2 half): `touch` = `min-h-11 sm:min-h-11`, `compact` = `min-h-9 sm:min-h-9`, `auto` = `min-h-11 sm:min-h-9`; no density = the 1.5.1 class string.
 
   GREEN `src/atoms/JButton/*` (typed props, no default density).
-- [ ] a3.2 RED `src/atoms/__tests__/JLabelJIconJChip.test.tsx`: the icon-button form of JIcon passes the same props. GREEN `src/atoms/JIcon/*`.
-- [ ] a3.3 RED `src/molecules/__tests__/JTable.test.tsx`: S-DAT-1 (`selected` sets `aria-selected` and `data-state="selected"` and adds `bg-primary-50` plus a 3px `primary-600` start border; the classes are covered by `classCoverage`). RED `cascade.test.ts`: S-DAT-2 light half (the selected and hover backgrounds differ, and the selected rule adds the border). GREEN `src/molecules/JTable/*` JTableRow `selected`.
-- [ ] a3.4 Add the `axe-core` devDependency and the helper `src/__tests__/quality/axe.ts`; JButton and the selected JTableRow pass it. Stories: JButton density and a11y, JTable selected row. Gate.
+- [x] a3.2 RED `src/atoms/__tests__/JLabelJIconJChip.test.tsx`: the icon-button form of JIcon passes the same props. GREEN `src/atoms/JIcon/*`.
+- [x] a3.3 RED `src/molecules/__tests__/JTable.test.tsx`: S-DAT-1 (`selected` sets `aria-selected` and `data-state="selected"` and adds `bg-primary-50` plus a 3px `primary-600` start border; the classes are covered by `classCoverage`). RED `cascade.test.ts`: S-DAT-2 light half (the selected and hover backgrounds differ, and the selected rule adds the border). GREEN `src/molecules/JTable/*` JTableRow `selected`.
+- [x] a3.4 Add the `axe-core` devDependency and the helper `src/__tests__/quality/axe.ts`; JButton and the selected JTableRow pass it. Stories: JButton density and a11y, JTable selected row. Gate.
 
 W1-W3 assertions changed: none. Commits: (1) `feat(uijona): add typed a11y props and density to JButton and JIcon` a3.1-a3.2; (2) `feat(uijona): add JTableRow selected state` a3.3-a3.4.
 
@@ -208,9 +212,10 @@ W1-W3 assertions changed: none. Commits: (1) `feat(uijona): add typed a11y props
 
 Specs: R-FND-8 (1.5.2 scope); S-FND-20, S-FND-21. Forecast ~150.
 
-- [ ] r.1 CHECK: the owner confirmed `1.5.2` (blocking; the orchestrator asks once).
-- [ ] r.2 MUTATION-free bump: `npm version 1.5.2 --no-git-tag-version`; create `CHANGELOG.md` (1.5.2 checklist above); README notes on `sideEffects` and `density`.
-- [ ] r.3 CHECK: `npm pack --dry-run`; the 1.5.2 contents are only R-FND-1, R-FND-2, R-FND-7 and R-DAT-1 (S-FND-20). Gate, then run the 1.5.2 checklist.
+- [x] r.1 CHECK: the owner confirmed `1.5.2` (blocking; the orchestrator asks once).
+- [x] r.2 MUTATION-free bump: `npm version 1.5.2 --no-git-tag-version`; create `CHANGELOG.md` (1.5.2 checklist above); README notes on `sideEffects` and `density`.
+- [x] r.2a (added in apply, orchestrator request) RED `src/__tests__/packageExports.test.ts`: the declaration build (`tsconfig.build.json`) includes no `src/test` or `src/__tests__` file. GREEN: both declaration emitters (`tsconfig.build.json` and the `vite-plugin-dts` options in `vite.config.ts`) exclude them, so `dist/test/setup.d.ts` (shipped by 1.5.1) and `dist/__tests__/quality/axe.d.ts` (from a3.4) leave the package. Commit `build(uijona): keep test-only declarations out of the package`.
+- [x] r.3 CHECK: `npm pack --dry-run`; the 1.5.2 contents are only R-FND-1, R-FND-2, R-FND-7 and R-DAT-1 (S-FND-20), plus the r.2a packaging hygiene (no export changes). Gate, then run the 1.5.2 checklist.
 
 **Gate 1**: tracker -> `main` and GitHub Release `v1.5.2`, both by the owner, then `npm view` confirms it.
 
@@ -228,90 +233,102 @@ W1-W3 assertions changed: the pin value only. Commit: `chore(softcommerce): pin 
 
 Specs: R-FND-3 (tokens, contrast), R-FND-4, R-FND-5, R-FND-6; S-FND-6, 7, 9, 10, 11, 12, 13, 14, 16, 25, 26. Design: D5, D6, D7, D8 (tokens). Forecast ~780 (flagged).
 
-- [ ] a2a.1 RED `src/theme/__tests__/tokens.test.ts`:
-  - S-FND-6: every semantic token and each `danger`/`success`/`warning` 50/100/700 tint has a light value (a `var()` to the palette on `:root, [data-jona-scope]`) and a dark value, only under the `data-theme-mode` selectors, with `color-scheme: dark`;
+**Applied as the fallback split** (a2a-i 694 lines; a2a-i + a2a-ii over 800 together): `feat/softcommerce-a2a-tokens-theme-i` = a2a.1-a2a.3 + a2a.6, `feat/softcommerce-a2a-tokens-theme-ii` = a2a.4-a2a.5 (561 lines, the theme-mode story moved here because it needs a2a.4); the planned name `feat/softcommerce-a2a-tokens-theme` points at the a2a-ii tip. Base: the tracker @ `1d53c20f` (b1a reordered after a2b by the orchestrator).
+
+- [x] a2a.1 RED `src/theme/__tests__/tokens.test.ts`:
+  - S-FND-6: every semantic token has a light value (a `var()` to the palette on `:root, [data-jona-scope]`) and each `danger`/`success`/`warning` 50/100/700 tint is a palette step (an RGB triplet on `:root`); all of them have a dark value, only under the `data-theme-mode` selectors, with `color-scheme: dark`;
   - S-FND-25: without the attribute, the component tokens are light and the chart selectors are unchanged;
   - S-FND-13: the six text styles;
   - S-FND-16: the density tokens, with `[data-jona-density]` overriding `--jona-control-h` only.
 
   GREEN `src/theme/tokens.css`.
-- [ ] a2a.2 RED `src/__tests__/quality/contrast.test.ts`: S-FND-7 for each mode. GREEN: tune the dark values.
-- [ ] a2a.3 RED S-FND-12: the `JonaThemeProvider` overrides apply in both modes; a non-root scope sets `data-jona-scope`; the new `JonaThemeTokens` keys exist. GREEN `src/theme/ThemeProvider.tsx`.
-- [ ] a2a.4 RED `src/theme/__tests__/themeMode.test.tsx`:
+- [x] a2a.2 RED `src/__tests__/quality/contrast.test.ts`: S-FND-7 for each mode. GREEN: tune the dark values.
+- [x] a2a.3 RED S-FND-12: the `JonaThemeProvider` overrides apply in both modes; a non-root scope sets `data-jona-scope`; the new `JonaThemeTokens` keys exist. GREEN `src/theme/ThemeProvider.tsx`.
+- [x] a2a.4 RED `src/theme/__tests__/themeMode.test.tsx`:
   - S-FND-9 (`matchMedia` live), S-FND-10, S-FND-11 (persisted; `blue` -> `system`);
   - S-FND-26 (`applyStoredThemeMode`, and `themeInitScript` serialises it).
 
   GREEN `src/theme/{InterThemeMode.ts,ThemeModeImpl.tsx,ThemeMode.tsx,themeInit.ts,index.ts}`, root exports.
-- [ ] a2a.5 RED S-FND-14 (`dist/base.css` styles `body` and `h1`-`h3`; `index.css` has neither) and `packageExports` `./base.css`. GREEN `src/styles/base.css`, the `vite.config.ts` copy, the `package.json` exports.
-- [ ] a2a.6 Add `src/theme/tokenClasses.ts` constants (surface, fg, line, focus, selection, control height, text scale); `classCoverage` covers their literals (D5). Theme-mode story. Gate.
+- [x] a2a.5 RED S-FND-14 (`src/styles/base.css` styles `body` and `h1`-`h3`; the compiled `index.css` has no body/h1-h3 rule beyond preflight; `dist/base.css` checked after `npm run build`) and `packageExports` `./base.css`. GREEN `src/styles/base.css`, the `vite.config.ts` copy, the `package.json` exports.
+- [x] a2a.6 Add `src/theme/tokenClasses.ts` constants (surface, fg, line, focus, selection, control height, text scale); `classCoverage` covers their literals (D5). Theme-mode story (shipped with a2a.4 in a2a-ii). Gate.
 
-W1-W3 assertions changed: none. Commits: (1) `feat(uijona): add semantic light and dark tokens, type scale and density tokens` a2a.1-a2a.3; (2) `feat(uijona): add theme mode provider and init script` a2a.4; (3) `feat(uijona): ship opt-in base.css and token class constants` a2a.5-a2a.6.
+W1-W3 assertions changed: none. Commits: (1) `feat(uijona): add semantic light and dark tokens, type scale and density tokens` a2a.1-a2a.3; (2) `feat(uijona): add token class constants` a2a.6 (a2a-i tip); (3) `feat(uijona): add theme mode provider and init script` a2a.4 + story; (4) `feat(uijona): ship opt-in base.css` a2a.5 (a2a-ii tip).
 
 ## Slice a2b: component token migration (branch `feat/softcommerce-a2b-token-migration`, base: a2a)
 
 Specs: R-FND-3 (lint), R-FND-5 (lib titles), R-FND-7 (1.6.0 density), R-DAT-1 (1.6.0); S-FND-8, S-FND-15 (JDialog, JDrawer), S-FND-18 (1.6.0 half), S-DAT-2 (dark half). Forecast ~760 (flagged).
 
-- [ ] a2b.1 RED `src/__tests__/quality/tokenLint.test.ts` with `src/__tests__/quality/darkModeAllowlist.ts`: S-FND-8 over Views and `index.css`. The allowlist only shrinks: each entry must still exist and still violate. GREEN `src/styles/index.css` hard-coded colors -> tokens (jcheckbox ring, skeleton `#e5e7eb`/`#f9fafb`, `.jtextbox-icon #6b7280`, shimmer).
-- [ ] a2b.2 GREEN: migrate the atoms to `tokenClasses` (JButton, JTextBox, JTextArea, JComboBox, JCheckBox, JRadioButton, JLabel/JIcon/JChip, JBadge, JSkeleton, avatar) and drop them from the allowlist.
-- [ ] a2b.3 GREEN: migrate the molecules and layouts the app renders or that 1.6.0 pieces compose (JDialog, JOptionPane, JDrawer, JTable, JTabs, JPagination, JDatePicker, JToast, JAlert, JDropdown, JSearchInput, JBreadcrumb, JEmptyState, JStepper, JFormField, JSidebarLayout; confirm the names with `fd` at apply). JDialog and JDrawer titles use the type scale (S-FND-15).
-- [ ] a2b.4 RED:
+**Applied as the fallback split** (a2b-i + a2b-ii = 858 lines before the split): `feat/softcommerce-a2b-token-migration-i` = a2b.1, a2b.2, a2b.4 (456 lines); `feat/softcommerce-a2b-token-migration-ii` = a2b.3 plus the a1/a3 deferred items assigned to a2b (status-tint repaint, JNavbar content width, JHeaderPage/JFooterPage `w-auto`) and the Storybook `Tema` toolbar (478 lines, golden JSON excluded); the planned name `feat/softcommerce-a2b-token-migration` points at the a2b-ii tip.
+
+- [x] a2b.1 RED `src/__tests__/quality/tokenLint.test.ts` with `src/__tests__/quality/darkModeAllowlist.ts`: S-FND-8 over the lib source strings (Views, Inter and Impl files; stories, tests and `tokenClasses.ts` excluded) and `index.css`. The allowlist only shrinks: each entry must still exist and still violate. GREEN `src/styles/index.css` hard-coded colors -> tokens (jcheckbox ring, skeleton `#e5e7eb`/`#f9fafb`, `.jtextbox-icon #6b7280`, shimmer, the `var(--danger-500, #ef4444)`-style fallbacks).
+- [x] a2b.2 GREEN: migrate the atoms to `tokenClasses` (JButton, JTextBox, JTextArea, JComboBox, JCheckBox, JRadioButton, JLabel/JIcon/JChip, JBadge, JSkeleton, avatar) and drop them from the allowlist. Applied to every atom (also JDot, JGlyph, JPanel, JProgress, JSeparator, JSpinner, JSwitch); JIcon and JAvatar had no raw color.
+- [x] a2b.3 GREEN: migrate the molecules and layouts the app renders or that 1.6.0 pieces compose (JDialog, JOptionPane, JDrawer, JTable, JTabs, JPagination, JDatePicker, JToast, JAlert, JDropdown, JSearchInput, JBreadcrumb, JEmptyState, JStepper, JFormField, JSidebarLayout; confirm the names with `fd` at apply). JDialog and JDrawer titles use the type scale (S-FND-15). JFormField had no raw color.
+- [x] a2b.4 RED:
   - S-DAT-2 dark half: the selected and hover tokens differ in dark;
   - S-FND-18 (1.6.0 half): `auto` uses `min-h-[var(--jona-control-h)]`, an ancestor `[data-jona-density]` changes it, and an explicit `touch`/`compact` wins.
 
   GREEN: JTableRow uses the selection token; JButton `auto`. Spot-check dark in Storybook. Gate.
 
-1.5.1 lib assertions that named raw palette classes are updated and listed in the PR (behavior unchanged). W1-W3: none. Commits: (1) `feat(uijona): add token lint and tokenize index.css colors` a2b.1; (2) `feat(uijona): migrate atoms to semantic tokens` a2b.2, a2b.4; (3) `feat(uijona): migrate molecules and layouts to semantic tokens` a2b.3.
+1.5.1 lib assertions that named raw palette classes are updated and listed in the PR (behavior unchanged). W1-W3: none. Commits: (1) `feat(uijona): add token lint and tokenize index.css colors` a2b.1; (2) `feat(uijona): migrate atoms to semantic tokens` a2b.2, a2b.4 (a2b-i tip); (3) `feat(uijona): migrate molecules and layouts to semantic tokens` a2b.3 + status tints; (4) `fix(uijona): give header and footer slots their content width and cap the navbar row`; (5) `docs(uijona): add a Tema toolbar to Storybook to preview dark mode` (a2b-ii tip).
 
 ## Slice a4: form primitives (branch `feat/softcommerce-a4-forms`, base: a2b)
 
 Specs: R-FRM-1, 2, 3, 4, 6, R-FND-9; S-FRM-1..9, 12..16, S-FND-15 (JFormSection), S-FND-22 (introduced). Design: D11. Forecast ~760 (flagged).
 
-- [ ] a4.1 RED `src/__tests__/quality/componentPattern.test.ts`: S-FND-22 over the list of 1.6.0 folders. Every later lib slice appends its folders.
-- [ ] a4.2 RED `src/molecules/__tests__/JField.test.tsx`: S-FRM-1, 2, 3, 4, axe. GREEN `src/molecules/JField/*` (render-prop children, `requiredLabel='obligatorio'`, `span` default 6, `as='fieldset'`).
-- [ ] a4.3 RED `src/layouts/__tests__/JFieldGrid.test.tsx`: S-FRM-5 (12 columns from `md`, spans 3/4/6/12, one column below `md`, classes in the compiled CSS). GREEN `src/layouts/JFieldGrid/*`.
-- [ ] a4.4 RED `src/molecules/__tests__/JFormSection.test.tsx`: S-FRM-6, S-FND-15 (title style). GREEN `src/molecules/JFormSection/*`.
-- [ ] a4.5 RED `src/molecules/__tests__/JErrorSummary.test.tsx`: S-FRM-7, 8, 9. GREEN `src/molecules/JErrorSummary/*`.
-- [ ] a4.6 RED `src/molecules/__tests__/JDatePicker.test.tsx` (new cases): S-FRM-12, 13, 14, 15; the existing cases stay unchanged (S-FRM-16). GREEN `src/molecules/JDatePicker/*`: `forwardRef`, `id`, `name`, `label`, `error`, `required`, aria props, `onBlur(value)`; the story documents the `dd/MM/yyyy` + `iso` recipe.
-- [ ] a4.7 Exports, stories. Gate.
+**Split applied at a different task boundary than the named fallback** (a4.1-a4.3 alone measured 752 lines, so a4.1-a4.5 could not fit): `feat/softcommerce-a4-forms-i` = a4.1-a4.3 (752 lines); `feat/softcommerce-a4-forms-ii` = a4.4-a4.7 (708 lines); the planned name `feat/softcommerce-a4-forms` points at the a4-ii tip. Exports and stories ship with each piece's commit.
 
-W1-W3: none. Commits: (1) `feat(uijona): add JField and JFieldGrid` a4.1-a4.3; (2) `feat(uijona): add JFormSection and JErrorSummary` a4.4-a4.5; (3) `feat(uijona): add label, error and ref to JDatePicker` a4.6-a4.7.
+- [x] a4.1 RED `src/__tests__/quality/componentPattern.test.ts`: S-FND-22 over the list of 1.6.0 folders. Every later lib slice appends its folders. (The R-FND-8 1.6.0 subpath list lives in `packageExports.test.ts`; each slice appends to it too.)
+- [x] a4.2 RED `src/molecules/__tests__/JField.test.tsx`: S-FRM-1, 2, 3, 4, axe. GREEN `src/molecules/JField/*` (render-prop children, `requiredLabel='obligatorio'`, `span` default 6, `as='fieldset'`).
+- [x] a4.3 RED `src/layouts/__tests__/JFieldGrid.test.tsx`: S-FRM-5 (12 columns from `md`, spans 3/4/6/12, one column below `md`, classes in the compiled CSS). GREEN `src/layouts/JFieldGrid/*`.
+- [x] a4.4 RED `src/molecules/__tests__/JFormSection.test.tsx`: S-FRM-6, S-FND-15 (title style). GREEN `src/molecules/JFormSection/*`.
+- [x] a4.5 RED `src/molecules/__tests__/JErrorSummary.test.tsx`: S-FRM-7, 8, 9. GREEN `src/molecules/JErrorSummary/*`.
+- [x] a4.6 RED `src/molecules/__tests__/JDatePicker.test.tsx` (new cases): S-FRM-12, 13, 14, 15; the existing cases stay unchanged (S-FRM-16). GREEN `src/molecules/JDatePicker/*`: `forwardRef`, `id`, `name`, `label`, `error`, `required`, aria props, `onBlur(value)`; the story documents the `dd/MM/yyyy` + `iso` recipe.
+- [x] a4.7 Exports, stories. Gate.
+
+W1-W3: none. Commits: (1) `feat(uijona): add JField and JFieldGrid` a4.1-a4.3 (a4-i tip); (2) `feat(uijona): add JFormSection and JErrorSummary` a4.4-a4.5; (3) `feat(uijona): add label, error and ref to JDatePicker` a4.6-a4.7 (a4-ii tip).
 
 ## Slice a5: feedback (branch `feat/softcommerce-a5-feedback`, base: a4)
 
 Specs: R-FBK-1..6; S-FBK-1..16. Design: D9 (confirm Esc). Forecast ~600.
 
-- [ ] a5.1 RED `src/molecules/__tests__/JOptionPane.test.tsx`: S-FBK-11 (`details` is inside the pane and its description; without it, the 1.5.1 snapshot), `initialFocus`. GREEN `src/molecules/JOptionPane/*` (`JOPTIONPANE_DEFAULTS` unchanged).
-- [ ] a5.2 RED `src/hooks/__tests__/useConfirm.test.tsx`:
+**Split at a task boundary** (no named fallback; a5.1-a5.2 alone measured 616 lines, the toast work would have taken the slice to ~963): `feat/softcommerce-a5-feedback-i` = a5.1-a5.2 (616 lines plus a 182-line generated snapshot); `feat/softcommerce-a5-feedback-ii` = a5.3-a5.4 (347 lines); the planned name `feat/softcommerce-a5-feedback` points at the a5-ii tip. The useConfirm exports and its confirm-over-a-dialog story ship with a5.2; the JOptionPane `details` story with a5.1.
+
+- [x] a5.1 RED `src/molecules/__tests__/JOptionPane.test.tsx`: S-FBK-11 (`details` is inside the pane and its description; without it, the 1.5.1 snapshot), `initialFocus`. GREEN `src/molecules/JOptionPane/*` (`JOPTIONPANE_DEFAULTS` unchanged).
+- [x] a5.2 RED `src/hooks/__tests__/useConfirm.test.tsx`:
   - S-FBK-1..7;
   - S-FBK-8: the window-capture Esc interceptor leaves a `JDialog` beneath open; with `renderPane`, the host owns Esc;
   - S-FBK-9 (FIFO), S-FBK-10 (unmount resolves `false`).
 
   GREEN `src/hooks/useConfirm/*` (`CONFIRM_DEFAULTS`, focus `cancel` for danger).
-- [ ] a5.3 RED `src/hooks/__tests__/useToast.test.tsx`: S-FBK-12..16 (`danger` is `role="alert"`, `duration: 0` persists, the timer pauses on hover/focus, no focus steal, `label`/`dismissLabel`/`offset`, the default position unchanged). GREEN `src/hooks/useToast/*`, `src/molecules/JToast/*`.
-- [ ] a5.4 Stories (confirm over a dialog; ToastProvider `top-right` recommendation, R-FBK-6), exports. Gate.
+- [x] a5.3 RED `src/hooks/__tests__/useToast.test.tsx`: S-FBK-12..16 (`danger` is `role="alert"`, `duration: 0` persists, the timer pauses on hover/focus, no focus steal, `label`/`dismissLabel`/`offset`, the default position unchanged). GREEN `src/hooks/useToast/*`, `src/molecules/JToast/*`.
+- [x] a5.4 Stories (confirm over a dialog; ToastProvider `top-right` recommendation, R-FBK-6), exports. Gate.
 
-1.5.1 lib assertion changed: a `danger` toast found as `status` becomes `alert` (named fix, 1.6.0 CHANGELOG). W1-W3: none. Commits: (1) `feat(uijona): add JOptionPane details and initial focus` a5.1; (2) `feat(uijona): add useConfirm and ConfirmProvider` a5.2; (3) `fix(uijona): announce danger toasts as alerts and add toast options` a5.3-a5.4.
+1.5.1 lib assertion changed: a `danger` toast found as `status` becomes `alert` (named fix, 1.6.0 CHANGELOG). At apply no lib test asserted a danger toast as `status`, so no existing assertion changed. W1-W3: none. Commits: (1) `feat(uijona): add JOptionPane details and initial focus` a5.1; (2) `feat(uijona): add useConfirm and ConfirmProvider` a5.2 (a5-i tip); (3) `fix(uijona): announce danger toasts as alerts and add toast options` a5.3-a5.4 (a5-ii tip).
 
 ## Slice a6: page chrome (branch `feat/softcommerce-a6-page-chrome`, base: a5)
 
 Specs: R-DAT-5, 6, 7, R-FRM-5, R-CHR-6, R-CHR-7 (Esc rule, toolbar overflow); S-DAT-16..22, S-FRM-10, 11, S-CHR-20, S-FND-15 (JPageHeader). Design: D9. Forecast ~790 (flagged).
 
-- [ ] a6.1 RED `src/lib/__tests__/roving.test.ts` and `src/lib/__tests__/menuPopup.test.tsx`: roving index math; the menu root handles Esc with `preventDefault` + `stopPropagation`; an outside `pointerdown` closes. GREEN `src/lib/roving.ts`, `src/lib/menuPopup.ts` (internal, not exported).
-- [ ] a6.2 RED `src/molecules/__tests__/JToolbar.test.tsx`: S-DAT-16..21, and an overflow Esc leaves a `JDialog` beneath open. GREEN `src/molecules/JToolbar/*`.
-- [ ] a6.3 RED `src/molecules/__tests__/JPageHeader.test.tsx`: S-CHR-20, S-FND-15. GREEN `src/molecules/JPageHeader/*` (`forwardRef` to the heading).
-- [ ] a6.4 RED `src/molecules/__tests__/JInputGroup.test.tsx`: S-FRM-10, S-FRM-11 (the `lookup` preset is `10rem 1fr auto` from `sm`, bottom-aligned; `columns` through a CSS variable). GREEN `src/molecules/JInputGroup/*`.
-- [ ] a6.5 RED `src/molecules/__tests__/JPagination.test.tsx`: S-DAT-22. GREEN `src/molecules/JPagination/*`.
-- [ ] a6.6 Exports, stories. Gate.
+**Split at task boundaries** (the named fallback could not hold: a6.1-a6.2 measured 836 lines, and a6.2 plus a6.3 measured 854): `feat/softcommerce-a6-page-chrome-i` = a6.1 (265 lines); `-ii` = a6.2 (578); `-iii` = a6.3-a6.6 (652 plus a 3-line generated snapshot); the planned name `feat/softcommerce-a6-page-chrome` points at the a6-iii tip. Exports and stories ship with each component's commit.
 
-W1-W3: none. Commits: (1) `feat(uijona): add roving focus and menu popup helpers and JToolbar` a6.1-a6.2; (2) `feat(uijona): add JPageHeader and JInputGroup` a6.3-a6.4; (3) `feat(uijona): add JPagination rows info` a6.5-a6.6.
+- [x] a6.1 RED `src/lib/__tests__/roving.test.ts` and `src/lib/__tests__/menuPopup.test.tsx`: roving index math; the menu root handles Esc with `preventDefault` + `stopPropagation`; an outside `pointerdown` closes. GREEN `src/lib/roving.ts`, `src/lib/menuPopup.ts` (internal, not exported).
+- [x] a6.2 RED `src/molecules/__tests__/JToolbar.test.tsx`: S-DAT-16..21, and an overflow Esc leaves a `JDialog` beneath open. GREEN `src/molecules/JToolbar/*`.
+- [x] a6.3 RED `src/molecules/__tests__/JPageHeader.test.tsx`: S-CHR-20, S-FND-15. GREEN `src/molecules/JPageHeader/*` (`forwardRef` to the heading).
+- [x] a6.4 RED `src/molecules/__tests__/JInputGroup.test.tsx`: S-FRM-10, S-FRM-11 (the `lookup` preset is `10rem 1fr auto` from `sm`, bottom-aligned; `columns` through a CSS variable). GREEN `src/molecules/JInputGroup/*`.
+- [x] a6.5 RED `src/molecules/__tests__/JPagination.test.tsx`: S-DAT-22. GREEN `src/molecules/JPagination/*`.
+- [x] a6.6 Exports, stories. Gate.
+
+W1-W3: none. Commits: (1) `feat(uijona): add roving focus and menu popup helpers` a6.1 (a6-i tip); (2) `feat(uijona): add JToolbar` a6.2 (a6-ii tip); (3) `feat(uijona): add JPageHeader and JInputGroup` a6.3-a6.4; (4) `feat(uijona): add JPagination rows info` a6.5-a6.6 (a6-iii tip). The orchestrator's extra item (the dark `BACKDROP`) is deferred to a10: it changes the class string pinned by the a5 S-FBK-11 approval snapshot; the ready commit is parked on `feat/softcommerce-a10-backdrop-candidate`.
 
 ## Slice a7: data grid (branch `feat/softcommerce-a7-data-grid`, base: a6)
 
 Specs: R-DAT-2, 3, 4; S-DAT-3..15. Design: D10. Forecast ~760 (flagged).
 
-- [ ] a7.1 RED `src/molecules/__tests__/JDataGrid.test.tsx`: S-DAT-3, 4, 5, axe. GREEN `src/molecules/JDataGrid/*` on the JTable primitives.
-- [ ] a7.2 RED: S-DAT-6..11 and the `JDataGridHandle.focusRow(key)` handle. GREEN: keyboard through `src/lib/roving.ts`, selection follows focus.
-- [ ] a7.3 RED: S-DAT-12, 13, 14, 15, `maxHeight` through a CSS variable, `muted`, the badge as the description. GREEN: states and `rowState`. Exports, story. Gate.
+**Named fallback applied:** `feat/softcommerce-a7-data-grid-i` = a7.1-a7.2 with the exports and the base story (594 lines); `-ii` = a7.3 (213); the planned name points at the a7-ii tip.
+
+- [x] a7.1 RED `src/molecules/__tests__/JDataGrid.test.tsx`: S-DAT-3, 4, 5, axe. GREEN `src/molecules/JDataGrid/*` on the JTable primitives.
+- [x] a7.2 RED: S-DAT-6..11 and the `JDataGridHandle.focusRow(key)` handle. GREEN: keyboard through `src/lib/roving.ts`, selection follows focus.
+- [x] a7.3 RED: S-DAT-12, 13, 14, 15, `maxHeight` through a CSS variable, `muted`, the badge as the description. GREEN: states and `rowState`. Exports, story. Gate.
 
 W1-W3: none. Commits: (1) `feat(uijona): add JDataGrid roles, selection and keyboard` a7.1-a7.2; (2) `feat(uijona): add JDataGrid loading, empty and row states` a7.3.
 
@@ -319,43 +336,54 @@ W1-W3: none. Commits: (1) `feat(uijona): add JDataGrid roles, selection and keyb
 
 Specs: R-CHR-2, 3, 4, R-CHR-5 (`JTabs keepMounted`); S-CHR-5..13, 19; the `JTabsTrigger` `invalid`/`count` lib contract used by R-MD-1. Forecast ~740.
 
-- [ ] a8.1 RED `src/molecules/__tests__/filterTree.test.ts`: the pure `filterTree` (case- and accent-insensitive, ancestors expanded, no check propagation). GREEN `src/molecules/JTreeNav/filterTree.ts`.
-- [ ] a8.2 RED `src/molecules/__tests__/JTreeNav.test.tsx`: S-CHR-5..10, axe. GREEN `src/molecules/JTreeNav/*`, `nav` variant.
-- [ ] a8.3 RED: S-CHR-11, 12 (the filter box, restored expansion), S-CHR-13 (checkbox), `maxHeight`. GREEN: filter and checkbox variant.
-- [ ] a8.4 RED `src/molecules/__tests__/JTabs.test.tsx` (new cases): S-CHR-19; `JTabsTrigger invalid` gives the description `Con errores` with the name unchanged; `count`. The 1.5.1 cases stay unchanged. GREEN `src/molecules/JTabs/*`.
-- [ ] a8.5 Exports, stories. Gate.
+**Split at a task boundary** (a8 had no named fallback; JTreeNav alone measured 1,081 lines): `feat/softcommerce-a8-navigation-i` = a8.1-a8.2 with the JTreeNav exports and base story (683 lines); `-ii` = a8.3-a8.5 (704); the planned name points at the a8-ii tip.
 
-W1-W3: none. Commits: (1) `feat(uijona): add JTreeNav with filter and checkbox variant` a8.1-a8.3; (2) `feat(uijona): add JTabs keepMounted and trigger indicators` a8.4-a8.5.
+- [x] a8.1 RED `src/molecules/__tests__/filterTree.test.ts`: the pure `filterTree` (case- and accent-insensitive, ancestors expanded, no check propagation). GREEN `src/molecules/JTreeNav/filterTree.ts`.
+- [x] a8.2 RED `src/molecules/__tests__/JTreeNav.test.tsx`: S-CHR-5..10, axe. GREEN `src/molecules/JTreeNav/*`, `nav` variant.
+- [x] a8.3 RED: S-CHR-11, 12 (the filter box, restored expansion), S-CHR-13 (checkbox), `maxHeight`. GREEN: filter and checkbox variant.
+- [x] a8.4 RED `src/molecules/__tests__/JTabs.test.tsx` (new cases): S-CHR-19; `JTabsTrigger invalid` gives the description `Con errores` with the name unchanged; `count`. The 1.5.1 cases stay unchanged. GREEN `src/molecules/JTabs/*`.
+- [x] a8.5 Exports, stories. Gate.
+
+W1-W3: none. Commits: (1) `feat(uijona): add JTreeNav and filterTree` a8.1-a8.2 (+ exports, base story; a8-i tip); (2) `feat(uijona): add JTreeNav filter box and checkbox variant` a8.3; (3) `feat(uijona): add JTabs keepMounted and trigger indicators` a8.4-a8.5 (a8-ii tip).
 
 ## Slice a9a: app shell, user menu, context chip (branch `feat/softcommerce-a9a-app-shell`, base: a8)
 
 Specs: R-CHR-1, R-CHR-7; S-CHR-1..4, 21, 22, 23. Design: D9. Forecast ~620.
 
-- [ ] a9a.1 RED `src/layouts/__tests__/JAppShell.test.tsx`: S-CHR-1..4; drawer Esc on its own root and focus returns to `Abrir menú`; axe. GREEN `src/layouts/JAppShell/*`.
-- [ ] a9a.2 RED `src/molecules/__tests__/JUserMenu.test.tsx`: S-CHR-21, 22; Esc leaves a `JDialog` beneath open; an outside press closes. GREEN `src/molecules/JUserMenu/*` on `menuPopup`.
-- [ ] a9a.3 RED `src/molecules/__tests__/JContextChip.test.tsx`: S-CHR-23. GREEN `src/molecules/JContextChip/*`. Exports, stories. Gate.
+**Split at a task boundary** (a9a had no named fallback; JAppShell alone measured 505 lines): `feat/softcommerce-a9a-app-shell-i` = a9a.1 with its exports and story (505); `-ii` = a9a.2-a9a.3 plus a JAppShell topbar fix (693); the planned name points at the a9a-ii tip.
 
-W1-W3: none. Commits: (1) `feat(uijona): add JAppShell` a9a.1; (2) `feat(uijona): add JUserMenu and JContextChip` a9a.2-a9a.3.
+- [x] a9a.1 RED `src/layouts/__tests__/JAppShell.test.tsx`: S-CHR-1..4; drawer Esc on its own root and focus returns to `Abrir menú`; axe. GREEN `src/layouts/JAppShell/*`.
+- [x] a9a.2 RED `src/molecules/__tests__/JUserMenu.test.tsx`: S-CHR-21, 22; Esc leaves a `JDialog` beneath open; an outside press closes. GREEN `src/molecules/JUserMenu/*` on `menuPopup`.
+- [x] a9a.3 RED `src/molecules/__tests__/JContextChip.test.tsx`: S-CHR-23. GREEN `src/molecules/JContextChip/*`. Exports, stories. Gate.
+
+W1-W3: none. Commits: (1) `feat(uijona): add JAppShell` a9a.1 (a9a-i tip); (2) `fix(uijona): let the JAppShell topbar end shrink before the brand` (found by the a9a-ii visual check); (3) `feat(uijona): add JUserMenu and JContextChip` a9a.2-a9a.3 (a9a-ii tip).
 
 ## Slice a9b: workspace tabs, shortcut sheet (branch `feat/softcommerce-a9b-workspace-tabs`, base: a9a)
 
-Specs: R-CHR-5 (JWorkspaceTabs), R-CHR-8; S-CHR-14..18, 24. Forecast ~560.
+Specs: R-CHR-5 (JWorkspaceTabs), R-CHR-8, R-CHR-3 (focusFilter); S-CHR-14..18, 24. Forecast ~560.
 
-- [ ] a9b.1 RED `src/organisms/__tests__/JWorkspaceTabs.test.tsx`: S-CHR-14..18; the overflow Esc rule; the `focusPanel(id)` handle. GREEN `src/organisms/JWorkspaceTabs/*`.
-- [ ] a9b.2 RED `src/molecules/__tests__/JShortcutSheet.test.tsx`: S-CHR-24. GREEN `src/molecules/JShortcutSheet/*`. Exports, stories. Gate.
+**Split at a task boundary** (a9b had no named fallback; JWorkspaceTabs alone measured 783 lines): `feat/softcommerce-a9b-workspace-tabs-i` = a9b.1 with its exports and story (783); `-ii` = a9b.2-a9b.3 plus a JShortcutSheet separator fix (357); the planned name points at the a9b-ii tip.
 
-W1-W3: none. Commits: (1) `feat(uijona): add JWorkspaceTabs` a9b.1; (2) `feat(uijona): add JShortcutSheet` a9b.2.
+- [x] a9b.1 RED `src/organisms/__tests__/JWorkspaceTabs.test.tsx`: S-CHR-14..18; the overflow Esc rule; the `focusPanel(id)` handle. GREEN `src/organisms/JWorkspaceTabs/*`.
+- [x] a9b.2 RED `src/molecules/__tests__/JShortcutSheet.test.tsx`: S-CHR-24. GREEN `src/molecules/JShortcutSheet/*`. Exports, stories. Gate.
+- [x] a9b.3 (orchestrator item) RED `src/molecules/__tests__/JTreeNav.test.tsx` (new cases): the `JTreeNavHandle.focusFilter()` ref focuses the filter box and selects its text, and does nothing without it. GREEN: `JTreeNav` forwards the handle (additive; R-CHR-3 and the design Interfaces note aligned).
+
+W1-W3: none. Commits: (1) `feat(uijona): add JWorkspaceTabs` a9b.1 (a9b-i tip); (2) `feat(uijona): add JShortcutSheet` a9b.2; (3) `feat(uijona): add a JTreeNav focusFilter handle` a9b.3; (4) `fix(uijona): paint the JShortcutSheet row separators with the line token` (found by the a9b visual check; a9b-ii tip).
 
 ## Slice a10: auth layout and release 1.6.0 (branch `feat/softcommerce-a10-auth-release`, base: a9b)
 
-Specs: R-CHR-9, R-FND-8; S-CHR-25, 26, 27, S-FND-15 (JAuthLayout), S-FND-19, 20, 21, 22 (sweep). Forecast ~520.
+Specs: R-CHR-9, R-FND-8; S-CHR-25, 26, 27, S-FND-15 (JAuthLayout), S-FND-19, 20, 21, 22 (sweep). Forecast ~520. Measured 600 (the two regenerated snapshots and the golden JSON excluded), no split.
 
-- [ ] a10.1 RED `src/layouts/__tests__/JAuthLayout.test.tsx`: S-CHR-25, 26, 27, S-FND-15. GREEN `src/layouts/JAuthLayout/*` (JStepper `aria-current="step"`).
-- [ ] a10.2 RED sweeps: S-FND-19 (`packageExports` lists every 1.6.0 component and hook in the root entry and the export map); S-FND-22 (the `componentPattern` list is complete); `classCoverage` and `tokenLint` green. GREEN: any gap.
-- [ ] a10.3 CHECK S-FND-20: the 1.5.1 lib suite passes except the named fixes (D1a, D2, the danger toast role).
-- [ ] a10.4 Run the 1.6.0 checklist: owner confirmation, `npm version 1.6.0 --no-git-tag-version`, CHANGELOG, README, `npm pack --dry-run` with `dist/base.css`. Gate.
+- [x] a10.1 RED `src/layouts/__tests__/JAuthLayout.test.tsx`: S-CHR-25, 26, 27, S-FND-15. GREEN `src/layouts/JAuthLayout/*` (JStepper `aria-current="step"`; `currentStep` is a step id).
+- [x] a10.2 RED sweeps: S-FND-19 (every component and hook folder is in the root entry and the export map; the 1.6.0 list in `packageExports`); S-FND-22 (the `componentPattern` list equals the design placement); `classCoverage` and `tokenLint` green. GREEN: no gap (MUTATION evidence).
+- [x] a10.3 CHECK S-FND-20: the 1.5.1 lib suite (the 33 test files at `ad092390`, unchanged) passes against the a10 sources: 33 files / 281 tests.
+- [x] a10.4 (orchestrator items) the dark `BACKDROP` (`cf5d980a`) with the S-FBK-11 snapshot regenerated; the dark gate: `JAccordion` (used by softcommerce) leaves the allowlist; the JTable header label and the JPagination chevron layout fixes (S-DAT-22 snapshot regenerated); the jpanelOverrides `added` line numbers regenerated.
+- [x] a10.5 The 1.6.0 checklist without the bump: CHANGELOG 1.6.0, README (`base.css`, `themeInitScript`, the `top-right` toast recommendation), lint, test, build, build-storybook, `npm pack --dry-run` (lists `dist/base.css` and every export target). Gate.
+- [x] a10.6 After the owner confirms `1.6.0` (`npm view jona-ui versions` does not list it): `npm version 1.6.0 --no-git-tag-version` in `web_ts/uijona` (package and lock), then commit `chore(uijona): release 1.6.0`. Owner confirmed 2026-10-30; 1.5.2 is not published, so the CHANGELOG states that 1.6.0 ships the 1.5.2 changes. Preceded by the JStepper dark fix (current step number on `FG`).
 
-W1-W3: none. Commits: (1) `feat(uijona): add JAuthLayout` a10.1; (2) `test(uijona): sweep exports and component pattern for 1.6.0` a10.2-a10.3; (3) `chore(uijona): release 1.6.0` a10.4.
+Deferred from a6 (**approved by the orchestrator for a10**, with the S-FBK-11 JOptionPane snapshot regenerated as named churn): the dark `BACKDROP`. Landed in a10 (`fb20145d`): `--jona-backdrop`/`--jona-backdrop-alpha` (light neutral-900 at 0.5, unchanged; dark black at 0.7) and a contrast test (a dialog surface beneath dims >= 1.3:1; it was 1.11:1). The S-FBK-11 approval snapshot changes only in the `BACKDROP` class string.
+
+W1-W3: none. Named churn (spec deltas aligned): the S-FBK-11 JOptionPane snapshot (backdrop token), the S-DAT-22 JPagination snapshot (chevron wrapper spans) and the jpanelOverrides golden `added` list (S-FND-24). Commits: (1) `fix(uijona): keep the modal backdrop visible over a dark page`; (2) `feat(uijona): add JAuthLayout` a10.1; (3) `feat(uijona): migrate JAccordion to semantic tokens`; (4) `fix(uijona): lay out the JTable header label as a row`; (5) `fix(uijona): keep the JPagination chevrons beside the Previous and Next labels`; (6) `test(uijona): sweep exports and component pattern for 1.6.0` a10.2-a10.3; (7) `docs(uijona): prepare the 1.6.0 changelog and readme` a10.5; (8) `test(uijona): give the JShortcutSheet separator test the stylesheet compile timeout` (a10 tip). (9) `fix(uijona): paint the JStepper current step number with the fg token` `41e028fd`; (10) `chore(uijona): release 1.6.0` a10.6 `a5feb5ca` (tip).
 
 **Gate 2**: tracker -> `main` and GitHub Release `v1.6.0`, both by the owner, then `npm view` confirms it.
 

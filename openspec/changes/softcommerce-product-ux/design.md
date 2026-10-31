@@ -30,14 +30,14 @@ softcommerce adopts each release with an exact pin. Every lib API below is **loc
 | # | Decision | Rejected | Rationale |
 |---|---|---|---|
 | D1 | **Cascade (1.5.2)**<br>- Only the *layout-engine* rules (`.jpanel*`, `.jona-layout-mobile-grid`, `.jona-gridbag`, `.jona-group-layout`, `.jona-spring-layout`) move out of `@layer utilities`. They become plain CSS between `@tailwind base` and `@tailwind utilities`, with each selector wrapped in `:where()` (specificity 0,0,0).<br>- Component **state/slot rules stay byte-identical, at their current specificity**: `.jbutton*`, `.jtextbox*`, `.jcheckbox*`, `.jcombobox*`, `.jtextarea*`, `[data-jlabel-*]`, `.jskeleton*`, `.jprogress*`, `.javatar*`. These rules deliberately override the component's own utilities; for example `.jtextbox-root[data-jtextbox-has-icon-left] .jtextbox` must keep beating `px-3`.<br>- The card `hidden` keeps `!important`. The iOS 16px rule is untouched | Wrapping every rule (the icon text overlaps, a regression); `.jpanel:where([…])` (the result depends on order); keeping `@layer utilities` (purge risk) | Fixes `lg:hidden`/`sm:flex` on JPanel without touching component internals |
-| D1a | **Visible corrections from D1.** JPanel `className`s that 0,2,0 rules silently overrode now apply. That covers 93 sites in 33 lib Views, among them:<br>- JNavbar `hidden … lg:flex` (`JNavbarView.tsx:44`) and `w-[85vw]` (`:65`);<br>- the `gap-*`/`w-*`/`flex-*` classes in JFooterPage, JErrorPage, JDataTable, JCombobox, JCheckBoxField and JHeaderPage.<br>The 1.5.2 slice runs `jpanelOverrides.test.ts`, which lists every JPanel `className` token that sets an engine property (display, gap, width, flex, align, justify, grid-template) as a reviewed snapshot. It also audits those stories in Storybook at 375/1024/1920. A class that is wrong once honored is removed from its View in the same slice. The CHANGELOG lists the corrections | Shipping silently | Consumers see intended layouts, documented |
+| D1a | **Visible corrections from D1.** JPanel `className`s that 0,2,0 rules silently overrode now apply. That covers 93 sites in 33 lib Views, among them:<br>- JNavbar `hidden … lg:flex` (`JNavbarView.tsx:44`) and `w-[85vw]` (`:65`);<br>- the `gap-*`/`w-*`/`flex-*` classes in JFooterPage, JErrorPage, JDataTable, JCombobox, JCheckBoxField and JHeaderPage.<br>The 1.5.2 slice runs `jpanelOverrides.test.ts`, which lists every JPanel `className` token that sets an engine property (display, gap, width, flex, align, justify, grid-template) as a reviewed snapshot. It also audits those stories in Storybook at 375/1024/1920. A class that is wrong once honored is removed from its View in the same slice. Where a View's `flex` meant a row, the row direction is made explicit with `flex-row` (the engine's `flex-direction: var(--jpanel-direction, column)` is not overridden by `flex`), listed under `added` in the snapshot. The CHANGELOG lists the corrections | Shipping silently | Consumers see intended layouts, documented |
 | D2 | **`[hidden]`**: `@layer base { [hidden]:where(:not([hidden='until-found'])) { display:none !important } }`. Listed in the CHANGELOG | Preflight `[hidden]` (0,1,0) loses to `.flex` | The `hidden` attribute always hides |
 | D3 | **Distribution**<br>- `sideEffects: ["**/*.css"]`; `content` unchanged.<br>- Consumers get every lib class because the lib's own source is scanned, and a test proves it. Consumers write none. Own-Tailwind consumers (showcase "If you already use Tailwind", `ThemingGuideView.tsx:251-275`) keep working (D5).<br>- New devDependencies: `postcss-import` (the in-memory compile resolves `@import '../theme/tokens.css'`) and `axe-core` | Safelist; a mandatory preset | Deterministic |
 | D4 | **No dynamic class fragments in the lib.** Dynamic geometry goes through CSS variables in inline `style` (for example `JInputGroup columns`, `maxHeight`) | — | The coverage test can be exhaustive |
-| D5 | **Semantic tokens, consumed through arbitrary-value utilities.**<br>- RGB triplets live in `tokens.css`. Light values are `var()` references to the palette (`--jona-fg: var(--jona-neutral-900)`, `--jona-surface: var(--jona-white)`), declared on `:root, [data-jona-scope]`, so `JonaThemeProvider` overrides flow through. On a non-root scope, the provider sets `data-jona-scope` on its target.<br>- Lib Views use the constants of `src/theme/tokenClasses.ts`, for example `'bg-[rgb(var(--jona-surface))]'`, `'min-h-[var(--jona-control-h)]'` and `'text-[1.25rem] leading-7 font-semibold'`.<br>- Those literal strings are generated both by the lib build and by any consumer Tailwind that scans `dist/**/*.js`, which only needs `jona-ui/theme/tokens.css` (already documented).<br>- No `dark:` variants. No new `tailwind.config.js` keys | Named Tailwind color keys (they break the own-Tailwind consumers, who lack the keys); inverting the neutral ramp | One class serves both themes and both distribution paths |
+| D5 | **Semantic tokens, consumed through arbitrary-value utilities.**<br>- RGB triplets live in `tokens.css`. Light values are `var()` references to the palette (`--jona-fg: var(--jona-neutral-900)`, `--jona-surface: var(--jona-white)`), declared on `:root, [data-jona-scope]`, so `JonaThemeProvider` overrides flow through. On a non-root scope, the provider sets `data-jona-scope` on its target.<br>- Lib Views use the constants of `src/theme/tokenClasses.ts`, for example `'bg-[rgb(var(--jona-surface))]'`, `'min-h-[var(--jona-control-h)]'` and `'text-[1.25rem] leading-7 font-semibold'`. Variant and derived constants are literals too: hover/focus/placeholder/data-state forms, the status tints (`bg-[rgb(var(--jona-danger-50))]`), an fg wash for hovers on any surface (`hover:bg-[rgb(var(--jona-fg)/0.06)]`), control borders and tracks at `line-strong/0.45` (close to the 1.5.x neutral-300), a backdrop (`--jona-backdrop`/`--jona-backdrop-alpha`: neutral-900 at 0.5 in light, black at 0.7 in dark, a10) and an inverse pair for toasts (`bg` = fg, text = surface). SVG strokes and fills use `stroke-[…]`/`fill-[…]` classes, since a presentation attribute cannot read `var()`.<br>- Those literal strings are generated both by the lib build and by any consumer Tailwind that scans `dist/**/*.js`, which only needs `jona-ui/theme/tokens.css` (already documented).<br>- No `dark:` variants. No new `tailwind.config.js` keys | Named Tailwind color keys (they break the own-Tailwind consumers, who lack the keys); inverting the neutral ramp | One class serves both themes and both distribution paths |
 | D6 | **Dark is opt-in**<br>- Component dark values apply only under `:root[data-theme-mode='dark']`, or `@media (prefers-color-scheme:dark) { :root[data-theme-mode='system'] }`. They come with `color-scheme: dark`.<br>- Without the provider or the init script there is no `data-theme-mode`, so components stay light, as in 1.5.x.<br>- The chart tokens keep their existing selectors.<br>- `JonaThemeModeProvider` and the init script set `data-theme-mode` (the choice) and `data-theme` (the resolved value, `light`/`dark`, tracking `matchMedia` live) on `<html>`. The choice persists in `localStorage['jona-theme-mode']`, and an invalid value is read as `system` | Keying components on `prefers-color-scheme` or `data-theme` alone (it breaks consumers with their own `bg-white`, for example showcase `^1.2.4`); a 2.0.0 | Additive minor |
-| D7 | **Base styles are opt-in**: `jona-ui/base.css` (`src/styles/base.css`, plain CSS, copied to `dist/`, `exports["./base.css"]`). It styles `body` (font, `surface`, `fg`, body size) and `h1`–`h3` (page/section/body-600). The type scale ships as tokens: `--jona-text-{page,section,body,small,caption,table}` (20/28/600, 16/24/600, 14/20, 13/18, 12/16, 13/18 tabular-nums). No JHeading atom | A global `@layer base` restyle | Showcase is unaffected unless it imports the file |
-| D8 | **Density**<br>- Tokens: `--jona-control-h` (2.75rem; 2.25rem from `sm`), `--jona-row-h` 2.25rem, `--jona-toolbar-h` 2.5rem, `--jona-topbar-h` 3rem, `--jona-tabs-h` 2.5rem.<br>- `[data-jona-density=compact\|touch]` on an ancestor overrides `--jona-control-h` only.<br>- **JButton `density`** has no default; without it the size is the 1.5.1 output. In 1.5.2: `touch` = `min-h-11`, `compact` = `min-h-9`, `auto` = `min-h-11 sm:min-h-9`. In 1.6.0, `auto` uses `min-h-[var(--jona-control-h)]`, so it follows an ancestor attribute.<br>- Precedence: an explicit `touch`/`compact` > the ancestor attribute > the size default | A prop on every atom | Removes the 37 copies of the touch floor |
+| D7 | **Base styles are opt-in**: `jona-ui/base.css` (`src/styles/base.css`, plain CSS, copied to `dist/`, `exports["./base.css"]`). It styles `body` (font, `surface`, `fg`, body size) and `h1`–`h3` (page/section/body-600). The type scale ships as tokens: `--jona-text-{page,section,body,small,caption,table}-{size,leading,weight}` (20/28/600, 16/24/600, 14/20, 13/18, 12/16, 13/18) plus `--jona-text-table-numeric: tabular-nums`; split properties rather than a `font` shorthand, so `base.css` never resets the consumer's font family. No JHeading atom | A global `@layer base` restyle | Showcase is unaffected unless it imports the file |
+| D8 | **Density**<br>- Tokens: `--jona-control-h` (2.75rem; 2.25rem from `sm`), `--jona-row-h` 2.25rem, `--jona-toolbar-h` 2.5rem, `--jona-topbar-h` 3rem, `--jona-tabs-h` 2.5rem.<br>- `[data-jona-density=compact\|touch]` on an ancestor overrides `--jona-control-h` only.<br>- **JButton `density`** has no default; without it the size is the 1.5.1 output. In 1.5.2: `touch` = `min-h-11 sm:min-h-11`, `compact` = `min-h-9 sm:min-h-9`, `auto` = `min-h-11 sm:min-h-9` (both breakpoints, so twMerge replaces the size's `sm:` height too). In 1.6.0, `auto` uses `min-h-[var(--jona-control-h)] sm:min-h-[var(--jona-control-h)]` (both breakpoints, for the same twMerge reason), so it follows an ancestor attribute.<br>- Precedence: an explicit `touch`/`compact` > the ancestor attribute > the size default | A prop on every atom | Removes the 37 copies of the touch floor |
 | D9 | **Esc ownership**<br>- New lib overlays (JUserMenu, the JToolbar overflow, the JWorkspaceTabs overflow, the JAppShell drawer) do **not** use JDropdown's `document` listeners. They handle Esc on their own root with `preventDefault` + `stopPropagation`, and close on an outside `pointerdown`.<br>- `ConfirmProvider` with no `renderPane` installs a window-capture Esc interceptor while it is open (`stopImmediatePropagation`, resolves `false`), so no `JDialog` beneath sees it. With `renderPane`, the host owns Esc.<br>- The app's `DialogStackProvider` releases its Esc snapshot with `setTimeout(0)` instead of relying on the window bubble listener, so a stopped event cannot leave it stuck.<br>- The app wraps JShortcutSheet's and the child JDrawer's `onClose` with `useGuardedClose` | A lib-wide dialog stack | Coexists with R-SHELL-6 |
 | D10 | **JDataGrid is new**, built on JTable primitives: `role=grid`, a roving row focus, and selection that follows focus | Extending `JDataTable`/`JTable` (the role change breaks their consumers) | Different contract |
 | D11 | **JField uses render-prop children** that receive the wired aria. JFormField is unchanged | Extending JFormField | Wraps any control |
@@ -75,12 +75,22 @@ title?; id?; 'aria-label'?; 'aria-describedby'?; 'aria-keyshortcuts'?; 'aria-pre
 //          1.5.2 paints bg-primary-50 + a 3px primary-600 start border; 1.6.0 uses the selection token
 // 1.6.0 extensions
 JDatePicker: forwardRef<HTMLInputElement>; id?, name?, label?, error?, required?, 'aria-describedby'?, 'aria-invalid'?, onBlur?(value)
+  // valueFormat 'iso': an ISO value is shown through the mask; a complete valid entry is reported as ISO,
+  // an incomplete one as typed (1.6.0 CHANGELOG, Fixed). label or id → no placeholder aria-label
 JTabs: keepMounted?=false;  JTabsTrigger: invalid?, invalidLabel?='Con errores', count?
+  // JTABS_DEFAULTS gains keepMounted; JTABS_TRIGGER_DEFAULTS { invalidLabel } and InterJTabsTrigger are exported.
+  // invalid = an aria-hidden danger dot + the hidden invalidLabel; count = an aria-hidden counter; both are
+  // linked by aria-describedby (merged with a host one), so the description is 'Con errores 3' and the name is unchanged
 JPagination: totalRows?, pageSize?, showRowsInfo?=false, rowsInfoLabel?(first,last,total)   // "1–20 de 134", "0 de 0"
+  // the info shows even when there is one page and no page buttons; JPAGINATION_DEFAULTS gains
+  // showRowsInfo and rowsInfoLabel; without showRowsInfo the markup is the 1.5.1 one (approval snapshot), except the a10
+  // fix that wraps each Previous/Next chevron and label in an inline-flex span (the svg stacked above the label from sm)
 JOptionPane: details?: ReactNode; initialFocus?: 'confirm'|'cancel'   // JOPTIONPANE_DEFAULTS unchanged
-ToastProvider: label?, dismissLabel?, offset?='1rem'
+ToastProvider: label?, dismissLabel?, offset?='1rem'   // TOAST_PROVIDER_DEFAULTS keeps the 1.5.1 'Notifications' /
+        'Dismiss notification'; the default offset keeps the 1.5.1 classes, another offset is inline (sides + max-width, D4)
 JToast: danger → role="alert" (a11y fix, in the CHANGELOG); duration 0 = stays until dismissed;
-        the timer pauses on hover/focus
+        the timer pauses on hover/focus and keeps the time left; + dismissLabel? (JTOAST_DEFAULTS key);
+        message is optional (JToast and ToastData), as in toast({ variant, title })
 JonaThemeTokens: + white, accent50..900, {danger,success,warning}{50,100,700}, surface, surfaceMuted,
   surfaceRaised, fg, fgMuted, line, lineStrong, focus, selection, onPrimary
 // theme
@@ -94,17 +104,24 @@ interface ConfirmOptions { title; description?; details?: ReactNode; variant?: J
   confirmLabel?; cancelLabel?; initialFocus? }
 CONFIRM_DEFAULTS = { variant:'info', confirmLabel:'Confirmar', cancelLabel:'Cancelar' }
   // initialFocus when omitted: 'cancel' for danger, else 'confirm'
-ConfirmProvider { children; renderPane?: (pane: InterJOptionPane) => ReactNode }
+ConfirmProvider { children; renderPane?: (pane: InterJOptionPane) => ReactNode }   // each request mounts a fresh pane
+  // (focus entry/return per request); folder hooks/useConfirm: InterUseConfirm, UseConfirmImpl, UseConfirmView, useConfirm
 useConfirm(): (o: ConfirmOptions) => Promise<boolean>   // FIFO; Esc/cancel → false; unmount → false
 // forms
 JField { id; label; required?; requiredLabel?='obligatorio'; description?; error?; span?: 3|4|6|12 (6);
   as?: 'field'|'fieldset'; children: (a: { id; 'aria-describedby'?; 'aria-invalid'?; 'aria-required'? }) => ReactNode }
+  // requiredLabel = the hover title of the aria-hidden `*` (the control carries aria-required, so the
+  // name stays the label, S-FRM-1/4). as='fieldset': the fieldset carries aria-describedby; children get
+  // id, aria-invalid and aria-required
 JFieldGrid { children; gap?: JPanelGap ('md') }            // 12 columns from md, 1 below
 JFormSection { title; description?; error?; headingLevel?: 2|3|4 (3); children }   // a named group
 JErrorSummary { title?='Revise los campos marcados'; errors: { field; label; message }[]; onSelect?(field) }
   // role=alert; renders nothing when empty; never takes focus
 JInputGroup { children; addonStart?; addonEnd?; preset?: 'default'|'lookup'; columns?: string;
   ariaLabel?; invalid? }   // lookup = '10rem 1fr auto', bottom-aligned from sm
+  // addonEnd is one cell (the lookup actions); the template (preset or columns) is the CSS variable
+  // --jona-input-group-columns, used from sm, one column below; with no template the group is one flex row.
+  // invalid sets data-invalid and a danger outline (no aria-invalid: the controls carry their own)
 // data
 JDataGridColumn<T> { key; header; align?; width?; sortable?; render?(row: T) }
 JDataGrid<T> { ariaLabel; columns; rows: T[]; rowKey(row): string; selectedKey?: string|null;
@@ -113,31 +130,75 @@ JDataGrid<T> { ariaLabel; columns; rows: T[]; rowKey(row): string; selectedKey?:
   rowState?(row): { badge?: { label; variant: JBadgeVariant }; error?: string; muted?: boolean };
   onSelect(key); onOpen(key); onSortChange?(key, direction) }
 JDataGridHandle { focusRow(key?: string): void }   // ↑↓ Home End PgUp/PgDn(10) Enter
+  // rows, cells and body are JTable primitives; header cells are the grid's own <th> (in 1.5.x the JTableHead
+  // label panel stacked and centered its content; a10 makes it flex-row, a D1a site). A rowState badge and error sit in the first cell; the
+  // badge is aria-hidden and, with the error, linked by the row's aria-describedby. muted = data-muted +
+  // opacity. refresh = aria-busy + an indeterminate role=progressbar named by loadingLabel. Keys are
+  // taken only when the row itself is the event target
 JToolbarItem { id; label; icon?; tone?: 'primary'|'default'|'danger'; disabled?; disabledReason?;
   shortcut?; group?; overflow? }
 JToolbar { ariaLabel; items; overflowLabel?='Más acciones'; onAction(id) }
   // native disabled; the reason is the description and the tooltip; ←→ Home End
+  // the tooltip is the native title; ←→ do not wrap, skip disabled items and include the overflow button;
+  // overflow menuitems keep focus when disabled (aria-disabled + the reason as description), ↑↓ Home End;
+  // tone: primary = JButton default, default = outline, danger = outline with the danger text
 JPageHeader (forwardRef → heading, tabIndex -1) { title; count?; breadcrumbs?: { id; label }[];
   breadcrumbLabel?='Ruta'; actions?; search?; headingLevel?=1; onBreadcrumbSelect?(id) }
+  // headingLevel: 1-6; the root is a div (a <header> outside main would be a banner landmark)
 // chrome
 JTreeNavNode { id; label; children?; disabled?; badge? }   // disabled: aria-disabled, focusable, still onSelect
 JTreeNav { ariaLabel; nodes; expandedIds: string[]; activeId?; variant?: 'nav'|'checkbox' ('nav');
   checkedIds?; filter?; showFilter?=false; filterLabel?='Buscar en el menú'; noResultsLabel?='Sin resultados';
   maxHeight?; onToggle(id, expanded); onSelect(id); onCheckedChange?(id, checked); onFilterChange?(text) }
 filterTree(nodes, text): { nodes; expandedIds }   // pure, case- and accent-insensitive, no check propagation
+  // JTreeNavNode.badge is a string. A branch never matches by its own label; a blank text returns the input tree.
+  // DOM: ul[role=tree] > li[role=none] > div[role=treeitem] + ul[role=group]. Type-ahead keeps a 500 ms buffer;
+  // a repeated letter cycles. While a filter is active the expansion is local to the filtered view (onToggle is
+  // not called), so clearing it restores the host's expandedIds (S-CHR-12). With no match the tree is replaced by
+  // the noResultsLabel text. The filter box is a JTextBox type=search named filterLabel; without `filter` it keeps
+  // its own text. Checkbox variant: the row click selects, the aria-hidden box checks (Space too), the chevron and
+  // Enter toggle, and the arrow keys select the node they move to (R-PRM: arrows select for Permisos); a disabled
+  // node is not checked. maxHeight = --jona-tree-max-h. JTREENAV_DEFAULTS { variant, showFilter, filterLabel, noResultsLabel }
+JTreeNavHandle { focusFilter(): void }   // additive (a9b): forwardRef; focuses the filter box and selects its text, for the
+  // host's Ctrl+K and '/' without DOM queries; a no-op without showFilter
 JWorkspaceTabs { ariaLabel?='Pestañas de trabajo'; tabs: { id; title; dirty? }[]; activeId: string|null;
   closeLabel?(title)=`Cerrar pestaña ${title}`; dirtyLabel?='Cambios sin guardar'; maxVisible?;
   overflowLabel?='Más pestañas'; renderPanel(id); onSelect(id); onCloseRequest(id) }   // close sits outside role=tab
 JWorkspaceTabsHandle { focusPanel(id): void }
+  // organisms/. One grid row: the tablist is a subgrid holding tab i in column 2i+1, and each close button sits in
+  // column 2i+2 outside the tablist. Only the active tab and its close button are tab stops; ←→ Home End select on
+  // focus without wrapping. A middle press (auxclick button 1) requests a close; mousedown button 1 is prevented
+  // (autoscroll). dirty = an aria-hidden dot + a hidden dirtyLabel span as the description. maxVisible: the first
+  // maxVisible tabs show, and an overflowed active tab takes the last slot; the rest are menuitems of the
+  // overflowLabel menu button (useMenuPopup: Esc on its root, outside press), in tab order, with the same dirty
+  // description. Panels: role=tabpanel, tabIndex -1 (focusPanel), hidden when inactive, aria-labelledby the tab,
+  // or aria-label=title while the tab is overflowed. JWORKSPACETABS_DEFAULTS { ariaLabel, closeLabel, dirtyLabel, overflowLabel }
 JAppShell { brand: ReactNode; topbarEnd?; sidebar(api: SidebarRenderApi); children; sidebarWidth?='16.5rem';
   railWidth?='3.5rem'; defaultCollapsed?=false; navLabel?='Menú de navegación'; openMenuLabel?='Abrir menú';
   closeMenuLabel?='Cerrar menú'; collapseLabel?='Contraer menú'; onCollapsedChange?(collapsed) }
+  // SidebarRenderApi is the JSidebarLayout type (not re-exported). JAppShell does not compose JSidebarLayout (its
+  // Esc is a document listener). header[role=banner] h=--jona-topbar-h; the brand keeps its width and topbarEnd
+  // shrinks. Widths are --jona-shell-sidebar-w / --jona-shell-rail-w. The collapse toggle (sidebar foot, from lg)
+  // keeps the name collapseLabel and reports the state with aria-expanded + aria-controls=nav. Below lg the sidebar
+  // is a role=dialog aria-modal drawer named navLabel: useFocusTrap + useMenuPopup (Esc on its root, outside
+  // press); api.collapsed is false inside the drawer
 JUserMenuItem = { kind:'action'; id; label; tone?: 'default'|'danger'; disabled? }
   | { kind:'radio'; id; label; value; options: { value; label }[] }
 JUserMenu { name; subtitle?; avatarSrc?; items; onAction(id); onRadioChange?(value, id) }   // named by `name`
-JContextChip { items: { label; value }[] }
+  // the radio item `value` is the checked option. The name/subtitle header sits in the popup outside role=menu;
+  // a radio group is role=group labelled by its caption. The avatar shows initials of the first two words.
+  // ↓/↑ on the closed button open the menu; Tab closes it; a disabled action is aria-disabled and focusable.
+  // JUSERMENU_DEFAULTS is empty (no optional prop with a default)
+JContextChip { items: { label; value }[] }   // a <p>: text = values joined ' · '; title and aria-describedby = the
+  // 'label: value' pairs joined '; '; renders nothing with no items; JCONTEXTCHIP_DEFAULTS is empty
 JShortcutSheet { open; title?='Atajos de teclado'; groups: { title; items: { keys: string[]; label }[] }[]; onClose() }
+  // a JDialog (size lg, no header close button) whose footer button is 'Cerrar' (fixed, D17); Esc, the backdrop and
+  // Cerrar call onClose; the JDialog focus trap returns focus to the invoker. Each group: an h3 and a list named by
+  // it; each key a kbd. JSHORTCUTSHEET_DEFAULTS { title }
 JAuthLayout { brand: { name; tagline?; logo? }; steps?: { id; label }[]; currentStep?; title; description?; children; footer? }
+  // currentStep is a step id (JStepper gets its index; no match = the first step). main > [brand panel: hidden
+  // below lg, flex from lg, primary-700] + [card column, px-4 below sm]. The card shows the product name, the
+  // JStepper, the h1 (TEXT_PAGE), the description, the children and the footer. JAUTHLAYOUT_DEFAULTS is empty
 ```
 
 Every new unit is a JONA folder: `Inter*.ts` with `*_DEFAULTS` that hold no state values, `*View.tsx`, `*Impl.tsx`, an entry, `index.ts`, a story and a test. It is added to `src/index.ts` and to the `exports` subpaths (`packageExports.test.ts` checks this).

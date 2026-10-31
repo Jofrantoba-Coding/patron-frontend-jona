@@ -44,10 +44,10 @@ At a bound a key changes nothing. The grid MUST prevent the browser default only
 - An item with `shortcut` MUST set `aria-keyshortcuts` and the tooltip `{label} ({shortcut})`. The toolbar does not listen to keys; the host does.
 
 ### R-DAT-6 JToolbar overflow
-Items with `overflow: true` MUST be listed in one menu button (default name `Más acciones` **[ASSUMPTION]**, `aria-haspopup="menu"`, `aria-expanded`). Its items are `menuitem`s with the same labels, disabled state and reasons, and selecting one calls `onAction(id)`. With no overflow items, no menu button is rendered.
+Items with `overflow: true` MUST be listed in one menu button (default name `Más acciones` **[ASSUMPTION]**, `aria-haspopup="menu"`, `aria-expanded`). Its items are `menuitem`s with the same labels, disabled state and reasons, and selecting one calls `onAction(id)`. A disabled menu item stays focusable inside the menu (`aria-disabled="true"`, its reason as the description), so the reason is reachable by keyboard; activating it does nothing. With no overflow items, no menu button is rendered.
 
 ### R-DAT-7 JPagination rows info
-`JPagination` MUST accept `totalRows`, `pageSize` and `showRowsInfo`. With `showRowsInfo` it MUST show `{first}–{last} de {total}` (en dash), for example `1–20 de 134`, `121–134 de 134`, and `0 de 0` when there are no rows **[ASSUMPTION]**. Without the props the output MUST equal 1.5.1.
+`JPagination` MUST accept `totalRows`, `pageSize` and `showRowsInfo`. With `showRowsInfo` it MUST show `{first}–{last} de {total}` (en dash), for example `1–20 de 134`, `121–134 de 134`, and `0 de 0` when there are no rows **[ASSUMPTION]**. Without the props the output MUST equal 1.5.1, except the named 1.6.0 layout fix that keeps each Previous/Next chevron beside its label (an inline-flex wrapper; R-FND-8).
 
 ## Scenarios
 
@@ -93,4 +93,4 @@ Items with `overflow: true` MUST be listed in one menu button (default name `Má
 
 **S-DAT-21 no overflow button** — Given no overflow items, Then no `Más acciones` button exists.
 
-**S-DAT-22 rows info** — Given `totalRows=134` and `pageSize=20`, Then page 1 shows `1–20 de 134` and page 7 shows `121–134 de 134`. Given 0 rows, Then `0 de 0`. Without `showRowsInfo`, Then the 1.5.1 output.
+**S-DAT-22 rows info** — Given `totalRows=134` and `pageSize=20`, Then page 1 shows `1–20 de 134` and page 7 shows `121–134 de 134`. Given 0 rows, Then `0 de 0`. Without `showRowsInfo`, Then the 1.5.1 output, plus only the chevron wrapper of the R-DAT-7 fix (the approval snapshot is regenerated for it in a10).
