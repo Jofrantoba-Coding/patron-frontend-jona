@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { JAppShell, JAPPSHELL_DEFAULTS } from './JAppShell';
 import { JTreeNav, JTreeNavNode } from '../../molecules/JTreeNav';
 import { JPageHeader } from '../../molecules/JPageHeader';
+import { JUserMenu } from '../../molecules/JUserMenu';
+import { JContextChip } from '../../molecules/JContextChip';
 
 const MENU: JTreeNavNode[] = [
   {
@@ -28,7 +30,12 @@ function Shell({ defaultCollapsed }: { defaultCollapsed?: boolean }) {
   return (
     <JAppShell
       brand="SoftCommerce"
-      topbarEnd={<span>Administrador</span>}
+      topbarEnd={
+        <>
+          <JContextChip items={[{ label: 'Empresa', value: 'Comercial Demo SAC' }, { label: 'PV', value: 'Tienda Central' }]} />
+          <JUserMenu name="Administrador" items={[{ kind: 'action', id: 'logout', label: 'Cerrar sesión', tone: 'danger' }]} onAction={fn()} />
+        </>
+      }
       navLabel="Menú principal"
       defaultCollapsed={defaultCollapsed}
       onCollapsedChange={fn()}

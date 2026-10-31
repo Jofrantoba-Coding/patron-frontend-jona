@@ -63,8 +63,8 @@ export const JAppShellView: React.FC<JAppShellViewProps> = ({
           </svg>
         </button>
       </div>
-      <div className={cn('flex min-w-0 flex-1 items-center truncate font-semibold', TEXT_BODY)}>{brand}</div>
-      {topbarEnd && <div className="flex min-w-0 shrink-0 items-center gap-2">{topbarEnd}</div>}
+      <div className={cn('flex shrink-0 items-center font-semibold', TEXT_BODY)}>{brand}</div>
+      {topbarEnd && <div className="flex min-w-0 flex-1 items-center justify-end gap-2">{topbarEnd}</div>}
     </header>
 
     <div className="relative flex min-h-0 flex-1">
