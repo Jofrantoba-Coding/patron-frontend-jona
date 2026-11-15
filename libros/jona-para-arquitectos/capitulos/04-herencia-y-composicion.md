@@ -4,7 +4,7 @@ El capítulo 2 presentó tres formas del patrón y recomendó elegir la que coin
 
 Los nombres son los de los capítulos anteriores: el contrato de UI `InterUiLogin`, el contrato de servicio `InterAuthService`, la Implementación `UiLoginImpl`, la vista `UiLoginView` y la entrada `UiLogin` (o la propia Implementación, en la forma clásica).
 
-> **Sobre los ejemplos de este capítulo.** Cada sección indica su estado. *Ejecutable* significa que el código está en `ejemplos/` y se prueba con el comando del apéndice B. *Previsto* significa que el ejemplo está planificado para `ejemplos/` en una tecnología disponible en el entorno de verificación. *Ilustrativo* significa que no existe una implementación de referencia ni un entorno donde ejecutarla todavía; el código muestra la idea, pero nadie lo ha compilado.
+> **Sobre los ejemplos de este capítulo.** Cada sección indica su estado. *Ejecutable* significa que el código está en `ejemplos/` y se prueba con los comandos del README de su carpeta, enlazado desde el apéndice B. *Previsto* significa que el ejemplo está planificado para `ejemplos/` en una tecnología disponible en el entorno de verificación. *Ilustrativo* significa que no existe una implementación de referencia ni un entorno donde ejecutarla todavía; el código muestra la idea, pero nadie lo ha compilado.
 
 > [!IMPORTANT]
 > **Regla del capítulo.** La forma se elige por el mecanismo natural de la tecnología: herencia donde la unidad de interfaz es una clase que se extiende, composición donde la vista se describe a partir del estado. Lo que no cambia con la forma es el núcleo: N1 a N4, los contratos y sus nombres.

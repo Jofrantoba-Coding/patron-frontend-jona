@@ -1,4 +1,5 @@
-// Cada enlace relativo de los capítulos, los apéndices y el README del libro apunta a un archivo o carpeta que existe.
+// Cada enlace relativo de los capítulos, los apéndices, el README del libro y los README de cada ejemplo
+// apunta a un archivo o carpeta que existe.
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -7,10 +8,16 @@ import { describe, it } from 'node:test';
 
 const LIBRO = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CAPITULOS = join(LIBRO, 'capitulos');
+const EJEMPLOS = join(LIBRO, 'ejemplos');
 const DOCUMENTOS = [
   join(LIBRO, 'README.md'),
-  join(LIBRO, 'ejemplos', 'README.md'),
+  join(EJEMPLOS, 'README.md'),
   ...readdirSync(CAPITULOS).filter((f) => f.endsWith('.md')).map((f) => join(CAPITULOS, f)),
+  // El README de cada ejemplo, un nivel por debajo de ejemplos/.
+  ...readdirSync(EJEMPLOS, { withFileTypes: true })
+    .filter((entrada) => entrada.isDirectory() && entrada.name !== 'node_modules')
+    .map((entrada) => join(EJEMPLOS, entrada.name, 'README.md'))
+    .filter((ruta) => existsSync(ruta)),
 ];
 
 /** Enlaces Markdown relativos: [texto](ruta) sin esquema ni ancla sola, fuera de bloques de código. */

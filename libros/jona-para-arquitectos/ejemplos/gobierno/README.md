@@ -28,20 +28,21 @@ servicio), `<X>Service<Variante>` que implementa `Inter<X>Service` (adaptador), 
 ## Comandos
 
 ```bash
-cd ts && npm ci && npm run build && npm test
+cd ts && npm ci && npm run build && npm test   # reglas, casos de violación, catálogo, trinquete y generalidad
 npm run check -- src                                                     # informe y código de salida
-npm run check -- fixtures/deuda/legado --deuda fixtures/deuda/deuda.json # con deuda conocida
+npm run check -- fixtures/deuda/legado-con-nueva --deuda fixtures/deuda/deuda.json   # con deuda conocida
 
-cd java && mvn -B test
+cd ../java && mvn -B test                                                # ArchUnit, FreezingArchRule con el almacén deuda-archunit/
+mvn test -Darchunit.freeze.store.default.allowStoreUpdate=true          # solo para actualizar la deuda a propósito
 
-cd dotnet && dotnet test
+cd ../dotnet && dotnet test                                              # ArchUnitNET; N2 con reflexión
 ```
 
 ## El trinquete: la deuda solo baja
 
 - **TypeScript.** `deuda.json` anota violaciones conocidas (regla, archivo y mensaje, sin línea). Una violación
   anotada pasa; una nueva falla; una anotada que ya no ocurre también falla, con el aviso de quitarla del archivo.
-- **Java.** `FreezingArchRule` guarda las violaciones conocidas en `deuda-archunit/` (versionado). Con
+- **Java.** `FreezingArchRule` guarda las violaciones conocidas en `deuda-archunit/` (versionado; no se borra al limpiar). Con
   `allowStoreCreation=false` y `allowStoreUpdate=false`, una prueba no puede crear el almacén ni reescribirlo:
   una violación nueva falla, y una congelada que desaparece también falla hasta que alguien actualice el
   almacén a propósito, en local: `mvn test -Darchunit.freeze.store.default.allowStoreUpdate=true`.

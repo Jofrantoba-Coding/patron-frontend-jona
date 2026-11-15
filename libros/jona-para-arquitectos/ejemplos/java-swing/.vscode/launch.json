@@ -1,0 +1,68 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Swing: servicio falso",
+      "projectName": "jona-ejemplo-java-swing",
+      "mainClass": "com.example.App",
+      "args": "--fake"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Swing: solo la Plantilla",
+      "projectName": "jona-ejemplo-java-swing",
+      "mainClass": "com.example.App",
+      "args": "--plantilla"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Swing: servidor mock",
+      "projectName": "jona-ejemplo-java-swing",
+      "mainClass": "com.example.App"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Swing: backend real",
+      "projectName": "jona-ejemplo-java-swing",
+      "mainClass": "com.example.App",
+      "args": "${input:urlBackend}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Servidor mock",
+      "program": "${workspaceFolder}/../mock-server/src/server.mjs",
+      "env": {
+        "MOCK_SCENARIO": "${input:escenarioMock}"
+      },
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Swing + servidor mock",
+      "configurations": ["Servidor mock", "Swing: servidor mock"],
+      "stopAll": true
+    }
+  ],
+  "inputs": [
+    {
+      "id": "urlBackend",
+      "type": "promptString",
+      "description": "URL base del backend",
+      "default": "https://backend.example.com"
+    },
+    {
+      "id": "escenarioMock",
+      "type": "pickString",
+      "description": "Escenario por defecto del servidor mock",
+      "options": ["exitoso", "credencialesInvalidas", "usuarioBloqueado", "errorServidor"],
+      "default": "exitoso"
+    }
+  ]
+}

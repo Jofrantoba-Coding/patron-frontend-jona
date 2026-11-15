@@ -27,6 +27,9 @@ npm-debug.log*
 # Ignore IDE/Editor specific files
 .idea/
 .vscode/
+!libros/jona-para-arquitectos/ejemplos/java-swing/.vscode/
+!libros/jona-para-arquitectos/ejemplos/java-javafx/.vscode/
+!libros/jona-para-arquitectos/ejemplos/dotnet-wpf/.vscode/
 *.suo
 *.ntvs*
 *.njsproj

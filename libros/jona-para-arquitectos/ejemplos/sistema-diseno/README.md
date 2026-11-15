@@ -4,8 +4,9 @@ Ejemplo del capítulo 8: un sistema de diseño mínimo con JONA. Dos átomos (`J
 
 ```bash
 npm ci
-npm run build   # tsc: comprueba src, test y scripts, y emite dist/
-npm test        # vitest
+npm run build          # tsc: comprueba src, test y scripts (incluye la directiva @ts-expect-error de accesibilidad), y emite dist/
+npm test               # vitest: contraste, lint de tokens, anatomía, axe-core, modo de tema, componentes y versionado
+npm run api:actualizar # paso de publicación: regenera api-publica.json si la versión corresponde
 ```
 
 ## Qué hay

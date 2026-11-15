@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "coreclr",
+      "request": "launch",
+      "name": "WPF: servicio falso",
+      "preLaunchTask": "compilar WPF",
+      "program": "${workspaceFolder}/JonaLogin.Wpf/bin/Debug/net10.0-windows/JonaLogin.Wpf.dll",
+      "args": ["--fake"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "type": "coreclr",
+      "request": "launch",
+      "name": "WPF: servidor mock",
+      "preLaunchTask": "compilar WPF",
+      "program": "${workspaceFolder}/JonaLogin.Wpf/bin/Debug/net10.0-windows/JonaLogin.Wpf.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "type": "coreclr",
+      "request": "launch",
+      "name": "WPF: backend real",
+      "preLaunchTask": "compilar WPF",
+      "program": "${workspaceFolder}/JonaLogin.Wpf/bin/Debug/net10.0-windows/JonaLogin.Wpf.dll",
+      "args": ["${input:urlBackend}"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Servidor mock",
+      "program": "${workspaceFolder}/../mock-server/src/server.mjs",
+      "env": {
+        "MOCK_SCENARIO": "${input:escenarioMock}"
+      },
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "WPF + servidor mock",
+      "configurations": ["Servidor mock", "WPF: servidor mock"],
+      "stopAll": true
+    }
+  ],
+  "inputs": [
+    {
+      "id": "urlBackend",
+      "type": "promptString",
+      "description": "URL base del backend",
+      "default": "https://backend.example.com"
+    },
+    {
+      "id": "escenarioMock",
+      "type": "pickString",
+      "description": "Escenario por defecto del servidor mock",
+      "options": ["exitoso", "credencialesInvalidas", "usuarioBloqueado", "errorServidor"],
+      "default": "exitoso"
+    }
+  ]
+}
