@@ -89,6 +89,10 @@ Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres d
 | **API pública del slice** | El `index.ts` de un *slice* de FSD. En una unidad JONA cumple el papel de N4 | [6](06-atomic-fsd-hexagonal.md) | *public API* |
 | **Puerto** | En la arquitectura hexagonal, la interfaz por la que la aplicación habla con el exterior. En JONA, el contrato de servicio; el contrato de UI no es un puerto | [1](01-que-busca-jona.md), [6](06-atomic-fsd-hexagonal.md) | *port* |
 | **Vista pasiva** | Variante de MVP en la que la vista solo muestra y reenvía eventos, a través de una interfaz que maneja el presentador | [7](07-mvc-mvp-mvvm.md) | *passive view* |
+| **Dominio** | En la arquitectura hexagonal, el centro: los tipos y las reglas del negocio, sin dependencias. En el capítulo 14, un archivo de TypeScript sin imports | [14](14-aplicacion-fsd-hexagonal.md) | *domain* |
+| **Borrador** | Lo que el usuario escribe en un formulario, siempre como texto y sin validar. La función de dominio que lo valida es la frontera con el objeto del dominio | [14](14-aplicacion-fsd-hexagonal.md) | *draft* |
+| **Caso de uso** | Lógica de aplicación entre la Implementación y el puerto. Se agrega solo cuando tiene responsabilidad propia: combinar reglas del dominio, elegir entre llamadas al puerto o traducir errores | [6](06-atomic-fsd-hexagonal.md), [14](14-aplicacion-fsd-hexagonal.md) | *use case* |
+| **Widget** | En FSD, la capa que combina funcionalidades en un bloque de pantalla. En el capítulo 14, una unidad JONA cuya Implementación coordina dos funcionalidades que no se conocen | [14](14-aplicacion-fsd-hexagonal.md) | *widget* |
 
 ## Sistemas de diseño
 
@@ -98,6 +102,10 @@ Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres d
 | **Token semántico** | Un rol visual (`--jona-fg`, `--jona-surface`). Las vistas pintan solo con roles; el tema decide el valor | [8](08-sistemas-de-diseno.md) | *semantic token* |
 | **Modo de tema** | La elección del usuario (`light`, `dark` o `system`) en `data-theme-mode`, y el valor resuelto en `data-theme` | [8](08-sistemas-de-diseno.md) | *theme mode* |
 | **Superficie pública** | Todo lo que un consumidor de la biblioteca puede usar: exportaciones, propiedades de los contratos, nombres de tokens y archivos de estilo publicados | [8](08-sistemas-de-diseno.md) | *public API surface* |
+| **Inventario de interfaz** | Captura de las pantallas existentes o previstas para agrupar lo que se repite y decidir qué entra al sistema de diseño | [13](13-construir-sistema-de-diseno.md) | *interface inventory* |
+| **Disposición** ⚠ | El nivel de Atomic Design que Frost llama *template*: la estructura de una página, con huecos en lugar de datos. El libro no lo llama «plantilla», que reserva para la forma clásica | [6](06-atomic-fsd-hexagonal.md), [13](13-construir-sistema-de-diseno.md) | *template* (Atomic Design) |
+| **Organismo de dominio** | Un organismo cuyo contrato nombra una entidad del negocio, como el formulario de producto. Vive en la aplicación y se compone con piezas del sistema de diseño | [13](13-construir-sistema-de-diseno.md), [14](14-aplicacion-fsd-hexagonal.md) | — |
+| **Estado de interacción** | El que solo existe mientras el usuario manipula un componente: un borrador, el foco anterior, los identificadores que asocian etiqueta y error. Puede vivir en la Implementación de un componente del sistema de diseño; el estado de dominio, nunca | [13](13-construir-sistema-de-diseno.md) | *interaction state* |
 | **Instantánea de la superficie** | Registro de la superficie pública que una prueba compara en cada versión para clasificar el cambio: mayor, menor o parche | [8](08-sistemas-de-diseno.md) | *API snapshot* |
 
 ## Verificación y gobierno

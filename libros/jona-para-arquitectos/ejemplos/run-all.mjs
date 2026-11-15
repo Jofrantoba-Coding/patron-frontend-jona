@@ -52,6 +52,10 @@ const STEPS = [
   ...npmProject('migracion', NODE_TEST),
   // Capítulo 12: nomenclatura previa frente a la canónica, y observaciones medidas sobre THC-C.
   ...npmProject('evolucion', NODE_TEST),
+  // Capítulo 13: sistema de diseño por niveles (Atomic Design + JONA); se compila antes que su consumidor.
+  ...npmProject('sistema-diseno-atomico', VITEST),
+  // Capítulo 14: aplicación con FSD, Clean/Hexagonal y JONA que consume el sistema de diseño del 13.
+  ...npmProject('aplicacion-catalogo', VITEST),
   // Capítulo 9: un catálogo de reglas JONA verificado en TypeScript, Java (ArchUnit) y C# (ArchUnitNET).
   ...npmProject('gobierno/ts', NODE_TEST),
   { name: 'gobierno/java', dir: at('gobierno', 'java'), cmd: 'mvn -B test', count: SUREFIRE },
@@ -95,6 +99,8 @@ function clean() {
     ['costo-de-cambio', 'node_modules'], ['costo-de-cambio', 'dist'],
     ['migracion', 'node_modules'], ['migracion', 'dist'],
     ['evolucion', 'node_modules'], ['evolucion', 'dist'],
+    ['sistema-diseno-atomico', 'node_modules'], ['sistema-diseno-atomico', 'dist'],
+    ['aplicacion-catalogo', 'node_modules'], ['aplicacion-catalogo', 'dist'],
     ['gobierno', 'ts', 'node_modules'], ['gobierno', 'ts', 'dist'], ['gobierno', 'java', 'target'],
     ['gobierno', 'dotnet', 'bin'], ['gobierno', 'dotnet', 'obj'],
     ['..', 'herramientas', 'diagramas', 'node_modules'],

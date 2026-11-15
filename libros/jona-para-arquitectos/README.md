@@ -30,6 +30,8 @@ La guía práctica de adopción para equipos es un libro aparte.
 | 10 | [Decisiones y compromisos: cuándo usar JONA y cuándo no](capitulos/10-decisiones-y-compromisos.md) | Borrador |
 | 11 | [Migración: de código heredado a JONA y entre tecnologías](capitulos/11-migracion.md) | Borrador |
 | 12 | [Evolución del patrón y antipatrones](capitulos/12-evolucion-y-antipatrones.md) | Borrador |
+| 13 | [Construir un sistema de diseño con Atomic Design y JONA](capitulos/13-construir-sistema-de-diseno.md) | Borrador |
+| 14 | [Desarrollar una aplicación con FSD, Clean/Hexagonal y JONA](capitulos/14-aplicacion-fsd-hexagonal.md) | Borrador |
 | A | [Glosario](capitulos/apendice-a-glosario.md) | Borrador |
 | B | [Cómo ejecutar los ejemplos](ejemplos/README.md) | Borrador |
 | C | [Referencias](capitulos/apendice-c-referencias.md) | Borrador |
@@ -41,11 +43,11 @@ La guía práctica de adopción para equipos es un libro aparte.
 ```
 jona-para-arquitectos/
 ├── capitulos/     # un archivo Markdown por capítulo
-├── ejemplos/      # un mismo caso (inicio de sesión) por tecnología; ver apéndice B
+├── ejemplos/      # el inicio de sesión por tecnología, y un catálogo de productos (capítulos 13 y 14); ver apéndice B
 └── herramientas/  # verificaciones del propio libro: diagramas, catálogo de antipatrones y enlaces
 ```
 
-Los ejemplos se mantienen dentro de esta carpeta, independientes del resto del repositorio. Cada uno compila y tiene sus pruebas, y un solo comando (`npm run all` en `ejemplos/`) los ejecuta todos, de modo que un ejemplo roto se detecte de inmediato. Por ahora cubren el inicio de sesión; los casos de alta, baja y modificación se agregarán con los capítulos que los necesiten.
+Los ejemplos se mantienen dentro de esta carpeta, independientes del resto del repositorio. Cada uno compila y tiene sus pruebas, y un solo comando (`npm run all` en `ejemplos/`) los ejecuta todos, de modo que un ejemplo roto se detecte de inmediato. La mayoría de los ejemplos de los capítulos 1 a 12 usan el inicio de sesión; los capítulos 13 y 14 construyen un sistema de diseño y, sobre él, un catálogo de productos con alta, consulta, modificación y baja.
 
 ---
 
