@@ -1,0 +1,113 @@
+/*
+ * Tokens del sistema de diseño. Dos capas, como en el capítulo 8:
+ *   PRIMITIVA: la paleta, como tripletes RGB ("r g b") sin significado de uso.
+ *   SEMÁNTICA: el uso (superficie, texto, peligro, foco...), siempre con var() a un primitivo.
+ * Más una escala de espaciado. Las Vistas pintan con las clases del final.
+ * El tema oscuro es opcional: solo rige bajo data-theme-mode en <html>.
+ */
+
+:root {
+  /* ── Capa primitiva ─────────────────────────────────── */
+  --ds-primary-600: 37 99 235;
+  --ds-red-400: 248 113 113;
+  --ds-red-700: 185 28 28;
+  --ds-neutral-50: 248 250 252;
+  --ds-neutral-100: 241 245 249;
+  --ds-neutral-400: 148 163 184;
+  --ds-neutral-500: 100 116 139;
+  --ds-neutral-600: 71 85 105;
+  --ds-neutral-800: 30 41 59;
+  --ds-neutral-900: 15 23 42;
+
+  /* ── Escala de espaciado ────────────────────────────── */
+  --ds-espacio-1: 0.25rem;
+  --ds-espacio-2: 0.5rem;
+  --ds-espacio-3: 1rem;
+  --ds-espacio-4: 1.5rem;
+
+  /* ── Capa semántica (tema claro) ────────────────────── */
+  --ds-surface: var(--ds-neutral-50);
+  --ds-surface-raised: var(--ds-neutral-100);
+  --ds-fg: var(--ds-neutral-900);
+  --ds-fg-muted: var(--ds-neutral-600);
+  --ds-danger: var(--ds-red-700);
+  --ds-line-strong: var(--ds-neutral-500);
+  --ds-focus: var(--ds-primary-600);
+  --ds-primary: var(--ds-primary-600);
+  --ds-on-primary: var(--ds-neutral-50);
+  --ds-backdrop: var(--ds-neutral-900);
+}
+
+/* ── Tema oscuro: elegido explícitamente ─────────────── */
+:root[data-theme-mode='dark'] {
+  --ds-surface: var(--ds-neutral-900);
+  --ds-surface-raised: var(--ds-neutral-800);
+  --ds-fg: var(--ds-neutral-50);
+  --ds-fg-muted: var(--ds-neutral-400);
+  --ds-danger: var(--ds-red-400);
+}
+
+/* ── Tema oscuro: "system" y el sistema operativo lo pide ── */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme-mode='system'] {
+    --ds-surface: var(--ds-neutral-900);
+    --ds-surface-raised: var(--ds-neutral-800);
+    --ds-fg: var(--ds-neutral-50);
+    --ds-fg-muted: var(--ds-neutral-400);
+    --ds-danger: var(--ds-red-400);
+  }
+}
+
+/* ── Clases (las constantes de clasesToken.ts) ───────── */
+.ds-surface {
+  background-color: rgb(var(--ds-surface));
+}
+.ds-surface-raised {
+  background-color: rgb(var(--ds-surface-raised));
+}
+.ds-fg {
+  color: rgb(var(--ds-fg));
+}
+.ds-fg-muted {
+  color: rgb(var(--ds-fg-muted));
+}
+.ds-danger {
+  color: rgb(var(--ds-danger));
+}
+.ds-line-strong {
+  border: 1px solid rgb(var(--ds-line-strong));
+}
+.ds-focus-ring:focus-visible {
+  outline: 2px solid rgb(var(--ds-focus));
+  outline-offset: 2px;
+}
+.ds-primary {
+  background-color: rgb(var(--ds-primary));
+  color: rgb(var(--ds-on-primary));
+  border: 1px solid transparent;
+}
+.ds-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-color: rgb(var(--ds-backdrop) / 0.6);
+}
+.ds-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-espacio-2);
+}
+.ds-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-espacio-2);
+}
+.ds-pad {
+  padding: var(--ds-espacio-3);
+}
+.ds-table {
+  border-collapse: collapse;
+  width: 100%;
+}

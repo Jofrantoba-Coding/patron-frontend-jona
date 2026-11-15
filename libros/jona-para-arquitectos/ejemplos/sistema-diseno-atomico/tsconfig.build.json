@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    // NodeNext, no bundler: el paquete debe cargarse también en Node (SSR, ejecutores de pruebas),
+    // y NodeNext rechaza en la compilación un import relativo sin extensión.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": []
+}

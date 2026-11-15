@@ -2,7 +2,7 @@
 
 Un patrón que se usa cambia. JONA nació en 2024 como tres clases TypeScript que construían el DOM, y hoy se expresa en una docena de tecnologías, con dos estilos de contrato, tres formas y un catálogo de reglas verificables. Algunos de esos cambios mejoraron el patrón; otros dejaron nombres cruzados, ejemplos que no compilan o atajos que se volvieron costumbre.
 
-Este capítulo cierra el libro mirando hacia atrás y hacia adelante: qué se mantuvo y qué cambió, qué enseña el primer derivado externo del patrón, cuáles son los antipatrones de todo el libro reunidos en un solo lugar, y cómo debería evolucionar el canon a partir de aquí.
+Este capítulo cierra la evaluación del patrón mirando hacia atrás y hacia adelante: qué se mantuvo y qué cambió, qué enseña el primer derivado externo del patrón, cuáles son los antipatrones de todo el libro reunidos en un solo lugar, y cómo debería evolucionar el canon a partir de aquí. Los capítulos 13 y 14 pasan de evaluar a construir: un sistema de diseño y, sobre él, una aplicación completa.
 
 > [!IMPORTANT]
 > **Regla del capítulo.** El patrón puede cambiar de nombres, de formas y de herramientas. Lo que no puede cambiar sin decirlo es el núcleo: N1 a N4. Una evolución que conserva el núcleo es una forma nueva; una que lo rompe es otro patrón, y debe llamarse de otra manera.
@@ -168,12 +168,13 @@ Cada capítulo cerró con sus antipatrones. Esta sección los reúne en dos índ
 
 | Promesa | Antipatrones |
 |---|---|
-| **N1** · contratos explícitos | [Implementación atada al adaptador](02-anatomia.md#ap-2-3) · [Un servicio artificial para «cumplir N1»](02-anatomia.md#ap-2-6) · [El contrato es la clase del modelo de vista](07-mvc-mvp-mvvm.md#ap-7-1) · [Contrato de datos sin contrato de unidad](#ap-12-2) |
+| **N1** · contratos explícitos | [Implementación atada al adaptador](02-anatomia.md#ap-2-3) · [Un servicio artificial para «cumplir N1»](02-anatomia.md#ap-2-6) · [El contrato es la clase del modelo de vista](07-mvc-mvp-mvvm.md#ap-7-1) · [Contrato de datos sin contrato de unidad](#ap-12-2) · [Contrato heredado](13-construir-sistema-de-diseno.md#ap-13-3) · [El caso de uso elige el adaptador](14-aplicacion-fsd-hexagonal.md#ap-14-2) |
 | **N2** · contratos sin comportamiento | [Contrato con comportamiento](02-anatomia.md#ap-2-4) · [Comportamiento en el contrato](03-contratos.md#ap-3-1) · `DEFAULTS` con estado ([cap. 2](02-anatomia.md#ap-2-5), [cap. 3](03-contratos.md#ap-3-3), [cap. 8](08-sistemas-de-diseno.md#ap-8-5)) |
-| **N3** · efectos solo en la Implementación y los adaptadores | [La vista llama al servicio](02-anatomia.md#ap-2-1) · [Efecto en `model/`](06-atomic-fsd-hexagonal.md#ap-6-2) · [Modelo que llama a la red](07-mvc-mvp-mvvm.md#ap-7-2) · [Organismo con negocio](06-atomic-fsd-hexagonal.md#ap-6-1) |
-| **N4** · solo la entrada | [Importar una pieza interna](02-anatomia.md#ap-2-2) · [API pública ancha en una aplicación](06-atomic-fsd-hexagonal.md#ap-6-3) · [La navegación arma las piezas](07-mvc-mvp-mvvm.md#ap-7-3) |
-| **Contrato primero, conjunto** | [El frontend espera al backend](05-roles-y-flujo.md#ap-5-1) · [El backend dicta el contrato](05-roles-y-flujo.md#ap-5-2) · [Mock inventado](05-roles-y-flujo.md#ap-5-3) · [Contrato inventado](11-migracion.md#ap-11-3) · [Suite de contrato solo en el frontend](09-verificacion-y-gobierno.md#ap-9-3) · [Mock en el paquete de producción](#ap-12-3) |
-| **Verificación** | [Reglas en la wiki](09-verificacion-y-gobierno.md#ap-9-1) · [Regla sin caso de violación](09-verificacion-y-gobierno.md#ap-9-2) · [Regla sin trinquete](08-sistemas-de-diseno.md#ap-8-6) · [Migración sin trinquete](11-migracion.md#ap-11-7) · [Ejemplos que nadie compiló](#ap-12-4) |
+| **N3** · efectos solo en la Implementación y los adaptadores | [La vista llama al servicio](02-anatomia.md#ap-2-1) · [Efecto en `model/`](06-atomic-fsd-hexagonal.md#ap-6-2) · [Modelo que llama a la red](07-mvc-mvp-mvvm.md#ap-7-2) · [Organismo con negocio](06-atomic-fsd-hexagonal.md#ap-6-1) · [Organismo que pide sus datos](13-construir-sistema-de-diseno.md#ap-13-2) · [Interacción escondida en la vista](13-construir-sistema-de-diseno.md#ap-13-5) |
+| **N4** · solo la entrada | [Importar una pieza interna](02-anatomia.md#ap-2-2) · [API pública ancha en una aplicación](06-atomic-fsd-hexagonal.md#ap-6-3) · [La navegación arma las piezas](07-mvc-mvp-mvvm.md#ap-7-3) · [Interior de otra unidad](13-construir-sistema-de-diseno.md#ap-13-4) · [El sistema de diseño fuera de su lugar](14-aplicacion-fsd-hexagonal.md#ap-14-6) |
+| **Contrato primero, conjunto** | [El frontend espera al backend](05-roles-y-flujo.md#ap-5-1) · [El backend dicta el contrato](05-roles-y-flujo.md#ap-5-2) · [Mock inventado](05-roles-y-flujo.md#ap-5-3) · [Contrato inventado](11-migracion.md#ap-11-3) · [Suite de contrato solo en el frontend](09-verificacion-y-gobierno.md#ap-9-3) · [Mock en el paquete de producción](#ap-12-3) · [Adaptador en memoria sin suite de contrato](14-aplicacion-fsd-hexagonal.md#ap-14-4) · [Unicidad solo en el cliente](14-aplicacion-fsd-hexagonal.md#ap-14-3) |
+| **Verificación** | [Reglas en la wiki](09-verificacion-y-gobierno.md#ap-9-1) · [Regla sin caso de violación](09-verificacion-y-gobierno.md#ap-9-2) · [Regla sin trinquete](08-sistemas-de-diseno.md#ap-8-6) · [Migración sin trinquete](11-migracion.md#ap-11-7) · [Ejemplos que nadie compiló](#ap-12-4) · [Paquete probado solo desde el código fuente](13-construir-sistema-de-diseno.md#ap-13-6) |
+| **Dominio y dirección de las dependencias** · Atomic Design, FSD y Clean/Hexagonal | [Nivel invertido](13-construir-sistema-de-diseno.md#ap-13-1) · [Molécula de moléculas](13-construir-sistema-de-diseno.md#ap-13-7) · [Dominio con framework](14-aplicacion-fsd-hexagonal.md#ap-14-1) · [Funcionalidades que se llaman entre sí](14-aplicacion-fsd-hexagonal.md#ap-14-5) · [Reglas del dominio repetidas](14-aplicacion-fsd-hexagonal.md#ap-14-7) |
 | **Nombres** | [JONA de nombres](10-decisiones-y-compromisos.md#ap-10-1) · [Renombrar sin separar](11-migracion.md#ap-11-6) · [Colisión de «plantilla»](06-atomic-fsd-hexagonal.md#ap-6-6) · [Nomenclatura cruzada](#ap-12-1) |
 
 ### Por capítulo
@@ -251,6 +252,20 @@ Cada capítulo cerró con sus antipatrones. Esta sección los reúne en dos índ
 | 🟠 | [Contrato de datos sin contrato de unidad](#ap-12-2) | 12. Evolución del patrón y antipatrones |
 | 🟠 | [Mock en el paquete de producción](#ap-12-3) | 12. Evolución del patrón y antipatrones |
 | 🟡 | [Ejemplos que nadie compiló](#ap-12-4) | 12. Evolución del patrón y antipatrones |
+| 🔴 | [Nivel invertido](13-construir-sistema-de-diseno.md#ap-13-1) | 13. Construir un sistema de diseño con Atomic Design y JONA |
+| 🔴 | [Organismo que pide sus datos](13-construir-sistema-de-diseno.md#ap-13-2) | 13. Construir un sistema de diseño con Atomic Design y JONA |
+| 🟠 | [Contrato heredado](13-construir-sistema-de-diseno.md#ap-13-3) | 13. Construir un sistema de diseño con Atomic Design y JONA |
+| 🟠 | [Interior de otra unidad](13-construir-sistema-de-diseno.md#ap-13-4) | 13. Construir un sistema de diseño con Atomic Design y JONA |
+| 🟠 | [Interacción escondida en la vista](13-construir-sistema-de-diseno.md#ap-13-5) | 13. Construir un sistema de diseño con Atomic Design y JONA |
+| 🟠 | [Paquete probado solo desde el código fuente](13-construir-sistema-de-diseno.md#ap-13-6) | 13. Construir un sistema de diseño con Atomic Design y JONA |
+| 🟡 | [Molécula de moléculas](13-construir-sistema-de-diseno.md#ap-13-7) | 13. Construir un sistema de diseño con Atomic Design y JONA |
+| 🔴 | [Dominio con framework](14-aplicacion-fsd-hexagonal.md#ap-14-1) | 14. Desarrollar una aplicación con FSD, Clean/Hexagonal y JONA |
+| 🔴 | [El caso de uso elige el adaptador](14-aplicacion-fsd-hexagonal.md#ap-14-2) | 14. Desarrollar una aplicación con FSD, Clean/Hexagonal y JONA |
+| 🟠 | [Unicidad solo en el cliente](14-aplicacion-fsd-hexagonal.md#ap-14-3) | 14. Desarrollar una aplicación con FSD, Clean/Hexagonal y JONA |
+| 🟠 | [Adaptador en memoria sin suite de contrato](14-aplicacion-fsd-hexagonal.md#ap-14-4) | 14. Desarrollar una aplicación con FSD, Clean/Hexagonal y JONA |
+| 🟠 | [Funcionalidades que se llaman entre sí](14-aplicacion-fsd-hexagonal.md#ap-14-5) | 14. Desarrollar una aplicación con FSD, Clean/Hexagonal y JONA |
+| 🟠 | [El sistema de diseño fuera de su lugar](14-aplicacion-fsd-hexagonal.md#ap-14-6) | 14. Desarrollar una aplicación con FSD, Clean/Hexagonal y JONA |
+| 🟡 | [Reglas del dominio repetidas](14-aplicacion-fsd-hexagonal.md#ap-14-7) | 14. Desarrollar una aplicación con FSD, Clean/Hexagonal y JONA |
 <!-- CATALOGO:FIN -->
 
 ---

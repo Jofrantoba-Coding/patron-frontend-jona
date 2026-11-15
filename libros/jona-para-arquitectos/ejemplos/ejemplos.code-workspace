@@ -1,0 +1,8 @@
+{
+  "folders": [
+    { "name": "java-swing", "path": "java-swing" },
+    { "name": "java-javafx", "path": "java-javafx" },
+    { "name": "dotnet-wpf", "path": "dotnet-wpf" },
+    { "name": "mock-server", "path": "mock-server" }
+  ]
+}

@@ -212,7 +212,16 @@ La conexión con el sistema real es **una** implementación de los contratos, no
 
 El tercer punto es el modo de desarrollo por defecto. Cuando no existe un servidor mock, una alternativa es el *Composer* de THC-C: un interruptor dentro de la aplicación que elige entre el servicio real y datos de prueba.
 
-Ejemplo ejecutable: `ejemplos/java-swing/src/main/java/com/example/App.java` (los tres puntos, elegidos por argumento) y `ejemplos/web-react/src/main.tsx` (el punto 3).
+Ejemplo ejecutable: `ejemplos/java-swing/src/main/java/com/example/App.java` (los tres puntos, elegidos por argumento) y `ejemplos/web-react/src/main.tsx` (el punto 3). Para ver cada punto en Swing, desde `ejemplos/java-swing` y con Maven sobre el JDK 21:
+
+| Punto | Comando | Qué se ve |
+|---|---|---|
+| 1. Plantilla | `mvn compile exec:java -Dexec.args="--plantilla"` | La pantalla con su comportamiento por defecto, sin servicio |
+| 2. Servicio falso | `mvn compile exec:java -Dexec.args="--fake"` | La Implementación con un servicio en memoria; no necesita servidor |
+| 3. Servidor mock | `mvn compile exec:java` | La Implementación y el adaptador HTTP contra `http://127.0.0.1:4010`. Antes, `npm start` en `ejemplos/mock-server` |
+| 3. Backend real | `mvn compile exec:java -Dexec.args="https://backend.example.com"` | El mismo código, contra otra URL base |
+
+Entre una fila y otra no cambia el código de la pantalla: solo el argumento que recibe la raíz de composición. Con el servicio falso y con el mock, el usuario `ana@ejemplo.com` con la clave `secreta123` inicia sesión, y `bloqueado@ejemplo.com` recibe el error de usuario bloqueado. En PowerShell, ponga la opción `-D` completa entre comillas (`"-Dexec.args=--fake"`): PowerShell interpreta a su manera los argumentos que empiezan con guion y contienen un punto, y así llegan a Maven sin cambios. El [README del ejemplo](../ejemplos/java-swing/README.md) agrega las pruebas y la ejecución desde VS Code, y el apéndice B enlaza las instrucciones del resto de los ejemplos.
 
 ### 5. Independencia de la tecnología
 

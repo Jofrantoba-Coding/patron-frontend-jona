@@ -23,10 +23,10 @@ Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué c
 
 ## Arquitectura y organización del código
 
-- **Frost, Brad** (2016). *Atomic Design*. <https://atomicdesign.bradfrost.com/> · Capítulos 6, 12.
-- **Feature-Sliced Design**. Documentación de la metodología. <https://feature-sliced.design/> · Capítulo 6.
-- **Cockburn, Alistair** (2005). *Hexagonal Architecture* (puertos y adaptadores). <https://alistair.cockburn.us/hexagonal-architecture/> · Capítulos 1, 6.
-- **Martin, Robert C.** (2017). *Clean Architecture: A Craftsman's Guide to Software Structure and Design*. Prentice Hall · Capítulo 6.
+- **Frost, Brad** (2016). *Atomic Design*. <https://atomicdesign.bradfrost.com/> · Capítulos 6, 12, 13, 14.
+- **Feature-Sliced Design**. Documentación de la metodología. <https://feature-sliced.design/> · Capítulos 6, 14.
+- **Cockburn, Alistair** (2005). *Hexagonal Architecture* (puertos y adaptadores). <https://alistair.cockburn.us/hexagonal-architecture/> · Capítulos 1, 6, 14.
+- **Martin, Robert C.** (2017). *Clean Architecture: A Craftsman's Guide to Software Structure and Design*. Prentice Hall · Capítulos 6, 14.
 
 ## Evolución, verificación y migración
 
@@ -46,9 +46,9 @@ Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué c
 
 ## Sistemas de diseño y accesibilidad
 
-- **W3C** (2023). *Web Content Accessibility Guidelines (WCAG) 2.2*. Razón de contraste mínima 4,5:1 para texto y 3:1 para componentes. <https://www.w3.org/TR/WCAG22/> · Capítulo 8.
-- **axe-core**. Motor de reglas de accesibilidad de Deque. <https://github.com/dequelabs/axe-core> · Capítulo 8.
-- **Storybook**. <https://storybook.js.org/> · Capítulos 2, 6, 8.
+- **W3C** (2023). *Web Content Accessibility Guidelines (WCAG) 2.2*. Razón de contraste mínima 4,5:1 para texto y 3:1 para componentes. <https://www.w3.org/TR/WCAG22/> · Capítulos 8, 13.
+- **axe-core**. Motor de reglas de accesibilidad de Deque. <https://github.com/dequelabs/axe-core> · Capítulos 8, 13.
+- **Storybook**. <https://storybook.js.org/> · Capítulos 2, 6, 8, 13.
 
 ## Herramientas de verificación de arquitectura
 
@@ -57,11 +57,13 @@ Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué c
 - **NetArchTest** (.NET). <https://github.com/BenMorris/NetArchTest> · Capítulo 9.
 - **dependency-cruiser** (JavaScript y TypeScript). <https://github.com/sverweij/dependency-cruiser> · Capítulo 9.
 - **Konsist** (Kotlin). <https://github.com/LemonAppDev/konsist> · Capítulo 9.
-- **API del compilador de TypeScript**. <https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API> · Capítulos 6, 9, 12.
+- **API del compilador de TypeScript**. <https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API> · Capítulos 6, 9, 12, 13, 14.
 - **CODEOWNERS** en GitHub. <https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners> · Capítulo 9.
 
 ## Otras herramientas usadas en los ejemplos
 
 - **Mermaid**, para los diagramas del libro. <https://mermaid.js.org/> · Todos los capítulos.
 - **esbuild**, para medir el empaquetado en el capítulo 12. <https://esbuild.github.io/> · Capítulo 12.
+- **Node.js: módulos y paquetes**. El campo `exports` de `package.json` y la resolución de módulos ES, que exige rutas completas. <https://nodejs.org/api/packages.html> · Capítulo 13.
+- **TypeScript: referencia de módulos**. Las opciones `moduleResolution` `bundler` y `NodeNext`. <https://www.typescriptlang.org/docs/handbook/modules/reference.html> · Capítulo 13.
 - **Vitest** y el ejecutor de pruebas de **Node.js** (`node:test`), en los ejemplos web. <https://vitest.dev/> · <https://nodejs.org/api/test.html> · Apéndice B.
