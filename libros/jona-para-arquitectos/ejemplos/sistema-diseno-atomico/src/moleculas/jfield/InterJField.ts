@@ -6,7 +6,12 @@ export interface InterJField {
   /** Estado: lo decide quien usa el campo, nunca los DEFAULTS. */
   value: string;
   onChange?: (value: string) => void;
-  type?: 'text' | 'email' | 'number';
+  type?: 'text' | 'email' | 'number' | 'password';
+  /**
+   * Qué dato pide el campo; en un inicio de sesión, `username` y `current-password`. La lista es
+   * la de JInput, repetida: el contrato no importa el de otra unidad (regla 4 de test/niveles).
+   */
+  autoComplete?: 'username' | 'email' | 'current-password' | 'new-password' | 'off';
   /** Texto de ayuda, siempre visible. */
   hint?: string;
   /** Mensaje de error; si existe, el campo queda marcado como inválido. */

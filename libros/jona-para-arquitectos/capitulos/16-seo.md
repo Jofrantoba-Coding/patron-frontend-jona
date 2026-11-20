@@ -966,3 +966,5 @@ descripcion: datos.descripcion,
 - Un producto que no existe responde 404, nunca un 200 con un mensaje. La búsqueda es `noindex, follow` y no se bloquea en robots.txt, porque un `noindex` bloqueado no se lee. El sitemap lista exactamente las páginas indexables.
 - Una auditoría de diez reglas por página y cuatro entre páginas corre contra los dos modos, con la técnica de doble fuente, y cada regla tiene su árbol de violación. No mide Core Web Vitals ni el dibujo real: para eso hacen falta un navegador o los datos del buscador.
 - La imagen principal se marca con `prioridad` y carga de inmediato con prioridad alta; las demás, en diferido; todas con dimensiones.
+
+El capítulo 17 vuelve sobre el escape del JSON-LD y sobre `JLinkHref`, y los pone en un marco más amplio: dónde vive cada práctica de desarrollo seguro en una aplicación JONA, desde el contrato hasta el BFF, con un ejemplo que agrega inicio de sesión y roles al catálogo.

@@ -2,7 +2,7 @@
 
 Un patrón que se usa cambia. JONA nació en 2024 como tres clases TypeScript que construían el DOM, y hoy se expresa en una docena de tecnologías, con dos estilos de contrato, tres formas y un catálogo de reglas verificables. Algunos de esos cambios mejoraron el patrón; otros dejaron nombres cruzados, ejemplos que no compilan o atajos que se volvieron costumbre.
 
-Este capítulo cierra la evaluación del patrón mirando hacia atrás y hacia adelante: qué se mantuvo y qué cambió, qué enseña el primer derivado externo del patrón, cuáles son los antipatrones de todo el libro reunidos en un solo lugar, y cómo debería evolucionar el canon a partir de aquí. Los capítulos 13 a 16 pasan de evaluar a construir: un sistema de diseño; sobre él, una aplicación completa; esa aplicación detrás de un BFF y renderizada en el servidor; y el mismo catálogo preparado para los buscadores.
+Este capítulo cierra la evaluación del patrón mirando hacia atrás y hacia adelante: qué se mantuvo y qué cambió, qué enseña el primer derivado externo del patrón, cuáles son los antipatrones de todo el libro reunidos en un solo lugar, y cómo debería evolucionar el canon a partir de aquí. Los capítulos 13 a 17 pasan de evaluar a construir: un sistema de diseño; sobre él, una aplicación completa; esa aplicación detrás de un BFF y renderizada en el servidor; el mismo catálogo preparado para los buscadores; y el catálogo con sesión y roles, con cada práctica de seguridad en su pieza.
 
 > [!IMPORTANT]
 > **Regla del capítulo.** El patrón puede cambiar de nombres, de formas y de herramientas. Lo que no puede cambiar sin decirlo es el núcleo: N1 a N4. Una evolución que conserva el núcleo es una forma nueva; una que lo rompe es otro patrón, y debe llamarse de otra manera.
@@ -177,6 +177,7 @@ Cada capítulo cerró con sus antipatrones. Esta sección los reúne en dos índ
 | **Dominio y dirección de las dependencias** · Atomic Design, FSD y Clean/Hexagonal | [Nivel invertido](13-construir-sistema-de-diseno.md#ap-13-1) · [Molécula de moléculas](13-construir-sistema-de-diseno.md#ap-13-7) · [Dominio con framework](14-aplicacion-fsd-hexagonal.md#ap-14-1) · [Funcionalidades que se llaman entre sí](14-aplicacion-fsd-hexagonal.md#ap-14-5) · [Reglas del dominio repetidas](14-aplicacion-fsd-hexagonal.md#ap-14-7) · [Regla de negocio en el BFF](15-bff-y-ssr.md#ap-15-5) |
 | **Servidor y navegador** · BFF y SSR | [Singleton de módulo en el servidor SSR](15-bff-y-ssr.md#ap-15-2) · [Adaptador del servidor en el bundle del cliente](15-bff-y-ssr.md#ap-15-3) · [Datos incrustados sin escapar](15-bff-y-ssr.md#ap-15-4) · [Vista que lee `window` o la hora](15-bff-y-ssr.md#ap-15-6) · [Datos no serializables en el contrato de UI](15-bff-y-ssr.md#ap-15-7) |
 | **Encontrable** · SEO | [Cáscara CSR para contenido que debe encontrarse](16-seo.md#ap-16-1) · [Soft 404](16-seo.md#ap-16-2) · [Un enlace que no es enlace](16-seo.md#ap-16-3) · [JSON-LD sin escapar](16-seo.md#ap-16-4) · [Títulos elegidos por tamaño](16-seo.md#ap-16-5) · [Señales de indexación que se contradicen](16-seo.md#ap-16-6) · [Títulos y descripciones repetidos](16-seo.md#ap-16-7) · [Imágenes sin dimensiones, o la principal en diferido](16-seo.md#ap-16-8) |
+| **Seguro** · desarrollo seguro | [El token en el almacenamiento del navegador](17-desarrollo-seguro.md#ap-17-1) · [HTML armado con datos](17-desarrollo-seguro.md#ap-17-2) · [La interfaz como control de acceso](17-desarrollo-seguro.md#ap-17-3) · [Un secreto en el bundle](17-desarrollo-seguro.md#ap-17-4) · [La cookie de sesión sin defensa CSRF](17-desarrollo-seguro.md#ap-17-5) · [El servicio falso en producción](17-desarrollo-seguro.md#ap-17-6) · [Un enlace que nadie validó](17-desarrollo-seguro.md#ap-17-7) · [Un nonce que no cambia](17-desarrollo-seguro.md#ap-17-8) · [Credenciales de prueba en los DEFAULTS](17-desarrollo-seguro.md#ap-17-9) |
 | **Nombres** | [JONA de nombres](10-decisiones-y-compromisos.md#ap-10-1) · [Renombrar sin separar](11-migracion.md#ap-11-6) · [Colisión de «plantilla»](06-atomic-fsd-hexagonal.md#ap-6-6) · [Nomenclatura cruzada](#ap-12-1) |
 
 ### Por capítulo
@@ -284,6 +285,15 @@ Cada capítulo cerró con sus antipatrones. Esta sección los reúne en dos índ
 | 🟠 | [Señales de indexación que se contradicen](16-seo.md#ap-16-6) | 16. SEO desde el sistema de diseño, el sitio estático y el SSR |
 | 🟡 | [Títulos y descripciones repetidos](16-seo.md#ap-16-7) | 16. SEO desde el sistema de diseño, el sitio estático y el SSR |
 | 🟡 | [Imágenes sin dimensiones, o la principal en diferido](16-seo.md#ap-16-8) | 16. SEO desde el sistema de diseño, el sitio estático y el SSR |
+| 🔴 | [El token en el almacenamiento del navegador](17-desarrollo-seguro.md#ap-17-1) | 17. Desarrollo seguro desde el arquetipo JONA |
+| 🔴 | [HTML armado con datos](17-desarrollo-seguro.md#ap-17-2) | 17. Desarrollo seguro desde el arquetipo JONA |
+| 🔴 | [La interfaz como control de acceso](17-desarrollo-seguro.md#ap-17-3) | 17. Desarrollo seguro desde el arquetipo JONA |
+| 🔴 | [Un secreto en el bundle](17-desarrollo-seguro.md#ap-17-4) | 17. Desarrollo seguro desde el arquetipo JONA |
+| 🔴 | [La cookie de sesión sin defensa CSRF](17-desarrollo-seguro.md#ap-17-5) | 17. Desarrollo seguro desde el arquetipo JONA |
+| 🟠 | [El servicio falso en producción](17-desarrollo-seguro.md#ap-17-6) | 17. Desarrollo seguro desde el arquetipo JONA |
+| 🟠 | [Un enlace que nadie validó](17-desarrollo-seguro.md#ap-17-7) | 17. Desarrollo seguro desde el arquetipo JONA |
+| 🟠 | [Un nonce que no cambia](17-desarrollo-seguro.md#ap-17-8) | 17. Desarrollo seguro desde el arquetipo JONA |
+| 🟡 | [Credenciales de prueba en los DEFAULTS](17-desarrollo-seguro.md#ap-17-9) | 17. Desarrollo seguro desde el arquetipo JONA |
 <!-- CATALOGO:FIN -->
 
 ---

@@ -1,11 +1,18 @@
 // Contrato de UI del campo de entrada: un átomo, sin etiqueta propia (la pone la molécula JField).
 
+/**
+ * Qué dato pide el campo, con los nombres del atributo autocomplete de HTML. Con `username` y
+ * `current-password`, el navegador y el gestor de contraseñas reconocen un inicio de sesión.
+ */
+export type JAutoComplete = 'username' | 'email' | 'current-password' | 'new-password' | 'off';
+
 export interface InterJInput {
   /** Estado: lo decide quien usa el campo, nunca los DEFAULTS. */
   value: string;
   /** Valor primero: entrega el texto, no el evento del DOM. */
   onChange?: (value: string) => void;
-  type?: 'text' | 'email' | 'number' | 'search';
+  type?: 'text' | 'email' | 'number' | 'search' | 'password';
+  autoComplete?: JAutoComplete;
   id?: string;
   /** Nombre del campo en el formulario: con él, un formulario GET funciona sin JavaScript. */
   name?: string;

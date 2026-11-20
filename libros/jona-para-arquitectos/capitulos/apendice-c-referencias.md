@@ -1,6 +1,6 @@
 # Apéndice C. Referencias
 
-Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué capítulos aparece. Los enlaces se comprobaron el 31 de octubre de 2026, y los que agregaron los capítulos 15 y 16, el 19 de noviembre de 2026. Medium, npm y ResearchGate rechazan las comprobaciones automáticas, así que esos enlaces se verificaron de otra manera: `jona-ui` en el registro de npm, el artículo de THC-C en el canal RSS de su autor, el artículo de 2024 en su copia en PDF y el de Abramov en su copia archivada en web.archive.org. Las especificaciones y herramientas se citan en la versión que usan los ejemplos cuando esa versión importa.
+Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué capítulos aparece. Los enlaces se comprobaron el 31 de octubre de 2026, los que agregaron los capítulos 15 y 16, el 19 de noviembre de 2026, y los del capítulo 17, el 20 de noviembre de 2026. Medium, npm y ResearchGate rechazan las comprobaciones automáticas, así que esos enlaces se verificaron de otra manera: `jona-ui` en el registro de npm, el artículo de THC-C en el canal RSS de su autor, el artículo de 2024 en su copia en PDF y el de Abramov en su copia archivada en web.archive.org. Las especificaciones y herramientas se citan en la versión que usan los ejemplos cuando esa versión importa.
 
 ---
 
@@ -58,6 +58,27 @@ Lo que el capítulo 16 afirma sobre cómo trata Google una página sale de estas
 - **web.dev**: *Web Vitals* (LCP, INP y CLS, y medición de campo frente a laboratorio) <https://web.dev/articles/vitals> · *Largest Contentful Paint (LCP)* <https://web.dev/articles/lcp> · *Optimize resource loading with the Fetch Priority API* <https://web.dev/articles/fetch-priority> · *Browser-level image lazy loading for the web* <https://web.dev/articles/browser-level-image-lazy-loading> · *Optimize Cumulative Layout Shift* <https://web.dev/articles/optimize-cls> · Capítulo 16.
 - **MDN**: el elemento `<img>`, con los atributos `alt`, `loading` y `fetchpriority`. <https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img> · Capítulo 16.
 - **Herramientas que complementan la auditoría**: Lighthouse <https://developer.chrome.com/docs/lighthouse/overview> · la herramienta de inspección de URL de Search Console <https://support.google.com/webmasters/answer/9012289> · la prueba de resultados enriquecidos de Google <https://search.google.com/test/rich-results> · Capítulo 16.
+
+## Desarrollo seguro
+
+Lo que el capítulo 17 afirma sobre amenazas, cookies, sesiones y cabeceras sale de estas fuentes, consultadas el 20 de noviembre de 2026.
+
+- **IETF**: RFC 10017, *OAuth 2.0 for Browser-Based Applications* (BCP 212), agosto de 2026. Las arquitecturas BFF y *token-mediating backend*; los requisitos de las cookies del BFF (`Secure`, `HttpOnly`, `SameSite=Strict`, `Path=/`, sin `Domain`, prefijo) y su defensa CSRF con una cabecera propia. <https://www.rfc-editor.org/rfc/rfc10017.html> · Capítulo 17.
+- **OWASP Top 10:2025**. A01 *Broken Access Control* («solo es efectivo en código de servidor confiable», «denegar por defecto»), A02 *Security Misconfiguration*, A03 *Software Supply Chain Failures*, A05 *Injection*, A07 *Authentication Failures*, A10 *Mishandling of Exceptional Conditions*. <https://top10.owasp.org/2025/en/> · Capítulo 17.
+- **OWASP Application Security Verification Standard 5.0.0** (30 de mayo de 2025). El capítulo V3, *Web Frontend Security*: cookies (3.3), cabeceras de seguridad del navegador y CSP mínima (3.4.3), separación de orígenes (3.5). <https://asvs.owasp.org/> · <https://github.com/OWASP/ASVS/blob/master/5.0/en/0x12-V3-Web-Frontend-Security.md> · Capítulo 17.
+- **OWASP Cheat Sheet Series** (capítulo 17):
+  - *Content Security Policy*: la política estricta con nonce y `'strict-dynamic'`; la CSP como segunda capa. <https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html>
+  - *Cross-Site Request Forgery Prevention*: SameSite como defensa en profundidad, `Sec-Fetch-Site`, `Origin`, y el XSS que derrota todas las mitigaciones. <https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html>
+  - *Session Management*: atributos de la cookie, prefijo `__Host-`, entropía del identificador, renovación al autenticarse, nada de credenciales en `localStorage`. <https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html>
+  - *HTML5 Security*: no guardar identificadores de sesión en el almacenamiento local. <https://cheatsheetseries.owasp.org/cheatsheets/HTML5_Security_Cheat_Sheet.html>
+  - *Cross Site Scripting Prevention*: las salidas de emergencia de los frameworks (`dangerouslySetInnerHTML`) y la validación propia de las URL. <https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html>
+  - *Authentication*: mensajes de error genéricos y formularios que funcionan con los gestores de contraseñas. <https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html>
+  - *Password Storage*: los parámetros mínimos de scrypt. <https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html>
+  - *HTTP Headers*: `X-Content-Type-Options`, `Referrer-Policy`, `Cross-Origin-Opener-Policy`, `Cache-Control`, `Strict-Transport-Security` y `X-XSS-Protection`. <https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html>
+- **MDN**: *Content Security Policy (CSP)*: nonces distintos en cada respuesta, `'strict-dynamic'`, `frame-ancestors` <https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP> · la cabecera `Set-Cookie`: `HttpOnly`, `Secure`, `SameSite` y el prefijo `__Host-` <https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie> · el atributo `autocomplete`: `username`, `current-password`, `new-password` <https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete> · Capítulo 17.
+- **Vite**: la opción `html.cspNonce` <https://vite.dev/config/shared-options.html> y su uso con CSP <https://vite.dev/guide/features.html> · variables de entorno, el prefijo `VITE_` y el reemplazo estático de `import.meta.env.DEV` <https://vite.dev/guide/env-and-mode.html> · Capítulo 17.
+- **npm**: `npm ci` <https://docs.npmjs.com/cli/v11/commands/npm-ci> · `npm audit` y `npm audit signatures` <https://docs.npmjs.com/cli/v11/commands/npm-audit> · Capítulo 17.
+- **Microsoft**: la clase `ProtectedData` (DPAPI), solo en Windows. <https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.protecteddata> · Capítulo 17.
 
 ## Evolución, verificación y migración
 

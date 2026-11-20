@@ -1,6 +1,6 @@
 {
   "name": "@jona-libro/ds-atomico",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Sistema de diseño con Atomic Design y JONA, construido nivel por nivel (capítulo 13)",
   "type": "module",

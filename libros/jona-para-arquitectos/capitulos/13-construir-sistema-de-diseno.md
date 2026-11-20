@@ -2,7 +2,7 @@
 
 El capítulo 6 decidió cómo conviven Atomic Design y JONA: cualquier nivel atómico puede ser una unidad JONA, sin contrato de servicio. El capítulo 8 trató lo que convierte un conjunto de unidades en un producto: tokens, temas, accesibilidad y versionado. Falta el recorrido completo: partir de las pantallas y llegar a un paquete que una aplicación pueda instalar, nivel por nivel, con las reglas que mantienen los niveles en orden.
 
-Este capítulo hace ese recorrido con un ejemplo construido desde cero, `ejemplos/sistema-diseno-atomico/`. Tiene seis átomos, dos moléculas, dos organismos y una disposición, y 110 pruebas. El capítulo 14 lo instala como dependencia y construye con él una aplicación. Tres de los átomos, `JHeading`, `JLink` y `JImage`, llegaron después, con la versión 1.1.0 y el capítulo 16.
+Este capítulo hace ese recorrido con un ejemplo construido desde cero, `ejemplos/sistema-diseno-atomico/`. Tiene seis átomos, dos moléculas, dos organismos y una disposición, y 112 pruebas. El capítulo 14 lo instala como dependencia y construye con él una aplicación. Tres de los átomos, `JHeading`, `JLink` y `JImage`, llegaron después, con la versión 1.1.0 y el capítulo 16; el campo de contraseña, con la 1.2.0 y el capítulo 17.
 
 > [!IMPORTANT]
 > **Regla del capítulo.**
@@ -412,7 +412,7 @@ Otra prueba del mismo archivo comprueba que el paquete cargado expone exactament
 > [!CAUTION]
 > Un paquete que solo se prueba desde su código fuente puede pasar todas sus pruebas y no cargar en ningún consumidor. **Pruebe el artefacto**: lo que está en `dist/`, cargado por el nombre del paquete, con el entorno de módulos de quien lo va a usar.
 
-El versionado no cambia respecto del capítulo 8. Este ejemplo no repite la instantánea de la superficie ni la clasificación automática de la versión; un sistema de diseño real las necesita, porque `exports` dice qué rutas existen pero no qué propiedades tiene cada contrato. La versión 1.1.0, la de los átomos semánticos del capítulo 16, se clasificó a mano con el criterio del capítulo 8: solo agrega exportaciones y una propiedad opcional (`name` en `JInput`), así que es un cambio menor, y los consumidores de los capítulos 14 y 15 no cambiaron una línea.
+El versionado no cambia respecto del capítulo 8. Este ejemplo no repite la instantánea de la superficie ni la clasificación automática de la versión; un sistema de diseño real las necesita, porque `exports` dice qué rutas existen pero no qué propiedades tiene cada contrato. La versión 1.1.0, la de los átomos semánticos del capítulo 16, se clasificó a mano con el criterio del capítulo 8: solo agrega exportaciones y una propiedad opcional (`name` en `JInput`), así que es un cambio menor, y los consumidores de los capítulos 14 y 15 no cambiaron una línea. La 1.2.0, la del capítulo 17, también es menor: agrega `password` a los tipos de `JInput` y `JField` y una propiedad opcional, `autoComplete`.
 
 ---
 
@@ -468,12 +468,12 @@ El diseñador necesita ver el sistema de diseño funcionando antes de que exista
 | `test/contraste.test.ts` | 5 | Contraste WCAG de ocho pares semánticos en tres modos |
 | `test/superficie.test.ts` | 3 | La superficie pública y el mapa `exports` |
 | `test/paquete.test.ts` | 3 | Node carga el paquete compilado; una ruta interna falla |
-| `test/atomos.test.tsx` | 23 | Comportamiento y accesibilidad de los átomos; lo que no debe compilar, con `@ts-expect-error` |
-| `test/moleculas.test.tsx` | 8 | Asociación de etiqueta, ayuda y error; borrador y envío de la búsqueda |
+| `test/atomos.test.tsx` | 24 | Comportamiento y accesibilidad de los átomos; lo que no debe compilar, con `@ts-expect-error` |
+| `test/moleculas.test.tsx` | 9 | Asociación de etiqueta, ayuda y error; el campo de contraseña; borrador y envío de la búsqueda |
 | `test/organismos.test.tsx` | 9 | Tabla genérica con acciones por fila; foco, Escape y retorno del foco del diálogo |
 | `test/disposiciones.test.tsx` | 4 | Un único `h1`, de `JHeading`, dentro de `<header>`; huecos de acciones y contenido |
 | `test/demo.test.tsx` | 2 | Una pantalla entera solo con el sistema de diseño |
-| **Total** | **110** | |
+| **Total** | **112** | |
 
 Ejemplo ejecutable: `ejemplos/sistema-diseno-atomico/` (`npm run build` antes de `npm test`, porque `paquete.test.ts` carga `dist/`).
 

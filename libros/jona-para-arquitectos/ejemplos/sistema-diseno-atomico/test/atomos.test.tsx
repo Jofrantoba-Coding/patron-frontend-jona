@@ -52,6 +52,14 @@ describe('JInput', () => {
     expect([...new FormData(container.querySelector('form')!).entries()]).toEqual([['q', 'teclado']]);
   });
 
+  it('password: el valor no se ve, y autoComplete le dice al navegador qué credencial es', () => {
+    const { container } = render(<JInput type="password" autoComplete="current-password" aria-label="Contraseña" value="secreta" />);
+
+    const campo = container.querySelector('input')!;
+    expect(campo.type).toBe('password');
+    expect(campo.getAttribute('autocomplete')).toBe('current-password');
+  });
+
   it('sin nombre accesible, axe lo detecta: el átomo no se usa solo, lo nombra la molécula', async () => {
     const { container } = render(<JInput value="" />);
 
