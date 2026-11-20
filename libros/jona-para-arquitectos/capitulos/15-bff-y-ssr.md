@@ -993,3 +993,5 @@ export interface InterApiProductos {
 - La raíz de composición del servidor exporta una fábrica, y lo propio de cada petición se crea en cada petición. Es el error más caro de SSR, porque en desarrollo no se ve.
 - Lo del servidor no llega al navegador: lo verifica una regla sobre los imports y una prueba sobre el bundle compilado.
 - Siete reglas sostienen los dos ejemplos, cada una con sus árboles de violación; dos de ellas son heurísticas declaradas. Los frameworks de SSR ofrecen mecanismos para las mismas decisiones, con otros nombres.
+
+El capítulo 16 retoma el posicionamiento en buscadores que este capítulo dio como motivo para el SSR, y muestra qué más hace falta: la semántica del sistema de diseño, un contrato de metadatos por página y una misma auditoría contra el sitio estático y el servidor SSR.

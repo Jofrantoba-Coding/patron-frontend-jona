@@ -7,6 +7,8 @@ export interface InterJInput {
   onChange?: (value: string) => void;
   type?: 'text' | 'email' | 'number' | 'search';
   id?: string;
+  /** Nombre del campo en el formulario: con él, un formulario GET funciona sin JavaScript. */
+  name?: string;
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;

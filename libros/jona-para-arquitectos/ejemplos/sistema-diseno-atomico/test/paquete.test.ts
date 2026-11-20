@@ -27,7 +27,8 @@ describe('el paquete compilado, cargado como lo haría un consumidor', () => {
     expect(r.error).toBe('');
     expect(r.salida.split(',')).toEqual([
       'JBUTTON_DEFAULTS', 'JButton', 'JCONFIRMDIALOG_DEFAULTS', 'JConfirmDialog', 'JFIELD_DEFAULTS', 'JField',
-      'JINPUT_DEFAULTS', 'JInput', 'JPAGELAYOUT_DEFAULTS', 'JPageLayout', 'JSEARCHBOX_DEFAULTS', 'JSearchBox',
+      'JHEADING_DEFAULTS', 'JHeading', 'JIMAGE_DEFAULTS', 'JINPUT_DEFAULTS', 'JImage', 'JInput', 'JLINK_DEFAULTS', 'JLink',
+      'JPAGELAYOUT_DEFAULTS', 'JPageLayout', 'JSEARCHBOX_DEFAULTS', 'JSearchBox',
       'JTABLE_DEFAULTS', 'JTEXT_DEFAULTS', 'JTable', 'JText',
     ]);
   });

@@ -19,6 +19,15 @@ export const STACK = 'ds-stack';
 export const INLINE = 'ds-inline';
 export const PAD = 'ds-pad';
 export const TABLE = 'ds-table';
+// Tipografía: tamaños de título, independientes del nivel (JHeading).
+export const HEADING_XL = 'ds-heading-xl';
+export const HEADING_LG = 'ds-heading-lg';
+export const HEADING_MD = 'ds-heading-md';
+export const HEADING_SM = 'ds-heading-sm';
+// Contenido: el enlace se distingue por el subrayado, no solo por el color.
+export const LINK = 'ds-link';
+/** La imagen nunca desborda su contenedor y conserva la proporción de su width y height. */
+export const IMAGE = 'ds-image';
 
 /** Une clases y descarta las vacías: `clases(FG, activo && PRIMARY)`. */
 export const clases = (...lista: Array<string | false | undefined>) => lista.filter(Boolean).join(' ');

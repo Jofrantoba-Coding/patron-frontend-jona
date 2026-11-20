@@ -5,7 +5,10 @@ export interface InterJText {
   children: ReactNode;
   /** Rol del texto: normal, atenuado (ayuda) o peligro (error). */
   tone?: 'default' | 'muted' | 'danger';
-  /** Elemento HTML: el nivel de título lo decide quien compone, no el átomo. */
+  /**
+   * Elemento HTML. `h1` y `h2` se conservan por compatibilidad con la versión 1.0: para un título,
+   * JHeading, que separa el nivel del tamaño. Dentro del sistema de diseño ya no se usan (regla 5).
+   */
   as?: 'p' | 'span' | 'h1' | 'h2';
   id?: string;
   /** `alert` para un error que debe anunciarse en cuanto aparece. */

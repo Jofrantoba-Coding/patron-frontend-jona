@@ -67,7 +67,7 @@ const INCOMPLETO = resolve(process.cwd(), 'test/fixtures/anatomia-incompleta');
 describe('anatomía JONA en todos los niveles', () => {
   it('encuentra las unidades de los cuatro niveles', () => {
     expect(unidades(SRC)).toEqual([
-      'atomos/jbutton', 'atomos/jinput', 'atomos/jtext',
+      'atomos/jbutton', 'atomos/jheading', 'atomos/jimage', 'atomos/jinput', 'atomos/jlink', 'atomos/jtext',
       'moleculas/jfield', 'moleculas/jsearchbox',
       'organismos/jconfirmdialog', 'organismos/jtable',
       'disposiciones/jpagelayout',

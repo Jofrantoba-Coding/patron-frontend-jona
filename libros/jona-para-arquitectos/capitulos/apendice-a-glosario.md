@@ -66,7 +66,7 @@ Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres d
 | **Servidor mock** | Servidor construido a partir del contrato de API que responde como el backend. Es el modo de desarrollo por defecto | [3](03-contratos.md) | *mock server* |
 | **Escenario** | Una respuesta del servidor mock elegida por petición (en los ejemplos, con la cabecera `X-Mock-Scenario`) | [3](03-contratos.md), [5](05-roles-y-flujo.md) | — |
 | **Suite de contrato** | Casos de prueba escritos una vez y ejecutados contra cada implementación de un contrato de servicio | [3](03-contratos.md), [9](09-verificacion-y-gobierno.md) | *contract test suite* |
-| **Paridad de doble fuente** | La misma suite de contrato pasa contra el servicio falso y contra el servidor mock (y, en el pipeline del backend, contra el backend) | [3](03-contratos.md) | *dual-source parity* |
+| **Paridad de doble fuente** | La misma suite de contrato pasa contra el servicio falso y contra el servidor mock (y, en el pipeline del backend, contra el backend). El capítulo 16 la aplica a una auditoría SEO, contra el sitio estático y el servidor SSR | [3](03-contratos.md), [16](16-seo.md) | *dual-source parity* |
 | **Modelo de error** | Una sola forma de error para la unidad (`ApiError`, con estado, código, detalles y `traceId`), incluida la respuesta inválida (`INVALID_RESPONSE`) | [3](03-contratos.md) | — |
 | **Caso hoja** | El caso más específico del plan de pruebas: un resultado distinto, con su escenario | [5](05-roles-y-flujo.md) | *leaf case* |
 | **Trazabilidad** | La cadena criterio de aceptación → escenario Gherkin → escenario del mock → respuesta, comprobada en las dos direcciones | [5](05-roles-y-flujo.md) | *traceability* |
@@ -114,6 +114,21 @@ Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres d
 | **Organismo de dominio** | Un organismo cuyo contrato nombra una entidad del negocio, como el formulario de producto. Vive en la aplicación y se compone con piezas del sistema de diseño | [13](13-construir-sistema-de-diseno.md), [14](14-aplicacion-fsd-hexagonal.md) | — |
 | **Estado de interacción** | El que solo existe mientras el usuario manipula un componente: un borrador, el foco anterior, los identificadores que asocian etiqueta y error. Puede vivir en la Implementación de un componente del sistema de diseño; el estado de dominio, nunca | [13](13-construir-sistema-de-diseno.md) | *interaction state* |
 | **Instantánea de la superficie** | Registro de la superficie pública que una prueba compara en cada versión para clasificar el cambio: mayor, menor o parche | [8](08-sistemas-de-diseno.md) | *API snapshot* |
+
+## Buscadores
+
+| Término | Definición | Capítulo | En inglés |
+|---|---|---|---|
+| **SEO** | Las decisiones que hacen que un buscador pueda encontrar, leer e indexar bien una página. En una interfaz se toman en tres lugares: el sistema de diseño (la semántica), el contrato de la página (los metadatos) y el modo de entrega (el HTML servido) | [16](16-seo.md) | *search engine optimization* |
+| **Prerenderizado** (SSG) | Generar el HTML de cada ruta al compilar y publicarlo como archivos estáticos: un `index.html` por ruta, más `404.html`, el sitemap y robots.txt | [16](16-seo.md) | *static site generation*, *prerendering* |
+| **HTML servido** | El HTML que responde el servidor, antes de que se ejecute JavaScript. Es lo que lee un cliente que no ejecuta scripts, y lo que mide la auditoría del capítulo 16 | [16](16-seo.md) | — |
+| **Contrato de metadatos** | `InterMetadatosPagina`: título, descripción, URL canónica, `robots`, Open Graph y JSON-LD de una página. Lo produce una función pura por página a partir de sus datos, y lo dibuja un solo renderizador | [16](16-seo.md) | — |
+| **URL canónica** | La URL que una página declara como la suya (`<link rel="canonical">`), absoluta. Solo la declaran las páginas que se indexan | [16](16-seo.md) | *canonical URL* |
+| **`noindex`** | Regla de la etiqueta meta `robots` que pide no mostrar la página en los resultados. Se lee solo si la página se puede rastrear: bloquearla en robots.txt la anula | [16](16-seo.md) | *noindex* |
+| **Soft 404** | Una página que dice que no existe, o que está vacía, pero responde con un estado `2xx`. La respuesta correcta para una página que no existe es un 404 | [16](16-seo.md) | *soft 404* |
+| **Sitemap** | Archivo XML con las URL absolutas que un sitio quiere ver en los resultados. Se declara en robots.txt con la línea `Sitemap:` | [16](16-seo.md) | *sitemap* |
+| **Datos estructurados** (JSON-LD) | Una descripción de la página con el vocabulario de schema.org (por ejemplo, `Product` con su `Offer`), en un `<script type="application/ld+json">` que hay que escapar como los datos incrustados | [16](16-seo.md) | *structured data*, *JSON-LD* |
+| **Core Web Vitals** (LCP) | Tres métricas de la experiencia medidas en navegadores reales: LCP (carga), INP (interactividad) y CLS (estabilidad visual). LCP mide cuándo se dibuja el elemento más grande visible, a menudo la imagen principal | [16](16-seo.md) | *Core Web Vitals*, *Largest Contentful Paint* |
 
 ## Verificación y gobierno
 

@@ -2,7 +2,10 @@
 // Las vistas, las Implementaciones y clasesToken no se exportan: son detalle interno.
 // Átomos
 export * from './atomos/jbutton/index.js';
+export * from './atomos/jheading/index.js';
+export * from './atomos/jimage/index.js';
 export * from './atomos/jinput/index.js';
+export * from './atomos/jlink/index.js';
 export * from './atomos/jtext/index.js';
 // Moléculas
 export * from './moleculas/jfield/index.js';

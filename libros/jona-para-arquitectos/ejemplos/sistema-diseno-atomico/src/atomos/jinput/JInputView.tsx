@@ -3,7 +3,7 @@ import { JINPUT_DEFAULTS, type InterJInput } from './InterJInput.js';
 
 /** Vista: render puro, y solo con clases de token. */
 export function JInputView({
-  value, onChange, id, placeholder, invalid, describedBy,
+  value, onChange, id, name, placeholder, invalid, describedBy,
   type = JINPUT_DEFAULTS.type,
   disabled = JINPUT_DEFAULTS.disabled,
   required = JINPUT_DEFAULTS.required,
@@ -12,6 +12,7 @@ export function JInputView({
   return (
     <input
       id={id}
+      name={name}
       type={type}
       value={value}
       placeholder={placeholder}

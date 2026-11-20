@@ -8,7 +8,7 @@ Cada ejemplo tiene su propio `README.md` con sus comandos y sus detalles de ejec
 
 | Herramienta | Versión verificada | Para qué |
 |---|---|---|
-| Node.js y npm | Node 22, npm 10 | `mock-server`, `flujo-bdd`, `web-react`, `web-ts-puro`, `web-angular`, `web-vue`, `electron`, `web-fsd`, `patrones-comparados`, `sistema-diseno`, `sistema-diseno-atomico`, `aplicacion-catalogo`, `catalogo-bff`, `catalogo-ssr`, `costo-de-cambio`, `migracion`, `evolucion`, `gobierno/ts`, `contratos-multilenguaje/typescript` y el ejecutor general |
+| Node.js y npm | Node 22, npm 10 | `mock-server`, `flujo-bdd`, `web-react`, `web-ts-puro`, `web-angular`, `web-vue`, `electron`, `web-fsd`, `patrones-comparados`, `sistema-diseno`, `sistema-diseno-atomico`, `aplicacion-catalogo`, `catalogo-bff`, `catalogo-ssr`, `catalogo-seo`, `costo-de-cambio`, `migracion`, `evolucion`, `gobierno/ts`, `contratos-multilenguaje/typescript` y el ejecutor general |
 | JDK | 21 | `java-swing`, `java-javafx`, `gobierno/java` y `contratos-multilenguaje/kotlin` |
 | Maven | 3.9, ejecutándose sobre el JDK 21 | Compila Java, JavaFX y Kotlin (Kotlin no necesita `kotlinc`: lo compila `kotlin-maven-plugin`; JavaFX llega desde Maven Central) |
 | .NET SDK | 10 | `contratos-multilenguaje/csharp`, `dotnet-wpf` y `gobierno/dotnet` |
@@ -49,6 +49,7 @@ ejemplos/
 ├── aplicacion-catalogo/       # catálogo de productos con FSD, Clean/Hexagonal y JONA, sobre el sistema de diseño anterior
 ├── catalogo-bff/              # BFF hexagonal delante de dos backends simulados; sirve la API del catálogo anterior
 ├── catalogo-ssr/              # la lista del catálogo renderizada en el servidor a mano, con la Implementación partida en dos
+├── catalogo-seo/              # el catálogo como sitio estático y con SSR, con un contrato de metadatos y una misma auditoría SEO
 ├── costo-de-cambio/           # la misma pantalla directa y con JONA, cinco cambios medidos
 ├── migracion/                 # una pantalla heredada llevada a JONA en nueve pasos, con deuda medida
 ├── evolucion/                 # nomenclatura previa frente a la canónica, y observaciones medidas sobre THC-C
@@ -88,6 +89,7 @@ ejemplos/
 | Capítulo 14: dominio puro, puerto con dos adaptadores y suite de contrato, caso de uso, widget que coordina funcionalidades, siete reglas de arquitectura | `aplicacion-catalogo/`, `aplicacion-catalogo/test/architecture/rules.ts` |
 | Capítulo 15: BFF con un puerto por backend, traducción, agregación y compensación; la suite de la SPA contra el BFF | `catalogo-bff/`, `catalogo-bff/src/manejadores/crearManejadoresProductos.ts`, `catalogo-bff/test/architecture/reglas.ts` |
 | Capítulo 15: SSR con la Implementación partida en dos, cara de datos serializable, incrustación segura, raíz por petición y bundle del cliente sin código del servidor | `catalogo-ssr/`, `catalogo-ssr/src/ui/catalogo/`, `catalogo-ssr/test/architecture/reglas.ts`, `catalogo-ssr/test/artefacto.test.ts` |
+| Capítulo 16: semántica en el sistema de diseño, contrato de metadatos por página, sitio estático y SSR con el mismo código, y una auditoría SEO contra los dos | `sistema-diseno-atomico/src/atomos/` (`jheading`, `jlink`, `jimage`), `catalogo-seo/src/seo/`, `catalogo-seo/src/servidor/resolverPagina.ts`, `catalogo-seo/test/seo/` |
 | Contrato del capítulo 1 en varios lenguajes | `contratos-multilenguaje/` |
 
 ## Datos de prueba
@@ -177,7 +179,7 @@ Instrucciones: [sistema-diseno/README.md](sistema-diseno/README.md).
 
 ## sistema-diseno-atomico
 
-El ejemplo del capítulo 13: un sistema de diseño construido nivel por nivel con Atomic Design, con átomos, moléculas, organismos y una disposición, todos con la anatomía de la forma mínima, variante b. React, TypeScript, Vitest, jsdom y axe-core.
+El ejemplo del capítulo 13: un sistema de diseño construido nivel por nivel con Atomic Design, con átomos, moléculas, organismos y una disposición, todos con la anatomía de la forma mínima, variante b. Su versión 1.1.0 agrega los átomos semánticos del capítulo 16 (`JHeading`, `JLink` y `JImage`) y dos reglas sobre las vistas. React, TypeScript, Vitest, jsdom y axe-core.
 
 Instrucciones: [sistema-diseno-atomico/README.md](sistema-diseno-atomico/README.md).
 
@@ -198,6 +200,12 @@ Instrucciones: [catalogo-bff/README.md](catalogo-bff/README.md).
 El segundo ejemplo del capítulo 15: la lista de productos con búsqueda y baja renderizada en el servidor a mano, con React 19 (`renderToString` y `hydrateRoot`), Vite y un servidor `node:http`, y las vistas del sistema de diseño del capítulo 13 (`file:../sistema-diseno-atomico`). Hay que compilar antes ese sistema de diseño, y `npm run build` antes de `npm test`.
 
 Instrucciones: [catalogo-ssr/README.md](catalogo-ssr/README.md).
+
+## catalogo-seo
+
+El ejemplo del capítulo 16: el catálogo con sus fichas y su búsqueda, entregado como sitio estático prerenderizado (`dist/estatico`, con sitemap, robots.txt y `404.html`) y desde un servidor SSR, con las mismas unidades JONA y el mismo HTML. Los metadatos de cada página son un contrato, y una auditoría SEO sobre el HTML servido corre contra los dos modos. Usa el sistema de diseño del capítulo 13 (`file:../sistema-diseno-atomico`): hay que compilarlo antes, y `npm run build` antes de `npm test`.
+
+Instrucciones: [catalogo-seo/README.md](catalogo-seo/README.md).
 
 ## gobierno
 

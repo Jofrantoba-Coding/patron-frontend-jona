@@ -2,7 +2,7 @@
 
 El capítulo 6 decidió cómo conviven Atomic Design y JONA: cualquier nivel atómico puede ser una unidad JONA, sin contrato de servicio. El capítulo 8 trató lo que convierte un conjunto de unidades en un producto: tokens, temas, accesibilidad y versionado. Falta el recorrido completo: partir de las pantallas y llegar a un paquete que una aplicación pueda instalar, nivel por nivel, con las reglas que mantienen los niveles en orden.
 
-Este capítulo hace ese recorrido con un ejemplo construido desde cero, `ejemplos/sistema-diseno-atomico/`. Tiene tres átomos, dos moléculas, dos organismos y una disposición, y 76 pruebas. El capítulo 14 lo instala como dependencia y construye con él una aplicación.
+Este capítulo hace ese recorrido con un ejemplo construido desde cero, `ejemplos/sistema-diseno-atomico/`. Tiene seis átomos, dos moléculas, dos organismos y una disposición, y 110 pruebas. El capítulo 14 lo instala como dependencia y construye con él una aplicación. Tres de los átomos, `JHeading`, `JLink` y `JImage`, llegaron después, con la versión 1.1.0 y el capítulo 16.
 
 > [!IMPORTANT]
 > **Regla del capítulo.**
@@ -62,15 +62,17 @@ Atomic Design define cinco niveles. El sistema de diseño implementa cuatro; el 
 | Nivel | Qué agrega al nivel anterior | En el ejemplo | Qué guarda su Implementación |
 |---|---|---|---|
 | **Tema** (no es unidad) | Roles de color y escala de espaciado | `tokens.css`, `clasesToken.ts` | — |
-| **Átomo** | Un elemento con su rol y su accesibilidad mínima | `JButton`, `JInput`, `JText` | Nada: aplica los `DEFAULTS` |
+| **Átomo** | Un elemento con su rol y su accesibilidad mínima | `JButton`, `JInput`, `JText`, `JHeading`, `JLink`, `JImage` | Nada: aplica los `DEFAULTS` |
 | **Molécula** | Asociar átomos en una sola función | `JField`, `JSearchBox` | Identificadores de accesibilidad; el borrador de una búsqueda |
 | **Organismo** | Una sección con comportamiento propio, genérica | `JTable`, `JConfirmDialog` | El foco y el teclado del diálogo |
 | **Disposición** | La estructura de una página, con huecos | `JPageLayout` | Nada |
 | Página | La disposición con contenido real | — | En la aplicación (capítulo 14) |
 
+`JHeading`, `JLink` y `JImage` son los átomos semánticos: un título con nivel obligatorio, un enlace que siempre tiene destino y una imagen con texto alternativo y dimensiones. El capítulo 16 explica por qué existen, y cómo la semántica que lee un buscador termina siendo responsabilidad del sistema de diseño.
+
 El libro llama **disposición** al nivel que Atomic Design llama *template*, por la colisión que describe el capítulo 6 (ficha [Colisión de «plantilla»](06-atomic-fsd-hexagonal.md#ap-6-6)): «Plantilla» queda reservada para la forma clásica de JONA.
 
-Las ocho unidades tienen la misma anatomía, la de la forma mínima, variante b (capítulo 2): no hay servicio que inyectar, así que la entrada reexporta la Implementación.
+Las once unidades tienen la misma anatomía, la de la forma mínima, variante b (capítulo 2): no hay servicio que inyectar, así que la entrada reexporta la Implementación.
 
 ```
 src/moleculas/jfield/
@@ -81,45 +83,52 @@ src/moleculas/jfield/
 └── index.ts           exportación pública de la unidad
 ```
 
-`test/patron.test.ts` exige esos cinco archivos en las ocho carpetas de los cuatro niveles, y lee con el compilador cada objeto `*_DEFAULTS` para rechazar claves de estado (`value`, `open`, `rows`, `busy`, `selected*`, `checked*`). Su árbol de prueba es una molécula incompleta, `jselect`, sin vista ni índice y con `value` y `open` en sus valores por defecto. El tamaño cambia de un nivel a otro; la anatomía no.
+`test/patron.test.ts` exige esos cinco archivos en las once carpetas de los cuatro niveles, y lee con el compilador cada objeto `*_DEFAULTS` para rechazar claves de estado (`value`, `open`, `rows`, `busy`, `selected*`, `checked*`). Su árbol de prueba es una molécula incompleta, `jselect`, sin vista ni índice y con `value` y `open` en sus valores por defecto. El tamaño cambia de un nivel a otro; la anatomía no.
 
 La figura 13.2 es el grafo real de dependencias del ejemplo:
 
 ```mermaid
-flowchart TB
+flowchart LR
   subgraph D["Disposiciones"]
+    direction TB
     PL[JPageLayout]
   end
   subgraph O["Organismos"]
-    TBL[JTable]
+    direction TB
     CD[JConfirmDialog]
+    TBL[JTable]
   end
   subgraph M["Moléculas"]
+    direction TB
     FI[JField]
     SB[JSearchBox]
   end
   subgraph A["Átomos"]
+    direction TB
+    HD[JHeading]
+    TX[JText]
     BU[JButton]
     IN[JInput]
-    TX[JText]
+    LK[JLink]
+    IM[JImage]
   end
   T["Tema<br/>tokens.css · clasesToken.ts"]
-  PL --> TX
-  TBL --> BU & TX
-  CD --> BU & TX
-  FI --> IN & TX
-  SB --> IN & BU
+  PL --> HD
+  CD --> HD & TX & BU
+  TBL --> TX & BU
+  FI --> TX & IN
+  SB --> BU & IN
   A --> T
   D ~~~ O ~~~ M
 ```
 
-*Figura 13.2. Las dependencias del ejemplo. Todas bajan, y ninguna une dos unidades del mismo nivel. Un nivel puede saltarse otros: `JTable` compone átomos sin pasar por una molécula. Todas las vistas pintan con el tema, no solo los átomos; la figura dibuja una sola flecha para no repetirla.*
+*Figura 13.2. Las dependencias del ejemplo, de izquierda a derecha, del nivel más alto al más bajo. Todas bajan de nivel, y ninguna une dos unidades del mismo nivel. Un nivel puede saltarse otros: `JTable` compone átomos sin pasar por una molécula. Todas las vistas pintan con el tema, no solo los átomos; la figura dibuja una sola flecha para no repetirla. `JLink` y `JImage` no tienen consumidores dentro del sistema de diseño: los usan las aplicaciones (capítulo 16).*
 
 ---
 
 ## 13.3 Qué guarda cada Implementación: interacción, nunca dominio
 
-En una aplicación, la Implementación coordina la pantalla con el sistema. En un sistema de diseño no hay sistema con el cual coordinar, y aun así tres de las ocho Implementaciones del ejemplo hacen algo más que aplicar los `DEFAULTS`. La distinción que las ordena es entre dos clases de estado:
+En una aplicación, la Implementación coordina la pantalla con el sistema. En un sistema de diseño no hay sistema con el cual coordinar, y aun así tres de las once Implementaciones del ejemplo hacen algo más que aplicar los `DEFAULTS`. La distinción que las ordena es entre dos clases de estado:
 
 | | Estado de interacción | Estado de dominio |
 |---|---|---|
@@ -341,7 +350,7 @@ Es una decisión, no una consecuencia de Atomic Design, y tiene un costo. Frost 
 
 Como en los capítulos 6 y 9, cada regla se ejecuta contra un árbol de `test/fixtures/` con exactamente una violación, y la prueba exige que la regla la señale en el archivo esperado. La suite `test/niveles/niveles.test.ts` tiene 9 pruebas: la que comprueba que `src/` se analiza de verdad, la que exige cero violaciones en `src/`, la que exige al menos un árbol por regla y una por cada uno de los seis árboles.
 
-Las reglas del capítulo 8 siguen vigentes en todos los niveles. El *lint* de tokens recorre ahora las ocho vistas. La prueba de contraste suma los dos tokens que pidieron los niveles superiores: `--ds-danger`, para los errores de `JField`, y `--ds-surface-raised`, para el fondo de `JConfirmDialog`. Su árbol de prueba es un `tokens.css` con el rojo oscuro del tema claro usado también en el oscuro: 2,76:1 sobre la superficie oscura, y la prueba exige que se informe.
+Las reglas del capítulo 8 siguen vigentes en todos los niveles. El *lint* de tokens recorre ahora las once vistas. La prueba de contraste suma los dos tokens que pidieron los niveles superiores: `--ds-danger`, para los errores de `JField`, y `--ds-surface-raised`, para el fondo de `JConfirmDialog`. Su árbol de prueba es un `tokens.css` con el rojo oscuro del tema claro usado también en el oscuro: 2,76:1 sobre la superficie oscura, y la prueba exige que se informe.
 
 > [!NOTE]
 > Un nivel nuevo trae tokens nuevos. Cuando un organismo necesita un fondo o un color que no existe, la respuesta correcta es un **rol** nuevo en `tokens.css`, con su par en la prueba de contraste, y no un primitivo en la vista.
@@ -398,12 +407,12 @@ it('una ruta interna no publicada no se puede importar (N4 a nivel de paquete)',
 });
 ```
 
-Otra prueba del mismo archivo comprueba que el paquete cargado expone exactamente los 16 nombres de la superficie: ocho entradas y ocho objetos `DEFAULTS`. La que se ve arriba muestra N4 aplicado al paquete. El mapa `exports` es la exportación pública del sistema de diseño entero, y Node la hace cumplir en tiempo de ejecución, además del compilador.
+Otra prueba del mismo archivo comprueba que el paquete cargado expone exactamente los 22 nombres de la superficie: once entradas y once objetos `DEFAULTS`. La que se ve arriba muestra N4 aplicado al paquete. El mapa `exports` es la exportación pública del sistema de diseño entero, y Node la hace cumplir en tiempo de ejecución, además del compilador.
 
 > [!CAUTION]
 > Un paquete que solo se prueba desde su código fuente puede pasar todas sus pruebas y no cargar en ningún consumidor. **Pruebe el artefacto**: lo que está en `dist/`, cargado por el nombre del paquete, con el entorno de módulos de quien lo va a usar.
 
-El versionado no cambia respecto del capítulo 8. Este ejemplo no repite la instantánea de la superficie ni la clasificación automática de la versión; un sistema de diseño real las necesita, porque `exports` dice qué rutas existen pero no qué propiedades tiene cada contrato.
+El versionado no cambia respecto del capítulo 8. Este ejemplo no repite la instantánea de la superficie ni la clasificación automática de la versión; un sistema de diseño real las necesita, porque `exports` dice qué rutas existen pero no qué propiedades tiene cada contrato. La versión 1.1.0, la de los átomos semánticos del capítulo 16, se clasificó a mano con el criterio del capítulo 8: solo agrega exportaciones y una propiedad opcional (`name` en `JInput`), así que es un cambio menor, y los consumidores de los capítulos 14 y 15 no cambiaron una línea.
 
 ---
 
@@ -453,23 +462,24 @@ El diseñador necesita ver el sistema de diseño funcionando antes de que exista
 | Archivo de prueba | Pruebas | Qué protege |
 |---|--:|---|
 | `test/niveles/niveles.test.ts` | 9 | Las cuatro reglas entre niveles, cada una con su árbol |
+| `test/semantica/semantica.test.ts` | 8 | Las reglas 5 y 6 del capítulo 16: títulos solo de `JHeading`, enlaces con destino |
 | `test/patron.test.ts` | 4 | Anatomía JONA en los cuatro niveles y `DEFAULTS` sin estado |
-| `test/tokens.test.ts` | 23 | Las ocho vistas pintan solo con `clasesToken`; cada clase tiene su regla CSS |
+| `test/tokens.test.ts` | 32 | Las once vistas pintan solo con `clasesToken`; cada clase tiene su regla CSS |
 | `test/contraste.test.ts` | 5 | Contraste WCAG de ocho pares semánticos en tres modos |
 | `test/superficie.test.ts` | 3 | La superficie pública y el mapa `exports` |
 | `test/paquete.test.ts` | 3 | Node carga el paquete compilado; una ruta interna falla |
-| `test/atomos.test.tsx` | 7 | Comportamiento y accesibilidad de los átomos |
+| `test/atomos.test.tsx` | 23 | Comportamiento y accesibilidad de los átomos; lo que no debe compilar, con `@ts-expect-error` |
 | `test/moleculas.test.tsx` | 8 | Asociación de etiqueta, ayuda y error; borrador y envío de la búsqueda |
 | `test/organismos.test.tsx` | 9 | Tabla genérica con acciones por fila; foco, Escape y retorno del foco del diálogo |
-| `test/disposiciones.test.tsx` | 3 | Un único `h1`, huecos de acciones y contenido |
+| `test/disposiciones.test.tsx` | 4 | Un único `h1`, de `JHeading`, dentro de `<header>`; huecos de acciones y contenido |
 | `test/demo.test.tsx` | 2 | Una pantalla entera solo con el sistema de diseño |
-| **Total** | **76** | |
+| **Total** | **110** | |
 
 Ejemplo ejecutable: `ejemplos/sistema-diseno-atomico/` (`npm run build` antes de `npm test`, porque `paquete.test.ts` carga `dist/`).
 
 > [!TIP]
 > Cada regla del capítulo tiene algo que la hace fallar:
-> - Las reglas entre niveles tienen seis árboles en `test/fixtures/`.
+> - Las reglas entre niveles tienen seis árboles en `test/fixtures/`, y las reglas 5 y 6 del capítulo 16, cinco más.
 > - Los `DEFAULTS` sin estado tienen `anatomia-incompleta`.
 > - El *lint* de tokens tiene `VistaConColores.tsx`, y el contraste, `tokens-debiles.css`.
 > - La superficie del paquete se pone a prueba con una ruta interna.
@@ -665,7 +675,7 @@ is not supported resolving ES modules imported from …\sistema-diseno-atomico\d
 "moduleResolution": "NodeNext",
 ```
 
-**Por qué duele.** El defecto aparece en el consumidor que no usa el mismo empaquetador que el autor, en un renderizado del lado del servidor o en un ejecutor de pruebas, y el autor no lo ve nunca en su propio entorno. **Cómo no caer:** pruebe el artefacto (figura 13.6). `paquete.test.ts` falla si Node no carga el paquete, si la superficie cargada no tiene los 16 nombres esperados o si una ruta interna deja de dar `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+**Por qué duele.** El defecto aparece en el consumidor que no usa el mismo empaquetador que el autor, en un renderizado del lado del servidor o en un ejecutor de pruebas, y el autor no lo ve nunca en su propio entorno. **Cómo no caer:** pruebe el artefacto (figura 13.6). `paquete.test.ts` falla si Node no carga el paquete, si la superficie cargada no tiene los 22 nombres esperados o si una ruta interna deja de dar `ERR_PACKAGE_PATH_NOT_EXPORTED`.
 
 ---
 

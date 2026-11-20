@@ -1,0 +1,3 @@
+# Violación: no dice dónde está el sitemap.
+User-agent: *
+Allow: /
