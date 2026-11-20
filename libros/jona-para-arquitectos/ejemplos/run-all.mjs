@@ -56,6 +56,9 @@ const STEPS = [
   ...npmProject('sistema-diseno-atomico', VITEST),
   // Capítulo 14: aplicación con FSD, Clean/Hexagonal y JONA que consume el sistema de diseño del 13.
   ...npmProject('aplicacion-catalogo', VITEST),
+  // Capítulo 15: un BFF hexagonal delante de dos backends, y el catálogo con SSR (usa el sistema de diseño del 13).
+  ...npmProject('catalogo-bff', VITEST),
+  ...npmProject('catalogo-ssr', VITEST),
   // Capítulo 9: un catálogo de reglas JONA verificado en TypeScript, Java (ArchUnit) y C# (ArchUnitNET).
   ...npmProject('gobierno/ts', NODE_TEST),
   { name: 'gobierno/java', dir: at('gobierno', 'java'), cmd: 'mvn -B test', count: SUREFIRE },
@@ -101,6 +104,8 @@ function clean() {
     ['evolucion', 'node_modules'], ['evolucion', 'dist'],
     ['sistema-diseno-atomico', 'node_modules'], ['sistema-diseno-atomico', 'dist'],
     ['aplicacion-catalogo', 'node_modules'], ['aplicacion-catalogo', 'dist'],
+    ['catalogo-bff', 'node_modules'], ['catalogo-bff', 'dist'],
+    ['catalogo-ssr', 'node_modules'], ['catalogo-ssr', 'dist'],
     ['gobierno', 'ts', 'node_modules'], ['gobierno', 'ts', 'dist'], ['gobierno', 'java', 'target'],
     ['gobierno', 'dotnet', 'bin'], ['gobierno', 'dotnet', 'obj'],
     ['..', 'herramientas', 'diagramas', 'node_modules'],
@@ -146,6 +151,28 @@ async function startMockServer() {
   return { url, stop: () => child.kill() };
 }
 
+/** Los dos backends simulados y el BFF del capítulo 15 (catalogo-bff), en puertos libres. */
+async function startBffStack() {
+  const child = spawn(process.execPath, [at('catalogo-bff', 'dist', 'arrancar.js')], {
+    env: { ...process.env, BFF_PUERTO: '0', CATALOGO_PUERTO: '0', INVENTARIO_PUERTO: '0' }, stdio: ['ignore', 'pipe', 'inherit'],
+  });
+  const urls = await new Promise((resolve, reject) => {
+    let output = '';
+    child.stdout.on('data', (chunk) => {
+      output += String(chunk);
+      const found = Object.fromEntries([...output.matchAll(/(catalogo|inventario|BFF) listo en (http:\/\/127\.0\.0\.1:\d+)/g)].map((m) => [m[1], m[2]]));
+      if (found.catalogo && found.inventario && found.BFF) resolve(found);
+    });
+    child.on('exit', (code) => reject(new Error(`El BFF terminó con código ${code}`)));
+  });
+  return { ...urls, stop: () => child.kill() };
+}
+
+// La suite de contrato HTTP del capítulo 14, sin cambiar una línea de la aplicación, contra el BFF.
+const BFF_STEPS = [
+  { name: 'contrato BFF (aplicacion-catalogo)', dir: at('aplicacion-catalogo'), cmd: 'npx vitest run src/entities/producto/api/crearRepositorioHttp.test.ts', count: VITEST },
+];
+
 if (process.argv.includes('--limpio')) clean();
 
 const results = STEPS.map((step) => run(step));
@@ -157,6 +184,16 @@ try {
 } finally {
   mock.stop();
   console.log('Servidor mock detenido.');
+}
+
+const bff = await startBffStack();
+console.log(`\nBFF arrancado en ${bff.BFF} (catalogo en ${bff.catalogo}, inventario en ${bff.inventario})`);
+try {
+  const reiniciar = [bff.catalogo, bff.inventario].map((url) => `${url}/__pruebas/reiniciar`).join(',');
+  for (const step of BFF_STEPS) results.push(run(step, { CATALOGO_API_URL: bff.BFF, CATALOGO_REINICIAR: reiniciar }));
+} finally {
+  bff.stop();
+  console.log('BFF detenido.');
 }
 
 console.log('\nResumen');

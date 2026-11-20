@@ -41,6 +41,9 @@ Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres d
 | **Props** | Tipo de datos de la vista, separado del contrato cuando la unidad es grande | [2](02-anatomia.md) | — |
 | **Composición de demostración o prueba** | Una historia o una prueba que une piezas internas (por ejemplo, la vista con el modelo base). No es una segunda entrada: nada de la aplicación la importa | [2](02-anatomia.md) | — |
 | **Raíz de composición** | El único lugar de la aplicación que elige los adaptadores (por ejemplo, `app/createAuthService.ts`) | [6](06-atomic-fsd-hexagonal.md) | *composition root* |
+| **Raíz de composición por petición** | En un servidor, la raíz exporta una fábrica que se arma una vez con el entorno, y lo propio de cada petición (el usuario, la traza) se crea en cada petición. Una instancia de módulo lo compartirían todas | [15](15-bff-y-ssr.md) | *per-request composition root* |
+| **Implementación de servidor / de cliente** | Con SSR, la Implementación se parte en dos: la del servidor es una función que carga por el puerto y llena la cara de datos; la del cliente es un *hook* con estado de interacción y eventos, que no vuelve a cargar al montarse | [15](15-bff-y-ssr.md) | — |
+| **Cara de datos** (contrato serializable) | La parte del contrato de UI que llena el servidor y viaja en el HTML: solo valores que el transporte conserva (con JSON, ni funciones ni instancias). La cara de eventos solo existe en el cliente | [15](15-bff-y-ssr.md) | — |
 
 ## Las formas
 
@@ -93,6 +96,10 @@ Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres d
 | **Borrador** | Lo que el usuario escribe en un formulario, siempre como texto y sin validar. La función de dominio que lo valida es la frontera con el objeto del dominio | [14](14-aplicacion-fsd-hexagonal.md) | *draft* |
 | **Caso de uso** | Lógica de aplicación entre la Implementación y el puerto. Se agrega solo cuando tiene responsabilidad propia: combinar reglas del dominio, elegir entre llamadas al puerto o traducir errores | [6](06-atomic-fsd-hexagonal.md), [14](14-aplicacion-fsd-hexagonal.md) | *use case* |
 | **Widget** | En FSD, la capa que combina funcionalidades en un bloque de pantalla. En el capítulo 14, una unidad JONA cuya Implementación coordina dos funcionalidades que no se conocen | [14](14-aplicacion-fsd-hexagonal.md) | *widget* |
+| **BFF** | *Backend for frontend*: un servidor dedicado a una experiencia de usuario, que sirve el contrato de API de esa interfaz y compone los backends de negocio. Traduce, agrega y compensa; no decide reglas de negocio | [15](15-bff-y-ssr.md) | *backend for frontend* |
+| **Compensación** | Deshacer un paso ya hecho cuando el siguiente falla, en una escritura que toca dos servicios. Evita escrituras a medias por fallos técnicos; no es una transacción | [15](15-bff-y-ssr.md) | *compensation* |
+| **SSR** | Renderizado en el servidor: el servidor devuelve la página ya dibujada y el navegador la hidrata | [15](15-bff-y-ssr.md) | *server-side rendering* |
+| **Hidratación** | Unir React al HTML que dibujó el servidor (`hydrateRoot`), sin volver a dibujarlo. Exige que el árbol produzca en el navegador lo mismo que en el servidor | [15](15-bff-y-ssr.md) | *hydration* |
 
 ## Sistemas de diseño
 
