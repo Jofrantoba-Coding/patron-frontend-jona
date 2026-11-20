@@ -5,7 +5,7 @@ import { JFIELD_DEFAULTS, type InterJFieldVista } from './InterJField.js';
 
 /** Vista: compone los átomos JInput y JText; render puro. */
 export function JFieldView({
-  label, value, onChange, hint, error, inputId, hintId, errorId,
+  label, value, onChange, hint, error, inputId, hintId, errorId, autoComplete,
   type = JFIELD_DEFAULTS.type,
   required = JFIELD_DEFAULTS.required,
   disabled = JFIELD_DEFAULTS.disabled,
@@ -19,6 +19,7 @@ export function JFieldView({
       <JInput
         id={inputId}
         type={type}
+        autoComplete={autoComplete}
         value={value}
         onChange={onChange}
         required={required}

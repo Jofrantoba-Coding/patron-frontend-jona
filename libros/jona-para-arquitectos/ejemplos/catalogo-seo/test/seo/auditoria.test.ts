@@ -5,7 +5,8 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { auditarSeo, auditarSitio, REGLAS_PAGINA, type ContextoPagina, type PaginaAuditada, type ReglaPagina, type ReglaSitio } from './auditarSeo';
 
-const leer = (archivo: string) => readFileSync(new URL(`../fixtures/seo/${archivo}`, import.meta.url), 'utf8');
+// Con core.autocrlf, git deja los fixtures con CRLF en Windows: se leen con saltos de línea LF.
+const leer = (archivo: string) => readFileSync(new URL(`../fixtures/seo/${archivo}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 
 const BASE = 'https://catalogo.example';
 const TECLADO = `${BASE}/productos/TEC-001`;

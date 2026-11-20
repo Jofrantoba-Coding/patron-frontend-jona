@@ -1,8 +1,10 @@
 # sistema-diseno-atomico
 
-Ejemplo del capítulo 13: un sistema de diseño construido nivel por nivel con Atomic Design, donde cada componente es una unidad JONA. Seis átomos, dos moléculas, dos organismos y una disposición, más las pruebas que sostienen las reglas entre niveles. Lo consumen como paquete la aplicación del capítulo 14 (`../aplicacion-catalogo`) y los catálogos de los capítulos 15 y 16 (`../catalogo-ssr`, `../catalogo-seo`).
+Ejemplo del capítulo 13: un sistema de diseño construido nivel por nivel con Atomic Design, donde cada componente es una unidad JONA. Seis átomos, dos moléculas, dos organismos y una disposición, más las pruebas que sostienen las reglas entre niveles. Lo consumen como paquete la aplicación del capítulo 14 (`../aplicacion-catalogo`) y los catálogos de los capítulos 15, 16 y 17 (`../catalogo-ssr`, `../catalogo-seo`, `../catalogo-seguro`).
 
 La versión 1.1.0 (capítulo 16) agrega los átomos semánticos `JHeading`, `JLink` y `JImage`, la propiedad `name` de `JInput`, y las reglas 5 y 6: la semántica de la página, que un rastreador lee del HTML, es responsabilidad del sistema de diseño. Es un cambio menor: solo agrega exportaciones y propiedades opcionales.
+
+La versión 1.2.0 (capítulo 17) agrega el campo de contraseña: `password` en los tipos de `JInput` y `JField`, y la propiedad `autoComplete`, con los valores del atributo HTML que reconocen el navegador y el gestor de contraseñas (`username`, `current-password`, `new-password`, `email`, `off`). También es un cambio menor.
 
 ```bash
 npm ci

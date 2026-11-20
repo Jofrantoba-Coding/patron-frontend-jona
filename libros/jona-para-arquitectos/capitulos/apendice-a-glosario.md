@@ -1,6 +1,6 @@
 # Apéndice A. Glosario
 
-Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres de las piezas; los demás capítulos agregan los términos de flujo, verificación, decisión, migración y evolución. Cada entrada indica el capítulo donde el término se define o se trata con más detalle y, cuando existe, su nombre habitual en inglés.
+Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres de las piezas; los demás capítulos agregan los términos de flujo, verificación, decisión, migración, evolución y seguridad. Cada entrada indica el capítulo donde el término se define o se trata con más detalle y, cuando existe, su nombre habitual en inglés.
 
 > [!NOTE]
 > Algunas palabras tienen un sentido distinto fuera de JONA: «plantilla» en Atomic Design, «vista» en la nomenclatura previa del patrón, *fixture* en el capítulo 9 y en THC-C. Las entradas marcadas con ⚠ lo aclaran.
@@ -129,6 +129,21 @@ Este glosario reúne el vocabulario del libro. El capítulo 2 fija los nombres d
 | **Sitemap** | Archivo XML con las URL absolutas que un sitio quiere ver en los resultados. Se declara en robots.txt con la línea `Sitemap:` | [16](16-seo.md) | *sitemap* |
 | **Datos estructurados** (JSON-LD) | Una descripción de la página con el vocabulario de schema.org (por ejemplo, `Product` con su `Offer`), en un `<script type="application/ld+json">` que hay que escapar como los datos incrustados | [16](16-seo.md) | *structured data*, *JSON-LD* |
 | **Core Web Vitals** (LCP) | Tres métricas de la experiencia medidas en navegadores reales: LCP (carga), INP (interactividad) y CLS (estabilidad visual). LCP mide cuándo se dibuja el elemento más grande visible, a menudo la imagen principal | [16](16-seo.md) | *Core Web Vitals*, *Largest Contentful Paint* |
+
+## Seguridad
+
+| Término | Definición | Capítulo | En inglés |
+|---|---|---|---|
+| **Frontera de confianza** | La línea entre lo que controla quien usa la aplicación (el navegador, el binario de escritorio) y lo que controla el sistema (el servidor). En JONA coincide con el contrato de servicio: del lado del cliente, las piezas no abren puertas; del lado del servidor, deciden | [17](17-desarrollo-seguro.md) | *trust boundary* |
+| **Permisos como datos** | Los permisos que el servidor calcula para la sesión y la interfaz recibe en su contrato de UI. Deciden qué se ofrece, nunca qué se permite: el servidor vuelve a comprobar cada acción con la misma tabla | [17](17-desarrollo-seguro.md) | — |
+| **Tipo con marca** | Un tipo que agrega a otro una propiedad que solo existe en el sistema de tipos, y que solo produce una función. `UrlSegura` es un `string` que pasó por `aUrlSegura`: un texto sin validar no compila donde el contrato la pide | [17](17-desarrollo-seguro.md) | *branded type* |
+| **XSS** | Inyección de código en la página: un dato que el navegador termina interpretando como HTML o script. Anula las demás defensas del cliente, también la de CSRF | [17](17-desarrollo-seguro.md) | *cross-site scripting* |
+| **CSRF** | Una página ajena hace que el navegador de la víctima envíe una petición al sitio, y la cookie de sesión viaja sola. Se defiende con una cabecera propia obligatoria y la comprobación del origen; `SameSite` es una capa más | [17](17-desarrollo-seguro.md) | *cross-site request forgery* |
+| **Cookie `__Host-` HttpOnly** | La cookie de sesión del BFF. `HttpOnly`: JavaScript no la lee. El prefijo `__Host-` obliga a `Secure`, `Path=/` y a no tener `Domain`. Con `SameSite=Strict`, no viaja desde otro sitio | [17](17-desarrollo-seguro.md) | *host-only cookie* |
+| **Fijación de sesión** | Que el atacante logre que la víctima use un identificador de sesión que él ya conoce. Se evita renovando el identificador en cada inicio de sesión | [17](17-desarrollo-seguro.md) | *session fixation* |
+| **CSP estricta** | Política de seguridad de contenido que solo deja ejecutar los scripts con el nonce (o el hash) de la respuesta, más los que esos carguen (`'strict-dynamic'`). Es una segunda capa contra XSS, no la primera | [17](17-desarrollo-seguro.md) | *strict Content Security Policy* |
+| **Nonce** | Un valor aleatorio, distinto en cada respuesta, que la CSP y los `<script>` del documento comparten. Por eso el documento lo compone un servidor y no un archivo estático | [17](17-desarrollo-seguro.md) | *nonce* |
+| **Control positivo** | En una prueba que busca algo que no debe estar, la comprobación de que la misma búsqueda sí lo encuentra donde debe estar. Sin ella, la prueba pasaría también buscando mal | [17](17-desarrollo-seguro.md) | *positive control* |
 
 ## Verificación y gobierno
 

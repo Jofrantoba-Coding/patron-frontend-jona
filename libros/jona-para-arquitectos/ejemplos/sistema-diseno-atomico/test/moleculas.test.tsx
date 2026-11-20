@@ -49,6 +49,17 @@ describe('JField', () => {
 
     expect(await violacionesGraves(container)).toEqual([]);
   });
+
+  it('contraseña: un campo password con el autocompletado que espera el gestor de contraseñas', () => {
+    const { container } = render(<><JField label="Correo" type="email" autoComplete="username" value="" /><JField label="Contraseña" type="password" autoComplete="current-password" value="" /></>);
+
+    const clave = container.querySelector('input[type="password"]')!;
+    expect(clave.getAttribute('autocomplete')).toBe('current-password');
+    expect(clave.id).toBe(screen.getByText('Contraseña').getAttribute('for'));
+    expect(screen.getByRole('textbox', { name: 'Correo' }).getAttribute('autocomplete')).toBe('username');
+    // @ts-expect-error el autocompletado es una lista cerrada: un texto libre no compila.
+    void (<JField label="Contraseña" type="password" autoComplete="contraseña" value="" />);
+  });
 });
 
 describe('JSearchBox', () => {
