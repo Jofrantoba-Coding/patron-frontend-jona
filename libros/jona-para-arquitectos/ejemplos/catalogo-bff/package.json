@@ -1,0 +1,20 @@
+{
+  "name": "jona-ejemplo-catalogo-bff",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BFF hexagonal que sirve la API REST de productos del capítulo 14 componiendo dos backends de negocio simulados (capítulo 15)",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc --noEmit && tsc -p tsconfig.build.json",
+    "start": "node dist/arrancar.js",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.30",
+    "typescript": "5.8.3",
+    "vitest": "3.2.4"
+  }
+}

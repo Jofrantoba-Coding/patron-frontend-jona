@@ -36,6 +36,14 @@ El sistema de diseño ocupa el lugar de `shared/ui`.
 
 La suite de contrato del adaptador HTTP corre contra `test/servidorProductos.ts`, un servidor de la API REST que se arranca en un puerto libre durante la prueba.
 
+Con `CATALOGO_API_URL=<url>`, la misma suite corre contra un servidor externo, por ejemplo el BFF de `../catalogo-bff` (capítulo 15). `CATALOGO_REINICIAR=<url>[,<url>...]` son rutas de solo prueba que se llaman con `POST` antes de cada prueba para empezar vacío:
+
+```bash
+CATALOGO_API_URL=http://127.0.0.1:4020 \
+CATALOGO_REINICIAR=http://127.0.0.1:4021/__pruebas/reiniciar,http://127.0.0.1:4022/__pruebas/reiniciar \
+npx vitest run src/entities/producto/api/crearRepositorioHttp.test.ts
+```
+
 ## Las siete reglas (`test/architecture`)
 
 Las reglas 1 a 5 son las de `ejemplos/web-fsd` (capítulo 6). Este ejemplo agrega:

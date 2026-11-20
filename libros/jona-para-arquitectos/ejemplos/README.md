@@ -8,7 +8,7 @@ Cada ejemplo tiene su propio `README.md` con sus comandos y sus detalles de ejec
 
 | Herramienta | Versión verificada | Para qué |
 |---|---|---|
-| Node.js y npm | Node 22, npm 10 | `mock-server`, `flujo-bdd`, `web-react`, `web-ts-puro`, `web-angular`, `web-vue`, `electron`, `web-fsd`, `patrones-comparados`, `sistema-diseno`, `sistema-diseno-atomico`, `aplicacion-catalogo`, `costo-de-cambio`, `migracion`, `evolucion`, `gobierno/ts`, `contratos-multilenguaje/typescript` y el ejecutor general |
+| Node.js y npm | Node 22, npm 10 | `mock-server`, `flujo-bdd`, `web-react`, `web-ts-puro`, `web-angular`, `web-vue`, `electron`, `web-fsd`, `patrones-comparados`, `sistema-diseno`, `sistema-diseno-atomico`, `aplicacion-catalogo`, `catalogo-bff`, `catalogo-ssr`, `costo-de-cambio`, `migracion`, `evolucion`, `gobierno/ts`, `contratos-multilenguaje/typescript` y el ejecutor general |
 | JDK | 21 | `java-swing`, `java-javafx`, `gobierno/java` y `contratos-multilenguaje/kotlin` |
 | Maven | 3.9, ejecutándose sobre el JDK 21 | Compila Java, JavaFX y Kotlin (Kotlin no necesita `kotlinc`: lo compila `kotlin-maven-plugin`; JavaFX llega desde Maven Central) |
 | .NET SDK | 10 | `contratos-multilenguaje/csharp`, `dotnet-wpf` y `gobierno/dotnet` |
@@ -28,7 +28,7 @@ npm run all            # o: node run-all.mjs
 npm run all:limpio     # lo mismo, borrando antes node_modules, dist, target, bin y obj
 ```
 
-El ejecutor instala, compila y prueba cada ejemplo en secuencia. Al final arranca el servidor mock como si fuera el backend real y vuelve a correr las suites de contrato de `web-react`, `web-fsd`, `java-swing`, `java-javafx` y `dotnet-wpf` contra él (variable `CONTRATO_API_URL`). Fuera de Windows omite la compilación de la aplicación WPF, pero sigue probando su Implementación y su adaptador. Imprime un resumen con el resultado y la cantidad de pruebas de cada paso, y termina con código distinto de cero si algo falla.
+El ejecutor instala, compila y prueba cada ejemplo en secuencia. Al final arranca el servidor mock como si fuera el backend real y vuelve a correr las suites de contrato de `web-react`, `web-fsd`, `java-swing`, `java-javafx` y `dotnet-wpf` contra él (variable `CONTRATO_API_URL`). Después arranca los dos backends simulados y el BFF de `catalogo-bff` en puertos libres, y corre la suite de contrato HTTP de `aplicacion-catalogo` contra el BFF (variables `CATALOGO_API_URL` y `CATALOGO_REINICIAR`): es la prueba del capítulo 15 de que la aplicación funciona contra el BFF sin cambios. Fuera de Windows omite la compilación de la aplicación WPF, pero sigue probando su Implementación y su adaptador. Imprime un resumen con el resultado y la cantidad de pruebas de cada paso, y termina con código distinto de cero si algo falla.
 
 ## Estructura
 
@@ -47,6 +47,8 @@ ejemplos/
 ├── sistema-diseno/            # sistema de diseño mínimo: tokens, temas, contraste, axe-core y versionado
 ├── sistema-diseno-atomico/    # sistema de diseño por niveles de Atomic Design, cada componente una unidad JONA
 ├── aplicacion-catalogo/       # catálogo de productos con FSD, Clean/Hexagonal y JONA, sobre el sistema de diseño anterior
+├── catalogo-bff/              # BFF hexagonal delante de dos backends simulados; sirve la API del catálogo anterior
+├── catalogo-ssr/              # la lista del catálogo renderizada en el servidor a mano, con la Implementación partida en dos
 ├── costo-de-cambio/           # la misma pantalla directa y con JONA, cinco cambios medidos
 ├── migracion/                 # una pantalla heredada llevada a JONA en nueve pasos, con deuda medida
 ├── evolucion/                 # nomenclatura previa frente a la canónica, y observaciones medidas sobre THC-C
@@ -84,6 +86,8 @@ ejemplos/
 | Capítulo 10: costo de partida y costo de cada cambio, directo frente a JONA | `costo-de-cambio/`, `costo-de-cambio/resultados.json` |
 | Capítulo 13: niveles de Atomic Design como unidades JONA; reglas entre niveles; el paquete probado como lo carga un consumidor | `sistema-diseno-atomico/`, `sistema-diseno-atomico/test/niveles/reglas.ts` |
 | Capítulo 14: dominio puro, puerto con dos adaptadores y suite de contrato, caso de uso, widget que coordina funcionalidades, siete reglas de arquitectura | `aplicacion-catalogo/`, `aplicacion-catalogo/test/architecture/rules.ts` |
+| Capítulo 15: BFF con un puerto por backend, traducción, agregación y compensación; la suite de la SPA contra el BFF | `catalogo-bff/`, `catalogo-bff/src/manejadores/crearManejadoresProductos.ts`, `catalogo-bff/test/architecture/reglas.ts` |
+| Capítulo 15: SSR con la Implementación partida en dos, cara de datos serializable, incrustación segura, raíz por petición y bundle del cliente sin código del servidor | `catalogo-ssr/`, `catalogo-ssr/src/ui/catalogo/`, `catalogo-ssr/test/architecture/reglas.ts`, `catalogo-ssr/test/artefacto.test.ts` |
 | Contrato del capítulo 1 en varios lenguajes | `contratos-multilenguaje/` |
 
 ## Datos de prueba
@@ -182,6 +186,18 @@ Instrucciones: [sistema-diseno-atomico/README.md](sistema-diseno-atomico/README.
 El ejemplo del capítulo 14: alta, consulta, modificación y baja de productos con FSD entre unidades, un dominio puro y un puerto con dos adaptadores, y unidades JONA que dibujan con el sistema de diseño del capítulo 13, instalado como paquete (`file:../sistema-diseno-atomico`). Hay que compilar antes ese sistema de diseño.
 
 Instrucciones: [aplicacion-catalogo/README.md](aplicacion-catalogo/README.md).
+
+## catalogo-bff
+
+El primer ejemplo del capítulo 15: un BFF hexagonal que sirve la API REST de `aplicacion-catalogo` componiendo dos backends de negocio simulados, catalogo e inventario, con contratos propios. Traduce formatos, agrega y compensa una escritura a medias; la regla de unicidad del SKU queda en catalogo. Node, TypeScript y Vitest, sin dependencias de ejecución.
+
+Instrucciones: [catalogo-bff/README.md](catalogo-bff/README.md).
+
+## catalogo-ssr
+
+El segundo ejemplo del capítulo 15: la lista de productos con búsqueda y baja renderizada en el servidor a mano, con React 19 (`renderToString` y `hydrateRoot`), Vite y un servidor `node:http`, y las vistas del sistema de diseño del capítulo 13 (`file:../sistema-diseno-atomico`). Hay que compilar antes ese sistema de diseño, y `npm run build` antes de `npm test`.
+
+Instrucciones: [catalogo-ssr/README.md](catalogo-ssr/README.md).
 
 ## gobierno
 

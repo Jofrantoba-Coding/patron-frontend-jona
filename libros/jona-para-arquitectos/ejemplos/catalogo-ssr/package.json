@@ -1,0 +1,33 @@
+{
+  "name": "jona-ejemplo-catalogo-ssr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "El catálogo de productos con renderizado en el servidor escrito a mano: la Implementación partida en dos, hidratación y raíz de composición por petición (capítulo 15)",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc --noEmit && vite build && vite build --ssr src/servidor/principal.ts --outDir dist/server",
+    "start": "node dist/server/principal.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@jona-libro/ds-atomico": "file:../sistema-diseno-atomico",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.0",
+    "@testing-library/react": "16.3.0",
+    "@testing-library/user-event": "14.6.1",
+    "@types/node": "22.15.30",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "@vitejs/plugin-react": "4.5.2",
+    "jsdom": "26.1.0",
+    "typescript": "5.8.3",
+    "vite": "6.3.5",
+    "vitest": "3.2.4"
+  }
+}

@@ -1,6 +1,6 @@
 # Apéndice C. Referencias
 
-Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué capítulos aparece. Los enlaces se comprobaron el 31 de octubre de 2026. Medium, npm y ResearchGate rechazan las comprobaciones automáticas, así que esos enlaces se verificaron de otra manera: `jona-ui` en el registro de npm, el artículo de THC-C en el canal RSS de su autor, el artículo de 2024 en su copia en PDF y el de Abramov en su copia archivada en web.archive.org. Las especificaciones y herramientas se citan en la versión que usan los ejemplos cuando esa versión importa.
+Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué capítulos aparece. Los enlaces se comprobaron el 31 de octubre de 2026, y los que agregó el capítulo 15, el 19 de noviembre de 2026. Medium, npm y ResearchGate rechazan las comprobaciones automáticas, así que esos enlaces se verificaron de otra manera: `jona-ui` en el registro de npm, el artículo de THC-C en el canal RSS de su autor, el artículo de 2024 en su copia en PDF y el de Abramov en su copia archivada en web.archive.org. Las especificaciones y herramientas se citan en la versión que usan los ejemplos cuando esa versión importa.
 
 ---
 
@@ -23,10 +23,20 @@ Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué c
 
 ## Arquitectura y organización del código
 
-- **Frost, Brad** (2016). *Atomic Design*. <https://atomicdesign.bradfrost.com/> · Capítulos 6, 12, 13, 14.
+- **Frost, Brad** (2016). *Atomic Design*. <https://atomicdesign.bradfrost.com/> · Capítulos 6, 12, 13, 14, 15.
 - **Feature-Sliced Design**. Documentación de la metodología. <https://feature-sliced.design/> · Capítulos 6, 14.
-- **Cockburn, Alistair** (2005). *Hexagonal Architecture* (puertos y adaptadores). <https://alistair.cockburn.us/hexagonal-architecture/> · Capítulos 1, 6, 14.
+- **Cockburn, Alistair** (2005). *Hexagonal Architecture* (puertos y adaptadores). <https://alistair.cockburn.us/hexagonal-architecture/> · Capítulos 1, 6, 14, 15.
 - **Martin, Robert C.** (2017). *Clean Architecture: A Craftsman's Guide to Software Structure and Design*. Prentice Hall · Capítulos 6, 14.
+
+## BFF y renderizado en el servidor
+
+- **Newman, Sam** (2015, 18 de noviembre). *Pattern: Backends For Frontends*. Un BFF por tipo de cliente («una experiencia, un BFF»), agregación y degradación ante fallos. <https://samnewman.io/patterns/architectural/bff/> · Capítulo 15.
+- **React**: `renderToString`, con sus límites y las alternativas de *streaming*. <https://react.dev/reference/react-dom/server/renderToString> · `renderToPipeableStream`: <https://react.dev/reference/react-dom/server/renderToPipeableStream> · Capítulo 15.
+- **React**: `hydrateRoot`, `onRecoverableError` y las diferencias de hidratación. <https://react.dev/reference/react-dom/client/hydrateRoot> · Capítulo 15.
+- **React**: `'use client'` y los tipos serializables entre componentes de servidor y de cliente. <https://react.dev/reference/rsc/use-client> · Capítulo 15.
+- **Vite**: guía de renderizado en el servidor; compilaciones del cliente y del servidor, y dependencias enlazadas. <https://vite.dev/guide/ssr> · Capítulo 15.
+- **Next.js 16** (App Router): *Server and Client Components*, con `'use client'` y `server-only` <https://nextjs.org/docs/app/getting-started/server-and-client-components> · *Mutating Data*, con `'use server'` <https://nextjs.org/docs/app/getting-started/mutating-data> · `headers` <https://nextjs.org/docs/app/api-reference/functions/headers> · Capítulo 15.
+- **React Router 8** (modo *framework*): *Data Loading* <https://reactrouter.com/start/framework/data-loading> · *Actions* <https://reactrouter.com/start/framework/actions> · *Route Module* <https://reactrouter.com/start/framework/route-module> · módulos `.server` <https://reactrouter.com/api/framework-conventions/server-modules> · `LoaderFunctionArgs` <https://api.reactrouter.com/v7/interfaces/react-router.LoaderFunctionArgs.html> · Capítulo 15.
 
 ## Evolución, verificación y migración
 
@@ -57,7 +67,7 @@ Las fuentes que el libro cita, agrupadas por tema. Cada entrada indica en qué c
 - **NetArchTest** (.NET). <https://github.com/BenMorris/NetArchTest> · Capítulo 9.
 - **dependency-cruiser** (JavaScript y TypeScript). <https://github.com/sverweij/dependency-cruiser> · Capítulo 9.
 - **Konsist** (Kotlin). <https://github.com/LemonAppDev/konsist> · Capítulo 9.
-- **API del compilador de TypeScript**. <https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API> · Capítulos 6, 9, 12, 13, 14.
+- **API del compilador de TypeScript**. <https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API> · Capítulos 6, 9, 12, 13, 14, 15.
 - **CODEOWNERS** en GitHub. <https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners> · Capítulo 9.
 
 ## Otras herramientas usadas en los ejemplos

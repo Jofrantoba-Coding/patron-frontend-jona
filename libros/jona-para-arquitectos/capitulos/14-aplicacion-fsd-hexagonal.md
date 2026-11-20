@@ -718,3 +718,5 @@ else setErrores(resultado.errores);
 - Dos funcionalidades que no pueden conocerse cooperan a través de un widget: su Implementación coordina y su entrada las compone.
 - El sistema de diseño se importa desde `ui/` y por su raíz. Lo que la aplicación necesite y el sistema de diseño no tenga se pide, no se imita.
 - Siete reglas sostienen la combinación: las cinco del capítulo 6, con sus funciones sin cambios, y dos nuevas, modelo sin framework y sistema de diseño en su lugar. Cada una tiene un árbol de violación.
+
+El capítulo 15 pone esta misma aplicación detrás de un BFF, sin cambiar una línea, y renderiza su lista en el servidor con SSR.
