@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Violación: lista la búsqueda, que es noindex. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://catalogo.example/productos/TEC-001</loc></url>
+  <url><loc>https://catalogo.example/productos/MOU-002</loc></url>
+  <url><loc>https://catalogo.example/buscar</loc></url>
+</urlset>

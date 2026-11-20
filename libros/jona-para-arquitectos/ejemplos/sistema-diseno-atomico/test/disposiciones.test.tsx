@@ -19,6 +19,15 @@ describe('JPageLayout', () => {
     expect(screen.getByRole('main').textContent).toBe('Contenido');
   });
 
+  it('el h1 es un JHeading de nivel 1, dentro del encabezado y antes del contenido principal', () => {
+    render(<JPageLayout title="Productos"><p>Contenido</p></JPageLayout>);
+
+    const titulo = screen.getByRole('heading', { level: 1 });
+    expect(titulo.className).toBe('ds-fg ds-heading-xl');
+    expect(screen.getByRole('banner').contains(titulo)).toBe(true);
+    expect(screen.getByRole('banner').compareDocumentPosition(screen.getByRole('main'))).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   it('sin acciones, el hueco no deja un contenedor vacío', () => {
     render(<JPageLayout title="Productos"><p>Contenido</p></JPageLayout>);
 

@@ -34,8 +34,8 @@ const vistas = (readdirSync(SRC, { recursive: true }) as string[])
   .sort();
 
 describe('lint de tokens en las Vistas de todos los niveles', () => {
-  it('encuentra las ocho Vistas', () => {
-    expect(vistas).toHaveLength(8);
+  it('encuentra las once Vistas', () => {
+    expect(vistas).toHaveLength(11);
   });
 
   it.each(vistas)('%s pinta solo con clasesToken', (ruta) => {

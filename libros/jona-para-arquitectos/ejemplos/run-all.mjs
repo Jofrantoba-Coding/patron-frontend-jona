@@ -59,6 +59,8 @@ const STEPS = [
   // Capítulo 15: un BFF hexagonal delante de dos backends, y el catálogo con SSR (usa el sistema de diseño del 13).
   ...npmProject('catalogo-bff', VITEST),
   ...npmProject('catalogo-ssr', VITEST),
+  // Capítulo 16: SEO desde el sistema de diseño, un sitio estático y un servidor SSR, con una sola auditoría.
+  ...npmProject('catalogo-seo', VITEST),
   // Capítulo 9: un catálogo de reglas JONA verificado en TypeScript, Java (ArchUnit) y C# (ArchUnitNET).
   ...npmProject('gobierno/ts', NODE_TEST),
   { name: 'gobierno/java', dir: at('gobierno', 'java'), cmd: 'mvn -B test', count: SUREFIRE },
@@ -106,6 +108,7 @@ function clean() {
     ['aplicacion-catalogo', 'node_modules'], ['aplicacion-catalogo', 'dist'],
     ['catalogo-bff', 'node_modules'], ['catalogo-bff', 'dist'],
     ['catalogo-ssr', 'node_modules'], ['catalogo-ssr', 'dist'],
+    ['catalogo-seo', 'node_modules'], ['catalogo-seo', 'dist'],
     ['gobierno', 'ts', 'node_modules'], ['gobierno', 'ts', 'dist'], ['gobierno', 'java', 'target'],
     ['gobierno', 'dotnet', 'bin'], ['gobierno', 'dotnet', 'obj'],
     ['..', 'herramientas', 'diagramas', 'node_modules'],

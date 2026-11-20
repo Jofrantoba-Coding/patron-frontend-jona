@@ -13,7 +13,9 @@ describe('superficie pública del sistema de diseño', () => {
       'JBUTTON_DEFAULTS', 'JButton',
       'JCONFIRMDIALOG_DEFAULTS', 'JConfirmDialog',
       'JFIELD_DEFAULTS', 'JField',
-      'JINPUT_DEFAULTS', 'JInput',
+      'JHEADING_DEFAULTS', 'JHeading',
+      'JIMAGE_DEFAULTS', 'JINPUT_DEFAULTS', 'JImage', 'JInput',
+      'JLINK_DEFAULTS', 'JLink',
       'JPAGELAYOUT_DEFAULTS', 'JPageLayout',
       'JSEARCHBOX_DEFAULTS', 'JSearchBox',
       'JTABLE_DEFAULTS', 'JTEXT_DEFAULTS', 'JTable', 'JText',
@@ -27,7 +29,7 @@ describe('superficie pública del sistema de diseño', () => {
   });
 
   it('los tipos de las vistas tampoco se publican: el índice no reexporta ningún Inter*Vista', () => {
-    const indices = ['atomos/jbutton', 'atomos/jinput', 'atomos/jtext', 'moleculas/jfield', 'moleculas/jsearchbox',
+    const indices = ['atomos/jbutton', 'atomos/jheading', 'atomos/jimage', 'atomos/jinput', 'atomos/jlink', 'atomos/jtext', 'moleculas/jfield', 'moleculas/jsearchbox',
       'organismos/jtable', 'organismos/jconfirmdialog', 'disposiciones/jpagelayout']
       .map((unidad) => readFileSync(new URL(`../src/${unidad}/index.ts`, import.meta.url), 'utf8'));
 
